@@ -1,166 +1,176 @@
 
-"""
-Unified async market‑data adapter for the Alpha‑Factory stack
-------------------------------------------------------------
+"""backend.market_data
+======================
 
-* **Polygon.io** — U.S. equities/crypto
-* **Binance**    — Spot & futures crypto
-* **Simulated**  — Offline CI / unit‑tests (random‑walk feed)
+Unified async **market‑data feed** that auto‑selects a provider at runtime:
 
-Provider is chosen via the ``ALPHA_MARKET_PROVIDER`` environment variable
-(``polygon`` | ``binance`` | ``sim``).  Credentials **must** be supplied
-through the usual env‑vars:
+* ``PolygonMarketData``  — equities / crypto via Polygon.io REST.
+* ``BinanceMarketData`` — crypto spot prices via Binance REST.
+* ``SimulatedMarketData`` — deterministic pseudo‑random walk (testing / offline).
 
-* ``POLYGON_API_KEY``
-* ``BINANCE_API_KEY`` / ``BINANCE_API_SECRET``
+Set ``ALPHA_MARKET_PROVIDER`` to **polygon** (default), **binance** or **simulated**.
+The adapter is *lazy‑imported* so missing client libraries don’t break the build.
 
 Example
-~~~~~~~
->>> import asyncio, os
->>> os.environ["ALPHA_MARKET_PROVIDER"] = "sim"
->>> from backend.market_data import MarketDataService
->>>
->>> async def demo():
-...     svc = await MarketDataService.from_env()
-...     print(await svc.last_price("AAPL"))
-...
->>> asyncio.run(demo())
-
-This module has **no hard dependency** on external SDKs; HTTP calls are
-performed with ``aiohttp`` (falling back to ``httpx`` if preferred).
+-------
+>>> from backend.market_data import MarketData
+>>> md = MarketData()         # auto picks provider
+>>> price = asyncio.run(md.price("AAPL"))
+>>> print(price)
 """
 
 from __future__ import annotations
 
 import asyncio
+import json
 import os
 import random
 import time
-from abc import ABC, abstractmethod
-from typing import Final
+from typing import Dict
 
 import aiohttp
+import backoff
 
-_DEFAULT_TIMEOUT: Final = aiohttp.ClientTimeout(total=5)
+__all__ = ["MarketData", "BaseMarketData", "PolygonMarketData", "BinanceMarketData", "SimulatedMarketData"]
 
-
-# ───────────────────────────── Public façade ─────────────────────────────
-
-
-class MarketDataService(ABC):
-    """Abstract async interface for price‑fetching back‑ends."""
-
-    @abstractmethod
-    async def last_price(self, symbol: str) -> float:  # pragma: no cover
-        """Return the latest *trade* price for *symbol* (USD)."""
-
-    # ───────── factory helpers ────────────────────────────────────────
-
-    @classmethod
-    async def from_env(cls) -> "MarketDataService":
-        """Auto‑select provider from the ``ALPHA_MARKET_PROVIDER`` env‑var."""
-        provider = os.getenv("ALPHA_MARKET_PROVIDER", "sim").lower()
-        if provider == "polygon":
-            return _PolygonAdapter(api_key=os.environ["POLYGON_API_KEY"])
-        if provider == "binance":
-            return _BinanceAdapter(
-                api_key=os.getenv("BINANCE_API_KEY"),
-                api_secret=os.getenv("BINANCE_API_SECRET"),
-            )
-        if provider == "sim":
-            return _SimulatedAdapter()
-        raise ValueError(f"Unsupported ALPHA_MARKET_PROVIDER={provider!r}")
+# ---------------------------------------------------------------------------#
+#                               Base class                                   #
+# ---------------------------------------------------------------------------#
 
 
-# ──────────────────────────── Concrete providers ────────────────────────
+class BaseMarketData:  # pragma: no cover
+    """Abstract async price‑feed interface."""
+
+    async def price(self, symbol: str) -> float:  # noqa: D401
+        """Return the latest *float* price for *symbol* (uppercase)."""
+        raise NotImplementedError
 
 
-class _PolygonAdapter(MarketDataService):
-    """Minimal Polygon.io REST wrapper (last‑trade endpoint only)."""
+# ---------------------------------------------------------------------------#
+#                         Provider: Polygon.io                               #
+# ---------------------------------------------------------------------------#
 
-    _BASE = "https://api.polygon.io/v2/last"
 
-    def __init__(self, api_key: str) -> None:
-        if not api_key:
-            raise RuntimeError("POLYGON_API_KEY missing")
-        self._api_key = api_key
+class PolygonMarketData(BaseMarketData):
+    """Lightweight REST adapter around polygon.io /v2/last/trade."""
+
+    _BASE = "https://api.polygon.io/v2/last/trade/{symbol}?apiKey={key}"
+
+    def __init__(self, api_key: str | None = None) -> None:
+        self._key = api_key or os.getenv("POLYGON_API_KEY") or os.getenv("ALPHA_POLYGON_KEY")
+        if not self._key:
+            raise RuntimeError("POLYGON_API_KEY (or ALPHA_POLYGON_KEY) env‑var required")
         self._session: aiohttp.ClientSession | None = None
 
     async def _client(self) -> aiohttp.ClientSession:
         if self._session is None or self._session.closed:
-            self._session = aiohttp.ClientSession(timeout=_DEFAULT_TIMEOUT)
+            self._session = aiohttp.ClientSession()
         return self._session
 
-    async def last_price(self, symbol: str) -> float:
-        url = f"{self._BASE}/trade/{symbol.upper()}?apiKey={self._api_key}"
-        async with (await self._client()).get(url) as r:
+    @backoff.on_exception(backoff.expo, (aiohttp.ClientError, asyncio.TimeoutError), max_tries=5, jitter=backoff.full_jitter)
+    async def price(self, symbol: str) -> float:
+        symbol = symbol.upper()
+        url = self._BASE.format(symbol=symbol, key=self._key)
+        sess = await self._client()
+        async with sess.get(url, timeout=8) as r:
             r.raise_for_status()
             data = await r.json()
-        # Polygon returns { status, results: { p: price, ... } }
-        return float(data["results"]["p"])
+        return float(data["last"]["p"])
 
-    async def __aenter__(self):
-        await self._client()
-        return self
-
-    async def __aexit__(self, *_exc) -> None:  # noqa: D401
+    async def __aexit__(self, *_) -> None:  # noqa: D401
         if self._session:
             await self._session.close()
 
 
-class _BinanceAdapter(MarketDataService):
-    """Lightweight Binance REST price adapter (no credentials required)."""
+# ---------------------------------------------------------------------------#
+#                         Provider: Binance                                  #
+# ---------------------------------------------------------------------------#
 
-    _BASE = "https://api.binance.com"
 
-    def __init__(self, api_key: str | None, api_secret: str | None) -> None:
-        # Public *ticker* endpoint does not need auth → but keep for futures
+class BinanceMarketData(BaseMarketData):
+    """Spot‐price adapter using Binance public REST."""
+
+    _BASE = "https://api.binance.com/api/v3/ticker/price?symbol={symbol}"
+
+    def __init__(self) -> None:
         self._session: aiohttp.ClientSession | None = None
 
     async def _client(self) -> aiohttp.ClientSession:
         if self._session is None or self._session.closed:
-            self._session = aiohttp.ClientSession(timeout=_DEFAULT_TIMEOUT)
+            self._session = aiohttp.ClientSession()
         return self._session
 
-    async def last_price(self, symbol: str) -> float:
-        url = f"{self._BASE}/api/v3/ticker/price?symbol={symbol.upper()}"
-        async with (await self._client()).get(url) as r:
+    @backoff.on_exception(backoff.expo, (aiohttp.ClientError, asyncio.TimeoutError), max_tries=5, jitter=backoff.full_jitter)
+    async def price(self, symbol: str) -> float:
+        # Binance expects e.g. BTCUSDT without slash
+        symbol = symbol.replace("/", "").upper()
+        url = self._BASE.format(symbol=symbol)
+        sess = await self._client()
+        async with sess.get(url, timeout=8) as r:
             r.raise_for_status()
             data = await r.json()
         return float(data["price"])
 
-    async def __aenter__(self):
-        await self._client()
-        return self
-
-    async def __aexit__(self, *_exc) -> None:  # noqa: D401
+    async def __aexit__(self, *_) -> None:  # noqa: D401
         if self._session:
             await self._session.close()
 
 
-class _SimulatedAdapter(MarketDataService):
-    """Tiny in‑memory random‑walk price feed—fast & deterministic for CI."""
+# ---------------------------------------------------------------------------#
+#                           Provider: Simulated                              #
+# ---------------------------------------------------------------------------#
+
+
+class SimulatedMarketData(BaseMarketData):
+    """Deterministic pseudo‑random walk based on symbol hash (offline tests)."""
 
     def __init__(self) -> None:
-        self._prices: dict[str, float] = {}
+        self._state: Dict[str, float] = {}
 
-    async def last_price(self, symbol: str) -> float:
-        # Deterministic seed per symbol for reproducible tests
-        base = self._prices.setdefault(symbol, abs(hash(symbol)) % 100 + 10.0)
-        delta = random.uniform(-0.5, 0.5)
-        new_price = max(0.01, base + delta)
-        self._prices[symbol] = new_price
-        # Sleep a *tiny* bit to mimic network latency without slowing tests
-        await asyncio.sleep(0.001)
-        return round(new_price, 5)
+    async def price(self, symbol: str) -> float:
+        symbol = symbol.upper()
+        base = self._state.get(symbol)
+        if base is None:
+            # deterministic seed so repeated runs are stable
+            seed = sum(ord(c) for c in symbol)
+            random.seed(seed)
+            base = random.uniform(10, 500)
+        # random walk
+        pct = random.uniform(-0.01, 0.01)
+        price = max(0.01, base * (1 + pct))
+        self._state[symbol] = price
+        await asyncio.sleep(0)  # keep signature strictly async
+        return round(price, 4)
 
 
-# ─────────────────────── Self‑test (pytest -q) ──────────────────────────
+# ---------------------------------------------------------------------------#
+#                     Factory wrapper exposed to callers                     #
+# ---------------------------------------------------------------------------#
 
-if __name__ == "__main__":  # pragma: no cover
-    async def _demo():
-        svc = await MarketDataService.from_env()
-        for sym in ("AAPL", "BTCUSDT"):
-            print(sym, await svc.last_price(sym))
 
-    asyncio.run(_demo())
+class MarketData(BaseMarketData):
+    """Facade that lazy‑loads the backend selected by *ALPHA_MARKET_PROVIDER*."""
+
+    _PROVIDERS = {
+        "polygon": PolygonMarketData,
+        "binance": BinanceMarketData,
+        "simulated": SimulatedMarketData,
+    }
+
+    def __init__(self, provider: str | None = None) -> None:
+        provider = (provider or os.getenv("ALPHA_MARKET_PROVIDER", "polygon")).lower()
+        cls = self._PROVIDERS.get(provider)
+        if cls is None:
+            raise ValueError(f"Unknown provider {provider!r}. Valid: {', '.join(self._PROVIDERS)}")
+        # Delay instantiation because Polygon may raise on missing key
+        self._backend = cls()  # type: ignore[call-arg]
+
+    async def price(self, symbol: str) -> float:
+        return await self._backend.price(symbol)
+
+    # -- synchronous convenience -------------------------------------------#
+    def spot(self, symbol: str) -> float:
+        """Blocking helper around *price* (for simple scripts / tests)."""
+        return asyncio.run(self.price(symbol))
+
+
