@@ -1,0 +1,13 @@
+image:
+  repository: alphafactory/core
+  tag: v2local            # or point to GHCR tag you push
+  pullPolicy: IfNotPresent
+
+resources:
+  limits:
+    cpu: "1"
+    memory: 1Gi
+
+env:
+  OPENAI_API_KEY: ""      # optional
+

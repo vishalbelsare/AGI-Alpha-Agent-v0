@@ -1,0 +1,24 @@
+version: "3.9"
+
+services:
+  app:
+    build: .
+    # expose the app on a predictable port for dev
+    ports:
+      - "3000:3000"
+    # forward logs so the trace UI can be opened from the host
+    volumes:
+      - ./backend:/app/backend:ro
+      - ./ui:/app/ui:ro
+      - ./logs:/tmp/alphafactory
+
+  ui:
+    image: nginx:alpine
+    container_name: af-ui
+    volumes:
+      - ./ui:/usr/share/nginx/html:ro
+    ports:
+      - "8080:80"
+    depends_on:
+      - app
+
