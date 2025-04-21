@@ -1,40 +1,46 @@
-# docker-compose.override.yml
-version: "3.9"
+###############################################################################
+#  docker‑compose.override.yml ‑‑ Development conveniences (hot reload)       #
+#  Compose v2+ file (no explicit `version:` key required)                      #
+###############################################################################
 
 services:
+
   ###########################################################################
-  # 1️⃣  FastAPI back‑end (hot‑reloading)                                   #
+  # 1️⃣  FastAPI back‑end – auto‑reload on source edits                      #
   ###########################################################################
-  api:
-    # Re‑use the multi‑stage Dockerfile but mount source for live reload
+  alphafactory:
+    # Re‑use the multi‑stage Dockerfile but build only the *runtime* stage
     build:
       context: .
       dockerfile: Dockerfile
-      target: runtime                       # Stage 1 of the Dockerfile
+      target: runtime                # Stage 1 in the Dockerfile
       args:
-        BASE_IMAGE: python:3.11-slim-bookworm
+        BASE_IMAGE: python:3.11-slim-bookworm   # fast CPU build for dev
     image: alphafactory-dev:latest
-    command: uvicorn backend.__init__:app --reload --host 0.0.0.0 --port 8000
+    command: >
+      uvicorn backend.__init__:app
+      --reload
+      --host 0.0.0.0
+      --port 8000
     ports:
       - "8000:8000"
     volumes:
-      # Mount project source so changes reflect immediately
+      # Hot‑reload Python + UI templates
       - ./backend:/app/backend
+      - ./ui:/app/ui
       - ./entrypoint.sh:/app/entrypoint.sh:ro
-      # Optional: persist logs to the host for pytest smoke‑test parity
+      # Persist logs so pytest smoke‑tests behave like prod
       - /tmp/alphafactory:/tmp/alphafactory
     environment:
-      # Dev‑friendly defaults; override as needed
-      - ALPHA_MARKET_PROVIDER=sim
-      - ALPHA_BROKER=sim
-      - PYTHONUNBUFFERED=1
+      ALPHA_MARKET_PROVIDER: ${ALPHA_MARKET_PROVIDER:-sim}
+      ALPHA_BROKER:         ${ALPHA_BROKER:-sim}
+      PYTHONUNBUFFERED: "1"
     depends_on:
       - redis
-    networks:
-      - alphafactory-net
+    networks: [af-net]
 
   ###########################################################################
-  # 2️⃣  Trace‑graph UI (Vite dev server)                                   #
+  # 2️⃣  Trace‑graph UI – Vite dev server with HMR                           #
   ###########################################################################
   ui:
     image: node:20-bookworm-slim
@@ -45,13 +51,12 @@ services:
     volumes:
       - ./ui:/ui
     environment:
-      # Let Vite proxy API calls to the FastAPI container
-      - VITE_API_BASE=http://localhost:8000
-    networks:
-      - alphafactory-net
+      # Vite proxies API requests during dev
+      VITE_API_BASE: http://localhost:8000
+    networks: [af-net]
 
   ###########################################################################
-  # 3️⃣  (Optional) Redis for future pub‑sub / task queues                  #
+  # 3️⃣  (Optional) Redis – future task‑queue / pub‑sub backbone            #
   ###########################################################################
   redis:
     image: redis:7-alpine
@@ -59,17 +64,14 @@ services:
       - "6379:6379"
     volumes:
       - redis-data:/data
-    networks:
-      - alphafactory-net
+    networks: [af-net]
 
-# ----------------------------------------------------------------------- #
-# Named network keeps containers isolated from the rest of the host       #
-# ----------------------------------------------------------------------- #
+# ------------------------------------------------------------------------- #
+# Shared development network & named volume                                 #
+# ------------------------------------------------------------------------- #
 networks:
-  alphafactory-net:
+  af-net:
+    driver: bridge
 
-# ----------------------------------------------------------------------- #
-# Persisted volumes (e.g. Redis data, log dir if mapped)                  #
-# ----------------------------------------------------------------------- #
 volumes:
   redis-data:
