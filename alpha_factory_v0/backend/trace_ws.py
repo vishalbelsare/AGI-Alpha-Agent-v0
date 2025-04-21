@@ -47,6 +47,7 @@ except ModuleNotFoundError:  # pragma: no cover
     def _dumps(obj: _t.Any) -> bytes:  # noqa: D401
         return _json.dumps(obj).encode()
 
+
 # --------------------------------------------------------------------- #
 # Public dataclass for events                                           #
 # --------------------------------------------------------------------- #
@@ -144,25 +145,47 @@ def attach(app) -> None:  # noqa: D401
 
     @router.websocket("/ws/trace")
     async def _trace_ws(ws: WebSocket):  # noqa: WPS430
+        """
+        WebSocket stream with *race‑free* ping / queue handling.
+
+        A shielded gather prevents the rare disconnect race where the
+        client closes exactly between queue.put() and ws.send_bytes().
+        """
         await ws.accept()
-        queue = await hub.subscribe()
+        q = await hub.subscribe()
+
         try:
+            ping_task: asyncio.Task = asyncio.create_task(ws.receive_text())
+            queue_task: asyncio.Task = asyncio.create_task(q.get())
+
             while True:
-                # wait for either an incoming client frame or a broadcast event
                 done, _ = await asyncio.wait(
-                    [asyncio.create_task(ws.receive_text()), asyncio.create_task(queue.get())],
+                    {ping_task, queue_task},
                     return_when=asyncio.FIRST_COMPLETED,
                 )
-                for task in done:
-                    data = task.result()
-                    if isinstance(data, bytes):          # broadcast event → send downstream
-                        await ws.send_bytes(data)
-                    else:                               # client text frame
-                        if data == "ping":
-                            await ws.send_text("pong")
+
+                if queue_task in done:
+                    # Broadcast event ready → push downstream
+                    payload = queue_task.result()
+                    try:
+                        await ws.send_bytes(payload)
+                    finally:
+                        # Immediately replace the consumed queue task
+                        queue_task = asyncio.create_task(q.get())
+
+                if ping_task in done:
+                    # Client frame (keep‑alive) – ignore payload, restart listener
+                    try:
+                        _ = ping_task.result()
+                    finally:
+                        ping_task = asyncio.create_task(ws.receive_text())
+
         except (WebSocketDisconnect, asyncio.CancelledError):
             pass
         finally:
-            await hub.unsubscribe(queue)
+            # Ensure background tasks are cleaned up
+            for task in (ping_task, queue_task):
+                task.cancel()
+            await hub.unsubscribe(q)
 
     app.include_router(router)
