@@ -1,14 +1,16 @@
+# backend/trace_ws.py
 """
 ASGI WebSocket hub for live Trace‑graph events
 =============================================
 
 *   Mounts a high‑performance WebSocket endpoint at **/ws/trace**.
-*   No external broker required; replacing the in‑memory fan‑out with
-    Redis / NATS later is trivial (single class swap).
+*   In‑memory fan‑out; swapping to Redis / NATS later is a one‑class change.
+*   **CSRF‑aware**: the client must fetch ``/api/csrf`` and echo the token
+    as the *very first* frame; otherwise the server closes with *4401*.
 
 Schema
 ------
-Outbound messages follow the *TraceEvent* model:
+Outbound messages follow the *TraceEvent* model::
 
     {
         "id":   "uuid4‑hex",            # unique node id
@@ -18,8 +20,8 @@ Outbound messages follow the *TraceEvent* model:
         "edges":["uuid3", ...]          # optional parents
     }
 
-Usage
------
+Quick‑start
+-----------
 >>> from backend.trace_ws import hub, attach
 >>> attach(fastapi_app)
 >>> await hub.broadcast({"label": "order sent", "type": "tool_call"})
@@ -31,6 +33,7 @@ import asyncio
 import time
 import typing as _t
 from dataclasses import dataclass, field
+from importlib import import_module
 from uuid import uuid4
 
 # --------------------------------------------------------------------- #
@@ -141,22 +144,41 @@ def attach(app) -> None:  # noqa: D401
     from fastapi import WebSocket, WebSocketDisconnect
     from fastapi.routing import APIRouter
 
+    # Import the CSRF token buffer exposed by backend.__init__
+    _api_buffer: list[str] = import_module("backend")._api_buffer  # type: ignore[attr-defined]
+
     router = APIRouter()
 
     @router.websocket("/ws/trace")
     async def _trace_ws(ws: WebSocket):  # noqa: WPS430
         """
-        WebSocket stream with *race‑free* ping / queue handling.
+        WebSocket stream with race‑free, CSRF‑checked loop.
 
         A shielded gather prevents the rare disconnect race where the
         client closes exactly between queue.put() and ws.send_bytes().
         """
+        # -----------------------------------------------------------------
+        # ▼ secure: require the very first frame to echo the CSRF token
+        #    (token was fetched by the front‑end from /api/csrf)
+        # -----------------------------------------------------------------
         await ws.accept()
-        q = await hub.subscribe()
+        queue = await hub.subscribe()
 
         try:
+            # first frame **must** be {"csrf": "<token>"}
+            init = await ws.receive_json()
+            if not (
+                isinstance(init, dict)
+                and "csrf" in init
+                and init["csrf"] in _api_buffer
+            ):
+                await ws.close(code=4401)  # 4401 = “unauthorised”
+                return
+
+            _api_buffer.remove(init["csrf"])  # single‑use token
+
             ping_task: asyncio.Task = asyncio.create_task(ws.receive_text())
-            queue_task: asyncio.Task = asyncio.create_task(q.get())
+            queue_task: asyncio.Task = asyncio.create_task(queue.get())
 
             while True:
                 done, _ = await asyncio.wait(
@@ -165,27 +187,24 @@ def attach(app) -> None:  # noqa: D401
                 )
 
                 if queue_task in done:
-                    # Broadcast event ready → push downstream
                     payload = queue_task.result()
                     try:
                         await ws.send_bytes(payload)
                     finally:
-                        # Immediately replace the consumed queue task
-                        queue_task = asyncio.create_task(q.get())
+                        # immediately replace consumed task
+                        queue_task = asyncio.create_task(queue.get())
 
                 if ping_task in done:
-                    # Client frame (keep‑alive) – ignore payload, restart listener
                     try:
-                        _ = ping_task.result()
+                        _ = ping_task.result()  # ignore payload
                     finally:
                         ping_task = asyncio.create_task(ws.receive_text())
 
         except (WebSocketDisconnect, asyncio.CancelledError):
             pass
         finally:
-            # Ensure background tasks are cleaned up
             for task in (ping_task, queue_task):
                 task.cancel()
-            await hub.unsubscribe(q)
+            await hub.unsubscribe(queue)
 
     app.include_router(router)
