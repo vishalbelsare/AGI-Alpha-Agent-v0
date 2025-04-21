@@ -1,0 +1,31 @@
+# ---------------------------------------------------------------------
+# Grafana & Prometheus – “kube‑prometheus‑stack” sub‑chart values
+# ---------------------------------------------------------------------
+prometheus:
+  enabled: true                           # scrape /metrics on agents
+  prometheusSpec:
+    serviceMonitorSelector:
+      matchLabels:
+        app.kubernetes.io/name: alpha-factory
+
+grafana:
+  enabled: true
+  adminPassword: changeme                 # override via --set or Secret!
+  defaultDashboardsEnabled: false         # we only want our custom one
+
+  sidecar:
+    dashboards:
+      enabled: true                       # picks up ConfigMaps w/ label
+      label: grafana_dashboard
+
+  dashboards:
+    # will be templated into a ConfigMap by the side‑car helper in the
+    # kube‑prometheus‑stack chart.
+    finance-agent:
+      json: |
+{{ .Files.Get "dashboards/finance_agent.json" | indent 8 }}
+
+# Expose Grafana (NodePort 30030 by default)
+service:
+  type: NodePort
+  nodePort: 30030

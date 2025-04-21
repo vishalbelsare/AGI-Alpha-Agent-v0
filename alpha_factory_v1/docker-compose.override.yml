@@ -1,0 +1,77 @@
+###############################################################################
+#  docker‑compose.override.yml ‑‑ Development conveniences (hot reload)       #
+#  Compose v2+ file (no explicit `version:` key required)                      #
+###############################################################################
+
+services:
+
+  ###########################################################################
+  # 1️⃣  FastAPI back‑end – auto‑reload on source edits                      #
+  ###########################################################################
+  alphafactory:
+    # Re‑use the multi‑stage Dockerfile but build only the *runtime* stage
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: runtime                # Stage 1 in the Dockerfile
+      args:
+        BASE_IMAGE: python:3.11-slim-bookworm   # fast CPU build for dev
+    image: alphafactory-dev:latest
+    command: >
+      uvicorn backend.__init__:app
+      --reload
+      --host 0.0.0.0
+      --port 8000
+    ports:
+      - "8000:8000"
+    volumes:
+      # Hot‑reload Python + UI templates
+      - ./backend:/app/backend
+      - ./ui:/app/ui
+      - ./entrypoint.sh:/app/entrypoint.sh:ro
+      # Persist logs so pytest smoke‑tests behave like prod
+      - /tmp/alphafactory:/tmp/alphafactory
+    environment:
+      ALPHA_MARKET_PROVIDER: ${ALPHA_MARKET_PROVIDER:-sim}
+      ALPHA_BROKER:         ${ALPHA_BROKER:-sim}
+      PYTHONUNBUFFERED: "1"
+    depends_on:
+      - redis
+    networks: [af-net]
+
+  ###########################################################################
+  # 2️⃣  Trace‑graph UI – Vite dev server with HMR                           #
+  ###########################################################################
+  ui:
+    image: node:20-bookworm-slim
+    working_dir: /ui
+    command: ["npm", "run", "dev", "--", "--host", "0.0.0.0", "--port", "3000"]
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./ui:/ui
+    environment:
+      # Vite proxies API requests during dev
+      VITE_API_BASE: http://localhost:8000
+    networks: [af-net]
+
+  ###########################################################################
+  # 3️⃣  (Optional) Redis – future task‑queue / pub‑sub backbone            #
+  ###########################################################################
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    networks: [af-net]
+
+# ------------------------------------------------------------------------- #
+# Shared development network & named volume                                 #
+# ------------------------------------------------------------------------- #
+networks:
+  af-net:
+    driver: bridge
+
+volumes:
+  redis-data:
