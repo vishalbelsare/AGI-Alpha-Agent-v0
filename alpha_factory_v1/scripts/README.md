@@ -1,6 +1,6 @@
 # `alpha_factory_v1/scripts` — Zero‑to‑Alpha in One Command ⚡️  
 
-> **Part of [Alpha‑Factory v1 👁️✨](../..)** – the multi‑agent AGENTIC α‑AGI that  
+> **Part of [Alpha‑Factory v1 👁️✨](https://github.com/MontrealAI/AGI-Alpha-Agent-v0/tree/main/alpha_factory_v1)** – the multi‑agent AGENTIC α‑AGI that  
 > *Out‑learns · Out‑thinks · Out‑designs · Out‑strategises · Out‑executes*  
 
 Welcome!  
