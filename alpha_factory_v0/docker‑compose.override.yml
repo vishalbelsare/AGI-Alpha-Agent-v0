@@ -1,20 +1,75 @@
+# docker-compose.override.yml
 version: "3.9"
 
 services:
-  alpha-factory:
-    # Re‑use the *existing* service definition from docker-compose.yml
-    # and only override the bits below.
-    volumes:
-      - ./backend:/app/backend:rw,consistent
-      - ./ui:/ui:rw,consistent
-    environment:
-      - ALPHA_MARKET_PROVIDER=SIM
-    command: >
-      sh -c "
-        npm --prefix /ui install &&
-        npm --prefix /ui run dev -- --host &
-        exec /app/entrypoint.sh
-      "
+  ###########################################################################
+  # 1️⃣  FastAPI back‑end (hot‑reloading)                                   #
+  ###########################################################################
+  api:
+    # Re‑use the multi‑stage Dockerfile but mount source for live reload
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: runtime                       # Stage 1 of the Dockerfile
+      args:
+        BASE_IMAGE: python:3.11-slim-bookworm
+    image: alphafactory-dev:latest
+    command: uvicorn backend.__init__:app --reload --host 0.0.0.0 --port 8000
     ports:
-      - "5173:5173"  # Vite dev server
-      - "8000:8000"  # FastAPI
+      - "8000:8000"
+    volumes:
+      # Mount project source so changes reflect immediately
+      - ./backend:/app/backend
+      - ./entrypoint.sh:/app/entrypoint.sh:ro
+      # Optional: persist logs to the host for pytest smoke‑test parity
+      - /tmp/alphafactory:/tmp/alphafactory
+    environment:
+      # Dev‑friendly defaults; override as needed
+      - ALPHA_MARKET_PROVIDER=sim
+      - ALPHA_BROKER=sim
+      - PYTHONUNBUFFERED=1
+    depends_on:
+      - redis
+    networks:
+      - alphafactory-net
+
+  ###########################################################################
+  # 2️⃣  Trace‑graph UI (Vite dev server)                                   #
+  ###########################################################################
+  ui:
+    image: node:20-bookworm-slim
+    working_dir: /ui
+    command: ["npm", "run", "dev", "--", "--host", "0.0.0.0", "--port", "3000"]
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./ui:/ui
+    environment:
+      # Let Vite proxy API calls to the FastAPI container
+      - VITE_API_BASE=http://localhost:8000
+    networks:
+      - alphafactory-net
+
+  ###########################################################################
+  # 3️⃣  (Optional) Redis for future pub‑sub / task queues                  #
+  ###########################################################################
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    networks:
+      - alphafactory-net
+
+# ----------------------------------------------------------------------- #
+# Named network keeps containers isolated from the rest of the host       #
+# ----------------------------------------------------------------------- #
+networks:
+  alphafactory-net:
+
+# ----------------------------------------------------------------------- #
+# Persisted volumes (e.g. Redis data, log dir if mapped)                  #
+# ----------------------------------------------------------------------- #
+volumes:
+  redis-data:
