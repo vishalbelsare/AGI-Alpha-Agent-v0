@@ -1,13 +1,31 @@
-image:
-  repository: alphafactory/core
-  tag: v2local            # or point to GHCR tag you push
-  pullPolicy: IfNotPresent
+# ---------------------------------------------------------------------
+# Grafana & Prometheus – “kube‑prometheus‑stack” sub‑chart values
+# ---------------------------------------------------------------------
+prometheus:
+  enabled: true                           # scrape /metrics on agents
+  prometheusSpec:
+    serviceMonitorSelector:
+      matchLabels:
+        app.kubernetes.io/name: alpha-factory
 
-resources:
-  limits:
-    cpu: "1"
-    memory: 1Gi
+grafana:
+  enabled: true
+  adminPassword: changeme                 # override via --set or Secret!
+  defaultDashboardsEnabled: false         # we only want our custom one
 
-env:
-  OPENAI_API_KEY: ""      # optional
+  sidecar:
+    dashboards:
+      enabled: true                       # picks up ConfigMaps w/ label
+      label: grafana_dashboard
 
+  dashboards:
+    # will be templated into a ConfigMap by the side‑car helper in the
+    # kube‑prometheus‑stack chart.
+    finance-agent:
+      json: |
+{{ .Files.Get "dashboards/finance_agent.json" | indent 8 }}
+
+# Expose Grafana (NodePort 30030 by default)
+service:
+  type: NodePort
+  nodePort: 30030
