@@ -1,0 +1,74 @@
+version: "3.10"
+
+################################################################################
+#  Alpha‑Factory ― Multi‑Agents AGI stack (API + Trace UI + Observability)     #
+################################################################################
+services:
+
+  # ──────────────────────────── Core agents API ──────────────────────────── #
+  alphafactory:
+    build:
+      context: .
+      dockerfile: Dockerfile                # multi‑stage (UI pre‑built)
+      args:
+        # swap at build‑time: BASE_IMAGE=nvcr.io/nvidia/…
+        BASE_IMAGE: ${BASE_IMAGE:-python:3.11-slim-bookworm}
+    image: ghcr.io/${DOCKER_USER:-alphafactory}/alpha-factory:dev
+    restart: unless-stopped
+    environment:
+      # ↓↓↓ tweak at run‑time via `.env` or docker‑compose.override.yml
+      OPENAI_API_KEY:  ${OPENAI_API_KEY:-}          # optional
+      ALPHA_MARKET_PROVIDER: ${ALPHA_MARKET_PROVIDER:-sim}   # polygon|binance|sim
+      ALPHA_BROKER:         ${ALPHA_BROKER:-sim}    # alpaca|ibkr|sim
+      A2A_PORT:             8000
+    ports:
+      - "3000:3000"     # Trace‑graph UI  (served by the same container)
+      - "8000:8000"     # Prometheus /metrics  + A2A gRPC
+    volumes:
+      # persistent state (ledger, FAISS indices, policy corpus, logs …)
+      - data:/app/data
+      - logs:/tmp/alphafactory
+    networks: [af-net]
+    deploy:
+      # GPU is *optional* – will be ignored on hosts without NVIDIA runtime
+      resources:
+        reservations:
+          devices:
+            - capabilities: [gpu]
+
+  # ────────────────────────────── Prometheus ─────────────────────────────── #
+  prometheus:
+    image: prom/prometheus:v2.52.0
+    volumes:
+      - ./docs/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+    ports: [ "9090:9090" ]
+    networks: [af-net]
+    restart: unless-stopped
+    depends_on: [alphafactory]
+
+  # ─────────────────────────────── Grafana ───────────────────────────────── #
+  grafana:
+    image: grafana/grafana:10.4.2
+    environment:
+      GF_SECURITY_ALLOW_EMBEDDING: "true"
+    volumes:
+      - ./docs/grafana/:/etc/grafana/provisioning:ro   # ships default dashboard
+    ports: [ "3001:3000" ]
+    networks: [af-net]
+    restart: unless-stopped
+    depends_on: [prometheus]
+
+  # ─────────────────────────── Optional SPIFFE / SPIRE ───────────────────── #
+  # Enable by adding  `spire:` block in your override or values
+  # spire-server:
+  #   image: ghcr.io/spiffe/spire-server:1.8
+  #   ... (minimal demo config) ...
+
+# ───────────────────────────────── Volumes / Networks ─────────────────────── #
+volumes:
+  data:
+  logs:
+
+networks:
+  af-net:
+    driver: bridge
