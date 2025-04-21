@@ -9,10 +9,6 @@
   © 2025 MONTREAL.AI   MIT License
 -->
 
-<p align="center">
-  <img src="https://raw.githubusercontent.com/MontrealAI/brand/main/alpha-factory.svg" height="128"/>
-</p>
-
 # Alpha‑Factory v0 – Cross‑Industry **Agentic** AGI Stack
 
 **α‑Factory** is a reference‑quality, end‑to‑end implementation of a
@@ -173,7 +169,7 @@ front‑end. The D3 panel visualises the decision graph in real‑time.
 
 ## 🧩 Architecture
 
-```mermaid
+```text
 flowchart TD
     subgraph Browser
         UI[Trace‑graph UI<br/>(Vite + D3)]
