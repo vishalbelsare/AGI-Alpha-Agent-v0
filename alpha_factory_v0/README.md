@@ -1,5 +1,5 @@
 
-# Alpha‑Factory v0 👁️✨ — Cross‑Industry Multi‑Agent **AGENTIC** α‑AGI Stack
+# Alpha‑Factory v0 👁️✨ — Multi‑Agent **AGENTIC** α‑AGI
 
 **Out‑learn | Out‑think | Out‑design | Out‑strategise | Out‑execute**
 
