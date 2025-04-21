@@ -100,3 +100,5 @@ GitHub Actions builds `cpu‑slim` and `cuda` images, attaches SBOM (SPDX) and s
 ## Licence
 
 MIT © 2025 MONTREAL.AI  —  This repo ships model weights only via public URLs; check each model licence separately.
+
+## CURRENTLY UNDER ACTIVE DEVELOPMENT.
