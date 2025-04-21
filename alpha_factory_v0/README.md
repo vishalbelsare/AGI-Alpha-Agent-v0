@@ -12,7 +12,8 @@
 **α‑Factory** is a reference‑quality, end‑to‑end implementation of a
 multi‑agent system that **identifies live alpha opportunities** and
 **converts them into value** across Finance, Policy, Manufacturing and
-Biotech.  
+Biotech.
+
 It is built on the latest best‑practices from
 
 * **[OpenAI Agents SDK]** (2024 preview)  
