@@ -1,5 +1,5 @@
 
-# Alpha‑Factory v0 👁️✨ — Multi‑Agent AGENTIC α‑AGI
+# Alpha‑Factory v0 👁️✨ — Cross‑Industry Multi‑Agent **AGENTIC** α‑AGI Stack
 
 **Out‑learn | Out‑think | Out‑design | Out‑strategise | Out‑execute**
 
@@ -8,8 +8,6 @@
   Out‑learn · Out‑think · Out‑design · Out‑strategise · Out‑execute
   © 2025 MONTREAL.AI   MIT License
 -->
-
-# Alpha‑Factory v0 – Cross‑Industry **Agentic** AGI Stack
 
 **α‑Factory** is a reference‑quality, end‑to‑end implementation of a
 multi‑agent system that **identifies live alpha opportunities** and
