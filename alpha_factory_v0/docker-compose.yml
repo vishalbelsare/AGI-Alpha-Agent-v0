@@ -1,36 +1,41 @@
-version: "3.10"
-
 ################################################################################
 #  Alpha‑Factory ― Multi‑Agents AGI stack (API + Trace UI + Observability)     #
+#  Compose v2+ file (no explicit `version:` key required)                      #
 ################################################################################
+
 services:
 
   # ──────────────────────────── Core agents API ──────────────────────────── #
   alphafactory:
     build:
       context: .
-      dockerfile: Dockerfile                # multi‑stage (UI pre‑built)
+      dockerfile: Dockerfile            # multi‑stage (UI pre‑built)
       args:
-        # swap at build‑time: BASE_IMAGE=nvcr.io/nvidia/…
+        # Swap at build‑time, e.g.  BASE_IMAGE=nvidia/cuda:12.4.0-runtime‑ubuntu22.04
         BASE_IMAGE: ${BASE_IMAGE:-python:3.11-slim-bookworm}
     image: ghcr.io/${DOCKER_USER:-alphafactory}/alpha-factory:dev
     restart: unless-stopped
+
+    # Environment variables (override safely in `.env` or an override file)
     environment:
-      # ↓↓↓ tweak at run‑time via `.env` or docker‑compose.override.yml
-      OPENAI_API_KEY:  ${OPENAI_API_KEY:-}          # optional
-      ALPHA_MARKET_PROVIDER: ${ALPHA_MARKET_PROVIDER:-sim}   # polygon|binance|sim
-      ALPHA_BROKER:         ${ALPHA_BROKER:-sim}    # alpaca|ibkr|sim
+      OPENAI_API_KEY:       ${OPENAI_API_KEY:-}        # optional
+      ALPHA_MARKET_PROVIDER:${ALPHA_MARKET_PROVIDER:-sim}   # polygon|binance|sim
+      ALPHA_BROKER:         ${ALPHA_BROKER:-sim}       # alpaca|ibkr|sim
       A2A_PORT:             8000
+
     ports:
-      - "3000:3000"     # Trace‑graph UI  (served by the same container)
-      - "8000:8000"     # Prometheus /metrics  + A2A gRPC
+      - "3000:3000"   # Trace‑graph UI  (static bundle)
+      - "8000:8000"   # /metrics  +  A2A gRPC
+
     volumes:
-      # persistent state (ledger, FAISS indices, policy corpus, logs …)
+      # Persistent state: FAISS indices, trade ledger, logs, corpora …
       - data:/app/data
       - logs:/tmp/alphafactory
+
     networks: [af-net]
+
     deploy:
-      # GPU is *optional* – will be ignored on hosts without NVIDIA runtime
+      # GPU section is ignored on non‑NVIDIA hosts (safe default)
       resources:
         reservations:
           devices:
@@ -41,7 +46,8 @@ services:
     image: prom/prometheus:v2.52.0
     volumes:
       - ./docs/prometheus.yml:/etc/prometheus/prometheus.yml:ro
-    ports: [ "9090:9090" ]
+    ports:
+      - "9090:9090"
     networks: [af-net]
     restart: unless-stopped
     depends_on: [alphafactory]
@@ -52,17 +58,20 @@ services:
     environment:
       GF_SECURITY_ALLOW_EMBEDDING: "true"
     volumes:
-      - ./docs/grafana/:/etc/grafana/provisioning:ro   # ships default dashboard
-    ports: [ "3001:3000" ]
+      - ./docs/grafana/:/etc/grafana/provisioning:ro  # ships default dashboard
+    ports:
+      - "3001:3000"
     networks: [af-net]
     restart: unless-stopped
     depends_on: [prometheus]
 
   # ─────────────────────────── Optional SPIFFE / SPIRE ───────────────────── #
-  # Enable by adding  `spire:` block in your override or values
+  # Enable by adding a `spire:` block in an override file or setting
+  #   spiffe.enabled=true in the Helm‑generated compose.
+  #
   # spire-server:
   #   image: ghcr.io/spiffe/spire-server:1.8
-  #   ... (minimal demo config) ...
+  #   ... (minimal demo config)
 
 # ───────────────────────────────── Volumes / Networks ─────────────────────── #
 volumes:
