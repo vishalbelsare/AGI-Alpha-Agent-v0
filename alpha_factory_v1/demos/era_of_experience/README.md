@@ -1,59 +1,117 @@
-# Era‑of‑Experience Demo 🧠⏩
+<!--
+  Era‑of‑Experience Demo
+  Alpha‑Factory v1 👁️✨ — Multi‑Agent **AGENTIC α‑AGI**
+  Out‑learn · Out‑think · Out‑strategise · Out‑execute
+  © 2025 MONTREAL.AI   MIT License
+-->
 
-A hands‑on illustration of Silver & Sutton’s **“Welcome to the Era of Experience”**
-inside the Alpha‑Factory agent stack.
+# 🌌 Welcome to the **Era of Experience** — Run it locally in ***one*** command
 
-> **Four pillars** → *streams · actions · grounded rewards · non‑human reasoning* :contentReference[oaicite:2]{index=2}&#8203;:contentReference[oaicite:3]{index=3}
+> “AI will eclipse the limits of human‑authored data only when agents **act, observe, and adapt** in the world.”  
+> — *David Silver & Richard S. Sutton*
+
+This demo fuses their vision with **Alpha‑Factory v1** — a production‑grade, multi‑agent AGI spine.  
+Within 60 seconds you’ll watch an agent **evolve in real time**, guided by grounded rewards, long‑range memory and non‑human planning. No GPU required.
 
 ---
 
-## 🚀 Quick start (local Docker)
+## 🚀 Zero‑friction quick‑start (macOS / Windows / Linux)
 
 ```bash
-cd alpha_factory_v1/demos/era_of_experience
+git clone https://github.com/MontrealAI/AGI-Alpha-Agent-v0.git
+cd AGI-Alpha-Agent-v0/alpha_factory_v1/demos/era_of_experience
 chmod +x run_experience_demo.sh
-./run_experience_demo.sh
+./run_experience_demo.sh        #  ← THAT’S IT
 ```
 
-Open <http://localhost:7860> — you’ll see the agent’s real‑time trace‑graph,
-reward curves and an interactive chat panel so you can inject new experiences.
+1. **Docker Desktop** will build the image (≈ 1 min cold start).  
+2. Your browser auto‑opens **http://localhost:7860**:  
+   * live trace‑graph 🪄  
+   * reward curves 📈  
+   * interactive chat to inject new experience events 💬
 
-*   **With an OpenAI key** Drop it into `config.env` → GPT‑4/o3 drives the
-    reasoning.
-*   **Offline** Leave the key blank and the stack starts an **Ollama** container
-    with `mixtral‑instruct`. Same UI, just slower.
-
----
-
-## 🎓 Google Colab (no install)
-
-Click the badge below. The first code cell creates the demo folder, writes the
-same files you see here and launches a Gradio tunnel.
-
-[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)
-](https://colab.research.google.com/github/MontrealAI/AGI-Alpha-Agent-v0/blob/main/alpha_factory_v1/demos/era_of_experience/colab_stub.ipynb)
+> **No OpenAI key?** Leave `OPENAI_API_KEY` blank in `config.env` — the stack spins up *Ollama ✕ Mixtral* and stays fully offline.
 
 ---
 
-## 🛠️ How it works
+## ✨ Why this matters
 
-| Component | Library | Why |
-|-----------|---------|-----|
-| **Agent core** | [`openai‑agents‑python`](https://openai.github.io/openai-agents-python) | battle‑tested tool‑calling & memory |
-| **Inter‑agent protocol** | [`A2A`](https://github.com/google/A2A) | extension‑ready for swarm runs |
-| **World model & planning** | internal MCTS helper | shows non‑human reasoning |
-| **Deployment** | Docker Compose | 100 % reproducible |
-| **Fallback LLM** | Ollama ✕ Mixtral | zero external API requirement |
+| Silver & Sutton’s Pillar | How the demo brings it alive |
+|--------------------------|------------------------------|
+| **Streams of experience** | Infinite generator feeds months‑long synthetic logs |
+| **Sensor‑motor actions** | API calls & “plan meal” simulator mutate the environment |
+| **Grounded rewards** | Fitness & Education signals — measurable, bias‑free |
+| **Non‑human reasoning** | MCTS planner + vector memory, not chain‑of‑thought imitation |
 
-The demo is kept **under 200 LoC** so you can grok the paradigm and then plug
-in real environments (e.g. gymnasium ⇢ robotics lab, Bloomberg ⇢ live markets).
+The result: an agent that **rewrites its own playbook** every few seconds — exactly the leap beyond static prompt engineering the authors foresee.
 
 ---
 
-## 📚 Reading list
+## 🛠️ Architecture at a glance
 
-* Silver & Sutton, *The Era of Experience* (2024).  
-* OpenAI, *A Practical Guide to Building Agents* (2024).  
-* OpenAI Agents SDK docs.  
-* Google ADK & A2A protocol specs.
+```text
+┌────────────┐   streams    ┌──────────────┐
+│ Experience │ ───────────▶ │  Orchestrator│─────┐
+└────────────┘              └──────────────┘     │ tool‑calls
+        ▲                           │            ▼
+ grounded│                    ┌────────────┐  ┌─────────────┐
+ rewards │                    │  Planner   │  │  Tools/API  │
+        │                      └────────────┘  └─────────────┘
+        └──────────────────────────────────────────┘
+```
 
+* **openai‑agents‑python** → battle‑tested tool‑calling & memory  
+* **A2A protocol hooks** → multi‑agent swarms ready out‑of‑the‑box  
+* **Single Dockerfile** → deterministic, air‑gapped builds  
+
+---
+
+## 📚 Deep‑dive links
+
+* Silver & Sutton, *The Era of Experience (2024)*  
+* OpenAI, *A Practical Guide to Building Agents (2024)*  
+* Google ADK & A2A specifications
+
+---
+
+## 🧩 Extending
+
+* Drop a new reward backend into `reward_backends/` — it auto‑mounts.  
+* Register a sensor‑motor tool with one decorator:  
+
+  ```python
+  @Tool(name="place_trade", description="execute an order on Alpaca")
+  async def place_trade(ticker:str, qty:int, side:str): ...
+  ```
+
+* Scale‑out: `docker compose --scale orchestrator=4 …` for emergent cooperation.
+
+---
+
+## 🛡️ Security & Production notes
+
+* The container runs **non‑root**, no exposed Docker socket.  
+* Secrets stay in `config.env` (never committed).  
+* Offline fallback eliminates third‑party data egress.  
+* Health‑check endpoint `GET /__live` returns **200 OK** for Kubernetes probes.
+
+---
+
+## 🆘 Troubleshooting (30‑second cheat‑sheet)
+
+| Symptom | Fix |
+|---------|-----|
+| “Docker not installed” | [Download Docker Desktop](https://docs.docker.com/get-docker) |
+| Port 7860 already in use | Edit `ports:` in `docker-compose.experience.yml` |
+| Build timeout on ARM Mac | Enable *“Use Rosetta for x86/amd64 emulation”* in Docker settings |
+| Want GPU speed‑up | Replace base image tag with `nvidia/cuda:12.4.0-runtime-ubuntu22.04` and add `--gpus all` |
+
+---
+
+## 🤝 Credits
+
+* Demo engineered by **Montreal.AI**.  
+* Inspired by the legends of Reinforcement Learning, **David Silver & Richard S. Sutton**.  
+* Powered by the open‑source community — thank you!
+
+> **Alpha‑Factory** — forging intelligence that **out‑learns, out‑thinks, out‑executes**.
