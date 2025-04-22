@@ -1,26 +1,30 @@
 version: "3.9"
 
 services:
+
   orchestrator:
+    # Build Alpha‑Factory image in CPU‑slim mode
     build:
-      context: .
-      dockerfile: ./docker/orchestrator.Dockerfile
-    image: montrealai/alpha_factory_orchestrator:v1
-    env_file: ./demos/era_of_experience/config.env
-    command: python -m agent_experience_entrypoint
+      context: ../..                      # → alpha_factory_v1/
+      dockerfile: ./Dockerfile            # single multi‑stage Dockerfile :contentReference[oaicite:0]{index=0}
+    image: alpha_factory_orchestrator:era
+    env_file: ./config.env
+    command: python /app/demo/agent_experience_entrypoint.py
     volumes:
-      - ./demos/era_of_experience:/app/demo:z
+      - ./:/app/demo:ro                   # mount demo so entry‑point is visible
     ports:
       - "7860:7860"
+    depends_on:
+      - ollama
 
-  # offline fall‑back llm
+  # Offline fallback LLM (runs even when OPENAI_API_KEY is unset)
   ollama:
     image: ollama/ollama:latest
-    profiles: ["no_api_key"]      # only starts when OPENAI_API_KEY is absent
+    tty: true
     environment:
       - OLLAMA_MODELS=mixtral:instruct
     volumes:
-      - ollama_models:/root/.ollama
+      - ollama_models:/root/.ollama       # cache weights between runs
 
 volumes:
   ollama_models:
