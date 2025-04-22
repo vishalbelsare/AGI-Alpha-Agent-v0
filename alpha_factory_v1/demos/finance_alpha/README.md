@@ -12,7 +12,7 @@ a local Φ‑2 model.)*
 ## 🚀 Instant CLI demo
 
 ```bash
-curl -L https://raw.githubusercontent.com/MontrealAI/AGI-Alpha-Agent-v0/main/alpha_factory_v1/demos/deploy_alpha_factory_demo.sh | bash
+curl -L https://raw.githubusercontent.com/MontrealAI/AGI-Alpha-Agent-v0/main/alpha_factory_v1/demos/finance_alpha/deploy_alpha_factory_demo.sh | bash
 ```
 
 **What happens**
@@ -34,7 +34,7 @@ _No installation beyond Docker, `curl`, and `jq`._
 ```bash
 git clone --depth 1 https://github.com/MontrealAI/AGI-Alpha-Agent-v0.git
 cd AGI-Alpha-Agent-v0/alpha_factory_v1
-jupyter notebook demos/finance_alpha.ipynb
+jupyter notebook demos/finance_alpha/finance_alpha.ipynb
 ```
 
 Run the two cells to spin up Alpha‑Factory and render positions & P&L as
