@@ -70,7 +70,7 @@ chmod +x run_muzero_demo.sh
 
 ## 🎓 Colab (two clicks)
 
-[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/MontrealAI/AGI-Alpha-Agent-v0/blob/main/alpha_factory_v1/demos/muzero_planning/colab_stub.ipynb)
+[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/MontrealAI/AGI-Alpha-Agent-v0/blob/main/alpha_factory_v1/demos/muzero_planning/colab_muzero_planning.ipynb)
 
 Colab spins up the same dashboard via an ngrok tunnel — handy when Docker isn’t.
 
