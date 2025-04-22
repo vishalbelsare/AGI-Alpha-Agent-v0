@@ -1,1 +1,26 @@
+version: "3.9"
 
+services:
+  orchestrator:
+    build:
+      context: .
+      dockerfile: ./docker/orchestrator.Dockerfile
+    image: montrealai/alpha_factory_orchestrator:v1
+    env_file: ./demos/era_of_experience/config.env
+    command: python -m agent_experience_entrypoint
+    volumes:
+      - ./demos/era_of_experience:/app/demo:z
+    ports:
+      - "7860:7860"
+
+  # offline fall‑back llm
+  ollama:
+    image: ollama/ollama:latest
+    profiles: ["no_api_key"]      # only starts when OPENAI_API_KEY is absent
+    environment:
+      - OLLAMA_MODELS=mixtral:instruct
+    volumes:
+      - ollama_models:/root/.ollama
+
+volumes:
+  ollama_models:
