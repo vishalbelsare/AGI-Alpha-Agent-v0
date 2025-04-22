@@ -1,69 +1,117 @@
-# Alpha‑Factory Demos 📊
+<!--
+  Era‑of‑Experience Demo
+  Alpha‑Factory v1 👁️✨ — Multi‑Agent **AGENTIC α‑AGI**
+  Out‑learn · Out‑think · Out‑strategise · Out‑execute
+  © 2025 MONTREAL.AI   MIT License
+-->
 
-Welcome! These short demos let **anyone – even if you’ve never touched a
-terminal – spin up Alpha‑Factory, watch a live trade, and explore the
-planner trace‑graph in *under 2 minutes*.  
+# 🌌 Welcome to the **Era of Experience** — Run it locally in ***one*** command
 
-*(Runs with or without an `OPENAI_API_KEY`; the image auto‑falls back to
-a local Φ‑2 model.)*
+> “AI will eclipse the limits of human‑authored data only when agents **act, observe, and adapt** in the world.”  
+> — *David Silver & Richard S. Sutton*
+
+This demo fuses their vision with **Alpha‑Factory v1** — a production‑grade, multi‑agent AGI spine.  
+Within 60 seconds you’ll watch an agent **evolve in real time**, guided by grounded rewards, long‑range memory and non‑human planning. No GPU required.
 
 ---
 
-## 🚀 Instant CLI demo
+## 🚀 Zero‑friction quick‑start (macOS / Windows / Linux)
 
 ```bash
-curl -L https://raw.githubusercontent.com/MontrealAI/AGI-Alpha-Agent-v0/main/alpha_factory_v1/demos/deploy_alpha_factory_demo.sh | bash
+git clone https://github.com/MontrealAI/AGI-Alpha-Agent-v0.git
+cd AGI-Alpha-Agent-v0/alpha_factory_v1/demos/era_of_experience
+chmod +x run_experience_demo.sh
+./run_experience_demo.sh        #  ← THAT’S IT
 ```
 
-**What happens**
+1. **Docker Desktop** will build the image (≈ 1 min cold start).  
+2. Your browser auto‑opens **http://localhost:7860**:  
+   * live trace‑graph 🪄  
+   * reward curves 📈  
+   * interactive chat to inject new experience events 💬
 
-1. Docker pulls the signed `alphafactory_pro:cpu-slim` image.  
-2. Container starts with the *BTC / GLD* momentum strategy.  
-3. The script prints JSON tables for **positions** and **P&L**.  
-4. You get a link to the live **trace‑graph UI** (`http://localhost:8088`).  
-5. Container stops automatically when you close the terminal.
-
-_No installation beyond Docker, `curl`, and `jq`._
+> **No OpenAI key?** Leave `OPENAI_API_KEY` blank in `config.env` — the stack spins up *Ollama ✕ Mixtral* and stays fully offline.
 
 ---
 
-## 📒 Interactive notebook demo
+## ✨ Why this matters
 
-> Perfect for analysts who love Pandas or anyone on Google Colab.
+| Silver & Sutton’s Pillar | How the demo brings it alive |
+|--------------------------|------------------------------|
+| **Streams of experience** | Infinite generator feeds months‑long synthetic logs |
+| **Sensor‑motor actions** | API calls & “plan meal” simulator mutate the environment |
+| **Grounded rewards** | Fitness & Education signals — measurable, bias‑free |
+| **Non‑human reasoning** | MCTS planner + vector memory, not chain‑of‑thought imitation |
 
-```bash
-git clone --depth 1 https://github.com/MontrealAI/AGI-Alpha-Agent-v0.git
-cd AGI-Alpha-Agent-v0/alpha_factory_v1
-jupyter notebook demos/finance_alpha.ipynb
+The result: an agent that **rewrites its own playbook** every few seconds — exactly the leap beyond static prompt engineering the authors foresee.
+
+---
+
+## 🛠️ Architecture at a glance
+
+```text
+┌────────────┐   streams    ┌──────────────┐
+│ Experience │ ───────────▶ │  Orchestrator│─────┐
+└────────────┘              └──────────────┘     │ tool‑calls
+        ▲                           │            ▼
+ grounded│                    ┌────────────┐  ┌─────────────┐
+ rewards │                    │  Planner   │  │  Tools/API  │
+        │                      └────────────┘  └─────────────┘
+        └──────────────────────────────────────────┘
 ```
 
-Run the two cells to spin up Alpha‑Factory and render positions & P&L as
-Pandas tables right inside the notebook.
+* **openai‑agents‑python** → battle‑tested tool‑calling & memory  
+* **A2A protocol hooks** → multi‑agent swarms ready out‑of‑the‑box  
+* **Single Dockerfile** → deterministic, air‑gapped builds  
 
 ---
 
-## 🎬 Preview video / GIF
+## 📚 Deep‑dive links
 
-![Trace demo](../docs/trace_demo.gif)
-
-*(10‑second capture of the planner emitting decisions and tool‑calls.)*
-
----
-
-## 🛠️ Troubleshooting
-
-| Symptom | Resolution |
-|---------|------------|
-| **“docker: command not found”** | Install Docker Desktop or Docker Engine |
-| Port 8000 already used | Edit the demo script and change `PORT_API=8001` |
-| Corporate proxy blocks image pull | Pull image on a VPN, `docker save` → `docker load` |
-| Want GPU speed | `PROFILE=cuda ./scripts/install_alpha_factory_pro.sh --deploy` |
+* Silver & Sutton, *The Era of Experience (2024)*  
+* OpenAI, *A Practical Guide to Building Agents (2024)*  
+* Google ADK & A2A specifications
 
 ---
 
-## 🔐 Security
+## 🧩 Extending
 
-* No secrets leave your machine. `.env` (optional) is git‑ignored.  
-* Image is **Cosign‑signed**; SBOM available in GitHub Releases.
+* Drop a new reward backend into `reward_backends/` — it auto‑mounts.  
+* Register a sensor‑motor tool with one decorator:  
 
-Enjoy exploring **α‑Factory** – and out‑think the future! 🚀
+  ```python
+  @Tool(name="place_trade", description="execute an order on Alpaca")
+  async def place_trade(ticker:str, qty:int, side:str): ...
+  ```
+
+* Scale‑out: `docker compose --scale orchestrator=4 …` for emergent cooperation.
+
+---
+
+## 🛡️ Security & Production notes
+
+* The container runs **non‑root**, no exposed Docker socket.  
+* Secrets stay in `config.env` (never committed).  
+* Offline fallback eliminates third‑party data egress.  
+* Health‑check endpoint `GET /__live` returns **200 OK** for Kubernetes probes.
+
+---
+
+## 🆘 Troubleshooting (30‑second cheat‑sheet)
+
+| Symptom | Fix |
+|---------|-----|
+| “Docker not installed” | [Download Docker Desktop](https://docs.docker.com/get-docker) |
+| Port 7860 already in use | Edit `ports:` in `docker-compose.experience.yml` |
+| Build timeout on ARM Mac | Enable *“Use Rosetta for x86/amd64 emulation”* in Docker settings |
+| Want GPU speed‑up | Replace base image tag with `nvidia/cuda:12.4.0-runtime-ubuntu22.04` and add `--gpus all` |
+
+---
+
+## 🤝 Credits
+
+* Demo engineered by **Montreal.AI**.  
+* Inspired by the legends of Reinforcement Learning, **David Silver & Richard S. Sutton**.  
+* Powered by the open‑source community — thank you!
+
+> **Alpha‑Factory** — forging intelligence that **out‑learns, out‑thinks, out‑executes**.
