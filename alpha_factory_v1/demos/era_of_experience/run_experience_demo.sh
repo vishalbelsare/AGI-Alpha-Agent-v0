@@ -1,30 +1,29 @@
 #!/usr/bin/env bash
+# Era‑of‑Experience one‑liner — non‑technical friendly
 set -euo pipefail
 
 demo_dir="$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
-root_dir="${demo_dir%/*/*}"          # points at alpha_factory_v1
+root_dir="${demo_dir%/*/*}"                     # → …/alpha_factory_v1
 compose_file="$demo_dir/docker-compose.experience.yml"
 
-cd "$root_dir"
+cd "$root_dir"                                  # required for build context
 
-# 1. prerequisites ------------------------------------------------------------
+# ── Prerequisites ────────────────────────────────────────────────────────────
 command -v docker >/dev/null 2>&1 || {
-  echo "🚨  Docker not found. Install Docker Desktop ⬇️  https://docs.docker.com/get-docker/";
+  echo "🚨  Docker is not installed. Get it from https://docs.docker.com/get-docker/";
   exit 1; }
 
-# 2. environment --------------------------------------------------------------
+# ── Environment ──────────────────────────────────────────────────────────────
 if [[ ! -f "$demo_dir/config.env" ]]; then
-  echo "➕  Copying default config.env.sample → config.env"
-  cp "$demo_dir/config.env.sample"   "$demo_dir/config.env"
+  echo "➕  First‑time run — creating config.env (edit to add OPENAI_API_KEY)"
+  cp "$demo_dir/config.env.sample" "$demo_dir/config.env"
 fi
 
-source "$demo_dir/config.env"
+# ── Launch  ──────────────────────────────────────────────────────────────────
+echo "🚢  Building & starting Era‑of‑Experience demo …"
+docker compose --project-name alpha_experience \
+               -f "$compose_file" up -d --build
 
-# 3. spin‑up ------------------------------------------------------------------
-echo "🚢  Building & starting Alpha‑Factory Era‑of‑Experience demo..."
-docker compose --project-name alpha_experience -f "$compose_file" up -d --build
-
-echo -e "\n🎉  Demo is live:"
-echo "   • Gradio UI → http://localhost:7860"
-echo "   • Docs      → $demo_dir/README.md"
-echo "   • Logs      → docker compose -p alpha_experience logs -f\n"
+echo -e "\n🎉  Ready!  Open http://localhost:7860 in your browser."
+echo "🔍  Live logs            → docker compose -p alpha_experience logs -f"
+echo "🛑  Stop the demo         → docker compose -p alpha_experience down"
