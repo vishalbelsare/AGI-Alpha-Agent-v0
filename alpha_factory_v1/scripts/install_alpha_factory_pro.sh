@@ -1,38 +1,36 @@
 #!/usr/bin/env bash
 # install_alpha_factory_pro.sh  —  one‑stop builder *and* optional deployer
 # ─────────────────────────────────────────────────────────────────────────
-#   Original flags (unchanged)
+#   Original flags (still supported)
 #     --all  --ui  --trace  --tests  --no-ui  --no-cache  -h|--help
 #
-#   New flags
-#     --deploy      build + docker‑compose up + smoke tests
-#     --bootstrap   clone repo if alpha_factory_v1/ is absent
+#   Extra production flags (added, fully backward‑compatible)
+#     --deploy       build + docker‑compose up + smoke tests
+#     --bootstrap    clone repo if alpha_factory_v1/ is absent
+#     --alpha NAME   pre‑enable a strategy in config/alpha_factory.yml
 #
 #   Examples
-#     ./install_alpha_factory_pro.sh --all --deploy      # full stack now
-#     ./install_alpha_factory_pro.sh --no-ui             # just build image
-#     ./install_alpha_factory_pro.sh --bootstrap --deploy
-#
+#     ./install_alpha_factory_pro.sh --all --deploy           # full stack
+#     ./install_alpha_factory_pro.sh --no-ui                  # image only
+#     ./install_alpha_factory_pro.sh --bootstrap --deploy \
+#           --alpha btc_gld                                   # live alpha
+# -----------------------------------------------------------------------
 set -euo pipefail
 
-VER="v1.3.1"
+VER="v1.3.3"
 REPO="MontrealAI/AGI-Alpha-Agent-v0"
 BRANCH="main"
 PROFILE="${PROFILE:-full}"
 IMAGE_TAG="alphafactory_pro:latest"
+ALPHA_TOGGLE=""
 
 # ─── defaults (original behaviour) ──────────────────────────────────────
-tty=${CI:-}
-want_ui=${tty:-1}
-want_trace=0
-want_tests=0
-nocache_arg=""
-do_deploy=0
-do_bootstrap=0
+tty=${CI:-}; want_ui=${tty:-1}; want_trace=0; want_tests=0
+nocache_arg=""; do_deploy=0; do_bootstrap=0
 
 usage() { grep -E '^#( |$)' "$0" | sed 's/^# ?//' ; exit 0; }
 
-# ─── cli parsing (keeps original flags) ─────────────────────────────────
+# ─── CLI parsing (keeps original flags) ─────────────────────────────────
 while [[ $# -gt 0 ]]; do
   case $1 in
     --all)        want_ui=1; want_trace=1; want_tests=1 ;;
@@ -43,19 +41,20 @@ while [[ $# -gt 0 ]]; do
     --no-cache)   nocache_arg="--no-cache" ;;
     --deploy)     do_deploy=1 ;;
     --bootstrap)  do_bootstrap=1 ;;
+    --alpha)      ALPHA_TOGGLE="$2"; shift ;;
     -h|--help)    usage ;;
     *)            echo "Unknown flag: $1" >&2; exit 1 ;;
-  esac
-  shift
+  esac; shift
 done
 
-echo "╭──────────────────── Alpha‑Factory $VER ────────────────────"
-printf "│ UI: %s  Trace: %s  Tests: %s  Deploy: %s\n" \
+echo "╭──────── Alpha‑Factory $VER ────────"
+printf "│ UI:%s Trace:%s Tests:%s Deploy:%s Alpha:%s\n" \
        "$([[ $want_ui == 1 ]] && echo ON || echo off)" \
        "$([[ $want_trace == 1 ]] && echo ON || echo off)" \
        "$([[ $want_tests == 1 ]] && echo ON || echo off)" \
-       "$([[ $do_deploy == 1 ]] && echo YES || echo no)"
-echo "╰────────────────────────────────────────────────────────────"
+       "$([[ $do_deploy == 1 ]] && echo YES || echo no)" \
+       "${ALPHA_TOGGLE:-none}"
+echo "╰────────────────────────────────────"
 
 command -v docker        >/dev/null || { echo "❌ docker not found"; exit 1; }
 command -v docker compose>/dev/null || { echo "❌ docker compose missing"; exit 1; }
@@ -97,19 +96,33 @@ if [[ ! -f $PATCH_SIG ]]; then
 fi
 
 # 2. generate .env if missing
-[[ -f .env ]] || { echo "→ creating .env (edit credentials later)"; cp .env.sample .env; }
+if [[ ! -f .env ]]; then
+  echo "→ creating .env (edit credentials later)"
+  cp .env.sample .env
+fi
 
-# 3. pull local model if no OpenAI key
+# 3. local model fallback
 if grep -q '^OPENAI_API_KEY=$' .env || ! grep -q '^OPENAI_API_KEY=' .env; then
   echo "→ no OpenAI key detected; pulling ollama/phi‑2"
   docker pull ollama/phi-2:latest
   grep -q '^LLM_PROVIDER=' .env || echo "LLM_PROVIDER=ollama" >> .env
 fi
 
-# 4. build + start compose stack
+# 4. auto‑enable strategy toggle (requires yq, fallback to sed)
+if [[ -n $ALPHA_TOGGLE ]]; then
+  if command -v yq >/dev/null; then
+    yq -i ".finance.strategy = \"$ALPHA_TOGGLE\"" config/alpha_factory.yml
+  else
+    echo "⚠️  yq not found; falling back to sed"
+    sed -i "s/^strategy: .*$/strategy: $ALPHA_TOGGLE/" config/alpha_factory.yml
+  fi
+fi
+
+# 5. build & start stack
 docker compose --profile "$PROFILE" build
 docker compose --profile "$PROFILE" up -d
 
-# 5. smoke tests
+# 6. smoke tests
 docker compose exec orchestrator pytest -q /app/tests
-echo "✅  Stack healthy → open http://localhost:8088 in your browser"
+
+echo "✅  α‑Factory healthy — open http://localhost:8088"
