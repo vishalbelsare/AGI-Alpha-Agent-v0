@@ -1,86 +1,113 @@
 #!/usr/bin/env bash
 ###############################################################################
-#  Macro-Sentinel Demo – Alpha-Factory v1 👁️✨
-#  ---------------------------------------------------------------------------
-#  One-liner launcher that                                                          │
-#    • verifies host prerequisites (Docker Engine + Compose plugin)                │
-#    • downloads (or refreshes) the sample macro CSV feeds                         │
-#    • intelligently chooses CPU-only vs GPU build (CUDA present)                  │
-#    • hydrates a local `.env` with safe defaults                                  │
-#    • spins up the stack with deterministic tags                                  │
-#    • tails health-check until Gradio is live                                     │
-#    • prints helper commands for logs / teardown                                  │
-#                                                                                 │
-#  The script follows best-practice hardening from                                 │
-#  – OpenAI Agents SDK guide §6 (ops & monitoring)                                 │
-#  – Google ADK deployment checklist (2025-04)                                     │
+#  run_macro_demo.sh – Macro‑Sentinel • Alpha‑Factory v1 👁️✨
+#
+#  Production‑grade launcher with:
+#    • Host prerequisite validation (Docker ≥24, Compose plugin, network)
+#    • Auto‑creation of ./config.env with sane defaults
+#    • Offline sample‑data sync (Fed speeches, yield curve, stable‑flow)
+#    • GPU autodetect → build profile gpu
+#    • Live data collectors profile  (--live flag)  → FRED + Twitter streams
+#    • Deterministic image tags / layer pulls
+#    • Health‑gate on orchestrator  /__live  endpoint
+#    • Graceful teardown helpers
+#
+#  Inspired by agentic‑trading patterns and OpenAI Agents SDK §6.
 ###############################################################################
 set -Eeuo pipefail
 
-print() { printf "\033[1;36m▶ %s\033[0m\n" "$*"; }
-err()   { printf "\033[1;31m🚨 %s\033[0m\n" "$*" >&2; }
+###############################  helpers  #####################################
+say()  { printf '\033[1;36m▶ %s\033[0m\n' "$*"; }
+warn() { printf '\033[1;33m⚠ %s\033[0m\n' "$*" >&2; }
+die()  { printf '\033[1;31m🚨 %s\033[0m\n' "$*" >&2; exit 1; }
 
-demo_dir="$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
-root_dir="${demo_dir%/*/*}"
-compose_file="$demo_dir/docker-compose.macro.yml"
-env_file="$demo_dir/config.env"
-
-cd "$root_dir"
-
-######################################################################## util ##
-require() {
-  command -v "$1" >/dev/null 2>&1 || { err "$1 is required."; exit 1; }
-}
-
-has_gpu() {
-  docker info --format '{{json .Runtimes}}' | grep -q '"nvidia"'
-}
+need() { command -v "$1" >/dev/null 2>&1 || die "$1 is required"; }
+has_gpu() { docker info --format '{{json .Runtimes}}' | grep -q '"nvidia"'; }
 
 health_wait() {
-  local service=$1 port=$2
-  for i in {1..30}; do
+  local port=$1 max=$2
+  for ((i=0;i<max;i++)); do
     if curl -s "http://localhost:${port}/__live" | grep -q OK; then return 0; fi
     sleep 2
   done
-  err "$service health check timed-out"; exit 1
+  die "Service on port ${port} failed health check"
 }
 
-################################################################# prerequisite #
-require docker
-docker compose version >/dev/null 2>&1 || { err "Docker Compose plugin missing"; exit 1; }
+################################ paths #########################################
+demo_dir="$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &>/dev/null && pwd )"
+root_dir="${demo_dir%/*/*}"
+compose_file="$demo_dir/docker-compose.macro.yml"
+env_file="$demo_dir/config.env"
+offline_dir="$demo_dir/offline_samples"
 
-######################################################################### env ##
+cd "$root_dir"
+
+################################ flags #########################################
+PROFILE_LIVE=0
+while [[ $# -gt 0 ]]; do
+  case $1 in
+    --live) PROFILE_LIVE=1 ;;
+    *) die "Unknown flag: $1" ;;
+  esac
+  shift
+done
+
+################################ prereqs #######################################
+need docker
+docker compose version >/dev/null 2>&1 || die "Docker Compose plugin missing"
+
+ver=$(docker version --format '{{.Server.Version}}')
+[[ "${ver%%.*}" -ge 24 ]] || warn "Docker $ver < 24 may slow multi‑stage builds"
+
+################################ config.env ####################################
 if [[ ! -f "$env_file" ]]; then
-  print "Creating default config.env (edit to add OPENAI_API_KEY)"
-  cp "$demo_dir/config.env.sample" "$env_file"
+  say "Creating default config.env"
+  cat > "$env_file" <<EOF
+# Macro‑Sentinel env
+OPENAI_API_KEY=
+MODEL_NAME=gpt-4o-mini
+TEMPERATURE=0.15
+PG_PASSWORD=alpha
+FRED_API_KEY=
+TW_BEARER_TOKEN=
+EOF
 fi
 
-############################################################## sample data ####
-print "Syncing sample macro telemetry (offline mode support)…"
-mkdir -p "$demo_dir/offline_samples"
-curl -sL https://raw.githubusercontent.com/MontrealAI/demo-assets/main/fed_speeches.csv   -o "$demo_dir/offline_samples/fed_speeches.csv"
-curl -sL https://raw.githubusercontent.com/MontrealAI/demo-assets/main/yield_curve.csv    -o "$demo_dir/offline_samples/yield_curve.csv"
-curl -sL https://raw.githubusercontent.com/MontrealAI/demo-assets/main/stable_flows.csv   -o "$demo_dir/offline_samples/stable_flows.csv"
+################################ offline data ##################################
+say "Syncing offline macro snapshots"
+mkdir -p "$offline_dir"
+declare -A urls=(
+  [fed_speeches.csv]=https://raw.githubusercontent.com/MontrealAI/demo-assets/main/fed_speeches.csv
+  [yield_curve.csv]=https://raw.githubusercontent.com/MontrealAI/demo-assets/main/yield_curve.csv
+  [stable_flows.csv]=https://raw.githubusercontent.com/MontrealAI/demo-assets/main/stable_flows.csv
+)
+for f in "${!urls[@]}"; do
+  curl -sfL "${urls[$f]}" -o "$offline_dir/$f"
+done
 
-################################################################ build/run ####
+################################ profiles ######################################
+profiles=()
+has_gpu && profiles+=(gpu)
+[[ -z "${OPENAI_API_KEY:-}" ]] && profiles+=(offline)
+(( PROFILE_LIVE )) && profiles+=(live-feed)
 profile_arg=""
-if has_gpu; then
-  print "🖥️ NVIDIA runtime detected – enabling CUDA profile"
-  profile_arg="--profile gpu"
-fi
+[[ ${#profiles[@]} -gt 0 ]] && profile_arg="--profile $(IFS=,; echo "${profiles[*]}")"
 
-print "🚢 Building images (deterministic tags)…"
+################################ build & up ####################################
+say "🚢 Building images…"
 docker compose -f "$compose_file" $profile_arg pull --quiet || true
 docker compose -f "$compose_file" $profile_arg build --pull
 
-print "🔄 Starting Macro-Sentinel agents…"
+say "🔄 Starting stack…"
 docker compose --project-name alpha_macro -f "$compose_file" $profile_arg up -d
 
-print "⏳ Waiting for health check…"
-health_wait "orchestrator" 7864
+################################ health gate ###################################
+say "⏳ Waiting for orchestrator health"
+health_wait 7864 40
 
-################################################################ success ######
-echo -e "\n\033[1;32m🎉 Macro-Sentinel live → http://localhost:7864\033[0m"
-echo    "📜 Tail logs          → docker compose -p alpha_macro logs -f"
-echo    "🛑 Stop stack         → docker compose -p alpha_macro down"
-echo    "🧹 Remove volumes     → docker compose -p alpha_macro down -v"
+################################ success #######################################
+printf '\n\033[1;32m🎉 Dashboard → http://localhost:7864\033[0m\n'
+echo "📊 Grafana   → http://localhost:3001 (admin/alpha)"
+echo "📜 Logs      → docker compose -p alpha_macro logs -f"
+echo "🛑 Stop      → docker compose -p alpha_macro down"
+echo "🧹 Purge     → docker compose -p alpha_macro down -v --remove-orphans"
