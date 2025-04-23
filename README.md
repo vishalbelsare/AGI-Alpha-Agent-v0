@@ -1,10 +1,6 @@
 
 <!-- 2025‑04‑23 — α‑Factory v1 README (Extended Edition) -->
 
-<p align="center">
-  <img src="https://raw.githubusercontent.com/MontrealAI/brand-assets/main/alpha-eye.svg" alt="α‑AGI Eye" width="120">
-</p>
-
 <h1 align="center">AGI‑Alpha‑Agent‑v0</h1>
 <h3 align="center">CA: tWKHzXd5PRmxTF5cMfJkm2Ua3TcjwNNoSRUqx6Apump</h3>
 <h2 align="center">AGI ALPHA AGENT (<a href="https://app.ens.domains/name/alpha.agent.agi.eth">ALPHA.AGENT.AGI.Eth</a>) ⚡ Powered by $AGIALPHA</h2>
