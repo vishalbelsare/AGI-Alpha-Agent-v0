@@ -135,6 +135,6 @@ export LLM_MODEL=phi
 ---
 
 ## 8. License 📜  
-MIT © 2025 Montreal.AI
+MIT © 2025 MONTREAL.AI
 
 <p align="center"><sub>α‑Factory v1 • Out‑learn · Out‑think · Out‑design · Out‑strategise · Out‑execute</sub></p>
