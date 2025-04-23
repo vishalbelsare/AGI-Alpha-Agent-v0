@@ -8,9 +8,7 @@
 <h3 align="center">AGI ALPHA AGENT (<a href="https://app.ens.domains/name/alpha.agent.agi.eth">ALPHA.AGENT.AGI.Eth</a>) ⚡ Powered by <code>$AGIALPHA</code></h3>
 <p align="center"><em>Seize the Alpha. Transform the World.</em></p>
 
-> **Vincent Boucher** — President of <a href="https://www.montreal.ai">MONTREAL.AI</a> — conquered the <a href="https://web.archive.org/web/20170929214241/https://gym.openai.com/read-only.html">OpenAI Gym</a> in 2016 and released the pioneering <a href="https://www.quebecartificialintelligence.com/priorart">“Multi‑Agent AI DAO”</a> blueprint (2017).  
-
-> Today that IP culminates in **AGENTIC α‑AGI 👁️✨** — autonomously discovering, governing, and monetising alpha across industries.
+> **Vincent Boucher** — President of <a href="https://www.montreal.ai">MONTREAL.AI</a> — conquered the <a href="https://web.archive.org/web/20170929214241/https://gym.openai.com/read-only.html">OpenAI Gym</a> in 2016 and released the pioneering <a href="https://www.quebecartificialintelligence.com/priorart">“Multi‑Agent AI DAO”</a> blueprint (2017). Today that IP culminates in **AGENTIC α‑AGI 👁️✨** — autonomously discovering, governing, and monetising alpha across industries.
 
 <p align="center">
   <a href="https://htmlpreview.github.io/?https://raw.githubusercontent.com/MontrealAI/AGI-Alpha-Agent-v0/main/deploy_sovereign_agentic_agialpha_agent_v0.html">
