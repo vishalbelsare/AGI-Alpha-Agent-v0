@@ -40,7 +40,7 @@
 
 ```bash
 # all in one
-bash <(curl -fsSL https://raw.githubusercontent.com/MontrealAI/AGI-Alpha-Agent-v0/blob/main/alpha_factory_v1/install_alpha_factory_pro.sh)
+bash <(curl -fsSL https://raw.githubusercontent.com/MontrealAI/AGI-Alpha-Agent-v0/main/alpha_factory_v1/install_alpha_factory_pro.sh)
 ```
 
 *Installs prerequisites → verifies signatures → detects live alpha → launches UI on **http://localhost:8080***.
