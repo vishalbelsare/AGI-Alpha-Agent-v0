@@ -8,10 +8,6 @@
   CI/CD, K8s, observability, troubleshooting, contributor guide, SBOM notice.
 -->
 
-<p align="center">
-  <img src="https://raw.githubusercontent.com/MontrealAI/brand/main/alpha_factory_banner.svg" alt="Alpha‑Factory banner" width="640"/>
-</p>
-
 # 🌌 Algorithms That Invent Algorithms — **AI‑GA Meta‑Evolution Demo**
 
 > *“Why hand‑craft intelligence when evolution can author it for you?”*  
