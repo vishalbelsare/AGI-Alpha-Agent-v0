@@ -2,127 +2,174 @@
 """
 reward_backends · Alpha‑Factory v1 👁️✨
 ──────────────────────────────────────────
-Pluggable reward‑function framework inspired by the “Era of Experience”
-grounded‑reward pillar.
+Pluggable reward‑function registry inspired by Silver & Sutton’s “Era of Experience”.
 
-• Any *.py file in this package that defines a callable named
-  `reward(state, action, result) -> float` is auto‑discovered.
+Any ``*.py`` module in this package that defines **``reward(state, action, result) -> float``**
+is auto‑discovered at import‑time and exposed through a thread‑safe read‑only registry.
 
-• Public API
-    list_rewards()               → tuple[str, …]
-    reward_signal(name, s, a, r) → float
-    blend(signals, weights=None) → float
-    refresh()                    → rescan package
+Public helpers
+--------------
+• ``list_rewards()``             → tuple[str, …]      – immutable view of registered names
+• ``reward_signal(name, s, a, r)`` → float           – invoke *one* backend
+• ``blend(signals, weights=None)`` → float           – weighted aggregation helper
+• ``refresh()``                  – rescan package at runtime (hot‑reload)
 
-Design notes
-────────────
-▸ Zero runtime dependencies beyond the Python ≥ 3.9 std‑lib  
-▸ Hot‑reload friendly – call refresh() to pick up new files  
-▸ Fault‑tolerant – bad back‑ends are logged & quarantined  
-▸ Thread‑safe read path via MappingProxyType
+Implementation highlights
+-------------------------
+• **Zero** external runtime deps beyond the Python ≥ 3.9 std‑lib
+• Discovery quarantines bad modules & prints a clear diagnostic
+• Read‑path fully thread‑safe via ``MappingProxyType`` & a module‑local ``_LOCK``
+• Friendly logging via ``logging.getLogger(__name__)``
 """
 
 from __future__ import annotations
 
 import importlib
 import inspect
+import logging
 import pkgutil
+import threading
 import types
 from pathlib import Path
 from types import MappingProxyType
 from typing import Callable, Dict, Tuple
 
-# ──────────────────────────── internal registry ──────────────────────────────
-_pkg_path = Path(__file__).parent
-_registry: Dict[str, Callable] = {}
-_frozen: MappingProxyType | None = None
+__all__ = (
+    "list_rewards",
+    "reward_signal",
+    "blend",
+    "refresh",
+)
 
-# ─────────────────────────── helper functions ────────────────────────────────
-def _qualname(mod: types.ModuleType) -> str:
+_LOG = logging.getLogger(__name__)
+_PKG_PATH = Path(__file__).parent
+_REGISTRY: Dict[str, Callable] = {}
+_FROZEN: MappingProxyType[str, Callable] | None = None
+_LOCK = threading.Lock()
+
+# ───────────────────────── internal helpers ──────────────────────────
+
+
+def _qualname(mod: types.ModuleType) -> str:  # tiny helper for nicer msgs
     return f"{mod.__name__}.reward"
 
+
 def _scan_package() -> None:
-    """Import every reward backend & register its reward() callable."""
-    global _registry, _frozen
-    _registry.clear()
+    """
+    Import every backend once & (re)build an immutable registry.
 
-    for info in pkgutil.iter_modules([_pkg_path]):
-        if info.ispkg or info.name.startswith("_"):
-            continue
-        mod_name = f"{__name__}.{info.name}"
-        try:
-            mod = importlib.import_module(mod_name)
-        except Exception as exc:  # noqa: BLE001
-            print(f"[reward_backends] ⚠ failed loading {mod_name}: {exc}")
-            continue
+    Safe to call repeatedly – calls are synchronised via ``_LOCK``.
+    """
+    global _REGISTRY, _FROZEN
 
-        fn = getattr(mod, "reward", None)
-        if not callable(fn):
-            print(f"[reward_backends] ⤬ {mod_name} has no callable reward()")
-            continue
-        if len(inspect.signature(fn).parameters) != 3:
-            print(
-                f"[reward_backends] ⤬ {_qualname(mod)} invalid signature "
-                "(expected (state, action, result))"
-            )
-            continue
+    with _LOCK:
+        _REGISTRY.clear()
 
-        _registry[info.name] = fn
+        for info in pkgutil.iter_modules([_PKG_PATH]):  # noqa: PD011
+            if info.ispkg or info.name.startswith("_"):
+                continue
 
-    _frozen = MappingProxyType(_registry.copy())
-    joined = ", ".join(_registry) or "none"
-    print(f"[reward_backends] ✓ registered: {joined}")
+            mod_name = f"{__name__}.{info.name}"
+            try:
+                mod = importlib.import_module(mod_name)
+            except Exception as exc:  # noqa: BLE001
+                _LOG.warning("Failed loading %s: %s", mod_name, exc)
+                continue
 
-# ───────────────────────────── public API ────────────────────────────────────
+            fn = getattr(mod, "reward", None)
+            if not callable(fn):
+                _LOG.warning("%s missing callable reward()", mod_name)
+                continue
+
+            sig = inspect.signature(fn)
+            if len(sig.parameters) != 3:
+                _LOG.warning(
+                    "%s has invalid signature %s – expected (state, action, result)",
+                    _qualname(mod),
+                    sig,
+                )
+                continue
+
+            _REGISTRY[info.name] = fn
+
+        _FROZEN = MappingProxyType(_REGISTRY.copy())  # snapshots mapping
+        _LOG.info("Registered reward back‑ends: %s", ", ".join(_REGISTRY) or "none")
+
+
+# ─────────────────────────── public API ──────────────────────────────
+
+
 def list_rewards() -> Tuple[str, ...]:
-    """Return an immutable tuple of available reward back‑end names."""
-    return tuple(_frozen or ())
+    """Immutable tuple of available back‑end *names*."""
+    return tuple(_FROZEN or ())
+
 
 def reward_signal(name: str, state, action, result) -> float:
     """
-    Execute a single back‑end by *name*.
+    Run *one* reward backend by name.
 
     Parameters
     ----------
-    name   : str  – registered back‑end name
-    state  : Any  – environment / agent state snapshot
-    action : Any  – action the agent just took
-    result : Any  – observation / env outcome
-
-    Raises
-    ------
-    KeyError – if *name* is unknown
-    """
-    fn = (_frozen or {}).get(name)
-    if fn is None:
-        raise KeyError(f"Unknown reward back‑end: {name!r}")
-    return float(fn(state, action, result))
-
-def blend(signals: Dict[str, float],
-          weights: Dict[str, float] | None = None) -> float:
-    """
-    Weighted blend of pre‑computed reward signals.
-
-    Parameters
-    ----------
-    signals : mapping name → value
-    weights : mapping name → weight (default = equal)
+    name   : str   – backend identifier (module stem)
+    state  : Any   – environment / agent state snapshot
+    action : Any   – action executed by agent
+    result : Any   – observation / env outcome
 
     Returns
     -------
-    float – aggregated reward
+    float – scalar reward from the backend
+
+    Raises
+    ------
+    KeyError – unknown backend
+    RuntimeError – backend returned non‑numeric
+    """
+    fn = (_FROZEN or {}).get(name)
+    if fn is None:
+        raise KeyError(f"Unknown reward back‑end: {name!r}")
+
+    value = fn(state, action, result)
+    try:
+        return float(value)
+    except (TypeError, ValueError):
+        raise RuntimeError(f"{name}.reward() returned non‑numeric {value!r}") from None
+
+
+def blend(
+    signals: Dict[str, float],
+    weights: Dict[str, float] | None = None,
+) -> float:
+    """
+    Weighted aggregate of *pre‑computed* reward signals.
+
+    Example
+    -------
+    >>> s = {"fitness": 0.75, "education": 0.42}
+    >>> blend(s, {"fitness": 0.8, "education": 0.2})
+    0.678
     """
     if not signals:
         return 0.0
+
     if weights is None:
         weights = {k: 1.0 for k in signals}
 
-    total_w = sum(weights.get(k, 0.0) for k in signals) or 1.0
+    # guard common foot‑guns
+    negative = [k for k, w in weights.items() if w < 0]
+    if negative:
+        raise ValueError(f"Negative weights not allowed: {negative}")
+
+    total_w = sum(weights.get(k, 0.0) for k in signals)
+    if total_w == 0:
+        raise ValueError("Sum of weights is zero")
+
     return sum(signals[k] * weights.get(k, 0.0) for k in signals) / total_w
 
+
 def refresh() -> None:
-    """Force a rescan (hot‑reload during iterative development)."""
+    """Hot‑reload registry – picks up new or modified back‑ends."""
     _scan_package()
 
-# ───────────────────────────── bootstrap ─────────────────────────────────────
+
+# ───────────────────────── bootstrap on import ───────────────────────
 _scan_package()
