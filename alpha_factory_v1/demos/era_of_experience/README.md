@@ -151,12 +151,6 @@ Shared Redis memory + A2A = emergent cooperation.
 
 ---
 
-## 🤝 Contributing
-
-PRs welcome! Please follow `CONTRIBUTING.md` for coding style & DCO sign‑off.
-
----
-
 ## 📜 License
 
 MIT. By using this repo you agree to cite **Montreal.AI Alpha‑Factory** if you build on top.
