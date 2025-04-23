@@ -1,30 +1,162 @@
+# alpha_factory_v1/demos/era_of_experience/docker-compose.experience.yml
+# -----------------------------------------------------------------------
+#  Era-of-Experience • Alpha-Factory v1 👁️✨
+#  ───────────────────────────────────────────────────────────────────────
+#  ┌─ PROFILES ──────────────────────────────────────────────────────────┐
+#  | gpu        — enable CUDA build & nvidia runtime                     |
+#  | offline    — start Ollama/Mixtral when OPENAI_API_KEY is unset      |
+#  | observability — Prometheus + Grafana stack                          |
+#  | live-feed  — attach PostgreSQL TimescaleDB stream logger            |
+#  └──────────────────────────────────────────────────────────────────────┘
+#
+#  Inspired by OpenAI Agents SDK §6 deployment patterns (2025-04).
+# -----------------------------------------------------------------------
 version: "3.9"
 
+x-common-env: &common-env
+  TZ: UTC
+  PYTHONUNBUFFERED: "1"
+  # leave blank for full offline mode
+  OPENAI_API_KEY: "${OPENAI_API_KEY:-}"
+  MODEL_NAME: "${MODEL_NAME:-gpt-4o-mini}"
+  TEMPERATURE: "${TEMPERATURE:-0.2}"
+  # ↓ live metrics (optional)
+  PROM_PUSHGATEWAY: "http://prom-push:9091"
+
+x-health-curl: &hc
+  interval: 20s
+  retries: 5
+  start_period: 30s
+  test: ["CMD-SHELL", "curl -f $${HEALTH_URL} || exit 1"]
+
+# ───────────────────────────── SERVICES ────────────────────────────────
 services:
-
-  orchestrator:
-    # Build Alpha‑Factory image in CPU‑slim mode
-    build:
-      context: ../..                      # → alpha_factory_v1/
-      dockerfile: ./Dockerfile            # single multi‑stage Dockerfile :contentReference[oaicite:0]{index=0}
-    image: alpha_factory_orchestrator:era
-    env_file: ./config.env
-    command: python /app/demo/agent_experience_entrypoint.py
+  # ───────────── Vector Memory (Qdrant) ─────────────
+  qdrant:
+    image: qdrant/qdrant:latest
     volumes:
-      - ./:/app/demo:ro                   # mount demo so entry‑point is visible
-    ports:
-      - "7860:7860"
-    depends_on:
-      - ollama
+      - qdrant_data:/qdrant/storage
+    healthcheck:
+      <<: *hc
+      environment:
+        HEALTH_URL: http://localhost:6333/health
 
-  # Offline fallback LLM (runs even when OPENAI_API_KEY is unset)
+  # ───────────── TimescaleDB stream logger (live-feed) ─────────────
+  timescaledb:
+    image: timescale/timescaledb-postgis:2.15.0-pg14
+    profiles: ["live-feed"]
+    environment:
+      POSTGRES_PASSWORD: "${PG_PASSWORD:-experience}"
+      POSTGRES_USER: experience
+      POSTGRES_DB: exp_stream
+    volumes:
+      - ts_data:/var/lib/postgresql/data
+    healthcheck:
+      <<: *hc
+      environment:
+        HEALTH_URL: http://localhost:5432
+
+  # ───────────── Redis queue for async tools ─────────────
+  redis:
+    image: redis:7-alpine
+    command: ["redis-server", "--save", "", "--appendonly", "no"]
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+
+  # ───────────── Offline LLM fallback (Mixtral) ─────────────
   ollama:
     image: ollama/ollama:latest
+    profiles: ["offline"]
     tty: true
     environment:
       - OLLAMA_MODELS=mixtral:instruct
     volumes:
-      - ollama_models:/root/.ollama       # cache weights between runs
+      - ollama_models:/root/.ollama
+    healthcheck:
+      <<: *hc
+      environment:
+        HEALTH_URL: http://localhost:11434/.well-known/ready
 
+  # ───────────── Orchestrator Agent ─────────────
+  orchestrator:
+    build:
+      context: ../..
+      dockerfile: ./Dockerfile
+      args:
+        ENABLE_CUDA: "${ENABLE_CUDA:-0}"   # toggled by --profile gpu
+    image: alpha_factory_orchestrator:experience
+    command: python /app/demo/agent_experience_entrypoint.py
+    env_file: ./config.env
+    environment:
+      <<: *common-env
+      VECTOR_DB_URL: "http://qdrant:6333"
+      REDIS_URL: "redis://redis:6379/0"
+      DATABASE_URL: "postgresql://experience:${PG_PASSWORD:-experience}@timescaledb:5432/exp_stream"
+      LLM_BASE_URL: "${LLM_BASE_URL:-http://ollama:11434/v1}"
+    volumes:
+      - ./:/app/demo:ro
+    depends_on:
+      qdrant:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      ollama:
+        condition: service_started
+      timescaledb:
+        condition: service_healthy
+    ports:
+      - "7860:7860"
+    healthcheck:
+      <<: *hc
+      environment:
+        HEALTH_URL: http://localhost:7860/__live
+    restart: unless-stopped
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - capabilities: [gpu]
+              driver: nvidia
+              count: all
+          cpus: "0.50"
+          memory: 1G
+
+  # ───────────── Observability stack (optional) ─────────────
+  prom-push:
+    image: prom/pushgateway:latest
+    profiles: ["observability"]
+    ports:
+      - "9091:9091"
+
+  prometheus:
+    image: prom/prometheus:latest
+    profiles: ["observability"]
+    volumes:
+      - ./observability/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+    command: ["--config.file=/etc/prometheus/prometheus.yml"]
+    ports:
+      - "9090:9090"
+
+  grafana:
+    image: grafana/grafana-oss:11.0.0
+    profiles: ["observability"]
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=experience
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./observability/grafana_dashboards:/etc/grafana/provisioning/dashboards:ro
+      - ./observability/grafana_datasources:/etc/grafana/provisioning/datasources:ro
+    ports:
+      - "3001:3000"
+    depends_on:
+      - prometheus
+
+# ───────────────────────────── VOLUMES ────────────────────────────────
 volumes:
+  qdrant_data:
+  ts_data:
+  redis_data:
   ollama_models:
+  grafana_data:
