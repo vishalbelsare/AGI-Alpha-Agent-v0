@@ -1,89 +1,84 @@
 
-<!-- =======================================================================
-     2025‑04‑23 — α‑Factory v1 README (Ultimate Edition)
-     This README is auto‑generated.  Drop the file at repo root.
-     ======================================================================= -->
+<!-- ========================================================================
+  2025‑04‑23 — α‑Factory v1 README
+  ======================================================================== -->
 
-# AGI‑Alpha‑Agent‑v0
+<h1 align="center">AGI‑Alpha‑Agent‑v0</h1>
+<p align="center"><strong>CA:</strong> <code>tWKHzXd5PRmxTF5cMfJkm2Ua3TcjwNNoSRUqx6Apump</code></p>
+<h3 align="center">AGI ALPHA AGENT (<a href="https://app.ens.domains/name/alpha.agent.agi.eth">ALPHA.AGENT.AGI.Eth</a>) ⚡ Powered by <code>$AGIALPHA</code></h3>
+<p align="center"><em>Seize the Alpha. Transform the World.</em></p>
 
-## CA: tWKHzXd5PRmxTF5cMfJkm2Ua3TcjwNNoSRUqx6Apump
+> **Vincent Boucher** — President of <a href="https://www.montreal.ai">MONTREAL.AI</a> — conquered the <a href="https://web.archive.org/web/20170929214241/https://gym.openai.com/read-only.html">OpenAI Gym</a> in 2016 and released the pioneering <a href="https://www.quebecartificialintelligence.com/priorart">“Multi‑Agent AI DAO”</a> blueprint (2017).  
 
-## AGI ALPHA AGENT ([ALPHA.AGENT.AGI.Eth](https://app.ens.domains/name/alpha.agent.agi.eth)) ⚡ Powered by $AGIALPHA
-
-### Seize the Alpha. Transform the World.
-
-> **Vincent Boucher** — President of [MONTREAL.AI](https://www.montreal.ai) — conquered the [OpenAI Gym](https://web.archive.org/web/20170929214241/https://gym.openai.com/read-only.html) in 2016 and authored the seminal [Multi‑Agent AI DAO](https://www.quebecartificialintelligence.com/priorart) blueprint (2017).    
-> That foundation now fuels **AGENTIC α‑AGI 👁️✨** — a cross‑industry **Alpha Factory** built to **Out‑learn · Out‑think · Out‑design · Out‑strategise · Out‑execute**.
+> Today that IP culminates in **AGENTIC α‑AGI 👁️✨** — autonomously discovering, governing, and monetising alpha across industries.
 
 <p align="center">
   <a href="https://htmlpreview.github.io/?https://raw.githubusercontent.com/MontrealAI/AGI-Alpha-Agent-v0/main/deploy_sovereign_agentic_agialpha_agent_v0.html">
-    <img src="https://img.shields.io/static/v1?label=LIVE&message=ALPHA%20EXPLORER&color=blue&style=for-the-badge">
+    <img src="https://img.shields.io/badge/LAUNCH-ALPHA%20EXPLORER-0a84ff?logo=thunderbird&style=for-the-badge">
   </a>
 </p>
 
 ---
 
-## ✨ Why α‑Factory?
-
-```
-┌───────────────────────────────────────────────────────────┐
-│ α‑Factory  →  Autonomous Alpha Signal Foundry            │
-│                                                         │
-│  Finance  •  Policy  •  Biotech  •  Manufacturing  • 🧬 │
-│                  Meta‑Evolution Lab                     │
-│                                                         │
-│ Discovery  →  Backtest  →  Governance  →  Execution     │
-└───────────────────────────────────────────────────────────┘
-```
-
-* **Best‑in‑class Agent Stack** — OpenAI Agents SDK, Google ADK, Anthropic MCP, Agent2Agent (A2A)  
-* **Plug‑and‑Play Adapters** — live markets, genomics APIs, legislative feeds, OPC‑UA factory streams  
-* **Reg‑grade Security** — SPIFFE identities, Cosign‑signed containers, SBOM, model‑graded evals  
-* **Antifragile Feedback Loop** — stressors → metrics → self‑fine‑tuning under governance guard‑rails  
-* **API‑Key Optional** — fully offline with local Φ‑2 (Ollama) or φ‑3b HF models when `OPENAI_API_KEY` is absent  
+## 0. Table of Contents
+1. [Why α‑Factory?](#1-why-αfactory)
+2. [Quick Start](#2-quick-start)
+3. [Architecture](#3-architecture)
+4. [Demo Gallery](#4-demo-gallery)
+5. [Vertical Agents Deep Dive](#5-vertical-agents-deep-dive)
+6. [Security & Compliance](#6-security--compliance)
+7. [Developer Workflow](#7-developer-workflow)
+8. [License](#8-license)
 
 ---
 
-## 🚀 Quick Start (one‑liner)
+## 1. Why α‑Factory?  
+
+```
+┌─────────────────────────────────────────────────────────┐
+│      RAW DATA   →   VALIDATED α   →   REAL VALUE       │
+│─────────────────────────────────────────────────────────│
+│ Finance • Policy • Biotech • Manufacturing • 🧬 Meta‑E │
+└─────────────────────────────────────────────────────────┘
+```
+
+* **Cutting‑Edge Agent Toolchain** — OpenAI Agents SDK, Google ADK, Anthropic MCP, A2A messaging.
+* **Plug‑&‑Play Vertical Adapters** — market APIs, genomics datasets, legislative feeds, OPC‑UA.
+* **Reg‑Ready by Default** — SPIFFE identities, Cosign + Rekor signatures, SBOM, model‑graded evals.
+* **Antifragile Learning Loop** — Every stressor → metrics → continuous fine‑tuning.
+* **Offline Friendly** — Automatic Φ‑2 / φ‑3b switch when `OPENAI_API_KEY` not available.
+
+---
+
+## 2. Quick Start 🚀
 
 ```bash
-curl -sL https://raw.githubusercontent.com/MontrealAI/AGI-Alpha-Agent-v0/main/deploy_live_alpha.sh | bash
+# all in one
+bash <(curl -fsSL https://raw.githubusercontent.com/MontrealAI/AGI-Alpha-Agent-v0/main/deploy_live_alpha.sh)
 ```
 
-The bootstrap script:
-
-1. Installs Docker (and Ollama if needed).  
-2. Clones **AGI‑Alpha‑Agent‑v0** & verifies Cosign signatures.  
-3. Detects today’s best finance momentum alpha (`/runtime/best_alpha.json`).  
-4. Starts Ray‑based agent cluster + trace‑graph UI on **localhost:8080**.  
-5. Falls back to local Φ‑2 if OpenAI credentials are missing.
+*Installs prerequisites → verifies signatures → detects live alpha → launches UI on **http://localhost:8080***.
 
 ---
 
-## 🏗️ Architecture Overview
+## 3. Architecture 🏗️
 
 ```mermaid
 flowchart TD
-    subgraph Security
-        Spire[SPIRE<br/>Workload Attestations]
-        Cosign[Cosign + Rekor]
-    end
     subgraph DevSecOps
-        GH[GitHub Actions] --> Cosign
-        GH --> Syft[Syft SBOM]
+        GH[GitHub Actions] -->|Build & Test| Images
+        Images --> Cosign[Cosign sign] --> Rekor[Rekor log]
+        GH -->|SBOM| Syft
     end
-    subgraph Runtime
-        AlphaMgr[AlphaManager<br/>(Ray Actor)]
-        Finance[FinanceAgent]
-        Policy[PolicyAgent]
-        Biotech[BiotechAgent]
-        Mfg[ManufacturingAgent]
-        Meta[MetaEvolutionAgent]
+    subgraph Cluster
+        Spire[SPIRE IDs]
+        AlphaMgr[AlphaManager]
+        Finance & Policy & Biotech & Mfg & Meta
         UI[Trace‑Graph UI]
-        Prom[Prometheus / Grafana]
+        Prom[Prometheus]
     end
-    Cosign -->|verified images| Runtime
-    Spire --> Runtime
+    Cosign -->|Verified images| Cluster
+    Spire --> Cluster
     Finance -->|A2A| AlphaMgr
     Policy -->|A2A| AlphaMgr
     Biotech -->|A2A| AlphaMgr
@@ -95,67 +90,57 @@ flowchart TD
 
 ---
 
-## 🎮 Demo Showcase (`alpha_factory_v1/demos/`)
+## 4. Demo Gallery (`alpha_factory_v1/demos/`) 🎮
 
-| Demo | Emoji | Essence | Command |
-|------|-------|---------|---------|
-| AIGA Meta Evolution | 🧬 | Evolutionary code‑gen lab where agents *write* & unit‑test new agents. | `docker compose -f demos/docker-compose.aiga_meta.yml up` |
-| Era of Experience | 🏛️ | Narrative RAG that fuses personal memory graph into tutoring agent. | `docker compose -f demos/docker-compose.era.yml up` |
-| Finance Alpha | 💹 | Live factor momentum + risk parity; outputs JSON trade blotter. | `docker compose -f demos/docker-compose.finance.yml up` |
-| Macro Sentinel | 🌐 | Macro horizon scanner + CTA hedge back‑tester. | `docker compose -f demos/docker-compose.macro.yml up` |
-| MuZero Planning | ♟️ | MuZero planning against synthetic markets to probe reasoning depth. | `docker compose -f demos/docker-compose.muzero.yml up` |
-| Self‑Healing Repo | 🩹 | Watches GitHub webhooks; patches failing tests via Agents SDK. | `docker compose -f demos/docker-compose.selfheal.yml up` |
-
----
-
-## 🔎 Vertical Agents Deep Dive
-
-| Agent | Core Model | Connectors | Algoritmic Edge | Governance Guard‑rails |
-|-------|------------|------------|-----------------|------------------------|
-| FinanceAgent | GPT‑4o / Φ‑2 | Polygon, Binance, DEX Screener, FRED | Factor momentum, risk parity, Monte‑Carlo VAR | Max VAR, explain‑before‑trade |
-| BiotechAgent | GPT‑4o | Ensembl REST, PubChem, PDB | Protein‑target mapping, CRISPR guide scoring | 3‑layer bio‑safety filter |
-| PolicyAgent | GPT‑4o | govinfo.gov, RegHub, Global‑Voices | Bill lineage graph, lobbying pathfinder | Conflict‑of‑interest log, bias eval |
-| ManufacturingAgent | GPT‑4o | OPC‑UA, MQTT, CSV | OR‑Tools MILP scheduling, downtime root‑cause | Safety FMEA, SLA violation flag |
-| MetaEvolutionAgent | GPT‑4o | GitHub API, HuggingFace | Genetic programming, auto‑unit test harness | SBOM diff + Cosign gate |
+| Demo | ⚙️ Focus | Insight | Command |
+|------|---------|---------|---------|
+| **AIGA Meta Evolution** 🧬 | Code‑gen | Agents evolve & unit‑test new agents. | `docker compose -f demos/docker-compose.aiga_meta.yml up` |
+| **Era of Experience** 🏛️ | Personalised AI | Memory‑graph RAG → tutor agent. | `docker compose -f demos/docker-compose.era.yml up` |
+| **Finance Alpha** 💹 | Markets | Live momentum + risk parity. | `docker compose -f demos/docker-compose.finance.yml up` |
+| **Macro Sentinel** 🌐 | Macro | GPT‑RAG scanner + CTA hedge test. | `docker compose -f demos/docker-compose.macro.yml up` |
+| **MuZero Planning** ♟️ | Reasoning | MuZero vs synthetic markets. | `docker compose -f demos/docker-compose.muzero.yml up` |
+| **Self‑Healing Repo** 🩹 | DevOps | Auto‑patch failing tests via Agents SDK. | `docker compose -f demos/docker-compose.selfheal.yml up` |
 
 ---
 
-## 🛡️ Security & Compliance Stack
+## 5. Vertical Agents Deep Dive
 
-```
-[ Dev Laptop ]
-      |
-      v
-[ Cosign‑signed image ] → [ Rekor log ] → [ K8s Cluster ]
-      |                         |
-      +── verified by ──────────+
-      |
- SPIFFE ID ↔ mTLS ↔ Agents
+| Agent | Model | Data Feeds | Algo Edge | Guard‑rails |
+|-------|-------|-----------|-----------|-------------|
+| **FinanceAgent** | GPT‑4o / Φ‑2 | Polygon, Binance, DEX Screener | Factor momentum, risk parity | VaR limit, human‑in‑the‑loop confirm |
+| **BiotechAgent** | GPT‑4o | Ensembl, PDB, PubChem | Protein‑target BLAST, CRISPR score | Bio‑safety triage |
+| **PolicyAgent** | GPT‑4o | govinfo.gov, RegHub | Bill lineage, lobbying graph | COI log, bias eval |
+| **ManufacturingAgent** | GPT‑4o | OPC‑UA, MQTT | OR‑Tools MILP schedule | Safety FMEA |
+| **MetaEvolutionAgent** | GPT‑4o | GitHub API | Genetic programming, unit‑test harness | SBOM diff + Cosign gate |
+
+---
+
+## 6. Security & Compliance 🛡️
+
+```text
+Dev → GH Actions → Signed Image → Rekor log
+             ↘ SBOM          ↗ verify
+   SPIRE ID ↔  mTLS mesh  ↔   Agents
 ```
 
-* **Zero‑Trust** — Each container gets a SPIFFE ID; all RPCs mTLS.  
-* **Supply‑Chain** — Syft SBOM → GitHub Release; Cosign signature verified at boot.  
-* **Model‑Graded Evaluations** — nightly bias / safety evals with OpenAI evals framework.  
-* **Auditability** — Hash of every A2A message & prompt stored (BLAKE3) and query‑able.
+* **Zero‑Trust Mesh** — SPIFFE IDs, mTLS for every RPC.  
+* **Immutable Supply‑Chain** — Cosign signatures stored in Rekor transparency log.  
+* **Transparent Software Bill of Materials** — Syft → CycloneDX.  
+* **Model‑Graded Evaluations** — OpenAI evals for bias/harm nightly.  
+* **Comprehensive Audit Trail** — BLAKE3 hash of every prompt & A2A message.
 
 ---
 
-## 🛠️ Developer Workflow
+## 7. Developer Workflow 🛠️
 
 ```bash
-# Run CI locally
-make test            # pytest + red‑team prompts
-make eval            # model‑graded eval suite
-
-# Hot‑reload orchestrator
+make test        # pytest + red‑team prompts
+make eval        # model‑graded evals
+make sbom sign   # SBOM + Cosign
 docker compose exec orchestrator reflex run --reload
-
-# Produce SBOM & sign image
-make sbom && make sign
 ```
 
-### Offline / Local LLM
-
+### Local Model Mode
 ```bash
 export LLM_ENDPOINT=http://localhost:11434
 export LLM_MODEL=phi
@@ -163,10 +148,7 @@ export LLM_MODEL=phi
 
 ---
 
-## 📜 License
+## 8. License 📜  
+MIT © 2025 Montreal.AI
 
-**MIT** © 2025 Montreal.AI
-
----
-
-<p align="center"><sub>α‑Factory v1 — Out‑learn · Out‑think · Out‑design · Out‑strategise · Out‑execute</sub></p>
+<p align="center"><sub>α‑Factory v1 • Out‑learn · Out‑think · Out‑design · Out‑strategise · Out‑execute</sub></p>
