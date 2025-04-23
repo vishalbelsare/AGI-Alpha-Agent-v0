@@ -47,7 +47,7 @@ _No API key? The launcher auto‑installs Ollama + Φ‑2 and disables network
 
 ## 🏗️ System Diagram
 
-```mermaid
+```text
 flowchart TD
     subgraph Infra
         Spire[SPIRE Server]
