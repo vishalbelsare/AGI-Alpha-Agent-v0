@@ -18,18 +18,6 @@
 
 ---
 
-## 0. Table of Contents
-1. [Why α‑Factory?](#1-why-αfactory)
-2. [Quick Start](#2-quick-start)
-3. [Architecture](#3-architecture)
-4. [Demo Gallery](#4-demo-gallery)
-5. [Vertical Agents Deep Dive](#5-vertical-agents-deep-dive)
-6. [Security & Compliance](#6-security--compliance)
-7. [Developer Workflow](#7-developer-workflow)
-8. [License](#8-license)
-
----
-
 ## 1. Why α‑Factory?  
 
 ```
@@ -52,7 +40,7 @@
 
 ```bash
 # all in one
-bash <(curl -fsSL https://raw.githubusercontent.com/MontrealAI/AGI-Alpha-Agent-v0/main/deploy_live_alpha.sh)
+bash <(curl -fsSL https://raw.githubusercontent.com/MontrealAI/AGI-Alpha-Agent-v0/blob/main/alpha_factory_v1/install_alpha_factory_pro.sh)
 ```
 
 *Installs prerequisites → verifies signatures → detects live alpha → launches UI on **http://localhost:8080***.
