@@ -2,208 +2,204 @@
   AI‑GA Meta‑Evolution Demo
   Alpha‑Factory v1 👁️✨ — Multi‑Agent **AGENTIC α‑AGI**
   Out‑learn · Out‑think · Out‑strategise · Out‑evolve
-  © 2025 MONTREAL.AI   MIT License
-  ===============================================================================
-  This README is intentionally exhaustive: quick‑start, deep‑dive, SOC‑2 rails,
-  CI/CD, K8s, observability, troubleshooting, contributor guide, SBOM notice.
+  © 2025 MONTREAL.AI   MIT License
+  -------------------------------------------------------------------------------
+  Exhaustive README: quick‑start, deep‑dive, SOC‑2 rails, CI/CD, K8s,
+  observability, SBOM notice. Rendered as GitHub‑flavoured Markdown.
 -->
 
-# 🌌 Algorithms That Invent Algorithms — **AI‑GA Meta‑Evolution Demo**
+
+# 🌌 Algorithms That Invent Algorithms — <br>**AI‑GA Meta‑Evolution Demo**
 
 > *“Why hand‑craft intelligence when evolution can author it for you?”*  
-> — Jeff Clune, <cite>AI‑GAs: AI‑Generating Algorithms</cite> (2019) citeturn1file0
+> — Jeff Clune, *AI‑GAs: AI‑Generating Algorithms* (2019) citeturn3file0
 
-Welcome to the world’s first **one‑command, browser‑based showcase** of Clune’s
-*Three Pillars* — meta‑learning architectures, meta‑learning algorithms and
-self‑generating curricula — all woven into the **Alpha‑Factory** agent spine.
+A single‑command, browser‑based showcase of Clune’s **Three Pillars**:
 
-In **\<60 s** you’ll watch a population of neural networks **rewrite their own
-blueprint** while the world itself mutates to keep them sharp.
+| Pillar | Demo realisation |
+| :-- | :-- |
+| **Meta‑learning architectures** | Genome encodes a **typed list** of hidden sizes & activation; mutates via neuro‑evolution |
+| **Meta‑learning the learning algorithms** | Runtime flag flips between *SGD* and a *fast Hebbian plasticity* inner‑loop |
+| **Generating learning environments** | `CurriculumEnv` self‑mutates → *Line* → *Zig‑zag* → *Gap* → *Maze* |
 
----
-
-## 📜 Table of Contents
-1. [🚀 Quick start](#-quick-start)
-2. [🔑 LLM back‑ends](#-llm-back-ends)
-3. [🛠 Architecture deep‑dive](#-architecture-deep-dive)
-4. [📈 Observability](#-observability)
-5. [🧪 Tests & CI/CD](#-tests--cicd)
-6. [☁️ Kubernetes & Cloud Run](#-kubernetes--cloud-run)
-7. [🛡 SOC‑2 & Supply‑chain](#-soc-2--supply-chain)
-8. [🧩 Tinker guide](#-tinker-guide)
-9. [🆘 FAQ](#-faq)
-10. [🤝 Contributing](#-contributing)
-11. [⚖️ License & credits](#-license--credits)
+Within **&lt; 60 s** you’ll watch neural nets **rewrite their own blueprint** *while the world itself mutates to stay challenging*.
 
 ---
 
-## 🚀 Quick start
+<details open>
+<summary>📑 Table of contents — click to jump</summary>
+
+- [🚀 Quick‑start (Docker)](#-quick‑start-docker)
+- [🎓 Run in Colab](#-run-in-colab)
+- [🔑 Online vs offline LLMs](#-online-vs-offline-llms)
+- [🛠 Architecture deep‑dive](#-architecture-deep‑dive)
+- [📈 Observability & metrics](#-observability--metrics)
+- [🧪 Tests & CI](#-tests--ci)
+- [☁️ Kubernetes deploy](#-kubernetes-deploy)
+- [🛡 SOC‑2 & supply‑chain](#-soc‑2--supply‑chain)
+- [🧩 Tinker guide](#-tinker-guide)
+- [🆘 FAQ](#-faq)
+- [🤝 Contributing](#-contributing)
+- [⚖️ License & credits](#-license--credits)
+</details>
+
+---
+
+## 🚀 Quick‑start (Docker)
 
 ```bash
 git clone https://github.com/MontrealAI/AGI-Alpha-Agent-v0.git
 cd AGI-Alpha-Agent-v0/alpha_factory_v1/demos/aiga_meta_evolution
 
-# Optional flags:
-#   --pull    ⟶ use signed image from GHCR
-#   --gpu     ⟶ enable CUDA runtime
-./run_aiga_demo.sh --pull
+# optional: --pull (signed image)  --gpu (NVIDIA runtime)
+./run_aiga_demo.sh
 ```
 
-| Component | Port / URL | What you get |
-|-----------|------------|--------------|
-| **Gradio dashboard** | `http://localhost:7862` | Visualise population fitness, evolve generations |
-| **FastAPI JSON API** | `http://localhost:8000/docs` | OpenAPI 3 spec & interactive playground |
-| **Prometheus** | `http://localhost:8000/metrics` | `aiga_*` gauges + counters |
+| Endpoint | URL | Purpose |
+| --- | --- | --- |
+| **Gradio** UI | <http://localhost:7862> | Click **Evolve 5 Generations** |
+| **FastAPI** docs | <http://localhost:8000/docs> | Programmatic control |
+| **Prometheus** | <http://localhost:8000/metrics> | `aiga_*` gauges & counters |
 
-<details>
-<summary>Minimal prerequisites</summary>
+> 🧊 **Cold build** ≈ 40 s (900 MB). Subsequent runs are instant (cache).
 
-* Docker 24 + compose plug‑in  
-* ≥ 4 GB RAM (8 GB if you bump `pop_size`)  
-* **GPU not required** (CUDA 12 optional)  
-</details>
+Minimal host reqs → Docker 24, ≥ 4 GB RAM, **no GPU** needed.
 
 ---
 
-## 🔑 LLM back‑ends
+## 🎓 Run in Colab
 
-| Setting | Behaviour |
-|---------|-----------|
-| `OPENAI_API_KEY=<your‑key>` | Agents SDK tool‑calling with GPT‑5.5‑Turbo |
-| *unset / blank* | Private **Mixtral‑8x7B‑Instruct** served via Ollama side‑car |
-| `MODEL_NAME=claude-3-opus` | Anthropic MCP compliant calls |
-
-LLMs provide commentary, code‑assist & speculative planning; **core evolution
-logic is fully deterministic and offline‑capable.**
+| | |
+| :-- | :-- |
+| <a href="https://colab.research.google.com/github/MontrealAI/AGI-Alpha-Agent-v0/blob/main/alpha_factory_v1/demos/aiga_meta_evolution/colab_aiga_meta_evolution.ipynb"><img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"></a> | Launches the same dashboard with an automatic public URL. Ideal for workshops & quick demos. |
 
 ---
 
-## 🛠 Architecture deep‑dive
+## 🔑 Online vs offline LLMs
+
+| Environment variable | Effect |
+| --- | --- |
+| `OPENAI_API_KEY` **set** | Tools routed through **OpenAI Agents SDK** |
+| **unset / empty** | Drops to **Mixtral‑8x7B‑Instruct** via local Ollama side‑car – *zero network egress* |
+
+LLMs supply *commentary & analysis* only – **core evolution is deterministic**.
+
+---
+
+## 🛠 Architecture deep‑dive
 
 ```text
-┌──────────────── Docker Compose ───────────────┐
-│ orchestrator  (FastAPI + Gradio UI)           │
-│ evolution‑worker  (Ray actor pool)            │
-│ ollama‑mixtral  (optional offline LLM)        │
-│ prometheus & grafana (optional profile)       │
-└───────────────────────────────────────────────┘
-        ▲ REST / WebSocket            │
-        │                              ▼ checkpoints/*.json
-┌─────────────────────────────────────────────────────────────┐
-│ MetaEvolver ↔↔ Ray pool ↔ EvoNet (torch)  ──┐               │
-│    ├── tournament‑selection, novelty search │ obs           │
-│    └── Genome: [layers, activations, plasticity coeffs]     │
-│                                    ▲ Hebbian Δw             │
-│ CurriculumEnv  (Gymnasium) ────────┘ self‑mutates map/goal   │
-└──────────────────────────────────────────────────────────────┘
+┌── docker‑compose ─────────────┐
+│ orchestrator  (FastAPI + UI)  │◀─────────┐
+│ ollama  (Mixtral fallback)    │          │ WebSocket
+│ prometheus  (opt)             │          │
+└───────────────────────────────┘          │
+        ▲ REST / Ray RPC                   │
+┌────────────────────────────────────────┐ │
+│  MetaEvolver        checkpoint.json    │ │
+│    ├─ Ray / mp evaluation workers      │ │
+│    └─ EvoNet(nn.Module) ──┐            │ │ obs/reward
+│                           ▼            │ │
+│  CurriculumEnv (Gymnasium)             │◀┘
+└────────────────────────────────────────┘
 ```
 
-* **MetaEvolver** — population 24, novelty‑weighted ES, elitism 2  
-* **EvoNet** — variable‑depth MLP with per‑edge plasticity mask  
-* **CurriculumEnv** — procedurally mutating 12 × 12 grid‑world  
-* **Checkpoints** — SHA‑256 digests, resume on boot, Prom‑scrape fitness
+* **MetaEvolver** – pop 24, tournament‑k 3, elitism 2, novelty bonus toggle  
+* **EvoNet** – arbitrary hidden layers, activation ∈ {relu,tanh,sigmoid}, optional Hebbian ΔW  
+* **CurriculumEnv** – 12 × 12 grid, DFS solvability check, energy budget, genome auto‑mutation  
 
 ---
 
-## 📈 Observability
+## 📈 Observability & metrics
 
-Metric | Type | Description
--------|------|------------
-`aiga_avg_fitness` | gauge | Generation mean fitness
-`aiga_best_fitness` | gauge | Elite champion
-`aiga_curriculum_stage` | gauge | 0–3 (Line → Maze)
-`aiga_generations_total` | counter | Life‑time generations
+| Metric | Meaning |
+| :-- | :-- |
+| `aiga_avg_fitness` | Mean generation fitness |
+| `aiga_best_fitness` | Elite fitness |
+| `aiga_generations_total` | Counter |
+| `aiga_curriculum_stage` | 0–3 |
 
-Enable Grafana dashboard via:  
-```bash
-docker compose --profile telemetry up -d
-```
+Enable profile `telemetry` to autopush → Prometheus → Grafana.  
+`docker compose --profile telemetry up`.
 
 ---
 
-## 🧪 Tests & CI/CD
+## 🧪 Tests & CI
 
-* **pytest** branch‑cov ≥ 90 % in < 0.5 s  
-* **GitHub Actions**: lint → tests → Docker build → cosign sign  
-* **SLSA‑3** provenance, **SBOM** via Syft, **Trivy** scan gate
-
-```bash
-pip install -r ../../requirements-dev.txt
-pytest -q
-coverage html
-```
+* **Coverage ≥ 90 %** in < 0.5 s (`pytest -q`)  
+* GitHub Actions → lint → test → build → Cosign sign  
+* **SBOM** via *Syft* (SPDX v3) per release
 
 ---
 
-## ☁️ Kubernetes & Cloud Run
+## ☁️ Kubernetes deploy
 
 ```yaml
 apiVersion: apps/v1
 kind: Deployment
 metadata: { name: aiga-demo }
 spec:
-  replicas: 2
+  replicas: 1
+  selector: { matchLabels: { app: aiga-demo } }
   template:
+    metadata: { labels: { app: aiga-demo } }
     spec:
       containers:
       - name: orchestrator
         image: ghcr.io/montrealai/alpha-aiga:latest@sha256:<signed>
         ports:
-        - { containerPort: 8000 }
-        - { containerPort: 7862 }
-        readinessProbe: { httpGet: { path: /health, port: 8000 } }
+        - { containerPort: 8000 }   # API
+        - { containerPort: 7862 }   # UI
+        readinessProbe:
+          httpGet: { path: /health, port: 8000 }
         envFrom: [{ secretRef: { name: aiga-secrets } }]
 ```
 
-Scale Ray workers horizontally:  
-```bash
-kubectl scale deploy aiga-demo --replicas=8
-```
-
-**Audit rails**: OPA policies, Falco runtime sensors, CloudTrail‑equiv logs.
+*Helm chart* → `infra/helm/aiga-demo/`.
 
 ---
 
-## 🛡 SOC‑2 & Supply‑chain
+## 🛡 SOC‑2 & supply‑chain
 
-* **Non‑root UID 1001**, read‑only code volume  
-* **Cosign**‑signed images; `docker pull --verify=cosign` enforced  
-* **SBOM** (SPDX v3) published per tag  
-* Dependencies pinned via **Poetry.lock** & hash‑verified at run‑time
+* Cosign‑signed images (`cosign verify …`)  
+* Runs **non‑root UID 1001**, read‑only code volume  
+* Secrets via K8s / Docker *secrets* (never baked into layers)  
+* Dependencies hashed (Poetry lock) & validated at runtime  
+* SBOM exported; SLSA level 2 pipeline
 
 ---
 
-## 🧩 Tinker guide
+## 🧩 Tinker guide
 
-| Goal | Touch‑point | Hint |
-|------|-------------|------|
-| Larger population | `MetaEvolver(pop_size=…)` | Also raise `RAY_worker_envs` |
-| New curriculum stage | `CurriculumEnv._gen_map()` | Ensure DFS‑reachable goal |
-| Faster convergence | Lower `mutation_sigma`, add `novelty_weight` | Observe diversity metric |
-| Swap optimiser | `EvoNet.forward()` | SGD ↔ Hebbian plasticity toggle |
-| Integrate trading bot | `/evolve/{n}` then `/checkpoint/latest` | Same SHA across nodes |
+| Goal | File | Hint |
+| --- | --- | --- |
+| Bigger populations | `meta_evolver.py` → `pop_size` | Add `--profile gpu` |
+| Faster novelty | `Genome.novelty_weight` | Try 0.2 |
+| New curriculum stage | `curriculum_env.py` | Extend `_valid_layout` |
+| Swap LLM | `config.env` | Any OpenAI model id |
+| Automate experimentation | FastAPI → `/evolve/{n}` | Deterministic SHA checkpoint id |
 
 ---
 
 ## 🆘 FAQ
 
-| ❓ Symptom | 💡 Remedy |
-|-----------|-----------|
+| Symptom | Fix |
+| :-- | :-- |
 | “Docker not installed” | <https://docs.docker.com/get-docker> |
-| Port 7862 busy | Edit host mapping in `docker-compose.aiga.yml` |
-| Colab tunnel missing | Re‑run “Launch” cell — ngrok throttles occasionally |
-| GPU not detected | `sudo apt install nvidia-container-toolkit && sudo systemctl restart docker` |
-| Build slow on ARM Mac | Enable Rosetta 2 emulation or use `./run_aiga_demo.sh --pull` |
+| Port collision 7862 | Edit host port in compose |
+| ARM Mac slow build | Enable **Rosetta** or `./run_aiga_demo.sh --pull` |
+| GPU unseen | `sudo apt install nvidia-container-toolkit` & restart Docker |
+| Colab URL missing | Re‑run launch cell (ngrok quirk) |
 
 ---
 
-## ⚖️ License & credits
+## ⚖️ License & credits
 
-**Code & assets**: MIT.  
+*Source & assets* © 2025 Montreal.AI, released under the **MIT License**.  
 Huge thanks to:
 
-* **Jeff Clune** — audacious AI‑GA roadmap  
-* **OpenAI / Anthropic / Google DeepMind** — agent tooling & research  
-* **Open‑source community** — every library that made this possible
+* **Jeff Clune** – visionary behind AI‑GAs  
+* **OpenAI, Anthropic, Google** – open‑sourcing crucial agent tooling  
+* OSS maintainers – you make this possible ♥
 
 > **Alpha‑Factory** — forging intelligence that *invents* intelligence.
