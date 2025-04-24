@@ -1,140 +1,220 @@
+# Alpha-Factory v1 👁️✨ — Multi-Agent **AGENTIC** α-AGI  
+*Out-learn | Out-think | Out-design | Out-strategise | Out-execute*
 
-<!-- ========================================================================
-  2025‑04‑23 — α‑Factory v1 README
-  ======================================================================== -->
+> “[Vincent Boucher](https://www.linkedin.com/in/montrealai/), a pioneer in AI and President of [MONTREAL.AI](https://www.montreal.ai/) since 2003, reshaped the landscape by dominating the [OpenAI Gym] archive with **AI Agents** in 2016 and unveiling the game-changing [**“Multi-Agent AI DAO”**](https://www.quebecartificialintelligence.com/priorart) blueprint in 2017 (“*The Holy Grail of Foundational IP at the Intersection of AI Agents and Blockchain*” — watch the 2018 reveal [🎥](https://youtu.be/Y4_6aZbVlo4), [read the chronicle](https://www.huffpost.com/archive/qc/entry/blockchain-et-lintelligence-artificielle-une-combinaison-puis_qc_5ccc6223e4b03b38d6933d24)).  
+> Our **AGI ALPHA AGENT** — fuelled by the strictly-utility **$AGIALPHA** token — now harnesses that visionary foundation — *arguably the world’s most valuable, impactful & important IP* — to unleash the ultimate alpha-signal engine.
 
-<h1 align="center">AGI‑Alpha‑Agent‑v0</h1>
-<p align="center"><strong>CA:</strong> <code>tWKHzXd5PRmxTF5cMfJkm2Ua3TcjwNNoSRUqx6Apump</code></p>
-<h3 align="center">AGI ALPHA AGENT (<a href="https://app.ens.domains/name/alpha.agent.agi.eth">ALPHA.AGENT.AGI.Eth</a>) ⚡ Powered by <code>$AGIALPHA</code></h3>
-<p align="center"><em>Seize the Alpha. Transform the World.</em></p>
+Alpha-Factory v1 is a reference-grade, cross-industry **Multi-Agent AGENTIC α-AGI** that **detects live alpha** and **converts it into value** — autonomously, safely and auditable — across any vertical.
 
-> **Vincent Boucher** — President of <a href="https://www.montreal.ai">MONTREAL.AI</a> — conquered the <a href="https://web.archive.org/web/20170929214241/https://gym.openai.com/read-only.html">OpenAI Gym</a> in 2016 and released the pioneering <a href="https://www.quebecartificialintelligence.com/priorart">“Multi‑Agent AI DAO”</a> blueprint (2017). Today that IP culminates in **AGENTIC α‑AGI 👁️✨** — autonomously discovering, governing, and monetising alpha across industries.
+Built on the leading agent frameworks:
 
-<p align="center">
-  <a href="https://htmlpreview.github.io/?https://raw.githubusercontent.com/MontrealAI/AGI-Alpha-Agent-v0/main/deploy_sovereign_agentic_agialpha_agent_v0.html">
-    <img src="https://img.shields.io/badge/LAUNCH-ALPHA%20EXPLORER-0a84ff?logo=thunderbird&style=for-the-badge">
-  </a>
-</p>
+* **OpenAI Agents SDK** (2024–25)  
+* **Google ADK — Agent Development Kit**  
+* **Agent-to-Agent (A2A) Protocol**  
+* **Model Context Protocol** (MCP)  
+* Best-practice guidance from *“A Practical Guide to Building Agents”* (OpenAI, 2025)
 
----
-
-## 1. Why α‑Factory?  
-
-```
-┌─────────────────────────────────────────────────────────┐
-│      RAW DATA   →   VALIDATED α   →   REAL VALUE       │
-│─────────────────────────────────────────────────────────│
-│ Finance • Policy • Biotech • Manufacturing • 🧬 Meta‑E │
-└─────────────────────────────────────────────────────────┘
-```
-
-* **Cutting‑Edge Agent Toolchain** — OpenAI Agents SDK, Google ADK, Anthropic MCP, A2A messaging.
-* **Plug‑&‑Play Vertical Adapters** — market APIs, genomics datasets, legislative feeds, OPC‑UA.
-* **Reg‑Ready by Default** — SPIFFE identities, Cosign + Rekor signatures, SBOM, model‑graded evals.
-* **Antifragile Learning Loop** — Every stressor → metrics → continuous fine‑tuning.
-* **Offline Friendly** — Automatic Φ‑2 / φ‑3b switch when `OPENAI_API_KEY` not available.
+…and engineered to operate **with or without** an `OPENAI_API_KEY` (graceful offline fall-back).
 
 ---
 
-## 2. Quick Start 🚀
-
-```bash
-# all in one
-bash <(curl -fsSL https://raw.githubusercontent.com/MontrealAI/AGI-Alpha-Agent-v0/main/alpha_factory_v1/install_alpha_factory_pro.sh)
-```
-
-*Installs prerequisites → verifies signatures → detects live alpha → launches UI on **http://localhost:8080***.
+## 📜 Table of Contents
+1. [Design Philosophy](#design-philosophy)  
+2. [Capability Graph 🌐](#capability-graph)  
+3. [Backend Agents 🖼️](#backend-agents)  
+4. [Demo Suite 🎮](#demo-suite)  
+5. [5-Minute Quick-Start 🚀](#5-minute-quick-start)  
+6. [Deployment Recipes 🍳](#deployment-recipes)  
+7. [Runtime Topology 🗺️](#runtime-topology)  
+8. [Governance & Compliance ⚖️](#governance--compliance)  
+9. [Observability 🔭](#observability)  
+10. [Extending the Mesh 🔌](#extending-the-mesh)  
+11. [Troubleshooting 🛠️](#troubleshooting)  
+12. [Roadmap 🛣️](#roadmap)  
+13. [License](#license)  
 
 ---
 
-## 3. Architecture 🏗️
+## Design Philosophy
+
+> “We’ve moved from **big-data hoarding** to **big-experience compounding**.” — Sutton & Silver, *Era of Experience* citeturn32file3
+
+Each agent runs a tight **experience loop**:
+
+| Sense 👂 | Imagine 🧠 | Act 🤖 | Adapt 🔄 |
+|----------|-----------|--------|---------|
+| Stream real-time data / events (Kafka, MQTT, Webhooks) | Plan on a *learned world-model* (MuZero-style where useful) | Execute tool-calls & external actions — every artefact wrapped in MCP | Online learning, antifragile to dependency loss |
+
+Heavy extras (GPU, FAISS, OR-Tools, OpenAI) are **optional**; agents **degrade gracefully** to heuristics while preserving audit artefacts.
+
+---
+
+## Capability Graph 🌐  
 
 ```mermaid
-flowchart TD
-    subgraph DevSecOps
-        GH[GitHub Actions] -->|Build & Test| Images
-        Images --> Cosign[Cosign sign] --> Rekor[Rekor log]
-        GH -->|SBOM| Syft
-    end
-    subgraph Cluster
-        Spire[SPIRE IDs]
-        AlphaMgr[AlphaManager]
-        Finance & Policy & Biotech & Mfg & Meta
-        UI[Trace‑Graph UI]
-        Prom[Prometheus]
-    end
-    Cosign -->|Verified images| Cluster
-    Spire --> Cluster
-    Finance -->|A2A| AlphaMgr
-    Policy -->|A2A| AlphaMgr
-    Biotech -->|A2A| AlphaMgr
-    Mfg -->|A2A| AlphaMgr
-    Meta -->|A2A| AlphaMgr
-    AlphaMgr --> Prom
-    UI --- AlphaMgr
+graph TD
+  subgraph α-Mesh
+    finance["💰 Finance"]
+    biotech["🧬 Biotech"]
+    manufacturing["⚙️ Manufacturing"]
+    policy["📜 Policy"]
+    energy["🔋 Energy"]
+    supply["📦 Supply-Chain"]
+    marketing["📈 Marketing"]
+    research["🔬 Research"]
+    cyber["🛡️ Cyber-Sec"]
+    climate["🌎 Climate"]
+    stub["🫥 Stub"]
+  end
+  classDef n fill:#0d9488,color:#ffffff,stroke-width:0px;
+  class finance,biotech,manufacturing,policy,energy,supply,marketing,research,cyber,climate,stub n;
 ```
 
----
-
-## 4. Demo Gallery (`alpha_factory_v1/demos/`) 🎮
-
-| Demo | ⚙️ Focus | Insight | Command |
-|------|---------|---------|---------|
-| **AIGA Meta Evolution** 🧬 | Code‑gen | Agents evolve & unit‑test new agents. | `docker compose -f demos/docker-compose.aiga_meta.yml up` |
-| **Era of Experience** 🏛️ | Personalised AI | Memory‑graph RAG → tutor agent. | `docker compose -f demos/docker-compose.era.yml up` |
-| **Finance Alpha** 💹 | Markets | Live momentum + risk parity. | `docker compose -f demos/docker-compose.finance.yml up` |
-| **Macro Sentinel** 🌐 | Macro | GPT‑RAG scanner + CTA hedge test. | `docker compose -f demos/docker-compose.macro.yml up` |
-| **MuZero Planning** ♟️ | Reasoning | MuZero vs synthetic markets. | `docker compose -f demos/docker-compose.muzero.yml up` |
-| **Self‑Healing Repo** 🩹 | DevOps | Auto‑patch failing tests via Agents SDK. | `docker compose -f demos/docker-compose.selfheal.yml up` |
+Agents self-register; query `GET /capabilities` to discover real-time skills.
 
 ---
 
-## 5. Vertical Agents Deep Dive
+## Backend Agents 🖼️  
 
-| Agent | Model | Data Feeds | Algo Edge | Guard‑rails |
-|-------|-------|-----------|-----------|-------------|
-| **FinanceAgent** | GPT‑4o / Φ‑2 | Polygon, Binance, DEX Screener | Factor momentum, risk parity | VaR limit, human‑in‑the‑loop confirm |
-| **BiotechAgent** | GPT‑4o | Ensembl, PDB, PubChem | Protein‑target BLAST, CRISPR score | Bio‑safety triage |
-| **PolicyAgent** | GPT‑4o | govinfo.gov, RegHub | Bill lineage, lobbying graph | COI log, bias eval |
-| **ManufacturingAgent** | GPT‑4o | OPC‑UA, MQTT | OR‑Tools MILP schedule | Safety FMEA |
-| **MetaEvolutionAgent** | GPT‑4o | GitHub API | Genetic programming, unit‑test harness | SBOM diff + Cosign gate |
+| # | Agent | Core Super-powers | Heavy Deps | Key Env |
+|---|-------|------------------|-----------|---------|
+| 1 | **Finance** 💰 | Multi-factor α, CVaR 99 %, RL execution, OMS bridge | `pandas`, `lightgbm`, `ccxt` | `ALPHA_UNIVERSE`, `ALPHA_MAX_VAR_USD` |
+| 2 | **Biotech** 🧬 | UniProt / PubMed KG-RAG, CRISPR off-target design | `faiss`, `rdflib`, `openai` | `BIOTECH_KG_FILE` |
+| 3 | **Manufacturing** ⚙️ | CP-SAT shop-floor optimiser, CO₂ forecaster | `ortools`, `prometheus_client` | `ALPHA_MAX_SCHED_SECONDS` |
+| 4 | **Policy** 📜 | Statute QA, red-line diff, ISO-37301 risk tags | `faiss`, `rank_bm25` | `STATUTE_CORPUS_DIR` |
+| 5 | **Energy** 🔋 | Demand-response bidding, price elasticity | `numpy` + external APIs | `ENERGY_API_TOKEN` |
+| 6 | **Supply-Chain** 📦 | VRP routing, ETA prediction, delay heat-maps | `networkx`, `scikit-learn` | `SC_DB_DSN` |
+| 7 | **Marketing** 📈 | Multi-touch attribution, RL campaign tuning | `torch`, `openai` | `MARKETO_KEY` |
+| 8 | **Research** 🔬 | Literature RAG, hypothesis ranking | `faiss` | — |
+| 9 | **Cyber-Sec** 🛡️ | CVE triage, MITRE ATT&CK reasoning | `faiss`, threat-intel APIs | `VIRUSTOTAL_KEY` |
+|10 | **Climate** 🌎 | Emission forecasting, scenario tests | `xarray`, `numpy` | `NOAA_TOKEN` |
+|11 | **Stub** 🫥 | Auto-spawns when deps missing | — | — |
 
----
-
-## 6. Security & Compliance 🛡️
-
-```text
-Dev → GH Actions → Signed Image → Rekor log
-             ↘ SBOM          ↗ verify
-   SPIRE ID ↔  mTLS mesh  ↔   Agents
-```
-
-* **Zero‑Trust Mesh** — SPIFFE IDs, mTLS for every RPC.  
-* **Immutable Supply‑Chain** — Cosign signatures stored in Rekor transparency log.  
-* **Transparent Software Bill of Materials** — Syft → CycloneDX.  
-* **Model‑Graded Evaluations** — OpenAI evals for bias/harm nightly.  
-* **Comprehensive Audit Trail** — BLAKE3 hash of every prompt & A2A message.
+**Per-Agent Playbooks** reside in `/alpha_factory_v1/examples/`.
 
 ---
 
-## 7. Developer Workflow 🛠️
+## Demo Suite 🎮  
+
+| Demo | Purpose | How it drives Alpha | Launch |
+|------|---------|---------------------|--------|
+| **1 · AIGA Meta Evolution** 🧬 | Agents evolve *new* agents & test suites | Compound experience → faster discovery of niche alpha | `docker compose -f demos/docker-compose.aiga_meta.yml up` |
+| **2 · Era of Experience Tutor** 🏛️ | Memory-graph RAG personal assistant | Converts tacit domain memory into actionable signals | `docker compose -f demos/docker-compose.era.yml up` |
+| **3 · Finance Alpha Live** 💹 | Momentum + risk-parity trading bot | Real-time P&L beats equal-weight baseline | `docker compose -f demos/docker-compose.finance.yml up` |
+| **4 · Macro Sentinel** 🌐 | GPT news-scanner → CTA hedge | Hedges portfolio draw-downs during macro shocks | `docker compose -f demos/docker-compose.macro.yml up` |
+| **5 · MuZero Planning Lab** ♟️ | MuZero vs synthetic markets | Tests planning-under-uncertainty for execution alpha | `docker compose -f demos/docker-compose.muzero.yml up` |
+| **6 · Self-Healing Repo** 🩹 | Agents auto-patch failing CI tests | Keeps prod pipeline green → uptime alpha | `docker compose -f demos/docker-compose.selfheal.yml up` |
+
+---
+
+## 5-Minute Quick-Start 🚀  
 
 ```bash
-make test        # pytest + red‑team prompts
-make eval        # model‑graded evals
-make sbom sign   # SBOM + Cosign
-docker compose exec orchestrator reflex run --reload
+git clone https://github.com/MontrealAI/AGI-Alpha-Agent-v0.git
+cd AGI-Alpha-Agent-v0/alpha_factory_v1
+
+# Full-fat install
+pip install -r requirements.txt
+
+# Minimal env
+export ALPHA_KAFKA_BROKER=localhost:9092   # empty → stdout
+# (optional) cloud LLM
+export OPENAI_API_KEY=sk-...
+
+python -m backend.orchestrator
 ```
 
-### Local Model Mode
-```bash
-export LLM_ENDPOINT=http://localhost:11434
-export LLM_MODEL=phi
+Open:
+
+* **http://localhost:8000** — interactive OpenAPI  
+* **http://localhost:3000** — D3 trace-graph UI
+
+---
+
+## Deployment Recipes 🍳  
+
+| Platform | One-liner | Highlights |
+|----------|-----------|-----------|
+| **Docker Compose** | `docker compose up -d orchestrator` | Kafka, Prometheus, Grafana |
+| **Kubernetes** | `helm repo add alpha-factory https://montrealai.github.io/helm-charts && helm install af alpha-factory/stack` | HPA, SPIFFE mTLS, PodMonitor |
+| **AWS Fargate** | `infra/deploy_fargate.sh` | Spot-friendly, SQS ↔ Kafka shim |
+| **Bare-Metal Edge** | `python edge_runner.py --agents manufacturing,energy` | SQLite persistence, zero external deps |
+
+---
+
+## Runtime Topology 🗺️  
+
+```mermaid
+flowchart LR
+  subgraph α-Mesh
+    ORC([🛠️ Orchestrator])
+    FIN(💰) BIO(🧬) MFG(⚙️) POL(📜) ENE(🔋) SUP(📦)
+    MKT(📈) RES(🔬) CYB(🛡️) CLI(🌎)
+  end
+  ORC -- A2A / OpenAI SDK --> FIN & BIO & MFG & POL & ENE & SUP & MKT & RES & CYB & CLI
+  ORC -- Kafka bus --> DL[(🗄️ Data Lake)]
+  FIN -.->|Prometheus| GRAFANA{{📊}}
 ```
 
 ---
 
-## 8. License 📜  
-MIT © 2025 MONTREAL.AI
+## Governance & Compliance ⚖️  
 
-<p align="center"><sub>α‑Factory v1 • Out‑learn · Out‑think · Out‑design · Out‑strategise · Out‑execute</sub></p>
+* **Model Context Protocol** envelopes every artefact (SHA-256, ISO-8601, seeds).  
+* Agents declare `COMPLIANCE_TAGS` (`gdpr_minimal`, `sox_traceable`, …).  
+* `DISABLED_AGENTS=finance,policy` — boot without restricted domains.  
+* Audit chain stored in tamper-evident log (Sigstore + Rekor).
+
+---
+
+## Observability 🔭  
+
+| Signal | Sink | Example Metric |
+|--------|------|----------------|
+| Health-beats | Kafka `agent.heartbeat` | `latency_ms` |
+| Metrics | Prometheus | `af_job_lateness_seconds` |
+| Traces | OpenTelemetry → Jaeger | `alpha_factory.trace_id` |
+
+Ready-made Grafana JSON dashboards live in `infra/grafana/`.
+
+---
+
+## Extending the Mesh 🔌  
+
+```bash
+pip install my_super_agent
+```
+
+```toml
+# pyproject.toml
+[project.entry-points."alpha_factory.agents"]
+super = my_pkg.super_agent:MySuperAgent
+```
+
+Restart the orchestrator — your agent self-registers and appears on the graph.
+
+---
+
+## Troubleshooting 🛠️  
+
+| Symptom | Likely Cause | Remedy |
+|---------|--------------|--------|
+| `ImportError: faiss` | Missing native lib | `pip install faiss-cpu` or rely on **StubAgent** |
+| Agent quarantined | Failure streak ≥ 3 | Fix bug → restart (state persisted) |
+| Kafka timeout | Broker unreachable | unset `ALPHA_KAFKA_BROKER` → stdout mode |
+| 402 (OpenAI) | Quota exhausted | Remove `OPENAI_API_KEY` → offline models |
+
+---
+
+## Roadmap 🛣️  
+
+1. **Execution RL** — live slippage minimiser  
+2. **Self-Play Stress-Harness** — antifragile loops  
+3. **Reg-Tech Verifiable Credentials** — OpenTelemetry × W3C VC  
+4. **Industry Packs** — Energy, Logistics, Health-Care  
+
+---
+
+## License  
+
+**MIT** © 2025 MONTREAL.AI — forging the tools that forge tomorrow.
