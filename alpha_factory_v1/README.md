@@ -1,277 +1,200 @@
+# Alpha‑Factory v1 👁️✨ — Multi‑Agent **AGENTIC** α‑AGI
 
-# Alpha‑Factory v1 👁️✨ — Multi‑Agent **AGENTIC** α‑AGI
-
-**Out‑learn | Out‑think | Out‑design | Out‑strategise | Out‑execute**
-
-<!--
-  α‑Factory • Multi‑Agents AGENTIC α‑AGI 👁️✨
-  Out‑learn · Out‑think · Out‑design · Out‑strategise · Out‑execute
-  © 2025 MONTREAL.AI   MIT License
--->
-
-**α‑Factory** is a reference‑quality, end‑to‑end implementation of a
-multi‑agent system that **identifies live alpha opportunities** and
-**converts them into value** across Finance, Policy, Manufacturing and
-Biotech.
-
-It is built on the latest best‑practices from
-
-* **[OpenAI Agents SDK]** (2024 preview)  
-* **Google [ADK] Agent Development Kit**  
-* **Agent‑to‑Agent (A2A) Protocol** & **Model Context Protocol**  
-* Guidance from *“[A Practical Guide to Building Agents]”* (OpenAI, 2025)
-
-The stack runs **with or without** an `OPENAI_API_KEY` — offline fallback
-models keep everything usable when the cloud is unavailable.
-
-<div align="center">
-  <img src="docs/trace_demo.gif" width="680"/>
-  <br/><em>Live trace‑graph streaming from the planner ➝ tool calls.</em>
-</div>
+**Out‑learn · Out‑think · Out‑design · Out‑strategise · Out‑execute**
 
 ---
 
-## ✨ Why α‑Factory?
+Welcome to **Alpha‑Factory v1**, an antifragile constellation of self‑improving agents orchestrated to **spot live alpha across any industry and turn it into compounding value**. Built on the shoulders of best‑in‑class frameworks — OpenAI Agents SDK, Google ADK, A2A protocol and Model Context Protocol — the stack works *online or fully‑air‑gapped*, switching fluidly between frontier models and local fallbacks.
 
-* **Agentic First** – planner + tools pattern baked in everywhere.  
-* **Cross‑Domain** – Finance / Policy / Manufacturing / Biotech agents
-  share infrastructure & governance.  
-* **Production‑Grade** – Kubernetes Helm chart, SPIFFE zero‑trust side‑cars,
-  SBOM, Cosign signatures, Prometheus / Grafana dashboards.  
-* **Extensible** – swap a data‑feed, add a tool, or plug a brand‑new agent
-  with three lines of code.  
-* **Reg‑Tech Ready** – governance guard‑rails, audit logs, antifragile
-  design to withstand regulatory scrutiny.
+> **Mission 🎯**  End‑to‑end: **Identify 🔍 → Out‑Learn 📚 → Out‑Think 🧠 → Out‑Design 🎨 → Out‑Strategise ♟️ → Out‑Execute ⚡**
 
 ---
 
-## 🏗️ Project Tree (TL;DR)
+## 📜 Table of Contents
+1. [Design Philosophy](#design-philosophy)
+2. [System Topology 🗺️](#system-topology)
+3. [Agent Gallery 🖼️ (11 agents)](#agent-gallery)
+4. [Demo Showcase 🎬 (6 demos)](#demo-showcase)
+5. [5‑Minute Quick‑Start 🚀](#5-minute-quick-start)
+6. [Deployment Recipes 🍳](#deployment-recipes)
+7. [Governance & Compliance ⚖️](#governance--compliance)
+8. [Observability 🔭](#observability)
+9. [Extending the Mesh 🔌](#extending-the-mesh)
+10. [Troubleshooting 🛠️](#troubleshooting)
+11. [Roadmap 🛣️](#roadmap)
 
-```text
-alpha_factory_v0/
-├── backend/                      # Python source
-│   ├── __init__.py               # ASGI entry‑point  (/api/logs, /ws/trace, /metrics)
-│   ├── finance_agent.py          # Factor & VaR‑aware trading agent
-│   ├── market_data.py            # Polygon / Binance / Yahoo async adapter
-│   ├── broker/                   # Alpaca, IBKR & Sim brokers
-│   ├── portfolio.py              # Tiny on‑disk trade ledger
-│   ├── policy_agent.py           # GPT‑RAG over statute corpus
-│   ├── manufacturing_agent.py    # OR‑Tools shop‑floor optimiser
-│   ├── biotech_agent.py          # Bio knowledge‑graph RAG agent
-│   ├── a2a_client.py             # gRPC / WebSocket remote‑agent mesh
-│   ├── trace_ws.py               # WebSocket hub (+ CSRF) → Trace UI
-│   ├── governance.py             # Prompt & output guard‑rails
-│   └── …
-├── ui/                           # Vite + D3 trace‑graph front‑end
-├── helm/alpha-factory-remote/    # SPIFFE‑aware Kubernetes Helm chart
-├── tests/                        # pytest + red‑team prompts
-├── Dockerfile                    # Multi‑stage (UI build → CPU / CUDA runtime)
-├── docker-compose.yml            # single‑node stack
-├── docker-compose.override.yml   # dev overrides (bind‑mount code, hot‑reload)
-├── requirements.txt              # dev upper bounds
-├── requirements-lock.txt         # reproducible prod lock
-└── .github/workflows/            # CI – build, SBOM, push, Cosign sign
+---
+
+## Design Philosophy
+
+> “From data hoarding to **experience compounding**.” — *Silver & Sutton, 2024*
+
+* **Experience‑First Loop** — Sense → Imagine (MuZero‑style planning) → Act → Adapt. Agents learn by *doing*, not by static corpora.
+* **Graceful Degradation** — GPU‑less? No key? No problem. Agents swap to distilled local models & heuristics without breaking compliance.
+* **Zero‑Trust Core** — SPIFFE identities, signed artefacts, prompt/output guard‑rails, exhaustive audit logs.
+* **Polyglot Value** — Finance P&L, manufacturing makespan, biotech discovery rate… all normalised to *alpha* via configurable value lenses.
+
+---
+
+## System Topology 🗺️
+
+```mermaid
+flowchart LR
+  ORC([🛠️ Orchestrator])
+  subgraph Agents Mesh
+    FIN(💰 Finance)
+    BIO(🧬 Biotech)
+    MFG(⚙️ Manufacturing)
+    POL(📜 Policy)
+    ENE(🔋 Energy)
+    SUP(📦 Supply‑Chain)
+    MKT(📈 Marketing)
+    RES(🔬 Research)
+    CYB(🛡️ Cyber‑Sec)
+    CLI(🌎 Climate)
+  end
+  ORC -- A2A / OpenAI SDK --> FIN & BIO & MFG & POL & ENE & SUP & MKT & RES & CYB & CLI
+  ORC -- Kafka bus --> DL[(🗄️ Data Lake)]
+  FIN -.->|Prometheus| GRAFANA{{📊}}
 ```
 
-A **complete file‑by‑file tour** is provided later in this README.
+* **Orchestrator** (`backend/orchestrator.py`) auto‑discovers agents via Python entry‑points, injects env, launches async tasks and exposes a unified REST/gRPC facade.
+* **Kafka topic taxonomy**: `agent.manifest`, `agent.heartbeat`, domain streams (`fx.alpha`, `mfg.schedule`, `bt.experience`, …).
 
 ---
 
-## 🚀 Quick Start (5 minutes)
+## Agent Gallery
 
-### 1 · Clone & run pre‑built container (no code required)
+| # | Agent | Folder / File | Alpha Contribution | Key Env Vars | Heavy Deps |
+|---|-------|---------------|--------------------|--------------|-----------|
+| 1 | **Finance** 💰 | `backend/finance_agent.py` | Generates multi‑factor signals, keeps CVaR ≤ `ALPHA_MAX_VAR_USD`, auto‑executes via broker adapters | `ALPHA_UNIVERSE`, `ALPHA_MAX_VAR_USD` | `pandas`, `lightgbm`, `ccxt` |
+| 2 | **Biotech** 🧬 | `backend/biotech_agent.py` | KG‑RAG over UniProt/PubMed, proposes assays & CRISPR edits | `BIOTECH_KG_FILE`, `OPENAI_API_KEY` | `faiss`, `rdflib` |
+| 3 | **Manufacturing** ⚙️ | `backend/manufacturing_agent.py` | CP‑SAT job‑shop optimiser, energy & CO₂ forecast | `ALPHA_MAX_SCHED_SECONDS` | `ortools`, `prometheus_client` |
+| 4 | **Policy** 📜 | `backend/policy_agent.py` | Statute QA & red‑line diffs, ISO‑37301 risk vectors | `STATUTE_CORPUS_DIR` | `faiss`, `rank_bm25` |
+| 5 | **Energy** 🔋 | `backend/energy_agent.py` | Demand‑response bidding, price elasticity | `ENERGY_API_TOKEN` | `numpy` |
+| 6 | **Supply‑Chain** 📦 | `backend/supply_chain_agent.py` | VRP routing, ETA prediction | `SC_DB_DSN` | `networkx`, `sklearn` |
+| 7 | **Marketing** 📈 | `backend/marketing_agent.py` | RL‑optimised campaign spend & copy | `MARKETO_KEY` | `torch`, `openai` |
+| 8 | **Research** 🔬 | `backend/research_agent.py` | Literature triage, hypothesis ranking | — | `faiss` |
+| 9 | **Cyber‑Sec** 🛡️ | `backend/cybersec_agent.py` | CVE triage, honeypot steering, ATT&CK graph reasoning | `VIRUSTOTAL_KEY` | threat‑intel APIs |
+|10 | **Climate** 🌎 | `backend/climate_agent.py` | Emission forecasting, scenario stress tests | `NOAA_TOKEN` | `xarray`, `numpy` |
+|11 | **Stub** 🫥 | `backend/stub_agent.py` | Fallback placeholder keeping graph intact when deps missing | — | — |
+
+> All agents implement `AgentBase` → consistent `run_cycle()`, `manifest()`, `health()`.
+
+---
+
+## Demo Showcase 🎬
+
+| Demo Notebook | Path | What You’ll See | Depends On |
+|---------------|------|-----------------|-----------|
+| **01‑Finance‑Alpha.ipynb** | `demos/finance_alpha_demo.ipynb` | Live factor back‑test → portfolio exec with VaR clamp | FinanceAgent + Broker sim |
+| **02‑Biotech‑Assay.ipynb** | `demos/biotech_assay_demo.ipynb` | Query KG → propose CRISPR assay → rank off‑targets | BiotechAgent |
+| **03‑Shopfloor‑Optimizer.ipynb** | `demos/manufacturing_shopfloor_demo.ipynb` | Upload CSV of jobs → CP‑SAT schedule → Gantt & CO₂ | ManufacturingAgent |
+| **04‑RegTech‑Adviser.ipynb** | `demos/policy_regtech_demo.ipynb` | Upload legal text → red‑line diff & compliance heat‑map | PolicyAgent |
+| **05‑Energy‑DR.ipynb** | `demos/energy_demand_response_demo.ipynb` | Simulate grid price spikes → agent bids, shows savings | EnergyAgent |
+| **06‑Full‑Stack‑Alpha.ipynb** | `demos/full_stack_end_to_end.ipynb` | Orchestrates 5 agents to evaluate, design & launch a product | All core agents |
+
+Launch demos with:
+```bash
+jupyter lab --NotebookApp.token=''
+```
+
+---
+
+## 5‑Minute Quick‑Start 🚀
 
 ```bash
+# 1. Clone & install
 git clone https://github.com/MontrealAI/AGI-Alpha-Agent-v0.git
-cd AGI-Alpha-Agent-v0/alpha_factory_v0
+cd AGI-Alpha-Agent-v0/alpha_factory_v1
+pip install -r requirements.txt  # extras auto‑detect GPU
 
-# CPU‑slim image (works on any Docker host)
-docker compose up          # builds UI if needed & starts API + UI
+# 2. Set minimal env
+export ALPHA_KAFKA_BROKER=localhost:9092   # empty → stdout
+# export OPENAI_API_KEY=sk‑...              # optional cloud boost
 
-# Visit:
-#   http://localhost:3000   ← D3 Trace‑graph UI
-#   http://localhost:8000   ← OpenAPI schema / live API
+# 3. Run orchestrator
+python -m backend.orchestrator
+
+# 4. Open UI
+http://localhost:8000/docs        # Swagger
+http://localhost:3000             # Trace‑graph (Vite/D3)
 ```
 
-> **GPU / CUDA** – build with:
->
-> ```bash
-> docker compose --profile cuda up --build
-> ```
+First run spits signed manifests; agents start producing heartbeat & domain topics.
 
-### 2 · Run **without** an `OPENAI_API_KEY`
+---
 
-All agents fall back to local models (Φ‑2.gguf for text; nomic‑embed for
-embeddings).  
-Simply omit the env‑var – everything keeps working (slower inference).
+## Deployment Recipes 🍳
 
-### 3 · Bring your own OpenAI key (optional – unlock GPT‑4o, text‑embedding‑3)
+| Target | One‑liner | Notes |
+|--------|-----------|-------|
+| **Docker Compose (dev)** | `docker compose up -d orchestrator` | Bundles Kafka, Prometheus, Grafana |
+| **Kubernetes** | `helm install af charts/alpha-factory` | SPIFFE, HPA, ServiceMonitor |
+| **AWS Fargate** | `./infra/deploy_fargate.sh` | SQS shim for Kafka, spot friendly |
+| **IoT Edge** | `python edge_runner.py --agents manufacturing,energy` | Runs on Jetson Nano ✔ |
 
-```bash
-export OPENAI_API_KEY="sk‑…"
-docker compose up
+---
+
+## Governance & Compliance ⚖️
+
+* **MCP envelopes** (SHA‑256 digest, ISO‑8601 ts, determinism seed).
+* **Red‑Team Suite** under `tests/` bombards prompts/output for policy breaches.
+* **`DISABLED_AGENTS`** env → pre‑import kill‑switch for sensitive demos.
+* **Audit trail**: OpenTelemetry spans correlate prompts ↔ tool calls ↔ actions.
+
+---
+
+## Observability 🔭
+
+* **Prometheus**: scrape `/metrics` → dashboards (`infra/grafana/*`).
+* **Kafka Heartbeats**: latency, exception streak, quarantine flag.
+* **Trace‑Graph WS**: real‑time D3 of planner expansions & tool calls.
+
+---
+
+## Extending the Mesh 🔌
+
+```python
+# my_super_agent.py
+from backend.agent_base import AgentBase
+class MyAgent(AgentBase):
+    NAME = "super"
+    CAPABILITIES = ["telemetry_fusion"]
+    COMPLIANCE_TAGS = ["gdpr_minimal"]
+    async def run_cycle(self):
+        ...
 ```
 
-The agents auto‑switch to cloud quality while offline fallbacks remain
-as hot‑spare resilience.
-
----
-
-## 📦 Advanced Install (devs & prod ops)
-
-<details>
-<summary><strong>▼ Using <code>conda + poetry</code> (dev workflow)</strong></summary>
-
-```bash
-# one‑liner
-make dev
-
-# manual steps
-conda env create -f env.yml   # uses the lock file
-conda activate alpha-factory
-poetry install --sync --with dev
-uvicorn backend:app --reload  # hot‑reload ASGI
-```
-</details>
-
-<details>
-<summary><strong>▼ Kubernetes (remote swarm)</strong></summary>
-
-```bash
-helm repo add alpha-factory https://montrealai.github.io/helm-charts
-helm install af remote/alpha-factory-remote \
-     --set image.tag=cpu-slim-latest \
-     --set spiffe.enabled=true \
-     --namespace alpha-factory --create-namespace
+```toml
+# pyproject.toml
+[project.entry-points."alpha_factory.agents"]
+super = my_pkg.my_super_agent:MyAgent
 ```
 
-The chart automatically injects a **SPIFFE/SPIRE side‑car** for
-mutual‑TLS between pods and enables the **A2A gRPC mesh**.
-</details>
+`pip install .` → orchestrator hot‑loads at next boot.
 
 ---
 
-## 🛠️ Agents & Tools
+## Troubleshooting 🛠️
 
-| Agent | Key Technologies | Top‑Line Features |
-|-------|------------------|-------------------|
-| **FinanceAgent** | numpy / pandas · Cornish‑Fisher VaR · OpenAI Agents planner | Factor‑model alpha, async market data, VaR + max‑draw‑down guard‑rails, Prom‑metrics |
-| **PolicyAgent** | OpenAI Agents SDK · local Llama‑cpp fallback · FAISS RAG | Answers legal / regulatory queries, A2A service, governance moderation |
-| **ManufacturingAgent** | OR‑Tools · Google ADK | Optimises shop‑floor schedule, constraint modelling, agentic “what‑if” |
-| **BiotechAgent** | KG‑RAG (RDFLib) · text‑embedding‑3 | Links pathways / compounds; surfaces gene–drug hypotheses |
-| **A2A Remote Swarm** | gRPC‑WebSocket hybrid · SPIFFE | Spin‑up remote workers that self‑register; secure by default |
-
-All planners emit **trace events** which travel via `trace_ws.hub` to the
-front‑end. The D3 panel visualises the decision graph in real‑time.
+| Issue | Hint |
+|-------|------|
+| `ImportError: faiss` | `pip install faiss-cpu` or rely on StubAgent |
+| Agent shows `"quarantined":true` | Check logs, fix root cause, clear from `DISABLED_AGENTS` |
+| Kafka connection refused | unset `ALPHA_KAFKA_BROKER` to log to stdout |
+| OpenAI quota exceeded | remove `OPENAI_API_KEY` to switch to local models |
 
 ---
 
-## 🧩 Architecture
+## Roadmap 🛣️
 
-```text
-flowchart TD
-    subgraph Browser
-        UI[Trace‑graph UI<br/>(Vite + D3)]
-        UI -- WebSocket : /ws/trace --> API
-    end
-
-    subgraph API["backend/__init__.py<br/>FastAPI (+ fallback ASGI)"]
-        Logs[/api/logs]
-        Metrics[/metrics]
-        CSRF[/api/csrf]
-    end
-
-    API -- ASGI mount --> Finance(🏦 FinanceAgent)
-    API -- ASGI mount --> Policy(⚖️ PolicyAgent)
-    API -- ASGI mount --> Mfg(🏭 ManufacturingAgent)
-    API -- ASGI mount --> Bio(🧬 BiotechAgent)
-
-    Finance <-- gRPC / A2A --> Remote[Remote Pods<br/>(Helm chart)]
-    Policy  <-- trace events --> API
-    Mfg -. tool calls .-> Finance
-```
+1. **RL‑on‑Execution**: slippage‑aware order routing.
+2. **Federated Alpha Mesh**: cross‑org agent exchange via ADK federation.
+3. **World‑Model Audits**: per Silver & Sutton — inspect learned latents.
+4. **Plug‑and‑Play Industry Packs**: Health‑Care, Mar‑Tech, Gov‑Tech.
 
 ---
 
-## 📚 File‑by‑File Reference
+> Made with ❤️ by the **Alpha‑Factory** core team — *forging the tools that forge tomorrow*.
 
-*(collapsed for brevity – expand if needed in GitHub)*
-
-<details><summary><strong>backend/ – key modules</strong></summary>
-
-| File | Purpose |
-|------|---------|
-| **`__init__.py`** | ASGI root; routes `/api/logs`, `/api/csrf`, mounts `/metrics`, wires `/ws/trace` |
-| **`finance_agent.py`** | Vectorised factor model, VaR + DD limits, Prom‑metrics |
-| **`market_data.py`** | Async Polygon / Binance / Yahoo feed auto‑select |
-| **`broker/`** | `alpaca.py`, `ibkr.py`, `sim.py`; exponential back‑off |
-| **`trace_ws.py`** | In‑memory hub ➝ WebSocket; CSRF token handshake |
-| **`policy_agent.py`** | GPT‑RAG statutes; OpenAI Agents or offline Llama |
-| **`manufacturing_agent.py`** | OR‑Tools job‑shop schedule optimiser |
-| **`biotech_agent.py`** | Pathway KG RAG; sparkline hypothesis |
-| **`a2a_client.py`** | Remote mesh connector (gRPC + WebSocket) |
-| **`governance.py`** | Bad‑prompt moderation (red‑team tests) |
-| **tests/** | Red‑team prompts, smoke‑tests, CI gate |
-</details>
-
-<details><summary><strong>CI / CD</strong></summary>
-
-* `.github/workflows/container-publish.yml` – Buildx matrix ➝ CPU & CUDA
-  images, SBOM, Cosign signature to **ghcr.io**, multi‑arch.
-* SBOM is exported as SPDX and attached as build artefact.
-</details>
-
----
-
-## 📈 Dashboards & Metrics
-
-* `/metrics` – Prometheus exposition (FinanceAgent VaR, P&L, draw‑down)
-* `grafana/finance.json` – ready‑made dashboard
-* Helm chart auto‑labels pods for Prometheus ServiceMonitor.
-
----
-
-## 🧪 Tests & Eval Harness
-
-```bash
-pytest -q
-```
-
-* Continuous red‑team prompts check governance filters.  
-* OpenAI “evals” JSONL harness (nightly in CI).  
-* Coverage > 90 % on core business logic.
-
----
-
-## 🔒 Security Notes
-
-* SPIFFE side‑car (opt‑in) issues `/run/spire/sock` for mTLS identity.  
-* WebSocket CSRF – first frame must echo one‑time token from `/api/csrf`.  
-* SBOM + Cosign signature on every container.  
-* Agent guard‑rails powered by `backend/governance.py` (Better‑Profanity, custom red‑team rules).
-
----
-
-## 📜 Further Reading
-
-* **OpenAI Agents SDK (Python)** – <https://openai.github.io/openai-agents-python/>  
-* **A Practical Guide to Building Agents** (OpenAI, 2025)  
-  <https://cdn.openai.com/business-guides-and-resources/a-practical-guide-to-building-agents.pdf>  
-* **Google Agent Development Kit** – <https://google.github.io/adk-docs/>  
-* **Agent‑to‑Agent Protocol (A2A)** – <https://github.com/google/A2A>  
-* **Model Context Protocol** – <https://www.anthropic.com/news/model-context-protocol>
-
----
-
-## ✨ Roadmap
-
-1. **Reinforcement Learning on Execution Alpha** (live slippage minimiser)  
-2. **Self‑Play Stress‑Test Harness** – antifragile improvement loop  
-3. **Reg‑Tech Audit Trail Export** – OpenTelemetry + W3C VCs  
-4. **Plug‑&‑Play Industry Packs** – Energy, Logistics, Health‑Care
-
----
-
-> **Let’s out‑think the future.**
-
-## CURRENTLY UNDER ACTIVE DEVELOPMENT.
