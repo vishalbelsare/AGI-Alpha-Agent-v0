@@ -133,7 +133,7 @@ Prometheus exports `af_job_lateness_seconds` metric for every schedule run.
 
 ## Runtime Topology 🗺️  
 
-```mermaid
+```text
 flowchart LR
     subgraph Mesh
         ORC([🛠️ Orchestrator])
