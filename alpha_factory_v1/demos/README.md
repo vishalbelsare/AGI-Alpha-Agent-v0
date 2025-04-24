@@ -19,7 +19,7 @@
 ---
 
 ## 1 • Welcome  
-**Alpha‑Factory v1** is the **cross‑industry agentic engine** that captures live α‑signals and turns them into value across Finance, Policy, Manufacturing, Biotech & beyond.  This gallery lets you *touch* that power:
+**Alpha‑Factory v1** is the **cross‑industry agentic engine** that captures live α‑signals and turns them into value across all industries & beyond.  This gallery lets you *touch* that power:
 
 ```bash
 # one‑command immersive tour (CPU‑only)
