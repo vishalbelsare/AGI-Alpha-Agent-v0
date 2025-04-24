@@ -5,7 +5,7 @@
 
 **AGI ALPHA AGENT (ALPHA.AGENT.AGI.Eth) Powered by $AGIALPHA.** 
 
-> Our **AGI ALPHA AGENT**—fuelled by the strictly‑utility $AGIALPHA CA: tWKHzXd5PRmxTF5cMfJkm2Ua3TcjwNNoSRUqx6Apump token—now harnesses that visionary foundation—*arguably the world’s most valuable, impactful & important IP*—to unleash the ultimate alpha‑signal engine.
+> Our **AGI ALPHA AGENT**—fuelled by the strictly‑utility **$AGIALPHA CA: tWKHzXd5PRmxTF5cMfJkm2Ua3TcjwNNoSRUqx6Apump** token—now harnesses that visionary foundation—*arguably the world’s most valuable, impactful & important IP*—to unleash the ultimate alpha‑signal engine.
 
 Alpha‑Factory v1 is a reference‑grade, cross‑industry **Multi‑Agent AGENTIC α‑AGI** that **detects live alpha** and **converts it into value**—autonomously, safely and auditable—across every vertical.
 
