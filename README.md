@@ -144,7 +144,7 @@ Open:
 
 ## Runtime Topology 🗺️  
 
-```mermaid
+```text
 flowchart LR
   subgraph α-Mesh
     ORC([🛠️ Orchestrator])
