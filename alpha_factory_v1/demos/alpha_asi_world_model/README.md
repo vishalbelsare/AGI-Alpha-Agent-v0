@@ -3,10 +3,6 @@ README  ░α-ASI World-Model Demo ░  Alpha-Factory v1 👁️✨
 Last updated 2025-04-25   Maintainer → Montreal.AI Core AGI Team
 -->
 
-<p align="center">
-  <img src="https://raw.githubusercontent.com/MontrealAI/brand/main/alpha_factory_banner.svg" width="80%">
-</p>
-
 <h1 align="center">α-ASI World-Model Demo 👁️✨</h1>
 <p align="center">
   <em>The open-ended curriculum engine + MuZero learner that powers the
@@ -36,7 +32,7 @@ Last updated 2025-04-25   Maintainer → Montreal.AI Core AGI Team
 > _independently grow their own synthetic worlds_ (open-ended _POET_ curriculum),
 > _learn a general world-model_ (MuZero-style), automate strategy research,
 > detect live **alpha** opportunities across industries, and march toward the
-> **α-ASI** referenced by Greg Brockman (“break capitalism” ⚡).
+> **α-ASI** referenced by Vincent Boucher, President of MONTREAL.AI and QUEBEC.AI ⚡).
 
 Success criteria ✓  
 
@@ -201,9 +197,5 @@ MIT © 2025 Montreal.AI
 
 Please cite **Alpha-Factory v1 👁️✨ — Multi-Agent AGENTIC α-AGI**:
 
-> Montreal.AI (2025). *Fully-Agentic α-AGI: Foundation World Models for α-ASI.*  
+> MONTREAL.AI (2025). *Fully-Agentic α-AGI: Foundation World Models for α-ASI.*  
 > GitHub https://github.com/MontrealAI/AGI-Alpha-Agent-v0
-
-<p align="center">
-  <img src="https://raw.githubusercontent.com/MontrealAI/brand/main/alpha_factory_footer.svg" width="60%">
-</p>
