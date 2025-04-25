@@ -192,7 +192,7 @@ Need help? Open an issue → **@MontrealAI/alpha-factory-core**.
 ## 10  License & citation
 
 ```
-MIT © 2025 Montreal.AI
+MIT © 2025 MONTREAL.AI
 ```
 
 Please cite **Alpha-Factory v1 👁️✨ — Multi-Agent AGENTIC α-AGI**:
