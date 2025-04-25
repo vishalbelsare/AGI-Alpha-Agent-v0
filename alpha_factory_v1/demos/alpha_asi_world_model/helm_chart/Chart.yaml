@@ -1,0 +1,8 @@
+apiVersion: v2
+name: alpha-asi-demo
+description: |
+  🚀 Alpha-Factory v1 👁️✨ – α-ASI World-Model Demo  
+  A multi-agent, open-ended curriculum + MuZero learner packaged for K8s.
+type: application
+version: 0.1.0
+appVersion: "2025.4.25"
