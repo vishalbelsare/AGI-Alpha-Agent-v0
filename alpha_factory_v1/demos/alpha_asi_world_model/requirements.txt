@@ -1,0 +1,53 @@
+###############################################################################
+#  α-Factory v1 👁️✨  –  World-Model Demo                                      #
+#  -------------------------------------------------------------------------  #
+#  One-liner install for 🐍 3.11+ :                                             #
+#      pip install -r requirements.txt                                         #
+#                                                                              #
+#  ▸ Core runtime is completely local-first (no cloud needed).                 #
+#  ▸ Lines tagged “(optional)” are only imported if the corresponding feature  #
+#    is enabled (e.g. OPENAI_API_KEY). Safe to leave them in – pip will        #
+#    install, but the demo won’t break if the env-var is missing.              #
+#                                                                              #
+#  Pin **minimum** versions so the demo remains forward-compatible while       #
+#  leaving room for GPU / CPU wheel variants.                                  #
+###############################################################################
+
+# ────────────────────────────────────────────────────────────────────────────
+# ⚙️  Engine & numerics
+torch>=2.2                  # deep-learning backbone (GPU/CPU wheels auto-detect)
+numpy>=1.26                 # fast tensor helpers
+
+# ────────────────────────────────────────────────────────────────────────────
+# 🌐  API & real-time dashboard
+fastapi>=0.110              # REST + WebSocket server
+uvicorn[standard]>=0.29     # ASGI server (production-ready)
+pydantic>=2.6               # data validation / settings
+
+# ────────────────────────────────────────────────────────────────────────────
+# 🔗  WebSocket client helpers (used in the notebook emitter)
+websockets>=12.0            # async WS
+nest_asyncio>=1.6           # allow nested event loops in Jupyter
+
+# ────────────────────────────────────────────────────────────────────────────
+# 📓  Notebook emitter (auto-generates *.ipynb)
+nbformat>=5.10              # Jupyter notebook format
+
+# ────────────────────────────────────────────────────────────────────────────
+# 🔒  Optional LLM integration  (only used when OPENAI_API_KEY is present)
+openai>=1.16                # (optional) GPT-4o-mini planner
+
+# ────────────────────────────────────────────────────────────────────────────
+# 🐳  Container / ops (optional but recommended for prod)
+gunicorn>=21.2              # multi-worker HTTP server (used in Dockerfile)
+
+# ────────────────────────────────────────────────────────────────────────────
+# 📐  Dev-experience  (not required at runtime; keep for lint/test pipelines)
+pytest>=8.1                 # basic regression tests
+black>=24.4                 # code formatter
+ruff>=0.4                   # linter
+mypy>=1.10                  # static typing
+
+###############################################################################
+# 📝  End of file – happy hacking!  🚀                                         #
+###############################################################################
