@@ -2,8 +2,6 @@
 # 🚀 **α‑ASI World‑Model Demo 👁️✨**  
 *Alpha‑Factory v1 — fully‑agentic, open‑ended curriculum + MuZero learner*  
 
-![Alpha‑Factory banner](https://placehold.co/1200x250?text=Alpha‑Factory+v1+%F0%9F%91%81%E2%9C%A8+%E2%80%94+World+Model+Demo)  
-
 > *“Imagination will often carry us to worlds that never were. But without it, we go nowhere.”* — **Carl Sagan**
 
 ---
@@ -33,7 +31,7 @@ This folder delivers a **single‑file, production‑deployable proof‑of‑con
 <a id="arch"></a>
 ## 2 High‑level Architecture 🏗️  
 
-```mermaid
+```text
 flowchart LR
     subgraph Agents  🔌
         P(Planning) ---|A2A| O[Orchestrator]
