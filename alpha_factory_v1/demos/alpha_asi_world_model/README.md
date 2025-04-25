@@ -166,7 +166,7 @@ POST /command            → {"cmd":"new_env"} | {"cmd":"stop"}
 This demo inherits the **MIT licence** of Alpha-Factory v1.  
 If you build on it, please cite:
 
-> Montreal.AI (2025). *Alpha-Factory v1 👁️✨ — Multi-Agent AGENTIC α-AGI*.
+> MONTREAL.AI (2025). *Alpha-Factory v1 👁️✨ — Multi-Agent AGENTIC α-AGI*.
 
 ---
 
