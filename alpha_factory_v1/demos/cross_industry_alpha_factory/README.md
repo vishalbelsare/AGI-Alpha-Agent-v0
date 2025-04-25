@@ -136,4 +136,4 @@ Community PRs welcome!
 ### References
 Clune 2019 citeturn17file4 · Sutton & Silver 2024 citeturn16file0 · MuZero 2020 citeturn15file0
 
-© 2025 Montreal.AI — MIT License
+© 2025 MONTREAL.AI — MIT License
