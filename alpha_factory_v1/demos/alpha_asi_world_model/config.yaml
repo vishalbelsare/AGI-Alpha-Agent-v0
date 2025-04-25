@@ -1,0 +1,43 @@
+# 🎛️ Alpha-ASI World-Model Demo – Configuration
+# =============================================
+# Tweak anything, then run:  `python -m alpha_asi_world_model_demo --demo`
+# Lines beginning with “#” are comments / tooltips for non-technical users.
+# =============================================
+
+general:
+  seed: 42        # 🔁 Set to any int for reproduce-able runs
+  device: auto    # cpu | cuda | auto  (auto picks GPU when available)
+
+training:
+  buffer_limit: 50000   # 🧠 Replay-buffer size
+  train_batch: 128
+  lr: 0.001
+  max_steps: 100000     # ⏱️ Orchestrator loop iterations
+  ui_tick: 100          # 📈 How often to broadcast stats (in steps)
+
+env:
+  min_size: 5           # 🌍 Smallest grid size
+  max_size: 10          # 🌍 Largest grid size
+  obstacle_density: 0.15  # 🚧 % of cells turned into obstacles
+
+agents:                 # 🤖 Agent modules to auto-load
+  required:
+    - planning_agent.PlanningAgent
+    - research_agent.ResearchAgent
+    - strategy_agent.StrategyAgent
+    - market_agent.MarketAnalysisAgent
+    - codegen_agent.CodeGenAgent
+  optional:
+    - safety_agent.SafetyAgent
+    - memory_agent.MemoryAgent
+    - llm_planner.LLMPlanner   # auto-enabled only if OPENAI_API_KEY is set
+
+integrations:
+  openai_enabled: true  # 🔌 Set false for fully-offline demo
+  adk_enabled: false
+  a2a_enabled: true
+
+ui:
+  host: 0.0.0.0
+  port: 7860
+  cors_origins: ["*"]   # 🔐 Lock this down in production
