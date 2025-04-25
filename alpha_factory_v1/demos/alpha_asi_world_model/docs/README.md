@@ -8,7 +8,6 @@ This archive contains all the user‑facing docs needed to understand, deploy, a
 |------|---------|
 | `README.md` | This overview document. |
 | `quickstart.md` | Step‑by‑step setup & run instructions (GUI, CLI, Docker, Helm). |
-| `architecture.svg` | High‑level system diagram (agents, orchestrator, UI). |
 | `api_reference.md` | REST & Web‑Socket endpoints. |
 | `agents_overview.md` | What each agent does & how they collaborate. |
 | `safety_notes.md` | Alignment, safety, and antifragility considerations. |
