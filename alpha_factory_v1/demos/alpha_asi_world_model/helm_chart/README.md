@@ -1,78 +1,122 @@
-# ⚡ **α‑ASI World‑Model Helm Chart** 📦💫
+# α-ASI World-Model 🛰️ — Helm Chart 📦  
+*Alpha-Factory v1 👁️✨ • Multi-Agent AGENTIC α-AGI*
 
-> **Alpha‑Factory v1 👁️✨** — Cross‑Industry *Alpha Factory* Demo  
-> Launch a self‑contained constellation of agents that evolves open‑ended
-> worlds and trains a MuZero‑style learner toward **α‑ASI**.
+| Chart version | App version | License |
+|---------------|------------|---------|
+| 0.1.0         | 1.0.0      | MIT     |
 
-| Chart ID | `alpha-asi-demo` |
-|----------|------------------|
-| Works on | K8s 1.25+ (Kind, GKE, EKS, AKS, Openshift OKD) |
-| Ports    | `80/TCP` (REST + WS) |
-
----
-
-## 🌟 Features
-* **Multi‑agent micro‑services** (≥5 agents) wired by the Agent2Agent bus
-* **POET environment‑factory** + **MuZero learner** in one pod
-* **FastAPI** UI & OpenAPI docs out‑of‑the‑box
-* **HPA‑ready** probes, PodDisruptionBudget, resource templates
-* **Air‑gapped capable** — no external calls unless you set `OPENAI_API_KEY`
+> **Purpose** — Deploy the **α-ASI World-Model demo** (POET × MuZero, orchestrated
+> by ≥5 cooperative Alpha-Factory agents) to any Kubernetes 1.26+ cluster in
+> **one command** while retaining full production-grade knobs for security,
+> scaling and cross-industry customisation.
 
 ---
 
-## 🚀 Quick start
+## ✨ What gets deployed?
+
+| Kubernetes Object | Description | Why it matters to “Alpha Factory → Alpha Opportunities → Value” |
+|-------------------|-------------|-----------------------------------------------------------------|
+| **`Deployment/asi-orchestrator`** | Runs the `alpha_asi_world_model_demo.py` process. | Central brain that *generates environments* & *trains agents* → raw discovery of 🌟 alpha signals. |
+| **`Service/asi-ui`** *(ClusterIP or LoadBalancer)* | Exposes REST + WebSocket API (`/agents`, `/command`, `/ws`). | Lets non-technical users *watch*, *steer* and *harvest* value in real time. |
+| **`ConfigMap/asi-config`** | Injects runtime config (`ALPHA_ASI_*`, ultra-safe defaults). | Rapid cross-industry retargeting without images rebuilds. |
+| **`Secret/asi-api-keys`** | (Optional) `OPENAI_API_KEY`, `ANTHROPIC_API_KEY`, etc. | Seamless toggle between *offline-only* and *LLM-augmented* operation. |
+| **`PodDisruptionBudget/asi-core`** | Prevents accidental 0-replica situations. | Maintains continuous alpha extraction 📈 under node-drain chaos. |
+| **`HorizontalPodAutoscaler/asi-orchestrator`** | *(disabled by default)* | Proof-point that the demo is *cloud-native & antifragile*: auto-scale on CPU/GPU load spikes. |
+
+### Agent roles baked into the container 👥 
+
+| Agent topic (class) | Helm relevance | Cross-industry usefulness |
+|---------------------|----------------|---------------------------|
+| `planning_agent` | Reads `GOAL_*` envs from **values.yaml** → seeds high-level objectives. | Aligns curricula to any sector (finance, health, aero…). |
+| `research_agent` | Can be wired to an external vector-DB via secret refs. | Streams domain knowledge to learner → faster alpha capture. |
+| `strategy_agent` | Emits “pivot” messages if KPI rules in **values.yaml** trigger. | Auto-switch between opportunity classes (e.g. cost-saving vs. revenue). |
+| `market_agent` | Optional Kafka side-car example in `extras/`. | Feeds live market ticks; learner treats them as novel envs. |
+| `safety_agent` | Always ON, no config needed. | Halts pods on NaNs / runaway rewards → regulatory guard-rail. |
+
+*(Stubbed when missing, so the chart stays green even on minimal clusters.)*
+
+---
+
+## 🚀 Quick start
 
 ```bash
-helm repo add alpha-factory https://montrealai.github.io/alpha-factory-charts
-helm install my-asi alpha-factory/alpha-asi-demo \
-  --set image.tag=$(git rev-parse --short HEAD)
-kubectl port-forward svc/my-asi 7860:80
-open http://localhost:7860/docs   # Swagger UI
+# 1 — Add the repo (if you publish it) or use local path
+helm install alpha-asi-demo ./helm_chart   --create-namespace --namespace alpha-factory
+
+# 2 — Port-forward the UI if you’re on a private cluster
+kubectl -n alpha-factory port-forward svc/asi-ui 7860:80
+
+# 3 — Open the dashboard
+xdg-open http://localhost:7860      # or just paste in browser
+```
+
+> 🛡️ **No cloud keys?** That’s fine—LLM helpers stay stubbed and the app runs
+> fully offline.
+
+---
+
+## 🔧 Key values (`values.yaml`)
+
+| Path | Default | Meaning |
+|------|---------|---------|
+| `image.repository` | `alpha_asi_world_model` | Override if you push to ECR/GCR/ACR etc. |
+| `image.tag` | `latest` | Pin to a digest for prod. |
+| `service.type` | `ClusterIP` | Switch to `LoadBalancer` or `Ingress` for public clouds. |
+| `resources.requests.cpu` | `250m` | Tweak for on-prem GPU nodes (see docs). |
+| `env.ALHPA_ASI_MAX_STEPS` | `100000` | Faster demo? Set to `20000`. |
+| `secretKeys.openai` | *(unset)* | Will be mounted to `OPENAI_API_KEY`. |
+
+```yaml
+# — example mini-override —
+env:
+  GOAL_PRIMARY: "optimise_supply_chain_CO2"
+  ALPHA_ASI_MAX_STEPS: "75000"
+secretKeys:
+  openai: "OPENAI_API_KEY"        # key name in Kubernetes secret
+```
+
+Create the secret:
+
+```bash
+kubectl -n alpha-factory create secret generic asi-api-keys   --from-literal=OPENAI_API_KEY="sk-••••"
 ```
 
 ---
 
-## 🔧 Important `values.yaml` knobs
+## 🔒 Security notes & best practices
 
-| Key | Default | Why you might change it |
-|-----|---------|-------------------------|
-| `replicaCount` | `1` | Scale learner horizontally (stateless). |
-| `image.repository` | `alpha_asi_world_model` | Use your own registry. |
-| `service.type` | `ClusterIP` | `LoadBalancer` for cloud ELB, `NodePort` for bare‑metal. |
-| `resources` | – | Request GPU (e.g. `nvidia.com/gpu: 1`). |
-| `env.OPENAI_API_KEY` | – | Enable LLM‑assisted planning. |
-
-See full schema inside **values.yaml**.
+| Issue | Chart mitigation |
+|-------|------------------|
+| **Outbound traffic control** | `securityContext.capabilities.drop: ALL` + no default egress; user must opt-in via `networkPolicy.enabled`. |
+| **LLM prompt-injection** | `safety_agent` filters outgoing tool invocations; helm value `env.LLM_REDTEAM=1` enables extra adversarial replay tests. |
+| **Resource runaway** | Default limits (`cpu=1`, `memory=1Gi`) + **HPA** guard. |
+| **Data compliance** | Enable `persistence.enabled` to back models with PVCs located in compliant storage zones. |
 
 ---
 
-## 🩺 Health checks
+## 🛠️ Extending the chart
 
-| Probe      | Path     | Success criterion |
-|------------|----------|-------------------|
-| Liveness   | `/agents` | HTTP 200 JSON with ≥5 agents |
-| Readiness  | `/agents` | same |
-
-Helm **tests** run a curl + WebSocket sanity script.
+* **Multiple learners** — set `replicaCount` > 1 and `env.LEARNER_ID=$(POD_NAME)`; the orchestrator auto-detects peers via the service DNS.
+* **Pluggable env-generators** — mount a ConfigMap with your Python module under
+  `/app/plugins/`, append `PYTHONPATH` in `extraEnv`.
+* **Side-car vector DB** — uncomment the stub in `templates/vector db.yaml` for instant hybrid-search memory.
 
 ---
 
-## 🤖 Five highlighted agents
+## 📝 Change log
 
-| Agent | Mission | Example signal |
-|-------|---------|----------------|
-| **PlanningAgent** | Break complex goals into sub‑tasks | Receives `llm_plan` JSON |
-| **ResearchAgent** | Inject external knowledge | Emits `memory.add` |
-| **StrategyAgent** | Adaptive curriculum scheduling | Sends `orch` → `new_env` |
-| **MarketAnalysisAgent** | Spot cross‑industry Alpha | Publishes `alpha.opportunity` |
-| **SafetyAgent** | Shutdown on unsafe gradients | Publishes `orch` → `stop` |
+| Version | Date (UTC) | Notes |
+|---------|------------|-------|
+| **0.1.0** | 2025-04-25 | First GA release 🎉 – matches repository tag `v1.0.0`. |
 
 ---
 
-## 🧩 Extending the chart
+## ❤️ Credits
 
-1. Build your image → `docker build -t myrepo/alpha_asi:latest .`  
-2. `helm upgrade --install` with `--set image.repository=myrepo/alpha_asi`  
-3. Add volumes/env for new agents under `templates/deployment.yaml.j2`
+Built with  
+**Alpha-Factory v1 👁️✨** • OpenAI Agents SDK • Google ADK • Agent2Agent • MCP •
+Helm ❤️.  
 
-PRs welcome — let’s push **α‑AGI** forward together! ✨
+> *“Outlearn. Outthink. Outdesign. Outstrategize. Outexecute.”*  
+
+Enjoy deploying super-intelligence responsibly 🚀
