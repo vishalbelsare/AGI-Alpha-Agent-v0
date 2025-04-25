@@ -33,7 +33,7 @@ super-intelligence.
 
 ## 🧩 Architectural Super-Snapshot
 
-```mermaid
+```text
 graph LR
   subgraph Orchestrator 🛰️
      O(Orchestrator)
