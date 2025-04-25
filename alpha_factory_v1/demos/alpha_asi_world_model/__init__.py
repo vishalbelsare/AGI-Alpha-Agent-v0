@@ -1,64 +1,127 @@
 """
 ╭──────────────────────────────────────────────────────────────────────────────╮
-│  Alpha-Factory v1 👁️✨ — Multi-Agent AGENTIC α-AGI • World-Model Demo        │
+│  Alpha-Factory v1 👁️✨ — Multi-Agent AGENTIC α-AGI World-Model Demo          │
 │  ░░  “Outlearn · Outthink · Outdesign · Outstrategize · Outexecute”  ░░      │
 │                                                                              │
-│  Single-import convenience wrapper around `alpha_asi_world_model_demo.py`.   │
-│  Runs completely offline; transparently augments itself with GPT/Claude etc. │
-│  if API keys are present.                                                    │
+│  This package exposes a *single-import* interface to the fully-agentic       │
+│  α-ASI demonstrator implemented in `alpha_asi_world_model_demo.py`.          │
+│                                                                              │
+│  Highlights                                                                  │
+│  ───────────────────────────────────────────────────────────────────────────  │
+│  • Five complementary agents (**planner, researcher, strategist, market,     │
+│    safety**) auto-register on import, showcasing the Alpha-Factory pattern   │
+│    of end-to-end Alpha discovery → execution across industries.              │
+│  • One-liner launch helpers for notebooks & scripts                          │
+│      >>> import alpha_asi_world_model as α                                   │
+│      >>> α.run_ui(port=9999)   # open http://localhost:9999                  │
+│  • Zero mandatory cloud keys – runs fully offline; plugs-in GPT/Claude et al │
+│    automatically *if* `OPENAI_API_KEY` / `ANTHROPIC_API_KEY` are present.    │
+│  • Strict, regulator-friendly defaults: deterministic seed, telemetry opt-in │
+│    only, graceful exit on NaN / divergence (SafetyAgent).                    │
 ╰──────────────────────────────────────────────────────────────────────────────╯
 """
 
 from __future__ import annotations
 
-import importlib, os, threading
+import importlib
+import os
+import threading
 from types import ModuleType
 from typing import Final, List
 
-# re-export orchestrator & FastAPI app
-from .alpha_asi_world_model_demo import Orchestrator, app, _main as _demo_cli  # noqa: F401
+# Re-export the runnable demo components
+from .alpha_asi_world_model_demo import Orchestrator, app, _cli as _demo_cli  # noqa: F401
 
-__all__: Final[List[str]] = ["Orchestrator", "run_headless", "run_ui", "app", "__version__", "Agent_DOC"]
-__version__: Final[str]   = "1.0.1"
+__all__: Final[List[str]] = [
+    "Orchestrator",
+    "run_headless",
+    "run_ui",
+    "app",
+    "__version__",
+]
+
+__version__: Final[str] = "1.0.0"
 
 # ──────────────────────────────────────────────────────────────────────────────
-#  Human-readable agent showcase
+#  Agent showcase (edu-doc string for auditors & newcomers)
 # ──────────────────────────────────────────────────────────────────────────────
 Agent_DOC = """
-Integrated Alpha-Factory agents (stubbed if source class missing):
+Integrated Alpha-Factory agents (auto-stubbed if source class unavailable):
 
-• PlanningAgent        — decomposes objectives into actionable plans  
-• ResearchAgent        — literature/data scouting → distilled insights  
-• StrategyAgent        — converts insights into competitive moves  
-• MarketAnalysisAgent  — assesses financial / market impact  
-• SafetyAgent          — continuous risk monitor; halts on anomaly
+• PlanningAgent       – decomposes high-level objectives into actionable plans  
+• ResearchAgent       – scans literature / data sources → distilled insights  
+• StrategyAgent       – converts insights into cross-industry competitive moves  
+• MarketAnalysisAgent – evaluates financial / market impact of candidate moves  
+• SafetyAgent         – continuous risk/constraint monitor; halts on anomaly
 
-These map to the Alpha-Pipeline:  Detect → Research → Strategise → Execute → Safeguard.
+Together they demonstrate the ‘Alpha Pipeline’:
+   *Detect → Research → Strategise → Execute → Monitor/Safeguard*.
 """
+
 
 # ──────────────────────────────────────────────────────────────────────────────
 #  Convenience helpers
 # ──────────────────────────────────────────────────────────────────────────────
-def _lazy_uvicorn() -> ModuleType: return importlib.import_module("uvicorn")
+def _lazy_import_uvicorn() -> ModuleType:  # local import keeps deps optional
+    return importlib.import_module("uvicorn")
 
-def run_headless(steps: int = 50_000) -> Orchestrator:
-    """Run the orchestrator loop without the web server (useful for tests)."""
+
+def run_headless(steps: int = 50_000) -> Orchestrator:  # pragma: no cover
+    """
+    Launch the orchestrator loop **without** spinning up the FastAPI service.
+
+    Useful for Jupyter / unit-tests:
+
+        >>> import alpha_asi_world_model as α
+        >>> orch = α.run_headless(10_000)
+        >>> assert orch.learner.buffer  # trained a bit
+    """
     orch = Orchestrator()
-    threading.Thread(target=orch.loop, kwargs={"steps":steps}, daemon=True).start()
+
+    def _worker() -> None:
+        orch.run(steps=steps)
+
+    threading.Thread(target=_worker, daemon=True).start()
     return orch
 
-def run_ui(host: str = "127.0.0.1", port: int = 7860, reload: bool=False, log_level: str="info") -> None:
-    """Spin up the FastAPI UI."""
-    _lazy_uvicorn().run(
+
+def run_ui(
+    host: str = "127.0.0.1",
+    port: int = 7860,
+    reload: bool = False,
+    log_level: str = "info",
+) -> None:  # pragma: no cover
+    """
+    Spin up the FastAPI REST + WebSocket UI.
+
+        >>> import alpha_asi_world_model as α
+        >>> α.run_ui(port=9999)  # then open http://localhost:9999
+    """
+    uvicorn = _lazy_import_uvicorn()
+    uvicorn.run(
         "alpha_factory_v1.demos.alpha_asi_world_model.alpha_asi_world_model_demo:app",
-        host=host, port=port, reload=reload, log_level=log_level,
+        host=host,
+        port=port,
+        reload=reload,
+        log_level=log_level,
     )
 
-# informative banner (printed once)
-if os.getenv("ALPHA_ASI_SILENT","0") != "1":
-    print(f"\n💡  Alpha-ASI demo ready — v{__version__} • "
-          "call `alpha_asi_world_model.run_ui()` or see `help(alpha_asi_world_model)`.\n")
 
-# allow `python -m alpha_asi_world_model`
-def _module_cli(): _demo_cli()
-if __name__ == "__main__": _module_cli()
+# ──────────────────────────────────────────────────────────────────────────────
+#  Informative banner (prints once on first import, unless suppressed)
+# ──────────────────────────────────────────────────────────────────────────────
+if os.getenv("ALPHA_ASI_SILENT", "0") != "1":
+    print(
+        f"\n💡  Alpha-ASI demo ready — version {__version__} • "
+        "type `help(alpha_asi_world_model)` for details - or - "
+        "`alpha_asi_world_model.run_ui()` to launch the dashboard.\n"
+    )
+
+# Expose a CLI entry-point (python -m alpha_asi_world_model)
+def _module_cli() -> None:  # pragma: no cover
+    """Dispatch to the demo’s CLI (see `alpha_asi_world_model_demo --help`)."""
+    _demo_cli()
+
+
+if __name__ == "__main__":  # allows:  python -m alpha_asi_world_model …
+    _module_cli()
