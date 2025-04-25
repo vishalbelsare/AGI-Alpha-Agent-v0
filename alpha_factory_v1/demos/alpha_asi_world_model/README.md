@@ -1,205 +1,209 @@
-
 <!--
-───────────────────────────────────────────────────────────────────────────────
- Alpha-Factory v1 👁️✨  ·  α-ASI World-Model Demo
-───────────────────────────────────────────────────────────────────────────────
+README  ░α-ASI World-Model Demo ░  Alpha-Factory v1 👁️✨
+Last updated 2025-04-25   Maintainer → Montreal.AI Core AGI Team
 -->
 
-<h1 align="center">
-  Alpha-Factory v1 👁️✨<br>
-  <sub>Multi-Agent AGENTIC α-AGI · World-Model Demo</sub>
-</h1>
-
 <p align="center">
-  <em>Outlearn · Outthink · Outdesign · Outstrategize · Outexecute</em>
+  <img src="https://raw.githubusercontent.com/MontrealAI/brand/main/alpha_factory_banner.svg" width="80%">
+</p>
+
+<h1 align="center">α-ASI World-Model Demo 👁️✨</h1>
+<p align="center">
+  <em>The open-ended curriculum engine + MuZero learner that powers the
+  <strong>Alpha-Factory v1</strong> multi-agent runtime.</em><br>
+  <strong>Out-Learn · Out-Think · Out-Design · Out-Strategise · Out-Execute</strong>
 </p>
 
 ---
 
-## 🚀 Why this demo matters
-
-This repository shows **how** we get there — building on  
-**`alpha_asi_world_model_demo.py`**, a fully-agentic prototype that
-
-1. **Generates endless worlds** (POET-style 🗺️)  
-2. **Learns a general policy** (MuZero-style 🧠)  
-3. **Self-improves forever** via a constellation of cooperating agents 🤝  
-4. Runs **locally, offline** – cloud LLMs are optional 🌐
-
-Together these ingredients light the path to **α-ASI**, the *alpha* of artificial
-super-intelligence.
-
----
-
-## 🧩 Architectural Super-Snapshot
-
-```text
-graph LR
-  subgraph Orchestrator 🛰️
-     O(Orchestrator)
-  end
-  subgraph Agents
-     PL[Planning Agent]
-     RS[Research Agent]
-     ST[Strategy Agent]
-     MK[Market Analysis Agent]
-     CG[Code Gen Agent]
-     SA[Safety Agent]
-  end
-  subgraph Engine
-     ENV[POET Env Generator]
-     LRN[MuZero Learner]
-  end
-  user[(User / API)]
-  UI[Web UI 📈]
-  
-  user --REST/WS--> UI
-  UI --A2A--> O
-  O -->|cmd| ENV
-  O -->|data| LRN
-  ENV --> LRN
-  LRN --metrics--> SA
-  SA -. guard .-> O
-  
-  O <--strategy--> PL
-  O <--insights--> RS
-  O <--roadmap--> ST
-  O <--alpha-signals--> MK
-  O <--patches--> CG
-```
-
-*Drawn with :heart:&nbsp;in Mermaid – renders natively on GitHub.*
+## 0  Table of Contents  <!-- omit in toc -->
+1. [Why this demo matters](#1-why-this-demo-matters)
+2. [Quick-start 🥑](#2-quick-start-)
+3. [High-level architecture 🗺️](#3-high-level-architecture-️)
+4. [Meet the agents 🤖 (≥ 5)](#4-meet-the-agents-️-≥-5)
+5. [Runtime controls 🎮](#5-runtime-controls-)
+6. [Deployment recipes 🚀](#6-deployment-recipes-)
+7. [Safety, antifragility & governance 🛡️](#7-safety-antifragility--governance-)
+8. [Extending the demo 🧩](#8-extending-the-demo-)
+9. [Troubleshooting 🔧](#9-troubleshooting-)
+10. [License & citation](#10-license--citation)
 
 ---
 
-## 🤖 The starring agents (≥5 already wired‐in)
+## 1  Why this demo matters
 
-| Agent | Purpose | Typical Messages |
-|-------|---------|------------------|
-| **PlanningAgent** 🧭 | Breaks high-level goals into executable sub-plans. Optional LLM reasoning via OpenAI Agents SDK. | `{"goal":"navigate maze"}` → returns ordered tasks |
-| **ResearchAgent** 🔍 | Scans papers, code & data to surface new techniques or fixes. | `{"topic":"better exploration"}` |
-| **StrategyAgent** ♟️ | Chooses *which* worlds to tackle next for maximum generalisation. | `{"metrics":{…}}` |
-| **MarketAnalysisAgent** 💹 | Looks for monetisable “alpha” opportunities across industries and feeds them back. | `{"request":"latest alpha"}` |
-| **CodeGenAgent** 🛠️ | Safely patches the code-base (tests + lint) when new capabilities are required. | `{"diff":"…"}` |
-| **SafetyAgent** 🛡️ | Monitors losses/NaNs & enforces constitutional-AI rules. | `{"loss":1234}` triggers halt |
+> **Mission** Prove that a constellation of **agentic micro-services** can
+> _independently grow their own synthetic worlds_ (open-ended _POET_ curriculum),
+> _learn a general world-model_ (MuZero-style), automate strategy research,
+> detect live **alpha** opportunities across industries, and march toward the
+> **α-ASI** referenced by Greg Brockman (“break capitalism” ⚡).
 
-> **Need more?** Drop a `.py` in `backend/agents/` – it auto-loads via the
-> dynamic bootstrapper (A2A-compliant).
+Success criteria ✓  
+
+| Pillar | Concrete demonstration |
+| ------ | ---------------------- |
+| **Open-Endedness** | Automatic generation & evaluation of ever harder MiniWorld mazes |
+| **World-Models** | MuZero learner predicts reward/value & policy without ground-truth rules |
+| **Multi-Agent** | ≥ 5 independent Alpha-Factory agents coordinate via A2A bus |
+| **Cross-Industry Alpha** | StrategyAgent spots profitable “alpha” events (simulated market feed) |
+| **Antifragility** | SafetyAgent can freeze learner on NaN/spike; system self-recovers |
+| **Local-First** | No internet or API keys required; LLM helpers activate only if keys provided |
 
 ---
 
-## 🏎️ Quick Start (30 seconds)
+## 2  Quick-start 🥑
 
 ```bash
-# ❶ Clone repo (or pull latest)
-git clone https://github.com/MontrealAI/AGI-Alpha-Agent-v0.git
-cd AGI-Alpha-Agent-v0/alpha_factory_v1/demos/alpha_asi_world_model
+# ░ Local Python (CPU or GPU)
+pip install -r requirements.txt        # torch, fastapi, uvicorn…
 
-# ❷ Install deps (CPU-only; GPU auto-detected)
-python -m pip install -r requirements.txt  # tiny list, all OSS
-
-# ❸ Launch!
 python -m alpha_asi_world_model_demo --demo
+open http://localhost:7860             # dashboard & Swagger
+
+# ░ One-liner Docker
+python -m alpha_asi_world_model_demo --emit-docker
+docker build -t alpha_asi_world_model .
+docker run -p 7860:7860 alpha_asi_world_model
+
+# ░ Helm (K8s)
+python -m alpha_asi_world_model_demo --emit-helm
+helm install alpha-asi ./helm_chart
+
+# ░ Notebook
+python -m alpha_asi_world_model_demo --emit-notebook
+jupyter lab alpha_asi_world_model_demo.ipynb
 ```
 
-Open <http://localhost:7860> – watch worlds generate and metrics stream in real-time.  
-No API keys? No problem. Provide `OPENAI_API_KEY` env-var **only** if you want LLM
-planning.
+> **Tip 💡** Set `ALPHA_ASI_SEED=<int>` to reproduce identical curriculum runs.
 
 ---
 
-## 🐳 One-liner Docker
+## 3  High-level architecture 🗺️
 
-```bash
-docker run --pull=always -p 7860:7860 ghcr.io/montrealai/alpha-asi-world-model:latest
+```
+┌──────────────────────────────── Alpha-Factory Bus (A2A) ───────────────────────────────┐
+│                                                                                        │
+│   ┌──────────────┐   curriculum   ┌───────────┐   telemetry   ┌────────────┐          │
+│   │ StrategyAgent│───────────────►│ Orchestr. │──────────────►│   UI / WS  │          │
+│   └──────────────┘                │  (loop)   │◄──────────────│  Interface │          │
+│          ▲  ▲                     └───────────┘    commands   └────────────┘          │
+│          │  │ new_env/reward                     ▲                                   │
+│   plans  │  │ loss stats                        │ halt                              │
+│          │  └──────────────────────┐            │                                   │
+│   ┌──────┴───────┐   context       │            │                                   │
+│   │ ResearchAgent│───────────────► Learner (MuZero) ◄─ SafetyAgent (loss guard)      │
+│   └──────────────┘                │   ▲                                             │
+│              code patches         │   │                                             │
+│   ┌──────────────┐                │   │ gradients                                   │
+│   │ CodeGenAgent │────────────────┘   │                                             │
+│   └──────────────┘                    │                                             │
+│                                       ▼                                             │
+│                            POET Generator → MiniWorlds (env pool)                    │
+└────────────────────────────────────────────────────────────────────────────────────────┘
 ```
 
-Kubernetes fan?  
-```bash
-helm repo add alpha-asi https://montrealai.github.io/helm-charts
-helm install asi alpha-asi/alpha-asi-world-model
+* **All messages** flow through a single in-proc **A2A** topic bus (swap for
+  Redis/NATS at scale).  
+* **MCP** is used by ResearchAgent to attach rich “context blocks” to
+  learner queries when an LLM key is supplied.  
+* Components comply with **OpenAI Agents SDK** & **Google ADK** lifecycle
+  (`init/step/shutdown`), so they can be re-packaged as micro-services at will.
+
+---
+
+## 4  Meet the agents 🤖 (≥ 5)
+
+| Topic 🛰 | Skill | How it contributes to **End-to-End Alpha** |
+|--------------|-------|-------------------------------------------|
+| **planning_agent** | Long-horizon curriculum sketching (optionally via GPT-4o) | Keeps learner near its “zone of proximal development” → faster capability gain |
+| **research_agent** | Literature & data mining (papers, patents, SEC filings…) | Injects distilled insights; helps learner transfer skills across domains |
+| **strategy_agent** | Real-time alpha detection (mock market feed 📈) | Signals lucrative industry opportunities; triggers env mutations that mimic them |
+| **codegen_agent** | Auto-ML / network surgery | Evolves MuZero hyper-params & architecture → antifragile optimisation |
+| **market_agent** | Streams synthetic or live financial ticks | Provides cross-domain stressor; validates Alpha-capture loops |
+| **safety_agent** | Alignment guardrails | Halts on NaN/catastrophe; enforces resource quotas & ethical policies |
+
+*(If a concrete implementation is absent the stub logs every call, guaranteeing
+bus liveness even on a clean clone.)*
+
+---
+
+## 5  Runtime controls 🎮
+
+| REST | Use case |
+|------|----------|
+| `GET /agents` | List active agent topics |
+| `POST /command {"cmd":"new_env"}` | Force-spawn a fresh world |
+| `POST /command {"cmd":"stop"}` | Graceful halt ⏸ |
+
+**WebSocket (`/ws`)** streams JSON telemetry every `ui_tick` steps:  
+`{"t":1234,"r":-0.01,"loss":0.872}` → plug into Grafana or a custom React chart.
+
+---
+
+## 6  Deployment recipes 🚀
+
+| Target | Guide |
+|--------|-------|
+| 🐳 **Docker** | Auto-generated `Dockerfile` (<100 MB slim). GPU builds: swap base for `nvidia/cuda:runtime-12.4`. |
+| ☸️ **Kubernetes** | Run `--emit-helm`; edit values (`replicaCount`, `resources.limits`). Works on GKE, AKS, EKS, k3d. |
+| 🐍 **Pure Python** | No Docker needed; just `pip install -r requirements.txt`. |
+| 🔒 **Air-gapped** | Offline wheels; set env `NO_LLM=1` or omit API keys. |
+| 🔑 **Cloud LLM mode** | Export `OPENAI_API_KEY` → PlanningAgent & ResearchAgent auto-upgrade to LLM assistants. |
+
+---
+
+## 7  Safety, antifragility & governance 🛡️
+
+* **Reward-hacking firewall** — StrategyAgent & SafetyAgent cross-check any
+  sudden reward spike; suspicious events quarantine the environment seed for
+  forensic replay.  
+* **Loss guard** — Threshold `loss > 1e3` or `NaN` triggers global `stop`.  
+* **Compute budget** — Learner train loop obeys `torch.set_grad_enabled(False)`
+  for evaluation, cuts GPU utilisation to ≤ 80 %.  
+* **Policy logging** — Every 10 k steps, MuZero weights hashed (SHA‑256) +
+  signed for traceability.  
+* **Audit-ready** — All IPC messages dumped to `./logs/audit_<ts>.ndjson`
+  (regulator-friendly).
+
+---
+
+## 8  Extending the demo 🧩
+
+> **One-file hackability** yet **enterprise scalability**.
+
+1. **New env type** → subclass `MiniWorld` (`step/reset/obs`), register in
+   `POETGenerator.propose`.  
+2. **Swap learner** → Implement `.act/.remember/.train` in a new class;
+   StrategyAgent can trigger hot-swap via `{"cmd":"swap_learner"}`.  
+3. **External micro-service** → Re-use `BaseAgent`; deploy as HTTP worker that
+   bridges to A2A via WebSockets.
+
+---
+
+## 9  Troubleshooting 🔧
+
+| Problem | Cause / Fix |
+|---------|-------------|
+| _“UI stalls”_ | Browser blocked WS → check console; ensure port 7860 reachable. |
+| _CUDA OOM_ | `export TORCH_FORCE_CPU=1` or downsize net via CodeGenAgent. |
+| _Docker build slow_ | Add build-arg `TORCH_WHL=<local-wheel>` (offline). |
+| _K8s CrashLoop_ | `kubectl logs`; missing GPU driver or env var. |
+
+Need help? Open an issue → **@MontrealAI/alpha-factory-core**.
+
+---
+
+## 10  License & citation
+
+```
+MIT © 2025 Montreal.AI
 ```
 
----
+Please cite **Alpha-Factory v1 👁️✨ — Multi-Agent AGENTIC α-AGI**:
 
-## 🧪 CI + CD highlights
-
-* Matrix tests (Py 3.10-3.12) & 100 % coverage gate  
-* Ruff + Mypy for style & types  
-* Trivy vulnerability scan on the final image  
-* Helm chart lint & smoke-deploy (kind)  
-* Optional **tag-push = automatic GHCR release**  
-
-See `.github/workflows/ci.yml` for full glam ✨.
-
----
-
-## 🔬 Reproducing research claims
-
-| Paper / Talk | Feature in demo | Where |
-|--------------|-----------------|-------|
-| **MuZero** (Schrittwieser et al., 2019) | Representation + Dynamics + Prediction network | `MuZeroTiny` class |
-| **POET** (Wang et al., 2019) | Open-ended env generation | `POETGenerator` |
-| **World-Model Foundation** (Rocktäschel 2024 talk) | Single learner across diverse tasks | orchestrator loop |
-| **Era of Experience** (Silver & Sutton 2021) | Self-growing curriculum | Curriculum agent (built-in) |
-| **AI-GA** (Clune 2020) | Quality-Diversity search | obstacle mutation & novelty check |
-
----
-
-## 🛠️ Extending the system
-
-1. **Add a new world**  
-   Implement `step()`, `reset()` in a MiniWorld-like env and register in
-   `POETGenerator`.
-
-2. **Plug a stronger learner**  
-   Swap `MuZeroTiny` for your fancy model (e.g. Dreamer-V4) – the RL loop is
-   interface-stable.
-
-3. **Introduce a new agent**  
-   ```python
-   # backend/agents/my_agent.py
-   from alpha_factory_v1.demos.alpha_asi_world_model.alpha_asi_world_model_demo import BaseAgent
-   class MyAgent(BaseAgent):
-       def __init__(self): super().__init__("my_agent")
-       def handle(self, msg): ...
-   ```
-   The bootstrapper auto-loads it at start-up.
-
----
-
-## 🛡️ Safety & antifragility
-
-* Loss spikes > 1 000 or NaNs ⇒ **instant halt** by `SafetyAgent`.
-* Each agent runs **sandboxed**, no network unless whitelisted.
-* Optional Constitutional-AI prompts protect LLM usage.
-* Replay-buffer & checkpoints saved every 1 000 steps – crash-safe.
-
----
-
-## 🌐 Cross-Industry “Alpha” in action
-
-*Demo scenario shipped:*
-
-1. **MarketAnalysisAgent** pulls live FX volatility (open-source feed).  
-2. Identifies a *mean-reversion alpha* opportunity in EUR-USD.  
-3. Sends plan → **PlanningAgent**, which decomposes tasks:  
-   “simulate, stress-test, deploy micro-hedge bot”.  
-4. **CodeGenAgent** patches a strategy stub; tests pass.  
-5. **StrategyAgent** verifies risk limits; **SafetyAgent** green-lights.  
-6. Orchestrator spins a **live mini-sim** environment; learner trains & rolls out.  
-7. **Profit metrics stream** to UI — voilà, *alpha captured* ✨.
-
----
-
-## ❤️ Contributing
-
-PRs welcome (tests + lint = green).  
-Join the conversation in **#alpha-factory** on the Montreal.AI Discord.
-
----
+> Montreal.AI (2025). *Fully-Agentic α-AGI: Foundation World Models for α-ASI.*  
+> GitHub https://github.com/MontrealAI/AGI-Alpha-Agent-v0
 
 <p align="center">
-  <b>Alpha-Factory v1 👁️✨ – forging the alpha of ASI.</b><br>
-  <sub>© 2025 MONTREAL.AI · MIT-licensed · Made with passion for open-ended innovation</sub>
+  <img src="https://raw.githubusercontent.com/MontrealAI/brand/main/alpha_factory_footer.svg" width="60%">
 </p>
