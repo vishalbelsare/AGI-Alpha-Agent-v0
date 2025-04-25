@@ -11,16 +11,12 @@
 </h1>
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/MontrealAI/artwork/main/alpha_factory_banner.svg" width="75%"><br>
   <em>Outlearn · Outthink · Outdesign · Outstrategize · Outexecute</em>
 </p>
 
 ---
 
 ## 🚀 Why this demo matters
-
-> “A super-intelligent machine would be of such immense value … it could **break capitalism**.”  
-> – Greg Brockman (OpenAI)
 
 This repository shows **how** we get there — building on  
 **`alpha_asi_world_model_demo.py`**, a fully-agentic prototype that
