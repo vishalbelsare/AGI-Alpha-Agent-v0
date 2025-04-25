@@ -1,0 +1,1 @@
+This system monitors numeric instability, reward hacking, and policy divergence. It can pause training on anomalies and enforces role‑based agent scopes.
