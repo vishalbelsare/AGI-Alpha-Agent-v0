@@ -18,8 +18,6 @@
 * **HPA‑ready** probes, PodDisruptionBudget, resource templates
 * **Air‑gapped capable** — no external calls unless you set `OPENAI_API_KEY`
 
-![Topology](https://raw.githubusercontent.com/MontrealAI/AGI-Alpha-Agent-v0/main/docs/img/helm_topology.svg)
-
 ---
 
 ## 🚀 Quick start
