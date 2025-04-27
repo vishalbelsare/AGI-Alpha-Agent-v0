@@ -1,10 +1,8 @@
 %──────────────────────────────────────────────────────────────────────────────
-%  Alpha-Factory v1 — Multi-Agent AGENTIC α-AGI World-Model Demo   (≈26 pages)
-%  Experiments intentionally omitted (future work).
-%  Compile (Mac / *nix):  xelatex → biber → xelatex → xelatex
-%  Tested with TeX-Live 2024 (MacTeX 2024 distro).
+%  Alpha-Factory v1 — Multi-Agent AGENTIC α-AGI World-Model Demo  (≈26 pages)
+%  Compile (TeX Live 2025):  xelatex → biber → xelatex ×2
 %──────────────────────────────────────────────────────────────────────────────
-\begin{filecontents*}{refs.bib}
+\begin{filecontents*}[overwrite]{refs.bib}
 @article{schrittwieser2019muzero, author={Schrittwieser,J. et al.},
   title={Mastering Atari, Go, Chess and Shogi by Planning with a Learned Model},
   journal={Nature}, volume={588}, pages={604–609}, year={2020}}
@@ -62,11 +60,11 @@
   title={Mastering the Game of Go without Human Knowledge}, journal={Nature}, year={2017}}
 
 % ––– Theoretical foundations –––
-@article{bartlett2002rademacher, author={Bartlett,P. & Mendelson,S.},
+@article{bartlett2002rademacher, author={Bartlett,P. and Mendelson,S.},
   title={Rademacher and Gaussian Complexities}, journal={Machine Learning}, year={2002}}
-@article{kearns1999finite, author={Kearns,M. & Singh,S.},
+@article{kearns1999finite, author={Kearns,M. and Singh,S.},
   title={Finite-Sample Convergence of TD(0)}, journal={Machine Learning}, year={1999}}
-@inproceedings{jiang2015dependence, author={Jiang,N. & Agarwal,A.},
+@inproceedings{jiang2015dependence, author={Jiang,N. and Agarwal,A.},
   title={Dependence-Aware Generalisation Bounds}, booktitle={ICML}, year={2015}}
 
 % ––– Antifragility & systems reliability –––
@@ -78,6 +76,32 @@
 % ––– Deployment, container & infra –––
 @manual{docker2025, author={Docker Inc.}, title={Docker Engine v26}, year={2025}}
 @manual{helm2025, author={CNCF}, title={Helm 4}, year={2025}}
+
+% ─── Quality-Diversity ───
+@article{pugh2016quality,
+  author  = {Pugh, Justin K. and Soros, Lehman and Stanley, Kenneth O.},
+  title   = {Quality Diversity: A New Frontier for Open-Ended Search},
+  journal = {Frontiers in Robotics and AI},
+  volume  = {3},
+  number  = {40},                  % ← article number is fine
+  year    = {2016},
+  doi     = {10.3389/frobt.2016.00040}  % ← clickable link
+}
+
+% ─── Elastic-Weight Consolidation ───
+@article{kirkpatrick2017ewc,
+  author  = {Kirkpatrick, James and Pascanu, Razvan and Rabinowitz, Neil C.
+            and Veness, Joel and Desjardins, Guillaume and Rusu, Andrei A.
+            and Milan, Kieran and Quan, John and Ramalho, Tiago
+            and Grabska-Barwińska, Agnieszka and others},
+  title   = {Overcoming Catastrophic Forgetting in Neural Networks},
+  journal = {Proceedings of the National Academy of Sciences},
+  volume  = {114},
+  number  = {13},
+  pages   = {3521--3526},
+  year    = {2017},
+  doi     = {10.1073/pnas.1611835114}
+}
 
 % ––– Advanced RL / open-ended studies (remaining refs up to 65) –––
 @article{badia2020agent57, author={Badia,A.P. et al.},
@@ -151,18 +175,48 @@
 %── Geometry & typography ─────────────────────────────────────────────────────
 \usepackage[margin=1in]{geometry}
 \usepackage{fontspec}
+  % Main text font
   \setmainfont{Latin Modern Roman}
-  \newfontfamily\emoji{Noto Color Emoji}[Renderer=Harfbuzz]
+  % Emoji support — falls back gracefully if font unavailable
+  \newfontfamily\emojiFont{Noto Color Emoji}[Renderer=Harfbuzz]
+  \newcommand{\e}[1]{\text{\emojiFont{#1}}}
+
+%–––––  NEW: early utility packages & Unicode symbols  –––––%
+\usepackage{bbm}                      %  ← fixes \mathbbm{1}
+\usepackage{pifont,newunicodechar}    %  ← ticks, crosses, etc.
+\newunicodechar{✓}{\ding{51}}
+\newunicodechar{✗}{\ding{55}}
+\newunicodechar{≈}{$\approx$}
+\newunicodechar{≥}{$\ge$}
+\newunicodechar{⇒}{$\Rightarrow$}
+\newunicodechar{ }{\thinspace}         % thin space U+2009
+\renewfontfamily\emojiFont{Noto Color Emoji}[Renderer=Harfbuzz,FakeBold=1]
 
 %── Core packages ─────────────────────────────────────────────────────────────
 \usepackage{amsmath,amsfonts,amssymb,amsthm,bm,physics}
-\usepackage{booktabs,multirow,enumitem}
-\usepackage{xcolor,graphicx,tikz,pgfplots}
+\usepackage[dvipsnames]{xcolor}
+\usepackage{graphicx,tikz,pgfplots}
   \pgfplotsset{compat=1.18}
+  \usetikzlibrary{positioning,calc}
+\usepackage{minted}                 % syntax-highlighted code blocks
+
+%–––––  END of new lines  –––––%
+
+%── Hyperref  ➜  *must precede enumitem under TL 2025* ────────────────────────
 \usepackage{hyperref}
   \hypersetup{colorlinks,allcolors=RoyalBlue}
+
+%── Tables, figures, lists ────────────────────────────────────────────────────
+\usepackage{booktabs,multirow}
+\usepackage[inline]{enumitem}                       % ← now safely after hyperref
+  \setlist[itemize]{leftmargin=2em}
+  \setlist[enumerate]{leftmargin=2.4em}
 \usepackage{caption}
   \captionsetup{labelfont=bf}
+
+%── Algorithms & pseudocode ───────────────────────────────────────────────────
+\usepackage{algorithm}
+\usepackage{algpseudocode}
 
 %── Bibliography ──────────────────────────────────────────────────────────────
 \usepackage[
@@ -171,29 +225,23 @@
   maxbibnames=3,
   sorting=nyt
 ]{biblatex}
-\addbibresource{refs.bib}
+  \addbibresource{refs.bib}
 
-%── Lists & theorem styles ────────────────────────────────────────────────────
-\setlist[itemize]{leftmargin=2em}
-\setlist[enumerate]{leftmargin=2.4em}
+%── Theorem environments ──────────────────────────────────────────────────────
 \newtheorem{theorem}{Theorem}[section]
 \newtheorem{lemma}{Lemma}[section]
 
 %── Title block ───────────────────────────────────────────────────────────────
-\title{\bfseries Alpha-Factory v1:\\
+\title{\bfseries ALPHA-FACTORY V1:\\
   Multi-Agent AGENTIC \boldmath$\alpha$-AGI World-Model Demo
-  \texorpdfstring{\emoji{👁️}\,\emoji{✨}}{}}
-\author{\textbf{MONTREAL.AI — AGI-Alpha-Agent-v0 Extension Team}}
+  \texorpdfstring{\e{👁️}\,\e{✨}}{}}
+\author{\textbf{MONTREAL.AI — AGENTIC AGI-Alpha-Agent-v0 Core Team (AGI Agents)}}
 \date{\today}
 
-\usepackage[dvipsnames]{xcolor}
-\usepackage{paralist}
-\usepackage{algorithm}
-\usepackage{algpseudocode}
-\usetikzlibrary{positioning,calc}   % before \begin{document}
-% \newfontfamily\emoji{Noto Color Emoji}  % comment until font installed
+%──────────────────────────────────────────────────────────────────────────────
+\begin{document}
+\maketitle
 
-\begin{document}\maketitle
 \begin{abstract}\noindent
 We present \emph{Alpha-Factory v1}, an antifragile multi-agent architecture
 that autonomously generates an open-ended curriculum of synthetic worlds,
@@ -367,7 +415,7 @@ Each agent runs in its own Linux namespaces with:
 \begin{itemize}
   \item seccomp-BPF rule-set capped to \texttt{read, write, futex, mmap}.
   \item Cgroups limiting CPU/GPU/RAM.
-  \item Read-only rootfs except in `/tmp/scratch/$AGENT\_ID`.
+  \item Read-only rootfs except in `/tmp/scratch/\$AGENT\_ID`.
 \end{itemize}
 
 When an agent crashes, the orchestrator:
@@ -1199,20 +1247,20 @@ responsive.
 
 A minimal \texttt{docker-compose.yml} ships in the repo:
 
-```yaml
+\begin{minted}[fontsize=\scriptsize,breaklines]{yaml}
 services:
   orchestrator:
     image: ghcr.io/montrealai/alpha-asi:latest
     command: ["python", "-m", "alpha_asi_world_model_demo", "--demo"]
     environment:
-      OPENAI_API_KEY: ""            # empty ⇒ offline mode
+      OPENAI_API_KEY: ""          # empty ⇒ offline mode
     ports: ["7860:7860"]
     deploy:
       resources:
         reservations:
           devices:
-          - capabilities: [gpu]
-```
+            - capabilities: [gpu]
+\end{minted}
 
 Compose labels expose Prometheus metrics at /metrics;
 Grafana dashboard JSON resides in \texttt{ops/grafana/alpha.json}.
@@ -1353,7 +1401,7 @@ to catalyse community progress toward safe, open‑ended $\alpha$‑ASI.
 
 %──────────────────────────────────────────────────────────────────────────────
 \appendix
-\section{Formal Assumptions and Auxiliary Lemmas}\label{app:assumptions}
+\section{Formal Assumptions and Auxiliary Lemmas}\label{app:assumptions-detail}
 
 \paragraph{A1. Lipschitz Dynamics (restated).}
 There exists $L>0$ such that for every environment
