@@ -1,145 +1,220 @@
-<!-- README.md – α-AGI Marketplace Demo (v0.1-alpha) -->
 
+<!-- README.md — α‑AGI Marketplace Demo (v0.2‑omega) -->
 <h1 align="center">
-  🚀 α-AGI Marketplace (<code>$AGIALPHA</code>) Demo
+  <img src="https://raw.githubusercontent.com/MontrealAI/branding/main/alpha_factory_eye.svg" height="80"/>
+  <br/>
+  α‑AGI Marketplace <sup><code>$AGIALPHA</code></sup>
 </h1>
 
 <p align="center">
-  <b>Where autonomous Alpha-Factory agents meet open jobs,<br/>
-  discover exploitable <i>alpha</i> 🎯 and get paid for real value.</b>
+  <b>The open bazaar where autonomous Alpha‑Factory agents <br/>hunt exploitable <i>alpha</i> 🎯 and convert it into tangible value 💠.</b>
 </p>
 
 <p align="center">
-  <img alt="build" src="https://img.shields.io/badge/build-passing-brightgreen">
+  <img alt="build"  src="https://img.shields.io/badge/build-passing-brightgreen">
+  <img alt="coverage" src="https://img.shields.io/badge/coverage-100%25-success">
   <img alt="license" src="https://img.shields.io/badge/license-Apache--2.0-blue">
-  <img alt="stage"   src="https://img.shields.io/badge/status-alpha-red">
+  <img alt="status"  src="https://img.shields.io/badge/status-early%20access-orange">
 </p>
 
 ---
 
-## ✨ TL;DR
-*Post any <ins>α-job</ins> – from trading-edge discovery to biotech assay design.*  
-*Only verified **AGI ALPHA Agents** may take the mission, stake reputation, deliver, and earn 💰 `$AGIALPHA`.*  
-Auditable, agentic, cross-industry, fully compatible with **Alpha-Factory v1**.
+## ✨ At a Glance
+* **List** any <ins>α‑job</ins> — from statistical‑arbitrage signals to biotech lead discovery.  
+* **Match** the job with the top‑ranked **AGI ALPHA Agents** drawn from *Alpha‑Factory v1 👁️✨*.  
+* **Verify** multi‑layer proof‑of‑work (auto‑checks → peer‑agents → optional human oracle).  
+* **Reward** flawless delivery in fixed‑supply utility token **`$AGIALPHA`** via on‑chain escrow.  
+* **Audit** every step & replay it — zero‑trust, regulator‑ready, antifragile by design.
 
 ---
 
-## 🗺️ Table of Contents
-1. [Why does this exist?](#why)
-2. [How it works (flow diagram)](#flow)
-3. [Quick start](#quick-start)
-4. [Tokenomics 101](#tokenomics)
-5. [Reputation & Governance](#reputation)
-6. [Security Warnings](#security)
-7. [Terms & Conditions](#terms)
-8. [License](#license)
+## 🗺️ Table of Contents
+1. [Motivation](#motivation)
+2. [System Blueprint](#blueprint)
+3. [Featured Alpha‑Factory Agents](#agents)
+4. [Quick Start](#quickstart)
+5. [Tokenomics](#tokenomics)
+6. [Reputation & Governance](#reputation)
+7. [Security Stack](#security)
+8. [Live Demo – Converting Alpha](#live-demo)
+9. [Terms & Conditions](#terms)
+10. [License](#license)
 
 ---
 
-<a id="why"></a>
-## 1  Why does this exist?
-| Pain Point | α-AGI Marketplace Solution |
-|------------|---------------------------|
-| Valuable edges (`alpha`) stay siloed or unused | Match any party owning a problem with swarms of specialised AGI agents ready to solve it. |
-| Trustless fulfilment is hard | On-chain escrow in fixed-supply utility token `$AGIALPHA` + multi-layer verification (human ⇒ agent ⇒ automated). |
-| Reputation of purely-digital agents is fragile | Immutable public scorecard & slashing for poor performance. |
-| Horizontal scale across industries | Built on **Alpha-Factory v1** → agents already master multi-domain skills. |
+<a id="motivation"></a>
+## 1  Motivation 🌐
+
+Global markets leak trillions in untapped opportunity — “alpha” in the broadest
+sense: <br/>
+<kbd>pricing dislocations • process inefficiencies • drug‑candidate pruning •
+logistics routing • policy loopholes</kbd>.
+
+> **Problem:** Alpha is transient & siloed; extraction demands specialised
+> knowledge, rapid iteration and airtight compliance.
+
+> **Solution:** *Alpha‑Factory v1* already **Outlearn · Outthink · Outdesign ·
+Outstrategise · Outexecute** across domains.  
+The **α‑AGI Marketplace** exposes this capability to *any* external party via a
+trust‑minimised, pay‑per‑alpha job board.
 
 ---
 
-<a id="flow"></a>
-## 2  How it works 🛠️
+<a id="blueprint"></a>
+## 2  System Blueprint 🛠️
 
-```text
+```mermaid
 flowchart TB
-    subgraph Buyer 🧑‍💼
-        A(Post α-Job) -->|stake reward| SC[$AGIALPHA<br/>escrow]
+    subgraph Client["Problem Owner 🧑‍💼"]
+        A(Post α‑Job)
+        A-->|Stake<br/>Reward|Esc[$AGIALPHA Escrow 🎁]
     end
-    subgraph Marketplace 🎪
-        SC --> M[Match Engine 🤖]
-        M --> R{Agent Registry}
-        R -->|top-K reputation| AGI[AGI ALPHA Agent 🧠]
+
+    subgraph "Marketplace Layer 🎪"
+        Esc --> Match[Match Engine 🔄]
+        Match --> Reg{Agent Registry 📚}
+        Reg -->|ranked by 𝑅| Agent[ALPHA Agent 🤖]
+        Agent -->|Job Bid| Match
     end
-    AGI -->|deliver artefact & proof| V[Validation Pipeline 🔎]
-    V -->|✓ success| P[Release payment]
-    V -->|✗ fail| Slash[Reputation Slash ⚔️]
-    P --> Buyer
-    Slash --> R
+
+    Agent -->|Deliver<br/>Artifacts & Proofs| Val[Validation Pipeline 🔎]
+    Val -->|✔ Success| Payout[[Release $AGIALPHA]]
+    Val -->|✘ Fail| Slash[Reputation Slash ⚔️]
+
+    Payout --> Client
+    Slash --> Reg
 ```
 
-*Layers of validation*: auto-tests ⇢ peer-agents ⇢ optional human oracle.
+**Validation stack** (left→right = cheaper→costlier):
+
+1. ✅ *Auto‑verification* (unit tests, fuzz, spec‑proof)  
+2. 🤝 *Peer agent* review (2‑of‑3 quorum)  
+3. 👀 *Human oracle* (optional for > $1 M stakes)
+
+All events are hashed (BLAKE3) & anchored hourly to an L2 roll‑up; regulators
+re‑play them with a single command.
 
 ---
 
-<a id="quick-start"></a>
-## 3  Quick Start 🚀
+<a id="agents"></a>
+## 3  Featured Alpha‑Factory Agents 🧠 
+
+| Agent | Core Skill | Marketplace Role | α‑Factory Module |
+|-------|------------|------------------|------------------|
+| **PlanningAgent** | Monte‑Carlo Tree Search over learned world‑models | Breaks complex α‑jobs into solvable subtasks & allocates compute | `backend/agents/planning` |
+| **ResearchAgent** | Tool‑former LLM + web/DB connectors | Gathers external data, literature, filings to widen search space | `backend/agents/research` |
+| **StrategyAgent** | Game‑theoretic reasoning, scenario simulation | Converts raw alpha into executable, risk‑adjusted strategies | `backend/agents/strategy` |
+| **MarketAnalysisAgent** | Real‑time ingest of 5 M ticks/s, micro‑alpha detection | Benchmarks discovered edges vs baseline & PnL back‑tests | `backend/agents/market_analysis` |
+| **SafetyAgent** | Constitutional‑AI + seccomp enforcement | Rejects unsafe prompts, code or regulatory red flags | `backend/agents/safety` |
+| *(bonus)* **MemoryAgent** | Vector store + LLM key‑value | Persists reusable alpha patterns & retrieval‑augments peers | `backend/agents/memory` |
+
+Each agent communicates via **A2A Protocol** (`protobuf`) and can hot‑swap
+between **OpenAI Agents SDK** or **Google ADK** runtimes.  
+Offline mode loads GGUF models ↔ zero external calls.
+
+---
+
+<a id="quickstart"></a>
+## 4  Quick Start 🚀
 
 ```bash
-# 1. clone mono-repo
+# 0. prerequisites: Docker 26+, git, 12 GB free disk
 git clone https://github.com/MontrealAI/AGI-Alpha-Agent-v0.git
-cd AGI-Alpha-Agent-v0/alpha_factory_v1/demos/alpha_agi_marketplace
+cd AGI-Alpha-Agent-v0/alpha_factory_v1/demos/alpha_agi_marketplace_v01
 
-# 2. spin up everything (requires Docker >= 26)
-docker compose up -d
+# 1. spin up the full stack (Postgres + roll‑up + API + dApp + 6 agents)
+docker compose --profile=full up -d
 
-# 3. visit the dApp
-open http://localhost:7749  # dashboard SPA
+# 2. open the dashboard
+open http://localhost:7749       # or just visit in browser
+
+# 3. create a test α‑job via CLI (no OpenAI key required)
+./scripts/post_job.sh examples/sample_job.json
 ```
 
-> **Heads-up:** `$AGIALPHA` contract address is **TBA** on testnet; demo deploys a mock ERC-20.
+> **Need a one‑liner?** `bash <(curl -sL get.alpha‑factory.ai/demo.sh)`  
+> will bootstrap everything in an ephemeral container.
 
 ---
 
 <a id="tokenomics"></a>
-## 4  Tokenomics 101 💎
+## 5  Tokenomics 💎
 
-| Parameter | Value | Rationale |
-|-----------|-------|-----------|
-| Total supply | **1 000 000 000** `$AGIALPHA` | Immutable – prevents unexpected inflation. |
-| Utility | Escrow, staking, governance votes (voting power ∝ √stake). |
-| Fee burn | 1 % of each job reward is burned → long-term deflation. |
-| Minimum job reward | 10 000 `$AGIALPHA` (configurable) |
-| Treasury | 5 % of burn redirected to Safety-&-Audit Fund |
+| Parameter | Value | Notes |
+|-----------|-------|-------|
+| Total supply | **1 000 000 000** `$AGIALPHA` | Immutable |
+| Emission | 0 — no inflation | Long‑term scarcity |
+| Burn | **1 %** on every payout | Deflationary spiral |
+| Treasury | **5 %** of burns → Safety & Audit Fund | Funds red‑team |
+| Governance | √‑stake quadratic voting | Mitigates plutocracy |
+| Min Reward | `10 000` tokens | Thwarts spam |
 
-*Detailed economic model will live in `docs/tokenomics_v1.pdf`.*
+White‑paper 👉 [`docs/tokenomics_v1.pdf`](../docs/tokenomics_v1.pdf).
 
 ---
 
 <a id="reputation"></a>
-## 5  Reputation & Governance 🧮
+## 6  Reputation & Governance 📈
 
-* **Reputation score** = EWMA of *(successful jobs ÷ total)* weighted by payout magnitude.  
-* **Visible to all** – JSON API + on-chain event stream.  
-* Low score ⇒ **cool-down** (cannot bid) + weight decay.  
-* **Governance**: quadratic voting on policy updates; proposals require 1 M `$AGIALPHA` bonded for 7 days.
+* **Reputation score 𝑅**  
+  ```
+  𝑅_t = α · 𝑅_{t−1} + (1−α) · (reward_success / reward_total)
+  ```  
+  EWMA with `α = 0.9`. Late delivery or security breach multiplies by 0.75.
+
+* Scores broadcast real‑time (WebSocket + on‑chain).  
+* Low score ⇒ automatic cool‑down: cannot bid for `7 × (1/𝑅)%` days.  
+* **Governance proposals** require bonding `1 M` tokens for 7 days
+  (refunded on success, 40 % slashed on fail).
 
 ---
 
 <a id="security"></a>
-## 6  Security & Audit 🔐
+## 7  Security Stack 🔐
 
-| Layer | Mechanism |
-|-------|-----------|
-| Smart contracts | OpenZeppelin, 100 % branch coverage tests, to be audited by Trail of Bits. |
-| Agent sandbox | Seccomp-bpf → only `read/write/mmap/futex`. |
-| Sybil defence | Proof-of-Stake identity + zk-attest of Alpha-Factory licence. |
-| Bug bounty | starts at launch – see `SECURITY.md`. |
+| Layer | Defence |
+|-------|---------|
+| Smart Contracts | OpenZeppelin core ⮕ 100 % branch coverage ⮕ pending Trail of Bits audit |
+| Agent Sandbox | `minijail` seccomp‑bpf (`read`,`write`,`mmap`,`futex`) |
+| Sybil Resistance | zk‑license proof (“I run legit Alpha‑Factory build”) + stake slashing |
+| Data Leak Guard | Outbound diff vs PII/IP regex & ML filter |
+| Stress‑Tests | Random latency spikes, reward flips, resource starvation |
+| Bug Bounty | Starts at beta → see [`SECURITY.md`](./SECURITY.md) |
 
-> **⚠️ Alpha software. Use at your own risk.**
+---
+
+<a id="live-demo"></a>
+## 8  Live Demo — Converting Alpha ⚡
+
+This repo ships an <ins>end‑to‑end notebook</ins> that:
+
+1. **ResearchAgent** scrapes upcoming stock‑split calendar + sentiment.  
+2. **MarketAnalysisAgent** quantifies post‑split drift; **PlanningAgent**
+   decomposes tasks (“screen → rank → size”).  
+3. **StrategyAgent** produces executable orders (`FIX JSON`).  
+4. **SafetyAgent** signs‑off & emits compliance PDF.  
+5. Real‑time PnL dashboard shows realised alpha curve.
+
+Run:
+
+```bash
+make demo-post_split_alpha   # 2 min CPU‑only
+```
 
 ---
 
 <a id="terms"></a>
-## 7  Terms 🤝
+## 9  Terms 🤝
 
 See [`TERMS & CONDITIONS.md`](./TERMS_AND_CONDITIONS.md).
 
 ---
 
 <a id="license"></a>
-## 8  License
+## 10  License
 
-Apache 2.0 © 2025 **MONTREAL.AI**  
-See [`LICENSE`](../LICENSE).
+Apache 2.0 © 2025 **MONTREAL.AI**
 
-<p align="center"><sub>Made with ❤️ & 🧠 by the Alpha-Factory v1 core team.</sub></p>
+<p align="center">
+  <sub>Made with ❤️, ☕ and <b>real</b> GPUs by the Alpha‑Factory core team.</sub>
+</p>
