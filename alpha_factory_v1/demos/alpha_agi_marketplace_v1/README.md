@@ -61,7 +61,7 @@ flowchart TB
         A-->|Stake Reward|Esc[$AGIALPHA Escrow 🎁]
     end
 
-    subgraph Marketplace 🎪
+    subgraph Marketplace
         Esc --> Match[Match Engine 🔄]
         Match --> Reg{Agent Registry 📚}
         Reg -->|top‑R| Agent[ALPHA Agent 🤖]
