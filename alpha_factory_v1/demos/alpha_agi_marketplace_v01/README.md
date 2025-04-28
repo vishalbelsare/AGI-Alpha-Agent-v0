@@ -1,9 +1,7 @@
 
 <!-- README.md — α‑AGI Marketplace Demo (v0.2‑omega) -->
 <h1 align="center">
-  <img src="https://raw.githubusercontent.com/MontrealAI/branding/main/alpha_factory_eye.svg" height="80"/>
-  <br/>
-  α‑AGI Marketplace <sup><code>$AGIALPHA</code></sup>
+  Large-Scale α-AGI Marketplace 👁️✨ <sup><code>$AGIALPHA</code></sup>
 </h1>
 
 <p align="center">
