@@ -1,189 +1,200 @@
-<!-- README.md — Infinite Bloom (v1.0‑production) -->
-<h1 align="center">
-  Infinite Bloom 🌸 — Structured Yield Garden 👁️✨ <sup><code>$AGIALPHA</code></sup>
-</h1>
+<!-- README.md — Large-Scale α-AGI Business Demo 2 (Infinite Bloom v2.0-production) -->
 
-<p align="center">
-  <b>Proof‑of‑Yield 🚀 — an autonomous α‑AGI Business that seeds, cultivates & compounds algorithmic yield<br/>
-  across TradFi & DeFi while weaving a living cultural narrative.</b>
-</p>
+# Infinite Bloom 🌸 — Structured Yield Garden 👁️✨  
+<sup>`$AGIALPHA`</sup>
 
-<p align="center">
-  <img alt="build"  src="https://img.shields.io/badge/build-passing-brightgreen">
-  <img alt="coverage" src="https://img.shields.io/badge/coverage-100%25-success">
-  <img alt="license"  src="https://img.shields.io/badge/license-Apache--2.0-blue">
-  <img alt="status"   src="https://img.shields.io/badge/status-production-green">
-</p>
+**Proof-of-Yield 🚀 An autonomous α-AGI Business that seeds, tends & composes algorithmic yield  
+across TradFi ↔ DeFi while weaving a living cultural narrative.**
+
+![build](https://img.shields.io/badge/build-passing-brightgreen)
+![coverage](https://img.shields.io/badge/coverage-100%25-success)
+![license](https://img.shields.io/badge/license-Apache--2.0-blue)
+![status](https://img.shields.io/badge/status-production-green)
 
 ---
 
-## ✨ Executive Summary
-* **Mission 🎯** Sow capital into an adaptive basket of on‑chain & off‑chain yield streams (ETH LSDs, T‑Bills, RWA notes) and **blossom** them into predictable, inflation‑beating returns.  
-* **Engine ⚙️** *Alpha‑Factory v1* multi‑agent stack → 7 specialised Agents orchestrated via Agent2Agent bus.  
-* **Vehicle 🏛️** An ENS‑native **α‑AGI Business** `infinitebloom.a.agi.eth`, financed & governed by scarce utility token **`$AGIALPHA`**.  
-* **Result 📈** A self‑pollinating flywheel where prediction, narrative and liquidity reinforce — turning stable yield into a viral cultural movement.
+## ✨ Executive Summary
+
+| Key Point | Details |
+|---|---|
+| **Mission 🎯** | Sow capital into an adaptive basket of on-chain (ETH LSDs, USDC lending) & off-chain (T-Bills, RWA invoices) streams and blossom them into predictable, inflation-busting returns. |
+| **Engine ⚙️** | **Alpha-Factory v1** multi-agent stack (OpenAI Agents SDK, A2A bus, Anthropic MCP) with seven specialised **α-AGI Agents** (see §4). |
+| **Vehicle 🏛️** | ENS-native **α-AGI Business** `infinitebloom.a.agi.eth`, governed through scarce utility token **`$AGIALPHA`**. |
+| **Result 📈** | A self-reinforcing fly-wheel where prediction ↔ narrative ↔ liquidity compounding turns stable yield into a viral cultural movement. |
+
+<details><summary>Why does it matter?</summary>
+
+Global savers drown under negative real yields while DeFi APYs mutate hourly and TradFi coupons hide opaque risk. Infinite Bloom arbitrages these frictions à-la-minute, packaging the upside into one click.
+</details>
 
 ---
 
-## 🗺️ Table of Contents
-1. [Why Infinite Bloom?](#why)
-2. [System Blueprint](#blueprint)
-3. [Role Architecture – Businesses & Agents](#roles)
-4. [Featured Alpha‑Factory Agents](#agents)
-5. [End‑to‑End Alpha Story](#story)
-6. [Quick Start](#quick)
-7. [Deployment Recipes](#deploy)
-8. [Security • Compliance • Legal Shield](#security)
-9. [Tokenomics](#tokenomics)
-10. [Roadmap](#roadmap)
-11. [FAQ](#faq)
-12. [License](#license)
-
+## 🗺️ Table of Contents
+1. [Problem & Opportunity](#problem)  
+2. [Blueprint (High-Level)](#blueprint)  
+3. [Role Architecture 🏛️](#roles)  
+4. [Featured α-Factory Agents 🤖](#agents)  
+5. [End-to-End Alpha Story 📖](#story)  
+6. [Quick Start 🚀](#quick)  
+7. [Deployment Recipes 📦](#deploy)  
+8. [Security • Compliance • Legal Shield 🔐](#security)  
+9. [Tokenomics 💎](#tokenomics)  
+10. [Roadmap 🛣️](#roadmap)  
+11. [FAQ ❓](#faq)  
+12. [License](#license)  
 
 ---
 
-<a id="why"></a>
-## 1 Why Infinite Bloom? 🌐
-Global savers starve on negative real yields 📉 while DeFi APYs mutate hourly and TradFi coupons carry opaque risk:
+<a id="problem"></a>
+## 1 Problem & Opportunity 🌐
 
-* Duration mismatch in tokenised T‑Bill funds  
-* Volatility drag on ETH LSDs  
-* Hidden counter‑party risk in CeFi staking  
+> “Global markets seep *trillions* in latent opportunity — pricing dislocations • supply‑chain inefficiencies • novel drug targets • policy loopholes • unexplored material designs.”
 
-> **Hypothesis 🧩**  
-> A cross‑venue, α‑AGI‑powered yield curator can arbitrage these frictions, hedge tail‑risk, and package the result into a single, narrative‑rich product that retail & institutions alike understand: **“plant once, harvest forever.”**
+* **Yield Pain-Points**  
+  * Duration mismatch in tokenised T‑Bills  
+  * Volatility drag on ETH LSDs  
+  * Counter‑party opacity in CeFi pools  
+
+* **Hypothesis 🧩**  
+  A cross‑venue, α‑AGI‑powered curator can hedge tail risk, arbitrage spreads and package the delta into a single, narrative‑rich product:  
+  > **“Plant once, harvest forever.”**
 
 ---
 
 <a id="blueprint"></a>
-## 2 System Blueprint 🛠️
+## 2 System Blueprint 🛠️
 ```mermaid
 flowchart LR
-    subgraph "Infinite Bloom 🌸"
-        A1(InvestorAgent)
-        A2(AlphaAgent)
-        A3(NegotiatorAgent)
-        A4(DevAgent)
-        A5(TradingAgent)
-        A6(VirtuosoAgent)
-        A7(MemeAgent)
-        Safe(SafetyAgent)
-        Mem(MemoryAgent)
+  subgraph "Infinite Bloom 🌸"
+    Investor(InvestorAgent)
+    Alpha(AlphaAgent)
+    Negotiator(NegotiatorAgent)
+    Dev(DevAgent)
+    Trader(TradingAgent)
+    Virtuoso(VirtuosoAgent)
+    Meme(MemeAgent)
+    Safety(SafetyAgent)
+    Memory(MemoryAgent)
 
-        A1 -->|capital goals| A2
-        A2 -->|alpha ideas| A3
-        A3 -->|terms + APIs| A4
-        A4 -->|executable plan| A5
-        A5 -->|PnL + risk| Safe
-        A5 --> Mem
-        A6 -. lore .-> A7
-        A7 -. virality .-> A6
-        Safe -->|audit| A1
-    end
+    Investor -->|capital goals| Alpha
+    Alpha -->|alpha ideas| Negotiator
+    Negotiator -->|APIs + terms| Dev
+    Dev -->|vault contracts| Trader
+    Trader -->|PnL + risk| Safety
+    Trader --> Memory
 
-    Venue["CEX / DEX / RWA gateway"]
-    A5 -->|Orders| Venue
-    Venue -->|Fills & Oracles| A5
+    Virtuoso -. lore .-> Meme
+    Meme -. virality .-> Virtuoso
+    Safety -->|audit| Investor
+  end
+
+  Venue["CEX / DEX / RWA gateway"]
+  Trader -->|orders| Venue
+  Venue -->|oracle feeds| Trader
 ```
 
 ---
 
 <a id="roles"></a>
-## 3 Role Architecture – Businesses & Agents 🏛️
+## 3 Role Architecture – Businesses & Agents 🏛️
 
-| Entity | ENS | Treasury | Primary Responsibilities | How It Creates Value |
-|--------|-----|----------|--------------------------|----------------------|
-| **α‑AGI Business** | `infinitebloom.a.agi.eth` | Holds `$AGIALPHA`; can issue bounties | Define **Yield‑Garden Portfolios**, pool rights/data, enforce ESG & duration constraints | Aggregates high‑value yield niches, earns performance fees, reinvests |
-| **α‑AGI Agent** | `*.a.agent.agi.eth` | Personal stake & escrow | Detect, plan & execute α‑jobs published by any Business | Earns `$AGIALPHA` rewards, increases reputation, learns reusable recipes |
+| Entity | ENS Convention | Funding / Treasury | Primary Responsibilities | How it Creates Value |
+|--------|----------------|--------------------|--------------------------|----------------------|
+| **α‑AGI Business** | `<sub>.a.agi.eth` | Wallet holds **$AGIALPHA**; can issue bounties | Define **Problem Portfolios** (series of α‑jobs), pool data/rights, enforce domain constraints | Aggregates high‑value problems, captures upside from solved portfolios, reinvests in new quests |
+| **α‑AGI Agent** | `<sub>.a.agent.agi.eth` | Personal stake (reputation + escrow) | Detect, plan & execute individual α‑jobs published by any Business | Earns **$AGIALPHA** rewards, gains reputation, accumulates reusable alpha recipes |
 
-Big Picture: Businesses curate demand for alpha; Agents supply execution. Smart contracts clear both via `$AGIALPHA`, with slashing & reputation to keep incentives honest.
+**Big Picture:**  Businesses *curate demand* for alpha; Agents *supply execution*.  Marketplace contracts clear both via `$AGIALPHA`, with slashing & reputation to keep incentives honest.
 
-Legal & Conceptual Shield 🛡️ Both layers inherit the 2017 **Multi‑Agent AI DAO** prior‑art—publicly timestamped blueprint for on‑chain, autonomous agent swarms.
+**Legal & Conceptual Shield 🛡️**  
+Both layers inherit the 2017 **Multi‑Agent AI DAO** prior‑art — time‑stamped blueprint that blocks trivial patents on multi‑agent + on‑chain token mechanics and offers a DAO‑first wrapper for fractional resource ownership.
 
 ---
 
 <a id="agents"></a>
-## 4 Featured Alpha‑Factory Agents 🤖
+## 4 Featured Alpha‑Factory Agents 🤖
 
-| Agent | Core Skill | Infinite Bloom Role | Repo Path |
-|-------|------------|---------------------|-----------|
-| **PlanningAgent** | Task‑graph MuZero ++ | Orchestrate end‑to‑end yield gardens | `backend/agents/planning` |
-| **ResearchAgent** | Toolformer LLM + Web taps | Fetch APRs, fed‑funds futures, stETH curves | `backend/agents/research` |
-| **StrategyAgent** | CVaR optimiser | Construct hedged portfolios, duration match | `backend/agents/strategy` |
-| **ExecutionAgent** | Smart‑order routing | Atomic swaps, TWAP hedges, rebalance | `backend/agents/execution` |
-| **NarrativeAgent** | Gen‑AI copy & art | Feed Virtuoso/Meme lore and visuals | `backend/agents/narrative` |
-| **SafetyAgent** | Constitutional‑AI & seccomp | Rug‑check pools, enforce rate‑limit | `backend/agents/safety` |
-| **MemoryAgent** | Retrieval‑augmented store | Recall best “recipes” across cycles | `backend/agents/memory` |
+| Agent | Core Skill | Infinite Bloom Job | Repo Path |
+|-------|------------|--------------------|-----------|
+| **InvestorAgent** | Portfolio selection | Define capital goals, risk bands | `backend/agents/investor/` |
+| **AlphaAgent** | Data & signal mining | Detect yield spreads, volatility pockets | `backend/agents/alpha/` |
+| **NegotiatorAgent** | Counter‑party negotiation | Secure API keys, fee rebates, legal MoUs | `backend/agents/negotiator/` |
+| **DevAgent** | Smart‑contract dev + audit | Deploy ERC‑4626 GardenVaults, CI/CD | `backend/agents/dev/` |
+| **TradingAgent** | Smart‑order routing | Atomic swaps, hedges, rebalance | `backend/agents/trading/` |
+| **SafetyAgent** | Constitutional AI • seccomp | KL‑shield, sandbox, stress tests | `backend/agents/safety/` |
+| **MemoryAgent** | Retrieval‑augmented store | Surface best alpha recipes on demand | `backend/agents/memory/` |
 
 ---
 
 <a id="story"></a>
-## 5 End‑to‑End Alpha Story 📖
-1. **ResearchAgent** scrapes latest 3‑month T‑Bill yield (5.14 %), ETH LSD (5.52 %), and USDC lending (4.8 %).  
-2. **AlphaAgent** computes spread matrix; flags LSD – T‑Bill carry = +38 bp.  
-3. **PlanningAgent** forks tasks; **StrategyAgent** proposes 60 % LSD, 30 % T‑Bill‑on‑chain (Ondo), 10 % RWA invoice pool; hedged delta via ETH perp.  
-4. **NegotiatorAgent** secures 0 bp swap fee and 5 bp rebate on GMX.  
-5. **DevAgent** deploys audited ERC‑4626 GardenVault; **SafetyAgent** signs off.  
-6. **TradingAgent** executes, sends BLAKE3 audit to chain.  
-7. **VirtuosoAgent** publishes “Spring Equinox” lore; **MemeAgent** drops viral blossom NFTs. TVL +200 % in 2 days.
+## 5 End‑to‑End Alpha Story 📖
+1. **Research burst** AlphaAgent scrapes T‑Bill 5.14 %, stETH 5.52 %, USDC 4.8 %.  
+2. **Sizing** Spread matrix → LSD – T‑Bill carry +38 bp.  
+3. **Design** 60 % stETH, 30 % tokenised T‑Bills, 10 % RWA invoices; hedge via ETH‑perp.  
+4. **Negotiation** 0 bp fee + 5 bp rebate on GMX.  
+5. **Deployment** DevAgent ships audited vault; SafetyAgent approves.  
+6. **Execution** TradingAgent bundles atomic swap; PnL + audit rooted on-chain.  
+7. **Narrative** Virtuoso releases “Spring Equinox”; MemeAgent drops animated blossom NFTs → TVL + 200 % in 48 h.
 
 ---
 
 <a id="quick"></a>
-## 6 Quick Start 🚀
+## 6 Quick Start 🚀
 ```bash
 docker compose --profile bloom up -d
-./scripts/plant_seed.sh samples/garden_equilibrium.json
+./scripts/plant_seed.sh configs/garden_base.json
+open http://localhost:7979
 ```
-
-Dashboard: http://localhost:7979
+*Offline?* add `--offline` flag – local GGUF models, zero external calls.
 
 ---
 
 <a id="deploy"></a>
-## 7 Deployment Recipes 📦
+## 7 Deployment Recipes 📦
+
 | Target | Command | Notes |
 |---|---|---|
 | Laptop | `docker compose --profile bloom up -d` | CPU‑only |
-| k8s | `helm install bloom ghcr.io/montrealai/charts/infinitebloom` | autoscale |
-| Air‑gapped | `singularity run infinite_bloom_offline.sif` | offline models |
+| k8s | `helm install bloom ghcr.io/montrealai/charts/infinitebloom` | Auto‑scales |
+| Air‑gapped | `singularity run infinite_bloom_offline.sif --offline` | No internet |
 
 ---
 
 <a id="security"></a>
-## 8 Security • Compliance 🔐
-* OpenZeppelin 5.x contracts, 99 % coverage  
-* `minijail` sandbox on every agent  
-* Merkle log root → Solana testnet hourly  
-* Rug‑check heuristic, risk vault, zk‑license stake  
+## 8 Security • Compliance 🔐
+* Three‑layer defence‑in‑depth (KL‑shield → seccomp → stress‑tests)  
+* 17‑point CI safety audit – any ✗ blocks release  
+* EU AI‑Act Art 52 traceability; Merkle roots notarised hourly on Solana  
 
 ---
 
 <a id="tokenomics"></a>
-## 9 Tokenomics 💎
+## 9 Tokenomics 💎
+
 | Param | Value | Purpose |
 |---|---|---|
 | Supply | 1 B `$AGIALPHA` | Fixed |
-| Perf Fee | 2 % | funds R&D |
-| Burn | 0.5 % | deflation |
-| Safety Fund | 5 % of burns | red‑team |
+| Perf Fee | 2 % | Funds R&D + Safety |
+| Burn | 0.5 % | Deflation |
+| Safety Fund | 5 % of burns | Black‑swan cover |
 
 ---
 
 <a id="roadmap"></a>
-## 10 Roadmap 🛣️
-* Q2‑25 — zk‑rollup micro‑harvests  
-* Q3‑25 — RWA corporate notes  
-* 2026+ — regional blooms (APAC, LATAM)  
+## 10 Roadmap 🛣️
+* **Q2‑25** — zk‑roll‑up micro‑harvests  
+* **Q3‑25** — RWA corporate notes & carbon yields  
+* **2026+** — Regional blooms (APAC, LATAM) & VR garden shows  
 
 ---
 
 <a id="faq"></a>
-## 11 FAQ ❓
-<details><summary>OpenAI API?</summary>Offline GGUF models auto‑load; key optional.</details>
+## 11 FAQ ❓
+<details><summary>Do I need an OpenAI key?</summary>No. Offline models auto‑load; a key just speeds up reasoning.</details>
+<details><summary>Can I fork for another industry?</summary>Yes — swap the portfolio JSON + recipes; redeploy.</details>
+<details><summary>Regulatory stance?</summary>AUDITED contracts, ERC‑4626, EU AI‑Act traceability; see §8.</details>
 
 ---
 
 <a id="license"></a>
-## 12 License 📜
-Apache‑2.0 © 2025 MONTREAL.AI
+## 12 License 📜
+Apache‑2.0 © 2025 MONTREAL.AI.  Built on the 2017 **Multi‑Agent AI DAO** prior‑art.  *If you improve it, pay it forward.* 🌱✨
