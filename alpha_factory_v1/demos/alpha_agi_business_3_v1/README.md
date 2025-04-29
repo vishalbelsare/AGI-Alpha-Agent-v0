@@ -49,63 +49,6 @@ sample trajectories that minimise **instantaneous free‑energy**
 We generalise the classical free‑energy functional to an **action**
 over trajectories:
 
-![\(\boxed{\mathcal S[\sigma(t)] =
-\int_{t_0}^{t_1}
-\Bigl(
-\langle E_{\text{payoff}}\rangle_{\sigma(t)}
--
-\beta^{-1}(t)\,H[\sigma(t)]
-\Bigr)\,dt}\)](https://render.githubusercontent.com/render/math?math=%5Cdisplaystyle%20%5Cboxed%7B%5Cmathcal%20S%5B%5Csigma(t)%5D%20%3D%20%5Cint_%7Bt_0%7D%5E%7Bt_1%7D%5CBigl(%5Clangle%20E_%7B%5Ctext%7Bpayoff%7D%7D%5Crangle_%7B%5Csigma(t)%7D%20-%20%5Cbeta%5E%7B-1%7D(t)%5CH%5B%5Csigma(t)%5D%5Bigr)%5C%2Cdt%7D)
-
-
-![Equation for S[sigma(t)]](
-  https://render.githubusercontent.com/render/math?math=%5Cdisplaystyle%20%5Cboxed%7B%5Cmathcal%20S%5B%5Csigma(t)%5D%20%3D%20%5Cint_%7Bt_0%7D%5E%7Bt_1%7D%20%5CBigl(%20%5Clangle%20E_%7B%5Ctext%7Bpayoff%7D%7D%5Crangle_%7B%5Csigma(t)%7D%20-%20%5Cbeta%5E%7B-1%7D(t)H%5B%5Csigma(t)%5D%20%5CBigr)%5C%2Cdt%7D
-)
-
-<details> <summary>MathJax/KaTeX‐enabled example</summary>
-```katex
-$$
-\boxed{
-\mathcal S[\sigma(t)] =
-\int_{t_0}^{t_1}
-\Bigl(
-\langle E_{\text{payoff}}\rangle_{\sigma(t)}
--
-\beta^{-1}(t)\,H[\sigma(t)]
-\Bigr)\,dt
-}
-$$
-```
-</details>
-
-```katex
-$$
-\boxed{
-\mathcal S[\sigma(t)] =
-\int_{t_0}^{t_1}
-\Bigl(
-\langle E_{\text{payoff}}\rangle_{\sigma(t)}
--
-\beta^{-1}(t)\,H[\sigma(t)]
-\Bigr)\,dt
-}
-$$
-```
-
-```latex
-$$
-\boxed{
-\mathcal S[\sigma(t)] =
-\int_{t_0}^{t_1}
-\Bigl(
-\langle E_{\text{payoff}}\rangle_{\sigma(t)}
--
-\beta^{-1}(t) \, H[\sigma(t)]
-\Bigr)\,dt
-}
-$$
-```
-
 \[
 \boxed{
 \mathcal S[\sigma(t)] \;=\;
@@ -148,7 +91,42 @@ Brandenburger‑Nalebuff’s PART moves become **on‑chain opcodes**:
 ## 3 · Role Architecture 🏛️
 
 ```mermaid
-%% GitHub-compatible Mermaid
+flowchart LR
+  classDef layer stroke-width:2px;
+  subgraph Market["$AGIALPHA Marketplace"]:::layer
+    BIZ[α‑AGI Business<br><sub>.a.agi.eth>]
+    AGT[α‑AGI Agent<br><sub>.a.agent.agi.eth>]
+  end
+  subgraph LedgerL2["L2 Settlement"]:::layer
+    LDB[Ledger‑Bot]
+  end
+  subgraph Orchestration["Ω‑Orchestrator"]:::layer
+    ORC[Orchestrator Core]
+    SAF[Safety Ω]
+    GDL[Gödel Looper]
+  end
+  BIZ -- α‑jobs --> AGT
+  AGT -- Proof(ΔG) --> BIZ
+  BIZ --> LDB & ORC
+  AGT --> ORC
+  ORC --> LDB
+```
+
+| Entity | Responsibility | Key Interface |
+|--------|----------------|---------------|
+| **Business** | Bundle α‑jobs, fund bounties | `POST /alpha_job` |
+| **Agent** | Solve jobs, post proofs | `tool()` (OpenAI Agents SDK) |
+| **Orchestrator** | Route jobs, enforce β‑schedule | A2A + MCP |
+| **Ledger‑Bot** | Settle \$AGIALPHA mint/burn | Solana program |
+| **Safety Ω** | Runtime sandboxes, entropy caps | seccomp‑BPF |
+| **Gödel Looper** | Self‑distillation under formal proof | μ‑recursive verif |
+
+---
+
+<a id="4"></a>
+## 4 · Multi‑Scale Energy‑Landscape Diagram
+
+```mermaid
 flowchart LR
     %% style definition (❌ no semicolon at EOL)
     classDef layer stroke-width:2px
@@ -181,62 +159,6 @@ flowchart LR
     BIZ --> ORC
     AGT --> ORC
     ORC --> LDB
-```
-
-```mermaid
-flowchart LR
-  classDef layer stroke-width:2px;
-  subgraph Market["$AGIALPHA Marketplace"]:layer
-    BIZ[α‑AGI Business<br><sub>.a.agi.eth>]
-    AGT[α‑AGI Agent<br><sub>.a.agent.agi.eth>]
-  end
-  subgraph LedgerL2["L2 Settlement"]:layer
-    LDB[Ledger‑Bot]
-  end
-  subgraph Orchestration["Ω‑Orchestrator"]:::layer
-    ORC[Orchestrator Core]
-    SAF[Safety Ω]
-    GDL[Gödel Looper]
-  end
-  BIZ -- α‑jobs --> AGT
-  AGT -- Proof(ΔG) --> BIZ
-  BIZ --> LDB
-  BIZ --> ORC
-  AGT --> ORC
-  ORC --> LDB
-```
-
-| Entity | Responsibility | Key Interface |
-|--------|----------------|---------------|
-| **Business** | Bundle α‑jobs, fund bounties | `POST /alpha_job` |
-| **Agent** | Solve jobs, post proofs | `tool()` (OpenAI Agents SDK) |
-| **Orchestrator** | Route jobs, enforce β‑schedule | A2A + MCP |
-| **Ledger‑Bot** | Settle \$AGIALPHA mint/burn | Solana program |
-| **Safety Ω** | Runtime sandboxes, entropy caps | seccomp‑BPF |
-| **Gödel Looper** | Self‑distillation under formal proof | μ‑recursive verif |
-
----
-
-<a id="4"></a>
-## 4 · Multi‑Scale Energy‑Landscape Diagram
-
-```mermaid
-flowchart TB
-  subgraph Macro["Macro‑Finance Δβ"]
-    FIN[FinanceAgent]:::agent
-    ENE[EnergyAgent]:::agent
-  end
-  subgraph Meso["Supply‑Chain ΔS"]
-    MFG[ManufacturingAgent]:::agent
-    LOG[LogisticsAgent]:::agent
-  end
-  subgraph Micro["Bio/Chem ΔH"]
-    BIO[BiotechAgent]:::agent
-    MAT[MaterialsAgent]:::agent
-  end
-  FIN & ENE -->|β feed| ORC
-  MFG & LOG -->|entropy ΔS| ORC
-  BIO & MAT -->|latent ΔH| ORC
   classDef agent fill:#cffafe,stroke:#0369a1;
 ```
 
