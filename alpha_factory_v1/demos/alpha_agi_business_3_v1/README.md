@@ -63,7 +63,7 @@ over trajectories:
 )
 
 <details> <summary>MathJax/KaTeX‐enabled example</summary>
-```latex
+```katex
 $$
 \boxed{
 \mathcal S[\sigma(t)] =
@@ -78,7 +78,7 @@ $$
 ```
 </details>
 
-```latex
+```katex
 $$
 \boxed{
 \mathcal S[\sigma(t)] =
