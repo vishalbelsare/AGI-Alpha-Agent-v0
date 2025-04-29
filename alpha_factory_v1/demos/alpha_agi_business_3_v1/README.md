@@ -159,7 +159,7 @@ flowchart LR
     LDB["Ledger‑Bot"]
   end
 
-  subgraph Orchestration["Ω‑Orchestrator"]:::layer
+  subgraph Orchestration["Ω‑Orchestrator"]:layer
     ORC["Orchestrator Core"]
     SAF["Safety Ω"]
     GDL["Gödel Looper"]
@@ -176,7 +176,7 @@ flowchart LR
 ```mermaid
 flowchart LR
   classDef layer stroke-width:2px;
-  subgraph Market["$AGIALPHA Marketplace"]:::layer
+  subgraph Market["$AGIALPHA Marketplace"]:layer
     BIZ[α‑AGI Business<br><sub>.a.agi.eth>]
     AGT[α‑AGI Agent<br><sub>.a.agent.agi.eth>]
   end
