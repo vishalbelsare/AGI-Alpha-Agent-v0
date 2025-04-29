@@ -90,7 +90,7 @@ Brandenburger‑Nalebuff’s PART moves become **on‑chain opcodes**:
 <a id="3"></a>
 ## 3 · Role Architecture 🏛️
 
-```mermaid
+```text
 flowchart LR
   classDef layer stroke-width:2px;
   subgraph Market["$AGIALPHA Marketplace"]:::layer
