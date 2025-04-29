@@ -3,8 +3,6 @@
 > **Alpha‑Factory v1 — Multi‑Agent *Agentic α‑AGI***  
 > End‑to‑end engine to **out‑learn, out‑think, out‑design, out‑strategise & out‑execute** on high‑value “alpha” opportunities across every industry.
 
-![Banner](../assets/alpha_business_banner.png)
-
 ---
 
 ## 1 · Why this matters  
