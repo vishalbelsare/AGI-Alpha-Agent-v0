@@ -49,6 +49,20 @@ sample trajectories that minimise **instantaneous free‑energy**
 We generalise the classical free‑energy functional to an **action**
 over trajectories:
 
+```latex
+$$
+\boxed{
+\mathcal S[\sigma(t)] =
+\int_{t_0}^{t_1}
+\Bigl(
+\langle E_{\text{payoff}}\rangle_{\sigma(t)}
+-
+\beta^{-1}(t)\,H[\sigma(t)]
+\Bigr)\,dt
+}
+$$
+```
+
 $$
 \boxed{
 \mathcal S[\sigma(t)] =
