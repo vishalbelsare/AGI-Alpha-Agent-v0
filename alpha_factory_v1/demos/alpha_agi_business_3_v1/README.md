@@ -159,7 +159,6 @@ flowchart LR
     BIZ --> ORC
     AGT --> ORC
     ORC --> LDB
-  classDef agent fill:#cffafe,stroke:#0369a1;
 ```
 
 Cells with \(Δ\mathcal F < 0\) glow 🔵 on Grafana; Ω‑Agents race to harvest.
