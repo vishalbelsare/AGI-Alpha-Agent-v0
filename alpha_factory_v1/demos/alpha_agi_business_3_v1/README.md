@@ -180,7 +180,7 @@ flowchart LR
     BIZ[α‑AGI Business<br><sub>.a.agi.eth>]
     AGT[α‑AGI Agent<br><sub>.a.agent.agi.eth>]
   end
-  subgraph LedgerL2["L2 Settlement"]:::layer
+  subgraph LedgerL2["L2 Settlement"]:layer
     LDB[Ledger‑Bot]
   end
   subgraph Orchestration["Ω‑Orchestrator"]:::layer
