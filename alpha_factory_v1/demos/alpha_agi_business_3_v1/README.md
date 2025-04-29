@@ -63,6 +63,7 @@ $$
 $$
 ```
 
+```latex
 $$
 \boxed{
 \mathcal S[\sigma(t)] =
@@ -71,9 +72,10 @@ $$
 \langle E_{\text{payoff}}\rangle_{\sigma(t)}
 -
 \beta^{-1}(t) \, H[\sigma(t)]
-\Bigr) \, dt
+\Bigr)\,dt
 }
 $$
+```
 
 \[
 \boxed{
