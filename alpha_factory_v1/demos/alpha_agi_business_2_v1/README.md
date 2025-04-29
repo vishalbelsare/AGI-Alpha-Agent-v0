@@ -28,7 +28,7 @@ flowchart LR
     A5[🛡️ SafetyAgent] --> O
     A6[💾 MemoryAgent] --> O
     A7[🗺️ PlanningAgent] --> O
-    O -->|alpha insights| B(("α-AGI Business<br/>(*.a.agi.eth)")))
+    O -->|alpha insights| B(("α-AGI Business<br/>(*.a.agi.eth)"))
   end
   B -->|$AGIALPHA rewards| Users((Stake‑holders))
 ```
