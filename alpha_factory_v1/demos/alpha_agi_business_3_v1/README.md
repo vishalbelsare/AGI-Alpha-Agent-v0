@@ -53,6 +53,21 @@ over trajectories:
   https://render.githubusercontent.com/render/math?math=%5Cdisplaystyle%20%5Cboxed%7B%5Cmathcal%20S%5B%5Csigma(t)%5D%20%3D%20%5Cint_%7Bt_0%7D%5E%7Bt_1%7D%20%5CBigl(%20%5Clangle%20E_%7B%5Ctext%7Bpayoff%7D%7D%5Crangle_%7B%5Csigma(t)%7D%20-%20%5Cbeta%5E%7B-1%7D(t)H%5B%5Csigma(t)%5D%20%5CBigr)%5C%2Cdt%7D
 )
 
+<details> <summary>MathJax/KaTeX‐enabled example</summary>
+```latex
+$$
+\boxed{
+\mathcal S[\sigma(t)] =
+\int_{t_0}^{t_1}
+\Bigl(
+\langle E_{\text{payoff}}\rangle_{\sigma(t)}
+-
+\beta^{-1}(t)\,H[\sigma(t)]
+\Bigr)\,dt
+}
+$$
+```
+</details>
 
 ```latex
 $$
