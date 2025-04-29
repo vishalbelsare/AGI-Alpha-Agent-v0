@@ -91,42 +91,6 @@ Brandenburger‑Nalebuff’s PART moves become **on‑chain opcodes**:
 ## 3 · Role Architecture 🏛️
 
 ```mermaid
-%% GitHub-compatible Mermaid
-flowchart LR
-    %% style definition (❌ no semicolon at EOL)
-    classDef layer stroke-width:2px
-
-    %% ── Market ─────────────────────────────────────────────
-    subgraph Market["$AGIALPHA Marketplace"]
-        BIZ["α-AGI Business (.a.agi.eth)"]
-        AGT["α-AGI Agent (.a.agent.agi.eth)"]
-        class BIZ,AGT layer
-    end
-
-    %% ── L2 Settlement ─────────────────────────────────────
-    subgraph LedgerL2["L2 Settlement"]
-        LDB["Ledger-Bot"]
-        class LDB layer
-    end
-
-    %% ── Ω-Orchestrator ────────────────────────────────────
-    subgraph Orchestration["Ω-Orchestrator"]
-        ORC["Orchestrator Core"]
-        SAF["Safety Ω"]
-        GDL["Gödel Looper"]
-        class ORC,SAF,GDL layer
-    end
-
-    %% ── Edges ─────────────────────────────────────────────
-    BIZ -- "α-jobs"      --> AGT
-    AGT -- "Proof(ΔG)"   --> BIZ
-    BIZ --> LDB
-    BIZ --> ORC
-    AGT --> ORC
-    ORC --> LDB
-```
-
-```mermaid
 flowchart LR
   classDef layer stroke-width:2px;
   subgraph Market["$AGIALPHA Marketplace"]:::layer
@@ -163,38 +127,23 @@ flowchart LR
 ## 4 · Multi‑Scale Energy‑Landscape Diagram
 
 ```mermaid
-flowchart LR
-    %% style definition (❌ no semicolon at EOL)
-    classDef layer stroke-width:2px
-
-    %% ── Market ─────────────────────────────────────────────
-    subgraph Market["$AGIALPHA Marketplace"]
-        BIZ["α-AGI Business (.a.agi.eth)"]
-        AGT["α-AGI Agent (.a.agent.agi.eth)"]
-        class BIZ,AGT layer
-    end
-
-    %% ── L2 Settlement ─────────────────────────────────────
-    subgraph LedgerL2["L2 Settlement"]
-        LDB["Ledger-Bot"]
-        class LDB layer
-    end
-
-    %% ── Ω-Orchestrator ────────────────────────────────────
-    subgraph Orchestration["Ω-Orchestrator"]
-        ORC["Orchestrator Core"]
-        SAF["Safety Ω"]
-        GDL["Gödel Looper"]
-        class ORC,SAF,GDL layer
-    end
-
-    %% ── Edges ─────────────────────────────────────────────
-    BIZ -- "α-jobs"      --> AGT
-    AGT -- "Proof(ΔG)"   --> BIZ
-    BIZ --> LDB
-    BIZ --> ORC
-    AGT --> ORC
-    ORC --> LDB
+flowchart TB
+  subgraph Macro["Macro‑Finance Δβ"]
+    FIN[FinanceAgent]:::agent
+    ENE[EnergyAgent]:::agent
+  end
+  subgraph Meso["Supply‑Chain ΔS"]
+    MFG[ManufacturingAgent]:::agent
+    LOG[LogisticsAgent]:::agent
+  end
+  subgraph Micro["Bio/Chem ΔH"]
+    BIO[BiotechAgent]:::agent
+    MAT[MaterialsAgent]:::agent
+  end
+  FIN & ENE -->|β feed| ORC
+  MFG & LOG -->|entropy ΔS| ORC
+  BIO & MAT -->|latent ΔH| ORC
+  classDef agent fill:#cffafe,stroke:#0369a1;
 ```
 
 Cells with \(Δ\mathcal F < 0\) glow 🔵 on Grafana; Ω‑Agents race to harvest.
