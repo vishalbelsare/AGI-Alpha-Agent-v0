@@ -91,6 +91,42 @@ Brandenburger‑Nalebuff’s PART moves become **on‑chain opcodes**:
 ## 3 · Role Architecture 🏛️
 
 ```mermaid
+%% GitHub-compatible Mermaid
+flowchart LR
+    %% style definition (❌ no semicolon at EOL)
+    classDef layer stroke-width:2px
+
+    %% ── Market ─────────────────────────────────────────────
+    subgraph Market["$AGIALPHA Marketplace"]
+        BIZ["α-AGI Business (.a.agi.eth)"]
+        AGT["α-AGI Agent (.a.agent.agi.eth)"]
+        class BIZ,AGT layer
+    end
+
+    %% ── L2 Settlement ─────────────────────────────────────
+    subgraph LedgerL2["L2 Settlement"]
+        LDB["Ledger-Bot"]
+        class LDB layer
+    end
+
+    %% ── Ω-Orchestrator ────────────────────────────────────
+    subgraph Orchestration["Ω-Orchestrator"]
+        ORC["Orchestrator Core"]
+        SAF["Safety Ω"]
+        GDL["Gödel Looper"]
+        class ORC,SAF,GDL layer
+    end
+
+    %% ── Edges ─────────────────────────────────────────────
+    BIZ -- "α-jobs"      --> AGT
+    AGT -- "Proof(ΔG)"   --> BIZ
+    BIZ --> LDB
+    BIZ --> ORC
+    AGT --> ORC
+    ORC --> LDB
+```
+
+```mermaid
 flowchart LR
   classDef layer stroke-width:2px;
   subgraph Market["$AGIALPHA Marketplace"]:::layer
