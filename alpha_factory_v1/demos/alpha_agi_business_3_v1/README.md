@@ -149,29 +149,31 @@ Brandenburger‑Nalebuff’s PART moves become **on‑chain opcodes**:
 
 ```mermaid
 flowchart LR
-  classDef layer stroke-width:2px
-  %% ── Market layer ───────────────────────────
-  subgraph Market["$AGIALPHA Marketplace"]:::layer
-    BIZ["α-AGI&nbsp;Business<br/>.a.agi.eth"]
-    AGT["α-AGI&nbsp;Agent<br/>.a.agent.agi.eth"]
-  end
-  %% ── Ledger L2 layer ────────────────────────
-  subgraph LedgerL2["L2 Settlement"]:::layer
-    LDB["Ledger-Bot"]
-  end
-  %% ── Orchestration layer ────────────────────
-  subgraph Orchestration["Ω-Orchestrator"]:::layer
-    ORC["Orchestrator Core"]
-    SAF["Safety Ω"]
-    GDL["Gödel Looper"]
-  end
-  %% ── Edges ──────────────────────────────────
-  BIZ --|α-jobs| AGT
-  AGT --|Proof (ΔG)| BIZ
-  BIZ --> LDB
-  BIZ --> ORC
-  AGT --> ORC
-  ORC --> LDB
+    classDef layer stroke-width:2px
+
+    %% ─── Sub-graphs ───────────────────────────────────────────────
+    subgraph Market["$AGIALPHA Marketplace"]:::layer
+        BIZ["α-AGI Business<br/>.a.agi.eth"]
+        AGT["α-AGI Agent<br/>.a.agent.agi.eth"]
+    end
+
+    subgraph LedgerL2["L2 Settlement"]:::layer
+        LDB["Ledger-Bot"]
+    end
+
+    subgraph Orchestration["Ω-Orchestrator"]:::layer
+        ORC["Orchestrator Core"]
+        SAF["Safety Ω"]
+        GDL["Gödel Looper"]
+    end
+
+    %% ─── Links ───────────────────────────────────────────────────
+    BIZ -- "α-jobs" --> AGT
+    AGT -- "Proof(ΔG)" --> BIZ
+    BIZ --> LDB
+    BIZ --> ORC
+    AGT --> ORC
+    ORC --> LDB
 ```
 
 ```mermaid
