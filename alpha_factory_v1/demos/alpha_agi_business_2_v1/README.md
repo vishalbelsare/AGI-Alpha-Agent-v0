@@ -33,7 +33,7 @@ flowchart LR
     PL[🧮 PlanningAgent] --> O
     SA[🛡️ SafetyAgent] --> O
     ME[💾 MemoryAgent] --> O
-    O -->|alpha insights| B((α‑AGI Business<br/>(*.a.agi.eth)))
+    O -->|alpha insights| B(("α-AGI Business<br/>(*.a.agi.eth)"))
   end
   B -->|$AGIALPHA rewards| Users((Stake‑holders))
 ```
@@ -183,4 +183,4 @@ Apache‑2.0 © 2025 MONTREAL.AI.
 ---
 
 _“Outlearn · Outthink · Outdesign · Outstrategise · Outexecute.”_  
-Welcome to the era of **Large‑Scale α‑AGI Businesses** — where autonomous swarms turn friction into alpha at planetary scale. 🚀
+Welcome to the era of **Large‑Scale α‑AGI Businesses** 🌸 — where autonomous swarms turn friction into alpha at planetary scale. 🚀
