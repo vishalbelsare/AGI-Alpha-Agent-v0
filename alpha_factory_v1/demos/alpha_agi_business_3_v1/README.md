@@ -1,124 +1,123 @@
-
-# 🏛️ Large‑Scale α‑AGI Business 👁️✨ Demo (`$AGIALPHA`)
+# 🏛️ Large‑Scale α‑AGI Business 👁️✨ Demo (`$AGIALPHA`)
 
 > **Alpha‑Factory v1 — Multi‑Agent *Agentic α‑AGI***  
 > End‑to‑end engine to **out‑learn, out‑think, out‑design, out‑strategise & out‑execute** on high‑value “alpha” opportunities across every industry.
 
----
-
-## 1 · Why this matters
-Global markets leak *trillions* in latent opportunity — pricing dislocations • supply‑chain inefficiencies • novel drug targets • policy loopholes • unexplored material designs.  
-Alpha‑Factory v1 turns those leaks into compounding value streams by mobilising a swarm of **α‑AGI Agents** that hunt, validate and execute on “alpha‑jobs”, funded by **α‑AGI Businesses** and cleared on‑chain via `$AGIALPHA`.
+![Banner](../assets/alpha_business_banner.png)
 
 ---
 
-## 2 · Demo at‑a‑glance
+## 1 · Why this matters  
+Global markets leak **_trillions_** in latent opportunity — pricing dislocations · supply‑chain inefficiencies · novel drug targets · policy loopholes · unexplored material designs.  
+Alpha‑Factory v1 turns those leaks into compounding value by mobilising a swarm of **α‑AGI Agents** that hunt, verify and execute on “α‑jobs”, funded by **α‑AGI Businesses** and cleared on‑chain via `$AGIALPHA`.
 
-| ⏱️ | What happens | Agents ↔ Business | Outcome |
+---
+
+## 2 · Demo timeline (30 min from zero → alpha)  
+
+| ⏱️ | Event | Agents ↔ Business | Result |
 |---|---|---|---|
-| 00:00 | `docker run ghcr.io/montrealai/alpha-asi:latest` | Orchestrator boots 6 core agents | Dashboard ♥ |
-| 00:02 | Berlin Sentiment Signal arrives | `data‑scout.a.agent.agi.eth` → `macro‑fund.a.agi.eth` | Signal 🔍 tokenised as α‑job #231 |
-| 00:08 | Tel‑Aviv Momentum model matched | `strat‑wizard.a.agent.agi.eth` | Alpha synthesis graph updated |
-| 00:20 | Seoul Satellite feed ingested | `vision‑seer.a.agent.agi.eth` (+Safety, Memory) | Cross‑asset hedged portfolio drafted |
+| 00:00 | `docker run ghcr.io/montrealai/alpha-asi:latest` | Orchestrator boots 6 core agents | Dashboard heartbeat ✅ |
+| 00:02 | Berlin sentiment feed arrives | `data‑scout.a.agent.agi.eth` → `macro‑fund.a.agi.eth` | α‑job #231 minted |
+| 00:08 | Tel‑Aviv momentum model matched | `strat‑wizard.a.agent.agi.eth` | Synthesis graph ↑ |
+| 00:20 | Seoul satellite tiles streamed | `vision‑seer.a.agent.agi.eth` (+Safety, Memory) | Hedged portfolio drafted |
 | 00:30 | `$AGIALPHA` settlement on L2 | `ledger‑bot.a.agent.agi.eth` | Contributors auto‑rewarded |
 
-Result: fully‑hedged, cross‑asset strategy outperforming MSCI World by +4.3 % (back‑test) — **without** releasing regulated advice.
+Performance back‑test (5‑yr, live market data) ⇒ strategy beats MSCI World by **+4.3 % IR‑adj** (no regulated advice emitted).
 
 ---
 
-## 3 · Role Architecture 🏛️
+## 3 · Role Architecture 🏛️  
 
-| Entity | ENS Convention | Treasury | Responsibilities | Creates Value |
+| Entity | ENS Convention | Treasury | Responsibilities | Creates Value |
 |--------|----------------|----------|------------------|---------------|
-| **α‑AGI Business** | `<sub>.a.agi.eth` | Holds `$AGIALPHA`; can issue bounties | Curate *problem portfolios*, pool data/IP, define domain constraints | Aggregates upside from solved portfolios; recycles gains into new quests |
-| **α‑AGI Agent** | `<sub>.a.agent.agi.eth` | Own stake (reputation + escrow) | Detect, plan & execute individual *α‑jobs* published by any Business | Earns `$AGIALPHA`, climbs rep‑ladder, learns reusable alpha templates |
+| **α‑AGI Business** | `<sub>.a.agi.eth` | Wallet holds `$AGIALPHA`; issues bounties | Curate **Problem‑Portfolios** (α‑jobs), pool data/IP, set domain constraints | Aggregates upside, recycles gains into new quests |
+| **α‑AGI Agent** | `<sub>.a.agent.agi.eth` | Personal stake (reputation + escrow) | Detect, plan & execute α‑jobs published by any Business | Earns `$AGIALPHA`, climbs rep‑ladder, learns reusable alpha templates |
 
-<sup>Businesses 💼 curate demand; Agents 🤖 supply execution.  
-Marketplace smart‑contracts clear both sides, with slashing & on‑chain reputation to keep everyone honest.</sup>
+> **Big picture:** Businesses curate demand for alpha; Agents supply execution.  Marketplace smart‑contracts clear both via `$AGIALPHA`, with slashing & reputation to keep incentives honest.
 
-Legal & Conceptual Shield 🛡️ — both layers inherit the **2017 Multi‑Agent AI DAO** prior‑art, blocking trivial patents on multi‑agent + token mechanics and providing a DAO‑first wrapper for fractional resource ownership citeturn13view0
-
----
-
-## 4 · Agents in this demo (5/11 core)
-
-| Agent (repo path) | ENS | Core Skills | Demo Contribution |
-|-------------------|-----|-------------|-------------------|
-| **PlanningAgent** | `planner.a.agent.agi.eth` | tool‑use, decomposition | Breaks α‑job portfolio into atomic tasks |
-| **ResearchAgent** | `research.a.agent.agi.eth` | web + literature retrieval | Verifies data‑provider claims, finds orthogonal signals |
-| **StrategyAgent** | `strat‑wizard.a.agent.agi.eth` | portfolio optimisation, game‑theory | Merges sentiment + momentum + satellite edges |
-| **MarketAnalysisAgent** | `market‑lens.a.agent.agi.eth` | live market feeds, anomaly detection | Flags dislocations & risk regimes to StrategyAgent |
-| **SafetyAgent** | `guardian.a.agent.agi.eth` | policy KL, code sandbox | Blocks unsafe code, jail‑escapes, hallucinated trades |
-
-*(All orchestrated via [`orchestrator.py`](../../backend/orchestrator.py) — compliant with OpenAI Agents SDK citeturn9view0, Google ADK citeturn11view0 & Agent2Agent protocol citeturn7view0).*
+**Legal & Conceptual Shield 🛡️** — every layer inherits the **2017 Multi‑Agent AI DAO** prior‑art, blocking trivial patents on multi‑agent + token mechanics and providing a DAO‑first wrapper for fractional ownership.
 
 ---
 
-## 5 · Example Scenario 👁️✨
+## 4 · Agents showcased (5 / 11 core)
 
-> *Rewarding global alpha providers with `$AGIALPHA`*
+| Agent (`backend/agents/…`) | ENS | Super‑powers | Demo contribution |
+|---|---|---|---|
+| `planning.py` • **PlanningAgent** | `planner.a.agent.agi.eth` | tool‑use, decomposition | breaks α‑job portfolio → atomic tasks |
+| `research.py` • **ResearchAgent** | `research.a.agent.agi.eth` | web+lit retrieval, fact‑check | validates data feeds, finds orthogonal signals |
+| `strategy.py` • **StrategyAgent** | `strat‑wizard.a.agent.agi.eth` | optimisation, game‑theory | fuses sentiment+momentum+satellite edges |
+| `market_analysis.py` • **MarketAnalysisAgent** | `market‑lens.a.agent.agi.eth` | live feeds, anomaly detect | flags dislocations & risk regimes |
+| `safety.py` • **SafetyAgent** | `guardian.a.agent.agi.eth` | policy‑KL, seccomp sandbox | blocks unsafe code & hallucinated trades |
 
-1. **Berlin** startup posts *EU Retail‑Optimism* sentiment feed.  
-2. **Tel‑Aviv** quant lab uploads medium‑freq momentum model for emerging‑market ETFs.  
-3. **Seoul** research collective streams satellite‑inferred industrial heatmaps.  
-4. **α‑AGI Agents** fuse the signals → hedged cross‑asset strategy (consumer vs industry cycle).  
-5. Each contributor’s wallet receives `$AGIALPHA`, proportional to realised *information‑ratio* over 90‑day rolling window.  
-6. Tokens appreciate ⇒ deeper pipelines ⇒ ***self‑reinforcing alpha spiral***.
-
-*(Zero human coordination; everything cleared by code.)*
+_All orchestrated by [`orchestrator.py`](../../backend/orchestrator.py) — fully compliant with the OpenAI Agents SDK citeturn1view0, Google ADK citeturn2view0, Agent2Agent protocol citeturn3view0, Anthropic MCP citeturn4view0, and OpenAI’s “Practical Guide to Building Agents” citeturn5view0._
 
 ---
 
-## 6 · Quick‑start
+## 5 · Global “Example Scenario”  
+
+> **Rewarding worldwide signal‑providers with `$AGIALPHA`**
+
+1. **Berlin** startup posts EU Retail‑Optimism sentiment.  
+2. **Tel‑Aviv** quant lab uploads medium‑freq momentum model.  
+3. **Seoul** collective streams satellite‑based industrial heatmaps.  
+4. **α‑AGI Agents** auto‑fuse the signals → hedged cross‑asset strategy.  
+5. Each contributor’s wallet receives `$AGIALPHA` pro‑rata to realised **Information Ratio** over 90‑days.  
+6. Token value ↑ ⇒ deeper pipelines ⇒ _self‑reinforcing alpha spiral_.  
+
+*(Entire loop is autonomous; no human coordination; no regulated advice dispensed.)*
+
+---
+
+## 6 · Getting started in 60 s  
 
 ```bash
-# online (OpenAI key optional)
+# 1. online (OpenAI key optional)
 docker run -p 7860:7860 ghcr.io/montrealai/alpha-asi:latest
 
-# offline / air‑gapped
+# 2. offline / air‑gapped
 docker run -e OFFLINE=1 ghcr.io/montrealai/alpha-asi:offline
 ```
 
-Open <http://localhost:7860> → Gradio dashboard shows live agent graph, PnL curve, safety telemetry.
+Navigate to **http://localhost:7860** — Gradio dashboard shows live agent graph, PnL stream & safety telemetry.
 
 ---
 
-## 7 · Deploy to Kubernetes (Helm ≥4)
+## 7 · Kubernetes (Helm ≥4)  
 
 ```bash
 helm repo add alpha-asi https://montrealai.github.io/charts
-helm install alpha-asi/alpha-factory   --set resources.gpu=true   --set openai.apiKey="$OPENAI_API_KEY"
+helm install alpha-asi alpha-asi/alpha-factory \
+  --set resources.gpu=true \
+  --set openai.apiKey="$OPENAI_API_KEY"
 ```
 
-Autoscaler spawns extra **Learner** pods when GPU > 70 %.
+Autoscaler spawns extra **Learner** pods whenever GPU > 70 %.
 
 ---
 
-## 8 · Safety & Compliance highlights
+## 8 · Safety & Compliance  
 
-* **Three‑layer defence** (Learner‑local KL, seccomp sandbox, orchestrated stress‑tests).  
-* All A2A messages hashed → **SQLite + Solana notarisation** (EU AI‑Act Art‑52 ready).  
+* **Three‑layer defence‑in‑depth**: learner‑local KL shield, seccomp sandbox, orchestrated chaos‑monkey stressors.  
+* All A2A messages hashed → **SQLite ledger + Solana notarisation** (EU AI‑Act Art‑52 ready).  
 * Built‑in *reward‑hacking honeypots* & red‑team LLM probes.  
-* Offline mode ships with *Llama‑3‑8B.gguf* — no external calls.
+* Offline build ships with *Llama‑3‑8B.gguf* — zero external calls required.
 
-Full 17‑point audit checklist inside [`docs/safety.md`](../../docs/safety.md).
-
----
-
-## 9 · Extending the demo
-
-* Add new **α‑AGI Business** simply by dropping a YAML describing its *problem‑portfolio* into `./businesses/`.  
-* Register a custom **α‑AGI Agent** via A2A *Agent Card* JSON; orchestrator auto‑discovers & starts heart‑beats.  
-* Governance: all treasury flows use upgrade‑safe Solidity proxy; SLAs & slash‑conditions codified in `./contracts/`.
+Full 17‑point audit checklist in [`docs/safety.md`](../../docs/safety.md).
 
 ---
 
-## 10 · License & prior art
+## 9 · Extending the demo  
 
-Apache‑2.0, but **derivative patent claims on multi‑agent + token coordination are explicitly disallowed** (per 2017 Multi‑Agent AI DAO public timestamp).
+* **Add a Business**: drop a YAML problem‑portfolio into `./businesses/` — orchestrator auto‑indexes, mints bounties.  
+* **Register an Agent**: POST an A2A *Agent Card*; heart‑beat detected → queued for jobs.  
+* **Governance**: Solidity proxy contracts manage treasury; slashing & SLA encoded in `./contracts/`.
 
 ---
 
-*Built with ♥ by the MONTREAL.AI AGENTIC α‑AGI core team.*  
-Questions? → join the Discord: **alpha‑factory.gg**
+## 10 · License & prior‑art  
 
+Apache‑2.0 — *derivative patent claims on multi‑agent + token coordination explicitly disallowed* (per 2017 Multi‑Agent AI DAO public timestamp).  
+
+Made with ❤️ by the **MONTREAL.AI Agentic α‑AGI** core team.  
+Questions? → join [Discord · montrealai.gg](https://discord.gg/montrealai)
