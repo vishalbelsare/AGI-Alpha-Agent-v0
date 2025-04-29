@@ -164,7 +164,8 @@ flowchart LR
   end
   BIZ -- α‑jobs --> AGT
   AGT -- Proof(ΔG) --> BIZ
-  BIZ --> LDB & ORC
+  BIZ --> LDB
+  BIZ --> ORC
   AGT --> ORC
   ORC --> LDB
 ```
