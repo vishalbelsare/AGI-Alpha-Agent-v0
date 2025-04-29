@@ -149,6 +149,32 @@ Brandenburger‑Nalebuff’s PART moves become **on‑chain opcodes**:
 
 ```mermaid
 flowchart LR
+  classDef layer stroke-width:2px
+  subgraph Market["\$AGIALPHA Marketplace"]:::layer
+    BIZ["α‑AGI Business<br/><sub>.a.agi.eth</sub>"]
+    AGT["α‑AGI Agent<br/><sub>.a.agent.agi.eth</sub>"]
+  end
+
+  subgraph LedgerL2["L2 Settlement"]:::layer
+    LDB["Ledger‑Bot"]
+  end
+
+  subgraph Orchestration["Ω‑Orchestrator"]:::layer
+    ORC["Orchestrator Core"]
+    SAF["Safety Ω"]
+    GDL["Gödel Looper"]
+  end
+
+  BIZ -- "α‑jobs" --> AGT
+  AGT -- "Proof(ΔG)" --> BIZ
+  BIZ --> LDB
+  BIZ --> ORC
+  AGT --> ORC
+  ORC --> LDB
+```
+
+```mermaid
+flowchart LR
   classDef layer stroke-width:2px;
   subgraph Market["$AGIALPHA Marketplace"]:::layer
     BIZ[α‑AGI Business<br><sub>.a.agi.eth>]
