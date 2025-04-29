@@ -17,6 +17,23 @@ One command spins‑up the orchestrator, seven specialised α‑AGI Agents, an a
 
 ## 🏗️ System Overview
 
+flowchart LR
+  %% ---------- AGI Business Sub-graph ----------
+  subgraph AGI_Business
+    direction TB
+    A1["📊 MarketAnalysisAgent"]  --> O
+    A2["🧠 StrategyAgent"]        --> O
+    A3["🔍 ResearchAgent"]        --> O
+    A4["🛠️ CodeGenAgent"]        --> O
+    A5["🛡️ SafetyAgent"]         --> O
+    A6["💾 MemoryAgent"]         --> O
+    O["🗄️ Orchestrator"]         -->|alpha insights| B(("α-AGI Business<br/>(*.a.agi.eth)"))
+  end
+
+  %% ---------- External relation ----------
+  B -->|$AGIALPHA rewards| Users["Stake-holders"]
+
+
 ```mermaid
 flowchart LR
   subgraph AGI_Business
