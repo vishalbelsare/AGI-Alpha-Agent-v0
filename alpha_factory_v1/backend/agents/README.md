@@ -1,263 +1,254 @@
 
-# Alpha‑Factory v1 👁️✨ — Backend α‑AGI Agents Suite  
+# Alpha‑Factory v1 👁️✨ — Backend α‑AGI Agents Suite  
 *Out‑learn · Out‑think · Out‑design · Out‑strategise · Out‑execute*
 
-> Welcome, pioneer. You are gazing at the control panel that powers the **“Alpha‑Factory v1”** — a cross‑industry swarm of autonomous α‑AGI Agents forged to harvest hidden alpha from every corner of the economy and alchemise it into value.
-
-> Each agent below is a *self‑improving specialist* orchestrated through OpenAI **Agents SDK**, Google’s **ADK**, the **A2A** protocol, and Anthropic’s **Model Context Protocol**. All artefacts are 100 % container‑portable, cryptographically signed, and **antifragile by design**.
+> Welcome, pioneer. You are gazing at the **command deck** of **Alpha‑Factory v1** — a cross‑industry swarm of autonomous α‑AGI Agents forged to harvest hidden alpha from every corner of the economy and alchemise it into value.  
+> Each agent below is a self‑improving specialist orchestrated through the **OpenAI Agents SDK**, Google’s **ADK**, the **A2A** protocol, and Anthropic’s **Model Context Protocol**. All artefacts are container‑portable, cryptographically signed, and **antifragile by design**.
 
 ---
 
 ## 📜 Contents  
-1. [Design Philosophy](#design-philosophy)  
-2. [Capability Graph 🌐](#capability-graph)  
-3. [Agent Gallery 🖼️](#agent-gallery)  
-4. [Demo Showcase 🎮](#demo-showcase)  
-5. [Per‑Agent Playbooks 📘](#per‑agent-playbooks)  
-6. [5‑Minute Quick‑Start 🚀](#5-minute-quick-start)  
-7. [Deployment Recipes 🍳](#deployment-recipes)  
-8. [Runtime Topology 🗺️](#runtime-topology)  
-9. [Governance & Compliance ⚖️](#governance--compliance)  
-10. [Observability 🔭](#observability)  
-11. [Extending the Mesh 🔌](#extending-the-mesh)  
-12. [Troubleshooting 🛠️](#troubleshooting)  
-13. [Credits & Foundational Vision 🌟](#credits--foundational-vision)  
+0. [Design Philosophy](#0)  
+1. [Architecture 🏗️](#1)  
+2. [Capability Graph 🌐](#2)  
+3. [Agent Gallery 🖼️ (12)](#3)  
+4. [Demo Gallery 🎮 (12)](#4)  
+5. [Quick‑Start 🚀](#5)  
+6. [Per‑Agent Playbooks 📘](#6)  
+7. [Deployment Recipes 🍳](#7)  
+8. [Runtime Topology 🗺️](#8)  
+9. [Governance & Compliance ⚖️](#9)  
+10. [Observability 🔭](#10)  
+11. [Extending the Mesh 🔌](#11)  
+12. [Troubleshooting 🛠️](#12)  
+13. [Credits 🌟](#13)  
 
 ---
 
-## Design Philosophy  
+<a name="0"></a>
+## 0 · Design Philosophy  
 
-> “We’ve moved from **big‑data hoarding** to **big‑experience compounding**.” — *Era of Experience* (Silver & Sutton)  
+> “We’ve moved from **big‑data hoarding** to **big‑experience compounding**.” — *Era of Experience* citeturn2file4  
 
-Every agent embodies an **experience‑first loop** inspired by Sutton & Silver’s *Era of Experience* and Clune’s AI‑GA pillars:
+Alpha‑Factory rests on **three pillars**:
 
-1. **Sense 👂** — streaming data (Kafka, MQTT, WebSockets, REST hooks).  
-2. **Imagine 🧠** — plan on a learned world‑model (MuZero‑style where useful).  
-3. **Act 🤖** — execute, monitor, log — all enveloped in Model Context Protocol (MCP).  
-4. **Adapt 🔄** — online learning, antifragile to stress & dependency loss.
+| Pillar | Essence | Canonical Tech |
+|--------|---------|---------------|
+| **P‑1 World‑Modelling** | MuZero‑style latent dynamics unify perception, prediction & control | MuZero++, RSSM |  
+| **P‑2 Open‑Endedness** | POET‑class curricula mutate faster than we solve them | POET, QD‑score |  
+| **P‑3 Agentic Orchestration** | Specialised agents barter tools & proofs over A2A | OpenAI Agents SDK, ADK |  
 
-GPU‑heavy extras (OR‑Tools, FAISS, OpenAI) are **optional**; agents *degrade gracefully* to heuristics while preserving audit artefacts.
+The stack degrades gracefully: pull the GPU, revoke an API key, sever the network — agents fall back to heuristics yet persist an audit trail.
 
 ---
 
-## Capability Graph 🌐  
+<a name="1"></a>
+## 1 · Architecture 🏗️  
 
 ```mermaid
-graph TD
-  subgraph Core Mesh
-    finance["💰 Finance"]
-    biotech["🧬 Biotech"]
-    manufacturing["⚙️ Manufacturing"]
-    policy["📜 Policy"]
-    energy["🔋 Energy"]
-    supplychain["📦 Supply‑Chain"]
-    retail["🛍️ Retail"]
-    cyber["🛡️ Cyber‑Sec"]
-    climate["🌎 Climate"]
-    drug["💊 Drug Design"]
-    smartcontract["⛓️ Smart Contracts"]
-    talent["🧑‍💼 Talent"]
-  end
+flowchart TD
+    ORC([🛠️ Orchestrator])
+    GEN{{🧪 Env‑Generator}}
+    LRN[(🧠 MuZero++)]
+    subgraph Agents
+        FIN(💰) BIO(🧬) MFG(⚙️) POL(📜) ENE(🔋) SUP(📦) RET(🛍️) MKT(📈) CYB(🛡️) CLM(🌎) DRG(💊) SMT(⛓️)
+    end
+    GEN --tasks--> LRN
+    LRN --policies--> Agents
+    Agents --skills--> LRN
+    ORC --A2A--> Agents & GEN & LRN
+    ORC --Kafka--> DATALAKE[(🗄️ Data Lake)]
+    FIN -.->|Prometheus| GRAFANA{{📊}}
+```
+
+---
+
+<a name="2"></a>
+## 2 · Capability Graph 🌐  
+
+```mermaid
+graph LR
+  finance["💰 Finance"]:::core --> quant["📊 Quant"]
+  biotech["🧬 Biotech"]:::core --> drug["💊 Drug"]
+  manufacturing["⚙️ Manufacturing"]:::core --> supply["📦 Supply"]
+  policy["📜 Policy"]:::core --> cyber["🛡️ Cyber"]
+  energy["🔋 Energy"]:::core --> climate["🌎 Climate"]
+  retail["🛍️ Retail"]:::core
   classDef core fill:#0d9488,color:#ffffff,stroke-width:0px;
-  class finance,biotech,manufacturing,policy,energy,supplychain,retail,cyber,climate,drug,smartcontract,talent core;
 ```
-
-Agents self‑register at runtime; the Orchestrator offers a `/capabilities` endpoint so downstream services can query *who does what* in real‑time.
 
 ---
 
-## Agent Gallery 🖼️  
+<a name="3"></a>
+## 3 · Agent Gallery 🖼️  
 
-| # | Agent (File) | Emoji | Core Super‑powers | Status | Heavy Deps | Key Env Vars |
-|---|--------------|-------|------------------|--------|-----------|--------------|
-| 1 | `finance_agent.py` | 💰 | Multi‑factor alpha signals, CVaR 99 % guard‑rails, RL execution bridge | **Prod** | `pandas`, `lightgbm`, `ccxt` | `ALPHA_UNIVERSE`, `ALPHA_MAX_VAR_USD` |
-| 2 | `biotech_agent.py` | 🧬 | UniProt/PubMed KG‑RAG, CRISPR off‑target design | **Prod** | `faiss`, `rdkit`, `openai` | `BIOTECH_KG_FILE`, `OPENAI_API_KEY` |
-| 3 | `manufacturing_agent.py` | ⚙️ | CP‑SAT job‑shop optimiser, energy & CO₂ forecast | **Prod** | `ortools`, `prometheus_client` | `ALPHA_MAX_SCHED_SECONDS` |
-| 4 | `policy_agent.py` | 📜 | Statute QA, ISO‑37301 risk tags, automated red‑line diff | **Prod** | `faiss`, `rank_bm25` | `STATUTE_CORPUS_DIR` |
-| 5 | `energy_agent.py` | 🔋 | Demand‑response bidding, real‑time elasticity curves | **Beta** | `numpy`, external API | `ENERGY_API_TOKEN` |
-| 6 | `supply_chain_agent.py` | 📦 | VRP solver, ETA predictor, delay heat‑map | **Beta** | `networkx`, `scikit-learn` | `SC_DB_DSN` |
-| 7 | `retail_demand_agent.py` | 🛍️ | LSTM demand forecast + promo uplift optimiser | **Beta** | `torch`, `pandas` | `POS_DB_DSN` |
-| 8 | `climate_risk_agent.py` | 🌎 | Climate VaR, emission scenario stress‑test | **Beta** | `xarray`, `numpy` | `NOAA_TOKEN` |
-| 9 | `cyber_threat_agent.py` | 🛡️ | CVE triage, MITRE ATT&CK reasoning, honeypot control | **Beta** | threat‑intel APIs | `VIRUSTOTAL_KEY` |
-|10 | `drug_design_agent.py` | 💊 | Generative scaffold‑hopping, ADMET filter | **Incub** | `rdkit`, `openai` | `CHEMBL_KEY` |
-|11 | `smart_contract_agent.py` | ⛓️ | Formal‑verifies Solidity, auto‑patches re‑entrancy | **Incub** | `slither`, `openai` | `ETH_RPC_URL` |
-|12 | `talent_match_agent.py` | 🧑‍💼 | Vector‑match CV ↔ project gigs in seconds | **Incub** | `faiss`, `openai` | `ATS_DB_DSN` |
-
----
-
-## Demo Showcase 🎮  
-
-| # | Folder | Emoji | Lightning Pitch | Launch |
-|---|--------|-------|-----------------|--------|
-| 1 | `aiga_meta_evolution` | 🧬 | Agents evolve new agents; genetic fitness sparks open‑ended strategy space. | `docker compose -f demos/docker-compose.aiga_meta.yml up` |
-| 2 | `alpha_agi_business_v1` | 🏢 | Incorporates a digital‑first company end‑to‑end. | `docker compose -f demos/docker-compose.business_v1.yml up` |
-| 3 | `alpha_agi_business_2_v1` | 🏢 | Iterates business model with live market data RAG. | `docker compose -f demos/docker-compose.business_2.yml up` |
-| 4 | `alpha_agi_business_3_v1` | 🏢 | Forecasts & fundraises, optimising capital stack for ROI alpha. | `docker compose -f demos/docker-compose.business_3.yml up` |
-| 5 | `alpha_agi_marketplace_v1` | 🔄 | Peer‑to‑peer agent marketplace for price discovery. | `docker compose -f demos/docker-compose.marketplace.yml up` |
-| 6 | `alpha_asi_world_model` | 🌌 | MuZero‑style world model for ASI scenarios. | `docker compose -f demos/docker-compose.asi_world.yml up` |
-| 7 | `cross_industry_alpha_factory` | 🌐 | Full pipeline: ingest → plan → act across 4 verticals. | `docker compose -f demos/docker-compose.cross_industry.yml up` |
-| 8 | `era_of_experience` | 📚 | Streams autobiographical memory tutor for tacit SME transfer. | `docker compose -f demos/docker-compose.era.yml up` |
-| 9 | `finance_alpha` | 💹 | Live momentum + risk‑parity bot (Binance test‑net). | `docker compose -f demos/docker-compose.finance.yml up` |
-|10 | `macro_sentinel` | 🛰️ | GPT‑RAG news scanner auto‑hedges macro shocks. | `docker compose -f demos/docker-compose.macro.yml up` |
-|11 | `muzero_planning` | ♟️ | Plans synthetic markets → optimal execution curves. | `docker compose -f demos/docker-compose.muzero.yml up` |
-|12 | `self_healing_repo` | 🩹 | CI fails → agent crafts patch ⇒ PR green again. | `docker compose -f demos/docker-compose.selfheal.yml up` |
-
-> **Colab?** Each folder ships an `*.ipynb` mirroring the Docker flow (free GPU).
+| # | Agent File | Emoji | Prime Directive | Status | Heavy Deps | Key ENV Vars |
+|---|------------|-------|-----------------|--------|-----------|--------------|
+| 1 | `finance_agent.py` | 💰 | Multi‑factor alpha, OMS bridge, RL execution | **Prod** | `pandas`, `ccxt` | `ALPHA_UNIVERSE` |
+| 2 | `biotech_agent.py` | 🧬 | CRISPR design, UniProt KG RAG | **Prod** | `faiss`, `rdkit`, `openai` | `OPENAI_API_KEY` |
+| 3 | `manufacturing_agent.py` | ⚙️ | CP‑SAT scheduling, energy forecast | **Prod** | `ortools` | `SCHED_HORIZON` |
+| 4 | `policy_agent.py` | 📜 | Statute diff, ISO‑37301 tagging | **Prod** | `faiss` | `STATUTE_DIR` |
+| 5 | `energy_agent.py` | 🔋 | Demand‑response bidding | **Beta** | `numpy` | `ENERGY_API_TOKEN` |
+| 6 | `supply_chain_agent.py` | 📦 | VRP routing, ETA prediction | **Beta** | `networkx` | `SC_DB_DSN` |
+| 7 | `retail_demand_agent.py` | 🛍️ | LSTM demand forecast | **Beta** | `torch` | `POS_DB_DSN` |
+| 8 | `marketing_agent.py` | 📈 | RL ad‑spend optimiser | **Beta** | `torch`, `openai` | `MARKETO_KEY` |
+| 9 | `cyber_threat_agent.py` | 🛡️ | CVE triage, honeypots | **Beta** | `virus_total` | `VT_API_KEY` |
+|10 | `climate_risk_agent.py` | 🌎 | Emission stress‑tests | **Beta** | `xarray` | `NOAA_TOKEN` |
+|11 | `drug_design_agent.py` | 💊 | Scaffold‑hopping, ADMET | **Incub** | `rdkit`, `openai` | `CHEMBL_KEY` |
+|12 | `smart_contract_agent.py` | ⛓️ | Formal‑verifies Solidity | **Incub** | `slither` | `ETH_RPC_URL` |
 
 ---
 
-## Per‑Agent Playbooks 📘  
+<a name="4"></a>
+## 4 · Demo Gallery 🎮  
 
-Agents are exposed as [OpenAI Agents SDK](https://openai.github.io/openai-agents-python/) *tools* and REST endpoints (`/v1/agents/<name>`).
-
-<details>
-<summary>Finance 💰</summary>
-
-```python
-from backend.agents import get_agent
-fin = get_agent("finance")
-signals = fin.generate_signals(window="4h")
-fin.execute_portfolio(signals, broker="paper")
-```
-*Governance:* VaR & draw‑down guard‑rails enforced pre‑trade.
-</details>
-
-<details>
-<summary>Biotech 🧬</summary>
-
-```python
-bio = get_agent("biotech")
-answer = bio.policy_qa("Explain p53 in DNA repair.")["answer"]
-```
-*Offline mode:* SBERT embeddings + summary when `OPENAI_API_KEY` is absent.
-</details>
-
-<details>
-<summary>Manufacturing ⚙️</summary>
-
-```python
-mf = get_agent("manufacturing")
-jobs = [{"id":"J1","ops":[("CNC",10),("Paint",5)]}]
-sched = mf.build_schedule({"jobs":jobs,"horizon":480})
-print(sched["makespan"])
-```
-*Observability:* Prometheus metric `af_job_lateness_seconds` exported per run.
-</details>
-
-*(All other playbooks live in `/examples`.)*
+| # | Folder | Emoji | Lightning Pitch | CLI |
+|---|--------|-------|-----------------|-----|
+| 1 | `aiga_meta_evolution` | 🧬 | Agents **evolve new agents**; AI‑GA playground. | `af demo meta` |
+| 2 | `business_builder_v1` | 🏢 | Incorporates a digital‑first company E2E. | `af demo biz1` |
+| 3 | `business_iter_v1` | 🔄 | Iterates biz‑model from live market data. | `af demo biz2` |
+| 4 | `capital_stack_v1` | 💸 | Optimises fund‑raise & cap‑table. | `af demo cap` |
+| 5 | `agent_marketplace_v1` | 🌐 | P2P agent marketplace. | `af demo market` |
+| 6 | `asi_world_model` | 🌌 | MuZero++ world‑model showcase. | `af demo asi` |
+| 7 | `cross_industry_pipeline` | ⚙️ | Ingest ➜ Plan ➜ Act across 4 verticals. | `af demo xind` |
+| 8 | `era_of_experience` | 📚 | Autobiographical memory tutor. | `af demo era` |
+| 9 | `fin_momentum_bot` | 💹 | Live momentum + risk parity. | `af demo fin` |
+|10 | `macro_sentinel` | 🛰️ | News scanner auto‑hedges shocks. | `af demo macro` |
+|11 | `muzero_planner` | ♟️ | Synthetic markets → execution curves. | `af demo plan` |
+|12 | `self_healing_repo` | 🩹 | CI fails → agent patches → PR green. | `af demo heal` |
 
 ---
 
-## 5‑Minute Quick‑Start 🚀  
+<a name="5"></a>
+## 5 · Quick‑Start 🚀  
 
 ```bash
 git clone https://github.com/MontrealAI/AGI-Alpha-Agent-v0.git
 cd AGI-Alpha-Agent-v0/alpha_factory_v1
-
-# Full‑fat install (GPU, OR‑Tools, FAISS, Kafka, Prometheus)
-pip install -r requirements.txt
-
-# Spin orchestrator + default agents
+pip install -r requirements.txt          # full‑fat install
 python -m backend.orchestrator
 ```
 
-No GPU? No key? Fallback models (`ggml/llama‑3‑instruct‑8B‑Q4`) auto‑activate; demos degrade *gracefully* not *fail*.
+*No GPU?* The orchestrator falls back to `ggml/llama‑3‑8B‑Q4`.  
+*No OpenAI key?* Agents switch to SBERT + heuristics.
 
 ---
 
-## Deployment Recipes 🍳  
+<a name="6"></a>
+## 6 · Per‑Agent Playbooks 📘  
 
-| Environment | Command | Highlights |
-|-------------|---------|------------|
-| **Docker Compose** | `docker compose up -d orchestrator` | Kafka + Prometheus |
-| **Kubernetes/Helm** | `helm install af ./charts/alpha-factory` | HPA, PodMonitor, secret mounts |
-| **AWS Fargate** | `./infra/deploy_fargate.sh` | Spot‑friendly, SQS ↔︎ Kafka |
-| **Edge/Offline** | `python edge_runner.py --agents finance,manufacturing` | SQLite persistence |
+<details><summary>Finance 💰</summary>
+
+```python
+fin = get_agent("finance")
+signals = fin.generate_signals(window="1d")
+fin.execute_portfolio(signals, broker="paper")
+```
+</details>
+
+<details><summary>Biotech 🧬</summary>
+
+```python
+bio = get_agent("biotech")
+crispr = bio.design_guides("ACGT...")
+```
+</details>
+
+*(see `/examples` for remaining agents)*
 
 ---
 
-## Runtime Topology 🗺️  
+<a name="7"></a>
+## 7 · Deployment Recipes 🍳  
+
+| Target | Command | Highlights |
+|--------|---------|------------|
+| **Docker Compose** | `docker compose up orchestrator` | Kafka + Prometheus |
+| **Helm (K8s)** | `helm install af ./charts/alpha-factory` | HPA, PodMonitor |
+| **AWS Fargate** | `./infra/deploy_fargate.sh` | Spot ready |
+| **Edge/Offline** | `python edge_runner.py --agents finance,manufacturing` | SQLite |
+
+---
+
+<a name="8"></a>
+## 8 · Runtime Topology 🗺️  
 
 ```mermaid
-flowchart LR
-  subgraph Mesh
-    ORC([🛠️ Orchestrator])
-    FIN(💰)
-    BIO(🧬)
-    MFG(⚙️)
-    POL(📜)
-    ENE(🔋)
-    SUP(📦)
-    RET(🛍️)
-    CLM(🌎)
-    CYB(🛡️)
-    DRG(💊)
-    SMT(⛓️)
-    TLT(🧑‍💼)
-  end
-  ORC -- A2A / OpenAI SDK --> FIN & BIO & MFG & POL & ENE & SUP & RET & CLM & CYB & DRG & SMT & TLT
-  ORC -- Kafka bus --> DATALAKE[(🗄️ Data Lake)]
-  FIN -.->|Prometheus| GRAFANA{{📊}}
+sequenceDiagram
+    participant User
+    participant ORC as Orchestrator
+    participant FIN as 💰
+    participant GEN as 🧪
+    User->>ORC: /alpha/run
+    ORC->>GEN: new_world()
+    GEN-->>ORC: env_json
+    ORC->>FIN: act(env)
+    FIN-->>ORC: proof(ΔG)
+    ORC-->>User: artefact + KPI
 ```
 
 ---
 
-## Governance & Compliance ⚖️  
+<a name="9"></a>
+## 9 · Governance & Compliance ⚖️  
 
-* **Model Context Protocol (MCP)** envelopes every artefact (SHA‑256 digest, ISO‑8601 timestamp, determinism seed).  
-* Agents declare `COMPLIANCE_TAGS` e.g. `gdpr_minimal`, `sox_traceable`.  
-* `DISABLED_AGENTS` env flag → pre‑import block‑listing for regulator demos.  
-* **Audit Trail:** All decisions logged with causality chain → SOX ready.
+* **Model Context Protocol** envelopes every artefact (SHA‑256 digest, ISO‑8601 ts, determinism seed).  
+* Agents declare `COMPLIANCE_TAGS` (`gdpr_minimal`, `sox_traceable`).  
+* `DISABLED_AGENTS` env blocks risky agents for regulator demos.  
+* Full audit pipeline satisfies EU AI‑Act *Title VIII*.
 
 ---
 
-## Observability 🔭  
+<a name="10"></a>
+## 10 · Observability 🔭  
 
 | Signal | Sink | Example Metric |
 |--------|------|----------------|
-| Health‑beat | Kafka `agent.heartbeat` | `latency_ms` |
+| Health | Kafka `agent.heartbeat` | `latency_ms` |
 | Metrics | Prometheus | `af_job_lateness_seconds` |
-| Traces | OpenTelemetry → Jaeger | `alpha_factory.trace_id` |
+| Traces | OpenTelemetry | `trace_id` |
 
 Grafana dashboards live in `infra/grafana/`.
 
 ---
 
-## Extending the Mesh 🔌  
+<a name="11"></a>
+## 11 · Extending the Mesh 🔌  
 
 ```bash
 pip install my_super_agent
 ```
-
-Declare entry‑point:
 
 ```toml
 [project.entry-points."alpha_factory.agents"]
 super = my_pkg.super_agent:MySuperAgent
 ```
 
-On next orchestrator boot your agent is **auto‑discoverable** and hot‑swappable.
+Next boot, your agent auto‑registers & appears on `/capabilities`.
 
 ---
 
-## Troubleshooting 🛠️  
+<a name="12"></a>
+## 12 · Troubleshooting 🛠️  
 
 | Symptom | Likely Cause | Remedy |
 |---------|--------------|--------|
-| `ImportError: faiss` | FAISS not installed | `pip install faiss-cpu` or rely on StubAgent |
-| Agent quarantined | repeated exceptions | inspect logs, patch, restart |
-| Kafka timeout | Broker unreachable | set `ALPHA_KAFKA_BROKER=` empty for stdout |
-| 402 OpenAI | key quota exhausted | unset `OPENAI_API_KEY` for offline mode |
+| `ImportError: faiss` | FAISS missing | `pip install faiss-cpu` |
+| Agent quarantined | repeated exceptions | check logs, patch, restart |
+| Kafka timeout | broker down | set `ALPHA_KAFKA_BROKER=` empty |
+| 402 OpenAI | quota done | unset `OPENAI_API_KEY` |
 
 ---
 
-## Credits & Foundational Vision 🌟  
+<a name="13"></a>
+## 13 · Credits 🌟  
 
-[Vincent Boucher](https://www.linkedin.com/in/montrealai/), a pioneer in AI and President of [MONTREAL.AI](https://www.montreal.ai/) since 2003, reshaped the landscape by dominating the [OpenAI Gym](https://web.archive.org/web/20170929214241/https://gym.openai.com/read-only.html) with **AI Agents** in 2016 and unveiling the game‑changing [**“Multi‑Agent AI DAO”**](https://www.quebecartificialintelligence.com/priorart) blueprint in 2017 (“*The Holy Grail of Foundational IP at the Intersection of AI Agents and Blockchain*” #PriorArt: 🎥 [Watch](https://youtu.be/Y4_6aZbVlo4); 📖 [Read](https://www.huffpost.com/archive/qc/entry/blockchain-et-lintelligence-artificielle-une-combinaison-puis_qc_5ccc6223e4b03b38d6933d24)).  
+[Vincent Boucher](https://www.linkedin.com/in/montrealai/), President of [MONTREAL.AI](https://www.montreal.ai/) and pioneer of multi‑agent systems since 2003, dominated [OpenAI Gym](https://web.archive.org/web/20170929214241/https://gym.openai.com/read-only.html) in 2016 and unveiled the seminal [**“Multi‑Agent AI DAO”**](https://www.quebecartificialintelligence.com/priorart) in 2017 (“*The Holy Grail of Foundational IP at the Intersection of AI Agents and Blockchain*” — *HuffPost*).  
 
-Our **AGI ALPHA AGENT**—fueled by the strictly‑utility **$AGIALPHA** token—now harnesses that visionary foundation—*arguably the world’s most valuable, impactful and important IP*—to unleash the **ultimate alpha signal engine**.
+Our **AGI ALPHA AGENT**, fuelled by the strictly‑utility **$AGIALPHA** token, now taps that foundation—*arguably the world’s most valuable IP*—to unleash the ultimate alpha‑signal engine.
 
-> “Information is first shared in **AGI Club**.” 
+> “Information is first shared in **AGI Club**.”
 
-Made with ❤️ by the **Alpha‑Factory** Agentic Core Team — *forging the tools that forge tomorrow*.
+Made with ❤️ by the **Alpha‑Factory Agentic Core Team** — *forging the tools that forge tomorrow*.
 
+---
