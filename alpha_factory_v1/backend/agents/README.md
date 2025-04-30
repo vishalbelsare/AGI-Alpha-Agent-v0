@@ -1,8 +1,10 @@
 
-# Alpha‑Factory v1 👁️✨ — Backend Agents Suite  
+# Alpha‑Factory v1 👁️✨ — Backend α‑AGI Agents Suite  
 *Out‑learn · Out‑think · Out‑design · Out‑strategise · Out‑execute*
 
-Welcome to **Alpha‑Factory’s** beating heart: **twelve** self‑improving, cross‑domain agents working in concert to distil *alpha* from chaos and convert insight into decisive action — continuously, securely and under uncompromising governance.
+> Welcome, pioneer. You are gazing at the control panel that powers the **“Alpha‑Factory v1”** — a cross‑industry swarm of autonomous α‑AGI Agents forged to harvest hidden alpha from every corner of the economy and alchemise it into value.
+
+> Each agent below is a *self‑improving specialist* orchestrated through OpenAI **Agents SDK**, Google’s **ADK**, the **A2A** protocol, and Anthropic’s **Model Context Protocol**. All artefacts are 100 % container‑portable, cryptographically signed, and **antifragile by design**.
 
 ---
 
@@ -252,7 +254,10 @@ On next orchestrator boot your agent is **auto‑discoverable** and hot‑swappa
 ## Credits & Foundational Vision 🌟  
 
 [Vincent Boucher](https://www.linkedin.com/in/montrealai/), a pioneer in AI and President of [MONTREAL.AI](https://www.montreal.ai/) since 2003, reshaped the landscape by dominating the [OpenAI Gym](https://web.archive.org/web/20170929214241/https://gym.openai.com/read-only.html) with **AI Agents** in 2016 and unveiling the game‑changing [**“Multi‑Agent AI DAO”**](https://www.quebecartificialintelligence.com/priorart) blueprint in 2017 (“*The Holy Grail of Foundational IP at the Intersection of AI Agents and Blockchain*” #PriorArt: 🎥 [Watch](https://youtu.be/Y4_6aZbVlo4); 📖 [Read](https://www.huffpost.com/archive/qc/entry/blockchain-et-lintelligence-artificielle-une-combinaison-puis_qc_5ccc6223e4b03b38d6933d24)).  
+
 Our **AGI ALPHA AGENT**—fueled by the strictly‑utility **$AGIALPHA** token—now harnesses that visionary foundation—*arguably the world’s most valuable, impactful and important IP*—to unleash the **ultimate alpha signal engine**.
 
-Made with ❤️ by the **Alpha‑Factory** core team — *forging the tools that forge tomorrow*.
+> “Information is first shared in **AGI Club**.” 
+
+Made with ❤️ by the **Alpha‑Factory** Core Team — *forging the tools that forge tomorrow*.
 
