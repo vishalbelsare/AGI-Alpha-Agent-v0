@@ -1,5 +1,4 @@
-
-# Alpha‑Factory v1 👁️✨ — Backend α‑AGI Agents Suite  
+# Alpha‑Factory v1 👁️✨ — Backend α‑AGI Agents Suite  
 *Out‑learn · Out‑think · Out‑design · Out‑strategise · Out‑execute*
 
 > Welcome, pioneer. You are gazing at the **command deck** of **Alpha‑Factory v1** — a cross‑industry swarm of autonomous α‑AGI Agents forged to harvest hidden alpha from every corner of the economy and alchemise it into value.  
@@ -12,7 +11,7 @@
 1. [Architecture 🏗️](#1)  
 2. [Capability Graph 🌐](#2)  
 3. [Agent Gallery 🖼️ (12)](#3)  
-4. [Demo Gallery 🎮 (12)](#4)  
+4. [Demo Showcase 🎮 (12)](#4)  
 5. [Quick‑Start 🚀](#5)  
 6. [Per‑Agent Playbooks 📘](#6)  
 7. [Deployment Recipes 🍳](#7)  
@@ -28,17 +27,17 @@
 <a name="0"></a>
 ## 0 · Design Philosophy  
 
-> “We’ve moved from **big‑data hoarding** to **big‑experience compounding**.” — *Era of Experience* citeturn2file4  
+> “We’ve moved from **big‑data hoarding** to **big‑experience compounding**.” — *Era of Experience*  
 
 Alpha‑Factory rests on **three pillars**:
 
 | Pillar | Essence | Canonical Tech |
 |--------|---------|---------------|
-| **P‑1 World‑Modelling** | MuZero‑style latent dynamics unify perception, prediction & control | MuZero++, RSSM |  
-| **P‑2 Open‑Endedness** | POET‑class curricula mutate faster than we solve them | POET, QD‑score |  
-| **P‑3 Agentic Orchestration** | Specialised agents barter tools & proofs over A2A | OpenAI Agents SDK, ADK |  
+| **P‑1 World‑Modelling** | MuZero‑style latent dynamics unify perception, prediction & control | MuZero++, RSSM |
+| **P‑2 Open‑Endedness** | POET‑class curricula mutate faster than we solve them | POET‑XL, QD‑score |
+| **P‑3 Agentic Orchestration** | Specialised agents barter tools & proofs over **A2A** | OpenAI Agents SDK, ADK |
 
-The stack degrades gracefully: pull the GPU, revoke an API key, sever the network — agents fall back to heuristics yet persist an audit trail.
+The stack **degrades gracefully**: pull the GPU, revoke an API key, sever the network — agents fall back to heuristics yet persist an audit trail.
 
 ---
 
@@ -92,7 +91,7 @@ graph LR
 | 6 | `supply_chain_agent.py` | 📦 | VRP routing, ETA prediction | **Beta** | `networkx` | `SC_DB_DSN` |
 | 7 | `retail_demand_agent.py` | 🛍️ | LSTM demand forecast | **Beta** | `torch` | `POS_DB_DSN` |
 | 8 | `marketing_agent.py` | 📈 | RL ad‑spend optimiser | **Beta** | `torch`, `openai` | `MARKETO_KEY` |
-| 9 | `cyber_threat_agent.py` | 🛡️ | CVE triage, honeypots | **Beta** | `virus_total` | `VT_API_KEY` |
+| 9 | `cyber_threat_agent.py` | 🛡️ | CVE triage, honeypots | **Beta** | threat‑intel APIs | `VT_API_KEY` |
 |10 | `climate_risk_agent.py` | 🌎 | Emission stress‑tests | **Beta** | `xarray` | `NOAA_TOKEN` |
 |11 | `drug_design_agent.py` | 💊 | Scaffold‑hopping, ADMET | **Incub** | `rdkit`, `openai` | `CHEMBL_KEY` |
 |12 | `smart_contract_agent.py` | ⛓️ | Formal‑verifies Solidity | **Incub** | `slither` | `ETH_RPC_URL` |
@@ -100,7 +99,7 @@ graph LR
 ---
 
 <a name="4"></a>
-## 4 · Demo Gallery 🎮  
+## 4 · Demo Showcase 🎮  
 
 | # | Folder | Emoji | Lightning Pitch | CLI |
 |---|--------|-------|-----------------|-----|
@@ -243,12 +242,10 @@ Next boot, your agent auto‑registers & appears on `/capabilities`.
 <a name="13"></a>
 ## 13 · Credits 🌟  
 
-[Vincent Boucher](https://www.linkedin.com/in/montrealai/), President of [MONTREAL.AI](https://www.montreal.ai/) and pioneer of multi‑agent systems since 2003, dominated [OpenAI Gym](https://web.archive.org/web/20170929214241/https://gym.openai.com/read-only.html) in 2016 and unveiled the seminal [**“Multi‑Agent AI DAO”**](https://www.quebecartificialintelligence.com/priorart) in 2017 (“*The Holy Grail of Foundational IP at the Intersection of AI Agents and Blockchain*” — *HuffPost*).  
+[Vincent Boucher](https://www.linkedin.com/in/montrealai/), President of [MONTREAL.AI](https://www.montreal.ai/) and pioneer of multi‑agent systems since 2003, dominated [OpenAI Gym](https://web.archive.org/web/20170929214241/https://gym.openai.com/read-only.html) in 2016 and unveiled the seminal [**“Multi‑Agent AI DAO”**](https://www.quebecartificialintelligence.com/priorart) in 2017 (“*The Holy Grail of Foundational IP at the Intersection of AI Agents and Blockchain*”).  
 
 Our **AGI ALPHA AGENT**, fuelled by the strictly‑utility **$AGIALPHA** token, now taps that foundation—*arguably the world’s most valuable IP*—to unleash the ultimate alpha‑signal engine.
 
 > “Information is first shared in **AGI Club**.”
 
 Made with ❤️ by the **Alpha‑Factory Agentic Core Team** — *forging the tools that forge tomorrow*.
-
----
