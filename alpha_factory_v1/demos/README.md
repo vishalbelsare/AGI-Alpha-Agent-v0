@@ -52,19 +52,20 @@ Opens **http://localhost:7860** with a Gradio portal to every demo. Works on ma
 ## 3 • Agent Roster 🖼️
 Each backend agent is callable as an **OpenAI Agents SDK** tool *and* as a REST endpoint (`/v1/agents/<name>`).  
 
-| # | Agent File | Emoji | Secret Sauce | Deploy Solo |
-|---|------------|-------|--------------|-------------|
-|1|`finance_agent.py`|💰|LightGBM multi‑factor α → RL execution bridge.|`AF_AGENT=finance python -m backend.orchestrator`|
-|2|`biotech_agent.py`|🧬|UniProt × PubMed KG‑RAG; CRISPR off‑target scorer.|`AF_AGENT=biotech …`|
-|3|`manufacturing_agent.py`|⚙️|OR‑Tools CP‑SAT scheduler + CO₂ predictor.|`AF_AGENT=manufacturing …`|
-|4|`policy_agent.py`|📜|Statute QA + ISO‑37301 risk tagging.|`AF_AGENT=policy …`|
-|5|`energy_agent.py`|🔋|Demand‑response optimiser for ISO‑NE.|`AF_AGENT=energy …`|
-|6|`supply_chain_agent.py`|📦|VRP solver & ETA forecaster.|`AF_AGENT=supply_chain …`|
-|7|`marketing_agent.py`|📈|RL campaign tuner with multi‑touch attribution.|`AF_AGENT=marketing …`|
-|8|`research_agent.py`|🔬|Literature RAG + hypothesis ranking.|`AF_AGENT=research …`|
-|9|`cybersec_agent.py`|🛡️|CVE triage & honeypot director.|`AF_AGENT=cybersec …`|
-|10|`climate_agent.py`|🌎|Emission forecasting under scenario stress.|`AF_AGENT=climate …`|
-|11|`stub_agent.py`|🫥|Auto‑spawn placeholder when deps missing.|n/a (auto) |
+| # | File | Emoji | Core Alpha Skill | Key Env |
+|---|------|-------|------------------|--------|
+|1|`finance_agent.py`|💰|Multi‑factor α, CVaR guard, RL execution bridge.|`ALPHA_UNIVERSE`|
+|2|`biotech_agent.py`|🧬|UniProt / PubMed KG‑RAG, CRISPR off‑target.|`BIOTECH_KG_FILE`|
+|3|`manufacturing_agent.py`|⚙️|OR‑Tools CP‑SAT optimiser, CO₂ predictor.|`ALPHA_MAX_SCHED_SECONDS`|
+|4|`policy_agent.py`|📜|Statute QA, ISO‑37301 risk tagging.|`STATUTE_CORPUS_DIR`|
+|5|`energy_agent.py`|🔋|Demand‑response bidding, price elasticity.|`ENERGY_API_TOKEN`|
+|6|`supply_chain_agent.py`|📦|VRP solver & ETA forecaster.|`SC_DB_DSN`|
+|7|`climate_risk_agent.py`|🌦️|Climate VaR & scenario stress.|`NOAA_TOKEN`|
+|8|`cyber_threat_agent.py`|🛡️|CVE triage, MITRE ATT&CK graph.|`VIRUSTOTAL_KEY`|
+|9|`drug_design_agent.py`|💊|Generative scaffold hopping, ADMET filter.|`CHEMBL_KEY`|
+|10|`retail_demand_agent.py`|🛍️|LSTM demand forecast + promo uplift.|`POS_DB_DSN`|
+|11|`smart_contract_agent.py`|📜⛓️|Formal‑verifies Solidity, auto‑patches re‑entrancy.|`ETH_RPC_URL`|
+|12|`talent_match_agent.py`|🤝|Vector‑match CV ↔ project gigs.|`ATS_DB_DSN`|
 
 **Playbooks** live in `/examples/<agent_name>.ipynb` — copy‑paste ready.
 
