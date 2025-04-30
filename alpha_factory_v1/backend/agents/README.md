@@ -158,19 +158,6 @@ graph TD
     classDef core fill:#0d9488,color:#ffffff,stroke-width:0px;
 ```
 
-## 2 · Capability Graph 🌐  
-
-```mermaid
-graph LR
-  finance["💰 Finance"]:::core --> quant["📊 Quant"]
-  biotech["🧬 Biotech"]:::core --> drug["💊 Drug"]
-  manufacturing["⚙️ Manufacturing"]:::core --> supply["📦 Supply"]
-  policy["📜 Policy"]:::core --> cyber["🛡️ Cyber"]
-  energy["🔋 Energy"]:::core --> climate["🌎 Climate"]
-  retail["🛍️ Retail"]:::core
-  classDef core fill:#0d9488,color:#ffffff,stroke-width:0px;
-```
-
 ---
 
 <a name="3"></a>
