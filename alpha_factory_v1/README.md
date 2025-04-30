@@ -5,9 +5,9 @@
 
 ---
 
-Welcome to **Alpha‑Factory v1**, an antifragile constellation of self‑improving agents orchestrated to **spot live alpha across any industry and turn it into compounding value**.
+Welcome to **Alpha‑Factory v1**, an antifragile constellation of self‑improving agents orchestrated to **spot live alpha across any industry and transmute it into compounding value**.
 
-Built on the shoulders of best‑in‑class frameworks — [OpenAI Agents SDK](https://openai.github.io/openai-agents-python/), Google [ADK](https://google.github.io/adk-docs/), the [A2A protocol](https://github.com/google/A2A) and the [Model Context Protocol](https://www.anthropic.com/news/model-context-protocol) — the stack operates **online or fully‑air‑gapped**, switching fluidly between frontier models and local fallbacks.
+Built atop **OpenAI Agents SDK**, Google **ADK**, the **A2A protocol**, and Anthropic’s **Model Context Protocol**, the stack operates **online or fully‑air‑gapped**, switching fluidly between frontier models and local fallbacks.
 
 > **Mission 🎯**  End‑to‑end: **Identify 🔍 → Out‑Learn 📚 → Out‑Think 🧠 → Out‑Design 🎨 → Out‑Strategise ♟️ → Out‑Execute ⚡**
 
@@ -115,13 +115,19 @@ Each agent exports a signed *proof‑of‑alpha* message to the Kafka bus, enabl
 ## 4 · Demo Showcase 🎬
 
 | Notebook | What You’ll See | Agents |
-|----------|----------------|--------|
-| **AI‑GA Meta Evolution** 🧬 | Agents evolve agents; watch fitness climb | World‑Model + Talent‑Match |
-| **Business Builder v1** 🏢 | Launch a company end‑to‑end | Finance + Policy |
+|----------|-----------------|--------|
+| **Meta Evolution** 🧬 | Agents evolve agents | TAL + WM |
+| **Business Builder** 🏢 | Incorporate firm E2E | FIN + POL |
 | **Cross‑Industry Pipeline** ⚙️ | Plan → Act across 4 verticals | Multi |
-| **Fin Momentum Bot** 💹 | Live momentum execution | Finance |
-| **MuZero Planner** ♟️ | Counterfactual market rollouts | WM + Finance |
-| **Self‑Healing Repo** 🩹 | CI fails → agent patches → PR green | Cyber‑Sec |
+| **Fin Momentum Bot** 💹 | Live momentum execution | FIN |
+| **MuZero Planner** ♟️ | Counterfactual rollouts | WM + FIN |
+| **Energy DR** ⚡ | DR bidding & battery schedule | ENE |
+| **Supply‑Chain Optimizer** 🚚 | Reduce OTIF penalties | SUP + MFG |
+| **Climate Sentinel** 🛰️ | Auto‑hedge transition risk | CLM + FIN |
+| **Cyber Sentinel** 🛡️ | Self‑healing repo | CYB |
+| **Drug‑Design Loop** 💊 | Diffusion + docking walk‑through | DRG |
+| **Retail Pricing** 🛍️ | Causal demand & markdowns | RET |
+| **Agent Marketplace** 🌐 | P2P capability exchange | TAL |
 
 Launch with:
 ```bash
