@@ -42,22 +42,51 @@ The stack **degrades gracefully**: pull the GPU, revoke an API key, sever the ne
 ---
 
 <a name="1"></a>
-## 1 · Architecture 🏗️  
+## 1 · Architecture 🏗️  
 
 ```mermaid
 flowchart TD
-    ORC([🛠️ Orchestrator])
-    GEN{{🧪 Env‑Generator}}
-    LRN[(🧠 MuZero++)]
+    ORC["🛠️ Orchestrator"]
+    GEN{{"🧪 Env‑Generator"}}
+    LRN["🧠 MuZero++"]
+
     subgraph Agents
-        FIN(💰) BIO(🧬) MFG(⚙️) POL(📜) ENE(🔋) SUP(📦) RET(🛍️) MKT(📈) CYB(🛡️) CLM(🌎) DRG(💊) SMT(⛓️)
+        FIN["💰"]
+        BIO["🧬"]
+        MFG["⚙️"]
+        POL["📜"]
+        ENE["🔋"]
+        SUP["📦"]
+        RET["🛍️"]
+        MKT["📈"]
+        CYB["🛡️"]
+        CLM["🌎"]
+        DRG["💊"]
+        SMT["⛓️"]
     end
-    GEN --tasks--> LRN
-    LRN --policies--> Agents
-    Agents --skills--> LRN
-    ORC --A2A--> Agents & GEN & LRN
-    ORC --Kafka--> DATALAKE[(🗄️ Data Lake)]
-    FIN -.->|Prometheus| GRAFANA{{📊}}
+
+    %% message flows
+    GEN -- tasks --> LRN
+    LRN -- policies --> Agents
+    Agents -- skills --> LRN
+
+    ORC -- A2A --> FIN
+    ORC -- A2A --> BIO
+    ORC -- A2A --> MFG
+    ORC -- A2A --> POL
+    ORC -- A2A --> ENE
+    ORC -- A2A --> SUP
+    ORC -- A2A --> RET
+    ORC -- A2A --> MKT
+    ORC -- A2A --> CYB
+    ORC -- A2A --> CLM
+    ORC -- A2A --> DRG
+    ORC -- A2A --> SMT
+    ORC -- A2A --> GEN
+    ORC -- A2A --> LRN
+
+    ORC -- Kafka --> DATALAKE["🗄️ Data Lake"]
+    FIN -.->|Prometheus| GRAFANA{{"📊"}}
 ```
 
 ---
