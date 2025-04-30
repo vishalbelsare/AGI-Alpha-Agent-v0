@@ -259,5 +259,5 @@ Our **AGI ALPHA AGENT**—fueled by the strictly‑utility **$AGIALPHA** token
 
 > “Information is first shared in **AGI Club**.” 
 
-Made with ❤️ by the **Alpha‑Factory** Core Team — *forging the tools that forge tomorrow*.
+Made with ❤️ by the **Alpha‑Factory** Agentic Core Team — *forging the tools that forge tomorrow*.
 
