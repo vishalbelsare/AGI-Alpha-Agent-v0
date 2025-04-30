@@ -5,7 +5,8 @@
 
 ---
 
-Welcome to **Alpha‑Factory v1**, an antifragile constellation of self‑improving agents orchestrated to **spot live alpha across any industry and turn it into compounding value**.  
+Welcome to **Alpha‑Factory v1**, an antifragile constellation of self‑improving agents orchestrated to **spot live alpha across any industry and turn it into compounding value**.
+
 Built on the shoulders of best‑in‑class frameworks — [OpenAI Agents SDK](https://openai.github.io/openai-agents-python/), Google [ADK](https://google.github.io/adk-docs/), the [A2A protocol](https://github.com/google/A2A) and the [Model Context Protocol](https://www.anthropic.com/news/model-context-protocol) — the stack operates **online or fully‑air‑gapped**, switching fluidly between frontier models and local fallbacks.
 
 > **Mission 🎯**  End‑to‑end: **Identify 🔍 → Out‑Learn 📚 → Out‑Think 🧠 → Out‑Design 🎨 → Out‑Strategise ♟️ → Out‑Execute ⚡**
@@ -237,7 +238,8 @@ super = my_pkg.super_agent:MySuperAgent
 <a name="13-credits"></a>
 ## 13 · Credits 🌟
 
-[Vincent Boucher](https://www.linkedin.com/in/montrealai/)—pioneer in AI and President of [MONTREAL.AI](https://www.montreal.ai/) since 2003—dominated the [OpenAI Gym](https://web.archive.org/web/20170929214241/https://gym.openai.com/read-only.html) with **AI Agents** in 2016 and unveiled the seminal [**“Multi‑Agent AI DAO”**](https://www.quebecartificialintelligence.com/priorart) in 2017.  
+[Vincent Boucher](https://www.linkedin.com/in/montrealai/)—pioneer in AI and President of [MONTREAL.AI](https://www.montreal.ai/) since 2003—dominated the [OpenAI Gym](https://web.archive.org/web/20170929214241/https://gym.openai.com/read-only.html) with **AI Agents** in 2016 and unveiled the seminal [**“Multi‑Agent AI DAO”**](https://www.quebecartificialintelligence.com/priorart) in 2017.
+
 Our **AGI ALPHA AGENT**, fuelled by the strictly‑utility **$AGIALPHA** token, now taps that foundation to unleash the ultimate α‑signal engine.
 
 ---
