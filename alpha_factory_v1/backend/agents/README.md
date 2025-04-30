@@ -105,10 +105,10 @@ graph TD
     FIN["💰 Finance"]
     BIO["🧬 Biotech"]
     MFG["⚙️ Manufacturing"]
-    POL["📜 Policy / Reg‑Tech"]
+    POL["📜 Policy / Reg‑Tech"]
     ENE["🔋 Energy"]
     SUP["📦 Supply‑Chain"]
-    RET["🛍️ Retail / Demand"]
+    RET["🛍️ Retail / Demand"]
     CYB["🛡️ Cyber‑Security"]
     CLM["🌎 Climate"]
     DRG["💊 Drug Design"]
@@ -122,8 +122,8 @@ graph TD
     OPS["🔧 DevOps"]
 
     %% Primary value‑creation arcs
-    FIN -->|“Price discovery”| QNT
-    FIN -->|“Risk stress‑test”| CLM
+    FIN -->|Price discovery| QNT
+    FIN -->|Risk stress‑test| CLM
     BIO --> DRG
     BIO --> RES
     MFG --> SUP
@@ -142,7 +142,18 @@ graph TD
 
     %% Visual grouping
     subgraph Core
-        FIN BIO MFG POL ENE SUP RET CYB CLM DRG SMT TLT
+        FIN
+        BIO
+        MFG
+        POL
+        ENE
+        SUP
+        RET
+        CYB
+        CLM
+        DRG
+        SMT
+        TLT
     end
     classDef core fill:#0d9488,color:#ffffff,stroke-width:0px;
 ```
