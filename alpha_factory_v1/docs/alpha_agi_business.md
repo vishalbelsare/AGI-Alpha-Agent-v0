@@ -6,9 +6,16 @@
 
 ---
 
-## 1. Executive Summary 🚀
-**α‑AGI Businesses (`<name>.a.agi.eth`)** are on‑chain, self‑governing, antifragile entities powered by the **Alpha‑Factory v1** multi‑agent stack.  
-They couple a **MuZero‑class world‑model** with a **POET‑style open‑ended curriculum** and six interoperable agents (Planning, Research, Strategy, Market, Safety, Memory) to create a perpetual, self‑improving loop that converts informational inefficiencies (pricing dislocations, supply‑chain bottlenecks, novel drug targets, policy loopholes, …) into sustainable economic alpha. citeturn1file0turn1file10
+## 1 · Executive Summary 🚀
+Drawing on the **Era‑of‑Experience** thesis citeturn2file0, the **AI‑GAs** paradigm citeturn2file1, and MuZero‑class world‑models citeturn2file2, **α‑Factory v1** fuses:
+
+* **Foundation World‑Model (MuZero++):** latent dynamics, value & policy learned jointly.  
+* **Open‑Ended Curriculum (POET outer‑loop):** generator mutates tasks faster than agents solve them.  
+* **Agentic Orchestration:** six interoperable agents cooperate/compete via the A2A protocol.  
+* **Antifragile Safety Shell:** stressors injected online increase robustness (measurable via KL‑divergence).  
+* **Turn‑Key DevOps:** single Docker/Helm chart, offline fallback if no `OPENAI_API_KEY`.  
+
+End‑to‑end, the system identifies alpha opportunities (pricing dislocations, supply‑chain bottlenecks, novel drug targets, policy loopholes…), simulates interventions, executes vetted strategies, and feeds realised P&L back into continual learning. citeturn2file4  
 
 ---
 
