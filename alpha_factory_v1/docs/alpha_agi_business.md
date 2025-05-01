@@ -115,18 +115,18 @@ flowchart LR
 ## 5. Agent Catalogue 👾👾👾🌌👾👾👾
 | ENS Name | Prime Directive | Status | Heavy Deps |
 |---|---|---|---|
-| `finance.<name>.a.agent.agi.eth` | Multi‑factor alpha, OMS bridge | Prod | `pandas`, `ccxt` |
-| `biotech.<name>.a.agent.agi.eth` | CRISPR design, UniProt RAG | Prod | `faiss`, `rdkit`, `openai` |
-| `manufacturing.<name>.a.agent.agi.eth` | CP‑SAT scheduling | Prod | `ortools` |
-| `policy.<name>.a.agent.agi.eth` | Statute diff, ISO‑37301 tagging | Prod | `faiss` |
-| `energy.<name>.a.agent.agi.eth` | Demand‑response bidding | Beta | `numpy` |
-| `supply_chain.<name>.a.agent.agi.eth` | VRP routing, ETA prediction | Beta | `networkx` |
-| `retail_demand.<name>.a.agent.agi.eth` | LSTM demand forecast | Beta | `torch` |
-| `marketing.<name>.a.agent.agi.eth` | RL ad‑spend optimiser | Beta | `torch`, `openai` |
-| `cyber_threat.<name>.a.agent.agi.eth` | CVE triage, honeypots | Beta | threat‑intel APIs |
-| `climate_risk.<name>.a.agent.agi.eth` | Emission stress‑tests | Beta | `xarray` |
-| `drug_design.<name>.a.agent.agi.eth` | Scaffold‑hopping, ADMET | Incub | `rdkit`, `openai` |
-| `smart_contract.<name>.a.agent.agi.eth` | Formal‑verify Solidity | Incub | `slither` |
+| `finance.a.agent.agi.eth` | Multi‑factor alpha, OMS bridge | Prod | `pandas`, `ccxt` |
+| `biotech.a.agent.agi.eth` | CRISPR design, UniProt RAG | Prod | `faiss`, `rdkit`, `openai` |
+| `manufacturing.a.agent.agi.eth` | CP‑SAT scheduling | Prod | `ortools` |
+| `policy.a.agent.agi.eth` | Statute diff, ISO‑37301 tagging | Prod | `faiss` |
+| `energy.a.agent.agi.eth` | Demand‑response bidding | Beta | `numpy` |
+| `supply_chain.a.agent.agi.eth` | VRP routing, ETA prediction | Beta | `networkx` |
+| `retail_demand.a.agent.agi.eth` | LSTM demand forecast | Beta | `torch` |
+| `marketing.a.agent.agi.eth` | RL ad‑spend optimiser | Beta | `torch`, `openai` |
+| `cyber_threat.a.agent.agi.eth` | CVE triage, honeypots | Beta | threat‑intel APIs |
+| `climate_risk.a.agent.agi.eth` | Emission stress‑tests | Beta | `xarray` |
+| `drug_design.a.agent.agi.eth` | Scaffold‑hopping, ADMET | Incub | `rdkit`, `openai` |
+| `smart_contract.a.agent.agi.eth` | Formal‑verify Solidity | Incub | `slither` |
 
 *(Source: backend/agents directory — 27 Apr 2025 commit)*
 
