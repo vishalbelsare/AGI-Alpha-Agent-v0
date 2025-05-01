@@ -7,18 +7,11 @@
 
 > **Mission 🎯**  Identify 🔍 → Learn 📚 → Think 🧠 → Design 🎨 → Strategise ♟️ → Execute ⚡ — compounding real‑world **α** across *all* industries.
 
-Global markets leak *USD ✧ trillions/yr* in latent alpha:  
+Global markets seep *USD ✧ trillions/yr* in latent opportunity — “alpha” in the broadest sense:  
 <kbd>pricing dislocations • supply‑chain entropy • novel drug targets • policy loopholes • undiscovered materials</kbd>.  
-**Alpha‑Factory v1** is an antifragile constellation of self‑improving agents that turns those leaks into P&L.
+**Alpha‑Factory v1** is an antifragile constellation of self‑improving Agentic α‑AGI Agents 👁️✨ orchestrated to **spot live alpha across any industry and transmute it into compounding value**.
 
 Built atop **OpenAI Agents SDK**, **Google ADK**, **A2A protocol**, and Anthropic’s **Model Context Protocol**, the stack runs cloud‑native *or* air‑gapped, hot‑swapping between frontier LLMs and distilled local models.
-
-Global markets seep *trillions* in latent opportunity — “alpha” in the broadest sense:  
-<kbd>pricing dislocations • supply‑chain inefficiencies • novel drug targets • policy loopholes • unexplored material designs</kbd>.
-
-Welcome to **Alpha‑Factory v1**, an antifragile constellation of self‑improving Agentic α‑AGI Agents 👁️✨ orchestrated to **spot live alpha across any industry and transmute it into compounding value**.
-
-> **Mission 🎯**  End‑to‑end: **Identify 🔍 → Out‑Learn 📚 → Out‑Think 🧠 → Out‑Design 🎨 → Out‑Strategise ♟️ → Out‑Execute ⚡**
 
 ---
 
