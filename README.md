@@ -5,9 +5,12 @@
 
 ---
 
+Global markets seep *trillions* in latent opportunity — “alpha” in the broadest sense:  
+<kbd>pricing dislocations • supply‑chain inefficiencies • novel drug targets • policy loopholes • unexplored material designs</kbd>.
+
 Welcome to **Alpha‑Factory v1**, an antifragile constellation of self‑improving agents orchestrated to **spot live alpha across any industry and transmute it into compounding value**.
 
-Built atop **OpenAI Agents SDK**, Google **ADK**, the **A2A protocol**, and Anthropic’s **Model Context Protocol**, the stack operates **online or fully‑air‑gapped**, switching fluidly between frontier models and local fallbacks.
+*Alpha‑Factory v1* **Outlearn • Outthink • Outdesign • Outstrategise • Outexecute** across domains. Built atop **OpenAI Agents SDK**, Google **ADK**, the **A2A protocol**, and Anthropic’s **Model Context Protocol**, the stack operates **online or fully‑air‑gapped**, switching fluidly between frontier models and local fallbacks.
 
 > **Mission 🎯**  End‑to‑end: **Identify 🔍 → Out‑Learn 📚 → Out‑Think 🧠 → Out‑Design 🎨 → Out‑Strategise ♟️ → Out‑Execute ⚡**
 
