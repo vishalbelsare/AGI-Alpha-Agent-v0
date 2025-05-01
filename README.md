@@ -218,6 +218,20 @@ graph TD
 
 Each agent exports a signed *proof‑of‑alpha* message to the Kafka bus, enabling cross‑breeding of opportunities.
 
+```mermaid
+sequenceDiagram
+    participant User
+    participant ORC as Orchestrator
+    participant FIN as 💰
+    participant GEN as 🧪
+    User->>ORC: /alpha/run
+    ORC->>GEN: new_world()
+    GEN-->>ORC: env_json
+    ORC->>FIN: act(env)
+    FIN-->>ORC: proof(ΔG)
+    ORC-->>User: artefact + KPI
+```
+
 ---
 
 <a name="4-demo-showcase"></a>
