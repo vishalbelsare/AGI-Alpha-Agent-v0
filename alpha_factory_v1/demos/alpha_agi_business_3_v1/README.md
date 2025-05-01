@@ -8,7 +8,7 @@ Planck, Boltzmann, Nash and Basel III scales.  Every number is **back‑tested,
 formal‑verified** and hash‑anchored on‑chain.  You may safely ship it into a
 high‑stakes prod cluster right now.
 
-> **Definition**: An α‑AGI Business 👁️✨ (`<name>.a.agi.eth`) is an antifragile, self‑governing multi‑agent (`<name>.a.agent.agi.eth`) enterprise that continuously hunts latent “alpha” opportunities across domains and transforms them into sustainable value under a secure, auditable governance framework.
+> **Definition**: An **α‑AGI Business** 👁️✨ (`<name>.a.agi.eth`) is an antifragile, self‑governing multi‑agent (`<name>.a.agent.agi.eth`) enterprise that continuously hunts latent “**alpha**” opportunities across domains and transforms them into sustainable value under a secure, auditable governance framework.
 
 ---
 
