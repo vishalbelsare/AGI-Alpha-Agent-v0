@@ -55,6 +55,28 @@ End‑to‑end, the system identifies alpha opportunities (pricing dislocations,
  |•Memory🧠   |        +--------------+
  +-----------+
 ```
+
+```mermaid
+flowchart TD
+  ORC[Orchestrator 👁️]:::core
+  subgraph Agents
+    PL[Planning]
+    RS[Research]
+    ST[Strategy]
+    MK[Market]
+    SG[Safety]
+    MM[Memory]
+  end
+  ENV[Env‑Generator 🌱]:::core
+  LRN[MuZero++ Learner 🎯]:::core
+  DB[(Replay DB)]
+  ORC --> |A2A| PL & RS & ST & MK & SG & MM
+  ENV --> ORC
+  PL --> ORC
+  LRN --> DB & ORC
+classDef core fill:#f0f8ff,stroke:#000;
+```
+
 *Solid arrows: event streams on the A2A bus. All components run as individual containers with seccomp‑BPF, cgroups and read‑only root filesystems; mean orchestrator latency = **0.47 ms (p95)**.* citeturn1file4
 
 ---
