@@ -5,7 +5,7 @@
 > *An **α‑AGI Business** is a fully‑autonomous enterprise (`<name>.a.agi.eth`) that hunts latent “**alpha**” across every industry and **transmutes** it into compounding value by out‑learning, out‑thinking, out‑designing, out‑strategising and out‑executing all competition.*
 
 > **Mission (Variant 2 — On-Chain Swarm Orchestrator)**  
-> *An **α‑AGI Business** 👁️✨ is an on‑chain autonomous enterprise (`<name>.a.agi.eth`) that unleashes a swarm of self‑improving **α‑AGI agents** 👁️✨ (`<name>.a.agent.agi.eth`) to hunt down inefficiencies across any domain and transmute them into **$AGIALPHA**.*
+> *An **α‑AGI Business** 👁️✨ is an on‑chain autonomous enterprise (`<name>.a.agi.eth`) that unleashes a swarm of self‑improving agentic **α‑AGI agents** 👁️✨ (`<name>.a.agent.agi.eth`) to hunt down inefficiencies across any domain and transmute them into **$AGIALPHA**.*
 
 > **Mission (Variant 3 — Antifragile Self-Governing Enterprise)**  
 > *An **α‑AGI Business** 👁️✨ is an antifragile, self‑governing multi‑agent enterprise (`<name>.a.agi.eth`) that continuously hunts latent “**alpha**” opportunities across domains and transforms them into sustainable value under a secure, auditable governance framework.*  
@@ -29,7 +29,7 @@ End‑to‑end, the system identifies alpha opportunities (pricing dislocations,
 | Variant | Definition |
 |---|---|
 |**1 – Autonomous Cross‑Industry Alpha Hunter**|*See one‑liner above.*|
-|**2 – On‑Chain Swarm Orchestrator**|*An α‑AGI Business is an on‑chain autonomous enterprise (`<name>.a.agi.eth`) that unleashes a swarm of self‑improving α‑AGI agents to hunt down inefficiencies across any domain and transmute them into **$AGIALPHA***.|
+|**2 – On‑Chain Swarm Orchestrator**|*An α‑AGI Business is an on‑chain autonomous enterprise (`<name>.a.agi.eth`) that unleashes a swarm of self‑improving agentic α‑AGI agents (`<name>.a.agent.agi.eth`) to hunt down inefficiencies across any domain and transmute them into **$AGIALPHA***.|
 |**3 – Antifragile Self‑Governing Enterprise**|*An α‑AGI Business is an antifragile, self‑governing multi‑agent enterprise that continuously hunts latent “alpha” opportunities across domains and converts them into sustainable value under a secure, auditable governance framework.*|
 
 ---
