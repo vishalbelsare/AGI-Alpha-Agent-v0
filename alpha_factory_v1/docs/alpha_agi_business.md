@@ -4,34 +4,24 @@
 > **Mission (Variant 1 — Autonomous Cross‑Industry Alpha Hunter)**  
 > *An **α‑AGI Business** is a fully‑autonomous enterprise (`<name>.a.agi.eth`) that hunts latent “**alpha**” across every industry and **transmutes** it into compounding value by out‑learning, out‑thinking, out‑designing, out‑strategising and out‑executing all competition.*
 
-> **Mission (Variant 2 — On-Chain Swarm Orchestrator)**  
+> **Mission (Variant 2 — On‑Chain Swarm Orchestrator)**  
 > *An **α‑AGI Business** 👁️✨ is an on‑chain autonomous enterprise (`<name>.a.agi.eth`) that unleashes a swarm of self‑improving agentic **α‑AGI agents** 👁️✨ (`<name>.a.agent.agi.eth`) to hunt down inefficiencies across any domain and transmute them into **$AGIALPHA**.*
 
-> **Mission (Variant 3 — Antifragile Self-Governing Enterprise)**  
-> *An **α‑AGI Business** 👁️✨ is an antifragile, self‑governing multi‑agent enterprise (`<name>.a.agi.eth`) that continuously hunts latent “**alpha**” opportunities across domains and transforms them into sustainable value under a secure, auditable governance framework.*  
-
-> **Mission (Variant 1 — Autonomous Cross‑Industry Alpha Hunter)**  
-> *An **α‑AGI Business** is a fully‑autonomous enterprise (`<name>.a.agi.eth`) that hunts latent “**alpha**” across every industry and **transmutes** it into compounding value by out‑learning, out‑thinking, out‑designing, out‑strategising and out‑executing all competition.* citeturn3file1  
-
-> **Mission (Variant 2 — On‑Chain Swarm Orchestrator)**  
-> *An **α‑AGI Business** 👁️✨ is an on‑chain autonomous enterprise (`<name>.a.agi.eth`) that unleashes a swarm of self‑improving agentic **α‑AGI agents** 👁️✨ (`<name>.a.agent.agi.eth`) to hunt down inefficiencies across any domain and transmute them into **$AGIALPHA**.* citeturn3file4  
-
 > **Mission (Variant 3 — Antifragile Self‑Governing Enterprise)**  
-> *An **α‑AGI Business** 👁️✨ is an antifragile, self‑governing multi‑agent enterprise (`<name>.a.agi.eth`) that continuously hunts latent “**alpha**” opportunities across domains and transforms them into sustainable value under a secure, auditable governance framework.* citeturn3file1  
-
+> *An **α‑AGI Business** 👁️✨ is an antifragile, self‑governing multi‑agent enterprise (`<name>.a.agi.eth`) that continuously hunts latent “**alpha**” opportunities across domains and transforms them into sustainable value under a secure, auditable governance framework.*
 
 ---
 
-## 1 · Executive Summary 🚀
-Drawing on the **Era‑of‑Experience** thesis citeturn2file0, the **AI‑GAs** paradigm citeturn2file1, and MuZero‑class world‑models citeturn2file2, **α‑Factory v1** fuses:
+## 1 · Executive Overview 🚀
+Drawing on the **AI‑GAs** paradigm, the **MuZero‑family** of latent‑dynamics planners, and the **Alpha‑Factory v1** reference implementation, this Blueprint specifies a production‑grade pattern for spinning up self‑governing, on‑chain α‑AGI businesses. Each venture embeds:
 
-* **Foundation World‑Model (MuZero++):** latent dynamics, value & policy learned jointly.  
-* **Open‑Ended Curriculum (POET outer‑loop):** generator mutates tasks faster than agents solve them.  
-* **Agentic Orchestration:** six interoperable agents cooperate/compete via the A2A protocol.  
-* **Antifragile Safety Shell:** stressors injected online increase robustness (measurable via KL‑divergence).  
+* **Foundation World‑Model (MuZero++):** unified perception → prediction → control.  
+* **POET‑XL Curriculum:** environments mutate faster than agents master them.  
+* **Agentic Mesh:** specialised agents barter tools & proofs via A2A.  
+* **Antifragile Safety Shell:** stressors boost robustness (see §8).  
 * **Turn‑Key DevOps:** single Docker/Helm chart, offline fallback if no `OPENAI_API_KEY`.  
 
-End‑to‑end, the system identifies alpha opportunities (pricing dislocations, supply‑chain bottlenecks, novel drug targets, policy loopholes…), simulates interventions, executes vetted strategies, and feeds realised P&L back into continual learning. citeturn2file4  
+Together they Out‑learn · Out‑think · Out‑design · Out‑strategise · Out‑execute across industries.
 
 ---
 
@@ -45,11 +35,11 @@ End‑to‑end, the system identifies alpha opportunities (pricing dislocations,
 ---
 
 ## 3. Guiding Principles ⚖️
-1. **Antifragility** — stressors injected by the orchestrator measurably **increase** robustness, not degrade it. citeturn1file7  
-2. **Open‑Ended Skill Growth** — a POET outer‑loop mutates environments faster than agents master them, guaranteeing a non‑stationary curriculum. citeturn1file14  
-3. **Provable Generalisation & Continual‑Learning** — regret decays as `Õ(√d/|D| + 1/√m)` across *m* worlds (Theorem 5.1). citeturn1file9  
-4. **Defence‑in‑Depth Safety** — three concentric layers: KL‑shield, code‑execution sandbox, antifragile stress‑testing. citeturn1file7  
-5. **Regulatory‑by‑Design** — every A2A message is BLAKE3‑hashed and hourly‑anchored to Solana test‑net; audit trail satisfies EU AI‑Act Title VIII. citeturn1file4  
+1. **Antifragility** — orchestrated stressors measurably **increase** robustness.
+2. **Open‑Ended Skill Growth** — POET outer‑loop yields non‑stationary curriculum.
+3. **Provable Generalisation** — regret decays as `Õ(√d/|D| + 1/√m)` across *m* worlds (Thm 5.1).
+4. **Defence‑in‑Depth Safety** — KL‑shield ▸ sandbox ▸ antifragile stress‑testing.
+5. **Regulatory‑by‑Design** — A2A messages BLAKE3‑hashed & anchored to Solana; audit trail satisfies EU AI‑Act Title VIII.
 
 ---
 
@@ -91,6 +81,31 @@ flowchart TD
   PL --> ORC
   LRN --> DB & ORC
 classDef core fill:#f0f8ff,stroke:#000;
+```
+
+```mermaid
+flowchart LR
+  subgraph Ω‑Orchestrator
+    ORC["Orchestrator 👁️"]
+    SAF["Safety Ω"]
+    MEM["Memory 🧠"]
+  end
+  subgraph Agents
+    FIN["finance.<name>.a.agent.agi.eth"]
+    BIO["biotech.<name>.a.agent.agi.eth"]
+    MFG["manufacturing.<name>.a.agent.agi.eth"]
+    POL["policy.<name>.a.agent.agi.eth"]
+    ENE["energy.<name>.a.agent.agi.eth"]
+    SUP["supply_chain.<name>.a.agent.agi.eth"]
+    RET["retail_demand.<name>.a.agent.agi.eth"]
+    MKT["marketing.<name>.a.agent.agi.eth"]
+    CYB["cyber_threat.<name>.a.agent.agi.eth"]
+    CLM["climate_risk.<name>.a.agent.agi.eth"]
+    DRG["drug_design.<name>.a.agent.agi.eth"]
+    SMT["smart_contract.<name>.a.agent.agi.eth"]
+  end
+  ORC --> |A2A| FIN & BIO & MFG & POL & ENE & SUP & RET & MKT & CYB & CLM & DRG & SMT
+  ORC --> SAF & MEM
 ```
 
 *Solid arrows: event streams on the A2A bus. All components run as individual containers with seccomp‑BPF, cgroups and read‑only root filesystems; mean orchestrator latency = **0.47 ms (p95)**.* citeturn1file4
