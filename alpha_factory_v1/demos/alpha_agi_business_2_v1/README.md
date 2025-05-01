@@ -55,6 +55,8 @@ If no external key is detected it seamlessly switches to local Llama‑3 GGUF w
 
 > **On-chain** as `<name>.a.agi.eth`, an *α-AGI Business* 👁️✨ unleashes a self-improving *α-AGI Agent* 👁️✨ (`<name>.a.agent.agi.eth`) swarm to hunt inefficiencies and transmute them into **$AGIALPHA**.
 
+> An **α‑AGI Business** 👁️✨ is a fully autonomous enterprise that identifies latent “*alpha*” opportunities across all industries and converts them into compounding value by out‑learning, out‑thinking, out‑designing, out‑strategizing, and out‑executing all competition.
+
 🛡️ **Legal & Conceptual Shield** — both layers inherit the 2017 **Multi‑Agent AI DAO** public prior‑art, blocking trivial patents and providing a DAO‑first wrapper for fractional resource ownership.
 
 ---
