@@ -108,19 +108,27 @@ flowchart LR
   ORC --> SAF & MEM
 ```
 
-*Solid arrows: event streams on the A2A bus. All components run as individual containers with seccomp‑BPF, cgroups and read‑only root filesystems; mean orchestrator latency = **0.47 ms (p95)**.* citeturn1file4
+*Nodes represent Docker containers; edges = signed Protobuf over gRPC; p95 orchestrator RTT **0.47 ms**.*
 
 ---
 
-## 5. Agent Catalogue 🤖
-| Agent | Core Prompt / Skillset | Key APIs | Heart‑Beat | Sandbox |
-|-------|-----------------------|----------|------------|---------|
-|**PlanningAgent**|Deep tree‑search, MuZero rollouts|`openai_agents.plan()`|2 s gRPC|seccomp‑BPF|
-|**ResearchAgent**|Web / literature review, RAG|`openai_agents.browse()`|2 s|seccomp‑BPF|
-|**StrategyAgent**|Game‑theoretic synthesis, scenario design|`adk.policy_graph()`|2 s|seccomp‑BPF|
-|**MarketAgent**|On‑chain & off‑chain alpha triage|`a2a.orderflow()`|2 s|seccomp‑BPF|
-|**SafetyAgent**|KL‑shield, code & prompt filters|internal|1 s|minijail|
-|**MemoryAgent**|Vector store, episodic recall|`model_context.append()`|5 s|read‑only|
+## 5. Agent Catalogue 👾👾👾🌌👾👾👾
+| ENS Name | Prime Directive | Status | Heavy Deps |
+|---|---|---|---|
+| `finance.<name>.a.agent.agi.eth` | Multi‑factor alpha, OMS bridge | Prod | `pandas`, `ccxt` |
+| `biotech.<name>.a.agent.agi.eth` | CRISPR design, UniProt RAG | Prod | `faiss`, `rdkit`, `openai` |
+| `manufacturing.<name>.a.agent.agi.eth` | CP‑SAT scheduling | Prod | `ortools` |
+| `policy.<name>.a.agent.agi.eth` | Statute diff, ISO‑37301 tagging | Prod | `faiss` |
+| `energy.<name>.a.agent.agi.eth` | Demand‑response bidding | Beta | `numpy` |
+| `supply_chain.<name>.a.agent.agi.eth` | VRP routing, ETA prediction | Beta | `networkx` |
+| `retail_demand.<name>.a.agent.agi.eth` | LSTM demand forecast | Beta | `torch` |
+| `marketing.<name>.a.agent.agi.eth` | RL ad‑spend optimiser | Beta | `torch`, `openai` |
+| `cyber_threat.<name>.a.agent.agi.eth` | CVE triage, honeypots | Beta | threat‑intel APIs |
+| `climate_risk.<name>.a.agent.agi.eth` | Emission stress‑tests | Beta | `xarray` |
+| `drug_design.<name>.a.agent.agi.eth` | Scaffold‑hopping, ADMET | Incub | `rdkit`, `openai` |
+| `smart_contract.<name>.a.agent.agi.eth` | Formal‑verify Solidity | Incub | `slither` |
+
+*(Source: backend/agents directory — 27 Apr 2025 commit)*
 
 ---
 
@@ -193,6 +201,14 @@ orchestrator.register(PlanningAgent())
 **POET** — Paired Open‑Ended Trailblazer algorithm generating tasks + solvers.  
 **MuZero++** — our tensorised, multi‑modal extension of MuZero generating policy, value & dynamics jointly.  
 **A2A** — Agent‑to‑Agent protocol specifying envelopes, heart‑beats and capability schemas.
+
+---
+
+## 12 · References 🔖  
+1. Clune, *AI‑GAs: AI‑Generating Algorithms* (2019).
+2. Schrittwieser *et al.*, *MuZero* (2020).
+3. MontrealAI, *Alpha‑Factory v1 Demo* (2025).
+4. Schrittwieser *et al.*, *MuZero pseudocode* (2020).
 
 ---
 
