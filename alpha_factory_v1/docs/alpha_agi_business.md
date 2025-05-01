@@ -1,8 +1,14 @@
 
 # α‑AGI Business 👁️✨ — Canonical Blueprint v1.0
 
-> **One‑liner (Variant 1 — Autonomous Cross‑Industry Alpha Hunter)**  
-> *An α‑AGI Business is a fully‑autonomous enterprise that hunts latent “alpha” across every industry and **transmutes** it into compounding value by out‑learning, out‑thinking, out‑designing, out‑strategising and out‑executing all competition.*  
+> **Mission (Variant 1 — Autonomous Cross‑Industry Alpha Hunter)**  
+> *An **α‑AGI Business** is a fully‑autonomous enterprise (`<name>.a.agi.eth`) that hunts latent “alpha” across every industry and **transmutes** it into compounding value **$AGIALPHA** by out‑learning, out‑thinking, out‑designing, out‑strategising and out‑executing all competition.*
+
+> **Mission (Variant 2 — On-Chain Swarm Orchestrator)**  
+> *An **α‑AGI Business** 👁️✨ is an on‑chain autonomous enterprise (`<name>.a.agi.eth`) that unleashes a swarm of self‑improving **α‑AGI agents** 👁️✨ (`<name>.a.agent.agi.eth`) to hunt down inefficiencies across any domain and transmute them into **$AGIALPHA**.*
+
+> **Mission (Variant 3 — Antifragile Self-Governing Enterprise)**  
+> *An **α‑AGI Business** 👁️✨ is an antifragile, self‑governing multi‑agent enterprise (`<name>.a.agi.eth`) that continuously hunts latent “alpha” opportunities across domains and transforms them into sustainable value **$AGIALPHA** under a secure, auditable governance framework.*  
 
 ---
 
