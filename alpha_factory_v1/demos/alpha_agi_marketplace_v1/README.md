@@ -55,7 +55,7 @@ Global markets seep *trillions* in latent opportunity — “alpha” in the bro
 > **Solution 🚀**  *Alpha‑Factory v1* already **Outlearn • Outthink • Outdesign • Outstrategise • Outexecute** across domains.  
 > The **α‑AGI Marketplace** exposes this capability to *any* participant through a trust‑minimised, pay‑per‑alpha exchange.
 
-> **On-chain** as `<name>.a.agi.eth`, an *α-AGI Business* 👁️✨ unleashes a self-improving *α-AGI Agent* 👁️✨ swarm to hunt inefficiencies and transmute them into **$AGIALPHA**.
+> **On-chain** as `<name>.a.agi.eth`, an *α-AGI Business* 👁️✨ unleashes a self-improving *α-AGI Agent* 👁️✨ (`<name>.a.agent.agi.eth`) swarm to hunt inefficiencies and transmute them into **$AGIALPHA**.
 
 ---
 
