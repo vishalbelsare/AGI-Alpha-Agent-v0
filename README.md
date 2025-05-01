@@ -280,6 +280,34 @@ Paper: [Multi-Agent AGENTIC α-AGI World-Model Demo 🥑](https://github.com/Mon
 └────────────────────────────────────────────────────────────────────────────────────────┘
 ```
 
+### 4.2 · 🏛️ Large‑Scale α‑AGI Business 3 👁️✨ — **Omega‑Grade Edition**
+
+Transmuting cosmological free‑energy gradients into compounding cash‑flows.
+
+Multi‑Scale Energy‑Landscape Diagram:
+
+```mermaid
+flowchart TB
+  subgraph Macro["Macro‑Finance Δβ"]
+    FIN[FinanceAgent]:::agent
+    ENE[EnergyAgent]:::agent
+  end
+  subgraph Meso["Supply‑Chain ΔS"]
+    MFG[ManufacturingAgent]:::agent
+    LOG[LogisticsAgent]:::agent
+  end
+  subgraph Micro["Bio/Chem ΔH"]
+    BIO[BiotechAgent]:::agent
+    MAT[MaterialsAgent]:::agent
+  end
+  FIN & ENE -->|β feed| ORC
+  MFG & LOG -->|entropy ΔS| ORC
+  BIO & MAT -->|latent ΔH| ORC
+  classDef agent fill:#cffafe,stroke:#0369a1;
+```
+
+Cells with \(Δ\mathcal F < 0\) glow 🔵 on Grafana; Ω‑Agents race to harvest.
+
 ---
 
 <a name="5-memory--knowledge-fabric"></a>
