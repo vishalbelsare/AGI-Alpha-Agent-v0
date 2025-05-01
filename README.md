@@ -8,7 +8,7 @@
 Global markets seep *trillions* in latent opportunity — “alpha” in the broadest sense:  
 <kbd>pricing dislocations • supply‑chain inefficiencies • novel drug targets • policy loopholes • unexplored material designs</kbd>.
 
-Welcome to **Alpha‑Factory v1**, an antifragile constellation of self‑improving α‑AGI Agents 👁️✨ orchestrated to **spot live alpha across any industry and transmute it into compounding value**.
+Welcome to **Alpha‑Factory v1**, an antifragile constellation of self‑improving Agentic α‑AGI Agents 👁️✨ orchestrated to **spot live alpha across any industry and transmute it into compounding value**.
 
 > **Mission 🎯**  End‑to‑end: **Identify 🔍 → Out‑Learn 📚 → Out‑Think 🧠 → Out‑Design 🎨 → Out‑Strategise ♟️ → Out‑Execute ⚡**
 
