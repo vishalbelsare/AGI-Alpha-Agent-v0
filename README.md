@@ -152,6 +152,70 @@ flowchart TD
 |11 | **Smart‑Contract** ⛓️ | `smart_contract_agent.py` | Formal verification | **Incub** | `ETH_RPC_URL` |
 |12 | **Talent‑Match** 🧑‍💻 | `talent_match_agent.py` | Auto‑bounty hiring | **Incub** | — |
 
+```mermaid
+%% Legend
+%%  solid arrows  = primary value‑flow
+%%  dashed arrows = secondary / supporting influence
+%%  node emojis   = domain archetypes
+
+graph TD
+    %% Core pillars
+    FIN["💰 Finance"]
+    BIO["🧬 Biotech"]
+    MFG["⚙️ Manufacturing"]
+    POL["📜 Policy / Reg‑Tech"]
+    ENE["🔋 Energy"]
+    SUP["📦 Supply‑Chain"]
+    RET["🛍️ Retail / Demand"]
+    CYB["🛡️ Cyber‑Security"]
+    CLM["🌎 Climate"]
+    DRG["💊 Drug Design"]
+    SMT["⛓️ Smart Contracts"]
+    TLT["🧑‍💼 Talent"]
+
+    %% Derived transversal competences
+    QNT["📊 Quant R&D"]
+    RES["🔬 Research Ops"]
+    DSG["🎨 Design"]
+    OPS["🔧 DevOps"]
+
+    %% Primary value‑creation arcs
+    FIN -->|Price discovery| QNT
+    FIN -->|Risk stress‑test| CLM
+    BIO --> DRG
+    BIO --> RES
+    MFG --> SUP
+    ENE --> CLM
+    RET --> FIN
+    POL --> CYB
+    SMT --> FIN
+
+    %% Cross‑pollination (secondary, dashed)
+    FIN -.-> POL
+    SUP -.-> CLM
+    CYB -.-> OPS
+    DRG -.-> POL
+    QNT -.-> RES
+    RET -.-> DSG
+
+    %% Visual grouping
+    subgraph Core
+        FIN
+        BIO
+        MFG
+        POL
+        ENE
+        SUP
+        RET
+        CYB
+        CLM
+        DRG
+        SMT
+        TLT
+    end
+    classDef core fill:#0d9488,color:#ffffff,stroke-width:0px;
+```
+
 Each agent exports a signed *proof‑of‑alpha* message to the Kafka bus, enabling cross‑breeding of opportunities.
 
 ---
