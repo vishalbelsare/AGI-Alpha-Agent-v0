@@ -282,7 +282,8 @@ Paper: [Multi-Agent AGENTIC α-AGI World-Model Demo 🥑](https://github.com/Mon
 
 ### 4.2 · [🏛️ Large‑Scale α‑AGI Business 3 Demo 👁️✨ — **Omega‑Grade Edition**](https://github.com/MontrealAI/AGI-Alpha-Agent-v0/tree/main/alpha_factory_v1/demos/alpha_agi_business_3_v1)
 
-Transmuting cosmological free‑energy gradients into compounding cash‑flows.
+> **Alpha‑Factory v1 → Ω‑Lattice v0**  
+> _Transmuting cosmological free‑energy gradients into compounding cash‑flows._
 
 Multi‑Scale Energy‑Landscape Diagram:
 
