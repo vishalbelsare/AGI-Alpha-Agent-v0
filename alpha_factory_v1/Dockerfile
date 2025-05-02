@@ -1,11 +1,15 @@
 # syntax=docker/dockerfile:1.6
 ##############################################################################
-#  Alpha‑Factory ▸ Dockerfile (Option A – Python + Node build)               #
+#  Alpha‑Factory v1 👁️✨ — Multi‑Agent AGENTIC α‑AGI                         #
+#  Production‑grade Dockerfile (CPU/GPU toggle + Trace‑graph UI)             #
 #                                                                            #
-#  • Stage 0 builds the Trace‑graph UI with Node/Vite.                        #
-#  • Stage 1 is a slim Python runtime (CPU by default).                       #
-#    Pass --build‑arg BASE_IMAGE=nvidia/cuda:12.4.0-runtime‑ubuntu22.04       #
-#    to obtain a CUDA‑enabled variant.                                        #
+#  Key upgrades vs original:                                                 #
+#  • Installs OpenAI Agents SDK (+ optional ADK & Anthropic)                 #
+#  • Keeps UI build stage (Node/Vite) with aggressive caching                #
+#  • Single BASE_IMAGE arg lets you switch to CUDA runtime in one flag       #
+#      docker build --build-arg BASE_IMAGE=nvidia/cuda:12.4.0-runtime-ubuntu22.04 . #
+#  • Adds system libs for faiss, open‑blas, etc.                             #
+#  • Uses requirements‑lock.txt if present for reproducibility               #
 ##############################################################################
 
 # ────────────────────────────────────────────────────────────────────────────
@@ -14,18 +18,18 @@
 ARG BASE_IMAGE=python:3.11-slim-bookworm   # default → CPU‑only layer
 
 ##############################################################################
-#  Stage 0 – Build the Trace‑graph UI (Node / Vite)                           #
+#  Stage 0 – Build the Trace‑graph UI (Node / Vite)                           #
 ##############################################################################
 FROM node:20-bookworm-slim AS ui-build
 
 WORKDIR /ui
-COPY ui/package*.json ./                        # leverage Docker cache
+COPY ui/package*.json ./                        # leverage Docker cache for npm ci
 RUN npm ci --omit=dev
 COPY ui/ .
 RUN npm run build                               # → dist/ index.html + assets
 
 ##############################################################################
-#  Stage 1 – Python runtime                                                   #
+#  Stage 1 – Python runtime                                                   #
 ##############################################################################
 FROM ${BASE_IMAGE} AS runtime
 
@@ -38,17 +42,39 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
 # ── System libs & tool‑chain (gcc for wheels, BLAS/OpenMP for faiss) ───────
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
-        gcc git \
+        build-essential \
+        git \
+        rustc \
         libopenblas0 \
         libomp5 \
         libstdc++6 && \
     rm -rf /var/lib/apt/lists/*
 
-# ── Python dependencies (reproducible lock) ────────────────────────────────
+# ── Python dependencies (reproducible lock if available) ───────────────────
 WORKDIR /app
-COPY backend/requirements.txt /tmp/
+# Copy requirements early to maximise Docker cache hits
+COPY backend/requirements.txt /tmp/requirements.txt
 COPY requirements-lock.txt    /tmp/requirements-lock.txt
-RUN pip install --no-cache-dir -r /tmp/requirements-lock.txt
+
+RUN set -e; \
+    if [ -f /tmp/requirements-lock.txt ]; then \
+        pip install --no-cache-dir -r /tmp/requirements-lock.txt; \
+    else \
+        pip install --no-cache-dir -r /tmp/requirements.txt; \
+    fi && \
+    # Core agent ecosystem (install here to ensure presence, even if not in req)
+    pip install --no-cache-dir --upgrade \
+        'openai-agents>=0.1.0' \
+        'google-adk>=0.2.0' \
+        'anthropic>=0.27.0' \
+        ccxt \
+        ortools \
+        faiss-cpu \
+        feedparser \
+        newsapi-python \
+        gitpython \
+        neo4j \
+        psycopg2-binary
 
 # ── Project source code ────────────────────────────────────────────────────
 COPY backend/        /app/backend/
@@ -64,5 +90,6 @@ RUN pip install --no-cache-dir \
         rocketry \
         prometheus-client
 
+# ── Ports & default CMD ────────────────────────────────────────────────────
 EXPOSE 8000 3000
 CMD ["/app/entrypoint.sh"]
