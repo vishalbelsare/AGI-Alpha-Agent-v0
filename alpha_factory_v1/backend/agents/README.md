@@ -10,7 +10,7 @@ Definitions of the α‑AGI Agent:
 
 > **As a masterful conductor in the symphony of intelligent agents**, the agentic **α‑AGI Agent** (`<name>.a.agent.agi.eth`) dynamically harmonizes **α‑AGI Business** (`<name>.a.agi.eth`) objectives with **α‑Job** execution, leveraging **\$AGIALPHA** as its fuel and validator-vetted on-chain reputation as its score, to deliver decisive end-to-end performance and drive the ecosystem to new heights of innovation and trust.
 
-> **An antifragile, self-improving digital operative**, the agentic **α‑AGI Agent** (`<name>.a.agent.agi.eth`) uncovers and harnesses “**alpha**” opportunities across the agentic ecosystem, seamlessly interfacing with **α‑AGI Businesses** (`<name>.a.agi.eth`) and executing α‑Jobs with end-to-end precision, powered by **\$AGIALPHA** and continuously compounding its on-chain reputation into ever-greater network value.
+> **An antifragile, self-improving digital operative**, the agentic **α‑AGI Agent** (`<name>.a.agent.agi.eth`) uncovers and harnesses “**alpha**” opportunities across the agentic ecosystem, seamlessly interfacing with **α‑AGI Businesses** (`<name>.a.agi.eth`) and executing **α‑Jobs** with end-to-end precision, powered by **\$AGIALPHA** and continuously compounding its on-chain reputation into ever-greater network value.
 
 ---
 
