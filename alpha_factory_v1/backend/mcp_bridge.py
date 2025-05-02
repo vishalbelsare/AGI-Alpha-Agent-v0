@@ -1,18 +1,17 @@
 """
 alpha_factory_v1.backend.mcp_bridge
-────────────────────────────────────
-Tiny abstraction over Anthropic's Model-Context-Protocol.
+===================================
 
-Right now we only **store** chat messages so the MCP server can build a
-long-term memory / retrieval index. Later you can extend this file to also
-*retrieve* compressed context (per the MCP white-paper §3.2).
+Ultra-thin helper around Anthropic’s *Model-Context-Protocol* (MCP).
 
-Set env-var ``MCP_ENDPOINT`` to activate, e.g.:
+Current capability → **store** chat messages for long-term memory / retrieval.
+Future work → fetch condensed context back into prompts (§3.2 of MCP spec).
 
-    MCP_ENDPOINT="http://mcp.gpu-cluster.local:8980/v1" \
-        uvicorn alpha_factory_v1.backend.orchestrator:app
+Enable by exporting, e.g.:
 
-If unset, all functions become cheap no-ops.
+    MCP_ENDPOINT="http://mcp.service.local:8980/v1"
+
+If the variable is unset this module becomes a silent no-op.
 """
 
 from __future__ import annotations
@@ -24,23 +23,35 @@ from typing import Dict, List
 
 import httpx
 
-_MCP_ENDPOINT = os.getenv("MCP_ENDPOINT")
+_ENDPOINT = os.getenv("MCP_ENDPOINT")          # http://host:port/v1
 _TIMEOUT = float(os.getenv("MCP_TIMEOUT_SEC", 10))
 
 
 async def store(messages: List[Dict[str, str]]) -> None:
-    """Fire-and-forget store of raw chat messages to MCP."""
-    if not _MCP_ENDPOINT:
+    """
+    Asynchronously push *raw* chat messages to an MCP server.
+
+    The call is fire-and-forget and **never** raises – MCP is non-critical.
+    """
+    if not _ENDPOINT:
         return
+
     payload = {"messages": messages, "timestamp": time.time()}
     try:
         async with httpx.AsyncClient(timeout=_TIMEOUT) as client:
-            await client.post(f"{_MCP_ENDPOINT}/context", json=payload)
+            await client.post(f"{_ENDPOINT}/context", json=payload)
     except Exception:  # noqa: BLE001
-        # Silently ignore – MCP is best-effort
-        pass
+        # Best-effort only → log at debug level if the caller configured logging
+        import logging
+
+        logging.getLogger("alpha_factory.mcp").debug(
+            "MCP push failed – continuing without persistence", exc_info=True
+        )
 
 
-# Convenience sync wrapper (rarely needed)
 def store_sync(messages: List[Dict[str, str]]) -> None:
+    """
+    Synchronous convenience wrapper for rare call-sites that are outside
+    an event-loop (e.g. CLI utilities or unit tests).
+    """
     asyncio.run(store(messages))
