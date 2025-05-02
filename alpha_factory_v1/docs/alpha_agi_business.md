@@ -85,28 +85,48 @@ classDef core fill:#f0f8ff,stroke:#000;
 
 ```mermaid
 flowchart LR
-  subgraph Ω‑Orchestrator
+  %% Core Orchestrator
+  subgraph Orchestrator
     ORC["Orchestrator 👁️"]
     SAF["Safety Ω"]
     MEM["Memory 🧠"]
   end
+
+  %% Agent Constellation
   subgraph Agents
-    FIN["finance.<name>.a.agent.agi.eth"]
-    BIO["biotech.<name>.a.agent.agi.eth"]
-    MFG["manufacturing.<name>.a.agent.agi.eth"]
-    POL["policy.<name>.a.agent.agi.eth"]
-    ENE["energy.<name>.a.agent.agi.eth"]
-    SUP["supply_chain.<name>.a.agent.agi.eth"]
-    RET["retail_demand.<name>.a.agent.agi.eth"]
-    MKT["marketing.<name>.a.agent.agi.eth"]
-    CYB["cyber_threat.<name>.a.agent.agi.eth"]
-    CLM["climate_risk.<name>.a.agent.agi.eth"]
-    DRG["drug_design.<name>.a.agent.agi.eth"]
-    SMT["smart_contract.<name>.a.agent.agi.eth"]
+    FIN["finance.&lt;name&gt;.a.agent.agi.eth"]
+    BIO["biotech.&lt;name&gt;.a.agent.agi.eth"]
+    MFG["manufacturing.&lt;name&gt;.a.agent.agi.eth"]
+    POL["policy.&lt;name&gt;.a.agent.agi.eth"]
+    ENE["energy.&lt;name&gt;.a.agent.agi.eth"]
+    SUP["supply_chain.&lt;name&gt;.a.agent.agi.eth"]
+    RET["retail_demand.&lt;name&gt;.a.agent.agi.eth"]
+    MKT["marketing.&lt;name&gt;.a.agent.agi.eth"]
+    CYB["cyber_threat.&lt;name&gt;.a.agent.agi.eth"]
+    CLM["climate_risk.&lt;name&gt;.a.agent.agi.eth"]
+    DRG["drug_design.&lt;name&gt;.a.agent.agi.eth"]
+    SMT["smart_contract.&lt;name&gt;.a.agent.agi.eth"]
   end
-  ORC --> |A2A| FIN & BIO & MFG & POL & ENE & SUP & RET & MKT & CYB & CLM & DRG & SMT
-  ORC --> SAF & MEM
+
+  %% A2A links (one‑to‑many explicit to satisfy Mermaid syntax)
+  ORC -- A2A --> FIN
+  ORC -- A2A --> BIO
+  ORC -- A2A --> MFG
+  ORC -- A2A --> POL
+  ORC -- A2A --> ENE
+  ORC -- A2A --> SUP
+  ORC -- A2A --> RET
+  ORC -- A2A --> MKT
+  ORC -- A2A --> CYB
+  ORC -- A2A --> CLM
+  ORC -- A2A --> DRG
+  ORC -- A2A --> SMT
+
+  %% Control & memory paths
+  ORC --> SAF
+  ORC --> MEM
 ```
+
 
 *Nodes represent Docker containers; edges = signed Protobuf over gRPC; p95 orchestrator RTT **0.47 ms**.*
 
