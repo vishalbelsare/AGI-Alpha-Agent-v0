@@ -46,18 +46,18 @@ flowchart LR
     MEM["Memory 🧠"]
   end
   subgraph Domain_Agents
-    FIN["finance.<name>.a.agent.agi.eth"]
-    BIO["biotech.<name>.a.agent.agi.eth"]
-    MFG["manufacturing.<name>.a.agent.agi.eth"]
-    POL["policy.<name>.a.agent.agi.eth"]
-    ENE["energy.<name>.a.agent.agi.eth"]
-    SUP["supply_chain.<name>.a.agent.agi.eth"]
-    RET["retail_demand.<name>.a.agent.agi.eth"]
-    MKT["marketing.<name>.a.agent.agi.eth"]
-    CYB["cyber_threat.<name>.a.agent.agi.eth"]
-    CLM["climate_risk.<name>.a.agent.agi.eth"]
-    DRG["drug_design.<name>.a.agent.agi.eth"]
-    SMT["smart_contract.<name>.a.agent.agi.eth"]
+    FIN["finance.a.agent.agi.eth"]
+    BIO["biotech.a.agent.agi.eth"]
+    MFG["manufacturing.a.agent.agi.eth"]
+    POL["policy.a.agent.agi.eth"]
+    ENE["energy.a.agent.agi.eth"]
+    SUP["supply_chain.a.agent.agi.eth"]
+    RET["retail_demand.a.agent.agi.eth"]
+    MKT["marketing.a.agent.agi.eth"]
+    CYB["cyber_threat.a.agent.agi.eth"]
+    CLM["climate_risk.a.agent.agi.eth"]
+    DRG["drug_design.a.agent.agi.eth"]
+    SMT["smart_contract.a.agent.agi.eth"]
   end
 
   ORC -- A2A --> FIN & BIO & MFG & POL & ENE & SUP & RET & MKT & CYB & CLM & DRG & SMT
