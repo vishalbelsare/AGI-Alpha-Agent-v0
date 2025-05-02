@@ -44,45 +44,6 @@ Together they Out‑learn · Out‑think · Out‑design · Out‑strategise 
 ---
 
 ## 4. Macro Architecture 🖇️
-```
-             +-----------------------------+
-             |  Orchestrator (Macro‑Sentinel) |
-             +---------------+-------------+
-                             |
-       A2A Bus  (Protobuf / gRPC / Lamport)
-                             |
- +-----------+  +-----------+  +-----------+
- |  Agents   |  | MuZero++ |  |  Env‑Gen  |
- |•Planning  |  |  Learner |  | (POET)    |
- |•Research  |  +-----------+  +-----------+
- |•Strategy  |        ▲              |
- |•Market    |        | episodic data|
- |•Safety👮   |        |              |
- |•Memory🧠   |        +--------------+
- +-----------+
-```
-
-```mermaid
-flowchart TD
-  ORC[Orchestrator 👁️]:::core
-  subgraph Agents
-    PL[Planning]
-    RS[Research]
-    ST[Strategy]
-    MK[Market]
-    SG[Safety]
-    MM[Memory]
-  end
-  ENV[Env‑Generator 🌱]:::core
-  LRN[MuZero++ Learner 🎯]:::core
-  DB[(Replay DB)]
-  ORC --> |A2A| PL & RS & ST & MK & SG & MM
-  ENV --> ORC
-  PL --> ORC
-  LRN --> DB & ORC
-classDef core fill:#f0f8ff,stroke:#000;
-```
-
 ```mermaid
 flowchart LR
   %% Core Orchestrator
