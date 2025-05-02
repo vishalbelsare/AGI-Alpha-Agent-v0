@@ -70,7 +70,7 @@ flowchart LR
 ## 5 · Capability Card 📇
 ```jsonc
 {
-  "agent_id": "finance.<name>.a.agent.agi.eth",
+  "agent_id": "finance.a.agent.agi.eth",
   "version": "1.1.0",
   "capabilities": ["plan", "forecast", "execute_trade"],
   "endpoints": { "grpc": "grpc://finance:9000", "http": "https://finance/api" },
@@ -84,18 +84,18 @@ flowchart LR
 ## 6 · Current Agent Catalogue 🤖
 | ENS Handle | Core Skill | Brief |
 |------------|-----------|-------|
-| finance.&lt;name&gt;.a.agent.agi.eth | Quant & execution | Live P&L, VaR |
-| biotech.&lt;name&gt;.a.agent.agi.eth | Bio‑R&D | Protein‑fold search |
-| manufacturing.&lt;name&gt;.a.agent.agi.eth | Ops AI | MES integration |
-| policy.&lt;name&gt;.a.agent.agi.eth | Reg‑Tech | Policy diffing |
-| energy.&lt;name&gt;.a.agent.agi.eth | Energy AI | Grid balancing |
-| supply_chain.&lt;name&gt;.a.agent.agi.eth | Logistics | VRP optimisation |
-| retail_demand.&lt;name&gt;.a.agent.agi.eth | Demand sense | LSTM forecast |
-| marketing.&lt;name&gt;.a.agent.agi.eth | Growth AI | RL ad‑spend |
-| cyber_threat.&lt;name&gt;.a.agent.agi.eth | SecOps | CVE triage |
-| climate_risk.&lt;name&gt;.a.agent.agi.eth | ESG AI | Scenario VaR |
-| drug_design.&lt;name&gt;.a.agent.agi.eth | Chem AI | Scaffold hopping |
-| smart_contract.&lt;name&gt;.a.agent.agi.eth | Solidity | Formal verify |
+| finance.a.agent.agi.eth | Quant & execution | Live P&L, VaR |
+| biotech.a.agent.agi.eth | Bio‑R&D | Protein‑fold search |
+| manufacturing.a.agent.agi.eth | Ops AI | MES integration |
+| policy.a.agent.agi.eth | Reg‑Tech | Policy diffing |
+| energy.a.agent.agi.eth | Energy AI | Grid balancing |
+| supply_chain.a.agent.agi.eth | Logistics | VRP optimisation |
+| retail_demand.a.agent.agi.eth | Demand sense | LSTM forecast |
+| marketing.a.agent.agi.eth | Growth AI | RL ad‑spend |
+| cyber_threat.a.agent.agi.eth | SecOps | CVE triage |
+| climate_risk.a.agent.agi.eth | ESG AI | Scenario VaR |
+| drug_design.a.agent.agi.eth | Chem AI | Scaffold hopping |
+| smart_contract.a.agent.agi.eth | Solidity | Formal verify |
 
 ---
 
