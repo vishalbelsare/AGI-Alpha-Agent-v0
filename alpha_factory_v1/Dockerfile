@@ -1,95 +1,112 @@
 # syntax=docker/dockerfile:1.6
 ##############################################################################
-#  Alpha‑Factory v1 👁️✨ — Multi‑Agent AGENTIC α‑AGI                         #
-#  Production‑grade Dockerfile (CPU/GPU toggle + Trace‑graph UI)             #
+#  Alpha‑Factory v1 👁️✨ — Multi‑Agent AGENTIC α‑AGI                         #
+#  Universal Runtime Image (CPU‑only by default, CUDA optional)              #
 #                                                                            #
-#  Key upgrades vs original:                                                 #
-#  • Installs OpenAI Agents SDK (+ optional ADK & Anthropic)                 #
-#  • Keeps UI build stage (Node/Vite) with aggressive caching                #
-#  • Single BASE_IMAGE arg lets you switch to CUDA runtime in one flag       #
-#      docker build --build-arg BASE_IMAGE=nvidia/cuda:12.4.0-runtime-ubuntu22.04 . #
-#  • Adds system libs for faiss, open‑blas, etc.                             #
-#  • Uses requirements‑lock.txt if present for reproducibility               #
+#  • Stage 0  ─ Build the Trace‑graph web UI with Node/Vite (if present).    #
+#  • Stage 1  ─ Hardened Python runtime with the OpenAI Agents SDK,          #
+#               Google ADK (optional), and all project deps pre‑installed.   #
+#                                                                            #
+#  Build switches                                                            #
+#  ─────────────────────────────────────────────────────────────────────────  #
+#  BASE_IMAGE           ‑ Parent image for Stage 1 (default python:3.11).    #
+#                        Pass  nvidia/cuda:12.4.0-runtime‑ubuntu22.04        #
+#                        for a GPU‑enabled variant.                          #
+#  INSTALL_UI           ‑ Set to "0" to skip the UI build stage.           #
 ##############################################################################
 
-# ────────────────────────────────────────────────────────────────────────────
-#  ➊  Global build‑arg MUST appear *before* any FROM that references it
-# ────────────────────────────────────────────────────────────────────────────
-ARG BASE_IMAGE=python:3.11-slim-bookworm   # default → CPU‑only layer
+#######################################################################
+#  Global ARGs must precede every FROM that references them           #
+#######################################################################
+ARG BASE_IMAGE=python:3.11-slim-bookworm
+ARG INSTALL_UI=1
 
-##############################################################################
-#  Stage 0 – Build the Trace‑graph UI (Node / Vite)                           #
-##############################################################################
+#######################################################################
+#  Stage 0 — (optional) Build static Trace‑graph front‑end            #
+#######################################################################
 FROM node:20-bookworm-slim AS ui-build
-
+ARG INSTALL_UI
+RUN if [ "$INSTALL_UI" = "0" ]; then echo "Skipping UI build stage" && exit 0; fi
 WORKDIR /ui
-COPY ui/package*.json ./                        # leverage Docker cache for npm ci
-RUN npm ci --omit=dev
+COPY ui/package*.json ./          # leverage Docker layer cache
+RUN if [ "$INSTALL_UI" = "1" ]; then npm ci --omit=dev; fi
 COPY ui/ .
-RUN npm run build                               # → dist/ index.html + assets
+RUN if [ "$INSTALL_UI" = "1" ]; then npm run build; fi             # → dist/
 
-##############################################################################
-#  Stage 1 – Python runtime                                                   #
-##############################################################################
+#######################################################################
+#  Stage 1 — Python Runtime                                           #
+#######################################################################
 FROM ${BASE_IMAGE} AS runtime
 
-# ── Environment ─────────────────────────────────────────────────────────────
+#############################
+# 1) Environment variables   #
+#############################
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
     DEBIAN_FRONTEND=noninteractive \
     PYTHONPATH=/app
 
-# ── System libs & tool‑chain (gcc for wheels, BLAS/OpenMP for faiss) ───────
+#############################
+# 2) System packages         #
+#############################
+# gcc & make  → compile Python wheels
+# libopenblas + libomp → faiss‑cpu & numpy optimised BLAS
+# git          → self‑healing demo (patch commit)
+# curl, ca‑certificates → health‑check & diagnostics
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
         build-essential \
         git \
-        rustc \
         libopenblas0 \
         libomp5 \
-        libstdc++6 && \
+        libstdc++6 \
+        curl ca-certificates && \
     rm -rf /var/lib/apt/lists/*
 
-# ── Python dependencies (reproducible lock if available) ───────────────────
+#############################
+# 3) Python dependencies     #
+#############################
 WORKDIR /app
-# Copy requirements early to maximise Docker cache hits
-COPY backend/requirements.txt /tmp/requirements.txt
-COPY requirements-lock.txt    /tmp/requirements-lock.txt
 
-RUN set -e; \
-    if [ -f /tmp/requirements-lock.txt ]; then \
+# -- Strict, reproducible lock (if present) ---------------------------
+COPY requirements-lock.txt /tmp/requirements-lock.txt
+# -- Project top‑level requirements (edited by humans) ----------------
+COPY backend/requirements.txt /tmp/requirements.txt
+
+#  The lock file is preferred (if the project maintains one).  
+#  Fallback to plain requirements for dev checkouts.
+RUN if [ -f /tmp/requirements-lock.txt ]; then \
         pip install --no-cache-dir -r /tmp/requirements-lock.txt; \
     else \
         pip install --no-cache-dir -r /tmp/requirements.txt; \
     fi && \
-    # Core agent ecosystem (install here to ensure presence, even if not in req)
-    pip install --no-cache-dir --upgrade \
-        'openai-agents>=0.1.0' \
-        'google-adk>=0.2.0' \
-        'anthropic>=0.27.0' \
-        ccxt \
-        ortools \
-        faiss-cpu \
-        feedparser \
-        newsapi-python \
-        gitpython \
-        neo4j \
-        psycopg2-binary
+    # ⬇ Explicitly ensure critical agent frameworks are present
+    pip install --no-cache-dir \
+        openai-agents~=0.5 \   # OpenAI Agents SDK (beta)
+        "google-adk @ git+https://github.com/google/adk-python@main#egg=google-adk" \
+        anthropic~=0.19 \
+        gunicorn rocketry prometheus-client
 
-# ── Project source code ────────────────────────────────────────────────────
+#############################
+# 4) Copy project source     #
+#############################
 COPY backend/        /app/backend/
 COPY entrypoint.sh   /app/entrypoint.sh
 RUN chmod +x /app/entrypoint.sh
 
-# ── Pre‑built Trace‑graph UI bundle ────────────────────────────────────────
+#############################
+# 5) (optional) UI bundle    #
+#############################
+ARG INSTALL_UI
 COPY --from=ui-build /ui/dist/ /app/static/trace/
 
-# ── Lightweight runtime helpers ────────────────────────────────────────────
-RUN pip install --no-cache-dir \
-        gunicorn \
-        rocketry \
-        prometheus-client
+#############################
+# 6) Health‑check           #
+#############################
+HEALTHCHECK --interval=30s --timeout=10s --retries=3 CMD curl -f http://localhost:8000/health || exit 1
 
-# ── Ports & default CMD ────────────────────────────────────────────────────
+#############################
+# 7) Ports & Entrypoint      #
+#############################
 EXPOSE 8000 3000
 CMD ["/app/entrypoint.sh"]
