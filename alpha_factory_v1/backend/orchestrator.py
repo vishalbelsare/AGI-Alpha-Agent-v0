@@ -1,38 +1,46 @@
-"""backend.orchestrator
+"""
+backend.orchestrator
 ===================================================================
-Alpha‑Factory v1 👁️✨ — Multi‑Agent AGENTIC α‑AGI
+Alpha-Factory v1 👁️✨ — Multi-Agent AGENTIC α-AGI
 -------------------------------------------------------------------
-Production‑grade orchestrator for the Alpha‑Factory runtime.
-This file supersedes all previous drafts.  It preserves 100 % of the
-prior public API while adding:
+One-stop control-tower for every demo, lab, or production rollout.
 
-* **OpenAI Agents SDK bridge** – seamless execution of tools/skills
-  exposed by agents that subclass `openai.agents.Agent` when the SDK is
-  available.
-* **Google ADK node hosting** – optional registration & heartbeat via the
-  Agent Development Kit for mesh‑level scheduling and discovery.
-* **A2A protocol v0.5** – bidirectional gRPC streaming for cross‑host
-  agent‑to‑agent calls with automatic TLS or mTLS when certificates are
-  mounted.
-* **Model Context Protocol (MCP)** – every tool invocation and outbound
-  LLM request is wrapped in an MCP envelope for provenance.
-* **Experience‑replay event bus** – a Kafka‑backed topic (`exp.stream`) so
-  any agent can publish observation/﻿action/﻿reward tuples; compatible with
-  MuZero‑style model‑based RL pipelines.
-* **Prometheus metrics & healthz HTTP probe** – enabled by
-  `METRICS_PORT` env‑var (default 9090) for live SRE dashboards.
-* **Declarative scheduling** – agents may expose `SCHED_SPEC` in cron or
-  RRULE iCal format; otherwise we fall back to per‑cycle cadence.
-* **Fully offline fallback** – if *none* of the optional deps are present,
-  the orchestrator still runs with core features only.
+Key capabilities
+----------------
+✓  Auto-discovers & drives every agent found in ``backend/agents`` or
+   exposed via Python plugin entry-points (``alpha_factory.agents``).
 
-The orchestrator remains a *single entry‑point*:  `python -m
-backend.orchestrator`.
+✓  REST + OpenAPI (FastAPI) **AND** bidirectional gRPC (A2A-v0.5) in parallel.
+
+✓  Optional **OpenAI Agents SDK** & **Google ADK** bridges – the moment those
+   libs are `pip install`-ed the orchestrator registers tools / heartbeats.
+
+✓  Kafka (experience-replay), Prometheus (/metrics), Health-probe (/healthz),
+   TLS / mTLS (out-of-box) & fully offline fall-backs.
+
+✓  Declarative scheduling: cron / RRULE via ``SCHED_SPEC`` *or* classic
+   ``CYCLE_SECONDS`` cadence – no code changes needed.
+
+Run it
+------
+    python -m backend.orchestrator         # local dev
+    PORT=8080 METRICS_PORT=9090 python -m backend.orchestrator
+    docker compose -f demos/docker-compose.finance.yml up      etc.
+
+All heavy deps are **soft-imports**: if a library (or Kafka) is missing the
+feature gracefully degrades instead of crashing – perfect for air-gapped /
+edge deployments.
+
+---------------------------------------------------------------------------
+Copyright © 2023-2025 Montreal AI.
+License: Apache-2.0
 """
 from __future__ import annotations
 
+# std-lib ---------------------------------------------------------------------
 import asyncio
 import datetime as _dt
+import importlib
 import json
 import logging
 import os
@@ -41,260 +49,344 @@ import ssl
 import sys
 import time
 from functools import partial
-from typing import Any, Callable, Dict, List, Optional
+from pathlib import Path
+from types import ModuleType
+from typing import Any, Awaitable, Callable, Dict, List, Optional
 
-# ----------------------------------------------------------------------------
-# Optional deps (all soft‑imports)
-# ----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
+# Dynamic / optional third-party imports  (ALL are soft-fail)
+# -----------------------------------------------------------------------------
 try:
+    # OpenAI Agents SDK (2025.04+)
     from openai.agents import AgentRuntime, AgentContext  # type: ignore
 except ModuleNotFoundError:  # pragma: no cover
     AgentRuntime = None  # type: ignore
     AgentContext = object  # type: ignore
 
 try:
-    import adk  # Google Agent Development Kit  # type: ignore
+    # Google Agent Development Kit
+    import adk  # type: ignore
 except ModuleNotFoundError:  # pragma: no cover
     adk = None  # type: ignore
 
 try:
+    # gRPC / protobuf
     import grpc  # type: ignore
     from concurrent import futures
 except ModuleNotFoundError:  # pragma: no cover
     grpc = None  # type: ignore
 
 try:
+    # Kafka producer for event / experience stream
     from kafka import KafkaProducer  # type: ignore
 except ModuleNotFoundError:  # pragma: no cover
     KafkaProducer = None  # type: ignore
 
 try:
-    from prometheus_client import Counter, Histogram, start_http_server  # type: ignore
+    # Prometheus metrics
+    from prometheus_client import Counter, Histogram, Gauge, generate_latest, CONTENT_TYPE_LATEST, start_http_server  # type: ignore
 except ModuleNotFoundError:  # pragma: no cover
-    Counter = Histogram = start_http_server = None  # type: ignore
+    Counter = Histogram = Gauge = generate_latest = CONTENT_TYPE_LATEST = start_http_server = None  # type: ignore
 
-# ----------------------------------------------------------------------------
-# Local imports (guaranteed)
-# ----------------------------------------------------------------------------
-from backend.agents import get_agent, list_agents
+try:
+    # FastAPI REST gateway
+    from fastapi import FastAPI, HTTPException
+    from fastapi.responses import PlainTextResponse
+    import uvicorn
+except ModuleNotFoundError:  # pragma: no cover
+    FastAPI = None  # type: ignore
+    HTTPException = PlainTextResponse = uvicorn = None  # type: ignore
 
-# ----------------------------------------------------------------------------
-# Configuration
-# ----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
+# Local imports (must always exist)
+# -----------------------------------------------------------------------------
+from backend.agents import get_agent, list_agents  # public helper API
+
+# -----------------------------------------------------------------------------
+# Environment / configuration --------------------------------------------------
 ENV = os.environ.get
-_DEFAULT_CYCLE = int(ENV("ALPHA_CYCLE_SECONDS", "60"))
-_KAFKA_BROKER = ENV("ALPHA_KAFKA_BROKER")
-_A2A_PORT = int(ENV("A2A_PORT", "0"))  # 0 disables
+_PORT = int(ENV("PORT", "8000"))
 _METRICS_PORT = int(ENV("METRICS_PORT", "0"))
+_KAFKA_BROKER = ENV("ALPHA_KAFKA_BROKER")          # host:port or comma-sep
+_CYCLE_DEFAULT = int(ENV("ALPHA_CYCLE_SECONDS", "60"))
+_A2A_PORT = int(ENV("A2A_PORT", "0"))              # 0 → disabled
 _SSL_DISABLE = ENV("INSECURE_DISABLE_TLS", "false").lower() == "true"
+_LOG_LEVEL = ENV("LOGLEVEL", "INFO").upper()
 
-logging.basicConfig(level=ENV("LOGLEVEL", "INFO"))
+logging.basicConfig(
+    level=_LOG_LEVEL,
+    format="%(asctime)s.%(msecs)03d %(levelname)-8s | %(name)s | %(message)s",
+    datefmt="%Y-%m-%d %H:%M:%S",
+)
 logger = logging.getLogger("alpha_factory.orchestrator")
 
-# ----------------------------------------------------------------------------
-# Prometheus metrics (no‑ops if lib unavailable)
-# ----------------------------------------------------------------------------
-if _METRICS_PORT and Counter and Histogram:
+# -----------------------------------------------------------------------------
+# Prometheus metrics  (no-op stubs if lib absent) ------------------------------
+# -----------------------------------------------------------------------------
+def _noop(*_a, **_kw):  # type: ignore
+    class _N:  # pylint: disable=too-few-public-methods
+        def labels(self, *_a, **_kw):  # noqa: D401
+            return self
+
+        def observe(self, *_a):  # noqa: D401
+            pass
+
+        def inc(self, *_a):  # noqa: D401
+            pass
+
+        def set(self, *_a):  # noqa: D401
+            pass
+
+    return _N()
+
+
+MET_CYCLE_LAT = Histogram("agent_cycle_latency_ms", "Per-cycle latency", ["agent"]) if Histogram else _noop()
+MET_CYCLE_ERR = Counter("agent_cycle_errors_total", "Exceptions per agent", ["agent"]) if Counter else _noop()
+MET_AGENT_UP = Gauge("agent_up", "1 if agent thread active", ["agent"]) if Gauge else _noop()
+
+if _METRICS_PORT and start_http_server:
     start_http_server(_METRICS_PORT)
-    MET_AGENT_LAT = Histogram("agent_cycle_latency_ms", "Latency per cycle", ["agent"])
-    MET_AGENT_ERR = Counter("agent_cycle_errors_total", "Exceptions per agent", ["agent"])
-else:  # pragma: no cover
-    def _noop(*_a, **_kw):  # type: ignore
-        class N:  # noqa: D401
-            def labels(self, *_a, **_kw):  # noqa: D401
-                return self
+    logger.info("Prometheus metrics exposed at :%d/metrics", _METRICS_PORT)
 
-            def observe(self, *_a):
-                pass
-
-            def inc(self, *_a):
-                pass
-
-        return N()
-
-    MET_AGENT_LAT = MET_AGENT_ERR = _noop()
-
-# ----------------------------------------------------------------------------
-# Kafka helpers (soft‑fail to stdout)
-# ----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
+# Kafka producer helper (experience replay stream) ----------------------------
+# -----------------------------------------------------------------------------
 if _KAFKA_BROKER and KafkaProducer:
-    _producer: Any = KafkaProducer(bootstrap_servers=_KAFKA_BROKER,
-                                     value_serializer=lambda v: v.encode())
+    _kafka_producer: Any = KafkaProducer(
+        bootstrap_servers=_KAFKA_BROKER,
+        value_serializer=lambda v: json.dumps(v).encode(),
+        linger_ms=50,
+    )
 
-    def _publish(topic: str, payload: Dict[str, Any]):  # noqa: D401
-        _producer.send(topic, json.dumps(payload))
-else:  # pragma: no cover
-    def _publish(topic: str, payload: Dict[str, Any]):  # noqa: D401
-        logger.debug("EVT %-24s %s", topic, json.dumps(payload))
+    def _publish(topic: str, payload: Dict[str, Any]) -> None:
+        _kafka_producer.send(topic, payload)
+else:  # fallback: stdout debug
+    def _publish(topic: str, payload: Dict[str, Any]) -> None:  # type: ignore
+        logger.debug("▶ EVT %-22s %s", topic, json.dumps(payload))
 
-# ----------------------------------------------------------------------------
-# MCP helper
-# ----------------------------------------------------------------------------
-
-def _mcp_wrap(payload: Dict[str, Any]) -> str:  # noqa: D401
-    """Return JSON string in Model Context Protocol envelope."""
-    return json.dumps({
-        "mcp_version": "0.1",  # current draft
-        "timestamp": _dt.datetime.utcnow().isoformat() + "Z",
+# -----------------------------------------------------------------------------
+# Model Context Protocol (MCP) minimalist envelope ----------------------------
+# -----------------------------------------------------------------------------
+def _mcp_wrap(payload: Dict[str, Any]) -> Dict[str, Any]:
+    return {
+        "mcp_version": "0.1",
+        "timestamp": _dt.datetime.utcnow().isoformat(timespec="milliseconds") + "Z",
         "payload": payload,
-    })
+    }
 
-# ----------------------------------------------------------------------------
-# Agent runtime wrapper utilities
-# ----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
+# Async helper -----------------------------------------------------------------
+async def _maybe_await(fn: Callable[[], Any]) -> Any:
+    if asyncio.iscoroutinefunction(fn):
+        return await fn()
+    return await asyncio.to_thread(fn)
 
-class _OAIRuntimeSingleton:
+# -----------------------------------------------------------------------------
+# OpenAI Agents runtime singleton ---------------------------------------------
+class _OAI_Runtime:
     _instance: Optional[AgentRuntime] = None
 
     @classmethod
     def get(cls) -> Optional[AgentRuntime]:
         if cls._instance is None and AgentRuntime is not None:
             cls._instance = AgentRuntime()
+            logger.info("OpenAI Agents SDK detected — tools auto-registered")
         return cls._instance
 
-# ----------------------------------------------------------------------------
-# Scheduling helpers
-# ----------------------------------------------------------------------------
-
-async def _maybe_await(callable_: Callable[[], Any]):
-    if asyncio.iscoroutinefunction(callable_):
-        return await callable_()
-    return await asyncio.to_thread(callable_)
-
-
+# -----------------------------------------------------------------------------
+# Agent runner (schedule & supervise) ------------------------------------------
 class AgentRunner:  # pylint: disable=too-few-public-methods
-    """Drive a single agent respecting its cadence or iCal spec."""
+    """Wrap one agent instance and execute it according to its schedule."""
 
     def __init__(self, name: str):
         self.name = name
         self.instance = get_agent(name)
-        self.period = getattr(self.instance, "CYCLE_SECONDS", _DEFAULT_CYCLE)
+        self.period = getattr(self.instance, "CYCLE_SECONDS", _CYCLE_DEFAULT)
         self.spec = getattr(self.instance, "SCHED_SPEC", None)
-        self._next: float = time.time()
+        self._next_run = time.time()
         self._task: Optional[asyncio.Task] = None
 
-        # Hook OpenAI Agents SDK tools automatically
-        if AgentRuntime is not None and isinstance(self.instance, getattr(AgentContext, "__mro__", (object,))[0]):
-            runtime = _OAIRuntimeSingleton.get()
-            if runtime:
-                runtime.register(self.instance)
+        # auto-register OpenAI Agents tools if SDK present & the agent subclasses AgentContext
+        if AgentRuntime and isinstance(self.instance, AgentContext):
+            _OAI_Runtime.get().register(self.instance)  # type: ignore[arg-type]
 
-    def _recalc_next(self):
-        if self.spec:  # iCal / cron‑style schedule (uses croniter if available)
+    # -------------------------------------------------------------------------
+    def _calc_next(self) -> None:
+        """Compute next execution timestamp (cron or fixed period)."""
+        now = time.time()
+        if self.spec:
             try:
                 from croniter import croniter  # type: ignore
-
-                base = _dt.datetime.fromtimestamp(self._next)
-                self._next = croniter(self.spec, base).get_next(float)
-            except Exception as exc:  # noqa: BLE001
-                logger.error("%s: invalid SCHED_SPEC '%s' (%s) – falling back to period", self.name, self.spec, exc)
+                self._next_run = croniter(self.spec, _dt.datetime.fromtimestamp(now)).get_next(float)
+                return
+            except Exception as exc:  # invalid cron – fall back
+                logger.warning("%s: invalid SCHED_SPEC '%s' (%s) – using fixed period", self.name, self.spec, exc)
                 self.spec = None
-                self._next = time.time() + self.period
-        else:
-            self._next = time.time() + self.period
+        self._next_run = now + self.period
 
-    async def step(self):
-        if time.time() < self._next:
+    # -------------------------------------------------------------------------
+    async def step(self) -> None:
+        if time.time() < self._next_run:
             return
-        self._recalc_next()
+        self._calc_next()
 
-        async def _run():  # noqa: D401
+        async def _one_cycle() -> None:
             t0 = time.time()
             try:
                 await _maybe_await(self.instance.run_cycle)
-                MET_AGENT_LAT.labels(self.name).observe((time.time() - t0) * 1000)
-                _publish("agent.cycle", {"name": self.name, "latency_ms": (time.time()-t0)*1000, "ok": True})
-            except Exception as exc:  # noqa: BLE001
-                MET_AGENT_ERR.labels(self.name).inc()
-                logger.exception("%s.run_cycle error: %s", self.name, exc)
-                _publish("agent.cycle", {"name": self.name, "ok": False, "err": str(exc)})
+                MET_CYCLE_LAT.labels(self.name).observe((time.time() - t0) * 1e3)
+                _publish("exp.stream", _mcp_wrap({"agent": self.name, "latency_ms": (time.time() - t0) * 1e3}))
+            except Exception as exc:  # never crash the orchestrator
+                MET_CYCLE_ERR.labels(self.name).inc()
+                logger.exception("%s.run_cycle crashed: %s", self.name, exc)
 
-        self._task = asyncio.create_task(_run())
+        self._task = asyncio.create_task(_one_cycle())
 
-# ----------------------------------------------------------------------------
-# A2A gRPC service (bidirectional stream)
-# ----------------------------------------------------------------------------
-async def _start_a2a_service(runners: Dict[str, AgentRunner]):  # noqa: D401
+# -----------------------------------------------------------------------------
+# gRPC A2A bidirectional stream service ---------------------------------------
+async def _serve_a2a(runners: Dict[str, AgentRunner]) -> None:  # noqa: D401
     if not _A2A_PORT or grpc is None:
+        return  # disabled or lib missing
+
+    try:
+        from backend.proto import a2a_pb2, a2a_pb2_grpc  # generated stubs
+    except ModuleNotFoundError:
+        logger.warning("grpc enabled but backend.proto stubs missing – A2A disabled")
         return
 
-    from backend.proto import a2a_pb2, a2a_pb2_grpc  # type: ignore
-
-    class A2AService(a2a_pb2_grpc.PeerServiceServicer):
+    class PeerService(a2a_pb2_grpc.PeerServiceServicer):  # type: ignore
         async def Stream(self, request_iterator, context):  # noqa: N802
             async for msg in request_iterator:  # type: ignore[assignment]
                 if msg.WhichOneof("payload") == "trigger":
                     tgt = msg.trigger.name
                     if tgt in runners:
-                        runners[tgt]._next = 0
+                        runners[tgt]._next_run = 0  # prompt immediate exec
                         yield a2a_pb2.StreamReply(ack=a2a_pb2.Ack(id=msg.id))
                 elif msg.WhichOneof("payload") == "status":
                     stats = [
-                        a2a_pb2.AgentStat(name=n, next_run=int(r._next)) for n, r in runners.items()
+                        a2a_pb2.AgentStat(name=n, next_run=int(r._next_run))
+                        for n, r in runners.items()
                     ]
                     yield a2a_pb2.StreamReply(status_reply=a2a_pb2.StatusReply(stats=stats))
 
-    creds = None if _SSL_DISABLE else grpc.ssl_server_credentials(((ssl.get_server_certificate, None),))  # type: ignore[arg-type]
-    server = grpc.aio.server(options=[("grpc.max_send_message_length", -1), ("grpc.max_receive_message_length", -1)])
-    a2a_pb2_grpc.add_PeerServiceServicer_to_server(A2AService(), server)
-    bind = f"[::]:{_A2A_PORT}"
-    server.add_secure_port(bind, creds) if creds else server.add_insecure_port(bind)
+    # TLS/mTLS setup ----------------------------------------------------------
+    creds = None
+    if not _SSL_DISABLE:
+        # look for mounted certs (server.crt + server.key)
+        cert_dir = Path(ENV("TLS_CERT_DIR", "/certs"))
+        crt, key = cert_dir / "server.crt", cert_dir / "server.key"
+        if crt.exists() and key.exists():
+            with crt.open("rb") as c, key.open("rb") as k:
+                creds = grpc.ssl_server_credentials(((k.read(), c.read()),))
+    server = grpc.aio.server(options=[
+        ("grpc.max_send_message_length", -1),
+        ("grpc.max_receive_message_length", -1),
+    ])
+    a2a_pb2_grpc.add_PeerServiceServicer_to_server(PeerService(), server)
+    bind_addr = f"[::]:{_A2A_PORT}"
+    server.add_secure_port(bind_addr, creds) if creds else server.add_insecure_port(bind_addr)
     await server.start()
-    logger.info("A2A service listening on %s%s", bind, " (insecure)" if creds is None else " (TLS)")
+    logger.info("A2A gRPC server listening on %s (%s)", bind_addr, "plaintext" if creds is None else "TLS")
 
-# ----------------------------------------------------------------------------
-# ADK registration (optional)
-# ----------------------------------------------------------------------------
-async def _adk_register():
+# -----------------------------------------------------------------------------
+# Google ADK node registration -------------------------------------------------
+async def _adk_register() -> None:
     if adk is None:
         return
     client = adk.Client()
     await client.register(node_type="orchestrator", metadata={"runtime": "alpha_factory"})
-    logger.info("Registered with ADK mesh (%s)", client.node_id)
+    logger.info("Registered with ADK mesh (node-id: %s)", client.node_id)
 
-# ----------------------------------------------------------------------------
-# Main async loop
-# ----------------------------------------------------------------------------
-async def _main():
+# -----------------------------------------------------------------------------
+# FastAPI REST gateway ---------------------------------------------------------
+_app: Optional[FastAPI] = None
+if FastAPI:
+    _app = FastAPI(
+        title="Alpha-Factory v1 Orchestrator",
+        version="1.0.0",
+        docs_url="/docs",
+        redoc_url=None,
+    )
+
+
+def _build_rest_api(runners: Dict[str, AgentRunner]) -> Optional[FastAPI]:
+    if _app is None:
+        return None
+
+    @_app.get("/healthz", response_class=PlainTextResponse)
+    async def _healthz():  # noqa: D401
+        return "ok"
+
+    @_app.get("/agents")
+    async def _agents():  # noqa: D401
+        return {"agents": list(runners.keys())}
+
+    @_app.post("/agent/{name}/trigger")
+    async def _trigger(name: str):  # noqa: D401
+        if name not in runners:
+            raise HTTPException(404, "Agent not found")
+        runners[name]._next_run = 0
+        return {"status": "queued"}
+
+    @_app.get("/metrics", response_class=PlainTextResponse)
+    async def _metrics():  # noqa: D401
+        if generate_latest is None:
+            raise HTTPException(503, "prometheus_client not installed")
+        return PlainTextResponse(generate_latest(), media_type=CONTENT_TYPE_LATEST)
+
+    return _app
+
+
+# -----------------------------------------------------------------------------
+# Main async supervisor loop ---------------------------------------------------
+async def _main() -> None:
+    # Discover & instantiate agents -------------------------------------------------
     names = list_agents()
     if not names:
-        logger.error("No agents registered — aborting")
+        logger.error("No agents registered – aborting")
         sys.exit(1)
 
     runners = {n: AgentRunner(n) for n in names}
-    logger.info("Instantiated %d agents: %s", len(runners), ", ".join(runners))
+    logger.info("Bootstrapped %d agent(s): %s", len(runners), ", ".join(runners))
 
-    # Optionally expose Prometheus metrics probe
-    if _METRICS_PORT and Counter:
-        logger.info("Prometheus metrics available at :%d/", _METRICS_PORT)
+    # Expose REST API (if FastAPI present) -----------------------------------------
+    rest_api = _build_rest_api(runners)
+    rest_server: Optional[uvicorn.Server] = None
+    if rest_api and uvicorn:
+        config = uvicorn.Config(rest_api, host="0.0.0.0", port=_PORT, log_level=_LOG_LEVEL.lower())
+        rest_server = uvicorn.Server(config)
+        asyncio.create_task(rest_server.serve())
+        logger.info("REST API available at http://localhost:%d/docs", _PORT)
 
-    # Kick‑off optional services
-    await asyncio.gather(_start_a2a_service(runners), _adk_register())
+    # Kick off optional subsystems --------------------------------------------------
+    await asyncio.gather(_serve_a2a(runners), _adk_register())
 
-    stop = asyncio.Event()
+    # Graceful shutdown handling ----------------------------------------------------
+    stop_event = asyncio.Event()
 
-    def _graceful_shutdown(*_):  # noqa: D401
-        logger.info("Shutdown signal received")
-        stop.set()
+    def _graceful_shutdown(*_args):  # noqa: D401
+        logger.warning("Shutdown signal received — cleaning up…")
+        stop_event.set()
 
     for sig in (signal.SIGINT, signal.SIGTERM):
         try:
             asyncio.get_running_loop().add_signal_handler(sig, partial(_graceful_shutdown, sig))
-        except NotImplementedError:  # pragma: no cover (Windows)
+        except NotImplementedError:  # Windows
             signal.signal(sig, _graceful_shutdown)  # type: ignore[arg-type]
 
-    # Core ticking loop
-    while not stop.is_set():
+    # Core scheduling loop ----------------------------------------------------------
+    while not stop_event.is_set():
         await asyncio.gather(*(r.step() for r in runners.values()))
-        await asyncio.sleep(0.2)
+        await asyncio.sleep(0.2)  # tight-ish loop; agents self-pace
 
-    # Drain
+    # Drain pending tasks -----------------------------------------------------------
     await asyncio.gather(*(r._task for r in runners.values() if r._task), return_exceptions=True)
+    if rest_server:
+        await rest_server.shutdown()
     logger.info("Orchestrator stopped cleanly")
 
-# ----------------------------------------------------------------------------
-# CLI entry‑point
-# ----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
+# CLI entry-point --------------------------------------------------------------
 if __name__ == "__main__":
     try:
         asyncio.run(_main())
