@@ -4,6 +4,15 @@
 > Welcome, pioneer. You are gazing at the **command deck** of **Alpha‑Factory v1** — a cross‑industry swarm of autonomous α‑AGI Agents forged to harvest hidden alpha from every corner of the economy and alchemise it into value.  
 > Each agent below is a self‑improving specialist orchestrated through the **OpenAI Agents SDK**, Google’s **ADK**, the **A2A** protocol, and Anthropic’s **Model Context Protocol**. All artefacts are container‑portable, cryptographically signed, and **antifragile by design**.
 
+Definitions of the α‑AGI Agent:
+
+> **Like a keystone species in a digital ecosystem**, the agentic α‑AGI Agent (`<name>.a.agent.agi.eth`) is an autonomously evolving orchestrator that executes α‑Jobs end-to-end for α‑AGI Businesses (`<name>.a.agi.eth`), fueled by \$AGIALPHA and guided by validator feedback and on-chain reputation to amplify the network’s collective intelligence and value with unprecedented efficiency.
+
+> **As a masterful conductor in the symphony of intelligent agents**, the α‑AGI Agent dynamically harmonizes α‑AGI Business objectives with α‑Job execution, leveraging \$AGIALPHA as its fuel and validator-vetted on-chain reputation as its score, to deliver decisive end-to-end performance and drive the ecosystem to new heights of innovation and trust.
+
+> **An antifragile, self-improving digital operative**, the α‑AGI Agent uncovers and harnesses “alpha” opportunities across the agentic ecosystem, seamlessly interfacing with α‑AGI Businesses and executing α‑Jobs with end-to-end precision, powered by \$AGIALPHA and continuously compounding its on-chain reputation into ever-greater network value.
+
+
 ---
 
 ## 📜 Contents  
