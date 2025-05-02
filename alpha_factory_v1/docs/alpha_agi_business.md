@@ -55,18 +55,18 @@ flowchart LR
 
   %% Agent Constellation
   subgraph Agents
-    FIN["finance.&lt;name&gt;.a.agent.agi.eth"]
-    BIO["biotech.&lt;name&gt;.a.agent.agi.eth"]
-    MFG["manufacturing.&lt;name&gt;.a.agent.agi.eth"]
-    POL["policy.&lt;name&gt;.a.agent.agi.eth"]
-    ENE["energy.&lt;name&gt;.a.agent.agi.eth"]
-    SUP["supply_chain.&lt;name&gt;.a.agent.agi.eth"]
-    RET["retail_demand.&lt;name&gt;.a.agent.agi.eth"]
-    MKT["marketing.&lt;name&gt;.a.agent.agi.eth"]
-    CYB["cyber_threat.&lt;name&gt;.a.agent.agi.eth"]
-    CLM["climate_risk.&lt;name&gt;.a.agent.agi.eth"]
-    DRG["drug_design.&lt;name&gt;.a.agent.agi.eth"]
-    SMT["smart_contract.&lt;name&gt;.a.agent.agi.eth"]
+    FIN["finance.a.agent.agi.eth"]
+    BIO["biotech.a.agent.agi.eth"]
+    MFG["manufacturing.a.agent.agi.eth"]
+    POL["policy.a.agent.agi.eth"]
+    ENE["energy.a.agent.agi.eth"]
+    SUP["supply_chain.a.agent.agi.eth"]
+    RET["retail_demand.a.agent.agi.eth"]
+    MKT["marketing.a.agent.agi.eth"]
+    CYB["cyber_threat.a.agent.agi.eth"]
+    CLM["climate_risk.a.agent.agi.eth"]
+    DRG["drug_design.a.agent.agi.eth"]
+    SMT["smart_contract.a.agent.agi.eth"]
   end
 
   %% A2A links (one‑to‑many explicit to satisfy Mermaid syntax)
