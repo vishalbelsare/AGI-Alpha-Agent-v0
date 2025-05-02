@@ -3,148 +3,158 @@
 alpha_factory_v1.backend.memory_vector
 ======================================
 
-Vector‑memory layer for **Alpha‑Factory v1 👁️✨**.
+**Vector Memory Fabric – Production‑grade, fault‑tolerant, self‑contained.**
 
-*   Primary backend — **PostgreSQL + pgvector** (best‑in‑class production setup)
-*   Seamless fallback — **FAISS‑in‑RAM** or **brute‑force** (no external deps)
-*   Embedding engine — auto‑selects **OpenAI `text‑embedding‑3‑small`**
-    when `OPENAI_API_KEY` is set, otherwise falls back to
-    *Sentence‑Transformers* (`all‑MiniLM‑L6‑v2`) – tiny & CPU‑friendly.
+• Primary storage   : PostgreSQL + pgvector (persistent, scalable)  
+• Seamless fallback : FAISS‑in‑RAM (fast, ephemeral)  
+• Last‑resort       : Pure‑numpy brute‑force (always available)  
 
-This module is intentionally **self‑contained** (no imports from the rest of
-Alpha‑Factory) so that it can be unit‑tested and reused in isolation.
+Embedding backend:
+    1. OpenAI ``text-embedding-3-small`` (if ``OPENAI_API_KEY`` is set)  
+    2. Sentence‑Transformers ``all‑MiniLM‑L6‑v2`` (small CPU model)  
 
-Example
--------
-```python
-from alpha_factory_v1.backend.memory_vector import VectorMemory
+This file is **stand‑alone** – it has *no* intra‑project imports, so it can
+be unit‑tested or reused in isolation.  All optional dependencies are
+gracefully degraded; *nothing* here will ever raise ImportError at import
+time.
 
-mem = VectorMemory()                       # auto‑connect
-mem.add(agent="finance", content="Bought BTC at 62k")
-hits = mem.search("BTC purchase", k=3)   # → [(agent, content, score), …]
-```
+---------------------------------------------------------------------------
+Quick‑start
+---------------------------------------------------------------------------
+>>> from alpha_factory_v1.backend.memory_vector import VectorMemory
+>>> mem = VectorMemory()                         # auto‑detects backend
+>>> mem.add("finance", "Bought BTC at 62 000 USD")  # store
+>>> mem.search("btc purchase", k=3)            # similarity lookup
+[('finance', 'Bought BTC at 62000 USD', 0.9123)]
+
+---------------------------------------------------------------------------
+CLI self‑test (runs even without Postgres/FAISS/OpenAI)
+---------------------------------------------------------------------------
+$ python -m alpha_factory_v1.backend.memory_vector --demo
+
 """
-
 from __future__ import annotations
 
-###############################################################################
-# Standard‑library                                                            #
-###############################################################################
+# --------------------------------------------------------------------- #
+# Standard library                                                      #
+# --------------------------------------------------------------------- #
 import contextlib
-import json
 import logging
 import os
-import time
+import sys
 from pathlib import Path
 from typing import Iterable, List, Optional, Sequence, Tuple
 
-###############################################################################
-# Third‑party (import guarded – module still works if optional deps missing)  #
-###############################################################################
-try:                      # 🔌 OpenAI embeddings (preferred when available)
-    import openai
-    _OPENAI = os.getenv("OPENAI_API_KEY") is not None
-except Exception:         # pragma: no cover
-    _OPENAI = False       # type: ignore[assignment]
+import numpy as _np
 
-try:                      # 📚 Sentence‑Transformers fallback
-    from sentence_transformers import SentenceTransformer           # type: ignore
-except ModuleNotFoundError:                                          # pragma: no cover
-    SentenceTransformer = None                                       # type: ignore
+# --------------------------------------------------------------------- #
+# Optional third‑party deps (each individually gated)                   #
+# --------------------------------------------------------------------- #
+try:
+    import openai  # type: ignore
+    _HAS_OPENAI = True and os.getenv("OPENAI_API_KEY")
+except Exception:  # pragma: no cover
+    _HAS_OPENAI = False
 
-try:                      # 🐘 PostgreSQL & pgvector
-    import psycopg2                                                 # type: ignore
-    import psycopg2.extras                                          # type: ignore
+try:
+    from sentence_transformers import SentenceTransformer  # type: ignore
+except ModuleNotFoundError:  # pragma: no cover
+    SentenceTransformer = None  # type: ignore
+
+try:
+    import psycopg2  # type: ignore
+    import psycopg2.extras  # type: ignore
     _HAS_PG = True
-except ModuleNotFoundError:                                         # pragma: no cover
+except ModuleNotFoundError:  # pragma: no cover
     _HAS_PG = False
 
-try:                      # ⚡ FAISS CPU index
-    import faiss                                                 # type: ignore
+try:
+    import faiss  # type: ignore
     _HAS_FAISS = True
-except ModuleNotFoundError:                                         # pragma: no cover
+except ModuleNotFoundError:  # pragma: no cover
     _HAS_FAISS = False
 
-import numpy as _np  # numpy is a hard dep – required for array ops
+try:
+    from prometheus_client import Counter, Gauge  # type: ignore
+    _METRIC_ADD = Counter("af_mem_add_total", "Memories added", ["backend"])
+    _METRIC_QUERY = Counter("af_mem_query_total", "Memory queries", ["backend"])
+    _METRIC_SIZE = Gauge("af_mem_size", "Total memories stored", ["backend"])
+except ModuleNotFoundError:  # pragma: no cover
+    def _noop(*_a, **_kw):  # type: ignore
+        class _D:  # pylint: disable=too-few-public-methods
+            def labels(self, *_l): return self
+            def inc(self, *_i): pass
+            def set(self, *_v): pass
+        return _D()
+    _METRIC_ADD = _METRIC_QUERY = _METRIC_SIZE = _noop()
 
-
-###############################################################################
-# Logging                                                                     #
-###############################################################################
+# --------------------------------------------------------------------- #
 logger = logging.getLogger("alpha_factory.memory_vector")
+if not logger.handlers:  # avoid duplicate in case of re‑import
+    _h = logging.StreamHandler(sys.stdout)
+    _h.setFormatter(logging.Formatter("%(asctime)s %(levelname)s %(message)s"))
+    logger.addHandler(_h)
 logger.setLevel(logging.INFO)
 
+_DIM = 384  # embedding dimension (MiniLM)
 
-###############################################################################
-# Embedding helper                                                            #
-###############################################################################
-_DIM = 384  # default dimensionality when using MiniLM
-
-def _embed(texts: Sequence[str]) -> "_np.ndarray":  # → shape (n, dim)
-    """Return **L2‑normalised** embeddings for *1 or more* texts."""
-    if _OPENAI:
-        # batch call (OpenAI supports up to 2048 tokens / 2048 texts per req)
-        try:
-            rsp = openai.embeddings.create(model="text-embedding-3-small", input=list(texts))  # type: ignore
-            mats = _np.asarray([d.embedding for d in rsp.data], dtype="float32")
-        except Exception:                                   # pragma: no cover
-            logger.exception("OpenAI embed failed – falling back to SBERT")
-            return _embed_sbert(texts)
-        return _l2_normalise(mats)
-
-    return _embed_sbert(texts)
-
-
-def _embed_sbert(texts: Sequence[str]) -> "_np.ndarray":
-    if SentenceTransformer is None:
-        raise RuntimeError("Sentence‑Transformers missing – run `pip install sentence-transformers` or set OPENAI_API_KEY.")
-    model = _get_sbert_model()
-    mats = _np.asarray(model.encode(list(texts), normalize_embeddings=True), dtype="float32")
-    return mats
-
-
+# =========================== Embedding layer ========================= #
 _SBERT_MODEL: Optional[SentenceTransformer] = None
-def _get_sbert_model() -> "SentenceTransformer":   # lazy‑load once
+
+def _get_sbert() -> "SentenceTransformer":
     global _SBERT_MODEL
     if _SBERT_MODEL is None:
-        _SBERT_MODEL = SentenceTransformer("all-MiniLM-L6-v2")  # noqa: S113
+        if SentenceTransformer is None:
+            raise RuntimeError("Sentence‑Transformers not installed – run `pip install sentence-transformers` or set OPENAI_API_KEY.")
+        _SBERT_MODEL = SentenceTransformer("all-MiniLM-L6-v2")
     return _SBERT_MODEL
 
-
-def _l2_normalise(a: "_np.ndarray") -> "_np.ndarray":
+def _l2(a: _np.ndarray) -> _np.ndarray:
     return a / _np.linalg.norm(a, ord=2, axis=1, keepdims=True)
 
+def _embed(texts: Sequence[str]) -> _np.ndarray:
+    """Return L2‑normalised embeddings for *texts*."""
+    # Prefer OpenAI API – production quality & multilingual
+    if _HAS_OPENAI:
+        try:
+            rsp = openai.embeddings.create(  # type: ignore
+                model="text-embedding-3-small",
+                input=list(texts),
+            )
+            mat = _np.asarray([d.embedding for d in rsp.data], dtype="float32")
+            return _l2(mat)
+        except Exception:  # pragma: no cover
+            logger.exception("OpenAI embedding failed – falling back to SBERT")
+    # Local SBERT
+    model = _get_sbert()
+    mat = model.encode(list(texts), normalize_embeddings=True)
+    return _np.asarray(mat, dtype="float32")
 
-###############################################################################
-# Storage backends                                                            #
-###############################################################################
+# =========================== Storage backends ======================== #
 class _PostgresStore:
-    """pgvector‑powered persistent store."""
-
+    """Persistent pgvector‑backed storage."""
     def __init__(self, dsn: str):
         self._conn = psycopg2.connect(dsn)
         self._ensure_schema()
+        _METRIC_SIZE.labels("postgres").set(self.__len__())
 
-    # --------------------------------------------------------------------- #
     def _ensure_schema(self) -> None:
         with self._conn, self._conn.cursor() as cur:
             cur.execute("CREATE EXTENSION IF NOT EXISTS vector")
             cur.execute(
-                """CREATE TABLE IF NOT EXISTS memories(
-                        id       BIGSERIAL PRIMARY KEY,
-                        agent    TEXT,
-                        embedding  VECTOR(%s),
-                        content  TEXT,
-                        ts       TIMESTAMPTZ DEFAULT now()
-                    )""", (_DIM,))
-            cur.execute("CREATE INDEX IF NOT EXISTS mem_embedding_idx ON memories USING ivfflat(embedding vector_cosine_ops)")
-            cur.execute("CREATE INDEX IF NOT EXISTS mem_agent_ts_idx   ON memories(agent, ts DESC)")
+                f"""CREATE TABLE IF NOT EXISTS memories(
+                        id        BIGSERIAL PRIMARY KEY,
+                        agent     TEXT,
+                        embedding VECTOR({_DIM}),
+                        content   TEXT,
+                        ts        TIMESTAMPTZ DEFAULT now()
+                    )""")
+            cur.execute("CREATE INDEX IF NOT EXISTS mem_vec_idx ON memories USING ivfflat(embedding vector_cosine_ops)")
+            cur.execute("CREATE INDEX IF NOT EXISTS mem_agent_ts_idx ON memories(agent, ts DESC)")
 
-    # --------------------------------------------------------------------- #
-    def add(self, agent: str, embeds: "_np.ndarray", contents: List[str]) -> None:
-        assert embeds.shape[0] == len(contents)
-        vec_list = embeds.tolist()
-        rows = [(agent, v, c) for v, c in zip(vec_list, contents)]
+    # CRUD ------------------------------------------------------------ #
+    def add(self, agent: str, vecs: _np.ndarray, texts: List[str]) -> None:
+        rows = [(agent, v.tolist(), t) for v, t in zip(vecs, texts)]
         with self._conn, self._conn.cursor() as cur:
             psycopg2.extras.execute_batch(
                 cur,
@@ -152,116 +162,121 @@ class _PostgresStore:
                 rows,
                 page_size=100,
             )
+        _METRIC_ADD.labels("postgres").inc(len(rows))
+        _METRIC_SIZE.labels("postgres").set(self.__len__())
 
-    # --------------------------------------------------------------------- #
-    def query(self, embed: "_np.ndarray", k: int) -> List[Tuple[str, str, float]]:
+    def query(self, vec: _np.ndarray, k: int) -> List[Tuple[str, str, float]]:
         with self._conn.cursor() as cur:
             cur.execute(
                 """SELECT agent, content,
                            1 - (embedding <=> %s::vector) AS score
                        FROM memories
                        ORDER BY embedding <=> %s::vector
-                       LIMIT %s""", (embed.tolist(), embed.tolist(), k)
+                       LIMIT %s""", (vec.tolist(), vec.tolist(), k)
             )
             return cur.fetchall()
 
+    def __len__(self) -> int:
+        with self._conn.cursor() as cur:
+            cur.execute("SELECT COUNT(*) FROM memories")
+            return int(cur.fetchone()[0])
 
 class _FaissStore:
-    """In‑memory FAISS (or brute‑force) store – non‑persistent."""
+    """Fast in‑RAM FAISS (or numpy) store."""
     def __init__(self):
-        if _HAS_FAISS:
-            self._index = faiss.IndexFlatIP(_DIM)   # cosine similarity via L2‑normalised dot
-        else:
-            self._index = None
-        self._buf  : List[Tuple[str,str]] = []
-        self._vecs : List["_np.ndarray"] = []
+        self._index = faiss.IndexFlatIP(_DIM) if _HAS_FAISS else None
+        self._texts: List[Tuple[str, str]] = []
+        self._vecs: List[_np.ndarray] = []
 
-    # ------------------------------------------------------------------ #
-    def add(self, agent: str, embeds: "_np.ndarray", contents: List[str]) -> None:
-        self._buf.extend((agent, c) for c in contents)
+    def add(self, agent: str, vecs: _np.ndarray, texts: List[str]) -> None:
+        self._texts.extend((agent, t) for t in texts)
         if self._index is not None:
-            self._index.add(embeds)
-        self._vecs.append(embeds)
+            self._index.add(vecs)
+        self._vecs.append(vecs)
+        _METRIC_ADD.labels("faiss" if self._index is not None else "numpy").inc(len(texts))
+        _METRIC_SIZE.labels("faiss" if self._index is not None else "numpy").set(self.__len__())
 
-    # ------------------------------------------------------------------ #
-    def query(self, embed: "_np.ndarray", k: int) -> List[Tuple[str, str, float]]:
-        if self._index is not None and self._index.ntotal > 0:
-            D, I = self._index.search(embed, min(k, self._index.ntotal))
+    def query(self, vec: _np.ndarray, k: int) -> List[Tuple[str, str, float]]:
+        if self._index is not None and self._index.ntotal:
+            D, I = self._index.search(vec, min(k, self._index.ntotal))
             return [
-                (*self._buf[idx], float(score))
+                (*self._texts[idx], float(score))
                 for idx, score in zip(I[0], D[0])
             ]
-        # brute‑force fallback (slow but always works)
+        # brute‑force dot‑product
         if not self._vecs:
             return []
         mat = _np.vstack(self._vecs)
-        sims = mat @ embed.T
-        topk_idx = sims[:,0].argsort()[::-1][:k]
+        sims = mat @ vec.T
+        order = sims[:, 0].argsort()[::-1][:k]
         return [
-            (*self._buf[i], float(sims[i,0]))
-            for i in topk_idx
+            (*self._texts[i], float(sims[i, 0]))
+            for i in order
         ]
 
+    def __len__(self) -> int:
+        if self._index is not None:
+            return self._index.ntotal
+        return sum(v.shape[0] for v in self._vecs)
 
-###############################################################################
-# Public API                                                                  #
-###############################################################################
+# ============================= Public API ============================ #
 class VectorMemory:
-    """Unified vector‑memory wrapper (Postgres → FAISS → brute‑force)."""
-
+    """Unified interface wrapping whichever backend is available."""
     def __init__(self, dsn: Optional[str] = None):
         dsn = dsn or os.getenv("PG_DSN") or os.getenv("DATABASE_URL")
-        self._store: "_PostgresStore | _FaissStore"
         if dsn and _HAS_PG:
-            self._store = _PostgresStore(dsn)
-            logger.info("VectorMemory: using Postgres pgvector backend")
+            self._store: _PostgresStore | _FaissStore = _PostgresStore(dsn)
+            self.backend = "postgres"
         else:
             self._store = _FaissStore()
-            logger.warning("VectorMemory: using in‑memory backend – data non‑persistent")
+            self.backend = "faiss" if _HAS_FAISS else "numpy"
+            if self.backend != "postgres":
+                logger.warning("VectorMemory running in non‑persistent %s mode", self.backend)
+                if self.backend == "numpy":
+                    logger.warning("Performance will be sub‑optimal – install faiss‑cpu or connect Postgres+pgvector")
+        _METRIC_SIZE.labels(self.backend).set(len(self))
 
-    # ------------------------------------------------------------------ #
+    # --------------------------- operations ------------------------- #
     def add(self, agent: str, content: str | Iterable[str]) -> None:
-        """Add *one or many* pieces of text for *agent*.
+        texts = [content] if isinstance(content, str) else list(content)
+        vecs = _embed(texts)
+        self._store.add(agent, vecs, texts)
 
-        Parameters
-        ----------
-        agent   – name/id of the agent (used for filtering / analytics)
-        content – str or iterable[str]
-        """
-        if isinstance(content, str):
-            texts = [content]
-        else:
-            texts = list(content)
-        embeds = _embed(texts)
-        self._store.add(agent, embeds, texts)
-
-    # ------------------------------------------------------------------ #
     def search(self, query: str, k: int = 5) -> List[Tuple[str, str, float]]:
-        """Return *(agent, content, similarity)* triples, highest‑score first."""
-        q_vec = _embed([query])
-        return self._store.query(q_vec, k)
+        _METRIC_QUERY.labels(self.backend).inc()
+        vec = _embed([query])
+        return self._store.query(vec, k)
 
-    # ------------------------------------------------------------------ #
+    # helper utilities ---------------------------------------------- #
     def __len__(self) -> int:
-        """Return number of stored memories (approx for FAISS)."""
+        return self._store.__len__()
+
+    def flush(self) -> None:
+        """**DANGEROUS**: wipe all memories (only supported in Postgres)."""
         if isinstance(self._store, _PostgresStore):
-            with self._store._conn.cursor() as cur:
-                cur.execute("SELECT COUNT(*) FROM memories")
-                return int(cur.fetchone()[0])
-        elif isinstance(self._store, _FaissStore) and self._store._vecs:
-            return sum(v.shape[0] for v in self._store._vecs)
-        return 0  # empty
+            with self._store._conn, self._store._conn.cursor() as cur:
+                cur.execute("TRUNCATE TABLE memories")
+            _METRIC_SIZE.labels("postgres").set(0)
+        else:
+            raise RuntimeError("Flush only supported for persistent Postgres backend")
 
+# ================================ CLI =============================== #
+if __name__ == "__main__":
+    import argparse, pprint, random, time  # noqa:  E402
 
-###############################################################################
-# CLI (test)                                                                   #
-###############################################################################
-if __name__ == "__main__":  # quick‑and‑dirty self‑test
-    import argparse, sys, pprint                                 # noqa: E402
-    ap = argparse.ArgumentParser("vector‑memory quick‑test")
+    ap = argparse.ArgumentParser("vector‑memory CLI")
     ap.add_argument("--dsn", help="Postgres DSN (optional)")
+    ap.add_argument("--demo", action="store_true", help="run quick demo")
     ns = ap.parse_args()
 
-    mem = VectorMemory(ns.dsn)
-    mem.add("demo", ["Sky is blue", "BTC hits 70k", "AI is the future"])
-    pprint.pp(mem.search("bitcoin price", k=2))
+    vm = VectorMemory(ns.dsn)
+    if ns.demo:
+        print("Backend:", vm.backend)
+        samples = ["the quick brown fox", "jumps over", "the lazy dog"]
+        random.shuffle(samples)
+        vm.add("demo", samples)
+        time.sleep(0.2)  # simulate latency
+        hits = vm.search("quick fox", k=2)
+        pprint.pp(hits)
+    else:
+        ap.print_help()
