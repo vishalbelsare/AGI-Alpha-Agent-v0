@@ -1,6 +1,0 @@
-apiVersion: v2
-name: alpha-factory-remote
-description: Remote worker pod for Alpha Factory swarm (A2A)
-version: 0.1.0
-appVersion: "v2"
-
