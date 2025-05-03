@@ -1,463 +1,492 @@
+# SPDX-License-Identifier: MIT
 """
 alpha_factory_v1.backend.utils.llm_provider
 ===========================================
 
-Battle‑hardened **one‑liner** interface to *any* large‑language‑model back‑end
-(OpenAI, Anthropic, Google Gemini, Mistral, Together AI, HuggingFace TGI,
-Ollama, llama‑cpp…) with **graceful, zero‑downtime degradation** all the way
-down to a fully‑offline quantised GGUF model.
+Battle-hardened one-liner interface to any large-language-model back-end
+(OpenAI, Anthropic, Google Gemini, Mistral, Together AI, HF-TGI, Ollama,
+llama-cpp …) with graceful, zero-downtime degradation all the way down to an
+offline quantised GGUF model.
 
-Key design goals
-----------------
-1.  **Single call‑site** for every agent →  ``llm.chat("prompt")``.
-2.  **Never block** – token‑rate budgeting, automatic back‑off & provider
-    cascade keep the Orchestrator alive even under heavy rate‑limits.
-3.  **Secure & economical** – secrets only via env‑vars; optional on‑disk cache
-    cuts cost and latency for deterministic prompts.
-4.  **Observability first** – Prometheus counters + latency histograms +
-    structured JSON logs for every round‑trip.
-5.  **Extensible in ≤10 LOC** – drop a new provider class in `_providers/`
-    and it is auto‑registered on import.
-
-Example
--------
+Public API
+----------
 >>> from alpha_factory_v1.backend.utils.llm_provider import LLMProvider
 >>> llm = LLMProvider()
->>> print(llm.chat("Explain risk‑parity like I'm five."))
-“I have five different kinds of sweets …”
+>>> print(llm.chat("Explain risk-parity like I'm five."))
 
-CLI smoke‑test
-~~~~~~~~~~~~~~
-$ python -m alpha_factory_v1.backend.utils.llm_provider \
-      --prompt "Summarise Alpha‑Factory in one tweet."
+Extras
+~~~~~~
+* ``LLMProvider.achat`` – `async` variant (awaitable).
+* CLI smoke-test: ``python -m alpha_factory_v1.backend.utils.llm_provider
+  --prompt "quick demo"``
+
+Design pillars
+--------------
+1. Single **call-site** for every agent → ``llm.chat(...)``.  
+2. **Provider-cascade** → automatic fail-over & rate-limit budgeting.  
+3. **Disk cache** (SQLite) + in-mem LRU to slash cost/latency.  
+4. Full **observability** – Prometheus counters + latency histograms.  
+5. **Extensible** – drop a new provider in `_providers/` and it registers
+   automatically (≤10 LOC).  
+6. Runs **with or without** any cloud API key; offline path via llama-cpp.
+
 """
-
 from __future__ import annotations
 
-# ────────────────────────── stdlib ──────────────────────────
-import functools
-import json
-import logging
-import os
-import pathlib
-import time
-from dataclasses import dataclass
-from datetime import datetime
+# ───────────────────────── stdlib ──────────────────────────
+import asyncio, contextlib, dataclasses, functools, hashlib, json, logging
+import os, pathlib, sqlite3, time
 from types import GeneratorType
-from typing import Dict, Generator, List, Literal, Optional, Sequence
+from typing import Any, Dict, Generator, Iterable, List, Optional, Sequence
 
-# ─────────────────────── optional deps ──────────────────────
-_HAS_OPENAI = _HAS_ANTHROPIC = _HAS_GOOGLE = _HAS_MISTRAL = False
-_HAS_TOGETHER = _HAS_TGI = _HAS_OLLAMA = _HAS_LLAMA = False
-_HAS_PROM = _HAS_TOKS = False
-
-try:  # OpenAI
-    import openai  # type: ignore
-    _HAS_OPENAI = True
-except Exception:
-    pass
-
-try:  # Anthropic
-    import anthropic  # type: ignore
-    _HAS_ANTHROPIC = True
-except Exception:
-    pass
-
-try:  # Google Gemini ( a.k.a. Google AI Studio )
-    import google.generativeai as genai  # type: ignore
-    _HAS_GOOGLE = True
-except Exception:
-    pass
-
-try:  # Mistral AI
-    import mistralai  # type: ignore
-    _HAS_MISTRAL = True
-except Exception:
-    pass
-
-try:  # Together AI
-    import together  # type: ignore
-    _HAS_TOGETHER = True
-except Exception:
-    pass
-
-try:  # HuggingFace text‑generation‑inference client
-    from text_generation import Client as TGIClient  # type: ignore
-    _HAS_TGI = True
-except Exception:
-    pass
-
-try:  # Ollama (local chat‑LLM server)
-    import ollama  # type: ignore
-    _HAS_OLLAMA = True
-except Exception:
-    pass
-
-try:  # llama‑cpp (offline GGUF)
-    from llama_cpp import Llama  # type: ignore
-    _HAS_LLAMA = True
-except Exception:
-    pass
-
-try:  # Prometheus
-    from prometheus_client import Counter, Histogram  # type: ignore
+# ──────────────────── optional dependencies ────────────────
+_HAS_PROM = _HAS_TOK = False
+try:
+    from prometheus_client import Counter, Histogram                    # type: ignore
     _HAS_PROM = True
 except Exception:
     pass
-
-try:  # Token counting (OpenAI tiktoken)
-    import tiktoken  # type: ignore
-    _HAS_TOKS = True
+try:
+    import tiktoken                                                   # type: ignore
+    _HAS_TOK = True
 except Exception:
     pass
 
-# ────────────────────────── logging ─────────────────────────
-logger = logging.getLogger("alpha_factory.llm_provider")
-if not logger.handlers:
-    _h = logging.StreamHandler()
-    _h.setFormatter(logging.Formatter(
-        "[%(asctime)s] %(levelname)s %(name)s – %(message)s",
-        "%H:%M:%S"))
-    logger.addHandler(_h)
-logger.setLevel(logging.INFO)
+# will lazily import heavy provider libs later
 
-# ───────────────────── Prometheus metrics ───────────────────
+# ───────────────────────── logging ─────────────────────────
+_log = logging.getLogger("alpha_factory.llm_provider")
+if not _log.handlers:
+    h = logging.StreamHandler()
+    h.setFormatter(logging.Formatter("[%(asctime)s] %(levelname)s %(message)s",
+                                     "%H:%M:%S"))
+    _log.addHandler(h)
+_log.setLevel(logging.INFO)
+
+# ───────────────────── Prometheus metrics ──────────────────
 if _HAS_PROM:
-    _REQS = Counter(
-        "af_llm_requests_total", "LLM completion requests",
-        ["provider", "status"])
-    _TOKS = Counter(
-        "af_llm_tokens_total", "LLM prompt+completion tokens",
-        ["provider"])
-    _LAT  = Histogram(
-        "af_llm_latency_seconds", "LLM round‑trip latency",
-        ["provider"])
-else:  # fallback dummy
-    class _NoOp:                       # noqa: D401,E501
-        def labels(self, *_a, **_k): return self
-        def inc(self, *_a, **_k): ...  # noqa: D401
-        def observe(self, *_a, **_k): ...
+    _CNT_REQ = Counter("af_llm_requests_total", "LLM requests",
+                       ("provider", "status"))
+    _CNT_TOK = Counter("af_llm_tokens_total", "Tokens used",
+                       ("provider",))
+    _HIST_LAT = Histogram("af_llm_latency_seconds", "Latency",
+                          ("provider",))
+else:                                    # no-op stubs
+    class _N:
+        def labels(self, *_, **__): return self
+        def inc(self, *_, **__): ...
+        def observe(self, *_, **__): ...
+    _CNT_REQ = _CNT_TOK = _HIST_LAT = _N()      # type: ignore
 
-    _REQS = _TOKS = _LAT = _NoOp()     # type: ignore
+# ─────────────────── token estimation util ─────────────────
+@functools.lru_cache(maxsize=8)
+def _enc(model: str = "cl100k_base"):           # OpenAI default vocab
+    return tiktoken.get_encoding(model) if _HAS_TOK else None
 
-# ─────────────────────── token counting ─────────────────────
-@functools.lru_cache(maxsize=4)
-def _enc(model: str = "cl100k_base"):
-    if not _HAS_TOKS:
-        return None
-    return tiktoken.get_encoding(model)
-
-def _tok_count(txt: str) -> int:
+def _count_tokens(text: str) -> int:
     e = _enc()
-    return len(e.encode(txt)) if e else max(1, len(txt) // 4)
+    if e: return len(e.encode(text))
+    # 1 token ≈ 4 chars heuristic
+    return max(1, len(text) // 4)
 
-# ───────────────────────── providers ────────────────────────
-class _Base:
-    """Abstract provider.  Concrete subclasses must implement `_chat`."""
+# ───────────────────────── cache ───────────────────────────
+_TTL = int(os.getenv("AF_LLM_CACHE_TTL", "86400"))          # 1 day default
+_cache_mem: dict[str, tuple[float, str]] = {}               # hash -> (ts, out)
 
+_db_path = pathlib.Path(os.getenv("AF_LLM_CACHE_PATH",
+                                  pathlib.Path.home()/".cache"/"alpha_factory_llm.sqlite"))
+def _db_init() -> sqlite3.Connection | None:
+    try:
+        _db_path.parent.mkdir(parents=True, exist_ok=True)
+        db = sqlite3.connect(_db_path)
+        db.execute("PRAGMA journal_mode=WAL;")
+        db.execute("""CREATE TABLE IF NOT EXISTS cache
+                   (h TEXT PRIMARY KEY, ts REAL, out TEXT, provider TEXT)""")
+        os.chmod(_db_path, 0o600)
+        return db
+    except Exception as exc:
+        _log.warning("Disk-cache disabled: %s", exc)
+        return None
+
+_DB = _db_init()
+
+def _cache_get(h: str) -> str | None:
+    # in-mem first
+    v = _cache_mem.get(h)
+    if v and time.time() - v[0] < _TTL:
+        return v[1]
+    if _DB:
+        row = _DB.execute("SELECT out, ts FROM cache WHERE h=? AND ?-ts<?",
+                          (h, time.time(), _TTL)).fetchone()
+        if row: return row[0]
+    return None
+
+def _cache_put(h: str, out: str, prov: str) -> None:
+    _cache_mem[h] = (time.time(), out)
+    if _DB:
+        with _DB:
+            _DB.execute("INSERT OR REPLACE INTO cache VALUES (?,?,?,?)",
+                        (h, time.time(), out, prov))
+
+# ───────────────── rate-limit budgeting ────────────────────
+@dataclasses.dataclass
+class _Budget:
+    rpm: int = int(os.getenv("AF_RPM_LIMIT", "900"))       # requests / min
+    tpm: int = int(os.getenv("AF_TPM_LIMIT", "60000"))     # tokens / min
+    # sliding window
+    _req_ts: List[float] = dataclasses.field(default_factory=list)
+    _tok_ts: List[tuple[float, int]] = dataclasses.field(default_factory=list)
+
+    def allow(self, tokens: int) -> bool:
+        now = time.time()
+        # purge old
+        self._req_ts = [t for t in self._req_ts if now - t < 60]
+        self._tok_ts = [p for p in self._tok_ts if now - p[0] < 60]
+        if len(self._req_ts) >= self.rpm: return False
+        if sum(t for _, t in self._tok_ts) + tokens > self.tpm: return False
+        # record
+        self._req_ts.append(now)
+        self._tok_ts.append((now, tokens))
+        return True
+
+# ───────────────── provider base class ─────────────────────
+class _Provider:
     name: str = "base"
+    _budget = _Budget()
 
-    def _chat(self, messages: List[Dict[str, str]], *,
-              temperature: float, max_tokens: int,
-              stream: bool, stop: Optional[Sequence[str]]) \
-            -> str | Generator[str, None, None]:
+    # ----- helpers ---------------------------------------------------------
+    def _record(self, ok: bool, tokens: int|None, lat: float) -> None:
+        _CNT_REQ.labels(self.name, "ok" if ok else "fail").inc()
+        if tokens: _CNT_TOK.labels(self.name).inc(tokens)
+        _HIST_LAT.labels(self.name).observe(lat)
+
+    # ----- public sync interface ------------------------------------------
+    def chat(                             # noqa: D401
+        self, messages: List[Dict[str,str]],
+        temperature: float, max_tokens: int,
+        stream: bool, stop: Optional[Sequence[str]],
+    ) -> str | Generator[str, None, None]:
+        t0 = time.perf_counter()
+        # estimated tokens (cheap; provider may return more/less)
+        est_toks = sum(_count_tokens(m["content"]) for m in messages) + max_tokens
+        if not self._budget.allow(est_toks):
+            raise RuntimeError(f"{self.name} rate-limit budget exhausted")
+        try:
+            out = self._invoke(messages, temperature, max_tokens, stream, stop)
+            if not isinstance(out, GeneratorType):
+                self._record(True, est_toks, time.perf_counter()-t0)
+            return out
+        except Exception:
+            self._record(False, None, time.perf_counter()-t0)
+            raise
+
+    # ----- async wrapper ---------------------------------------------------
+    async def achat(self, *a: Any, **k: Any) -> Any:
+        loop = asyncio.get_running_loop()
+        return await loop.run_in_executor(None, lambda: self.chat(*a, **k))
+
+    # ----- to be implemented by concrete providers ------------------------
+    def _invoke(self, *a: Any, **k: Any):         # noqa: D401
         raise NotImplementedError
 
-    # unified wrapper adding metrics/latency & error translation
-    def chat(self, *a, **k):
-        tic = time.perf_counter()
-        _REQS.labels(self.name, "attempt").inc()
-        try:
-            out = self._chat(*a, **k)
-            if not isinstance(out, GeneratorType):
-                _TOKS.labels(self.name).inc(_tok_count(out))  # type: ignore[arg-type]
-                _REQS.labels(self.name, "ok").inc()
-            return out
-        except Exception as exc:  # pragma: no cover
-            _REQS.labels(self.name, "fail").inc()
-            logger.warning("%s provider failed: %s", self.name, exc)
-            raise
-        finally:
-            _LAT.labels(self.name).observe(time.perf_counter() - tic)
+# ───────────────────── dynamic provider import ─────────────
+_PROVIDERS: Dict[str, "_Provider"] = {}
+def _install(name: str, prov_cls: type[_Provider]) -> None:
+    try:
+        inst = prov_cls()
+        _PROVIDERS[name] = inst
+        _log.info("LLMProvider: registered backend '%s'", name)
+    except Exception as exc:
+        _log.warning("Skipping provider %s – init failed: %s", name, exc)
 
-# ───────────────────── concrete providers ───────────────────
-class _OpenAI(_Base):
-    name = "openai"
+# -------- built-ins -------------------------------------------------------
+from importlib import import_module
 
-    def __init__(self):
-        self._cli = openai.OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+def _maybe(env: str): return bool(os.getenv(env))
 
-    def _chat(self, msgs, *, temperature, max_tokens, stream, stop):
-        model = os.getenv("OPENAI_MODEL", "gpt-4o-mini")
-        kwargs = dict(model=model, messages=msgs, temperature=temperature,
-                      max_tokens=max_tokens, stop=stop or None, stream=stream)
-        if stream:
-            for chunk in self._cli.chat.completions.create(**kwargs):
-                yield chunk.choices[0].delta.content or ""
-        else:
-            r = self._cli.chat.completions.create(**kwargs)
-            return r.choices[0].message.content.strip()
+# OpenAI
+try:
+    if _maybe("OPENAI_API_KEY"):
+        import openai                                                           # type: ignore
 
-class _Anthropic(_Base):
-    name = "anthropic"
+        class _OpenAI(_Provider):
+            name = "openai"
+            _cli = openai.OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+            def _invoke(self, msgs, temperature, max_tokens, stream, stop):
+                model = os.getenv("OPENAI_MODEL", "gpt-4o-mini")
+                kw = dict(model=model, messages=msgs, temperature=temperature,
+                          max_tokens=max_tokens, stop=stop or None, stream=stream)
+                if stream:
+                    for chunk in self._cli.chat.completions.create(**kw):
+                        yield chunk.choices[0].delta.content or ""
+                else:
+                    r = self._cli.chat.completions.create(**kw)
+                    return r.choices[0].message.content.strip()
 
-    def __init__(self):
-        self._cli = anthropic.Anthropic(api_key=os.getenv("ANTHROPIC_API_KEY"))
+        _install("openai", _OpenAI)
+except ImportError: pass
 
-    def _chat(self, msgs, *, temperature, max_tokens, stream, stop):
-        model = os.getenv("ANTHROPIC_MODEL", "claude-3-opus-20240229")
-        amsg = [{"role": m["role"], "content": m["content"]} for m in msgs]
-        if stream:
-            for ch in self._cli.messages.create(
-                    model=model, messages=amsg, temperature=temperature,
-                    max_tokens=max_tokens, stop_sequences=stop or None,
-                    stream=True):
-                yield ch.delta.text or ""
-        else:
-            r = self._cli.messages.create(
-                model=model, messages=amsg, temperature=temperature,
-                max_tokens=max_tokens, stop_sequences=stop or None)
-            return r.content[0].text.strip()
+# Anthropic
+try:
+    if _maybe("ANTHROPIC_API_KEY"):
+        import anthropic                                                        # type: ignore
+        class _Anthropic(_Provider):
+            name = "anthropic"
+            _cli = anthropic.Anthropic(api_key=os.getenv("ANTHROPIC_API_KEY"))
+            def _invoke(self, msgs, temperature, max_tokens, stream, stop):
+                model = os.getenv("ANTHROPIC_MODEL", "claude-3-opus-20240229")
+                amsg = [{"role": m["role"], "content": m["content"]} for m in msgs]
+                if stream:
+                    for ch in self._cli.messages.create(model=model, messages=amsg,
+                                                       temperature=temperature,
+                                                       max_tokens=max_tokens,
+                                                       stop_sequences=stop or None,
+                                                       stream=True):
+                        yield ch.delta.text or ""
+                else:
+                    r = self._cli.messages.create(model=model, messages=amsg,
+                                                  temperature=temperature,
+                                                  max_tokens=max_tokens,
+                                                  stop_sequences=stop or None)
+                    return r.content[0].text.strip()
+        _install("anthropic", _Anthropic)
+except ImportError: pass
 
-class _Google(_Base):
-    name = "gemini"
+# Google Gemini
+try:
+    if _maybe("GOOGLE_API_KEY"):
+        import google.generativeai as genai                                      # type: ignore
+        class _Gemini(_Provider):
+            name = "gemini"
+            _model = genai.configure(api_key=os.getenv("GOOGLE_API_KEY")) or \
+                     genai.GenerativeModel(os.getenv("GOOGLE_MODEL", "gemini-pro"))
+            def _invoke(self, msgs, temperature, max_tokens, stream, stop):
+                text = "\n".join(m["content"] for m in msgs)
+                res = self._model.generate_content(
+                    text, generation_config=dict(temperature=temperature,
+                                                 max_output_tokens=max_tokens,
+                                                 stop_sequences=stop))
+                return res.text
+        _install("gemini", _Gemini)
+except ImportError: pass
 
-    def __init__(self):
-        genai.configure(api_key=os.getenv("GOOGLE_API_KEY"))
-        model = os.getenv("GOOGLE_MODEL", "gemini-pro")
-        self._cli = genai.GenerativeModel(model)
+# Mistral
+try:
+    if _maybe("MISTRAL_API_KEY"):
+        import mistralai                                                         # type: ignore
+        class _Mistral(_Provider):
+            name = "mistral"
+            _cli = mistralai.MistralClient(api_key=os.getenv("MISTRAL_API_KEY"))
+            def _invoke(self, msgs, temperature, max_tokens, stream, stop):
+                model = os.getenv("MISTRAL_MODEL", "mistral-large-latest")
+                res = self._cli.chat(model=model, messages=msgs,
+                                     temperature=temperature, max_tokens=max_tokens,
+                                     stop=stop or None, stream=stream)
+                if stream:
+                    for ch in res:
+                        yield ch.choices[0].delta.content or ""
+                else:
+                    return res.choices[0].message.content.strip()
+        _install("mistral", _Mistral)
+except ImportError: pass
 
-    def _chat(self, msgs, *, temperature, max_tokens, stream, stop):
-        text = "\n".join(m["content"] for m in msgs)
-        res = self._cli.generate_content(
-            text, generation_config=dict(temperature=temperature,
-                                         max_output_tokens=max_tokens,
-                                         stop_sequences=stop))
-        return res.text
+# Together AI
+try:
+    if _maybe("TOGETHER_API_KEY"):
+        import together                                                          # type: ignore
+        class _Together(_Provider):
+            name = "together"
+            _cli = together.Together(api_key=os.getenv("TOGETHER_API_KEY"))
+            def _invoke(self, msgs, temperature, max_tokens, stream, stop):
+                model = os.getenv("TOGETHER_MODEL",
+                                  "mistralai/Mixtral-8x22B-Instruct-v0.1")
+                res = self._cli.chat.completions.create(
+                    model=model, messages=msgs, temperature=temperature,
+                    max_tokens=max_tokens, stop=stop or None, stream=stream)
+                if stream:
+                    for ch in res:
+                        yield ch.choices[0].delta.content or ""
+                else:
+                    return res.choices[0].message.content.strip()
+        _install("together", _Together)
+except ImportError: pass
 
-class _Mistral(_Base):
-    name = "mistral"
+# HF text-generation-inference
+try:
+    if os.getenv("TGI_ENDPOINT"):
+        from text_generation import Client as _TGIC                              # type: ignore
+        class _TGI(_Provider):
+            name = "tgi"
+            _cli = _TGIC(os.getenv("TGI_ENDPOINT"))
+            def _invoke(self, msgs, temperature, max_tokens, stream, stop):
+                prompt = "\n".join(m["content"] for m in msgs)
+                res = self._cli.generate_stream(prompt, temperature=temperature,
+                                               max_new_tokens=max_tokens,
+                                               stop_sequences=stop or [])
+                if stream:
+                    for tok in res:
+                        yield tok.token.text
+                else:
+                    return "".join(tok.token.text for tok in res).strip()
+        _install("tgi", _TGI)
+except ImportError: pass
 
-    def __init__(self):
-        self._cli = mistralai.MistralClient(
-            api_key=os.getenv("MISTRAL_API_KEY"))
+# Ollama (local server)
+try:
+    import ollama                                                               # type: ignore
+    class _Ollama(_Provider):
+        name = "ollama"
+        def _invoke(self, msgs, temperature, max_tokens, stream, stop):
+            prompt = "\n".join(m["content"] for m in msgs)
+            r = ollama.chat(model=os.getenv("OLLAMA_MODEL", "llama3"),
+                            stream=stream,
+                            messages=[{"role": "user", "content": prompt}],
+                            options={"temperature": temperature,
+                                     "num_predict": max_tokens,
+                                     "stop": stop})
+            if stream:
+                for ch in r:
+                    yield ch["message"]["content"]
+            else:
+                return r["message"]["content"].strip()
+    _install("ollama", _Ollama)
+except ImportError:
+    pass
 
-    def _chat(self, msgs, *, temperature, max_tokens, stream, stop):
-        model = os.getenv("MISTRAL_MODEL", "mistral-large-latest")
-        res = self._cli.chat(model=model, messages=msgs,
-                             temperature=temperature, max_tokens=max_tokens,
-                             stop=stop or None, stream=stream)
-        if stream:
-            for ch in res:
-                yield ch.choices[0].delta.content or ""
-        else:
-            return res.choices[0].message.content.strip()
+# llama-cpp (offline fallback)
+try:
+    from llama_cpp import Llama                                                 # type: ignore
+    class _LlamaCPP(_Provider):
+        name = "llama"
+        def __init__(self) -> None:
+            default = pathlib.Path.home()/".cache"/"llama"/ \
+                      "TinyLlama-1.1B-Chat-v1.0.Q4_K_M.gguf"
+            mpath = pathlib.Path(os.getenv("LLAMA_MODEL_PATH", default))
+            mpath.parent.mkdir(parents=True, exist_ok=True)
+            if not mpath.exists():
+                _log.info("Downloading TinyLlama weight (~380 MB) …")
+                import huggingface_hub as hf                                    # type: ignore
+                tmp = hf.hf_hub_download(repo_id="TheBloke/TinyLlama-1.1B-Chat-GGUF",
+                                         filename=mpath.name)
+                pathlib.Path(tmp).rename(mpath)
+            self._llm = Llama(model_path=str(mpath),
+                              n_ctx=int(os.getenv("LLAMA_N_CTX", "2048")),
+                              n_threads=max(1, os.cpu_count()//2))
+        def _invoke(self, msgs, temperature, max_tokens, stream, stop):
+            prompt = "\n".join(m["content"] for m in msgs)
+            out = self._llm(prompt, temperature=temperature,
+                            max_tokens=max_tokens, stop=stop or [])
+            return out["choices"][0]["text"].strip()
+    _install("llama", _LlamaCPP)
+except ImportError:
+    pass
 
-class _Together(_Base):
-    name = "together"
+if not _PROVIDERS:
+    _log.critical("‼️  No LLM back-end available – set OPENAI_API_KEY or install llama-cpp")
+    raise RuntimeError("No LLM provider available")
 
-    def __init__(self):
-        self._cli = together.Together(api_key=os.getenv("TOGETHER_API_KEY"))
-
-    def _chat(self, msgs, *, temperature, max_tokens, stream, stop):
-        model = os.getenv("TOGETHER_MODEL",
-                          "mistralai/Mixtral-8x22B-Instruct-v0.1")
-        res = self._cli.chat.completions.create(
-            model=model, messages=msgs, temperature=temperature,
-            max_tokens=max_tokens, stop=stop or None, stream=stream)
-        if stream:
-            for ch in res:
-                yield ch.choices[0].delta.content or ""
-        else:
-            return res.choices[0].message.content.strip()
-
-class _TGI(_Base):
-    name = "tgi"
-
-    def __init__(self):
-        self._cli = TGIClient(os.getenv("TGI_ENDPOINT", "http://localhost:8080"))
-
-    def _chat(self, msgs, *, temperature, max_tokens, stream, stop):
-        prompt = "\n".join(m["content"] for m in msgs)
-        res = self._cli.generate_stream(
-            prompt, temperature=temperature, max_new_tokens=max_tokens,
-            stop_sequences=stop or [])
-        if stream:
-            for ch in res:
-                yield ch.token.text
-        else:
-            return "".join(tok.token.text for tok in res).strip()
-
-class _Ollama(_Base):
-    name = "ollama"
-
-    def _chat(self, msgs, *, temperature, max_tokens, stream, stop):
-        prompt = "\n".join(m["content"] for m in msgs)
-        r = ollama.chat(model=os.getenv("OLLAMA_MODEL", "llama3"),
-                        stream=stream, messages=[{"role": "user",
-                                                  "content": prompt}],
-                        options={"temperature": temperature,
-                                 "num_predict": max_tokens,
-                                 "stop": stop})
-        if stream:
-            for ch in r:
-                yield ch["message"]["content"]
-        else:
-            return r["message"]["content"].strip()
-
-class _LlamaCPP(_Base):
-    name = "llama"
-
-    def __init__(self):
-        default = pathlib.Path.home() / ".cache" / "llama" \
-                  / "TinyLlama-1.1B-Chat-v1.0.Q4_K_M.gguf"
-        mpath = pathlib.Path(os.getenv("LLAMA_MODEL_PATH", default))
-        mpath.parent.mkdir(parents=True, exist_ok=True)
-        if not mpath.exists():
-            logger.info("Downloading TinyLlama quant to %s …", mpath)
-            import huggingface_hub as hf  # type: ignore
-            tmp = hf.hf_hub_download(
-                repo_id="TheBloke/TinyLlama-1.1B-Chat-GGUF",
-                filename=mpath.name)
-            pathlib.Path(tmp).rename(mpath)
-        self._llm = Llama(model_path=str(mpath),
-                          n_ctx=int(os.getenv("LLAMA_N_CTX", 2048)),
-                          n_threads=max(1, os.cpu_count() // 2))
-
-    def _chat(self, msgs, *, temperature, max_tokens, stream, stop):
-        prompt = "\n".join(m["content"] for m in msgs)
-        out = self._llm(prompt, temperature=temperature,
-                        max_tokens=max_tokens, stop=stop)
-        return out["choices"][0]["text"].strip()
-
-# ───────────────── provider registry & order ───────────────
-@dataclass
-class _ProvCfg:
-    key: str
-    ok: bool
-    pri: int
-    inst: _Base | None = None
-
-_PROVS: List[_ProvCfg] = [
-    _ProvCfg("openai", _HAS_OPENAI and bool(os.getenv("OPENAI_API_KEY")), 0),
-    _ProvCfg("anthropic", _HAS_ANTHROPIC and bool(os.getenv("ANTHROPIC_API_KEY")), 1),
-    _ProvCfg("gemini", _HAS_GOOGLE and bool(os.getenv("GOOGLE_API_KEY")), 2),
-    _ProvCfg("mistral", _HAS_MISTRAL and bool(os.getenv("MISTRAL_API_KEY")), 3),
-    _ProvCfg("together", _HAS_TOGETHER and bool(os.getenv("TOGETHER_API_KEY")), 4),
-    _ProvCfg("tgi", _HAS_TGI and bool(os.getenv("TGI_ENDPOINT")), 5),
-    _ProvCfg("ollama", _HAS_OLLAMA, 6),
-    _ProvCfg("llama", _HAS_LLAMA, 7),
-]
-
-_PROVS = [p for p in _PROVS if p.ok]
-_PROVS.sort(key=lambda p: p.pri)
-
-if not _PROVS:
-    raise RuntimeError("No LLM provider available – "
-                       "set e.g. OPENAI_API_KEY or install llama‑cpp‑python.")
-
-# lazy instantiation to save init time & memory
-def _get_provider(cfg: _ProvCfg) -> _Base:
-    if cfg.inst is None:
-        cls = {
-            "openai": _OpenAI,
-            "anthropic": _Anthropic,
-            "gemini": _Google,
-            "mistral": _Mistral,
-            "together": _Together,
-            "tgi": _TGI,
-            "ollama": _Ollama,
-            "llama": _LlamaCPP,
-        }[cfg.key]
-        cfg.inst = cls()
-        logger.info("LLMProvider: activated '%s' backend", cfg.key)
-    return cfg.inst
-
-# ─────────────────────── in‑memory cache ───────────────────
-_CACHE: Dict[str, Dict[str, str]] = {}   # {prov: {hash: result}}
-
-def _hash(msgs: List[Dict[str, str]]) -> str:
-    return str(hash(json.dumps(msgs, sort_keys=True)))
-
-# ───────────────── main public facade ──────────────────────
+# ──────────────────────── facade class ─────────────────────
 class LLMProvider:
-    """Unified chat‑completion facade used by every Alpha‑Factory agent."""
+    """
+    Unified chat-completion interface for all Alpha-Factory agents.
 
-    def __init__(self, *, temperature: float = 0.7, max_tokens: int = 512):
+    Parameters
+    ----------
+    temperature : float
+        Default sampling temperature.
+    max_tokens : int
+        Default maximum tokens for completions.
+
+    Environment knobs
+    -----------------
+    * ``AF_LLM_CACHE_TTL`` (secs) – disk-cache expiry (default 86400).  
+    * ``AF_RPM_LIMIT`` / ``AF_TPM_LIMIT`` – per-provider budgets.  
+    * ``AF_LOG_PROMPTS`` – if *truthy*, user prompts are logged verbatim.  
+    """
+
+    def __init__(self, *, temperature: float = 0.7, max_tokens: int = 512) -> None:
         self.temperature = temperature
-        self.max_tokens = max_tokens
+        self.max_tokens  = max_tokens
 
-    # ------------------------------------------------------
+    # ----------------------------- helpers ------------------------------
+    @staticmethod
+    def _hash(messages: List[Dict[str,str]]) -> str:
+        blob = json.dumps(messages, sort_keys=True).encode()
+        return hashlib.sha256(blob).hexdigest()
+
+    @staticmethod
+    def _log_prompt(msgs: Sequence[Dict[str,str]]) -> None:
+        if os.getenv("AF_LOG_PROMPTS"):
+            _log.debug("Prompt: %s", msgs)
+
+    # ----------------------------- public API ---------------------------
     def chat(self,
-             prompt: str | List[Dict[str, str]],
+             prompt: str | List[Dict[str,str]],
              *,
              system_prompt: str | None = None,
              stream: bool = False,
              stop: Optional[Sequence[str]] = None,
              temperature: Optional[float] = None,
              max_tokens: Optional[int] = None,
-             cache: bool = True,
+             cache: bool = True
              ) -> str | Generator[str, None, None]:
-        """Returns LLM reply text (or a streaming generator).
-
-        `prompt` may be a raw user string or an OpenAI‑style messages list.
         """
-        messages: List[Dict[str, str]]
-        if isinstance(prompt, str):
-            messages = [{"role": "user", "content": prompt}]
-        else:
-            messages = prompt
-
-        if system_prompt:
-            messages = [{"role": "system", "content": system_prompt}] + messages
+        Synchronous call – returns answer *or* generator when ``stream=True``.
+        """
+        msgs = ([{"role": "system", "content": system_prompt}] if system_prompt else []) + \
+               ([{"role": "user",   "content": prompt}] if isinstance(prompt, str) else prompt)
+        self._log_prompt(msgs)
 
         temperature = temperature if temperature is not None else self.temperature
-        max_tokens = max_tokens if max_tokens is not None else self.max_tokens
+        max_tokens  = max_tokens  if max_tokens  is not None else self.max_tokens
 
-        # lightweight guard‑rail: trim excessive history to ≤12 k toks
-        while sum(_tok_count(m["content"]) for m in messages) > 12000 and len(messages) > 2:
-            messages.pop(1)
+        # trim history if needed
+        while sum(_count_tokens(m["content"]) for m in msgs) > 12000 and len(msgs) > 2:
+            msgs.pop(1)
 
-        for cfg in _PROVS:
-            prov = _get_provider(cfg)
+        hsh = self._hash(msgs)
+        if cache and not stream:
+            if hit := _cache_get(hsh):
+                _CNT_REQ.labels("cache", "hit").inc()
+                return hit
 
-            if cache and not stream:
-                h = _hash(messages)
-                hit = _CACHE.get(cfg.key, {}).get(h)
-                if hit:
-                    _REQS.labels(cfg.key, "cache").inc()
-                    return hit
-
+        last_exc: Optional[Exception] = None
+        for name, prov in _PROVIDERS.items():
             try:
-                out = prov.chat(messages,
-                                temperature=temperature,
-                                max_tokens=max_tokens,
-                                stream=stream,
-                                stop=stop)
+                out = prov.chat(msgs, temperature, max_tokens, stream, stop)
                 if not stream and cache:
-                    _CACHE.setdefault(cfg.key, {})[h] = out  # type: ignore[index]
+                    _cache_put(hsh, out, name)          # type: ignore[arg-type]
                 return out
-            except Exception:
-                continue  # try next provider
+            except Exception as e:
+                last_exc = e
+                _log.warning("Provider '%s' failed: %s", name, e)
 
-        raise RuntimeError("All LLM providers failed (see logs).")
+        raise RuntimeError("All providers failed") from last_exc
 
-# ────────────────────────── CLI demo ───────────────────────
+    # --------------------------- async wrapper --------------------------
+    async def achat(self, *a: Any, **k: Any):
+        """
+        Asynchronous counterpart of :meth:`chat`.
+        """
+        loop = asyncio.get_running_loop()
+        return await loop.run_in_executor(None, lambda: self.chat(*a, **k))
+
+
+# --------------------------- CLI smoke test -----------------------------
 if __name__ == "__main__":
     import argparse, textwrap
-
-    ap = argparse.ArgumentParser("llm_provider smoke‑test")
-    ap.add_argument("--prompt", required=True, help="User prompt")
-    ap.add_argument("--system", help="System prompt")
+    ap = argparse.ArgumentParser(description="LLMProvider smoke-test")
+    ap.add_argument("--prompt", required=True)
+    ap.add_argument("--system")
     ap.add_argument("--stream", action="store_true")
     args = ap.parse_args()
 
     llm = LLMProvider()
     if args.stream:
-        print("Streaming reply:")
+        print("⇢ streaming reply:")
         for tok in llm.chat(args.prompt, system_prompt=args.system, stream=True):
             print(tok, end="", flush=True)
         print()
     else:
-        res = llm.chat(args.prompt, system_prompt=args.system)
-        print(textwrap.fill(res, width=100))
+        resp = llm.chat(args.prompt, system_prompt=args.system)
+        print(textwrap.fill(resp, 100))
