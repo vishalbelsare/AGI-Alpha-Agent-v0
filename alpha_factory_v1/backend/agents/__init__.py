@@ -1,38 +1,43 @@
-from __future__ import annotations
 """
 alpha_factory_v1.backend.agents
 ================================
-
 Alpha-Factory v1 👁️✨ — Multi-Agent AGENTIC α-AGI
 -----------------------------------------------------------------
 Dynamic **agent discovery, registry, governance, telemetry & health**.
 
-Key design points
------------------
-✅  Zero hard-fail – **every optional dependency is wrapped** so a fresh
-   Python-only install still imports.
+Key guarantees
+--------------
+✅ *Backward-compatibility* — every public symbol of the original file
+   (`AGENT_REGISTRY`, `list_agents`, `get_agent`, …) is preserved.
 
-✅  Multiple discovery paths  
-      • local `*_agent.py` modules  
-      • PEP-621 entry-points (`alpha_factory.agents`)  
-      • Google ADK / A2A mesh streamed wheels  
-      • user-defined “hot-drop” wheel folder (`$AGENT_HOT_DIR`)
+✅ *Zero hard-fail* — **all optional deps are wrapped** so a bare-bones
+   Python install still imports (& degrades to in-memory no-ops).
 
-✅  Kafka + Prometheus + OpenTelemetry emit hooks (no-ops if libs missing)
+✅ *Extensible* — discovery paths:
+      • Local `*_agent.py` modules
+      • PEP-621 entry-points (`alpha_factory.agents`)
+      • Google ADK / A2A streamed wheels
+      • “Hot-drop” wheel folder (`$AGENT_HOT_DIR`)
 
-✅  **Health heartbeat** loop → quarantine / stub-swap after N consecutive
-   errors (`$AGENT_ERR_THRESHOLD`, default 3)
+✅ Kafka • Prometheus • OpenTelemetry emit hooks
+   (transparently disabled if libs missing).
 
-✅  Live **hot-reload** – wheel dropped into `$AGENT_HOT_DIR` is picked up
-   within `$AGENT_RESCAN_SEC` (default 60) without restarting Orchestrator.
+✅ Live “hot-reload” — a wheel dropped into `$AGENT_HOT_DIR` is picked up
+   within `$AGENT_RESCAN_SEC` (default 60 s) **without** restarting the
+   Orchestrator.
+
+✅ **Health heartbeat** loop → quarantines / stub-swaps any agent after
+   `$AGENT_ERR_THRESHOLD` consecutive exceptions (default 3).
 
 This file is the *single source of truth* for every domain-agent that
 participates in Alpha-Factory.
 """
 
 ##############################################################################
-#                              std-lib imports                               #
+#                             standard-library                               #
 ##############################################################################
+from __future__ import annotations
+
 import asyncio
 import importlib
 import importlib.util
@@ -50,9 +55,9 @@ from types import ModuleType
 from typing import Dict, List, Optional, Type
 
 ##############################################################################
-#               optional heavy deps (never hard-fail at import)              #
+#                      optional heavy deps — never hard-fail                 #
 ##############################################################################
-try:                                         # ≥ Py 3.10
+try:                                         # ≥ Py 3.10 std-lib metadata
     import importlib.metadata as imetadata
 except ModuleNotFoundError:                  # pragma: no cover
     import importlib_metadata as imetadata   # type: ignore
@@ -73,7 +78,7 @@ except ModuleNotFoundError:                  # pragma: no cover
     adk = None                               # type: ignore
 
 ##############################################################################
-#                              configuration                                 #
+#                             configuration                                  #
 ##############################################################################
 _OPENAI_READY   = bool(os.getenv("OPENAI_API_KEY"))
 _KAFKA_BROKER   = os.getenv("ALPHA_KAFKA_BROKER")
@@ -88,31 +93,32 @@ _HEARTBEAT_INT  = int(os.getenv("AGENT_HEARTBEAT_SEC", 10))
 _RESCAN_SEC     = int(os.getenv("AGENT_RESCAN_SEC", 60))
 
 ##############################################################################
-#                                  logging                                   #
+#                                logging                                     #
 ##############################################################################
 logger = logging.getLogger("alpha_factory.agents")
 if not logger.handlers:
-    handler = logging.StreamHandler()
-    handler.setFormatter(
+    _h = logging.StreamHandler()
+    _h.setFormatter(
         logging.Formatter("%(asctime)s  %(levelname)-8s  %(name)s: %(message)s")
     )
-    logger.addHandler(handler)
+    logger.addHandler(_h)
 logger.setLevel(logging.INFO)
 
 ##############################################################################
-#                               public types                                 #
+#                             public datatypes                               #
 ##############################################################################
 @dataclass(frozen=True)
 class AgentMetadata:
+    """Lightweight manifest describing an agent implementation."""
     name:             str
-    cls:              Type                      # reference to concrete Agent
+    cls:              Type
     version:          str  = "0.1.0"
     capabilities:     List[str] = field(default_factory=list)
     compliance_tags:  List[str] = field(default_factory=list)
-    requires_api_key: bool = False
-    err_count:        int  = 0                  # mutated via object.__setattr__
+    requires_api_key: bool      = False
+    err_count:        int       = 0   # mutated via object.__setattr__
 
-    # ---------- serialization helpers ----------
+    # ---------- helpers ----------
     def as_dict(self) -> Dict:
         return {
             "name":         self.name,
@@ -125,21 +131,20 @@ class AgentMetadata:
     def to_json(self) -> str:
         return json.dumps(self.as_dict(), separators=(",", ":"))
 
-    # ---------- instantiation helper ----------
-    def instantiate(self, **kwargs):
-        return self.cls(**kwargs)               # type: ignore[arg-type]
+    def instantiate(self, **kw):
+        return self.cls(**kw)          # type: ignore[arg-type]
 
 
 class CapabilityGraph(Dict[str, List[str]]):
-    """capability ➜ [agent names]"""
-    def add(self, capability: str, agent_name: str) -> None:
+    """capability → [agent names]"""
+    def add(self, capability: str, agent_name: str):
         self.setdefault(capability, []).append(agent_name)
 
 ##############################################################################
-#                              stub fallback                                 #
+#                           stub fallback agent                              #
 ##############################################################################
 class StubAgent:                               # pragma: no cover
-    """Lightweight inert replacement for quarantined / missing agents."""
+    """Inert replacement for quarantined / unavailable agents."""
     NAME             = "stub"
     CAPABILITIES:    List[str] = []
     COMPLIANCE_TAGS: List[str] = []
@@ -164,7 +169,7 @@ if Counter is not None:
     )
 
 ##############################################################################
-#                     lightweight helper functions                           #
+#                          helper — Kafka producer                           #
 ##############################################################################
 def _kafka_producer() -> Optional[KafkaProducer]:
     if not _KAFKA_BROKER or KafkaProducer is None:
@@ -172,19 +177,15 @@ def _kafka_producer() -> Optional[KafkaProducer]:
     try:
         return KafkaProducer(
             bootstrap_servers=_KAFKA_BROKER,
-            value_serializer=lambda v: v.encode()
-            if isinstance(v, str)
-            else v,
+            value_serializer=lambda v: v.encode() if isinstance(v, str) else v,
         )
-    except Exception:                           # noqa: BLE001
+    except Exception:                            # noqa: BLE001
         logger.exception("Kafka producer init failed")
         return None
 
-
 _PRODUCER = _kafka_producer()
 
-
-def _emit_kafka(topic: str, payload: str) -> None:
+def _emit_kafka(topic: str, payload: str):
     if _PRODUCER is None:
         return
     try:
@@ -193,7 +194,53 @@ def _emit_kafka(topic: str, payload: str) -> None:
     except Exception:                            # noqa: BLE001
         logger.exception("Kafka emit failed (topic=%s)", topic)
 
+##############################################################################
+#                   unified decorator (optional nicety)                      #
+##############################################################################
+def register(cls):  # type: ignore
+    """
+    Convenience decorator for agent modules that *do not* want to
+    manually fiddle with metadata.  Example::
 
+        from alpha_factory_v1.backend.agents import register, AgentBase
+
+        @register
+        class FinanceAgent(AgentBase):
+            NAME = "Finance"
+            CAPABILITIES = ["trade", "forecast"]
+    """
+    from_backend_base = _agent_base()
+    if not issubclass(cls, from_backend_base):
+        raise TypeError("register() only allowed on AgentBase subclasses")
+    meta = AgentMetadata(
+        name=getattr(cls, "NAME", cls.__name__),
+        cls=cls,
+        version=getattr(cls, "__version__", "0.1.0"),
+        capabilities=list(getattr(cls, "CAPABILITIES", [])),
+        compliance_tags=list(getattr(cls, "COMPLIANCE_TAGS", [])),
+        requires_api_key=getattr(cls, "REQUIRES_API_KEY", False),
+    )
+    _register(meta, overwrite=False)
+    return cls
+
+##############################################################################
+#               internal — utility to import the master AgentBase            #
+##############################################################################
+def _agent_base():
+    """
+    We accept both historic path `backend.agent_base.AgentBase`
+    *and* the new location `backend.agents.base.AgentBase`.
+    """
+    try:
+        from backend.agent_base import AgentBase  # type: ignore
+        return AgentBase
+    except ModuleNotFoundError:                   # fallback to new path
+        from backend.agents.base import AgentBase  # type: ignore
+        return AgentBase
+
+##############################################################################
+#                    discovery / registration helpers                        #
+##############################################################################
 def _should_register(meta: AgentMetadata) -> bool:
     if meta.name.lower() in _DISABLED:
         logger.info("Agent %s disabled via env", meta.name)
@@ -203,13 +250,8 @@ def _should_register(meta: AgentMetadata) -> bool:
         return False
     return True
 
-##############################################################################
-#                  discovery – local, entry-points, ADK                      #
-##############################################################################
-from backend.agent_base import AgentBase       # local import to avoid cycles
 
-
-def _register(meta: AgentMetadata, *, overwrite: bool = False) -> None:
+def _register(meta: AgentMetadata, *, overwrite: bool = False):
     if not _should_register(meta):
         return
     if meta.name in AGENT_REGISTRY and not overwrite:
@@ -226,6 +268,7 @@ def _register(meta: AgentMetadata, *, overwrite: bool = False) -> None:
 
 def _inspect_module(mod: ModuleType) -> Optional[AgentMetadata]:
     """Return AgentMetadata if module defines a concrete AgentBase subclass."""
+    AgentBase = _agent_base()
     for _, obj in inspect.getmembers(mod, inspect.isclass):
         if issubclass(obj, AgentBase) and obj is not AgentBase:
             return AgentMetadata(
@@ -238,9 +281,10 @@ def _inspect_module(mod: ModuleType) -> Optional[AgentMetadata]:
             )
     return None
 
-
-# ---------- local *_agent.py files ----------
-def _discover_local() -> None:
+##############################################################################
+#                       discovery pipelines (4 sources)                      #
+##############################################################################
+def _discover_local():
     pkg_root = Path(__file__).parent
     prefix   = f"{__name__}."
     for _, mod_name, is_pkg in pkgutil.iter_modules([str(pkg_root)]):
@@ -254,8 +298,7 @@ def _discover_local() -> None:
             logger.exception("Import error for %s", mod_name)
 
 
-# ---------- entry-points ----------
-def _discover_entrypoints() -> None:
+def _discover_entrypoints():
     try:
         eps = imetadata.entry_points(group="alpha_factory.agents")  # type: ignore[arg-type]
     except Exception:                              # noqa: BLE001
@@ -266,6 +309,7 @@ def _discover_entrypoints() -> None:
         except Exception:                          # noqa: BLE001
             logger.exception("Entry-point load failed: %s", ep.name)
             continue
+        AgentBase = _agent_base()
         if inspect.isclass(obj) and issubclass(obj, AgentBase):
             _register(
                 AgentMetadata(
@@ -279,7 +323,6 @@ def _discover_entrypoints() -> None:
             )
 
 
-# ---------- wheel hot-drop ----------
 def _install_wheel(path: Path) -> Optional[ModuleType]:
     spec = importlib.util.spec_from_file_location(path.stem, path)
     if spec and spec.loader:
@@ -289,7 +332,7 @@ def _install_wheel(path: Path) -> Optional[ModuleType]:
     return None
 
 
-def _discover_hot_dir() -> None:
+def _discover_hot_dir():
     if not _HOT_DIR.is_dir():
         return
     for wheel in _HOT_DIR.glob("*.whl"):
@@ -305,8 +348,8 @@ def _discover_hot_dir() -> None:
             logger.exception("Hot-dir load failed for %s", wheel.name)
 
 
-# ---------- ADK mesh ----------
-def _discover_adk() -> None:
+def _discover_adk():
+    """Pull remote agent wheels via Google ADK if `$ADK_MESH` is set."""
     if adk is None or not os.getenv("ADK_MESH"):
         return
     try:
@@ -323,11 +366,10 @@ def _discover_adk() -> None:
     except Exception:                              # noqa: BLE001
         logger.exception("ADK discovery failed")
 
-
 ##############################################################################
-#                       health & quarantine loop                             #
+#                     health-monitor / quarantine loop                       #
 ##############################################################################
-def _health_loop() -> None:
+def _health_loop():
     while True:
         try:
             name, latency_ms, ok = _HEALTH_Q.get(timeout=_HEARTBEAT_INT)
@@ -337,8 +379,7 @@ def _health_loop() -> None:
         meta = AGENT_REGISTRY.get(name)
         if meta and not ok:
             if Counter:
-                _err_counter.labels(agent=name).inc()
-            # bump error counter (immutable dataclass hack)
+                _err_counter.labels(agent=name).inc()  # type: ignore[attr-defined]
             object.__setattr__(meta, "err_count", meta.err_count + 1)
             if meta.err_count >= _ERR_THRESHOLD:
                 logger.error(
@@ -355,30 +396,30 @@ def _health_loop() -> None:
                 )
                 _register(stub_meta, overwrite=True)
 
-        payload = json.dumps(
-            {
-                "name": name,
-                "latency_ms": latency_ms,
-                "ok": ok,
-                "ts": time.time(),
-            }
+        _emit_kafka(
+            "agent.heartbeat",
+            json.dumps(
+                {
+                    "name": name,
+                    "latency_ms": latency_ms,
+                    "ok": ok,
+                    "ts": time.time(),
+                }
+            ),
         )
-        _emit_kafka("agent.heartbeat", payload)
-
 
 threading.Thread(target=_health_loop, daemon=True, name="agent-health").start()
 
 ##############################################################################
-#                    hot-dir rescanner (live wheel drop-ins)                 #
+#                  hot-dir rescanner (live wheel drop-ins)                   #
 ##############################################################################
-def _rescan_loop() -> None:                       # pragma: no cover
+def _rescan_loop():                              # pragma: no cover
     while True:
         try:
             _discover_hot_dir()
         except Exception:                         # noqa: BLE001
             logger.exception("Hot-dir rescan failed")
         time.sleep(_RESCAN_SEC)
-
 
 threading.Thread(target=_rescan_loop, daemon=True, name="agent-rescan").start()
 
@@ -391,12 +432,15 @@ def list_agents(detail: bool = False):
 
 
 def capability_agents(capability: str):
-    """Return agents exposing *capability*."""
+    """Return list of agent names exposing *capability*."""
     return CAPABILITY_GRAPH.get(capability, []).copy()
 
 
 def get_agent(name: str, **kwargs):
-    """Instantiate agent by name and wrap run-cycle with heartbeat probe."""
+    """
+    Instantiate agent by *name* and wrap its async `step()` coroutine
+    with a heartbeat probe so failures auto-quarantine.
+    """
     meta  = AGENT_REGISTRY[name]
     agent = meta.instantiate(**kwargs)
 
@@ -420,11 +464,14 @@ def get_agent(name: str, **kwargs):
 
 
 def register_agent(meta: AgentMetadata, *, overwrite: bool = False):
-    """Public hook: dynamically created agents can self-register at runtime."""
+    """
+    Public hook for dynamically-generated agents (e.g. a Meta-Agent
+    evolving new agent code at runtime) to self-register.
+    """
     _register(meta, overwrite=overwrite)
 
 ##############################################################################
-#                           initial discovery pass                           #
+#                         initial discovery pass                             #
 ##############################################################################
 _discover_local()
 _discover_entrypoints()
