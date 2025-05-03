@@ -5,11 +5,16 @@
 
 ---
 
-Welcome to **Alpha‑Factory v1**, an antifragile constellation of self‑improving agents orchestrated to **spot live alpha across any industry and transmute it into compounding value**.
+> **Mission 🎯**  Identify 🔍 → Learn 📚 → Think 🧠 → Design 🎨 → Strategise ♟️ → Execute ⚡ — compounding real‑world **α** across *all* industries.
 
-Built atop **OpenAI Agents SDK**, Google **ADK**, the **A2A protocol**, and Anthropic’s **Model Context Protocol**, the stack operates **online or fully‑air‑gapped**, switching fluidly between frontier models and local fallbacks.
+Global markets seep *USD ✧ trillions/yr* in latent opportunity — “alpha” in the broadest sense:  
+<kbd>pricing dislocations • supply‑chain entropy • novel drug targets • policy loopholes • undiscovered materials</kbd>.
 
-> **Mission 🎯**  End‑to‑end: **Identify 🔍 → Out‑Learn 📚 → Out‑Think 🧠 → Out‑Design 🎨 → Out‑Strategise ♟️ → Out‑Execute ⚡**
+**Alpha‑Factory v1** is an antifragile constellation of self‑improving Agentic α‑AGI Agents 👁️✨ orchestrated to **spot live alpha across any industry and transmute it into compounding value**.
+
+**Definition**: An **α‑AGI Business** 👁️✨ is an on‑chain autonomous enterprise (`<name>.a.agi.eth`) that unleashes a swarm of self‑improving agentic **α‑AGI agents** 👁️✨ (`<name>.a.agent.agi.eth`) to hunt down inefficiencies across any domain and transmute them into **$AGIALPHA**.
+
+Built atop **OpenAI Agents SDK**, **Google ADK**, **A2A protocol**, and Anthropic’s **Model Context Protocol**, the stack runs cloud‑native *or* air‑gapped, hot‑swapping between frontier LLMs and distilled local models.
 
 ---
 
@@ -92,6 +97,51 @@ flowchart LR
 <a name="3-agent-gallery"></a>
 ## 3 · Agent Gallery 🖼️
 
+```mermaid
+flowchart TD
+    ORC["🛠️ Orchestrator"]
+    GEN{{"🧪 Env‑Generator"}}
+    LRN["🧠 MuZero++"]
+
+    subgraph Agents
+        FIN["💰"]
+        BIO["🧬"]
+        MFG["⚙️"]
+        POL["📜"]
+        ENE["🔋"]
+        SUP["📦"]
+        RET["🛍️"]
+        MKT["📈"]
+        CYB["🛡️"]
+        CLM["🌎"]
+        DRG["💊"]
+        SMT["⛓️"]
+    end
+
+    %% message flows
+    GEN -- tasks --> LRN
+    LRN -- policies --> Agents
+    Agents -- skills --> LRN
+
+    ORC -- A2A --> FIN
+    ORC -- A2A --> BIO
+    ORC -- A2A --> MFG
+    ORC -- A2A --> POL
+    ORC -- A2A --> ENE
+    ORC -- A2A --> SUP
+    ORC -- A2A --> RET
+    ORC -- A2A --> MKT
+    ORC -- A2A --> CYB
+    ORC -- A2A --> CLM
+    ORC -- A2A --> DRG
+    ORC -- A2A --> SMT
+    ORC -- A2A --> GEN
+    ORC -- A2A --> LRN
+
+    ORC -- Kafka --> DATALAKE["🗄️ Data Lake"]
+    FIN -.->|Prometheus| GRAFANA{{"📊"}}
+```
+
 | # | Agent | Path | Prime Directive | Status | Key Env Vars |
 |---|-------|------|-----------------|--------|--------------|
 | 1 | **Finance** 💰 | `finance_agent.py` | Multi‑factor alpha & RL execution | **Prod** | `BROKER_DSN` |
@@ -107,32 +157,162 @@ flowchart LR
 |11 | **Smart‑Contract** ⛓️ | `smart_contract_agent.py` | Formal verification | **Incub** | `ETH_RPC_URL` |
 |12 | **Talent‑Match** 🧑‍💻 | `talent_match_agent.py` | Auto‑bounty hiring | **Incub** | — |
 
+```mermaid
+%% Legend
+%%  solid arrows  = primary value‑flow
+%%  dashed arrows = secondary / supporting influence
+%%  node emojis   = domain archetypes
+
+graph TD
+    %% Core pillars
+    FIN["💰 Finance"]
+    BIO["🧬 Biotech"]
+    MFG["⚙️ Manufacturing"]
+    POL["📜 Policy / Reg‑Tech"]
+    ENE["🔋 Energy"]
+    SUP["📦 Supply‑Chain"]
+    RET["🛍️ Retail / Demand"]
+    CYB["🛡️ Cyber‑Security"]
+    CLM["🌎 Climate"]
+    DRG["💊 Drug Design"]
+    SMT["⛓️ Smart Contracts"]
+    TLT["🧑‍💼 Talent"]
+
+    %% Derived transversal competences
+    QNT["📊 Quant R&D"]
+    RES["🔬 Research Ops"]
+    DSG["🎨 Design"]
+    OPS["🔧 DevOps"]
+
+    %% Primary value‑creation arcs
+    FIN -->|Price discovery| QNT
+    FIN -->|Risk stress‑test| CLM
+    BIO --> DRG
+    BIO --> RES
+    MFG --> SUP
+    ENE --> CLM
+    RET --> FIN
+    POL --> CYB
+    SMT --> FIN
+
+    %% Cross‑pollination (secondary, dashed)
+    FIN -.-> POL
+    SUP -.-> CLM
+    CYB -.-> OPS
+    DRG -.-> POL
+    QNT -.-> RES
+    RET -.-> DSG
+
+    %% Visual grouping
+    subgraph Core
+        FIN
+        BIO
+        MFG
+        POL
+        ENE
+        SUP
+        RET
+        CYB
+        CLM
+        DRG
+        SMT
+        TLT
+    end
+    classDef core fill:#0d9488,color:#ffffff,stroke-width:0px;
+```
+
 Each agent exports a signed *proof‑of‑alpha* message to the Kafka bus, enabling cross‑breeding of opportunities.
+
+```mermaid
+sequenceDiagram
+    participant User
+    participant ORC as Orchestrator
+    participant FIN as 💰
+    participant GEN as 🧪
+    User->>ORC: /alpha/run
+    ORC->>GEN: new_world()
+    GEN-->>ORC: env_json
+    ORC->>FIN: act(env)
+    FIN-->>ORC: proof(ΔG)
+    ORC-->>User: artefact + KPI
+```
 
 ---
 
 <a name="4-demo-showcase"></a>
 ## 4 · Demo Showcase 🎬
 
-| Notebook | What You’ll See | Agents |
-|----------|-----------------|--------|
-| **Meta Evolution** 🧬 | Agents evolve agents | TAL + WM |
-| **Business Builder** 🏢 | Incorporate firm E2E | FIN + POL |
-| **Cross‑Industry Pipeline** ⚙️ | Plan → Act across 4 verticals | Multi |
-| **Fin Momentum Bot** 💹 | Live momentum execution | FIN |
-| **MuZero Planner** ♟️ | Counterfactual rollouts | WM + FIN |
-| **Energy DR** ⚡ | DR bidding & battery schedule | ENE |
-| **Supply‑Chain Optimizer** 🚚 | Reduce OTIF penalties | SUP + MFG |
-| **Climate Sentinel** 🛰️ | Auto‑hedge transition risk | CLM + FIN |
-| **Cyber Sentinel** 🛡️ | Self‑healing repo | CYB |
-| **Drug‑Design Loop** 💊 | Diffusion + docking walk‑through | DRG |
-| **Retail Pricing** 🛍️ | Causal demand & markdowns | RET |
-| **Agent Marketplace** 🌐 | P2P capability exchange | TAL |
+| # | Folder | Emoji | Lightning Pitch | Alpha Contribution | Start Locally |
+|---|--------|-------|-----------------|--------------------|---------------|
+|1|`aiga_meta_evolution`|🧬|Agents *evolve* new agents; genetic tests auto‑score fitness.|Expands strategy space, surfacing fringe alpha.|`docker compose -f demos/docker-compose.aiga_meta.yml up`|
+|2|`alpha_agi_business_v1`|🏦|Auto‑incorporates a digital‑first company end‑to‑end.|Shows AGI turning ideas → registered business.|`docker compose -f demos/docker-compose.business_v1.yml up`|
+|3|`alpha_agi_business_2_v1`|🏗️|Iterates business model with live market data RAG.|Continuous adaptation → durable competitive alpha.|`docker compose -f demos/docker-compose.business_2.yml up`|
+|4|`alpha_agi_business_3_v1`|📊|Financial forecasting & fundraising agent swarm.|Optimises capital stack for ROI alpha.|`docker compose -f demos/docker-compose.business_3.yml up`|
+|5|`alpha_agi_marketplace_v1`|🛒|Peer‑to‑peer agent marketplace simulating price discovery.|Validates micro‑alpha extraction via agent barter.|`docker compose -f demos/docker-compose.marketplace.yml up`|
+|6|`alpha_asi_world_model`|🌌|Scales MuZero‑style world‑model to an open‑ended grid‑world.|Stress‑tests anticipatory planning for ASI scenarios.|`docker compose -f demos/docker-compose.asi_world.yml up`|
+|7|`cross_industry_alpha_factory`|🌐|Full pipeline: ingest → plan → act across 4 verticals.|Proof that one orchestrator handles multi‑domain alpha.|`docker compose -f demos/docker-compose.cross_industry.yml up`|
+|8|`era_of_experience`|🏛️|Streams of life events build autobiographical memory‑graph tutor.|Transforms tacit SME knowledge into tradable signals.|`docker compose -f demos/docker-compose.era.yml up`|
+|9|`finance_alpha`|💹|Live momentum + risk‑parity bot on Binance test‑net.|Generates real P&L; stress‑tested against CVaR.|`docker compose -f demos/docker-compose.finance.yml up`|
+|10|`macro_sentinel`|🌐|GPT‑RAG news scanner auto‑hedges with CTA futures.|Shields portfolios from macro shocks.|`docker compose -f demos/docker-compose.macro.yml up`|
+|11|`muzero_planning`|♟️|MuZero plans synthetic markets → optimal execution curves.|Validates world‑model planning in noisy domains.|`docker compose -f demos/docker-compose.muzero.yml up`|
+|12|`self_healing_repo`|🩹|CI fails → agent crafts patch ⇒ PR green again.|Maintains pipeline uptime alpha.|`docker compose -f demos/docker-compose.selfheal.yml up`|
 
-Launch with:
-```bash
-jupyter lab --NotebookApp.token=''
+> **Colab?** Each folder ships an `*.ipynb` that mirrors the Docker flow with free GPUs.
+
+### 4.1 · [α-ASI World-Model Demo 👁️✨](https://github.com/MontrealAI/AGI-Alpha-Agent-v0/tree/main/alpha_factory_v1/demos/alpha_asi_world_model)
+
+Paper: [Multi-Agent AGENTIC α-AGI World-Model Demo 🥑](https://github.com/MontrealAI/AGI-Alpha-Agent-v0/blob/main/alpha_factory_v1/demos/alpha_asi_world_model/Alpha_ASI_World_Model.pdf)
+
 ```
+┌──────────────────────────────── Alpha-Factory Bus (A2A) ───────────────────────────────┐
+│                                                                                        │
+│   ┌──────────────┐   curriculum   ┌───────────┐   telemetry   ┌────────────┐          │
+│   │ StrategyAgent│───────────────►│ Orchestr. │──────────────►│   UI / WS  │          │
+│   └──────────────┘                │  (loop)   │◄──────────────│  Interface │          │
+│          ▲  ▲                     └───────────┘    commands   └────────────┘          │
+│          │  │ new_env/reward                     ▲                                   │
+│   plans  │  │ loss stats                        │ halt                              │
+│          │  └──────────────────────┐            │                                   │
+│   ┌──────┴───────┐   context       │            │                                   │
+│   │ ResearchAgent│───────────────► Learner (MuZero) ◄─ SafetyAgent (loss guard)      │
+│   └──────────────┘                │   ▲                                             │
+│              code patches         │   │                                             │
+│   ┌──────────────┐                │   │ gradients                                   │
+│   │ CodeGenAgent │────────────────┘   │                                             │
+│   └──────────────┘                    │                                             │
+│                                       ▼                                             │
+│                            POET Generator → MiniWorlds (env pool)                    │
+└────────────────────────────────────────────────────────────────────────────────────────┘
+```
+
+### 4.2 · [🏛️ Large‑Scale α‑AGI Business 3 Demo 👁️✨ — **Omega‑Grade Edition**](https://github.com/MontrealAI/AGI-Alpha-Agent-v0/tree/main/alpha_factory_v1/demos/alpha_agi_business_3_v1)
+
+> **Alpha‑Factory v1 → Ω‑Lattice v0**  
+> _Transmuting cosmological free‑energy gradients into compounding cash‑flows._
+
+Multi‑Scale Energy‑Landscape Diagram:
+
+```mermaid
+flowchart TB
+  subgraph Macro["Macro‑Finance Δβ"]
+    FIN[FinanceAgent]:::agent
+    ENE[EnergyAgent]:::agent
+  end
+  subgraph Meso["Supply‑Chain ΔS"]
+    MFG[ManufacturingAgent]:::agent
+    LOG[LogisticsAgent]:::agent
+  end
+  subgraph Micro["Bio/Chem ΔH"]
+    BIO[BiotechAgent]:::agent
+    MAT[MaterialsAgent]:::agent
+  end
+  FIN & ENE -->|β feed| ORC
+  MFG & LOG -->|entropy ΔS| ORC
+  BIO & MAT -->|latent ΔH| ORC
+  classDef agent fill:#cffafe,stroke:#0369a1;
+```
+
+Cells with \(Δ\mathcal F < 0\) glow 🔵 on Grafana; Ω‑Agents race to harvest.
 
 ---
 
