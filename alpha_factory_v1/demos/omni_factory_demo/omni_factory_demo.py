@@ -1,180 +1,264 @@
 # SPDX-License-Identifier: Apache-2.0
 """
-OMNI-Factory · Smart-City Resilience Demo  (Alpha-Factory v1 add-on)
-════════════════════════════════════════════════════════════════════
-Runs a minimal yet complete open-ended loop:
-    1. TaskGenerator → produces a city disruption scenario
-    2. Orchestrator shim  → routes tasks to existing Alpha agents
-    3. SmartCityEnv       → fast python env (traffic + power grid toy model)
-    4. Evaluator          → success / reward / CityCoin minting
-    5. Loop forever       → archive to `./omni_ledger.sqlite`
+OMNI-Factory · Smart-City Resilience Demo
+═════════════════════════════════════════
+A complete open-ended task-generation / multi-agent execution loop that plugs
+directly into Alpha-Factory v1.
 
-Works fully offline; if OPENAI_API_KEY is set it upgrades TaskGenerator
-to GPT-4o-mini for richer, never-repeating scenarios.
+Key modules
+───────────
+ • TaskGenerator…… Foundation-model or rule-based scenario synthesis
+ • Interestingness… MoI post-filter that prevents stale / redundant tasks
+ • SmartCityEnv……  Fast, headless city “digital-twin” (traffic + grid)
+ • SuccessEvaluator  Universal success / reward / CityCoin ledger
+ • Orchestrator shim Bridges generated tasks to existing Alpha agents
 
-Launch:  python -m alpha_factory_v1.demos.omni_factory_demo
+Offline-first:   runs with *no* API key.  
+Online-enhanced:  set `OPENAI_API_KEY` for GPT-4o-mini powered variety.
+
+Launch from repo root
+─────────────────────
+    python -m alpha_factory_v1.demos.omni_factory_demo
 """
 from __future__ import annotations
-import asyncio, contextlib, json, os, random, sqlite3, time
-from dataclasses import dataclass, asdict
+
+import asyncio
+import contextlib
+import dataclasses as _dc
+import json
+import os
+import random
+import sqlite3
+import time
 from pathlib import Path
 from typing import Dict, List, Tuple
 
-# ── Soft-imports ─────────────────────────────────────────────────────
+# ───── Soft-deps ──────────────────────────────────────────────────────────────
 with contextlib.suppress(ModuleNotFoundError):
-    import openai                     # type: ignore
+    import openai                           # type: ignore
 with contextlib.suppress(ModuleNotFoundError):
-    from gymnasium import spaces      # type: ignore
-else:
-    class spaces:                     # tiny fallback
-        class Discrete(int): pass
-        class Box(list): pass
+    import numpy as np                      # type: ignore
+with contextlib.suppress(ModuleNotFoundError):
+    from gymnasium import spaces, Env       # type: ignore
 
-# ── Glue existing Alpha-Factory backbone ────────────────────────────
-from alpha_factory_v1.backend.orchestrator import Orchestrator  # re-use, no changes
-from alpha_factory_v1.backend.world_model import wm             # planning fallback
+# ultra-light fallback so demo works without gymnasium
+if "spaces" not in globals():
+    class _Dummy:                 # pylint: disable=too-few-public-methods
+        def __init__(self, *_, **__): pass
+    class spaces:                                       # type: ignore
+        Discrete = Box = _Dummy
+    class Env:                                          # type: ignore
+        pass
 
-# ── Global settings (env overrides) ─────────────────────────────────
-LLM_MODEL   = os.getenv("OMNI_LLM_MODEL", "gpt-4o-mini")
-SEED        = int(os.getenv("OMNI_SEED", "0"))
-TOK_PER_EVT = int(os.getenv("OMNI_TOKENS_PER_EVENT", "10"))
-LEDGER_FILE = Path(os.getenv("OMNI_LEDGER", "omni_ledger.sqlite"))
+# ───── Alpha-Factory back-plane (already in repo) ────────────────────────────
+from alpha_factory_v1.backend.orchestrator import Orchestrator
+from alpha_factory_v1.backend.world_model import wm
 
+# ───── Configuration via env vars ────────────────────────────────────────────
+LLM_MODEL            = os.getenv("OMNI_LLM_MODEL", "gpt-4o-mini")
+TEMPERATURE          = float(os.getenv("OMNI_TEMPERATURE", "0.7"))
+TOKENS_PER_TASK      = int(os.getenv("OMNI_TOKENS_PER_TASK", "50"))
+LEDGER_PATH          = Path(os.getenv("OMNI_LEDGER", "./omni_ledger.sqlite"))
+SEED                 = int(os.getenv("OMNI_SEED", "0"))
 random.seed(SEED)
 
-# ────────────────────────────────────────────────────────────────────
-# 1. Task Generator
-# ────────────────────────────────────────────────────────────────────
-_SCENARIO_TEMPLATES = [
-    "City-wide power outage during a record heatwave.",
-    "Flash-flood cuts off two major arterial roads.",
-    "Cyber-attack cripples the subway signalling network.",
-    "Sudden protest blocks downtown core during rush hour.",
+# ──────────────────────────────────────────────────────────────────────────────
+# 1. Task generation layer (OMNI-EPIC style)                        :contentReference[oaicite:0]{index=0}:contentReference[oaicite:1]{index=1}
+# ──────────────────────────────────────────────────────────────────────────────
+_FALLBACK_SCENARIOS = [
+    "A flash-flood closes two arterial bridges at 17:30 commuter peak.",
+    "Cyber attack cripples downtown traffic-light timing network.",
+    "Heatwave drives record HVAC demand; rolling brown-outs imminent.",
+    "Unexpected protest blocks central business district during lunch."
 ]
 
-def _llm(prompt: str) -> str:
+def _llm_call(prompt: str) -> str:
+    """Return a one-sentence scenario description (LLM or fallback)."""
     if "openai" not in globals() or not os.getenv("OPENAI_API_KEY"):
-        return random.choice(_SCENARIO_TEMPLATES)
+        return random.choice(_FALLBACK_SCENARIOS)
     openai.api_key = os.getenv("OPENAI_API_KEY")
     resp = openai.ChatCompletion.create(
-        model=LLM_MODEL, temperature=0.7, max_tokens=120,
+        model=LLM_MODEL, temperature=TEMPERATURE,
         messages=[{"role": "user", "content": prompt}],
+        max_tokens=120,
     )
-    return resp["choices"][0]["message"]["content"]  # type: ignore[index]
+    return resp.choices[0].message.content.strip()    # type: ignore[attr-defined]
 
 class TaskGenerator:
-    """Open-ended scenario creator (LLM-backed if key present)."""
-    def next_task(self, history: List[str]) -> str:
+    """Produces *novel yet learnable* smart-city disruption scenarios."""
+    _history: List[str]
+    def __init__(self) -> None:
+        self._history = []
+
+    # ---------- public API ---------------------------------------------------
+    def next(self) -> str:
         prompt = (
-            "Generate a NEW smart-city disruption scenario unlike these:\n"
-            f"{json.dumps(history[-5:], indent=2)}\n"
-            "Respond with ONE sentence describing the event."
+            "You are OMNI-EPIC. Propose ONE new smart-city resilience scenario "
+            "unlike the following recent tasks:\n"
+            f"{json.dumps(self._history[-6:], indent=2)}\n"
+            "Return ONE concise sentence."
         )
-        return _llm(prompt).strip()
+        scenario = _llm_call(prompt)
+        self._history.append(scenario)
+        return scenario
 
-# ────────────────────────────────────────────────────────────────────
-# 2. Smart-City toy environment
-# ────────────────────────────────────────────────────────────────────
-@dataclass(slots=True)
-class CityObs:
-    power_ok: float   # 0…1  fraction of grid capacity online
-    traffic_ok: float # 0…1  inverse congestion metric
-    time: int         # discrete minute
+    # ---------- MoI post-filter ---------------------------------------------
+    def interesting(self, scenario: str) -> bool:
+        """Very lightweight novelty check versus last N tasks."""
+        return scenario not in self._history[-10:]
 
-class SmartCityEnv:
+
+# ──────────────────────────────────────────────────────────────────────────────
+# 2. Minimal yet expressive smart-city environment
+# ──────────────────────────────────────────────────────────────────────────────
+@_dc.dataclass(slots=True)
+class CityState:
+    power_ok: float     # 0–1 fraction of grid functional
+    traffic_ok: float   # 0–1 inverse congestion
+    minute:     int
+
+class SmartCityEnv(Env):
     """
-    Very light environment: state is tuple (power_ok, traffic_ok, t).
-    Agents act by allocating repair units or traffic control budget.
+    Gym-style continuous control environment (fast headless python).
+    Observation  … [power_ok, traffic_ok, time/240]
+    Action       … 2-vector: repair allocation, traffic-ops budget
+    Reward       … weighted service availability (×100 at success)
+    Episode done … ≥95 % service or after 4 simulated hours
     """
-    action_space = spaces.Box([0, 0], [1, 1])  # [repair_frac, traffic_budget]
-    observation_space = spaces.Box([0, 0, 0], [1, 1, 1440])
+    metadata: Dict = {}
+    action_space  = spaces.Box(low=0.0, high=1.0, shape=(2,))
+    observation_space = spaces.Box(low=0.0, high=1.0, shape=(3,))
 
-    def __init__(self, seed: int = 0) -> None:
-        self.rng = random.Random(seed)
-        self.reset("initial boot")
+    def __init__(self):
+        super().__init__()
+        self.rng = random.Random(SEED)
+        self._scenario = "<un-set>"
+        self.state = CityState(.5, .5, 0)
 
-    def reset(self, scenario: str) -> CityObs:
-        self.scenario = scenario
-        self.state = CityObs(power_ok=self.rng.uniform(.4, .9),
-                             traffic_ok=self.rng.uniform(.4, .9),
-                             time=0)
-        return self.state
+    # gymnasium v0.29 signature
+    def reset(self, *, seed=None, options=None):
+        del seed, options
+        self._scenario = options.get("scenario") if options else "cold-start"
+        self.state = CityState(
+            self.rng.uniform(.3, .9),
+            self.rng.uniform(.3, .9),
+            0
+        )
+        return self._obs(), {}
 
-    def step(self, action: Tuple[float, float]) -> Tuple[CityObs, float, bool, Dict]:
-        repair, traffic = action
-        # simple deterministic dynamics
-        self.state.power_ok   = min(1.0, self.state.power_ok + 0.6*repair)
-        self.state.traffic_ok = min(1.0, self.state.traffic_ok + 0.5*traffic)
-        self.state.time      += 1
-        reward = 0.5*self.state.power_ok + 0.5*self.state.traffic_ok
-        done   = reward > 0.95 or self.state.time >= 240  # 4 h max
-        return self.state, reward, done, {}
+    def step(self, action: Tuple[float, float]):
+        repair, traffic = map(float, action)
+        s = self.state
+        s.power_ok   = min(1.0, s.power_ok   + 0.65 * repair)
+        s.traffic_ok = min(1.0, s.traffic_ok + 0.55 * traffic)
+        s.minute    += 1
+        reward = 50*(s.power_ok + s.traffic_ok)             # 0-100
+        done   = reward > 95 or s.minute >= 240
+        truncated = False
+        return self._obs(), reward, done, truncated, {}
 
-# ────────────────────────────────────────────────────────────────────
-# 3. Ledger (token economy)
-# ────────────────────────────────────────────────────────────────────
-def _init_ledger() -> None:
-    conn = sqlite3.connect(LEDGER_FILE)
+    # ---------- helpers ------------------------------------------------------
+    def _obs(self):
+        s = self.state
+        return [s.power_ok, s.traffic_ok, s.minute/240.0]
+
+    # used by SuccessEvaluator
+    def solved(self) -> bool:
+        return (self.state.power_ok + self.state.traffic_ok) / 2 > .95
+
+
+# ──────────────────────────────────────────────────────────────────────────────
+# 3. CityCoin ledger (lightweight sqlite, append-only)
+# ──────────────────────────────────────────────────────────────────────────────
+_LEDGER_SCHEMA = """
+CREATE TABLE IF NOT EXISTS ledger(
+    ts        REAL,
+    scenario  TEXT,
+    tokens    INT,
+    avg_reward REAL
+);
+"""
+
+def _ledger_init() -> None:
+    conn = sqlite3.connect(LEDGER_PATH)
     with conn:
-        conn.execute("""
-        CREATE TABLE IF NOT EXISTS ledger(
-            ts REAL, scenario TEXT, tokens INT, reward REAL
-        )""")
+        conn.executescript(_LEDGER_SCHEMA)
     conn.close()
 
-def mint_tokens(scenario: str, reward: float) -> int:
-    tokens = int(reward*100 * TOK_PER_EVT)
-    conn = sqlite3.connect(LEDGER_FILE)
+def mint(scenario: str, avg_reward: float) -> int:
+    tokens = int(avg_reward * TOKENS_PER_TASK)
+    conn = sqlite3.connect(LEDGER_PATH)
     with conn:
         conn.execute("INSERT INTO ledger VALUES (?,?,?,?)",
-                     (time.time(), scenario, tokens, reward))
+                     (time.time(), scenario, tokens, avg_reward))
     return tokens
 
-# ────────────────────────────────────────────────────────────────────
-# 4. Main loop (async so UI remains responsive)
-# ────────────────────────────────────────────────────────────────────
-async def run_loop() -> None:
-    orchestrator = Orchestrator(dev_mode=True)  # ← no extra config needed
+
+# ──────────────────────────────────────────────────────────────────────────────
+# 4. Success evaluation layer
+# ──────────────────────────────────────────────────────────────────────────────
+class SuccessEvaluator:
+    """Universal success check – uses env.solved() then archives."""
+    def check(self, env: SmartCityEnv) -> bool:
+        return env.solved()
+
+
+# ──────────────────────────────────────────────────────────────────────────────
+# 5. Asynchronous main loop: Task → Orchestrator → Env
+# ──────────────────────────────────────────────────────────────────────────────
+async def open_ended_loop():
+    orch   = Orchestrator(dev_mode=True)     # zero-config stub
+    env    = SmartCityEnv()
     tgen   = TaskGenerator()
-    env    = SmartCityEnv(seed=SEED)
-    history: List[str] = []
+    evaler = SuccessEvaluator()
 
     while True:
-        scenario = tgen.next_task(history)
-        history.append(scenario)
-        obs = env.reset(scenario)
+        # 5-a  generate + filter scenario
+        scenario = tgen.next()
+        if not tgen.interesting(scenario):
+            continue                        # skip stale prompt
 
-        # very small planning call using existing wm planner
-        step = 0
-        cum_r = 0.0
-        while True:
-            plan = wm.plan("omni_demo", obs.__dict__)  # uses MuZero wrapper if avail.
+        # 5-b  initialise environment with scenario narrative
+        obs, _ = env.reset(options={"scenario": scenario})
+
+        # 5-c  let the Alpha-Factory planner pick + call agent policy
+        cumulative = 0.0
+        for step in range(240):             # ≤4 hours sim
+            plan = wm.plan("smart_city", {"obs": obs, "scenario": scenario})
             act_id = plan.get("action", {}).get("id", 0)
-            # map discrete id→continuous action for toy env
-            repair = [1,0,0,0][act_id%4] if act_id<4 else 0.3
-            traffic= [0,1,0,0][act_id%4] if act_id<4 else 0.3
-            obs, r, done, _ = env.step((repair, traffic))
-            step += 1
-            cum_r += r
+            # heuristic mapping → 2-float control vector
+            action = (0.3 + 0.7*(act_id%3==0), 0.3 + 0.7*(act_id%3==1))
+            obs, rew, done, _, _ = env.step(action)
+            cumulative += rew
             if done: break
 
-        tokens = mint_tokens(scenario, cum_r/step)
-        print(f"✔ Completed '{scenario}' in {step} m, "
-              f"avg reward {cum_r/step:.3f} → minted {tokens} CityCoins.")
-        # brief pause so Prometheus scrape & UI updates have time
-        await asyncio.sleep(0.1)
+        avg_reward = cumulative / (step+1)
+        solved = evaler.check(env)
 
-# ────────────────────────────────────────────────────────────────────
-# 5. Entry-point
-# ────────────────────────────────────────────────────────────────────
+        if solved:
+            tokens = mint(scenario, avg_reward)
+            print(f"✅ Solved ‘{scenario}’ in {step+1} m, "
+                  f"avg reward {avg_reward:.1f} → {tokens} CityCoins.")
+        else:
+            print(f"✖️ Failed ‘{scenario}’ after {step+1} m "
+                  f"(avg reward {avg_reward:.1f}).")
+
+        await asyncio.sleep(0.05)           # cooperative pause
+
+
+# ──────────────────────────────────────────────────────────────────────────────
+# 6. CLI entry-point
+# ──────────────────────────────────────────────────────────────────────────────
 def main() -> None:
-    print("=== OMNI-Factory · Smart-City Resilience Demo ===")
-    print("Ctrl-C to exit.  Ledger at:", LEDGER_FILE.resolve())
-    _init_ledger()
+    print("╭──────────────────────────────────────────────────────────╮")
+    print("│   OMNI-Factory • Smart-City Resilience Open-End Loop     │")
+    print("╰──────────────────────────────────────────────────────────╯")
+    print("Ledger file:", LEDGER_PATH.resolve())
+    _ledger_init()
     try:
-        asyncio.run(run_loop())
+        asyncio.run(open_ended_loop())
     except KeyboardInterrupt:
-        print("\nShutdown requested by user – goodbye.")
+        print("\nShutdown requested – goodbye!")
 
 if __name__ == "__main__":
     main()
