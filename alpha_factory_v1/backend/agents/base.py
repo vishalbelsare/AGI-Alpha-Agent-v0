@@ -2,44 +2,43 @@
 alpha_factory_v1.backend.agents.base
 ====================================
 
-**AgentBase** – the canonical contract every Alpha-Factory agent abides by.
-It offers:
+AgentBase – canonical contract ALL Alpha-Factory agents must implement.
 
-• A rich, opinionated life-cycle (`setup → step()⭮ → teardown`) wrapped in a
-  resilient *run-loop* with automatic back-off, Prometheus metrics emission
-  and Kafka heartbeat integration (all *optional* – they degrade gracefully).
+Key features
+------------
+✔ Graceful *degradation* – imports of heavy/optional deps are best-effort; the
+  file remains import-safe on a tiny python-only system.
 
-• First-class access to core platform services that the Orchestrator injects:
-      · mem_vector / mem_graph           – Memory Fabric
-      · world_model                      – Latent world-model / planner
-      · publish()  / subscribe()         – Message-bus (Kafka or in-memory)
-      · call_llm()                       – Unified LLM helper (OpenAI *or* local)
+✔ First-class *observability* – Prometheus metrics, structured JSON logs,
+  Kafka heart-beats; everything is disabled automatically when a dependency
+  is absent.
 
-• Flexible scheduling:
-      · `CYCLE_SECONDS`  – simple fixed-interval loop         (default 60 s)
-      · `SCHED_SPEC`     – cron / rrule / human “every 5 m”   (if aiocron found)
-      · `event-driven`   – omit both above and call step() yourself via bus/API
+✔ Hassle-free *scheduling* – fixed interval, cron-style (`aiocron`) or event-
+  driven (no schedule).  Agents only have to implement `async step()`.
 
-The class is intentionally **framework-free** (only stdlib) – every heavy
-dependency is *best-effort imported* and silently skipped if unavailable;
-your agent remains importable even in a bare Python environment.
+✔ Built-in *service wiring* – properties expose Memory Fabric, world-model,
+  LLM helper and message-bus exactly the same way in every agent.
+
+✔ Uniform *shutdown* & error-handling – a single `_safe_step()` wrapper counts
+  runs, records latency and prevents rogue exceptions from killing the process.
+
+✔ Tiny *registry* decorator – `@register` auto-adds the class to the global
+  `backend.agents.AGENT_REGISTRY`, enabling true plug-and-play discovery.
+
+The class is intentionally framework-agnostic: **no FastAPI, no OpenAI SDK,
+no OR-Tools** imports appear here – that belongs in concrete agent modules,
+never in the bare contract.
 
 ---------------------------------------------------------------------------
-Design Philosophy
+For details see the Developer Guide (§2 “Writing a New Agent”) in the repo doc.
 ---------------------------------------------------------------------------
-1.  *Flawless degradation*   → No missing library should crash import time.
-2.  *Observability first*    → Run-loop exposes metrics & heartbeats OOTB.
-3.  *Security mindful*       → No dynamic `eval`, no shelling-out, strict attr
-    whitelist when loading configs.
-4.  *Zero boiler-plate*      → Sub-classes only implement two things:
-        - class constants (NAME, …)            - `async def step(self): ...`
 """
 
 from __future__ import annotations
 
-###############################################################################
-# Standard library imports – keep lightweight to guarantee availability
-###############################################################################
+# ───────────────────────────────────────────────────────────────────────────────
+# ░░░ 1. Std-lib imports only (guaranteed present) ░░░
+# ───────────────────────────────────────────────────────────────────────────────
 import abc
 import asyncio
 import datetime as _dt
@@ -49,216 +48,231 @@ import os
 import random
 import time
 import traceback
-from typing import Any, Dict, List, Mapping, Optional
+from typing import Any, Dict, Iterable, List, Mapping, MutableMapping, Optional
 
-###############################################################################
-# Optional heavy deps (never hard-fail)
-###############################################################################
-try:                                            # Prometheus metrics
+# ───────────────────────────────────────────────────────────────────────────────
+# ░░░ 2. Optional, best-effort 3rd-party imports ░░░
+# ───────────────────────────────────────────────────────────────────────────────
+try:  # -- Prometheus metrics
     from prometheus_client import Counter, Gauge
-except ModuleNotFoundError:                     # pragma: no cover
-    Counter = Gauge = None                      # type: ignore
+except ModuleNotFoundError:  # pragma: no cover
+    Counter = Gauge = None  # type: ignore
 
-try:                                            # Kafka producer for heart-beats
-    from kafka import KafkaProducer             # type: ignore
-except ModuleNotFoundError:                     # pragma: no cover
-    KafkaProducer = None                        # type: ignore
+try:  # -- Kafka producer for heart-beats
+    from kafka import KafkaProducer  # type: ignore
+except ModuleNotFoundError:  # pragma: no cover
+    KafkaProducer = None  # type: ignore
 
-try:                                            # Fancy scheduling (cron / rrule)
-    import aiocron                              # type: ignore
-except ModuleNotFoundError:                     # pragma: no cover
-    aiocron = None                              # type: ignore
+try:  # -- Cron / RRULE scheduling helper
+    import aiocron  # type: ignore
+except ModuleNotFoundError:  # pragma: no cover
+    aiocron = None  # type: ignore
 
-###############################################################################
-# Logging – a single, consistent format across *every* agent
-###############################################################################
-_log = logging.getLogger("alpha_factory.agent")
-if not _log.handlers:
+# ───────────────────────────────────────────────────────────────────────────────
+# ░░░ 3. Global logger configured once, reused by every agent ░░░
+# ───────────────────────────────────────────────────────────────────────────────
+_logger = logging.getLogger("alpha_factory.agent")
+if not _logger.handlers:
     _h = logging.StreamHandler()
     _h.setFormatter(
         logging.Formatter(
-            "%(asctime)s  %(levelname)-8s  %(name)s.%(agent)s: %(message)s"
+            "%(asctime)s %(levelname)-8s %(name)s.%(agent)s | %(message)s",
+            datefmt="%Y-%m-%dT%H:%M:%S",
         )
     )
-    _log.addHandler(_h)
-    _log.setLevel(os.getenv("AF_AGENT_LOGLEVEL", "INFO").upper())
+    _logger.addHandler(_h)
+    _logger.setLevel(os.getenv("AF_AGENT_LOGLEVEL", "INFO").upper())
 
-
-###############################################################################
-# Internal helpers
-###############################################################################
-def _metrics(name: str):
-    """Return (run_counter, err_counter, latency_gauge) or (None, None, None)."""
+# ───────────────────────────────────────────────────────────────────────────────
+# ░░░ 4. Internal helper factories ░░░
+# ───────────────────────────────────────────────────────────────────────────────
+def _prom_metrics(agent_name: str):
+    """Return (run_counter, err_counter, latency_gauge) for *agent_name* or
+    triple (None, …) if Prometheus is unavailable."""
     if Counter is None:
         return None, None, None
-    run_c  = Counter("af_agent_runs_total", "Agent run() calls", ["agent"])
-    err_c  = Counter("af_agent_errors_total", "Exceptions", ["agent"])
-    lat_g  = Gauge("af_agent_latency_seconds", "Step latency", ["agent"])
-    return run_c.labels(name), err_c.labels(name), lat_g.labels(name)
+
+    run = Counter("af_agent_runs_total", "Total step() calls", ["agent"])
+    err = Counter("af_agent_errors_total", "Unhandled exceptions", ["agent"])
+    lat = Gauge("af_agent_latency_seconds", "Step latency", ["agent"])
+    return run.labels(agent_name), err.labels(agent_name), lat.labels(agent_name)
 
 
-def _kafka() -> Optional[KafkaProducer]:        # best-effort init – NON blocking
+def _kafka_producer() -> Optional[KafkaProducer]:
+    """Instantiate a KafkaProducer if ALPHA_KAFKA_BROKER is set *and*
+    `kafka-python` is installed; otherwise return None."""
     broker = os.getenv("ALPHA_KAFKA_BROKER")
     if not broker or KafkaProducer is None:
         return None
+
     try:
         return KafkaProducer(
-            bootstrap_servers=broker.split(","),
-            value_serializer=lambda v: v if isinstance(v, bytes) else json.dumps(v).encode(),
-            linger_ms=100,
+            bootstrap_servers=[b.strip() for b in broker.split(",") if b.strip()],
+            value_serializer=lambda v: (
+                v if isinstance(v, bytes) else json.dumps(v).encode()
+            ),
+            linger_ms=250,
         )
-    except Exception:                           # noqa: BLE001
-        _log.exception("Kafka bootstrap failed")
+    except Exception:  # noqa: BLE001
+        _logger.exception("Failed to bootstrap Kafka producer")
         return None
 
 
-###############################################################################
-# Public – every agent must inherit this
-###############################################################################
+# ───────────────────────────────────────────────────────────────────────────────
+# ░░░ 5. AgentBase definition ░░░
+# ───────────────────────────────────────────────────────────────────────────────
 class AgentBase(abc.ABC):
-    # --------------------------------------------------------------------- #
-    # Static meta – override in subclasses
-    # --------------------------------------------------------------------- #
-    NAME:              str  = "base"                 # 🛈 snake-case, unique
-    VERSION:           str  = "0.1.0"
-    CAPABILITIES:      List[str] = []                # e.g. ["forecast", "trade"]
-    COMPLIANCE_TAGS:   List[str] = []                # e.g. ["GDPR"]
-    REQUIRES_API_KEY:  bool = False                  # True → Orchestrator checks
+    # --- Class-level metadata (override in subclasses) ---
+    NAME: str = "base"  # snake-case, globally unique
+    VERSION: str = "0.1.0"
+    CAPABILITIES: List[str] = []  # e.g. ["forecast", "trade", "plan"]
+    COMPLIANCE_TAGS: List[str] = []  # e.g. ["GDPR", "HIPAA"]
+    REQUIRES_API_KEY: bool = False  # orchestrator will validate if True
 
-    # Scheduling ----------------------------------------------------------------
-    CYCLE_SECONDS: int | None = 60                   # simple loop (default 60 s)
-    SCHED_SPEC:   str | None = None                  # cron "*/5 * * * *" etc.
+    # Scheduling ────────────────────────────────────────────────────────────
+    CYCLE_SECONDS: int | None = 60  # fixed-interval; None → use SCHED_SPEC
+    SCHED_SPEC: str | None = None   # cron-style, processed by aiocron
 
-    # Runtime-injected by Orchestrator ------------------------------------------
-    orchestrator: Any = None                         # fabric / bus / world / cfg
+    # Runtime-injected by orchestrator ──────────────────────────────────────
+    orchestrator: Any = None  # Fabric / bus / world-model / cfg
 
-    # --------------------------------------------------------------------- #
-    # Life-cycle – subclasses rarely need to touch these
-    # --------------------------------------------------------------------- #
+    # ------------------------------------------------------------------ #
     def __init__(self) -> None:
         self._stop_evt: asyncio.Event = asyncio.Event()
-        self._kafka   : Optional[KafkaProducer] = _kafka()
-        self._run_ctr , self._err_ctr , self._lat_g = _metrics(self.NAME)
+        self._metrics_run, self._metrics_err, self._metrics_lat = _prom_metrics(
+            self.NAME
+        )
+        self._kafka = _kafka_producer()
 
-    # 🎬 Called once by Orchestrator right after __init__
-    async def setup(self) -> None:                   # noqa: D401
-        """Optional one-time initialization (DB warm-up, model load, …)."""
+    # ════ Life-cycle hooks ════
+    async def setup(self) -> None:  # noqa: D401
+        """One-time async initialization (DB warm-up, model load…)."""
         return None
 
-    # 🏃 Main body – **must** be implemented by concrete agent
     @abc.abstractmethod
-    async def step(self) -> None: ...               # pragma: no cover
+    async def step(self) -> None:  # noqa: D401
+        """The agent's main unit of work.  MUST be overridden."""
+        raise NotImplementedError
 
-    # 🔻 Called once at graceful shutdown
-    async def teardown(self) -> None:                # noqa: D401
-        """Optional clean-up (flush logs, close DB handles, …)."""
+    async def teardown(self) -> None:  # noqa: D401
+        """Optional async clean-up (closing DB handles etc.)."""
         return None
 
-    # ------------------------------------------------------------------ #
-    # ↓ Public helpers every agent can rely on without extra imports
-    # ------------------------------------------------------------------ #
+    # ════ Convenience properties exposed by orchestrator ════
     # Memory Fabric
     @property
-    def mem_vector(self):      return getattr(self.orchestrator, "mem_vector", None)
-    @property
-    def mem_graph(self):       return getattr(self.orchestrator, "mem_graph", None)
-    # Latent world-model
-    @property
-    def world_model(self):     return getattr(self.orchestrator, "world_model", None)
+    def mem_vector(self):  # -> MemoryVector | None
+        return getattr(self.orchestrator, "mem_vector", None)
 
-    # Unified LLM helper (OpenAI / local)
-    async def call_llm(self, **kw):                   # noqa: D401
-        """Delegates to orchestrator.llm() – guarantees fallback availability."""
-        return await self.orchestrator.llm(**kw)      # type: ignore[attr-defined]
+    @property
+    def mem_graph(self):  # -> MemoryGraph | None
+        return getattr(self.orchestrator, "mem_graph", None)
 
-    # Message-bus
-    async def publish(self, topic: str, payload: Mapping[str, Any]):          # noqa: D401
-        """Emit *payload* on *topic* (Kafka or in-mem depending on deployment)."""
-        await self.orchestrator.publish(topic, payload)                       # type: ignore[attr-defined]
+    # Latent world-model / planner
+    @property
+    def world_model(self):
+        return getattr(self.orchestrator, "world_model", None)
+
+    # Unified LLM helper
+    async def call_llm(self, *args, **kwargs):
+        """LLM abstraction – delegates to orchestrator, supports transparent
+        fallback to local models when OPENAI_API_KEY is unset."""
+        return await self.orchestrator.llm(*args, **kwargs)  # type: ignore[attr-defined]
+
+    # Message-bus helpers
+    async def publish(self, topic: str, msg: Mapping[str, Any]):
+        await self.orchestrator.publish(topic, msg)  # type: ignore[attr-defined]
 
     async def subscribe(self, topic: str):
-        """Async iterator over messages on *topic*."""
-        async for m in self.orchestrator.subscribe(topic):                    # type: ignore[attr-defined]
+        async for m in self.orchestrator.subscribe(topic):  # type: ignore[attr-defined]
             yield m
 
-    # ------------------------------------------------------------------ #
-    # Internal – run-loop wrapper handling metrics, heart-beats, back-off
-    # (Orchestrator schedules this – agents never call ._run() themselves)
-    # ------------------------------------------------------------------ #
-    async def _run(self) -> None:                     # pragma: no cover
-        ctx = {"agent": self.NAME}                    # logger extra
+    # ════ Internal run-loop (managed by orchestrator) ════
+    async def _run(self) -> None:  # pragma: no cover
+        log_ctx = {"agent": self.NAME}
 
-        # Option A – cron / aiocron spec ------------------------------------------------
+        # ── Option A: cron / rrule schedule ────────────────────────────────
         if self.SCHED_SPEC and aiocron:
-            _log.info("Starting cron scheduler (%s)", self.SCHED_SPEC, extra=ctx)
+            _logger.info("Cron schedule [%s] activated", self.SCHED_SPEC, extra=log_ctx)
 
-            async def _cron_wrapper():
-                while not self._stop_evt.is_set():
-                    await self._safe_step(ctx)
-            aiocron.crontab(self.SCHED_SPEC)(_cron_wrapper)                   # type: ignore[arg-type]
+            async def _cron_wrapper():  # each cron tick triggers exactly ONE step
+                await self._safe_step(log_ctx)
+
+            aiocron.crontab(self.SCHED_SPEC)(_cron_wrapper)  # type: ignore[arg-type]
             await self._stop_evt.wait()
             return
 
-        # Option B – fixed interval (CYCLE_SECONDS) -------------------------------
-        interval = self.CYCLE_SECONDS or 0
-        if interval <= 0:   # event-driven – nothing to schedule
-            _log.info("No scheduler – event-driven mode", extra=ctx)
+        # ── Option B: fixed interval (default) ────────────────────────────
+        interval = max(0, self.CYCLE_SECONDS or 0)
+        if interval == 0:
+            _logger.info("Event-driven mode (no automatic loop)", extra=log_ctx)
             await self._stop_evt.wait()
             return
 
-        _log.info("Loop every %ss", interval, extra=ctx)
-        jitter = max(1, int(os.getenv("AF_LOOP_JITTER_MS", "500"))) / 1000.0
+        jitter = max(0.2, float(os.getenv("AF_LOOP_JITTER_MS", "250"))) / 1000.0
+        _logger.info("Loop each %ss (+/- jitter)", interval, extra=log_ctx)
 
         while not self._stop_evt.is_set():
-            await self._safe_step(ctx)
+            await self._safe_step(log_ctx)
             await asyncio.sleep(interval + random.uniform(0, jitter))
 
-    # ------------------------------------------------------------------ #
-    async def _safe_step(self, ctx):                  # pragma: no cover
+    # ────────────────────────────────────────────────────────────────────
+    async def _safe_step(self, log_ctx: MutableMapping[str, Any]):  # pragma: no cover
         t0 = time.perf_counter()
-        if self._run_ctr: self._run_ctr.inc()
+        if self._metrics_run:
+            self._metrics_run.inc()
 
+        ok = True
         try:
             await self.step()
-            ok = True
-        except Exception as exc:                      # noqa: BLE001
+        except Exception as exc:  # noqa: BLE001
             ok = False
-            if self._err_ctr: self._err_ctr.inc()
-            _log.error("step() raised: %s\n%s", exc, traceback.format_exc(), extra=ctx)
+            if self._metrics_err:
+                self._metrics_err.inc()
+            _logger.error("step() raised: %s", exc, extra=log_ctx)
+            _logger.debug("Traceback:\n%s", traceback.format_exc(), extra=log_ctx)
 
         latency = time.perf_counter() - t0
-        if self._lat_g: self._lat_g.set(latency)
+        if self._metrics_lat:
+            self._metrics_lat.set(latency)
 
-        # Heart-beat to Kafka (best-effort)
+        # -- Heart-beat to Kafka (non-blocking) --
         if self._kafka:
             try:
                 self._kafka.send(
                     "agent.heartbeat",
                     {
                         "name": self.NAME,
-                        "ts": _dt.datetime.utcnow().isoformat(),
-                        "latency_ms": round(latency*1000, 3),
+                        "ts": _dt.datetime.utcnow().isoformat(timespec="seconds"),
+                        "latency_ms": round(latency * 1000, 3),
                         "ok": ok,
                     },
                 )
-                # no explicit flush – linger_ms handles
-            except Exception:                         # noqa: BLE001
-                _log.debug("Kafka heartbeat failed", extra=ctx)
+            except Exception:  # pragma: no cover
+                _logger.debug("Kafka heart-beat failed", extra=log_ctx)
 
-    # ------------------------------------------------------------------ #
-    # Public stop() – Orchestrator calls this on graceful shutdown
-    # ------------------------------------------------------------------ #
-    async def stop(self) -> None:                      # noqa: D401
-        """Signal run-loop to exit ASAP."""
+    # ════ Public stop() called by orchestrator ════
+    async def stop(self):
+        """Signal the agent to shut down gracefully."""
         self._stop_evt.set()
 
+    # ────────────────────────────────────────────────────────────────────
+    # Pretty representation (helps debugging & logging)
+    # ────────────────────────────────────────────────────────────────────
+    def __repr__(self) -> str:  # pragma: no cover
+        return f"<{self.__class__.__name__} name={self.NAME!r} v{self.VERSION}>"
 
-###############################################################################
-# Utility – thin decorator to auto-register agent classes at import time
-###############################################################################
+# ───────────────────────────────────────────────────────────────────────────────
+# ░░░ 6. Tiny decorator to auto-register subclasses ░░░
+# ───────────────────────────────────────────────────────────────────────────────
 def register(cls: type[AgentBase]) -> type[AgentBase]:
-    """`@register` → adds the class to backend.agents.AGENT_REGISTRY."""
-    # local import to avoid circular dep
-    from . import AGENT_REGISTRY                     # type: ignore
+    """
+    `@register` – convenience decorator that adds *cls* to the global
+    ``backend.agents.AGENT_REGISTRY``.  Importing the module is enough for the
+    orchestrator to discover the new agent – zero boiler-plate.
+    """
+    # defer import to avoid circular refs
+    from . import AGENT_REGISTRY  # type: ignore
+
     AGENT_REGISTRY[getattr(cls, "NAME", cls.__name__)] = cls
     return cls
