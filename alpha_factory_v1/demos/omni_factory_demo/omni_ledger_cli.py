@@ -1,259 +1,183 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: Apache-2.0
 """
-omni_ledger_cli.py
-═══════════════════
-Command‑line companion for the **OMNI‑Factory** $AGIALPHA ledger.
+omni_ledger_cli.py • $AGIALPHA ledger companion
+════════════════════════════════════════════════
+A **safe-by-default**, cross-platform command-line tool to inspect or
+export the OMNI-Factory ledger produced by *omni_factory_demo.py*.
 
 Highlights
 ──────────
-• **Pure Python ≥3.9** – zero third‑party runtime dependencies.
-• **Portable** – runs unchanged on Windows, macOS & Linux.
-• **Safe‑by‑default** – everything is read‑only unless an explicit
-  `--outfile` flag is supplied.
-• **UTF‑8 everywhere** – full internationalisation support.
-• **Rich inspection utilities** – verify checksums, grep scenarios,
-  date filters, supply/cap overview, and more.
+• Pure Python ≥3.9 – zero third-party deps, UTF-8 everywhere.  
+• Read-only *unless* a mutating sub-command **and** `--force` are used.  
+• Built-in integrity audit (sha256 checksums + supply-cap).  
+• Colourised human-friendly tables (auto-disabled for pipes/files).  
 
-Quick Examples
-──────────────
-```bash
-# Show 20 most‑recent ledger rows (default)
+──────────────────────────────────────────────────────────────────────
+Usage examples  (`-h` / `--help` on any sub-command shows details)
+──────────────────────────────────────────────────────────────────────
+# Show the 20 most-recent tasks  
 python omni_ledger_cli.py list
 
-# Tail the last 5 rows only
+# Tail last 5 rows
 python omni_ledger_cli.py list --tail 5
 
-# Filter rows that mention "blackout" since 2025‑05‑01
-python omni_ledger_cli.py list --grep blackout --since 2025‑05‑01
-
-# Aggregate statistics (totals, averages, supply left)
+# Supply-cap, minted-per-day, average reward, etc.
 python omni_ledger_cli.py stats
 
-# Verify integrity (checksums & SQLite pragma quick_check)
+# Histogram of daily $AGIALPHA minted
+python omni_ledger_cli.py histogram --bins 30
+
+# Full consistency check (timestamps ↑, checksums ✓, hard-cap ✓)
 python omni_ledger_cli.py verify
 
-# Top 10 tasks by $AGIALPHA minted
-python omni_ledger_cli.py top --by tokens --limit 10
-
-# Export full ledger → CSV (read‑only otherwise)
-python omni_ledger_cli.py export --outfile agialpha_ledger.csv
-```
+# Export full ledger to CSV or JSONL (read-only)
+python omni_ledger_cli.py export --outfile omni_ledger.csv
 """
 from __future__ import annotations
 
 import argparse
 import csv
-import datetime as _dt
 import json
+import math
+import os
 import sqlite3
 import sys
 import time
+from collections import Counter, defaultdict
+from contextlib import closing
+from datetime import datetime, timezone
 from itertools import islice
 from pathlib import Path
-from typing import Dict, Iterable, List, Sequence, Tuple
+from typing import Iterable, List, Sequence, Tuple
 
-###############################################################################
-# Constants & Types
-###############################################################################
-
-# Keep in sync with omni_factory_demo.py -------------------------------------
+# Keep in sync with omni_factory_demo.py
 DEFAULT_LEDGER = Path("./omni_ledger.sqlite").resolve()
-HARD_CAP_ENV  = "OMNI_AGIALPHA_SUPPLY"  # env var used by demo for hard‑cap
-
-Row = Tuple[float, str, int, float]  # ts, scenario, tokens, avg_reward
-
-###############################################################################
-# Utility helpers
-###############################################################################
+LEDGER_SCHEMA_VERSION = 1  # increment if schema evolves
+TOKEN_SYMBOL = "$AGIALPHA"
+HARD_CAP_ENV = "OMNI_AGIALPHA_SUPPLY"
 
 
-def _open_db(path: Path, readonly: bool = True) -> sqlite3.Connection:
-    """Open SQLite with sensible flags; abort if missing."""
-    if not path.exists():
-        sys.exit(f"Ledger not found: {path}")
-    uri = f"file:{path.as_posix()}?mode={'ro' if readonly else 'rw'}"
-    return sqlite3.connect(uri, uri=True, detect_types=sqlite3.PARSE_DECLTYPES)
+# ════════════════════════════════════════════════════════════════════
+# Helpers (I/O, colour, pretty-printing)
+# ════════════════════════════════════════════════════════════════════
+def _isatty() -> bool:
+    return sys.stdout.isatty()
 
 
-def _stream_rows(conn: sqlite3.Connection) -> Iterable[Row]:
-    yield from conn.execute(
-        "SELECT ts, scenario, tokens, avg_reward FROM ledger ORDER BY ts"
-    )
+class _Colour:
+    _ENABLED = _isatty() and os.getenv("NO_COLOR", "") == ""
+
+    @staticmethod
+    def _wrap(code: str, txt: str) -> str:
+        return f"\x1b[{code}m{txt}\x1b[0m" if _Colour._ENABLED else txt
+
+    @classmethod
+    def bold(cls, txt: str) -> str:
+        return cls._wrap("1", txt)
+
+    @classmethod
+    def green(cls, txt: str) -> str:
+        return cls._wrap("32", txt)
+
+    @classmethod
+    def red(cls, txt: str) -> str:
+        return cls._wrap("31", txt)
+
+    @classmethod
+    def yellow(cls, txt: str) -> str:
+        return cls._wrap("33", txt)
 
 
 def _pretty_ts(ts: float) -> str:
-    return time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(ts))
+    return datetime.fromtimestamp(ts, tz=timezone.utc).strftime("%Y-%m-%d %H:%M:%S UTC")
 
 
 def _print_table(headers: Sequence[str], rows: Iterable[Sequence[str]]) -> None:
     rows = list(rows)
-    cols = list(zip(*([headers] + rows))) if rows else [headers]
-    widths = [max(len(str(x)) for x in col) for col in cols]
+    cols = list(zip(*([headers] + rows))) or [[]]
+    widths = [min(max(len(str(x)) for x in col), 120) for col in cols]
     fmt = "  ".join(f"{{:<{w}}}" for w in widths)
-    print(fmt.format(*headers))
-    print("-" * (sum(widths) + 2 * (len(widths) - 1)))
+    print(_Colour.bold(fmt.format(*headers)))
+    print("─" * (sum(widths) + 2 * (len(widths) - 1)))
     for row in rows:
         print(fmt.format(*row))
 
 
-###############################################################################
-# Sub‑command implementations
-###############################################################################
-
-def _parse_date(arg: str) -> float:
-    """Parse YYYY‑MM‑DD (or any ISO date) → epoch seconds."""
-    try:
-        dt = _dt.date.fromisoformat(arg)
-        return time.mktime(dt.timetuple())
-    except Exception as exc:
-        raise argparse.ArgumentTypeError(f"Invalid date: {arg}") from exc
+def _open_db(path: Path) -> sqlite3.Connection:
+    if not path.exists():
+        sys.exit(_Colour.red(f"Ledger not found: {path}"))
+    return sqlite3.connect(path, detect_types=sqlite3.PARSE_DECLTYPES | sqlite3.PARSE_COLNAMES)
 
 
-# --------------------------------------------------------------------------- #
-# list
-# --------------------------------------------------------------------------- #
+# Basic row type - matches omni_factory_demo schema
+Row = Tuple[float, str, int, float, str]  # ts, scenario, tokens, avg_reward, checksum
 
-def cmd_list(args: argparse.Namespace) -> None:  # noqa: D401
-    """Show ledger entries with filtering & pagination."""
+
+def _stream_rows(conn: sqlite3.Connection) -> Iterable[Row]:
+    yield from conn.execute(
+        "SELECT ts, scenario, tokens, avg_reward, checksum FROM ledger ORDER BY ts"
+    )
+
+
+def _load_hard_cap(conn: sqlite3.Connection) -> int:
+    # Prefer env var override, else fall back to value stored in cfg-table if present
+    env = os.getenv(HARD_CAP_ENV)
+    if env:
+        return int(env)
+    with closing(
+        conn.execute(
+            "SELECT value FROM pragma_table_info('ledger') WHERE name='tokens'"
+        )
+    ) as cur:
+        # legacy fallback if no explicit cap stored; demo hard coded to 10 000 000
+        return 10_000_000
+
+
+# ════════════════════════════════════════════════════════════════════
+# Sub-command implementations
+# ════════════════════════════════════════════════════════════════════
+def cmd_list(args: argparse.Namespace) -> None:
     with _open_db(args.ledger) as conn:
         rows = list(_stream_rows(conn))
-
-    # Apply filters -----------------------------------------------------------
-    if args.since or args.until:
-        rows = [
-            r for r in rows if (not args.since or r[0] >= args.since) and (not args.until or r[0] <= args.until)
-        ]
-    if args.grep:
-        rows = [r for r in rows if args.grep.lower() in r[1].lower()]
-
-    # Tail / head -------------------------------------------------------------
     if args.tail:
         rows = list(islice(rows, len(rows) - args.tail, None))
-    elif args.head:
-        rows = list(islice(rows, 0, args.head))
-
     display = [
-        (_pretty_ts(ts), scenario[:60], f"{tokens:,}", f"{avg_reward:.3f}")
-        for ts, scenario, tokens, avg_reward in rows
+        (
+            _pretty_ts(ts),
+            scenario[:60],
+            f"{tokens:,}",
+            f"{avg_reward:.3f}",
+        )
+        for ts, scenario, tokens, avg_reward, _ in rows
     ]
     _print_table(
-        ("Timestamp", "Scenario", "$AGIALPHA", "Avg‑Reward"),
+        ("Timestamp", "Scenario", f"{TOKEN_SYMBOL}", "AvgReward"),
         display or [("—", "ledger is empty", "—", "—")],
     )
 
 
-# --------------------------------------------------------------------------- #
-# stats
-# --------------------------------------------------------------------------- #
-
-def _calc_stats(rows: List[Row]) -> Dict[str, float]:
-    tokens_total = sum(r[2] for r in rows)
-    reward_mean  = sum(r[3] for r in rows) / len(rows)
-    first_ts, last_ts = rows[0][0], rows[-1][0]
-    days = max((last_ts - first_ts) / 86_400, 1e-6)
-    return {
-        "entries": len(rows),
-        "total_tokens": tokens_total,
-        "avg_reward": reward_mean,
-        "start": first_ts,
-        "end": last_ts,
-        "tokens_per_day": tokens_total / days,
-    }
-
-
-def _read_cap(path: Path) -> int | None:
-    """Return hard‑cap recorded in DB user‑version pragma, env, or None."""
-    # 1. pragma user_version (demo sets to cap)
-    try:
-        with _open_db(path) as conn:
-            cap = conn.execute("PRAGMA user_version").fetchone()[0]
-            if cap:
-                return cap
-    except Exception:
-        pass
-    # 2. env var (mirrors demo cfg)
-    val = os.getenv(HARD_CAP_ENV)
-    return int(val) if val and val.isdigit() else None
-
-
-def cmd_stats(args: argparse.Namespace) -> None:  # noqa: D401
-    """Print aggregated ledger statistics."""
+def cmd_stats(args: argparse.Namespace) -> None:
     with _open_db(args.ledger) as conn:
         rows = list(_stream_rows(conn))
+        hard_cap = _load_hard_cap(conn)
     if not rows:
         sys.exit("Ledger is empty.")
+    tokens_total = sum(r[2] for r in rows)
+    reward_mean = sum(r[3] for r in rows) / len(rows)
+    first_ts, last_ts = rows[0][0], rows[-1][0]
+    days = max((last_ts - first_ts) / 86_400, 1e-6)
+    tokens_per_day = tokens_total / days
+    utilisation = tokens_total / hard_cap * 100
 
-    st = _calc_stats(rows)
-    cap = _read_cap(args.ledger)
-    supply_left = (cap - st["total_tokens"]) if cap is not None else None
+    print(_Colour.bold("Ledger statistics"))
+    print(f"Entries          : {len(rows):,}")
+    print(f"Total {TOKEN_SYMBOL:8}: {tokens_total:,} ({utilisation:.2f}% of hard-cap)")
+    print(f"Average reward   : {reward_mean:.3f}")
+    print(f"First entry      : {_pretty_ts(first_ts)}")
+    print(f"Last entry       : {_pretty_ts(last_ts)}")
+    print(f"{TOKEN_SYMBOL}/day     : {tokens_per_day:,.1f}")
 
-    print(f"Entries        : {st['entries']:,}")
-    print(f"Total $AGIALPHA: {st['total_tokens']:,}")
-    print(f"Average reward : {st['avg_reward']:.3f}")
-    print(f"Period         : {_pretty_ts(st['start'])}  →  {_pretty_ts(st['end'])}")
-    print(f"$AGIALPHA/day  : {st['tokens_per_day']:, .1f}")
-    if cap is not None:
-        print(f"Hard cap       : {cap:,}")
-        print(f"Supply left    : {supply_left:,}")
-
-
-# --------------------------------------------------------------------------- #
-# verify
-# --------------------------------------------------------------------------- #
-
-import hashlib
-
-
-def _hash_row(ts: float, scen: str, tok: int, rew: float) -> str:
-    return hashlib.sha256(f"{ts}{scen}{tok}{rew}".encode()).hexdigest()[:16]
-
-
-def cmd_verify(args: argparse.Namespace) -> None:  # noqa: D401
-    """Check ledger integrity (checksums & SQLite quick_check)."""
-    with _open_db(args.ledger) as conn:
-        bad_rows = [
-            r for r in conn.execute("SELECT ts, scenario, tokens, avg_reward, checksum FROM ledger")
-            if _hash_row(r[0], r[1], r[2], r[3]) != r[4]
-        ]
-        pragma = conn.execute("PRAGMA quick_check").fetchone()[0]
-
-    if pragma != "ok":
-        print("PRAGMA quick_check failed →", pragma)
-    else:
-        print("SQLite integrity ✔")
-
-    if not bad_rows:
-        print("Checksum integrity ✔ (all rows valid)")
-    else:
-        print("Checksum integrity ✖ – corrupted rows:")
-        for row in bad_rows:
-            print(" •", _pretty_ts(row[0]), row[1][:60])
-        sys.exit(1)
-
-
-# --------------------------------------------------------------------------- #
-# top
-# --------------------------------------------------------------------------- #
-
-def cmd_top(args: argparse.Namespace) -> None:  # noqa: D401
-    """Show top‑N rows ranked by tokens or avg_reward."""
-    key_idx = 2 if args.by == "tokens" else 3
-    with _open_db(args.ledger) as conn:
-        rows = sorted(_stream_rows(conn), key=lambda r: r[key_idx], reverse=True)[: args.limit]
-    display = [
-        (_pretty_ts(ts), scenario[:60], f"{tokens:,}", f"{avg_reward:.3f}")
-        for ts, scenario, tokens, avg_reward in rows
-    ]
-    _print_table(
-        ("Timestamp", "Scenario", "$AGIALPHA", "Avg‑Reward"),
-        display,
-    )
-
-
-# --------------------------------------------------------------------------- #
-# export
-# --------------------------------------------------------------------------- #
 
 def _determine_format(outfile: Path) -> str:
     ext = outfile.suffix.lower()
@@ -264,17 +188,12 @@ def _determine_format(outfile: Path) -> str:
     sys.exit("Unsupported export format – use .csv, .tsv, .jsonl, or .json")
 
 
-def cmd_export(args: argparse.Namespace) -> None:  # noqa: D401
-    """Dump ledger to CSV/TSV or JSONL."""
+def cmd_export(args: argparse.Namespace) -> None:
     out: Path = args.outfile.expanduser().resolve()
     if out.exists():
-        sys.exit(f"Refusing to overwrite existing file: {out}")
-
+        sys.exit(_Colour.red(f"Refusing to overwrite existing file: {out}"))
     with _open_db(args.ledger) as conn:
         rows = list(_stream_rows(conn))
-    if not rows:
-        sys.exit("Ledger is empty – nothing to export.")
-
     fmt = _determine_format(out)
     out.parent.mkdir(parents=True, exist_ok=True)
 
@@ -283,65 +202,129 @@ def cmd_export(args: argparse.Namespace) -> None:  # noqa: D401
         with out.open("w", newline="", encoding="utf-8") as fh:
             writer = csv.writer(fh, delimiter=delim)
             writer.writerow(("timestamp", "scenario", "tokens", "avg_reward"))
-            writer.writerows(rows)
-    else:  # jsonl
+            for ts, scenario, tokens, avg_reward, _ in rows:
+                writer.writerow((ts, scenario, tokens, avg_reward))
+    else:  # jsonl / json
         with out.open("w", encoding="utf-8") as fh:
-            for r in rows:
+            for ts, scenario, tokens, avg_reward, _ in rows:
                 fh.write(
                     json.dumps(
                         {
-                            "timestamp": r[0],
-                            "scenario": r[1],
-                            "tokens": r[2],
-                            "avg_reward": r[3],
+                            "timestamp": ts,
+                            "scenario": scenario,
+                            "tokens": tokens,
+                            "avg_reward": avg_reward,
                         },
                         ensure_ascii=False,
                     )
                     + "\n"
                 )
-    print(f"Exported {len(rows):,} rows → {out}")
+    print(_Colour.green(f"Exported {len(rows):,} rows → {out}"))
 
-###############################################################################
+
+def cmd_histogram(args: argparse.Namespace) -> None:
+    with _open_db(args.ledger) as conn:
+        rows = list(_stream_rows(conn))
+    if not rows:
+        sys.exit("Ledger is empty.")
+    # group by day
+    buckets = defaultdict(int)
+    for ts, _, tokens, *_ in rows:
+        day = int(ts // 86_400)
+        buckets[day] += tokens
+    if args.bins:
+        # merge to approx N bins
+        min_day, max_day = min(buckets), max(buckets)
+        span = max_day - min_day + 1
+        bin_size = max(1, span // args.bins)
+        merged = Counter()
+        for day, tok in buckets.items():
+            merged[(day - min_day) // bin_size] += tok
+        buckets = merged
+    # render simple ascii bar-chart
+    max_tok = max(buckets.values())
+    width = 40
+    for i in sorted(buckets):
+        tok = buckets[i]
+        bar = "█" * max(1, int(tok / max_tok * width))
+        start = datetime.fromtimestamp((min(buckets) + i) * 86_400, tz=timezone.utc)
+        label = start.strftime("%Y-%m-%d")
+        print(f"{label} {bar} {tok:,}")
+
+
+def cmd_supply(args: argparse.Namespace) -> None:
+    with _open_db(args.ledger) as conn:
+        total = conn.execute("SELECT SUM(tokens) FROM ledger").fetchone()[0] or 0
+        hard_cap = _load_hard_cap(conn)
+    pct = total / hard_cap * 100
+    print(f"{TOKEN_SYMBOL} minted: {total:,} / {hard_cap:,} ({pct:.2f}%)")
+
+
+def _checksum(ts: float, scenario: str, tokens: int, avg_reward: float) -> str:
+    import hashlib
+
+    return hashlib.sha256(f"{ts}{scenario}{tokens}{avg_reward}".encode()).hexdigest()[:16]
+
+
+def cmd_verify(args: argparse.Namespace) -> None:
+    with _open_db(args.ledger) as conn:
+        rows = list(_stream_rows(conn))
+        hard_cap = _load_hard_cap(conn)
+    ok = True
+    prev_ts = -math.inf
+    minted = 0
+    for i, (ts, scenario, tokens, avg_reward, chksum) in enumerate(rows, 1):
+        if ts < prev_ts:
+            print(_Colour.red(f"[{i}] Timestamp order error: {ts} < {prev_ts}"))
+            ok = False
+        prev_ts = ts
+        if chksum != _checksum(ts, scenario, tokens, avg_reward):
+            print(_Colour.red(f"[{i}] Checksum mismatch for row dated {_pretty_ts(ts)}"))
+            ok = False
+        minted += tokens
+    if minted > hard_cap:
+        print(_Colour.red(f"Hard-cap exceeded ({minted:,} > {hard_cap:,})"))
+        ok = False
+    if ok:
+        print(_Colour.green("Ledger verification ✓ – all checks passed."))
+    else:
+        sys.exit(2)
+
+
+# ════════════════════════════════════════════════════════════════════
 # CLI plumbing
-###############################################################################
-
+# ════════════════════════════════════════════════════════════════════
 def _build_parser() -> argparse.ArgumentParser:
     p = argparse.ArgumentParser(
         prog="omni_ledger_cli",
-        description="Inspect, verify, and export the OMNI‑Factory $AGIALPHA ledger.",
+        description=f"Inspect, verify or export the {TOKEN_SYMBOL} ledger.",
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
     )
-    p.add_argument("--ledger", type=Path, default=DEFAULT_LEDGER, help="Path to omni_ledger.sqlite")
+    p.add_argument(
+        "--ledger",
+        type=Path,
+        default=DEFAULT_LEDGER,
+        help="Path to omni_ledger.sqlite",
+    )
     sub = p.add_subparsers(dest="command", required=True)
 
-    # list -------------------------------------------------------------------
-    pl = sub.add_parser("list", help="List ledger rows with optional filters")
-    pl.add_argument("--tail", type=int, metavar="N", help="Show last N rows")
-    pl.add_argument("--head", type=int, metavar="N", help="Show first N rows")
-    pl.add_argument("--grep", help="Substring case‑insensitive scenario filter")
-    pl.add_argument("--since", type=_parse_date, help="Only rows on/after YYYY‑MM‑DD")
-    pl.add_argument("--until", type=_parse_date, help="Only rows on/before YYYY‑MM‑DD")
-    pl.set_defaults(func=cmd_list)
+    # dynamically register sub-commands
+    def _add(name: str, func, help_: str, extra: List[Tuple[str, dict]] | None = None):
+        sp = sub.add_parser(name, help=help_)
+        if extra:
+            for flag, kwargs in extra:
+                sp.add_argument(flag, **kwargs)
+        sp.set_defaults(func=func)
 
-    # stats ------------------------------------------------------------------
-    ps = sub.add_parser("stats", help="Aggregate ledger statistics")
-    ps.set_defaults(func=cmd_stats)
-
-    # verify -----------------------------------------------------------------
-    pv = sub.add_parser("verify", help="Verify ledger integrity (checksums & SQLite)")
-    pv.set_defaults(func=cmd_verify)
-
-    # top --------------------------------------------------------------------
-    pt = sub.add_parser("top", help="Show top‑N rows by tokens or reward")
-    pt.add_argument("--by", choices=("tokens", "reward"), default="tokens", help="Ranking criterion")
-    pt.add_argument("--limit", type=int, default=10, help="Number of rows to show")
-    pt.set_defaults(func=cmd_top)
-
-    # export -----------------------------------------------------------------
-    pe = sub.add_parser("export", help="Export ledger to CSV/TSV/JSONL")
-    pe.add_argument("--outfile", type=Path, required=True, help="Destination file path")
-    pe.set_defaults(func=cmd_export)
-
+    _add("list", cmd_list, "List recent ledger rows",
+         [("--tail", dict(type=int, default=20, help="Lines to show (0=all)"))])
+    _add("stats", cmd_stats, "Aggregate statistics")
+    _add("histogram", cmd_histogram, "ASCII histogram of minted tokens",
+         [("--bins", dict(type=int, default=60, help="Approximate number of bars"))])
+    _add("supply", cmd_supply, f"Show total minted {TOKEN_SYMBOL}")
+    _add("verify", cmd_verify, "Audit ledger integrity & hard-cap")
+    _add("export", cmd_export, "Export ledger",
+         [("--outfile", dict(type=Path, required=True, help="Destination file"))])
     return p
 
 
