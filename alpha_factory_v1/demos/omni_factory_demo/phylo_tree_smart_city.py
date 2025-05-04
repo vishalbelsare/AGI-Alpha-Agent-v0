@@ -1,150 +1,299 @@
-
 #!/usr/bin/env python3
 # SPDX-License-Identifier: Apache-2.0
-"""phylo_tree_smart_city.py
-──────────────────────────────────────────────────────────────────────────────
-Visualise the *evolution* of smart‑city disruption scenarios archived by
-**OMNI‑Factory** as a phylogenetic‑style tree.
+"""OMNI‑Factory · Smart‑City Scenario Phylogenetic Tree
+════════════════════════════════════════════════════════
+Visualise the *evolutionary landscape* of disruption scenarios tackled by
+**Alpha‑Factory v1** as a radial phylogenetic‑style tree.  Each leaf node
+represents a scenario sentence stored in ``omni_ledger.sqlite`` (or sample
+data if absent).  Branches are created via semantic agglomerative clustering
+(TF‑IDF by default, or ``sentence‑transformers`` / OpenAI embeddings if
+available) and their radii encode the *economic value* (average reward).
 
-• Reads `omni_ledger.sqlite` (same directory) – or falls back to 4 samples.
-• TF‑IDF + cosine agglomerative clustering builds semantic branches.
-• Node radius ∝ average reward (larger = stronger “Alpha” value).
-• Saves high‑resolution PNG `phylo_tree.png` next to the script.
+Highlights
+──────────
+ • Zero external writes – read‑only access to the SQLite ledger.
+ • Runs *offline‑first* (no API keys); uses stronger embeddings if present.
+ • Graphviz ‘dot’ layout when available; falls back to deterministic spring.
+ • PNG & SVG output   → ``phylo_tree.[png|svg]`` next to the script.
+ • Optional CLI switches   → ``--db path``  ``--out path``  ``--format svg``.
 
-Quick‑start
-───────────
+Usage
+─────
     pip install matplotlib networkx scikit-learn
-    python phylo_tree_smart_city.py
+    # (optional) pip install sentence-transformers
+    python phylo_tree_smart_city.py               # PNG, default TF‑IDF
 
-If GraphViz is installed, the plot uses a tidy hierarchical layout;
-otherwise it gracefully falls back to a spring layout.
+    python phylo_tree_smart_city.py --format svg  # high‑res SVG
 
-This file is self‑contained, safe (read‑only DB access) and platform‑agnostic.
+Environment
+───────────
+OMNI_EMBEDDING = "tfidf" | "sbert" | "openai"      (default: auto)
+
+The script auto‑selects the best embedding backend in this order:
+(1) OpenAI embeddings (if key + internet) → (2) sentence‑transformers
+→ (3) TF‑IDF fallback.  You can pin a backend via the env‑var above.
+
+This file is self‑contained, PEP‑517 compliant, and platform‑agnostic.
 """
 
 from __future__ import annotations
-import contextlib, sqlite3, math, pathlib, sys, os
 
-# ─── Third‑party deps ──────────────────────────────────────────────────────
-try:
-    import matplotlib.pyplot as plt
-    import networkx as nx
-    from sklearn.feature_extraction.text import TfidfVectorizer
-    from sklearn.cluster import AgglomerativeClustering
-    from sklearn.metrics.pairwise import cosine_distances
-except ImportError as exc:      # pragma: no cover
-    miss = str(exc).split("'")[-2]
-    print(f"[ERROR] Missing dependency: {miss}. "
-          "Run  pip install matplotlib networkx scikit-learn")
-    sys.exit(1)
+import argparse
+import contextlib
+import dataclasses as _dc
+import datetime as _dt
+import math
+import os
+import pathlib
+import sqlite3
+import sys
+import typing as _t
 
-# ─── Constants ─────────────────────────────────────────────────────────────
-LEDGER_PATH = pathlib.Path(__file__).with_name("omni_ledger.sqlite")
-OUT_FILE    = pathlib.Path(__file__).with_name("phylo_tree.png")
-MAX_CLUSTERS = 6               # soft cap for readability
+# ─────────────────────────────────────────────────────────────────────────────
+# Optional third‑party imports
+# ─────────────────────────────────────────────────────────────────────────────
+_MISSING: list[str] = []
+with contextlib.suppress(ImportError):
+    import matplotlib.pyplot as _plt          # type: ignore
+if '_plt' not in globals():
+    _MISSING.append('matplotlib')
 
-# ─── Helpers ───────────────────────────────────────────────────────────────
-def _load_ledger() -> list[tuple[str, float]]:
-    """Return list of (scenario sentence, avg_reward)."""
-    if not LEDGER_PATH.exists():
-        # demo fallback
-        return [
-            ("Flash‑flood closes two bridges at rush hour", 42.0),
-            ("Cyber‑attack on traffic‑light network",       55.0),
-            ("Record heatwave threatens rolling brown‑outs",65.0),
-            ("Protest blocks downtown core",                51.0),
-        ]
-    rows: list[tuple[str, float]] = []
-    with sqlite3.connect(LEDGER_PATH) as conn:
-        cur = conn.execute("SELECT scenario, avg_reward FROM ledger")
-        rows = cur.fetchall()
-    return rows
+with contextlib.suppress(ImportError):
+    import networkx as _nx                    # type: ignore
+if '_nx' not in globals():
+    _MISSING.append('networkx')
 
-def _cluster(sentences: list[str]) -> list[int]:
-    """Return cluster labels using distance threshold heuristic."""
-    vec = TfidfVectorizer().fit_transform(sentences)
-    # distance matrix (cosine)
-    dist = cosine_distances(vec)
-    # decide n_clusters via distance threshold to avoid tiny clusters
-    # cap to MAX_CLUSTERS for readability
-    clustering = AgglomerativeClustering(
-        affinity='precomputed',
-        linkage='average',
-        distance_threshold=0.75,
-        n_clusters=None,
+with contextlib.suppress(ImportError):
+    from sklearn.feature_extraction.text import TfidfVectorizer  # type: ignore
+    from sklearn.cluster import AgglomerativeClustering          # type: ignore
+    from sklearn.metrics.pairwise import cosine_distances        # type: ignore
+else:
+    _SKLEARN_OK = True
+if 'TfidfVectorizer' not in globals():
+    _MISSING.append('scikit-learn')
+    _SKLEARN_OK = False
+
+# Optional stronger embeddings
+with contextlib.suppress(ImportError):
+    from sentence_transformers import SentenceTransformer         # type: ignore
+    import numpy as _np                                           # type: ignore
+    _SBERT_OK = True
+else:
+    _SBERT_OK = 'SentenceTransformer' in globals()
+
+with contextlib.suppress(ImportError):
+    import openai                                                 # type: ignore
+    _OPENAI_OK = True
+else:
+    _OPENAI_OK = 'openai' in globals()
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Configuration dataclass
+# ─────────────────────────────────────────────────────────────────────────────
+@_dc.dataclass(slots=True)
+class Config:
+    db_path:   pathlib.Path
+    out_path:  pathlib.Path
+    img_fmt:   str = 'png'
+    backend:   str = 'auto'
+    max_clusters: int = 8
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Utilities
+# ─────────────────────────────────────────────────────────────────────────────
+def _fatal(msg: str, exit_code: int = 1) -> None:  # pragma: no cover
+    """Print error + exit (graceful for non‑tech users)."""
+    print(f'[ERROR] {msg}')
+    sys.exit(exit_code)
+
+
+def _parse_args() -> Config:
+    parser = argparse.ArgumentParser(
+        prog='phylo_tree_smart_city',
+        description='Visualise Smart‑City scenario “evolution” as a tree.',
     )
-    clustering.fit(dist)
-    # If too many clusters collapse smallest
-    labels = clustering.labels_
+    parser.add_argument('--db',   help='SQLite ledger path',
+                        default='omni_ledger.sqlite')
+    parser.add_argument('--out',  help='Output image file',
+                        default='phylo_tree.png')
+    parser.add_argument('--format', choices=('png', 'svg'),
+                        default='png', help='Image format (png|svg)')
+    parser.add_argument('--backend', choices=('auto', 'tfidf', 'sbert', 'openai'),
+                        default=os.getenv('OMNI_EMBEDDING', 'auto'),
+                        help='Embedding backend override')
+    parser.add_argument('--clusters', type=int, default=8,
+                        help='Soft maximum number of clusters')
+    args = parser.parse_args()
+
+    return Config(
+        db_path=pathlib.Path(args.db).expanduser(),
+        out_path=pathlib.Path(args.out).with_suffix(f'.{args.format}'),
+        img_fmt=args.format,
+        backend=args.backend,
+        max_clusters=args.clusters,
+    )
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Data loading
+# ─────────────────────────────────────────────────────────────────────────────
+def _load_ledger(db_path: pathlib.Path) -> list[tuple[str, float]]:
+    """Return list of (sentence, avg_reward) rows."""
+    if not db_path.exists():
+        # fallback sample scenarios
+        return [
+            ('Flash‑flood closes two bridges at rush hour', 42.0),
+            ('Cyber‑attack on traffic‑light network',        55.0),
+            ('Record heatwave threatens rolling brown‑outs', 65.0),
+            ('Protest blocks downtown core',                 51.0),
+        ]
+    try:
+        with sqlite3.connect(str(db_path)) as conn:
+            cur = conn.execute('SELECT scenario, avg_reward FROM ledger')
+            rows = cur.fetchall()
+        return rows
+    except sqlite3.Error as exc:
+        _fatal(f'SQLite error: {exc}')
+    return []  # unreachable
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Embedding backends
+# ─────────────────────────────────────────────────────────────────────────────
+def _embed_tfidf(sentences: list[str]) -> '_np.ndarray':
+    if not _SKLEARN_OK:
+        _fatal('scikit‑learn is required for TF‑IDF backend.')
+    vec = TfidfVectorizer().fit_transform(sentences)
+    return vec.toarray()
+
+
+def _embed_sbert(sentences: list[str]) -> '_np.ndarray':
+    if not _SBERT_OK:
+        _fatal('sentence‑transformers not installed.')
+    model = SentenceTransformer('all-MiniLM-L6-v2')
+    return model.encode(sentences, convert_to_numpy=True, show_progress_bar=False)
+
+
+def _embed_openai(sentences: list[str]) -> '_np.ndarray':
+    if not _OPENAI_OK:
+        _fatal('openai python package missing.')
+    if not os.getenv('OPENAI_API_KEY'):
+        _fatal('OPENAI_API_KEY not set for OpenAI backend.')
+    openai.api_key = os.getenv('OPENAI_API_KEY')
+    embeddings = []
+    for s in sentences:
+        resp = openai.Embedding.create(model='text-embedding-3-small',
+                                       input=s)
+        embeddings.append(resp['data'][0]['embedding'])
+    import numpy as _np
+    return _np.array(embeddings, dtype='float32')
+
+
+def _select_backend(cfg: Config, sentences: list[str]) -> '_np.ndarray':
+    """Return sentence embeddings using the chosen/auto backend."""
+    back = cfg.backend
+    if back == 'auto':
+        # prefer openai > sbert > tfidf
+        back = ('openai' if _OPENAI_OK and os.getenv('OPENAI_API_KEY')
+                else 'sbert' if _SBERT_OK
+                else 'tfidf')
+    if back == 'openai':
+        return _embed_openai(sentences)
+    if back == 'sbert':
+        return _embed_sbert(sentences)
+    return _embed_tfidf(sentences)
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Clustering
+# ─────────────────────────────────────────────────────────────────────────────
+def _cluster_vectors(vecs: '_np.ndarray', max_clusters: int) -> list[int]:
+    """Hierarchical clustering → cluster labels."""
+    if vecs.shape[0] <= 2:
+        return [0] * vecs.shape[0]
+    dist = cosine_distances(vecs)
+    clust = AgglomerativeClustering(affinity='precomputed',
+                                    linkage='average',
+                                    n_clusters=None,
+                                    distance_threshold=0.55)
+    labels = clust.fit_predict(dist)
+    # reduce tiny clusters > max_clusters
     uniq = sorted(set(labels))
-    if len(uniq) > MAX_CLUSTERS:
-        # merge extras into nearest existing
-        mapping = {old:i for i, old in enumerate(uniq[:MAX_CLUSTERS])}
-        next_id = MAX_CLUSTERS - 1
-        for old in uniq[MAX_CLUSTERS:]:
-            mapping[old] = next_id
+    if len(uniq) > max_clusters:
+        mapping = {u: i if i < max_clusters else max_clusters-1
+                   for i, u in enumerate(uniq)}
         labels = [mapping[l] for l in labels]
     return labels
 
-def _build_graph(rows: list[tuple[str,float]], labels: list[int]) -> "nx.DiGraph":
-    G = nx.DiGraph()
-    G.add_node("root", size=0)           # phantom root
+# ─────────────────────────────────────────────────────────────────────────────
+# Graph construction
+# ─────────────────────────────────────────────────────────────────────────────
+def _build_graph(rows: list[tuple[str, float]], labels: list[int]) -> '_nx.DiGraph':
+    G = _nx.DiGraph()
+    G.add_node('root', size=0.0)
     clusters: dict[int, list[int]] = {}
     for idx, lab in enumerate(labels):
         clusters.setdefault(lab, []).append(idx)
-
-    # Add internal nodes (clusters) and leaves (scenarios)
-    for c_id, members in clusters.items():
-        cluster_name = f"cluster_{c_id}"
-        # mean reward for cluster size representation
-        mean_r = sum(rows[i][1] for i in members) / len(members)
-        G.add_node(cluster_name, size=mean_r)
-        G.add_edge("root", cluster_name)
-        for m in members:
-            desc, reward = rows[m]
-            node_id = f"leaf_{m}"
-            G.add_node(node_id, label=desc, size=reward)
-            G.add_edge(cluster_name, node_id)
+    for cid, mem in clusters.items():
+        cname = f'cluster_{cid}'
+        mean_reward = sum(rows[i][1] for i in mem) / len(mem)
+        G.add_node(cname, size=mean_reward)
+        G.add_edge('root', cname)
+        for i in mem:
+            desc, reward = rows[i]
+            nid = f'leaf_{i}'
+            G.add_node(nid, size=reward, label=desc)
+            G.add_edge(cname, nid)
     return G
 
-def _draw(G: "nx.DiGraph") -> None:
-    import matplotlib.pyplot as plt
-
-    # prefer graphviz layout if available
-    pos = None
+# ─────────────────────────────────────────────────────────────────────────────
+# Drawing
+# ─────────────────────────────────────────────────────────────────────────────
+def _layout_graph(G: '_nx.DiGraph') -> dict[str, tuple[float, float]]:
+    """Return node → (x,y) positions, prefer hierarchical layout."""
+    # attempt graphviz:
     with contextlib.suppress(Exception):
         from networkx.drawing.nx_agraph import graphviz_layout
-        pos = graphviz_layout(G, prog="dot")
-    if pos is None:
-        pos = nx.spring_layout(G, seed=0)
+        return graphviz_layout(G, prog='dot')
+    # deterministic spring layout
+    return _nx.spring_layout(G, seed=42)  # type: ignore
 
-    sizes = [max(100, G.nodes[n]["size"]*5) for n in G.nodes]
-    labels = {
-        n: (G.nodes[n].get("label") or n.replace("cluster_", "C").replace("leaf_", "")) 
-        for n in G.nodes if not n == "root"
-    }
 
-    # draw
-    plt.figure(figsize=(10, 8), dpi=150)
-    nx.draw_networkx_edges(G, pos, alpha=0.4)
-    nx.draw_networkx_nodes(G, pos, node_size=sizes, node_color="#5e85f2", alpha=0.9)
-    nx.draw_networkx_labels(G, pos, labels, font_size=8, font_family="sans-serif")
-    plt.axis("off")
-    plt.tight_layout()
-    plt.savefig(OUT_FILE, dpi=300)
-    print(f"[OK] Phylogenetic tree saved → {OUT_FILE.resolve()}")
-    plt.close()
+def _draw(G: '_nx.DiGraph', out_path: pathlib.Path, fmt: str) -> None:
+    pos = _layout_graph(G)
+    sizes = [max(120, G.nodes[n]['size'] * 6) for n in G.nodes]
+    labels = {n: G.nodes[n].get('label', n.replace('cluster_', 'C'))
+              for n in G.nodes if n != 'root'}
 
-# ─── Main ──────────────────────────────────────────────────────────────────
-def main():
-    rows = _load_ledger()
+    _plt.figure(figsize=(11, 8), dpi=200)
+    _nx.draw_networkx_edges(G, pos, alpha=0.3, width=1.2)
+    _nx.draw_networkx_nodes(G, pos, node_size=sizes,
+                            node_color='#4e79ff', alpha=0.85)
+    _nx.draw_networkx_labels(G, pos, labels,
+                             font_size=8, font_family='sans-serif')
+    _plt.title('Smart‑City Scenario Phylogenetic Tree  '
+               f'({len([n for n in G.nodes if n.startswith("leaf")])} scenarios)',
+               fontsize=10)
+    _plt.axis('off')
+    _plt.tight_layout()
+    _plt.savefig(out_path, format=fmt, dpi=300)
+    print(f'[OK] Tree saved → {out_path.resolve()}')
+    _plt.close()
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Main entry‑point
+# ─────────────────────────────────────────────────────────────────────────────
+def main() -> None:
+    if _MISSING:
+        _fatal('Missing required packages: ' + ', '.join(_MISSING))
+    cfg = _parse_args()
+    rows = _load_ledger(cfg.db_path)
     if not rows:
-        print("[WARN] No scenarios found.")
-        return
+        _fatal('No scenarios found – ledger is empty.')
     sentences = [r[0] for r in rows]
-    labels    = _cluster(sentences)
-    G         = _build_graph(rows, labels)
-    _draw(G)
 
-if __name__ == "__main__":
+    vecs = _select_backend(cfg, sentences)
+    labels = _cluster_vectors(vecs, cfg.max_clusters)
+    G = _build_graph(rows, labels)
+    _draw(G, cfg.out_path, cfg.img_fmt)
+
+
+if __name__ == '__main__':
     main()
