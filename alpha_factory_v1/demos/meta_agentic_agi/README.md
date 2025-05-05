@@ -5,7 +5,8 @@
 ## 📌 Purpose & Positioning
 
 This demo extends **Alpha‑Factory v1** into a *self‑improving*, cross‑industry “Alpha Factory” able to **Out‑Learn · Out‑Think · Out‑Design · Out‑Strategize · Out‑Execute** — *without hard‑wiring a single vendor or model*.
-It operationalises the **Automated Design of Agentic Systems** paradigm from Hu *et al.* ICLR‑25 citeturn5file0 and layers true **multi‑objective search**, open‑weights support, automated lineage documentation, and antifragile safeguards on top of the existing α‑Factory.
+
+It operationalises the **Automated Design of Agentic Systems** paradigm from Hu *et al.* ICLR‑25 and layers true **multi‑objective search**, open‑weights support, automated lineage documentation, and antifragile safeguards on top of the existing α‑Factory.
 
 > **Goal:** Provide a **completely deployable, audited‑by‑design reference stack** that a non‑technical stakeholder can run on a laptop *or* scale up in Kubernetes, then immediately surface alpha‑grade opportunities in any vertical.
 
