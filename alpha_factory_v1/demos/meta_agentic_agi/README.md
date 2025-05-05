@@ -14,6 +14,7 @@ It operationalises the **Automated Design of Agentic Systems** paradigm fr
 ---
 
 ## 1 Quick‑start 🏁
+
 ```bash
 # ❶ Clone Alpha‑Factory v1 and enter demo folder
 git clone https://github.com/MontrealAI/AGI-Alpha-Agent-v0.git
@@ -28,17 +29,18 @@ pip install -r requirements.txt          # ↓ pure‑Python, CPU‑only default
 python meta_agentic_agi_demo.py --provider mistral:7b-instruct.gguf
 
 #  …or plug any provider (OpenAI, Anthropic, LM‑Studio‑local)
-OPENAI_API_KEY=sk-… python meta_agentic_agi_demo.py --provider openai:gpt-4o
+OPENAI_API_KEY=sk‑… python meta_agentic_agi_demo.py --provider openai:gpt-4o
 
 # ❹ Launch visual lineage UI
 streamlit run ui/lineage_app.py           # http://localhost:8501
 ```
 
-*No GPU? No problem — default settings use dynamic low‑RAM quantisation and the search loop throttles to respect laptop thermals.*
+_No GPU? No problem — default settings use dynamic low‑RAM quantisation and the search loop throttles to respect laptop thermals._
 
 ---
 
 ## 2 High‑Level Architecture 🏗
+
 ```
 alpha_factory_v1/
 └── demos/meta_agentic_agi/
@@ -65,15 +67,19 @@ alpha_factory_v1/
 ---
 
 ## 3 Architecture 🔍
-1. **Agent spec = Python function** – *Turing‑complete search‑space*.
-2. **Meta Agent** (GPT‑4o, Claude 3‑Sonnet, or local Llama 3‑70B) builds candidate agents **in‑code**, guided by archive & multi‑objective score.
-3. **Evaluator** spawns sandboxed subprocesses → returns metrics (accuracy 📈, latency ⏱, cost 💰, risk 🛡).
-4. **Archive** (Quality–Diversity map) retains Pareto‑front & behavioural‑novelty hashes.
+
+1. **Agent spec = Python function** – *Turing‑complete search‑space*.<br>
+2. **Meta Agent (gpt‑4o, Claude 3‑Sonnet, or local Llama 3‑70B)** builds candidate agents **in‑code**, guided by archive & multi‑objective score.<br>
+3. **Evaluator** spawns sandboxed subprocesses → returns metrics (accuracy 📈, latency ⏱, cost 💰, risk 🛡).<br>
+4. **Archive** (Quality–Diversity map) retains Pareto‑front & behavioural novelty hashes.<br>
 5. **UI** streams lineage graph (D3.js) + spark‑lines; click any node to expand full source & run.
+
+![Flow diagram](https://raw.githubusercontent.com/MontrealAI/AGI-Alpha-Agent-v0/main/docs/img/meta_search_flow.svg)
 
 ---
 
 ## 4 Replacing vendors ➡️ open‑weights 🏋️‍♀️
+
 ```yaml
 # configs/default.yml (excerpt)
 provider: mistral:7b-instruct.gguf   # any ollama / llama.cpp id
@@ -81,50 +87,57 @@ context_length: 8192
 rate_limit_tps: 4
 retry_backoff: 2
 ```
+
 Set `provider:` to:
+
 * `openai:gpt-4o`  – env `OPENAI_API_KEY`
 * `anthropic:claude-3-sonnet` – env `ANTHROPIC_API_KEY`
 * `mistral:7b-instruct.gguf` (default) – auto‑pull via **llama‑cpp‑python**
 
-The wrapper normalises chat/completions and automatically chunks long contexts via **MCP** streams.
+The wrapper normalises chat/completions and automatically chunks > context tokens via **MCP** streams.
 
 ---
 
 ## 5 True multi‑objective search 🎯
-> **Objective vector** = `[accuracy, cost, latency, hallucination‑risk, carbon]`
 
-* **NSGA‑II** selection (fast elitist) implemented in `meta_search/search.py`.
-* Behaviour descriptor = SHA‑256 of AST of candidate agent — encourages divergent program shapes.
+> **Objective vector** = [accuracy, cost, latency, hallucination‑risk, carbon]
+
+* **NSGA‑II** selection (fast elitist) implemented in `meta_search/search.py`.  
+* Behaviour descriptor = SHA‑256 of AST of candidate agent — encourages divergent program shapes (§2, Hu *etal.*).  
 * Optional *human‑in‑the‑loop* override — thumbs up/down in UI feeds reward shaping.
 
 ---
 
 ## 6 Security & antifragility 🛡
-* Generated code executed in a **petting‑zoo**: firejail + `--seccomp` + 512 MiB memcg.
-* Static analysis via `bandit` + dynamic taint tracking before archive promotion.
-* Live watchdog terminates rogue processes > 30 s CPU.
+
+* All generated code executed in a **petting‑zoo**: `firejail --seccomp` + 512 MiB memcg.  
+* Mandatory static analysis via `bandit` and dynamic taint tracking before promotion to archive.  
+* Live monitors shoot rogue processes > 30 s CPU.
 
 ---
 
 ## 7 Extending 🛠
-1. **Add dataset** → drop `my_dataset.pkl` into `data/` and point CLI to it.
-2. **Custom metric** → subclass `scorer.BaseMetric` & list in `configs/default.yml`.
-3. **New tool** → write `core/tools/my_tool.py`, expose `__call__`, import in seeds.
+
+1. **Add domain dataset** → drop `my_dataset.pkl` into `data/` and reference in CLI.  
+2. **Custom metric** → implement `scorer.MyMetric` and list under `configs/default.yml/objectives`.  
+3. **Plug tool** (browser, SQL, vector‑RAG) → write `core/tools/my_tool.py` (must expose `__call__(self, query)`), then import in seeds.
 
 ---
 
 ## 8 Roadmap 🗺
-* ☐ Hierarchical Meta‑Meta search (self‑improving meta‑agent)
-* ☐ CUDA batch inference kernel (Flash‑infer)
-* ☐ Offline RL search‑policy fine‑tuning via lineage replay
+
+* [ ] Hierarchical Meta‑Meta search (self‑improving meta‑agent).  
+* [ ] Native CUDA kernel for batch eval of tens of lightweight models (Flash‑infer).  
+* [ ] Offline RL fine‑tuning of search policy using lineage replay.
 
 ---
 
 ## 9 References 📚
-* Hu *et al.* “Automated Design of Agentic Systems” ICLR 2025
-* OpenAI “A Practical Guide to Building Agents” (2024)
-* Google ADK docs (2025)
+
+* Hu *et al.* “Automated Design of Agentic Systems” ICLR 2025  
+* OpenAI “Practical Guide to Building Agents” (2024)  
+* Google ADK docs (2025)
 
 ---
 
-© 2025 MONTREAL.AI – Apache‑2.0
+© 2025 MONTREAL.AI   Licensed Apache‑2.0
