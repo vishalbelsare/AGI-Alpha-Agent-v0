@@ -133,10 +133,10 @@ Set `provider:` to:
 
 ## 9 References 📚
 
-* Hu *et al.* “Automated Design of Agentic Systems” ICLR 2025 citeturn5file0
+* Hu *et al.* “Automated Design of Agentic Systems” ICLR 2025
 * OpenAI “Practical Guide to Building Agents” (2024)
 * Google ADK docs (2025)
 
 ---
 
-© 2025 Montreal AI   Licensed Apache‑2.0
+© 2025 MONTREAL.AI   Licensed Apache‑2.0
