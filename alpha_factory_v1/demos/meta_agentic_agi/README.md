@@ -38,28 +38,29 @@ No GPU? No problem — default settings use dynamic low‑RAM quantisation and t
 
 ---
 
-## 2 Folder structure 📁
+## 2 High‑Level Architecture 🏗
 
 ```
-meta_agentic_agi/
-├── core/                  # provider‑agnostic primitives
-│   ├── fm.py              # OpenAI, Anthropic, open‑weights backends
-│   ├── tools.py           # search, execution, RAG, eval
-│   └── prompts.py         # seed building‑blocks (COT, Reflexion…)
-├── meta_search/
-│   ├── archive.py         # JSONL stepping‑stone log
-│   ├── search.py          # ⬅ evolutionary loop (multi‑objective)
-│   └── scorer.py          # cost / latency / accuracy / risk metrics
-├── agents/
-│   ├── agent_base.py      # forward(task: Info) → Info | str
-│   └── seeds.py           # hand‑picked minimal bootstrap set
-├── ui/
-│   ├── lineage_app.py     # Streamlit dashboard – graph lineage & metrics
-│   └── assets/
-├── configs/
-│   └── default.yml        # editable in‑UI – objectives & weights
-├── requirements.txt       # ≤ 40 MiB wheels; pure‑py numpy‑lite
-└── meta_agentic_agi_demo.py
+alpha_factory_v1/
+└── demos/meta_agentic_agi/
+    ├── core/                       # Provider‑agnostic primitives
+    │   ├── fm.py                  # Unified FM wrapper (OpenAI / Anthropic / llama‑cpp)
+    │   ├── tools.py               # Search, exec sandbox, RAG, vector store helpers
+    │   └── prompts.py             # Shared prompt fragments (COT, Reflexion, MCP streaming)
+    ├── meta_search/               # Meta‑agentic search loop
+    │   ├── archive.py             # JSONL stepping‑stone log (Pareto + novelty hashes)
+    │   ├── search.py              # NSGA‑II evolutionary loop w/ reflexive LLM programmer
+    │   └── scorer.py              # Accuracy • Latency • Cost • Hallucination • Carbon
+    ├── agents/                    # Runtime agent interface
+    │   ├── agent_base.py          # forward(task: Info) → Info | str
+    │   └── seeds.py               # Bootstrap population (COT, Self‑Refine, etc.)
+    ├── ui/
+    │   ├── lineage_app.py         # Streamlit dashboard – graph lineage & metrics
+    │   └── assets/                # Icons / D3 templates / Tailwind sheet
+    ├── configs/
+    │   └── default.yml            # Editable in‑UI – objectives & provider switch
+    ├── requirements.txt           # ≤ 40 MiB wheels; pure‑py numpy‑lite default
+    └── meta_agentic_agi_demo.py   # Entry‑point CLI
 ```
 
 ---
