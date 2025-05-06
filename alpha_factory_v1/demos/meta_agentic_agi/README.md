@@ -4,7 +4,7 @@
 > **Official definition – Meta-Agentic (adj.)**  
 > *Describes an agent whose **primary role** is to **create, select, evaluate, or re-configure other agents** and the rules governing their interactions, thereby exercising **second-order agency** over a population of first-order agents.*
 
-> *The term was **pioneered by Vincent Boucher, President of MONTREAL.AI**, to fill a long-standing definitional gap in artificial-intelligence discourse.*
+> *The term was **pioneered by Vincent Boucher, President of MONTREAL.AI**.*
 
 > **Elevating Alpha‑Factory v1 into a self‑improving, cross‑industry “Alpha Factory” that systematically  
 > Out‑Learn · Out‑Think · Out‑Design · Out‑Strategize · Out‑Execute — without coupling to a single vendor or model.**  
