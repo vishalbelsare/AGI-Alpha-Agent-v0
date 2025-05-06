@@ -57,7 +57,7 @@ meta_agentic_agi/
 │   ├── fm.py            # unified FM wrapper
 │   ├── prompts.py       # reusable prompt fragments
 │   └── tools.py         # exec sandbox, RAG, vector store
-├── meta_search/         # ⬅ evolutionary loop
+├── meta_agentic_search/ # ⬅ evolutionary loop
 │   ├── archive.py       # stepping‑stone JSONL log
 │   ├── search.py        # NSGA‑II + Reflexion
 │   └── scorer.py        # multi‑objective metrics
