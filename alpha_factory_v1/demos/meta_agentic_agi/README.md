@@ -1,164 +1,193 @@
-# Meta‑Agentic α‑AGI 👁️✨ Demo – **Production‑Grade v0.1.0**
+# Meta-Agentic α-AGI 👁️✨ Demo — **Production-Grade v0.1.0**
 
-> **Official definition – Meta-Agentic (adj.)**  
-> *Describes an agent whose **primary role** is to **create, select, evaluate, or re‑configure other agents** and the rules governing their interactions, thereby exercising **second‑order agency** over a population of first‑order agents.*
+> **Meta-Agentic (adj.)**  
+> An agent whose *primary* role is to **create, select, evaluate, or re-configure other agents** and the rules that bind them, exercising *second-order agency* over a population of first-order agents.  
+> *Coined by Vincent Boucher (MONTREAL.AI).*
 
-> *The term was **pioneered by Vincent Boucher, President of MONTREAL.AI**.*
-
-> **Elevating Alpha‑Factory v1 into a self‑improving, cross‑industry “Alpha Factory” that systematically  
-> Out‑Learn · Out‑Think · Out‑Design · Out‑Strategize · Out‑Execute — without coupling to a single vendor or model.**  
-> Inspired by and extending the *Automated Design of Agentic Systems* (Hu _et al._, ICLR 2025).
+> **Mission** – Elevate **Alpha-Factory v1** into a self-improving, cross-industry *Alpha Factory* that systematically  
+> **Out-Learn · Out-Think · Out-Design · Out-Strategize · Out-Execute** — while remaining provider-agnostic, regulator-ready, and antifragile.
 
 ---
 
-## 📌 Purpose & Positioning
-This demo operationalises the **Automated Design of Agentic Systems (ADAS)** paradigm and layers:
+## 📌 Why this demo exists
+This repository fuses three recent breakthroughs:
 
-* **True multi‑objective search** (accuracy, cost, latency, risk, carbon)  
-* **Open‑weights *or* API‑based FM back‑ends** (OpenAI, Anthropic, Mistral .gguf …)  
-* **Automated provenance & lineage visualisation**  
-* **Antifragile, regulator‑ready safeguards**
+1. **Automated Design of Agentic Systems (ADAS)** – meta-agents that *program* better agents via evolutionary search.  
+2. **Foundation-model unification layer** – seamless swap-in of **OpenAI**, **Anthropic**, or *any* local `gguf` weight (Mistral, Llama 3, etc.).  
+3. **Full lineage provenance** – every candidate agent, its code, metrics, and Pareto rank rendered live in a **Streamlit dashboard**.
 
-into the existing **Alpha‑Factory v1** (multi‑agent AGENTIC α‑AGI) pipeline.
+The result is a turnkey sandbox for experimenting with **Meta-Agentic α-AGI** that can run entirely offline *or* scaled up with cloud APIs.
 
 ---
 
-## 1 Quick‑start 🏁
-```bash
-# 1️⃣ Clone & enter demo
+## 1 Quick-start 🏁
+\`\`\`bash
+# 1️⃣ Clone & enter
 git clone https://github.com/MontrealAI/AGI-Alpha-Agent-v0.git
 cd AGI-Alpha-Agent-v0/alpha_factory_v1/demos/meta_agentic_agi
 
-# 2️⃣ Environment (CPU‑only default)
+# 2️⃣ Minimal environment (CPU-only by default)
 micromamba create -n metaagi python=3.11 -y
 micromamba activate metaagi
-pip install -r requirements.txt        # ≤ 40 MiB wheels
+pip install -r requirements.txt          # ≤ 40 MiB wheels
 
-# 3️⃣ Run – zero‑API mode (pulls a gguf via Ollama)
+# 3️⃣ Run – zero-API mode (pulls a 7-B gguf via Ollama)
 python meta_agentic_agi_demo.py --provider mistral:7b-instruct.gguf
 
-#    …or point to any provider
-OPENAI_API_KEY=sk‑… python meta_agentic_agi_demo.py --provider openai:gpt-4o
+#   …or point to any provider
+OPENAI_API_KEY=sk-...   python meta_agentic_agi_demo.py --provider openai:gpt-4o
+ANTHROPIC_API_KEY=tok…  python meta_agentic_agi_demo.py --provider anthropic:claude-3-sonnet
 
-# 4️⃣ Launch the lineage UI
+# 4️⃣ Launch the real-time lineage UI
 streamlit run ui/lineage_app.py
-```
-*No GPU?* llama‑cpp‑python auto‑selects 4‑bit quantisation < 6 GB RAM.
+\`\`\`
+
+*Tip – no GPU?* \`llama-cpp-python\` autoselects 4-bit quantisation → runs in < 6 GiB RAM.
 
 ---
 
-## 2 Folder Structure 📁
-```
+## 2 Folder Structure 📁
+\`\`\`
 meta_agentic_agi/
-├── core/                # provider‑agnostic primitives
-│   ├── fm.py            # unified FM wrapper
+├── core/                # provider-agnostic primitives
+│   ├── fm.py            # unified FM wrapper (OpenAI / Anthropic / gguf)
 │   ├── prompts.py       # reusable prompt fragments
-│   └── tools.py         # exec sandbox, RAG, vector store
-├── meta_agentic_search/ # ⬅ evolutionary loop
-│   ├── archive.py       # stepping‑stone JSONL log
-│   ├── search.py        # NSGA‑II + Reflexion
-│   └── scorer.py        # multi‑objective metrics
+│   └── tools.py         # exec sandbox, RAG, vector store, chaos-monkey
+├── meta_agentic_search/ # evolutionary loop
+│   ├── archive.py       # lineage store & analytics
+│   ├── scorer.py        # multi-objective metrics plug-ins
+│   └── search.py        # NSGA-II + Reflexion + self-repair
 ├── agents/
 │   ├── agent_base.py    # runtime interface
-│   └── seeds.py         # bootstrap population
+│   └── seeds.py         # bootstrap population (vanilla LLM, RAG, planner…)
 ├── ui/
 │   ├── lineage_app.py   # Streamlit dashboard
-│   └── assets/
+│   └── assets/          # SVGs, CSS
 ├── configs/
-│   └── default.yml      # editable in‑UI
-└── meta_agentic_agi_demo.py
-```
+│   └── default.yml      # editable live in UI
+└── meta_agentic_agi_demo.py  # orchestration entry-point
+\`\`\`
 
 ---
 
-## 3 High‑Level Architecture 🔍
-```mermaid
+## 3 Architecture 🔍
+
+### 3.1 Meta-Agent Search Loop
+\`\`\`mermaid
 graph TD
-  subgraph "Meta Agent Search Loop"
-    MGPT["Meta LLM Programmer"]
-    Candidate["Candidate Agent\nPython fn"]
-    Evaluator["Sandboxed Evaluator"]
-    Archive["Archive\n(Pareto + Novelty)"]
-    MGPT -->|generates| Candidate
-    Candidate --> Evaluator
-    Evaluator -->|scores| Archive
-    Archive -->|context & feedback| MGPT
-  end
-  UI["Streamlit Lineage UI"] <-->|stream\nlineage| Archive
-```
+  MLLM["🧠 Meta-LLM<br/>"Programmer""]
+  Cand["📝 Candidate Agent<br/>Python fn"]
+  Eval["🔒 Sandboxed Evaluator"]
+  Arch["📚 Archive<br/>Pareto + Novelty"]
+  UI["📈 Streamlit UI"]
 
-```mermaid
+  MLLM -->|generates| Cand
+  Cand  --> Eval
+  Eval  -->|scores| Arch
+  Arch  -->|prompt context| MLLM
+  Arch  -->|websocket| UI
+\`\`\`
+
+### 3.2 Integration with Alpha-Factory v1
+\`\`\`mermaid
 flowchart LR
-  AFV1["Alpha‑Factory v1 Core"]
-  MAA["Meta‑Agentic Layer"]
-  Providers["FM Providers\n(OpenAI / Anthropic / llama‑cpp)"]
-  Dataset["Domain Datasets"]
-  UI2["Lineage UI"]
-  AFV1 --> MAA
-  MAA --> Providers
-  MAA --> Dataset
-  Archive -.-> UI2
-```
+  AFV1("Alpha-Factory v1 Core")
+  MLayer("Meta-Agentic Layer<br/>(this demo)")
+  Providers("FM Providers<br/>OpenAI / Anthropic / gguf")
+  Data("Domain Datasets & RAG stores")
+  AFV1 --> MLayer
+  MLayer --> Providers
+  MLayer --> Data
+\`\`\`
 
 ---
 
-## 4 Provider Abstraction ➡️ open‑weights 🏋️‍♀️
-`configs/default.yml` excerpt:
-```yaml
+## 4 Configuring Providers 🏋️
+
+`configs/default.yml` (excerpt):
+
+\`\`\`yaml
 provider: mistral:7b-instruct.gguf   # any ollama / llama.cpp id
 context_length: 8192
 rate_limit_tps: 4
 retry_backoff: 2
-```
+\`\`\`
 
-Change **provider** to:
+| Value                          | Notes                              |
+|--------------------------------|------------------------------------|
+| \`openai:gpt-4o\`                | needs \`OPENAI_API_KEY\`             |
+| \`anthropic:claude-3-sonnet\`    | needs \`ANTHROPIC_API_KEY\`          |
+| \`mistral:7b-instruct.gguf\`     | default local model (no API key)   |
+| \`llama3:70b-instruct.Q4_K_M.gguf\` | drop into \`~/.ollama\` and reference |
 
-| Value                       | Notes                    |
-|-----------------------------|--------------------------|
-| `openai:gpt-4o`             | needs `OPENAI_API_KEY`   |
-| `anthropic:claude-3-sonnet` | needs `ANTHROPIC_API_KEY`|
-| `mistral:7b-instruct.gguf`  | default local model      |
-
-Wrapper normalises chat/completions, streams via **MCP**, and window‑slides tokens.
-
----
-
-## 5 Multi‑Objective Search 🎯
-*Objective vector* = **[accuracy, cost, latency, hallucination‑risk, carbon]**
-
-* NSGA‑II elitist selection  
-* Behaviour descriptor = SHA‑256 of candidate AST  
-* Optional human‑in‑the‑loop thumbs up/down (UI)
+The unified wrapper normalises chat/completions, streams via **Model Context Protocol**, and slides windows automatically.
 
 ---
 
-## 6 Security & Antifragility 🛡
-* Firejail `--seccomp` + 512 MiB mem‑cgroup sandbox  
-* Static analysis (`bandit`) + dynamic taint tracking  
-* Live watchdog kills rogue processes > 30 s CPU  
-* Chaos‑tests inject tool failures; reward graceful degradation
+## 5 Multi-Objective Search 🎯
+
+**Objective Vector**  
+\`[−accuracy, latency, cost, hallucination-risk, carbon]\`   *(lower is better)*
+
+* *NSGA-II* elitist ranking + crowding distance  
+* Novelty score = Shannon entropy of AST + Jaccard vs. archive  
+* Live *thumbs-up / down* in UI feeds a human-in-the-loop reward slice
 
 ---
 
-## 7 Extending 🛠
-1. **New dataset** – drop `my.pkl` into `data/`, flag `--dataset my`.  
-2. **New metric** – subclass `scorer.BaseMetric`, list in `configs/default.yml`.  
-3. **New tool** – add `core/tools/foo.py` exposing `__call__(self, query)`.
+## 6 Security & Antifragility 🛡
+
+| Layer                   | Mechanism                                               |
+|-------------------------|---------------------------------------------------------|
+| **Sandbox**             | \`firejail --seccomp\` + 512 MiB cgroup + net-ns isolation |
+| **Static analysis**     | \`bandit\` + AST-level policy linter                      |
+| **Dynamic guards**      | taint tracking, syscall whitelist                       |
+| **Chaos testing**       | random API failure / latency injection                  |
+| **Watchdog**            | kills rogue proc > 30 s CPU or > 256 MB tmp             |
+| **Audit trail**         | every prompt/response hashed & timestamped to lineage   |
 
 ---
 
-## 8 Roadmap 🗺
-* ☐ Hierarchical meta‑meta search  
-* ☐ GPU batch infer (Flash‑infer v3)  
-* ☐ Offline RL fine‑tune search policy with lineage replay
+## 7 Extending 🛠
+
+| Goal                       | How-to                                                                 |
+|----------------------------|------------------------------------------------------------------------|
+| **Add dataset**            | Drop \`my.pkl\` into \`data/\`, run \`--dataset my\`                         |
+| **Inject new metric**      | Subclass \`scorer.BaseMetric\`, list in \`configs/default.yml\`            |
+| **Create new agent seed**  | Add a function into \`agents/seeds.py\` returning \`python\` code string   |
+| **Add external tool**      | Implement in \`core/tools/\`, register via entry-point                   |
 
 ---
 
-## 9 References 📚
-* S. Hu _et al._ “Automated Design of Agentic Systems” ICLR 2025  
-* OpenAI “A Practical Guide to Building Agents” (2024)  
-* Google ADK docs (2025)
+## 8 Roadmap 🗺
+
+* ☐ Hierarchical *meta-meta* evolutionary layer  
+* ☐ Batch GPU inference via Flash-Infer v3 kernels  
+* ☐ Offline RL fine-tuning of the search policy from lineage replay  
+* ☐ Live “agent marketplace” plug-in protocol (A2A-compatible)
 
 ---
 
-© 2025 MONTREAL.AI — Apache‑2.0
+## 9 Key Metrics 📊
+
+| KPI                              | Why it matters                       |
+|----------------------------------|--------------------------------------|
+| *Design cycle time*              | Shorter loops ⇒ faster compounding   |
+| *Cross-domain adaptability Δ*    | Measures generality across verticals |
+| *Surplus $/GPU-hour*             | Direct economic efficiency signal    |
+| *Pareto front size*              | Diversity of top solutions           |
+
+---
+
+## 10 References 📚
+
+* Hu S. *et al.* **“Automated Design of Agentic Systems”** (ICLR 2025)  
+* OpenAI **“A Practical Guide to Building Agents”** (2024)  
+* Google **ADK Documentation** (2025)  
+* Silver D. & Sutton R. **“Welcome to the Era of Experience”** (MIT Press preprint, 2025)  
+* Schrittwieser J. *et al.* **“Mastering Atari, Go, Chess and Shogi by Planning with a Learned Model”** (2019)
+
+---
+
+© 2025 **MONTREAL.AI** — Apache-2.0  
+*Built with ❤️ for open, provider-agnostic innovation.*
