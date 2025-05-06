@@ -1,6 +1,9 @@
 
 # Meta‑Agentic α‑AGI 👁️✨ Demo – **Production‑Grade v0.1.0**
 
+> **Official definition – Meta-Agentic (adj.)**  
+> *Describes an agent whose **primary role** is to **create, select, evaluate, or re-configure other agents** and the rules governing their interactions, thereby exercising **second-order agency** over a population of first-order agents.*
+
 > **Elevating Alpha‑Factory v1 into a self‑improving, cross‑industry “Alpha Factory” that systematically  
 > Out‑Learn · Out‑Think · Out‑Design · Out‑Strategize · Out‑Execute — without coupling to a single vendor or model.**  
 > Inspired by and extending the *Meta‑Agent Search* paradigm from Hu *et al.* (ICLR 2025).
