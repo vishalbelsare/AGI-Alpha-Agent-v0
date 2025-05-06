@@ -74,36 +74,6 @@ meta_agentic_agi/
 ```mermaid
 graph TD
   subgraph "Meta Agent Search Loop"
-    MGPT[Meta LLM Programmer]
-    Candidate[Candidate Agent<br/>Python fn]
-    Evaluator[Sandboxed Evaluator]
-    Archive[Archive<br/>(Pareto + Novelty)]
-    MGPT -->|generates| Candidate
-    Candidate --> Evaluator
-    Evaluator -->|scores| Archive
-    Archive -->|context & feedback| MGPT
-  end
-  UI[Streamlit Lineage UI] <-->|stream<br/>lineage| Archive
-```
-
-```mermaid
-flowchart LR
-  AFV1[Alpha‑Factory v1 Core]
-  MAA[Meta‑Agentic Layer]
-  Providers[FM Providers<br/>(OpenAI / Anthropic / llama‑cpp)]
-  Dataset[Domain Datasets]
-  UI2[Lineage UI]
-  AFV1 --> MAA
-  MAA --> Providers
-  MAA --> Dataset
-  Archive -.-> UI2
-```
-
-## 3 High‑Level Architecture 🔍
-
-```mermaid
-graph TD
-  subgraph "Meta Agent Search Loop"
     MGPT["Meta LLM Programmer"]
     Candidate["Candidate Agent<br/>Python fn"]
     Evaluator["Sandboxed Evaluator"]
