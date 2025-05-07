@@ -6,6 +6,59 @@
 
 > *The term was **pioneered by Vincent Boucher, President of MONTREAL.AI**.*
 
+```mermaid
+%% 𝗚𝗿𝗮𝗻𝗱 𝗦𝘆𝗻𝗮𝗽𝘀𝗲 𝗚𝗿𝗮𝗽𝗵 – Meta‑Agentic α‑AGI
+graph LR
+  classDef meta fill:#6425ff,stroke:#eee,color:#fff
+  classDef layer fill:#1e1e2e,stroke:#ddd,color:#fff
+  classDef agent fill:#0f9d58,stroke:#fff,color:#fff
+  classDef tool  fill:#fbbc05,stroke:#000,color:#000
+  %% Layers
+  A0["🧠 Meta‑Programmer"]:::meta
+  A1["📈 Evolution Archive"]:::layer
+  A2["⚖️ Multi‑Objective Scorer"]:::layer
+  A3["🧩 Agent Population"]:::layer
+  %% Agents & Tools
+  subgraph " "
+    direction TB
+    D1["🔍 Researcher"]:::agent
+    D2["👷 Builder"]:::agent
+    D3["🧪 Evaluator"]:::agent
+    D4["🛠 Auto‑Tuner"]:::agent
+    D5["🛡 Guardian"]:::agent
+  end
+  subgraph " "
+    direction TB
+    T1["GPT‑4o"]:::tool
+    T2["Claude‑3"]:::tool
+    T3["Llama‑3 ∞"]:::tool
+  end
+  %% Links
+  A0 -->|generate| A3
+  A3 -->|select| A2
+  A2 -->|rank| A1
+  A1 -- feedback --> A0
+  %% Providers
+  D1 -.uses.-> T1
+  D2 -.uses.-> T3
+  D3 -.uses.-> T2
+  D4 -.uses.-> T3
+  D5 -.uses.-> T1
+  %% Value loop
+  subgraph " "
+    direction LR
+    V1["🌐 Industry Data Streams"]
+    V2["💎 Extracted Alpha"]
+    V3["🚀 Deployed Solutions"]
+  end
+  A3 -->|iterate| V1
+  V1 -->|signals| D1
+  D2 --> V2
+  V2 --> D3
+  D4 --> V3
+  D5 -.audit.-> V3
+```
+
 > **Elevating Alpha‑Factory v1 into a self‑improving, cross‑industry “Alpha Factory” that systematically  
 > Out‑Learn · Out‑Think · Out‑Design · Out‑Strategize · Out‑Execute — without coupling to a single vendor or model.**  
 > Inspired by and extending the *Meta‑Agent Search* paradigm from Hu *et al.* (ICLR 2025).
