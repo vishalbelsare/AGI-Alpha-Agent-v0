@@ -1,1 +1,198 @@
+# Meta‑Agentic α‑AGI – Default Configuration (v0.5.0, 2025‑05‑05)
+# ---------------------------------------------------------------------------
+# This file boot‑straps the Alpha‑Factory v1 demo.  It is *fully self‑contained*
+# and can be launched via:
+#
+#     python -m alpha_factory_v1.demos.meta_agentic_agi.app \
+#            --config ./configs/default.yml
+#
+# Design Goals
+# ------------
+# • End‑to‑end Alpha discovery & conversion across industries
+# • Model‑provider agnostic (OpenAI, Anthropic, open‑weights)
+# • Multi‑objective optimiser (latency, $USD, gCO₂e, reward)
+# • Full lineage capture & interactive UI (streamlit)
+# • Zero‑setup for hobbyists (runs w/o API keys via local models)
+# ---------------------------------------------------------------------------
 
+version: 0.5.0
+project: alpha_factory_v1.meta_agentic_agi
+
+##############################################################################
+# GLOBAL                                                                      #
+##############################################################################
+global:
+  run_id: ${env:ALPHA_RUN_ID:${now:%Y%m%d-%H%M%S}}
+  objective: "OUT‑LEARN | OUT‑THINK | OUT‑DESIGN | OUT‑STRATEGISE | OUT‑EXECUTE"
+  sandbox_trusted: ${env:TOOLS_TRUSTED:0}
+  call_timeout_sec: 60
+  lineage_db: ${env:ALPHA_LINEAGE_DB:sqlite:///lineage.sqlite}
+  ui:
+    enabled: true
+    host: 0.0.0.0
+    port: 8501
+    theme: dark
+
+##############################################################################
+# PROVIDERS                                                                   #
+##############################################################################
+providers:
+  openai:
+    enabled: ${env:OPENAI_API_KEY:?false}
+    model: gpt-4o-2024-05-13
+    max_tokens: 4096
+  anthropic:
+    enabled: ${env:ANTHROPIC_API_KEY:?false}
+    model: claude-3-opus-2024-04-30
+    max_tokens: 4096
+  local:
+    # Out-of‑the‑box open‑weights fallback (no API key required)
+    enabled: true
+    engine: vllm
+    model_path: ${env:LOCAL_MODEL_PATH:meta-llama/Meta-Llama-3-70B-Instruct}
+    gpu_memory_gb: ${env:GPU_MEM_GB:48}
+
+provider_selection:
+  # Ordered preference list; will auto‑fallback if provider is unavailable.
+  - openai
+  - anthropic
+  - local
+
+##############################################################################
+# MULTI‑OBJECTIVE SEARCH                                                      #
+##############################################################################
+search:
+  algorithm: nsga2        # multi‑objective genetic algorithm
+  pop_size: 16
+  n_generations: 40
+  objectives:
+    # Higher is better unless noted with "min"
+    reward: weight: 0.4         # task‑specific scalar return
+    latency_ms: weight: -0.2    # min
+    usd_cost: weight: -0.2      # min
+    gco2e: weight: -0.2         # min
+  constraints:
+    max_usd_per_task: 0.05
+    max_gco2e_per_task: 1.0     # gCO₂eq
+  archive_path: results/pareto_front.json
+
+##############################################################################
+# ORCHESTRATOR                                                                #
+##############################################################################
+orchestrator:
+  class_path: alpha_factory_v1.meta_agentic_agi.core.Orchestrator
+  max_concurrency: 8
+  agent_selection_strategy: ucb1  # exploration / exploitation balance
+
+##############################################################################
+# AGENTS                                                                      #
+##############################################################################
+agents:
+
+  - id: researcher
+    description: "Continuously survey market & scientific literature for novel alpha opportunities."
+    role: research
+    model_provider: openai
+    tools:
+      - web_search
+      - sandbox_exec
+    memory: vector
+    max_context: 32_000
+
+  - id: strategist
+    description: "Synthesise insights & draft multi‑step alpha exploitation strategies."
+    role: planning
+    model_provider: anthropic
+    tools:
+      - stats
+      - sandbox_exec
+    memory: vector
+    max_context: 32_000
+
+  - id: designer
+    description: "Generate / evolve specialised sub‑agents & tooling code."
+    role: design
+    model_provider: ${providers.local.enabled ? 'local' : 'openai'}
+    tools:
+      - sandbox_exec
+    memory: code
+    max_context: 64_000
+
+  - id: executor
+    description: "Run live experiments & transactions converting strategy into realised value."
+    role: execution
+    model_provider: openai
+    tools:
+      - web_search
+      - stats
+      - sandbox_exec
+    memory: relational
+    max_context: 8_000
+
+  - id: auditor
+    description: "Continuously monitor actions for compliance, risk & ethical alignment."
+    role: oversight
+    model_provider: anthropic
+    tools: []
+    memory: vector
+    max_context: 16_000
+    hard_constraints:
+      enforce_least_privilege: true
+      deny_external_calls: ["*.darkweb.*"]
+
+##############################################################################
+# TOOLING                                                                     #
+##############################################################################
+tooling:
+  discovery_dirs:
+    - alpha_factory_v1/demos/meta_agentic_agi/tools_ext
+  cost_heuristics:
+    usd_per_cpu_sec: 2.5e-5
+    gco2_per_cpu_sec: 0.42
+  hot_reload: true
+  sandbox:
+    policy: ${global.sandbox_trusted ? 'trusted' : 'restricted'}
+    cpu_time_limit: 5            # seconds per call
+    memory_limit_mb: 1024
+
+##############################################################################
+# LINEAGE & TELEMETRY                                                         #
+##############################################################################
+lineage:
+  store: ${global.lineage_db}
+  ui_route: /lineage
+  capture:
+    inputs: true
+    outputs: true
+    cost: true
+    emissions: true
+    error_traceback: true
+
+##############################################################################
+# UI                                                                          #
+##############################################################################
+ui:
+  dashboard:
+    class_path: alpha_factory_v1.meta_agentic_agi.ui.app:run
+    auto_open_browser: true
+    refresh_interval_sec: 2
+
+##############################################################################
+# AUTONOMY GUARDRAILS                                                         #
+##############################################################################
+guardrails:
+  human_in_the_loop:
+    enable_approval_for:
+      - transactions > $50_000
+      - code_exec with external network
+  circuit_breaker:
+    max_failed_tasks: 3
+    cool_down_sec: 300
+
+##############################################################################
+# EXPORTS                                                                     #
+##############################################################################
+export:
+  artefacts_dir: artefacts/${global.run_id}
+  persist_models: false
+  persist_data: true
