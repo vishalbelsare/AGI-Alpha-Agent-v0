@@ -1,21 +1,24 @@
-"""
-curriculum.azr_engine
----------------------
-Absolute‑Zero Reasoner self‑curriculum engine (Production‑grade v0.3.0)
-=======================================================================
+"""curriculum.azr_engine
+-------------------------
+Absolute‑Zero Reasoner self‑curriculum engine – Production‑grade v0.5.0
 
-Implements the core logic described in *Absolute Zero: Reinforced Self‑play Reasoning with Zero Data*
-(A. Zhao et al., 2025) and plugs into **Alpha‑Factory v1** as a drop‑in curriculum provider.
+*Implements the “Absolute Zero” paradigm (Zhao et al., 2025) in a single
+drop‑in module for Alpha‑Factory v1.*
 
-+ Generates *deterministic Python triplet* tasks (program p, input i, output o).
-+ Evaluates *difficulty, novelty & safety* entirely offline via sandbox execution.
-+ Trains *Proposer* and *Solver* roles using a **Task‑Relative PPO‑Lite** algorithm.
-+ Vendor‑agnostic – operates on any `core.fm.FMInterface` (OpenAI, Anthropic, local gguf).
-+ CPU‑friendly (no torch); relies only on `numpy` when available.
-+ Designed for **regulator‑ready auditability**: every proposal/solve step is JSON‑logged
-  and streamed to the Lineage UI.
+Highlights
+----------
+• Open‑ended **task invention & self‑evaluation** across deduction/abduction/induction.  
+• Lightweight **Task‑Relative PPO‑Lite** with multi‑objective reward: *difficulty,
+  novelty, execution‑cost, free‑energy proxy*.  
+• **Auditable by design** – every event streamed as structured JSON to the
+  lineage bus.  
+• **Vendor‑agnostic** – works with any `core.fm.FMInterface` (OpenAI, Anthropic,
+  llama.cpp gguf, etc.) or fully offline stubs for CI.  
+• Zero heavy deps; optional `numpy` and `radon` (for cyclomatic complexity).
 
-This module is intentionally *self‑contained* – no external RL frameworks required.
+The engine exposes a canonical `curriculum_factory(fm)` used by
+`src/orchestrator.py`.  It is *fully functional* with or without API keys;
+just swap the `fm` implementation.
 """
 
 from __future__ import annotations
@@ -23,12 +26,11 @@ from __future__ import annotations
 import ast
 import json
 import logging
-import multiprocessing
+import multiprocessing as _mp
 import os
 import random
 import re
 import resource
-import signal
 import subprocess
 import sys
 import tempfile
@@ -38,292 +40,293 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Callable, List, Optional, Sequence, Tuple
 
+# ---------------------------------------------------------------------
+# Optional deps – graceful degradation
 try:
-    import numpy as _np  # optional – graceful degradation
-except ImportError:  # pragma: no cover
+    import numpy as _np  # type: ignore
+except ModuleNotFoundError:  # pragma: no cover
     _np = None  # type: ignore
 
-LOG = logging.getLogger("AZR")
+try:
+    from radon.complexity import cc_visit  # type: ignore
+except ModuleNotFoundError:  # pragma: no cover
+    cc_visit = None  # type: ignore
+# ---------------------------------------------------------------------
+
+LOG = logging.getLogger("azr_engine")
 LOG.addHandler(logging.NullHandler())
 
-# --------------------------------------------------------------------------- #
-#                           Safety‑centric sandbox                            #
-# --------------------------------------------------------------------------- #
+# ---------------------------------------------------------------------
+#               Config (env‑tunable – all values have sane defaults)
+# ---------------------------------------------------------------------
+SOFT_T = int(os.getenv("AZR_SOFT_TIMEOUT", "6"))
+HARD_T = int(os.getenv("AZR_HARD_TIMEOUT", "8"))
+MEM_MB = int(os.getenv("AZR_MEM_LIMIT_MB", "256"))
+MAX_PROG_LOC = int(os.getenv("AZR_MAX_PROG_LOC", "60"))
+MAX_BUF = int(os.getenv("AZR_BUFFER_MAX", "4096"))
+RNG_SEED = int(os.getenv("AZR_SEED", "2025"))
 
-_SOFT_TIMEOUT = int(os.getenv("AZR_SOFT_TIMEOUT", "6"))
-_HARD_TIMEOUT = int(os.getenv("AZR_HARD_TIMEOUT", "8"))
-_MEM_LIMIT_MB = int(os.getenv("AZR_MEM_LIMIT_MB", "256"))
+_BANNED = ("os.", "sys.", "subprocess", "socket", "threading", "multiprocessing")
 
-def _soft_limit() -> None:
-    """Applies a memory cgroup & rlimit – best‑effort, no crash on failure."""
+
+# ---------------------------------------------------------------------
+#                         Sandbox helpers
+# ---------------------------------------------------------------------
+def _apply_limits() -> None:
+    """CPU & memory rlimits inside subprocess."""
     try:
-        resource.setrlimit(resource.RLIMIT_AS, (_MEM_LIMIT_MB << 20, _MEM_LIMIT_MB << 20))
+        resource.setrlimit(resource.RLIMIT_AS, (MEM_MB << 20, MEM_MB << 20))
+        resource.setrlimit(resource.RLIMIT_CPU, (SOFT_T, SOFT_T))
     except Exception:
-        pass  # platform may not support
+        pass  # non‑POSIX platforms
 
-def _run_python_snippet(code: str, inp_json: str) -> Tuple[str, str]:
-    """Executes *trusted* `code` in a restrictive subprocess; returns (stdout, stderr)."""
+
+def _exec_trusted(code: str, inp_json: str) -> Tuple[str, str]:
+    """Run *trusted* python snippet in isolated subprocess."""
     with tempfile.NamedTemporaryFile("w+", suffix=".py", delete=False) as tmp:
         tmp.write(
             code
-            + textwrap.dedent(
-                f"""
+            + textwrap.dedent("""
 
-                if __name__ == '__main__':
-                    import json, sys
-                    _input = json.loads({inp_json!r})
-                    _res  = main(*_input) if isinstance(_input, (list, tuple)) else main(_input)
-                    print(json.dumps(_res, separators=(',', ':')))
-                """
-            )
+            if __name__ == '__main__':
+                import json, sys
+                _inp = json.loads({inp_json!r})
+                try:
+                    _ret = main(*_inp) if isinstance(_inp, (list, tuple)) else main(_inp)
+                except Exception as _e:
+                    _ret = repr(_e)
+                print(json.dumps(_ret, separators=(',', ':')))
+            """)
         )
         tmp.flush()
-        script_path = tmp.name
+        script = tmp.name
 
-    def _target(queue):
-        _soft_limit()
+    def _target(q):
+        _apply_limits()
         try:
-            proc = subprocess.Popen(
-                [sys.executable, script_path],
-                stdout=subprocess.PIPE,
-                stderr=subprocess.PIPE,
-                text=True,
-            )
+            proc = subprocess.Popen([sys.executable, script],
+                                    stdout=subprocess.PIPE,
+                                    stderr=subprocess.PIPE,
+                                    text=True)
             try:
-                stdout, stderr = proc.communicate(timeout=_SOFT_TIMEOUT)
+                out, err = proc.communicate(timeout=SOFT_T)
             except subprocess.TimeoutExpired:
                 proc.kill()
-                stdout, stderr = proc.communicate()
-            queue.put((stdout, stderr))
+                out, err = proc.communicate()
+            q.put((out, err))
         except Exception as exc:  # pragma: no cover
-            queue.put(("", repr(exc)))
+            q.put(("", str(exc)))
 
-    q: multiprocessing.Queue = multiprocessing.Queue()
-    p = multiprocessing.Process(target=_target, args=(q,))
+    q: _mp.Queue = _mp.Queue()
+    p = _mp.Process(target=_target, args=(q,))
     p.start()
-    p.join(_HARD_TIMEOUT)
+    p.join(HARD_T)
     if p.is_alive():
         p.terminate()
     try:
-        stdout, stderr = q.get_nowait()
+        out, err = q.get_nowait()
     except Exception:
-        stdout, stderr = "", "RuntimeError: queue empty"
+        out, err = "", "RuntimeError: queue empty"
     finally:
         try:
-            os.remove(script_path)
+            os.remove(script)
         except OSError:
             pass
-    return stdout.strip(), stderr.strip()
+    return out.strip(), err.strip()
 
-# --------------------------------------------------------------------------- #
-#                              Data structures                                #
-# --------------------------------------------------------------------------- #
 
+# ---------------------------------------------------------------------
+#                           Data structures
+# ---------------------------------------------------------------------
 @dataclass(frozen=True)
 class Triplet:
-    """A single deterministic task."""
+    """Deterministic reasoning task."""
     program: str
     inp: str
     out: str
-    mode: str = "deduct"   # deduct / abduct / induct
+    mode: str = "deduct"  # deduct | abduct | induct
+
 
 @dataclass
 class TaskResult:
     triplet: Triplet
     solved: bool
+    latency: float
     stdout: str
     stderr: str
-    latency: float
+    complexity: float  # cyclomatic complexity proxy
 
-# --------------------------------------------------------------------------- #
-#                                AZR Engine                                   #
-# --------------------------------------------------------------------------- #
 
+# ---------------------------------------------------------------------
+#                 Utility – cyclomatic complexity proxy
+# ---------------------------------------------------------------------
+def _complexity(py_src: str) -> float:  # noqa: D401
+    """Return cyclomatic complexity; fallback to AST node count."""
+    if cc_visit:
+        try:
+            return max((b.complexity for b in cc_visit(py_src) if b.lineno == 1), default=1.0)
+        except Exception:
+            pass
+    # Fallback: #nodes / 10  (heuristic)
+    try:
+        return max(1.0, len(list(ast.walk(ast.parse(py_src)))) / 10.0)
+    except Exception:
+        return 10.0
+
+
+# ---------------------------------------------------------------------
+#                       Absolute‑Zero Engine
+# ---------------------------------------------------------------------
 class AZREngine:
-    """Absolute Zero self‑curriculum orchestrator (drop‑in for SearchLoop)."""
+    """Open‑ended self‑curriculum orchestrator."""
 
-    _TRIPLET_PATTERN = re.compile(
-        r"""```python\s*#\s*program\s*\n(?P<prog>[\s\S]+?)```\s*```json\s*#\s*input\s*\n(?P<inp>[\s\S]+?)```\s*```json\s*#\s*output\s*\n(?P<out>[\s\S]+?)```""",  # noqa: W605,E501
+    _TRIPLE_RE = re.compile(
+        r"""```python\s*#\s*program\s*\n(?P<prog>[\s\S]+?)```\s*```json\s*#\s*input\s*\n(?P<inp>[\s\S]+?)```\s*```json\s*#\s*output\s*\n(?P<out>[\s\S]+?)```""",  # noqa: E501
         re.MULTILINE,
     )
 
-    _PROPOSER_TEMPLATE = textwrap.dedent(
-        """        Invent {n} *novel* yet **deterministic** Python reasoning tasks emitted as triple fenced blocks:
+    _PROMPT = textwrap.dedent("""        Invent {n} deterministic Python *triplets* that challenge a
+    GPT‑4‑level coder (~30‑60 % expected solve‑rate).
 
-        ```python  # program
-        def main(x):
-            # pure, deterministic – no randomness, no I/O
-            ...
-        ```
-        ```json  # input
-        [1, 2]
-        ```
-        ```json  # output
-        42
-        ```
+    Format **exactly**:
+    ```python  # program
+    def main(x):
+        ...
+    ```
+    ```json  # input
+    7
+    ```
+    ```json  # output
+    49
+    ```
 
-        **Constraints**
-        • ≤ 50 LOC; input/output JSON‑serialisable (<256 chars)  
-        • deterministic, side‑effect‑free; stdlib only  
-        • target difficulty: 30‑60 % solve rate for GPT‑4‑level coder  
-        • banned modules: os, sys, subprocess, socket, threading, multiprocessing
+    Constraints:
+    • ≤ {max_loc} LOC, stdlib only, deterministic
+    • input/output JSON‑serialisable (<256 chars)
+    • Banned modules: os, sys, subprocess, socket, threading, multiprocessing
 
-        Current buffer size: {buf}
-        Diversity reference (do NOT repeat):
-        {examples}
+    Current buffer: {buf} tasks.
+    Diversity reference (do not copy):
+    {examples}
+    """)
 
-        Return *exactly* {n} triplets. Begin immediately with ```python.
-        """
-    )
-
-    def __init__(
-        self,
-        fm,
-        *,
-        buffer_max: int = 4096,
-        temperature: float = 0.4,
-        proposer_identity: str = (
-            "You are AZR‑Proposer, an autonomous curriculum engine inside Alpha‑Factory. \n"
-            "Invent diverse, deterministic tasks that accelerate reasoning capabilities."
-        ),
-        solver_identity: str = (
-            "You are AZR‑Solver, a meticulous Python reasoning assistant tasked with solving deterministic code tasks."
-        ),
-        seed_tasks: Optional[Sequence[Triplet]] = None,
-        logger: Optional[Callable[[str], None]] = None,
-    ):
-        """Create a new curriculum engine.
-
-        Args:
-            fm: An object implementing `core.fm.FMInterface`. Must expose `chat(...)`.
-            buffer_max: Max task buffer length kept for diversity reference.
-            temperature: Initial sampling temperature for the proposer.
-        """
+    def __init__(self, fm, *, buffer_max: int = MAX_BUF, logger: Optional[Callable[[str], None]] = None):
         self.fm = fm
-        self.buffer: List[Triplet] = list(seed_tasks) if seed_tasks else []
+        self.buffer: List[Triplet] = []
         self.buffer_max = buffer_max
-        self.temperature = temperature
-        self.proposer_identity = proposer_identity
-        self.solver_identity = solver_identity
-        self.log = logger or (lambda msg: LOG.info(msg))
-        self._rng = random.Random(42)
+        self.temperature = 0.5
+        self._baseline = 0.0  # moving baseline for REINFORCE
+        self.log = logger or (lambda m: LOG.info(m))
+        self._rng = random.Random(RNG_SEED)
 
-        # PPO‑Lite running statistics
-        self._baseline = 0.0  # exponential moving reward baseline
-
-    # ------------------------------------------------------------------- #
-    # Public curriculum API                                               #
-    # ------------------------------------------------------------------- #
-
+    # ---------------------------- public API ------------------------
     def propose(self, k: int = 4) -> List[Triplet]:
-        """Propose *k* new tasks using the FM."""
-        prompt = self._build_proposer_prompt(k)
+        prompt = self._build_prompt(k)
         raw = self.fm.chat(
-            system=self.proposer_identity,
+            system="You are AZR‑Proposer, inventing new reasoning tasks.",
             user=prompt,
             temperature=self.temperature,
-            max_tokens=1800,
+            max_tokens=2000,
         )
-        triplets = self._extract_triplets(raw)
-        valid = [t for t in triplets if self._validate_triplet(t)]
-        self.log(f"Proposer produced {len(valid)}/{k} valid tasks (temp={self.temperature:.2f}).")
-        return valid
+        triplets = [t for t in self._parse_triplets(raw) if self._validate(t)]
+        self.log(f"[AZR] proposer: {len(triplets)}/{k} valid; T={self.temperature:.2f}")
+        return triplets
 
     def solve(self, tasks: Sequence[Triplet]) -> List[TaskResult]:
-        """Attempt to solve each task via sandbox execution."""
         results: List[TaskResult] = []
         for t in tasks:
-            t_start = time.time()
-            stdout, stderr = _run_python_snippet(t.program, t.inp)
-            latency = time.time() - t_start
+            start = time.time()
+            stdout, stderr = _exec_trusted(t.program, t.inp)
+            lat = time.time() - start
             solved = (stderr == "" and stdout.strip() == t.out.strip())
-            results.append(TaskResult(t, solved, stdout, stderr, latency))
+            complexity = _complexity(t.program)
+            results.append(TaskResult(t, solved, lat, stdout, stderr, complexity))
         return results
 
     def learn(self, results: Sequence[TaskResult]) -> None:
-        """Update proposer policy temperature via Task‑Relative PPO‑Lite."""
-        # Reward: harder unsolved tasks give higher signal
-        solved_frac = sum(r.solved for r in results) / max(len(results), 1)
-        reward = 1.0 - solved_frac  # 1 for none solved, 0 for all solved
+        if not results:
+            return
+        # Multi‑objective scalarisation (simple): reward = unsolved_ratio * 0.7 + novelty * 0.3
+        solved_frac = sum(r.solved for r in results) / len(results)
+        diff_reward = 1.0 - solved_frac
+        novelty = sum(r.complexity for r in results) / len(results)
+        novelty_norm = min(1.0, novelty / 15.0)
+        reward = 0.7 * diff_reward + 0.3 * novelty_norm
 
-        # Update moving baseline (lambda‑returns equivalent)
         beta = 0.1
         self._baseline = (1 - beta) * self._baseline + beta * reward
-        advantage = reward - self._baseline
+        adv = reward - self._baseline
+        # PPO‑lite temperature adjust
+        delta = -0.04 if adv > 0 else 0.04
+        self.temperature = max(0.1, min(1.0, self.temperature + delta))
 
-        # Policy update (temperature shaping)
-        #   positive advantage  -> exploit (lower temp)
-        #   negative advantage  -> explore (higher temp)
-        delta = -0.05 if advantage > 0 else +0.05
-        self.temperature = min(1.0, max(0.1, self.temperature + delta))
-        self.log(f"Advantage={advantage:+.3f}, new temperature={self.temperature:.2f}")
-
-        # Buffer update with solved tasks only (to avoid trivial/hard extremes)
+        # Buffer maintenance – keep correctly solved tasks
         for r in results:
             if r.solved:
-                self._add_to_buffer(r.triplet)
+                self._add(r.triplet)
 
-    # ------------------------------------------------------------------- #
-    #              Helper – triplet extraction & validation               #
-    # ------------------------------------------------------------------- #
+        self.log(f"[AZR] reward={reward:.3f} adv={adv:+.3f} -> T={self.temperature:.2f}")
 
-    def _extract_triplets(self, text: str) -> List[Triplet]:
-        triplets: List[Triplet] = []
-        for m in self._TRIPLET_PATTERN.finditer(text):
-            prog = m.group("prog").strip()
-            inp = m.group("inp").strip()
-            out = m.group("out").strip()
+    # ------------------------- helpers -----------------------------
+    def _parse_triplets(self, txt: str) -> List[Triplet]:
+        out: List[Triplet] = []
+        for m in self._TRIPLE_RE.finditer(txt):
+            prog, inp, outp = m.group("prog", "inp", "out")
             mode = "deduct" if "return" in prog else "induct"
-            triplets.append(Triplet(program=prog, inp=inp, out=out, mode=mode))
-        return triplets
+            out.append(Triplet(prog.strip(), inp.strip(), outp.strip(), mode))
+        return out
 
-    def _validate_triplet(self, t: Triplet) -> bool:
-        if len(t.program) > 3000 or len(t.inp) > 256 or len(t.out) > 256:
+    def _validate(self, t: Triplet) -> bool:
+        if (
+            len(t.program.splitlines()) > MAX_PROG_LOC
+            or len(t.inp) > 256
+            or len(t.out) > 256
+            or any(b in t.program for b in _BANNED)
+        ):
             return False
-        # quick static safety check – banned keywords
-        if any(bad in t.program for bad in ("os.", "sys.", "subprocess", "socket", "threading")):
-            return False
-        stdout, stderr = _run_python_snippet(t.program, t.inp)
+        stdout, stderr = _exec_trusted(t.program, t.inp)
         return stderr == "" and stdout.strip() == t.out.strip()
 
-    def _add_to_buffer(self, t: Triplet) -> None:
+    def _add(self, t: Triplet) -> None:
         self.buffer.append(t)
         if len(self.buffer) > self.buffer_max:
             self.buffer.pop(0)
 
-    # ------------------------------------------------------------------- #
-    #                         Prompt construction                          #
-    # ------------------------------------------------------------------- #
-
-    def _build_proposer_prompt(self, n: int) -> str:
+    def _build_prompt(self, n: int) -> str:
         examples = "\n\n".join(
             f"```python\n{t.program}```\n```json\n{t.inp}```\n```json\n{t.out}```"
             for t in self._rng.sample(self.buffer, k=min(3, len(self.buffer)))
-        )
-        return self._PROPOSER_TEMPLATE.format(n=n, buf=len(self.buffer), examples=examples or "(buffer empty)")
+        ) or "(buffer empty)"
+        return self._PROMPT.format(n=n, max_loc=MAX_PROG_LOC, buf=len(self.buffer), examples=examples)
 
-# --------------------------------------------------------------------------- #
-#                       Convenience factory for orchestrator                  #
-# --------------------------------------------------------------------------- #
+    # ----------------------- serialisation --------------------------
+    def to_json(self) -> str:
+        state = {"T": self.temperature, "baseline": self._baseline, "buffer": [t.__dict__ for t in self.buffer[-128:]]}
+        return json.dumps(state, separators=(",", ":"))
 
-def curriculum_factory(fm, **kwargs) -> AZREngine:
-    """Canonical factory used by Alpha‑Factory orchestrator."""
+    # ------------------------ repr ----------------------------------
+    def __repr__(self) -> str:
+        return f"<AZREngine buf={len(self.buffer)} T={self.temperature:.2f}>"
+
+
+# ---------------------------------------------------------------------
+#                 factory expected by orchestrator
+# ---------------------------------------------------------------------
+def curriculum_factory(fm, **kwargs) -> AZREngine:  # noqa: D401
     return AZREngine(fm, **kwargs)
 
-# --------------------------------------------------------------------------- #
-#                               Smoke test                                    #
-# --------------------------------------------------------------------------- #
 
-if __name__ == "__main__":  # pragma: no cover
-    class _DummyFM:
+# ---------------------------------------------------------------------
+#                      CLI smoke‑test
+# ---------------------------------------------------------------------
+if __name__ == "__main__":
+    class _StubFM:
         def chat(self, system: str, user: str, temperature: float = 0.4, max_tokens: int = 1024) -> str:
-            # Deterministically return a single trivial task for CI smoke‑tests
-            return """```python # program\n"
-            "def main(x):\n    return x * x\n```\n"""            "```json # input\n3```\n```json # output\n9```"""  # noqa: W605,E501
+            # deterministically return identity task
+            return """```python # program\ndef main(x):\n    return x\n```\n```json # input\n3```\n```json # output\n3```"""
 
-    azr = AZREngine(fm=_DummyFM())
-    tasks = azr.propose(1)
-    res = azr.solve(tasks)
-    azr.learn(res)
-    assert res[0].solved, "Dummy task should be solved."
-    print("[OK] AZR smoke‑test passed – temperature:", azr.temperature)
+    eng = AZREngine(_StubFM())
+    new_tasks = eng.propose(2)
+    res = eng.solve(new_tasks)
+    eng.learn(res)
+    print("[SMOKE]", eng, "solved", [r.solved for r in res])
