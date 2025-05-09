@@ -17,9 +17,10 @@ It **proposes**, **validates**, **solves**, and **learns from** its own code‑r
 
 ---
 
-mermaid
-%% 𝗚𝗿𝗮𝗻𝗱 𝗦𝘆𝗻𝗮𝗽𝘀𝗲 𝗚𝗿𝗮𝗽𝗵 – Meta‑Agentic α‑AGI (v3 AZR‑powered)
+```mermaid
+%% 𝗚𝗿𝗮𝗻𝗱 𝗦𝘆𝗻𝗮𝗽𝘀𝗲 𝗚𝗿𝗮𝗽𝗵 – Meta-Agentic α-AGI (v3 AZR-powered)
 graph LR
+  %% ─────────────────────────────  Class styles
   classDef meta       fill:#6425ff,stroke:#eee,color:#fff
   classDef layer      fill:#1e1e2e,stroke:#ddd,color:#fff
   classDef agent      fill:#0f9d58,stroke:#fff,color:#fff
@@ -27,65 +28,70 @@ graph LR
   classDef physics    fill:#ff6d00,stroke:#000,color:#fff
   classDef curriculum fill:#d81b60,stroke:#eee,color:#fff
 
-  A0["🧠 Meta‑Programmer"]:::meta
+  %% ─────────────────────────────  High-level layers
+  A0["🧠 Meta-Programmer"]:::meta
   A1["📈 Evolution Archive"]:::layer
-  A2["⚖️ Multi‑Objective Scorer"]:::layer
-  Aφ["♾️ Free‑Energy Monitor"]:::physics
-  AZ["🧮 AZR Self‑Curriculum Engine"]:::curriculum
-  A3["🧩 Agent Population"]:::layer
+  A2["⚖️ Multi-Objective Scorer"]:::layer
+  Aφ["♾️ Free-Energy Monitor"]:::physics
+  AZ["🧮 AZR Self-Curriculum Engine"]:::curriculum
+  A3["🧩 Agent Population"]:::layer
 
+  %% ─────────────────────────────  First-order agents
   subgraph " "
     direction TB
     D1["🔍 Researcher"]:::agent
     D2["👷 Builder"]:::agent
     D3["🧪 Evaluator"]:::agent
-    D4["⚙️ Auto‑Tuner"]:::agent
+    D4["⚙️ Auto-Tuner"]:::agent
     D5["🛡 Guardian"]:::agent
   end
 
+  %% ─────────────────────────────  Foundation-model tools
   subgraph " "
     direction TB
-    T1["GPT‑4o"]:::tool
-    T2["Claude‑3"]:::tool
-    T3["Llama‑3 ∞"]:::tool
+    T1["GPT-4o"]:::tool
+    T2["Claude-3"]:::tool
+    T3["Llama-3 ∞"]:::tool
   end
 
+  %% ─────────────────────────────  Core data / value loop
   subgraph " "
     direction LR
-    V1["🌐 Industry Data Streams"]
-    V2["💎 Extracted Alpha"]
-    V3["🚀 Deployed Solutions"]
+    V1["🌐 Industry Data Streams"]
+    V2["💎 Extracted Alpha"]
+    V3["🚀 Deployed Solutions"]
   end
 
-  %% control‑flow
-  A0 -->|spawn| A3
+  %% ─────────────────────────────  Arrows – outer control-flow
+  A0 -->|spawn agents| A3
   A0 -->|bootstrap tasks| AZ
-  AZ -->|invent curricula| A3
+  AZ -->|propose tasks & curricula| A3
   A3 -->|solver traces| AZ
   A3 -->|select| A2
   A2 -->|rank| A1
   A1 -- feedback --> A0
 
-  %% free‑energy link
+  %% ─────────────────────────────  Free-energy feedback
   A3 -.state logits.-> Aφ
-  Aφ -->|F‑metric| A2
+  Aφ -->|F-metric| A2
   Aφ -- entropy grad --> A0
-  AZ -- expected‑learning‑gain --> Aφ
+  AZ -- expected-learning-gain --> Aφ
 
-  %% providers
+  %% ─────────────────────────────  Provider links
   D1 -.uses.-> T1
   D2 -.uses.-> T3
   D3 -.uses.-> T2
   D4 -.uses.-> T3
   D5 -.uses.-> T1
 
-  %% value loop
+  %% ─────────────────────────────  Value extraction
   A3 -->|iterate| V1
   V1 -->|signals| D1
   D2 --> V2
   V2 --> D3
   D4 --> V3
   D5 -.audit.-> V3
+```
 
 ---
 
