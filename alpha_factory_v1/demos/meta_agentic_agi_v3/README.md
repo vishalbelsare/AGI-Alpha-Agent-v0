@@ -124,30 +124,29 @@ streamlit run ui/alpha_monitor.py         # live alpha dashboard
 
 ## 2 Folder Structure 📁
 ```
-meta_agentic_agi_v3/
-├── src/
-│   ├── main.py              # entry‑point CLI
-│   ├── orchestrator.py      # A2A bus & agent scheduler
-│   ├── curriculum/
-│   │   └── azr_engine.py    # Absolute Zero implementation
-│   ├── evolution/
-│   │   ├── archive.py       # stepping‑stone log
-│   │   └── search.py        # NSGA‑II + novelty
-│   ├── agents/
-│   │   ├── alpha_finder.py  # identifies live alphas
-│   │   ├── execution.py     # trade execution stub
-│   │   ├── risk_manager.py  # position sizing & VaR stops
-│   │   └── guardian.py      # safety & compliance checks
-│   ├── physics/
-│   │   └── gibbs.py         # free‑energy metric
-│   └── utils/
-│       └── provider.py      # OpenAI / Anthropic / llama‑cpp
+meta_agentic_agi/
+├── core/                # provider‑agnostic primitives
+│   ├── fm.py            # unified FM wrapper
+│   ├── prompts.py       # reusable prompt fragments
+│   └── tools.py         # exec sandbox, RAG, vector store
+├── curriculum/          # ⬅ NEW: self‑curriculum engines
+│   └── azr_engine.py    # Absolute Zero abstractions
+├── meta_agentic_search/ # ⬅ evolutionary loop
+│   ├── archive.py       # stepping‑stone JSONL log
+│   ├── search.py        # NSGA‑II + Reflexion
+│   └── scorer.py        # multi‑objective metrics (+ free‑energy)
+├── agents/
+│   ├── agent_base.py    # runtime interface
+│   └── seeds.py         # bootstrap population
 ├── ui/
-│   ├── lineage_app.py       # provenance visualisation
-│   └── alpha_monitor.py     # live PnL & risk
+│   ├── lineage_app.py   # Streamlit dashboard
+│   ├── alpha_monitor.py # live alpha / risk view
+│   └── assets/
 ├── configs/
-│   └── default.yml          # editable at runtime
-└── requirements.txt
+│   └── default.yml      # editable in‑UI
+└── src/
+    ├── main.py          # CLI entry‑point
+    └── orchestrator.py  # agent scheduler & A2A bus
 ```
 
 ---
