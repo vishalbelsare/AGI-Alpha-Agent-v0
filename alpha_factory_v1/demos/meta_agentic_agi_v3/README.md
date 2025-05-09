@@ -18,66 +18,6 @@ It **proposes**, **validates**, **solves**, and **learns from** its own code‑r
 ---
 
 ```mermaid
-%% 𝗚𝗿𝗮𝗻𝗱 𝗢𝗽𝗲𝗿𝗮𝘁𝗶𝗼𝗻𝗮𝗹 𝗦𝘆𝗻𝗮𝗽𝘀𝗲 — Alpha‑Factory v1 (AZR + POET + MuZero++)
-flowchart TD
-  subgraph LAYER0["Meta‑Agency"]
-    direction LR
-    MP["🧠 Meta‑Programmer"]:::meta -->|spawns| POP
-    AZR["🔄 AZR Self‑Curriculum"]:::curri
-    MP --> AZR
-  end
-
-  subgraph LAYER1["Evolutionary Loop"]
-    POP["📈 Evolution Archive"]:::layer
-    SCORE["⚖️ Multi‑Objective Scorer"]:::layer
-    FE["♾️ Free‑Energy Monitor"]:::phys
-    POP --> SCORE --> FE --> MP
-    AZR --> POP
-  end
-
-  subgraph LAYER2["Agent Population"]
-    direction TB
-    R["🔍 Researcher"]:::agent
-    B["👷 Builder"]:::agent
-    E["🧪 Evaluator"]:::agent
-    T["⚙️ Auto‑Tuner"]:::agent
-    G["🛡 Guardian"]:::agent
-  end
-  MP --> R & B & E & T & G
-
-  subgraph LAYER3["Foundation Model Tools"]
-    GPT["GPT‑4o"]:::tool
-    CLAUDE["Claude‑3 Opus"]:::tool
-    L3["Llama‑3‑70B ∞"]:::tool
-  end
-  R -.uses.-> GPT
-  B -.uses.-> L3
-  E -.uses.-> CLAUDE
-  T -.uses.-> L3
-  G -.uses.-> GPT
-
-  subgraph VALUE_LOOP["Industry Value‑Loop"]
-    DATA["🌐 Market & Web Streams"]
-    ALPHA["💎 Extracted Alpha"]
-    SOL["🚀 Deployed Solutions"]
-  end
-  R --> DATA
-  B --> ALPHA
-  E --> SOL
-  T --> ALPHA
-  G -.audit.-> SOL
-
-classDef meta fill:#6425ff,stroke:#eee,color:#fff
-classDef layer fill:#2b2b40,stroke:#ddd,color:#fff
-classDef phys fill:#ff6d00,stroke:#000,color:#fff
-classDef agent fill:#0f9d58,stroke:#fff,color:#fff
-classDef tool fill:#fbbc05,stroke:#000,color:#000
-classDef curri fill:#d81b60,stroke:#eee,color:#fff
-```
-
-> *“Alpha‑Factory v1 transforms raw data‑streams into deployable solutions that **Out‑Learn · Out‑Think · Out‑Design · Out‑Strategize · Out‑Execute** the market — autonomously.”*
-
-```mermaid
 %% GRAND OPERATIONAL SYNAPSE — Alpha‑Factory v1 (AZR + Free‑Energy + Meta‑Agency)
 flowchart TD
   %% -------- Meta‑Agency layer
@@ -140,6 +80,8 @@ classDef agent fill:#0f9d58,color:#fff
 classDef tool  fill:#fbbc05,color:#000
 classDef val   fill:#1e88e5,color:#fff
 ```
+
+> *“Alpha‑Factory v1 transforms raw data‑streams into deployable solutions that **Out‑Learn · Out‑Think · Out‑Design · Out‑Strategize · Out‑Execute** the market — autonomously.”*
 
 ---
 
