@@ -77,6 +77,70 @@ classDef curri fill:#d81b60,stroke:#eee,color:#fff
 
 > *“Alpha‑Factory v1 transforms raw data‑streams into deployable solutions that **Out‑Learn · Out‑Think · Out‑Design · Out‑Strategize · Out‑Execute** the market — autonomously.”*
 
+```mermaid
+%% GRAND OPERATIONAL SYNAPSE — Alpha‑Factory v1 (AZR + Free‑Energy + Meta‑Agency)
+flowchart TD
+  %% -------- Meta‑Agency layer
+  subgraph layer_meta["🧠 Meta‑Agency Layer"]
+    MP["Meta‑Programmer"]:::meta
+    AZR["AZR Self‑Curriculum"]:::curri
+    MP -->|spawns| POP
+    MP --> AZR
+  end
+
+  %% -------- Evolutionary loop
+  subgraph layer_evo["📈 Evolutionary Loop"]
+    POP["Evolution Archive"]:::layer
+    SCORE["Multi‑Objective Scorer"]:::layer
+    FE["Free‑Energy Monitor"]:::phys
+    POP --> SCORE --> FE --> MP
+    AZR --> POP
+  end
+
+  %% -------- Population
+  subgraph layer_pop["👥 Agent Population"]
+    direction TB
+    R["Researcher"]:::agent
+    B["Builder"]:::agent
+    E["Evaluator"]:::agent
+    T["Auto‑Tuner"]:::agent
+    G["Guardian"]:::agent
+  end
+  MP --> R & B & E & T & G
+
+  %% -------- Foundation models
+  subgraph layer_fm["🛠 Foundation Models"]
+    GPT4O["GPT‑4o"]:::tool
+    CLAUDE3["Claude‑3 Sonnet"]:::tool
+    LLA3["Llama‑3‑70B∞"]:::tool
+  end
+  R -.uses.-> GPT4O
+  B -.uses.-> LLA3
+  E -.uses.-> CLAUDE3
+  T -.uses.-> LLA3
+  G -.uses.-> GPT4O
+
+  %% -------- Value loop
+  subgraph layer_value["🌐 Industry Value Loop"]
+    DATA["Market & Web Streams"]:::val
+    ALPHA["Extracted Alpha"]:::val
+    SOL["Deployed Solutions"]:::val
+  end
+  R --> DATA
+  B --> ALPHA
+  E --> SOL
+  T --> ALPHA
+  G -.audit.-> SOL
+
+classDef meta  fill:#6425ff,color:#fff
+classDef curri fill:#d81b60,color:#fff
+classDef layer fill:#2b2b40,color:#fff
+classDef phys  fill:#ff6d00,color:#fff
+classDef agent fill:#0f9d58,color:#fff
+classDef tool  fill:#fbbc05,color:#000
+classDef val   fill:#1e88e5,color:#fff
+```
+
 ---
 
 ## 📌 Purpose & Positioning
