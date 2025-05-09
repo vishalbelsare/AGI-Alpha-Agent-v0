@@ -1,6 +1,23 @@
 
 # **Meta‑Agentic α‑AGI 👁️✨ Demo v3 — AZR‑Powered “Alpha‑Factory v1” (Production‑Grade v0.3.0)**
 
+Identical to **v1** plus **two synergistic upgrades**  
+1. *Statistical‑physics wrapper* — logs & minimises **Gibbs / variational free‑energy** for every candidate agent.  
+2. *Absolute Zero Reasoner (AZR) self‑curriculum* — a **reinforced self‑play engine** that perpetually invents and solves its own tasks, unlocking *open‑ended* cross‑domain reasoning.
+
+> **Official definition — Meta‑Agentic (adj.)**  
+> *Describes an agent whose **primary role** is to **create, select, evaluate, or re‑configure other agents** and the rules governing their interactions, thereby exercising **second‑order agency** over a population of first‑order agents.*  
+> *The term was **pioneered by Vincent Boucher, President of MONTREAL.AI**.*
+
+---
+
+## 🚀 Why AZR Matters
+`Absolute Zero Reasoner` (Zhao *et al.* 2025) discards the last human bottleneck: **task curation**.  
+It **proposes**, **validates**, **solves**, and **learns from** its own code‑reasoning problems — then feeds the distilled knowledge back into the evolutionary loop.  
+*Result:* steeper learning curves, bolder exploration, and broad generalisation across math, code, and strategic planning — all while remaining vendor‑agnostic.
+
+---
+
 ```mermaid
 %% 𝗚𝗿𝗮𝗻𝗱 𝗢𝗽𝗲𝗿𝗮𝘁𝗶𝗼𝗻𝗮𝗹 𝗦𝘆𝗻𝗮𝗽𝘀𝗲 — Alpha‑Factory v1 (AZR + POET + MuZero++)
 flowchart TD
@@ -63,17 +80,19 @@ classDef curri fill:#d81b60,stroke:#eee,color:#fff
 
 ---
 
-## 📌 Purpose & Scope
-This repository packages a **self‑improving, cross‑industry Alpha Factory**:  
-a multi‑agent system that combines **Absolute Zero Reasoner (AZR)**, **POET‑style open‑ended evolution**, and **MuZero++ world‑model planning** into a single orchestrated runtime.  
-It is designed to:
+## 📌 Purpose & Positioning
+This demo operationalises **Automated Design of Agentic Systems (ADAS)** and adds:
 
-* **Continuously generate synthetic tasks** → open‑ended curriculum (AZR).  
-* **Evolve & rank specialised agents** ↔ multi‑objective Pareto frontier (NSGA‑II).  
-* **Minimise thermodynamic free‑energy** → statistical‑physics wrapper for robust convergence.  
-* **Extract live alpha** from market + web streams, and **deploy automated strategies** under strict risk & compliance guards.
+* **AZR‑driven open‑ended learning** — tasks invented on‑the‑fly, tuned for maximal learning gain.
+* **True multi‑objective optimisation** — accuracy, cost, latency, risk, carbon **& free‑energy**.
+* **Open‑weights *or* API FMs** — swap GPT‑4o, Claude‑3, Llama‑3, Mistral .gguf at will.
+* **Provable lineage & provenance** — every agent / artefact traceable via the Lineage UI.
+* **Battle‑tested safeguards** — sandboxing, taint‑tracking, chaos‑testing.
 
-The default demo includes a **live NVDA‑earnings momentum alpha** (see *section 10*).
+Together, they lift **Alpha‑Factory v1** into a *self‑improving*, cross‑industry **Alpha Factory** that systematically  
+> **Out‑Learn · Out‑Think · Out‑Design · Out‑Strategize · Out‑Execute**  
+
+— with zero dependence on any single model or vendor.
 
 ---
 
