@@ -55,13 +55,13 @@ flowchart TD
   %% RoyaltyRadar internal
   subgraph rr_box["RoyaltyRadar.a.agi.eth  (meta-agent)"]
     orch["Coordinator Ω  🟪"]
-    dm["DataMinerAgent  🟩"] 
+    dm["DataMinerAgent  🟩"]
     cl["ClaimAgent  🟩"]
     orch -->|spawn| dm & cl
     orch -->|score + evolve| dm & cl
     dm -->|public counts| lin["Lineage & Audit  ⬛"]
     cl -->|gap + letter + tx-hash| lin
-    cl -->|€ payout (on-chain)| wallet["Artist Wallet  🔵"]
+    cl -- "€ payout on-chain" --> wallet["Artist Wallet  🔵"]
   end
 
   classDef default stroke-width:0,color:#fff
