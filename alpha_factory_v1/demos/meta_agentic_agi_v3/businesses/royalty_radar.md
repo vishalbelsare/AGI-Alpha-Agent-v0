@@ -36,48 +36,34 @@ classDef user   fill:#fbbc05,color:#000000,stroke-width:0;
 ```
 
 ```mermaid
-%% RoyaltyRadar 👁️✨ — Meta-Agentic α-AGI Business (GitHub-safe)
-%% ──────────────────────────────────────────────────────────────
-classDef gold   fill:#e5b80b,color:#000,stroke-width:0;
-classDef orange fill:#ff7043,color:#fff,stroke-width:0;
-classDef blue   fill:#2196f3,color:#fff,stroke-width:0;
-classDef violet fill:#7b1fa2,color:#fff,stroke-width:0;
-classDef green  fill:#2e7d32,color:#fff,stroke-width:0;
-classDef grey   fill:#424242,color:#fff,stroke-width:0;
-classDef navy   fill:#1a237e,color:#fff,stroke-width:0;
-
 flowchart TD
-  %% ════════════ α-AGI Marketplace ════════════
-  subgraph MARKETPLACE["α-AGI Marketplace 🍦"] 
-    AR["Artist / Label"]:::gold
-    ESC["Escrow ▸"]:::blue
-    ME["Match Engine"]:::orange
-    RR["RoyaltyRadar.a.agi.eth"]:::violet
-    VS["Validator Swarm"]:::grey
-
-    AR  -->|post job · stake \$\AGIALPHA| ESC
-    ESC -->|funds \$\AGIALPHA| ME
-    ME  --> RR
-    RR  -->|proofs ✔| VS
-    ESC -->|release payout| AR
-    RR  -. reports .- ESC
+  %% α-AGI Marketplace
+  subgraph marketplace["α-AGI Marketplace  🎪"]
+    client["Artist / Label  🟡"]
+    escrow["Escrow  🔵"]
+    match["Match Engine  🟧"]
+    rr[RoyaltyRadar.a.agi.eth  🟣]
+    vs["Validator Swarm  ⬛"]
+    client -- "post job + stake $AGIALPHA" --> escrow
+    escrow --> match
+    match --> rr
+    rr -- "proofs ✔" --> vs
+    vs -- "✓ $AGIALPHA" --> escrow
+    escrow -- "release ▶" --> client
   end
 
-  %% ════════════ RoyaltyRadar Internals ════════════
-  subgraph RR_INTERNAL["RoyaltyRadar.a.agi.eth (meta-agent)"]
-    COOR["Coordinator Ω"]:::violet
-    DM["DataMinerAgent<br/>(DSP adapters)"]:::green
-    CL["ClaimAgent<br/>(Bayes + LLM)"]:::green
-    STORE["Lineage & Audit"]:::navy
-    WAL["Artist Wallet"]:::blue
+  %% RoyaltyRadar internal
+  subgraph rr_box["RoyaltyRadar.a.agi.eth  (meta-agent)"]
+    orch["Coordinator Ω  🟪"]
+    dm["DataMinerAgent  🟩"] 
+    cl["ClaimAgent  🟩"]
+    orch -->|spawn| dm & cl
+    orch -->|score + evolve| dm & cl
+    dm -->|public counts| lin["Lineage & Audit  ⬛"]
+    cl -->|gap + letter + tx-hash| lin
+    cl -->|€ payout (on-chain)| wallet["Artist Wallet  🔵"]
+  end
 
-    COOR -->|spawn| DM
-    COOR -->|spawn| CL
-
-    COOR -->|score · evolve| DM
-    COOR -->|score · evolve| CL
-
-    DM -->|public counts| STORE
-    CL -->|gap letter + tx-hash| STORE
-    CL -->|€ payout (on-chain)| WAL
+  classDef default stroke-width:0,color:#fff
+  class client,escrow,match,rr,vs,orch,dm,cl,lin,wallet default
 ```
