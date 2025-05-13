@@ -67,3 +67,26 @@ flowchart TD
   classDef default stroke-width:0,color:#fff
   class client,escrow,match,rr,vs,orch,dm,cl,lin,wallet default
 ```
+
+```mermaid
+flowchart LR
+    subgraph "α-AGI Business  (<name>.a.agi.eth)"
+        META["Meta-Programmer Ω"]:::meta
+        subgraph "Agent Swarm"
+            FIN["finance.agent"]:::agent
+            BIO["biotech.agent"]:::agent
+            SUP["supply.agent"]:::agent
+        end
+        META -- spawns/retires --> FIN & BIO & SUP
+        FIN -- proofs --> VAL
+        BIO -- proofs --> VAL
+        SUP -- proofs --> VAL
+    end
+    JOBS["α-Job Queue  🎯"] --> FIN & BIO & SUP
+    VAL["Validator Swarm ⬛"] --> ESC["Escrow 🔵"]
+    ESC -- payout ($AGIALPHA) --> TREAS["Treasury 💎"]
+
+    classDef meta fill:#6425ff,color:#fff,stroke-width:0
+    classDef agent fill:#0f9d58,color:#fff,stroke-width:0
+    classDef default stroke-width:0,color:#fff
+```
