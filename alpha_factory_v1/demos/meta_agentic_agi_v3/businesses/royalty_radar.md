@@ -80,5 +80,4 @@ flowchart TD
     DM -->|public counts| STORE
     CL -->|gap letter + tx-hash| STORE
     CL -->|€ payout (on-chain)| WAL
-  end
 ```
