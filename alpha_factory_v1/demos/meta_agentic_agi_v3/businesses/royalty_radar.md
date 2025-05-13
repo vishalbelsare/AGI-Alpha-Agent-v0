@@ -1,32 +1,19 @@
 ```mermaid
-%% Royalty Radar.a.agi.eth – end-to-end value turbine
-flowchart LR
-    subgraph DSP["🎵 Streaming Platforms"]
-        SPOT["Spotify API"]
-        APPL["Apple Music"]
-        DZ["Deezer"]
-    end
+%% RoyaltyRadar 👁️✨ – Meta-Agentic Flow
+flowchart TD
+  subgraph MetaAgent["RoyaltyRadar.a.agi.eth  🧠  (meta-agent)"]
+    ORCH["Coordinator Ω"]
+    ORCH -->|spawn| DM[\"DataMinerAgent  📊\\n(dsp adapters)\"]:::agent
+    ORCH -->|spawn| CL[\"ClaimAgent  📑\\n(Bayes + LLM)\"]:::agent
+    ORCH -->|score, mutate, replace| DM
+    ORCH -->|score, mutate, replace| CL
+  end
 
-    subgraph RoyaltyRadar["RoyaltyRadar.a.agi.eth 👁️✨"]
-        INGEST["IngestAgents 🌐"]
-        BAYES["Gap Bayesian Detector 📊"]
-        LLM["LetterCraft Agent ✍️"]
-        PAY["Payout Broker 💸"]
-    end
+  DM -->|public counts| STORE[\"Lineage & Audit  📜\"]:::store
+  CL -->|gap, letter, tx-hash| STORE
+  CL -->|€ payout (on-chain)| WALLET[\"Artist Wallet  💎\"]:::val
 
-    subgraph AF["Alpha-Factory v1 Mesh"]
-        AZR["AZR Curriculum 🔁"]
-        FE["Free-Energy Guard ⚖️"]
-        LINE["Lineage Ledger 🗄️"]
-    end
-
-    DSP -->|ISRC plays| INGEST
-    INGEST --> BAYES
-    BAYES -->|€ gap > floor| LLM
-    LLM -->|claim PDF + on-chain CID| PAY
-    PAY -->|$AGIALPHA tx| ARTIST["Artist Wallet"]
-
-    RoyaltyRadar --> LINE
-    AZR --> RoyaltyRadar
-    RoyaltyRadar --> FE
+classDef agent fill:#0f9d58,color:#fff,stroke-width:0;
+classDef store fill:#2b2b40,color:#fff,stroke-width:0;
+classDef val   fill:#1e88e5,color:#fff,stroke-width:0;
 ```
