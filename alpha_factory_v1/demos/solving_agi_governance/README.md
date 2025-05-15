@@ -1,4 +1,3 @@
-```markdown
 # Solving **α-AGI Governance**  
 *Minimal Conditions for Stable, Antifragile Multi-Agent Order*  
 **Author :** Vincent Boucher — President, MONTREAL.AI · QUEBEC.AI  
@@ -78,5 +77,4 @@ The protocol behaves as a **self-refining alpha-field**: every inefficiency touc
 > **$AGIALPHA** – turning latent global inefficiency into provable, antifragile value.
 
 ---
-```
 
