@@ -56,6 +56,17 @@ else:  # SDK is present → register alias & expose full public API verbatim
     sys.modules["openai_agents"] = shim
     _LOG.info("OpenAI Agents SDK detected — legacy imports patched successfully.")
 
+# Legacy import path: allow `import backend` and `import backend.finance_agent`
+sys.modules.setdefault("backend", sys.modules[__name__])
+sys.modules.setdefault(
+    "backend.finance_agent",
+    importlib.import_module(".agents.finance_agent", __name__),
+)
+sys.modules.setdefault(
+    __name__ + ".finance_agent",
+    importlib.import_module(".agents.finance_agent", __name__),
+)
+
 # ────────────────────────── standard library deps ─────────────────────────
 import json
 import secrets
@@ -111,7 +122,7 @@ try:
 
     # .— /metrics (Prometheus) ————————————————————————————————————————.
     try:
-        from .finance_agent import metrics_asgi_app  # noqa: WPS433
+        from .agents.finance_agent import metrics_asgi_app  # noqa: WPS433
         fast_app.mount("/metrics", metrics_asgi_app())
     except Exception:  # pragma: no cover
         _LOG.debug("Prometheus metrics endpoint not active.")
