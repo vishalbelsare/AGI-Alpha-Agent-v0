@@ -169,6 +169,9 @@ else:  # in-memory async queue bus
     def publish(topic: str, msg: Dict[str, Any]) -> None:  # type: ignore
         _queues.setdefault(topic, asyncio.Queue()).put_nowait(msg)
 
+# Backwards-compatibility alias
+_publish = publish
+
 # ───────────────────── helper utilities ───────────────────────────────
 def utc_now() -> str:
     return datetime.now(timezone.utc).isoformat(timespec="milliseconds")
