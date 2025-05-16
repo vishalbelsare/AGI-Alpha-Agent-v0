@@ -78,3 +78,16 @@ The protocol behaves as a **self-refining alpha-field**: every inefficiency touc
 
 ---
 
+### 9 · Running the Demo
+Clone the repository and run the Monte‑Carlo simulation script:
+
+```bash
+python governance_sim.py --agents 1000 --rounds 6000 --delta 0.8
+```
+
+The script outputs the mean cooperation rate after the simulated rounds,
+illustrating convergence toward the cooperative equilibrium when the
+discount factor `δ` is at least 0.8.
+
+---
+
