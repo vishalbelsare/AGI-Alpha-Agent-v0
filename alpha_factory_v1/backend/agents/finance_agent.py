@@ -44,7 +44,7 @@ with contextlib.suppress(ModuleNotFoundError):
 with contextlib.suppress(ModuleNotFoundError):
     from scipy.special import erfcinv  # type: ignore
 with contextlib.suppress(ModuleNotFoundError):
-    from prometheus_client import Gauge  # type: ignore
+    from prometheus_client import Gauge, make_asgi_app  # type: ignore
 with contextlib.suppress(ModuleNotFoundError):
     from binance import Client as _BnClient  # type: ignore
 with contextlib.suppress(ModuleNotFoundError):
@@ -68,6 +68,19 @@ from backend.orchestrator import _publish  # type: ignore
 # ────────────────────────── logger cfg ─────────────────────────
 _log = logging.getLogger("AlphaFactory.FinanceAgent")
 _log.setLevel(logging.INFO)
+
+if "make_asgi_app" not in globals():  # pragma: no cover - optional dep missing
+    def metrics_asgi_app():
+        async def _unavailable(scope, receive, send):
+            if scope.get("type") != "http":
+                return
+            headers = [(b"content-type", b"text/plain")]
+            await send({"type": "http.response.start", "status": 503, "headers": headers})
+            await send({"type": "http.response.body", "body": b"prometheus unavailable"})
+        return _unavailable
+else:  # pragma: no cover - executed when prometheus_client is installed
+    def metrics_asgi_app():
+        return make_asgi_app()
 
 # ═════════════════════════ configuration ═══════════════════════
 
@@ -407,4 +420,4 @@ register_agent(
     )
 )
 
-__all__: list[str] = ["FinanceAgent"]
+__all__: list[str] = ["FinanceAgent", "metrics_asgi_app"]
