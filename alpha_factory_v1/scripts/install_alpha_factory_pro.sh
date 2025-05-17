@@ -8,12 +8,13 @@
 #     --deploy       build + docker‑compose up + smoke tests
 #     --bootstrap    clone repo if alpha_factory_v1/ is absent
 #     --alpha NAME   pre‑enable a strategy in config/alpha_factory.yml
+#     --open         launch default browser after deploy
 #
 #   Examples
 #     ./install_alpha_factory_pro.sh --all --deploy           # full stack
 #     ./install_alpha_factory_pro.sh --no-ui                  # image only
 #     ./install_alpha_factory_pro.sh --bootstrap --deploy \
-#           --alpha btc_gld                                   # live alpha
+#           --alpha btc_gld --open                            # live alpha
 # -----------------------------------------------------------------------
 set -euo pipefail
 
@@ -25,10 +26,29 @@ IMAGE_TAG="alphafactory_pro:latest"
 ALPHA_TOGGLE=""
 
 # ─── defaults (original behaviour) ──────────────────────────────────────
-tty=${CI:-}; want_ui=${tty:-1}; want_trace=0; want_tests=0
+tty=${CI:-}; want_ui=${tty:-1}; want_trace=0; want_tests=0; want_open=0
 nocache_arg=""; do_deploy=0; do_bootstrap=0
 
+open_url(){
+  url="$1"
+  if command -v xdg-open >/dev/null; then
+    xdg-open "$url" >/dev/null 2>&1 &
+  elif command -v open >/dev/null; then
+    open "$url" >/dev/null 2>&1 &
+  elif command -v start >/dev/null; then
+    start "$url"
+  else
+    echo "→ open $url"
+  fi
+}
+
 usage() { grep -E '^#( |$)' "$0" | sed 's/^# ?//' ; exit 0; }
+
+fail(){
+  echo "❌ Error on line $1" >&2
+  exit 1
+}
+trap 'fail $LINENO' ERR
 
 # ─── CLI parsing (keeps original flags) ─────────────────────────────────
 while [[ $# -gt 0 ]]; do
@@ -40,6 +60,7 @@ while [[ $# -gt 0 ]]; do
     --no-ui)      want_ui=0 ;;
     --no-cache)   nocache_arg="--no-cache" ;;
     --deploy)     do_deploy=1 ;;
+    --open)       want_open=1 ;;
     --bootstrap)  do_bootstrap=1 ;;
     --alpha)      ALPHA_TOGGLE="$2"; shift ;;
     -h|--help)    usage ;;
@@ -126,3 +147,4 @@ docker compose --profile "$PROFILE" up -d
 docker compose exec orchestrator pytest -q /app/tests
 
 echo "✅  α‑Factory healthy — open http://localhost:8088"
+[[ $want_open == 1 ]] && open_url "http://localhost:8088"

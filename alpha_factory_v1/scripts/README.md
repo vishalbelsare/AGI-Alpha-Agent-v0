@@ -29,9 +29,9 @@ python3 scripts/preflight.py
 chmod +x scripts/install_alpha_factory_pro.sh
 
 # 2 · launch the stack (clone + build + run + smoke‑test)
-./scripts/install_alpha_factory_pro.sh --bootstrap --deploy
+./scripts/install_alpha_factory_pro.sh --bootstrap --deploy --open
 
-# 3 · open the UI
+# 3 · open the UI (auto with --open)
 open http://localhost:8088        # Trace‑graph
 open http://localhost:8000/docs   # Interactive API
 ```
@@ -53,6 +53,7 @@ open http://localhost:8000/docs   # Interactive API
 | `--bootstrap` | Clone repo if `alpha_factory_v1/` absent | off |
 | `--deploy` | Build **and** run docker‑compose stack + pytest | off (build‑only) |
 | `--alpha <name>` | Pre‑enable finance strategy (e.g. `btc_gld`) | none |
+| `--open` | Launch web UI in browser after deploy | off |
 
 **TL;DR:** `--deploy` turns a static image build into a live, self‑tested stack.
 
