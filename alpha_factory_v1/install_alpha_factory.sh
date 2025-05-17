@@ -26,6 +26,18 @@ fi
 
 # restart container
 docker rm -f "$CONTAINER_NAME" >/dev/null 2>&1 || true
-docker run -d $GPU_ARGS --name "$CONTAINER_NAME"   -p "$PORT":"$PORT"   -v alphafactory_data:/var/alphafactory   -e OPENAI_API_KEY="${OPENAI_API_KEY:-}"   -e ANTHROPIC_API_KEY="${ANTHROPIC_API_KEY:-}"   "$IMAGE"
+docker run -d $GPU_ARGS --name "$CONTAINER_NAME" \
+  -p "$PORT":"$PORT" \
+  -v alphafactory_data:/var/alphafactory \
+  -e OPENAI_API_KEY="${OPENAI_API_KEY:-}" \
+  -e ANTHROPIC_API_KEY="${ANTHROPIC_API_KEY:-}" \
+  "$IMAGE"
+
+# wait until container is up
+sleep 2
+if ! docker ps --format '{{.Names}}' | grep -q "^${CONTAINER_NAME}$"; then
+  echo "Error: container failed to start" >&2
+  exit 1
+fi
 
 echo "Alpha Factory v2 running at http://localhost:${PORT}"
