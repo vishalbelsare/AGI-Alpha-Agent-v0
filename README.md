@@ -338,18 +338,13 @@ Cells with \(Δ\mathcal F < 0\) glow 🔵 on Grafana; Ω‑Agents race to harves
 ```bash
 git clone https://github.com/MontrealAI/AGI-Alpha-Agent-v0.git
 cd AGI-Alpha-Agent-v0
-pip install -e .
-# Ensure Docker, Docker Compose and Git are installed
-
-export ALPHA_KAFKA_BROKER=localhost:9092
-# optional: set credentials or overrides in a .env file
-echo "OPENAI_API_KEY=sk-..." > .env
-alpha-factory --preflight
-alpha-factory
-alpha-factory --version  # display package version
-alpha-factory --list-agents  # view available agents
-# the CLI auto-loads environment variables from .env if present
+./quickstart.sh --preflight   # optional environment check
+./quickstart.sh               # creates venv, installs deps, launches
 open http://localhost:8000/docs
+
+# The `alpha-factory` CLI also works when the package is installed:
+#   pip install -e .
+#   alpha-factory --list-agents
 ```
 
 No GPU → falls back to GGML Llama‑3‑8B‑Q4.
