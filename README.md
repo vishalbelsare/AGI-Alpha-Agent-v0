@@ -347,6 +347,7 @@ echo "OPENAI_API_KEY=sk-..." > .env
 alpha-factory --preflight
 alpha-factory
 alpha-factory --version  # display package version
+alpha-factory --list-agents  # view available agents
 # the CLI auto-loads environment variables from .env if present
 open http://localhost:8000/docs
 ```

@@ -18,6 +18,11 @@ def parse_args() -> argparse.Namespace:
     ap.add_argument("--enabled", help="Comma separated list of enabled agents")
     ap.add_argument("--loglevel", default="INFO", help="Log level")
     ap.add_argument("--version", action="store_true", help="Print version and exit")
+    ap.add_argument(
+        "--list-agents",
+        action="store_true",
+        help="List available agents and exit",
+    )
     return ap.parse_args()
 
 
@@ -50,6 +55,11 @@ def run() -> None:
     args = parse_args()
     if args.version:
         print(__version__)
+        return
+    if args.list_agents:
+        from .backend.agents import list_agents
+        for name in list_agents():
+            print(name)
         return
     if args.preflight:
         preflight_main()
