@@ -58,7 +58,8 @@ try:
     import torch  # type: ignore
     from torch import nn  # type: ignore
 except ModuleNotFoundError:  # pragma: no cover
-    torch = nn = None  # type: ignore
+    torch = None  # type: ignore
+    nn = None  # type: ignore
 
 try:
     import torch_geometric.nn as tgnn  # type: ignore
@@ -177,20 +178,27 @@ class DDConfig:
 # Surrogate property predictor ---------------------------------------------
 # ---------------------------------------------------------------------------
 
-class _GINSurrogate(nn.Module):
-    """Minimal 2‑layer GIN for 4 property regression."""
+if nn is not None and tgnn is not None:
+    class _GINSurrogate(nn.Module):
+        """Minimal 2‑layer GIN for 4 property regression."""
 
-    def __init__(self, in_dim: int = 20, hidden: int = 128):
-        super().__init__()
-        self.conv1 = tgnn.GINConv(nn.Linear(in_dim, hidden))  # type: ignore
-        self.conv2 = tgnn.GINConv(nn.Linear(hidden, hidden))  # type: ignore
-        self.head = nn.Linear(hidden, 4)
+        def __init__(self, in_dim: int = 20, hidden: int = 128):
+            super().__init__()
+            self.conv1 = tgnn.GINConv(nn.Linear(in_dim, hidden))  # type: ignore
+            self.conv2 = tgnn.GINConv(nn.Linear(hidden, hidden))  # type: ignore
+            self.head = nn.Linear(hidden, 4)
 
-    def forward(self, data: TGData):  # type: ignore
-        h = torch.relu(self.conv1(data.x, data.edge_index))
-        h = torch.relu(self.conv2(h, data.edge_index))
-        h = torch.mean(h, dim=0)
-        return self.head(h)
+        def forward(self, data: TGData):  # type: ignore
+            h = torch.relu(self.conv1(data.x, data.edge_index))
+            h = torch.relu(self.conv2(h, data.edge_index))
+            h = torch.mean(h, dim=0)
+            return self.head(h)
+else:
+    class _GINSurrogate:  # pragma: no cover - dependency missing
+        """Stub used when torch or torch_geometric are absent."""
+
+        def __init__(self, *_, **__):
+            raise RuntimeError("Torch or torch_geometric not available")
 
 
 class _PropertySurrogate:
