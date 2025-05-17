@@ -29,6 +29,7 @@ docker rm -f "$CONTAINER_NAME" >/dev/null 2>&1 || true
 docker run -d $GPU_ARGS --name "$CONTAINER_NAME" \
   -p "$PORT":"$PORT" \
   -v alphafactory_data:/var/alphafactory \
+  -e AF_MEMORY_DIR=/var/alphafactory \
   -e OPENAI_API_KEY="${OPENAI_API_KEY:-}" \
   -e ANTHROPIC_API_KEY="${ANTHROPIC_API_KEY:-}" \
   "$IMAGE"
