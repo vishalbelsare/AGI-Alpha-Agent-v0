@@ -52,13 +52,11 @@ import json
 import math
 import os
 import random
-import signal
 import subprocess
 import sys
 import tempfile
-import time
+from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass, field
-from pathlib import Path
 from typing import Any, Callable, Dict, List, Optional, Sequence, Tuple, Union
 
 ################################################################################
@@ -191,6 +189,23 @@ class EvolutionConfig:
     custom_crossover: Optional[Callable[[Genome, Genome], Tuple[Genome, Genome]]] = None
     seed_population: Optional[List[Genome]] = None
     random_seed: int | None = None
+    eval_processes: int = 1
+
+    def __post_init__(self) -> None:
+        if self.population_size <= 0:
+            raise ValueError("population_size must be positive")
+        if self.generations <= 0:
+            raise ValueError("generations must be positive")
+        if not 0.0 <= self.crossover_rate <= 1.0:
+            raise ValueError("crossover_rate must be within [0,1]")
+        if not 0.0 <= self.mutation_rate <= 1.0:
+            raise ValueError("mutation_rate must be within [0,1]")
+        if self.tournament_k < 2:
+            raise ValueError("tournament_k must be at least 2")
+        if self.elite_count < 0 or self.elite_count >= self.population_size:
+            raise ValueError("elite_count must be >=0 and < population_size")
+        if self.eval_processes < 1:
+            raise ValueError("eval_processes must be at least 1")
 
 
 class EvolutionEngine:
@@ -297,9 +312,23 @@ class EvolutionEngine:
     # ---------------------------------------------------------------- Evolution
 
     def _evaluate_population(self) -> None:
-        for ind in self.population:
-            if ind.fitness is None:
-                ind.fitness = self.task.evaluate(ind.genome)
+        allow_unsafe = os.getenv("ALLOW_UNSAFE_EVOLUTION", "false").lower() == "true"
+        pending = [ind for ind in self.population if ind.fitness is None]
+
+        def eval_ind(ind: Individual) -> float:
+            if not allow_unsafe and not is_genome_safe(ind.genome):
+                self.log("[SECURITY] Rejected unsafe genome")
+                return -math.inf
+            return self.task.evaluate(ind.genome)
+
+        if self.cfg.eval_processes > 1 and len(pending) > 1:
+            with ThreadPoolExecutor(max_workers=self.cfg.eval_processes) as exe:
+                results = list(exe.map(eval_ind, pending))
+        else:
+            results = [eval_ind(ind) for ind in pending]
+
+        for ind, res in zip(pending, results):
+            ind.fitness = res
 
     def _select_parents(self) -> Tuple[Individual, Individual]:
         tournament = random.sample(self.population, self.cfg.tournament_k)
@@ -404,6 +433,9 @@ def _cli():
     parser.add_argument(
         "--gen", type=int, default=15, help="Generations"
     )
+    parser.add_argument(
+        "--proc", type=int, default=1, help="Parallel evaluation processes"
+    )
     args = parser.parse_args()
 
     task = RandomFitnessTask(n_dimensions=args.dims)
@@ -411,6 +443,7 @@ def _cli():
         population_size=args.pop,
         generations=args.gen,
         genome_template=[0.0] * args.dims,
+        eval_processes=args.proc,
     )
     engine = EvolutionEngine(task, cfg)
     best, _ = engine.run()
