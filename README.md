@@ -336,13 +336,13 @@ Cells with \(Δ\mathcal F < 0\) glow 🔵 on Grafana; Ω‑Agents race to harves
 ## 6 · 5‑Minute Quick‑Start 🚀
 ```bash
 git clone https://github.com/MontrealAI/AGI-Alpha-Agent-v0.git
-cd AGI-Alpha-Agent-v0/alpha_factory_v1
-pip install -r requirements.txt
+cd AGI-Alpha-Agent-v0
+pip install -e .
 
 export ALPHA_KAFKA_BROKER=localhost:9092
-python -m alpha_factory_v1.run --preflight
-python -m alpha_factory_v1.run
-python -m alpha_factory_v1.run --version  # display package version
+alpha-factory --preflight
+alpha-factory
+alpha-factory --version  # display package version
 open http://localhost:8000/docs
 ```
 
