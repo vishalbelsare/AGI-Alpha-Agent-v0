@@ -146,6 +146,8 @@ docker compose --profile full up -d
 
 open http://localhost:7749           # Dashboard SPA
 ./scripts/post_job.sh examples/sample_job.json
+python -m alpha_factory_v1.demos.alpha_agi_marketplace_v1.marketplace \
+    examples/sample_job.json
 ```
 *No Docker?* `bash <(curl -sL get.alpha-factory.ai/demo.sh)` boots an ephemeral VM.
 
