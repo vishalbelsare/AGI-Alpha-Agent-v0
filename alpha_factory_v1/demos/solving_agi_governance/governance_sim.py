@@ -2,9 +2,9 @@
 """Minimal Monte-Carlo simulation for the governance whitepaper demo.
 
 Each agent repeatedly plays a discounted Prisoner's Dilemma with token
-staking.  Cooperation dominates once the discount factor ``delta`` is large
-enough (δ ≳ 0.8).  The script is intentionally tiny and has **no external
-dependencies**.
+staking. Cooperation dominates once the discount factor ``delta`` is large
+enough (δ ≳ 0.8). The script is intentionally tiny and has **no external
+dependencies**. A ``--verbose`` flag prints progress for longer runs.
 """
 from __future__ import annotations
 
@@ -22,16 +22,16 @@ def run_sim(
     stake: float,
     *,
     seed: int | None = None,
+    verbose: bool = False,
 ) -> float:
     """Return the mean cooperation probability after ``rounds`` iterations."""
     if not 0.0 <= delta <= 1.0:
         raise ValueError("delta must be between 0 and 1")
 
-    if seed is not None:
-        random.seed(seed)
+    rng = random.Random(seed)
 
-    probs = [random.random() for _ in range(agents)]
-    for _ in range(rounds):
+    probs = [rng.random() for _ in range(agents)]
+    for r in range(1, rounds + 1):
         avg_p = sum(probs) / agents
         coop_payoff = R * avg_p + S * (1 - avg_p)
         defect_payoff = T * avg_p + P * (1 - avg_p) - stake
@@ -39,6 +39,8 @@ def run_sim(
             avg_payoff = p * coop_payoff + (1 - p) * defect_payoff
             p += delta * p * (coop_payoff - avg_payoff)
             probs[i] = max(0.0, min(1.0, p))
+        if verbose and r % max(1, rounds // 10) == 0:
+            print(f"round {r:>4}/{rounds} – mean cooperation {sum(probs) / agents:.3f}")
     return sum(probs) / agents
 
 
@@ -49,6 +51,7 @@ def main(argv: list[str] | None = None) -> None:
     ap.add_argument("--delta", type=float, default=0.8, help="discount factor δ")
     ap.add_argument("--stake", type=float, default=2.5, help="stake penalty")
     ap.add_argument("--seed", type=int, help="optional RNG seed")
+    ap.add_argument("-v", "--verbose", action="store_true", help="print progress")
     args = ap.parse_args(argv)
 
     coop = run_sim(
@@ -57,6 +60,7 @@ def main(argv: list[str] | None = None) -> None:
         args.delta,
         args.stake,
         seed=args.seed,
+        verbose=args.verbose,
     )
     print(f"mean cooperation ≈ {coop:.3f}")
 
