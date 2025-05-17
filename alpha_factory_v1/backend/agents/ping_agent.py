@@ -212,11 +212,10 @@ def _standalone() -> None:
     loop = asyncio.new_event_loop()
     asyncio.set_event_loop(loop)
 
-    agent = PingAgent(loop=loop)
+    agent = PingAgent()
 
     async def _runner() -> None:
-        await agent.start()
-        # Keep running until SIGINT/SIGTERM.
+        await agent.setup()
         stop_event = asyncio.Event()
 
         def _graceful(*_: Any) -> None:
@@ -229,8 +228,11 @@ def _standalone() -> None:
             except NotImplementedError:
                 pass  # Windows – signals handled differently.
 
-        await stop_event.wait()
-        await agent.stop()
+        while not stop_event.is_set():
+            await agent.run_cycle()
+            await asyncio.sleep(agent.CYCLE_SECONDS)
+
+        await agent.teardown()
 
     try:
         loop.run_until_complete(_runner())
