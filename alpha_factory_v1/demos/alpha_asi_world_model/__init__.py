@@ -30,7 +30,7 @@ from types import ModuleType
 from typing import Final, List
 
 # Re-export the runnable demo components
-from .alpha_asi_world_model_demo import Orchestrator, app, _cli as _demo_cli  # noqa: F401
+from .alpha_asi_world_model_demo import CFG, Orchestrator, app, _main as _demo_cli  # noqa: F401
 
 __all__: Final[List[str]] = [
     "Orchestrator",
@@ -78,8 +78,10 @@ def run_headless(steps: int = 50_000) -> Orchestrator:  # pragma: no cover
     """
     orch = Orchestrator()
 
+    CFG.max_steps = steps
+
     def _worker() -> None:
-        orch.run(steps=steps)
+        orch.loop()
 
     threading.Thread(target=_worker, daemon=True).start()
     return orch
