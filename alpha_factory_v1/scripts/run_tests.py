@@ -29,10 +29,14 @@ def run_tests(target: Path) -> int:
 
 def main() -> None:
     script_dir = Path(__file__).resolve().parents[1]
+    repo_root = script_dir.parent
     if len(sys.argv) > 1:
         target = Path(sys.argv[1])
         if not target.is_absolute():
-            target = script_dir / target
+            guess = script_dir / target
+            if not guess.exists():
+                guess = repo_root / target
+            target = guess
     else:
         target = script_dir / "tests"
     if not target.exists():
