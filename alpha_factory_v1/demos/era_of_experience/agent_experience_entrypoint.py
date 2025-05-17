@@ -6,7 +6,7 @@ Era-of-Experience Agent 👁️✨
 ────────────────────────────
 A minimal yet *comprehensive* reference implementation of an **autonomous,
 reward-grounded, life-long agent** as envisioned in “Welcome to the Era of Experience”
-(Sutton & Silver 2024) :contentReference[oaicite:2]{index=2}&#8203;:contentReference[oaicite:3]{index=3}.
+(Sutton & Silver 2024) 
 
 ✓ Streams of experience (continuous event generator)  
 ✓ Sensor-motor tools (search, meal planning, workout scheduling)  
