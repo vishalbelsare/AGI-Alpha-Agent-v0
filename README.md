@@ -26,9 +26,10 @@ Built atop **OpenAI Agents SDK**, **Google ADK**, **A2A protocol**, and Ant
 2. [World‑Model & Planner 🌌](#2-world-model--planner)  
 3. [Agent Gallery 🖼️ (12 agents)](#3-agent-gallery)  
 4. [Demo Showcase 🎬 (12 demos)](#4-demo-showcase)  
-5. [Memory & Knowledge Fabric 🧠](#5-memory--knowledge-fabric)  
-6. [5‑Minute Quick‑Start 🚀](#6-5-minute-quick-start)  
-7. [Deployment Recipes 🍳](#7-deployment-recipes)  
+5. [Memory & Knowledge Fabric 🧠](#5-memory--knowledge-fabric)
+6. [5‑Minute Quick‑Start 🚀](#6-5-minute-quick-start)
+6.1. [Running Tests 🧪](#61-running-tests)
+7. [Deployment Recipes 🍳](#7-deployment-recipes)
 8. [Governance & Compliance ⚖️](#8-governance--compliance)  
 9. [Observability 🔭](#9-observability)  
 10. [Extending the Mesh 🔌](#10-extending-the-mesh)  
@@ -349,8 +350,22 @@ alpha-factory --version  # display package version
 open http://localhost:8000/docs
 ```
 
-No GPU → falls back to GGML Llama‑3‑8B‑Q4.  
+No GPU → falls back to GGML Llama‑3‑8B‑Q4.
 No `OPENAI_API_KEY` → switches to local SBERT + heuristics.
+
+---
+
+<a name="61-running-tests"></a>
+### 6.1 · Running Tests 🧪
+
+Unit tests can be executed with the bundled helper script:
+
+```bash
+python alpha_factory_v1/scripts/run_tests.py
+```
+
+The script prefers `pytest` when available and otherwise falls back to
+`unittest`. Ensure all tests pass before deploying changes.
 
 ---
 
