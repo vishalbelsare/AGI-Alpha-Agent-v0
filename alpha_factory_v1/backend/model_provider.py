@@ -1,25 +1,32 @@
-"""
-backend/model_provider.py
-------------------------
+"""Unified LLM wrapper used across Alpha-Factory.
 
-Unified wrapper that lets every agent call `ModelProvider.complete(prompt, **kw)`
-without caring which LLM backend is available:
+This facade hides the concrete provider so agents can simply call
+``ModelProvider.complete(prompt)``. Backends are chosen automatically in the
+following priority order and are configured via environment variables:
 
-Priority
-1. OpenAI  (env OPENAI_API_KEY)
-2. Anthropic (env ANTHROPIC_API_KEY)
-3. Local  – LiteLLM routed to an Ollama model (OpenHermes‑13B by default)
-4. Stub   – always returns a deterministic fallback string so agents never crash
+1. OpenAI    – ``OPENAI_API_KEY`` and optional ``OPENAI_MODEL``
+2. Anthropic – ``ANTHROPIC_API_KEY`` and optional ``ANTHROPIC_MODEL``
+3. Local     – LiteLLM routing to an Ollama model (``LOCAL_MODEL``)
+4. Stub      – deterministic fallback so agents never crash
 """
+from __future__ import annotations
 
 import logging
 import os
 from typing import Any, Dict, List, Tuple
 
 
+_TIMEOUT = float(os.getenv("LLM_TIMEOUT_SEC", 30))
+_OPENAI_MODEL = os.getenv("OPENAI_MODEL", "gpt-4o-mini")
+_ANTHROPIC_MODEL = os.getenv("ANTHROPIC_MODEL", "claude-3-haiku-20240307")
+_LOCAL_MODEL = os.getenv("LOCAL_MODEL", "ollama/openhermes-13b")
+_LOCAL_BASE = os.getenv("LOCAL_LLM_BASE")
+
+
 class ModelProvider:
     def __init__(self):
         self.log = logging.getLogger("ModelProvider")
+        self.log.addHandler(logging.NullHandler())
         self.backend: Tuple[str, Any] | None = None
         self.model_name = "unknown"
         self._init_backend()
@@ -34,17 +41,26 @@ class ModelProvider:
             if openai_key:
                 import openai
 
-                openai.api_key = openai_key
-                self.backend = ("openai", openai)
-                self.model_name = "gpt-4o-mini"
+                if hasattr(openai, "OpenAI"):
+                    client = openai.OpenAI(api_key=openai_key, timeout=_TIMEOUT)
+                else:
+                    openai.api_key = openai_key
+                    openai.timeout = _TIMEOUT
+                    client = openai
+
+                self.backend = ("openai", client)
+                self.model_name = _OPENAI_MODEL
                 self.log.info("Using OpenAI backend (%s).", self.model_name)
                 return
 
             if anthropic_key:
                 import anthropic
 
-                self.backend = ("anthropic", anthropic.Client(anthropic_key))
-                self.model_name = "claude-3-haiku-20240307"
+                self.backend = (
+                    "anthropic",
+                    anthropic.Client(api_key=anthropic_key, timeout=_TIMEOUT),
+                )
+                self.model_name = _ANTHROPIC_MODEL
                 self.log.info("Using Anthropic backend (%s).", self.model_name)
                 return
 
@@ -52,8 +68,11 @@ class ModelProvider:
             try:
                 import litellm  # noqa: F401
 
+                if _LOCAL_BASE:
+                    litellm.set_llm_api_base(_LOCAL_BASE)
+
                 self.backend = ("local", litellm)
-                self.model_name = "ollama/openhermes-13b"
+                self.model_name = _LOCAL_MODEL
                 self.log.info("Using local LiteLLM backend (%s).", self.model_name)
                 return
             except Exception as err:  # litellm import or runtime error
@@ -80,9 +99,15 @@ class ModelProvider:
         Guarantees a usable string even if all real backends fail.
         """
         kind, client = self.backend or ("stub", None)
+        self.log.info("LLM call | provider=%s | model=%s", kind, self.model_name)
         try:
             if kind == "openai":
-                resp = client.chat.completions.create(
+                try:
+                    create = client.chat.completions.create
+                except AttributeError:
+                    create = client.ChatCompletion.create  # type: ignore[attr-defined]
+
+                resp = create(
                     model=self.model_name,
                     messages=[
                         {"role": "system", "content": "You are a helpful agent."},
@@ -90,15 +115,17 @@ class ModelProvider:
                     ],
                     tools=tools or [],
                     max_tokens=max_tokens,
+                    timeout=_TIMEOUT,
                     **kwargs,
                 )
-                return resp.choices[0].message.content.strip()
+                return resp.choices[0].message.content.strip()  # type: ignore[attr-defined]
 
             if kind == "anthropic":
                 resp = client.messages.create(
                     model=self.model_name,
                     messages=[{"role": "user", "content": prompt}],
                     max_tokens=max_tokens,
+                    timeout=_TIMEOUT,
                     **kwargs,
                 )
                 return resp.content[0].text.strip()
@@ -108,6 +135,7 @@ class ModelProvider:
                     model=self.model_name,
                     messages=[{"role": "user", "content": prompt}],
                     max_tokens=max_tokens,
+                    timeout=_TIMEOUT,
                     **kwargs,
                 )
                 return resp["choices"][0]["message"]["content"].strip()
