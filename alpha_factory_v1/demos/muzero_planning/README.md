@@ -18,21 +18,24 @@ and **stabilise CartPole** — all inside your browser. No GPU, no PhD required
 
 ---
 
-## 🚀 Run it on your laptop
+## 🚀 Quick Start
+
+Clone the repository and run the helper script. It generates a
+`config.env` with safe defaults – edit it to add your `OPENAI_API_KEY` if
+you want narrated moves.
 
 ```bash
 git clone https://github.com/MontrealAI/AGI-Alpha-Agent-v0.git
 cd AGI-Alpha-Agent-v0/alpha_factory_v1/demos/muzero_planning
-chmod +x run_muzero_demo.sh
 ./run_muzero_demo.sh
 ```
 
-1. **Docker Desktop** compiles the container (≈ 45 s cold start).  
-2. Open **http://localhost:7861** → click **“▶ Run MuZero”**.  
-3. Enjoy the live video feed, reward ticker, and optional “explain_move” prose.
+1. **Docker Desktop** builds the container (~45 s on first run).
+2. **Open <http://localhost:7861>** and press **“▶ Run MuZero”**.
+3. Watch the live video feed, reward ticker and optional commentary.
 
-> **No OpenAI key?** Leave `OPENAI_API_KEY` blank in `config.env`.  
-> The stack spins up **Ollama ✕ Mixtral** and stays 100 % offline.
+> **Offline by default** – leaving `OPENAI_API_KEY` empty runs the demo
+> fully locally with **Ollama ✕ Mixtral**.
 
 ---
 
