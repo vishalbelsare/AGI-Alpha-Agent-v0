@@ -305,4 +305,3 @@ if __name__ == "__main__":
     agent = Agent("demo", role="example")
     rsp = agent("Hello! Summarise ADAS in one sentence.")
     print(rsp["response"])
-"

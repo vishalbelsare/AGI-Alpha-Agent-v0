@@ -59,7 +59,7 @@ class Config:
     env_batch: int = 1              # ← future multi‑env support
     buffer_limit: int = 50_000
     hidden: int = 128
-    lr: float = 1e‑3
+    lr: float = 1e-3
     train_batch: int = 128
     ui_tick: int = 100
     max_steps: int = 100_000
