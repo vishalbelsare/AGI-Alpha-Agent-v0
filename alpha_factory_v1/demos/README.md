@@ -24,8 +24,10 @@
 ```bash
 # one‑command immersive tour (CPU‑only)
 curl -sSL https://raw.githubusercontent.com/MontrealAI/AGI-Alpha-Agent-v0/main/alpha_factory_v1/demos/quick_start.sh | bash
+# or, if cloned locally (run from repo root):
+./alpha_factory_v1/quickstart.sh
 ```
-Opens **http://localhost:7860** with a Gradio portal to every demo. Works on macOS, Linux, WSL 2 & Colab.
+Opens **http://localhost:7860** with a Gradio portal to every demo. Works on macOS, Linux, WSL 2 & Colab.
 
 ---
 
