@@ -29,8 +29,18 @@ Environment vars (optional):
     LIVE_FEED           – 1 to mix in real wearable/web data
 """
 from __future__ import annotations
-import os, asyncio, random, datetime as dt, json, logging, math
+import os
+import asyncio
+import random
+import datetime as dt
+import json
+import logging
+import math
 from typing import Dict, Any, AsyncIterator, List
+
+from fastapi import FastAPI
+from fastapi.responses import PlainTextResponse
+import uvicorn
 
 import gradio as gr
 from openai_agents import Agent, OpenAIAgent, Tool, memory
@@ -136,13 +146,13 @@ LLM = OpenAIAgent(
     model=MODEL,
     temperature=TEMP,
     api_key=os.getenv("OPENAI_API_KEY") or None,
-    base_url=("http://ollama:11434/v1"
-              if not os.getenv("OPENAI_API_KEY") else None),
+    base_url=os.getenv("LLM_BASE_URL", "http://ollama:11434/v1")
+    if not os.getenv("OPENAI_API_KEY") else None,
 )
 
 VECTOR_STORE = memory.LocalQdrantMemory(
     collection_name="experience_mem",
-    host=":memory:"                               # purely local
+    host=os.getenv("VECTOR_DB_URL", ":memory:"),
 )
 
 # ────────────────────────────── agent definition ────────────────────────────
@@ -179,7 +189,7 @@ async def main() -> None:
         gr.Markdown("# ✨ Era-Of-Experience Agent")
         mem_view = gr.Dataframe(headers=["mem"])
         log_view = gr.Markdown()
-        btn      = gr.Button("Step once")
+        btn = gr.Button("Step once")
 
         async def step_once():
             evt = await anext(evt_gen)
@@ -190,10 +200,20 @@ async def main() -> None:
 
         btn.click(step_once, outputs=[mem_view, log_view])
 
-    # run both loops concurrently
+    app = FastAPI()
+
+    @app.get("/__live", response_class=PlainTextResponse, include_in_schema=False)
+    async def _live() -> str:  # noqa: D401
+        return "OK"
+
+    gradio_app = gr.mount_gradio_app(app, ui, path="/")
+    server = uvicorn.Server(
+        uvicorn.Config(gradio_app, host="0.0.0.0", port=PORT, log_level=LOG_LVL.lower(), loop="asyncio")
+    )
+
     await asyncio.gather(
         ingest_loop(),
-        ui.launch(server_name="0.0.0.0", server_port=PORT, share=False),
+        server.serve(),
     )
 
 # ──────────────────────────────── entrypoint ────────────────────────────────
