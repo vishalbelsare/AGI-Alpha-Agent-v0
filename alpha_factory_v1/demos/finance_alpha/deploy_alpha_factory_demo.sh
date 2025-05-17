@@ -70,5 +70,7 @@ cat <<EOF
 Press Ctrl‑C to stop the container when you're finished.
 EOF
 
+banner "⚠  Research demo only. Not financial advice."
+
 # keep running so user can browse UI
 while sleep 3600; do :; done
