@@ -49,6 +49,17 @@ def check_docker_daemon() -> bool:
         return False
 
 
+def check_pkg(pkg: str) -> bool:
+    """Return True if *pkg* is importable."""
+    try:
+        import importlib.util
+        found = importlib.util.find_spec(pkg) is not None
+    except Exception:  # pragma: no cover - importlib failure is unexpected
+        found = False
+    banner(f"{pkg} {'found' if found else 'missing'}", 'GREEN' if found else 'RED')
+    return found
+
+
 def ensure_dir(path: Path) -> None:
     if not path.exists():
         path.mkdir(parents=True, exist_ok=True)
@@ -63,6 +74,8 @@ def main() -> None:
     ok &= check_python()
     ok &= check_cmd('docker')
     ok &= check_docker_daemon()
+    ok &= check_pkg('openai')
+    ok &= check_pkg('openai_agents')
     ensure_dir(MEM_DIR)
 
     for key in ('OPENAI_API_KEY', 'ANTHROPIC_API_KEY'):
