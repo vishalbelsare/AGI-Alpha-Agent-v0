@@ -338,7 +338,9 @@ cd AGI-Alpha-Agent-v0/alpha_factory_v1
 
 # optional: point to an external Kafka broker
 export ALPHA_KAFKA_BROKER=localhost:9092
-./quickstart.sh
+echo "PORT=8000" > .env
+echo "LOGLEVEL=info" >> .env
+./quickstart.sh --env-file .env
 open http://localhost:8000/docs
 ```
 
