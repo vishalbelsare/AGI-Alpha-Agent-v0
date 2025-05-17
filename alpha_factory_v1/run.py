@@ -1,6 +1,9 @@
+"""Command line launcher for Alpha‑Factory v1."""
+
 import os
 import argparse
 from .scripts.preflight import main as preflight_main
+from . import __version__
 
 
 def parse_args() -> argparse.Namespace:
@@ -12,6 +15,7 @@ def parse_args() -> argparse.Namespace:
     ap.add_argument("--a2a-port", type=int, help="A2A gRPC port")
     ap.add_argument("--enabled", help="Comma separated list of enabled agents")
     ap.add_argument("--loglevel", default="INFO", help="Log level")
+    ap.add_argument("--version", action="store_true", help="Print version and exit")
     return ap.parse_args()
 
 
@@ -32,6 +36,9 @@ def apply_env(args: argparse.Namespace) -> None:
 
 def run() -> None:
     args = parse_args()
+    if args.version:
+        print(__version__)
+        return
     if args.preflight:
         preflight_main()
         return

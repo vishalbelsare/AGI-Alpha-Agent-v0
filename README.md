@@ -342,6 +342,7 @@ pip install -r requirements.txt
 export ALPHA_KAFKA_BROKER=localhost:9092
 python -m alpha_factory_v1.run --preflight
 python -m alpha_factory_v1.run
+python -m alpha_factory_v1.run --version  # display package version
 open http://localhost:8000/docs
 ```
 
