@@ -69,9 +69,9 @@ psycopg2-binary==2.9.9
 networkx==3.3
 
 # ────────── Scientific / domain-specific libs ──────────────────────────
-rdkit-pypi==2024.3.1
-noaa-sdk==1.17.3
+rdkit-pypi==2023.3.1b1
+noaa-sdk==0.1.21
 
 # ────────── Local-model fallbacks (no-API-key mode) ────────────────────
 llama-cpp-python==0.2.37
-ctransformers==0.2.33
+ctransformers==0.2.27
