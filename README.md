@@ -340,7 +340,8 @@ cd AGI-Alpha-Agent-v0/alpha_factory_v1
 pip install -r requirements.txt
 
 export ALPHA_KAFKA_BROKER=localhost:9092
-python -m backend.orchestrator
+python -m alpha_factory_v1.run --preflight
+python -m alpha_factory_v1.run
 open http://localhost:8000/docs
 ```
 
