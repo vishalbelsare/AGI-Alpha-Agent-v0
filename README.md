@@ -341,6 +341,8 @@ cd AGI-Alpha-Agent-v0
 ./quickstart.sh --preflight   # optional environment check
 ./quickstart.sh               # creates venv, installs deps, launches
 open http://localhost:8000/docs
+# Alternatively, ``python alpha_factory_v1/quickstart.py`` provides the same
+# workflow on Windows and other systems without Bash.
 
 # The `alpha-factory` CLI also works when the package is installed:
 #   pip install -e .
