@@ -11,6 +11,10 @@ The worker exposes gRPC on port `8000` and publishes Prometheus metrics on the
 port defined by `env.METRICS_PORT` (default `9090`). Liveness and readiness
 probes query `/healthz` for reliable orchestration.
 
+Like the main chart, `alpha-factory-remote` includes a `values.schema.json` file
+for validating custom values during installation. Incorrect types or unexpected
+fields trigger an immediate error, simplifying debugging.
+
 ## Values
 - `image.repository` – container image (default `ghcr.io/montrealai/alpha-factory`)
 - `image.tag` – image tag (default `v2`)

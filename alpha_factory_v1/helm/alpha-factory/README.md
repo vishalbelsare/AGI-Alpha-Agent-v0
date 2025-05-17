@@ -16,6 +16,10 @@ The service exposes:
 Liveness and readiness probes hit `/healthz` to ensure Kubernetes can reliably
 restart unhealthy pods.
 
+The chart ships with a `values.schema.json` file enabling Helm's built‑in value
+validation. Custom values are checked at install time for structural mistakes so
+misconfigurations are caught early.
+
 ## Values
 - `image.repository` – container image (default `ghcr.io/montrealai/alpha-factory`)
 - `image.tag` – image tag (default `v2`)
