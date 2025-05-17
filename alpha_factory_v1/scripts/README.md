@@ -67,7 +67,8 @@ All steps are idempotent; re‑running the script is safe.
 | Goal | Command |
 |------|---------|
 | Rebuild backend after code change | `docker compose build backend && docker compose up -d backend` |
-| Switch to GPU runtime | `PROFILE=cuda ./scripts/install_alpha_factory_pro.sh --deploy` |
+| Import latest Grafana dashboard | `python scripts/import_dashboard.py alpha_factory_v1/dashboards/alpha_factory_overview.json` |
+| Switch to GPU runtime | `PROFILE=cuda ./scripts/install_alpha_factory_pro.sh --deploy` |
 | Follow live logs | `docker compose logs -f orchestrator ui` |
 | Clean up containers & volumes | `docker compose down -v --remove-orphans` |
 
