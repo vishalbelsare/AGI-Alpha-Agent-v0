@@ -23,6 +23,7 @@ Environment
 * SPIFFE_ENDPOINT_SOCKET – unix‑domain socket where the Workload API is exposed.
   (Typically `/run/spire/sockets/agent.sock` when running with the SPIRE agent.)
 * A2A_INSECURE – set to `1` to disable mTLS (dev only).
+* A2A_WS_MAX_SIZE – override maximum WebSocket message size in bytes.
 
 NOTE:  Proto stubs are lazily imported, so you only need to `pip install grpcio`
        when you actually want gRPC transport.
@@ -37,7 +38,12 @@ from dataclasses import asdict, dataclass
 from types import TracebackType
 from typing import Any, AsyncGenerator, Literal, Type
 
+import asyncio
+
 _DEFAULT_SOCKET = os.getenv("SPIFFE_ENDPOINT_SOCKET", "/run/spire/sockets/agent.sock")
+_DEFAULT_WS_MAX_SIZE = int(os.getenv("A2A_WS_MAX_SIZE", str(2 ** 20)))
+
+__all__ = ["A2AClient", "TaskRequest", "TaskResponse"]
 
 # --------------------------------------------------------------------------- #
 # Public dataclasses shared by all transports
@@ -45,6 +51,8 @@ _DEFAULT_SOCKET = os.getenv("SPIFFE_ENDPOINT_SOCKET", "/run/spire/sockets/agent.
 
 @dataclass(slots=True)
 class TaskRequest:
+    """Structured payload sent to the orchestrator."""
+
     agent_id: str
     payload: dict[str, Any]
     priority: Literal["LOW", "NORMAL", "HIGH"] = "NORMAL"
@@ -52,6 +60,8 @@ class TaskRequest:
 
 @dataclass(slots=True)
 class TaskResponse:
+    """Reply returned by the orchestrator."""
+
     task_id: str
     status: str
     result: dict[str, Any] | None = None
@@ -78,16 +88,40 @@ class A2AClient:
         spiffe_id: str | None = None,
         prefer_grpc: bool = True,
         websocket_path: str = "/ws/a2a",
+        connect_timeout: float = 10.0,
+        max_ws_size: int = _DEFAULT_WS_MAX_SIZE,
     ) -> "A2AClient":
-        """Auto‑determine the best transport and return an initialised client."""
+        """Auto‑determine the best transport and return an initialised client.
+
+        Parameters
+        ----------
+        service:
+            Hostname or ``host:port`` of the remote orchestrator.
+        spiffe_id:
+            Expected SPIFFE ID of the peer.  ``None`` disables peer validation.
+        prefer_grpc:
+            Try gRPC first before falling back to WebSockets.
+        websocket_path:
+            Path of the WebSocket endpoint when gRPC is unavailable.
+        connect_timeout:
+            Seconds to wait for the initial handshake (both transports).
+        max_ws_size:
+            Maximum WebSocket message size in bytes.
+        """
         if prefer_grpc:
             try:
-                impl = await _GrpcTransport.new(service, spiffe_id=spiffe_id)
+                impl = await _GrpcTransport.new(service, spiffe_id=spiffe_id, timeout=connect_timeout)
                 return cls(impl)
             except Exception:  # pylint: disable=broad-except
                 # fallback below
                 pass
-        impl = await _WsTransport.new(service, websocket_path, spiffe_id=spiffe_id)
+        impl = await _WsTransport.new(
+            service,
+            websocket_path,
+            spiffe_id=spiffe_id,
+            max_size=max_ws_size,
+            timeout=connect_timeout,
+        )
         return cls(impl)
 
     # High‑level operations -------------------------------------------------
@@ -98,6 +132,10 @@ class A2AClient:
     async def stream(self, topic: str) -> AsyncGenerator[dict[str, Any], None]:
         async for ev in self._impl.stream(topic):
             yield ev
+
+    async def close(self) -> None:
+        """Close the underlying transport connection."""
+        await self._impl.close()
 
     # Async context‑manager sugar ------------------------------------------
 
@@ -127,7 +165,14 @@ class _GrpcTransport:
     # Factory ...............................................................
 
     @classmethod
-    async def new(cls, target: str, *, spiffe_id: str | None) -> "_GrpcTransport":
+    async def new(
+        cls,
+        target: str,
+        *,
+        spiffe_id: str | None,
+        timeout: float | None = None,
+    ) -> "_GrpcTransport":
+        """Return a connected gRPC transport."""
         import grpc
         from workloadapi import X509Source, WorkloadApiClient  # type: ignore
 
@@ -148,6 +193,11 @@ class _GrpcTransport:
                 channel = grpc.aio.secure_channel(target, creds, (("grpc.ssl_target_name_override", auth),))
             else:
                 channel = grpc.aio.secure_channel(target, creds)
+        # Wait for the TLS handshake to complete
+        if timeout:
+            await asyncio.wait_for(channel.channel_ready(), timeout)
+        else:
+            await channel.channel_ready()
         # Lazy import of auto‑generated stub
         from proto.alpha_factory.v1 import alpha_pb2_grpc as stubs  # type: ignore
         return cls(channel, stubs.RouterStub)
@@ -195,9 +245,12 @@ class _WsTransport:
         path: str,
         *,
         spiffe_id: str | None,
+        max_size: int = _DEFAULT_WS_MAX_SIZE,
+        timeout: float | None = None,
     ) -> "_WsTransport":
+        """Return a connected WebSocket transport."""
         import websockets  # type: ignore
-
+        
         uri = f"wss://{host}{path}"
         ssl_ctx: ssl.SSLContext | bool
         if os.getenv("A2A_INSECURE") == "1":
@@ -205,7 +258,11 @@ class _WsTransport:
             ssl_ctx = False
         else:
             ssl_ctx = _spiffe_ssl_context(spiffe_id)
-        ws = await websockets.connect(uri, ssl=ssl_ctx, max_size=2 ** 20)
+        connect_coro = websockets.connect(uri, ssl=ssl_ctx, max_size=max_size)
+        if timeout:
+            ws = await asyncio.wait_for(connect_coro, timeout)
+        else:
+            ws = await connect_coro
         return cls(ws)
 
     # Public API ............................................................
@@ -217,8 +274,13 @@ class _WsTransport:
 
     async def stream(self, topic: str) -> AsyncGenerator[dict[str, Any], None]:
         await self._ws.send(json.dumps({"action": "subscribe", "topic": topic}))
+        import websockets  # type: ignore
+
         while True:
-            raw = await self._ws.recv()
+            try:
+                raw = await self._ws.recv()
+            except websockets.ConnectionClosed:  # graceful EOF
+                return
             yield json.loads(raw)
 
     async def close(self) -> None:
