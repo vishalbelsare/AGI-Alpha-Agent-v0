@@ -3,6 +3,7 @@
 ## 1. Build & push image
 docker build -t ghcr.io/montrealai/alpha-factory:v2remote .
 docker push ghcr.io/montrealai/alpha-factory:v2remote
+cosign verify ghcr.io/montrealai/alpha-factory:v2remote
 
 ## 2. Helm install on any cluster
 helm upgrade --install af-remote ./helm/alpha-factory-remote \
