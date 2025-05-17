@@ -1,4 +1,23 @@
-import subprocess, os, json, time, tempfile, shutil, socket, requests, pathlib
+import subprocess
+import os
+import json
+import time
+import tempfile
+import shutil
+import socket
+import requests
+import pathlib
+import pytest
+
+
+def _docker_available() -> bool:
+    if shutil.which("docker") is None:
+        return False
+    try:
+        subprocess.run(["docker", "info"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, check=True)
+        return True
+    except Exception:
+        return False
 
 def wait_port(host, port, timeout=30):
     end = time.time() + timeout
@@ -9,6 +28,7 @@ def wait_port(host, port, timeout=30):
         time.sleep(1)
     raise TimeoutError(f"{host}:{port} not open")
 
+@pytest.mark.skipif(not _docker_available(), reason="docker not available")
 def test_container_build_and_ui():
     tmp = tempfile.mkdtemp()
     shutil.copytree(".", tmp, dirs_exist_ok=True)
@@ -21,4 +41,5 @@ def test_container_build_and_ui():
         assert r.status_code == 200
     finally:
         subprocess.run(["docker", "rm", "-f", cid])
+
 
