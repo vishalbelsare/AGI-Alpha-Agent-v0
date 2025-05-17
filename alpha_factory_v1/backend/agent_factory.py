@@ -137,9 +137,10 @@ try:
     from .tools.local_pytest import run_pytest
 except Exception as exc:  # pragma: no cover
     LOGGER.error("local_pytest tool could not be imported: %s", exc)
+    _exc_msg = str(exc)
 
     def run_pytest(*_, **__) -> str:  # type: ignore
-        return f"[local_pytest unavailable: {exc}]"
+        return f"[local_pytest unavailable: {_exc_msg}]"
 
 # ╭──────────────────────────────────────────────────────────────────────╮
 # │ 3 ▸ Model auto-selection helpers                                    │

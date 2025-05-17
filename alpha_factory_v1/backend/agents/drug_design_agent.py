@@ -40,7 +40,6 @@ import logging
 import os
 import random
 import re
-import time
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
@@ -142,6 +141,21 @@ DUAL_USE_SMARTS = [
     "C#N",  # cyanide
 ]
 
+# Placeholder SELFIES alphabet and safety helpers (minimal example)
+SELFIES_ALPHABET = list("CNOPS")
+
+def _passes_filters(smi: str) -> bool:
+    return PAINS_REGEX.search(smi) is None
+
+def _wrap_mcp(agent: str, payload: Any) -> Dict[str, Any]:
+    return {
+        "mcp_version": "0.1",
+        "agent": agent,
+        "ts": _now_iso(),
+        "digest": _sha256(json.dumps(payload, separators=(",", ":"))),
+        "payload": payload,
+    }
+
 
 # ---------------------------------------------------------------------------
 # Config dataclass ----------------------------------------------------------
@@ -195,7 +209,6 @@ class _PropertySurrogate:
     def _mol_to_graph(mol) -> Optional[TGData]:  # type: ignore
         if mol is None or tgnn is None:
             return None
-        num_nodes = mol.GetNumAtoms()
         x = torch.eye(20)[[min(a.GetAtomicNum() - 1, 19) for a in mol.GetAtoms()]]  # type: ignore
         edges: List[Tuple[int, int]] = [(b.GetBeginAtomIdx(), b.GetEndAtomIdx()) for b in mol.GetBonds()]
         if not edges:
@@ -300,10 +313,9 @@ class _Planner:
         while current.children and len(current.state) < self.horizon:
             # UCB‑like selection
             total_visits = sum(c.visit for c in current.children.values()) + 1
-            score = {
-                a: self._ucb(child, total_visits) for a, child in current.children.items()
-            }
-            action, current = max(score.items(), key=lambda it: it[1])[0], current.children[max(score, key=score.get)]
+            score = {a: self._ucb(child, total_visits) for a, child in current.children.items()}
+            action = max(score, key=score.get)
+            current = current.children[action]
             path.append(current)
         # expand
         if len(current.state) < self.horizon:
