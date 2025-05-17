@@ -5,17 +5,17 @@
 
 ### 1 · Why we built this
 Alpha-Factory stitches together **five flagship agents** (Finance, Biotech, Climate, Manufacturing, Policy) under a
-zero-trust, policy-guarded orchestrator.  
+zero-trust, policy-guarded orchestrator. 
 It closes the full loop:
 
 > **alpha discovery → uniform real-world execution → continuous self-improvement**
 
 and ships with:
 
-* **Automated curriculum** (Ray PPO trainer + reward rubric)  
-* **Uniform adapters** (market data, PubMed, Carbon-API, OPC-UA, GovTrack)  
-* **DevSecOps hardening** — SBOM + _cosign_, MCP guard-rails, ed25519 prompt signing  
-* Runs **online (OpenAI)** or **offline** via bundled Mixtral-8×7B local-LLM  
+* **Automated curriculum** (Ray PPO trainer + reward rubric) 
+* **Uniform adapters** (market data, PubMed, Carbon-API, OPC-UA, GovTrack) 
+* **DevSecOps hardening** — SBOM + _cosign_, MCP guard-rails, ed25519 prompt signing 
+* Runs **online (OpenAI)** or **offline** via bundled Mixtral-8×7B local-LLM 
 * One-command Docker installer **_or_** one-click Colab notebook for non-technical users
 
 The design follows the “AI-GAs” recipe for open-ended systems, 
@@ -54,19 +54,19 @@ installer.
 ### 4 · Architecture at a glance
 ```
 ┌──────────────────────────────────────────────────────────────────────────────┐
-│ docker-compose (network: alpha_factory)                                      │
-│                                                                              │
-│   Grafana ◄── Prometheus ◄── metrics ───────┐                                │
-│          ▲                                 │                                │
-│  Trace-Graph ◄─ A2A spans ─ Orchestrator ──┴─► Knowledge-Hub (RAG + vec-DB)  │
-│                     ▲            ▲                                            │
-│                     │ ADK RPC    │ REST                                       │
-│   ┌─────────────────────────────────────────────────────────────────────────┐  │
-│   │           Five industry agents  (side-car adapters in *italics*)       │  │
-│   │ Finance     Biotech      Climate       Mfg.        Policy             │  │
-│   │ broker,     *PubMed*     *Carbon*      *OPC-UA*    *GovTrack*         │  │
-│   │ factor α    RAG-ranker   intensity     scheduler    bill watch        │  │
-│   └─────────────────────────────────────────────────────────────────────────┘  │
+│ docker-compose (network: alpha_factory)                   │
+│                                       │
+│  Grafana ◄── Prometheus ◄── metrics ───────┐                │
+│     ▲                 │                │
+│ Trace-Graph ◄─ A2A spans ─ Orchestrator ──┴─► Knowledge-Hub (RAG + vec-DB) │
+│           ▲      ▲                      │
+│           │ ADK RPC  │ REST                    │
+│  ┌─────────────────────────────────────────────────────────────────────────┐ │
+│  │      Five industry agents (side-car adapters in *italics*)    │ │
+│  │ Finance   Biotech   Climate    Mfg.    Policy       │ │
+│  │ broker,   *PubMed*   *Carbon*   *OPC-UA*  *GovTrack*     │ │
+│  │ factor α  RAG-ranker  intensity   scheduler  bill watch    │ │
+│  └─────────────────────────────────────────────────────────────────────────┘ │
 └──────────────────────────────────────────────────────────────────────────────┘
 ```
 _Edit the Visio diagram under `assets/diagram_architecture.vsdx`._
@@ -92,9 +92,9 @@ via ADK’s `AgentDescriptor`.
 1. **Ray RLlib PPO** trainer spins in its own container (`alpha-trainer`).
 2. Rewards are computed by `continual/rubric.json` (edit live; hot-reload).
 3. Best checkpoint is zipped and `POST /agent/<id>/update_model` → agents swap
-   weights **with zero downtime**.
+  weights **with zero downtime**.
 4. CI smoke-tests (`.github/workflows/ci.yml`) validate orchestration on every
-   PR; failures block merge.
+  PR; failures block merge.
 
 ---
 
@@ -111,29 +111,29 @@ via ADK’s `AgentDescriptor`.
 
 ### 8 · Performance & heavy-load benchmarking
 A **k6** scenario (`bench/k6_load.js`) and a matching Grafana dashboard are
-included.  On a 4-core VM the stack sustains **🌩 550 req/s** across agents
+included. On a 4-core VM the stack sustains **🌩 550 req/s** across agents
 with p95 latency < 180 ms.
 
 ---
 
 ### 9 · Extending & deploying at scale
 * **New vertical** → subclass `BaseAgent`, add adapter container, append to
-  `AGENTS_ENABLED` in `.env`.
+ `AGENTS_ENABLED` in `.env`.
 * **Custom LLM** → point `OPENAI_API_BASE` to your endpoint.
 * **Kubernetes** → `make helm && helm install alpha-factory chart/`.
 
 ---
 
 ### 10 · Roadmap
-* Production Helm chart (HA Postgres + Redis event-bus)  
-* Replace mock PubMed / Carbon adapters with real connectors  
-* Grafana auto-generated dashboards from OpenTelemetry spans  
+* Production Helm chart (HA Postgres + Redis event-bus) 
+* Replace mock PubMed / Carbon adapters with real connectors 
+* Grafana auto-generated dashboards from OpenTelemetry spans 
 
 Community PRs welcome!
 
 ---
 
 ### References
-Clune 2019 citeturn17file4 · Sutton & Silver 2024 citeturn16file0 · MuZero 2020 citeturn15file0
+Clune 2019 · Sutton & Silver 2024 · MuZero 2020 
 
 © 2025 MONTREAL.AI — MIT License

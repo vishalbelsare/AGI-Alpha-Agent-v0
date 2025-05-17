@@ -34,9 +34,9 @@ from typing import Any, Callable, Dict, List, MutableMapping, Optional, Tuple
 
 # ────────────────── Soft-Imports (all optional) ──────────────────────────────
 with contextlib.suppress(ModuleNotFoundError):
-    from muzero import muzero  # MuZero-general :contentReference[oaicite:0]{index=0}
+    from muzero import muzero  # MuZero-general
 with contextlib.suppress(ModuleNotFoundError):
-    import openai  # OpenAI SDK :contentReference[oaicite:1]{index=1}
+    import openai  # OpenAI SDK
 with contextlib.suppress(ModuleNotFoundError):
     from llama_cpp import Llama
 with contextlib.suppress(ModuleNotFoundError):

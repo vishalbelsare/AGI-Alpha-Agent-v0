@@ -4,7 +4,7 @@ Runs a lightweight MuZero agent (MiniMu) on Gymnasium’s CartPole‑v1,
 and streams a live Gradio dashboard (port 7861).
 
 Core algorithm follows the public pseudocode from Schrittwieser et al. (2020)
-but trimmed to <300 LoC for pedagogy.  :contentReference[oaicite:0]{index=0}&#8203;:contentReference[oaicite:1]{index=1} :contentReference[oaicite:2]{index=2}&#8203;:contentReference[oaicite:3]{index=3}
+but trimmed to <300 LoC for pedagogy.
 """
 import os, asyncio, random, gymnasium as gym
 from openai_agents import Agent, Tool, OpenAIAgent

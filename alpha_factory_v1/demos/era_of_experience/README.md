@@ -7,13 +7,13 @@ Out‑learn · Out‑think · Out‑strategise · Out‑execute
 
 <h1 align="center">🌌 Era of Experience — Your lifelong‑RL playground</h1>
 <p align="center">
-  <em>Spin up a self‑improving multi‑agent spine in <strong>one command</strong>.<br>
-  Watch it plan, act &amp; learn in real‑time — on your laptop or in the cloud.</em>
+ <em>Spin up a self‑improving multi‑agent spine in <strong>one command</strong>.<br>
+ Watch it plan, act &amp; learn in real‑time — on your laptop or in the cloud.</em>
 </p>
 
-> “AI will eclipse the limits of human‑authored data only when agents <strong>act, observe, and adapt</strong> in the world.” — David Silver &amp; Richard S. Sutton citeturn12file0
+> “AI will eclipse the limits of human‑authored data only when agents <strong>act, observe, and adapt</strong> in the world.” — David Silver &amp; Richard S. Sutton 
 
-This demo distils that manifesto into <strong>Alpha‑Factory v1</strong>.  
+This demo distils that manifesto into <strong>Alpha‑Factory v1</strong>. 
 Within 60 seconds you will witness an agent <em>rewrite its own playbook</em> every few turns, powered by grounded rewards, long‑range memory and model‑agnostic planning — no dedicated GPU required.
 
 ---
@@ -24,14 +24,14 @@ Within 60 seconds you will witness an agent <em>rewrite its own playbook</em> e
 git clone https://github.com/MontrealAI/AGI-Alpha-Agent-v0.git
 cd AGI-Alpha-Agent-v0/alpha_factory_v1/demos/era_of_experience
 chmod +x run_experience_demo.sh
-./run_experience_demo.sh            # ← THAT’S IT
+./run_experience_demo.sh      # ← THAT’S IT
 ```
 
-1. **Docker Desktop** builds a 300 MB image in ≈ 1 min.  
-2. Your browser opens **http://localhost:7860** featuring  
-   * live trace‑graph 🪄  
-   * reward dashboards 📈  
-   * interactive chat / tool console 💬  
+1. **Docker Desktop** builds a 300 MB image in ≈ 1 min. 
+2. Your browser opens **http://localhost:7860** featuring 
+  * live trace‑graph 🪄 
+  * reward dashboards 📈 
+  * interactive chat / tool console 💬 
 
 > **Offline/Private mode** — leave `OPENAI_API_KEY=` blank in <code>config.env</code>; the stack falls back to <strong>Ollama ✕ Mixtral‑8x7B</strong> and stays air‑gapped.
 
@@ -52,9 +52,9 @@ The notebook installs a lean Python stack (&lt; 120 s), exposes Gradio via ng
 | Silver &amp; Sutton’s pillar | How we realise it |
 |---------------------------|--------------------|
 | **Streams of experience** | Infinite generator feeding month‑long synthetic logs |
-| **Sensor‑motor actions**  | Tools (`web_search`, `plan_meal`, user chat) mutate state |
-| **Grounded rewards**      | Plug‑ins: <code>fitness_reward</code>, <code>education_reward</code>, <code>curiosity_reward</code>, … (hot‑reloaded) |
-| **Non‑human reasoning**   | Monte‑Carlo Tree Search planner + vector memory — no CoT imitation |
+| **Sensor‑motor actions** | Tools (`web_search`, `plan_meal`, user chat) mutate state |
+| **Grounded rewards**   | Plug‑ins: <code>fitness_reward</code>, <code>education_reward</code>, <code>curiosity_reward</code>, … (hot‑reloaded) |
+| **Non‑human reasoning**  | Monte‑Carlo Tree Search planner + vector memory — no CoT imitation |
 
 Result: an agent that <strong>evolves faster than you can refresh the page</strong>.
 
@@ -63,19 +63,19 @@ Result: an agent that <strong>evolves faster than you can refresh the page</stro
 ## 🛠 Architecture in 60 seconds
 
 ```text
-┌────────────┐  experience   ┌────────────────┐
-│ Generator  │ ────────────▶ │ Orchestrator ⚙ │──┐
-└────────────┘               └────────────────┘  │ tool‑calls
-        ▲                              ▲        ▼
-  reward│                      ┌──────────┐ ┌───────────┐
-        │                      │ Planner ♟ │ │  Tools    │
-        └──────────────────────┴──────────┴─────────────┘
+┌────────────┐ experience  ┌────────────────┐
+│ Generator │ ────────────▶ │ Orchestrator ⚙ │──┐
+└────────────┘        └────────────────┘ │ tool‑calls
+    ▲               ▲    ▼
+ reward│           ┌──────────┐ ┌───────────┐
+    │           │ Planner ♟ │ │ Tools  │
+    └──────────────────────┴──────────┴─────────────┘
 ```
 
-* **OpenAI Agents SDK** — composable tool‑calling, function schemas, memory citeturn1open0  
-* **A2A protocol** — future‑proof multi‑agent hand‑offs citeturn2open0  
-* **Model Context Protocol** — streaming context for huge traces citeturn3open0  
-* **Best‑practice guardrails** from OpenAI *Practical Guide to Building Agents* citeturn7search0  
+* **OpenAI Agents SDK** — composable tool‑calling, function schemas, memory  
+* **A2A protocol** — future‑proof multi‑agent hand‑offs  
+* **Model Context Protocol** — streaming context for huge traces  
+* **Best‑practice guardrails** from OpenAI *Practical Guide to Building Agents*  
 
 ---
 
@@ -98,7 +98,7 @@ Result: an agent that <strong>evolves faster than you can refresh the page</stro
 
 ```bash
 cp reward_backends/template.py reward_backends/my_reward.py
-$EDITOR reward_backends/my_reward.py     # implement reward()
+$EDITOR reward_backends/my_reward.py   # implement reward()
 ```
 
 * **Register a tool**
@@ -122,10 +122,10 @@ Shared Redis memory + A2A = emergent cooperation.
 
 ## 🛡 Security & Compliance
 
-* Non‑root container; no Docker‑in‑Docker.  
-* Secrets isolated in `config.env`, never baked into images.  
-* Opt‑in telemetry only; default is **OFF**.  
-* `/__live` returns **200 OK** for K8s, Traefik, Nginx health probes.  
+* Non‑root container; no Docker‑in‑Docker. 
+* Secrets isolated in `config.env`, never baked into images. 
+* Opt‑in telemetry only; default is **OFF**. 
+* `/__live` returns **200 OK** for K8s, Traefik, Nginx health probes. 
 * <code>safety_compliance_reward.py</code> penalises violations and rewards self‑correction.
 
 ---
@@ -144,10 +144,10 @@ Shared Redis memory + A2A = emergent cooperation.
 
 ## 🗺 Road‑map
 
-- [ ] Plug‑and‑play Gym‑Retrowrapper for atari‑style sims  
-- [ ] Vector‑DB eviction policy learning  
-- [ ] Live reward tuning UI  
-- [ ] WASM build for edge devices  
+- [ ] Plug‑and‑play Gym‑Retrowrapper for atari‑style sims 
+- [ ] Vector‑DB eviction policy learning 
+- [ ] Live reward tuning UI 
+- [ ] WASM build for edge devices 
 
 ---
 
