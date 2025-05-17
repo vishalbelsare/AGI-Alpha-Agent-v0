@@ -35,6 +35,24 @@ chmod +x run_experience_demo.sh
 
 > **Offline/Private mode** — leave `OPENAI_API_KEY=` blank in <code>config.env</code>; the stack falls back to <strong>Ollama ✕ Mixtral‑8x7B</strong> and stays air‑gapped.
 
+### 🔧 Configure &amp; advanced usage
+
+1. Copy the sample environment file and tweak as desired:
+
+   ```bash
+   cp config.env.sample config.env
+   $EDITOR config.env      # set OPENAI_API_KEY, MODEL_NAME, etc.
+   ```
+
+2. Enable real-time collectors and metrics with the `--live` flag:
+
+   ```bash
+   ./run_experience_demo.sh --live
+   ```
+
+   The orchestrator automatically switches to offline mode whenever
+   `OPENAI_API_KEY` is left empty.
+
 ---
 
 ## 🎓 Run on Colab (zero install)
