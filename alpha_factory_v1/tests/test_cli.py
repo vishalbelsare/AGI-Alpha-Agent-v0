@@ -1,6 +1,7 @@
 import unittest
 import os
 import sys
+import tempfile
 from alpha_factory_v1 import run as af_run
 
 
@@ -18,6 +19,7 @@ class CliParseTest(unittest.TestCase):
         args = _parse_with([])
         self.assertFalse(args.dev)
         self.assertFalse(args.preflight)
+        self.assertIsNone(args.env_file)
         self.assertIsNone(args.port)
         self.assertIsNone(args.metrics_port)
         self.assertIsNone(args.a2a_port)
@@ -46,6 +48,18 @@ class CliParseTest(unittest.TestCase):
     def test_version_flag(self):
         args = _parse_with(['--version'])
         self.assertTrue(args.version)
+
+    def test_env_file(self):
+        with tempfile.NamedTemporaryFile('w', delete=False) as fh:
+            fh.write('FOO=bar\nLOGLEVEL=warning')
+            path = fh.name
+        args = _parse_with(['--env-file', path, '--loglevel', 'error'])
+        for key in ('FOO', 'LOGLEVEL'):
+            os.environ.pop(key, None)
+        af_run.apply_env(args)
+        os.unlink(path)
+        self.assertEqual(os.environ['FOO'], 'bar')
+        self.assertEqual(os.environ['LOGLEVEL'], 'ERROR')
 
 
 if __name__ == '__main__':

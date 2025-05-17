@@ -2,6 +2,7 @@
 
 import os
 import argparse
+from pathlib import Path
 from .scripts.preflight import main as preflight_main
 from . import __version__
 
@@ -9,6 +10,7 @@ from . import __version__
 def parse_args() -> argparse.Namespace:
     ap = argparse.ArgumentParser(description="Alpha-Factory launcher")
     ap.add_argument("--dev", action="store_true", help="Enable dev mode")
+    ap.add_argument("--env-file", help="Load environment variables from file")
     ap.add_argument("--preflight", action="store_true", help="Run environment checks and exit")
     ap.add_argument("--port", type=int, help="REST API port")
     ap.add_argument("--metrics-port", type=int, help="Prometheus metrics port")
@@ -20,6 +22,13 @@ def parse_args() -> argparse.Namespace:
 
 
 def apply_env(args: argparse.Namespace) -> None:
+    if args.env_file:
+        for line in Path(args.env_file).read_text().splitlines():
+            line = line.strip()
+            if not line or line.startswith("#") or "=" not in line:
+                continue
+            k, v = line.split("=", 1)
+            os.environ.setdefault(k.strip(), v.strip())
     if args.dev:
         os.environ["DEV_MODE"] = "true"
     if args.port is not None:
