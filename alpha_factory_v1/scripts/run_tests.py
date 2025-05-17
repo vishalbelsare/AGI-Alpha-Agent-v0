@@ -28,11 +28,13 @@ def run_tests(target: Path) -> int:
 
 
 def main() -> None:
-    target = (
-        Path(sys.argv[1])
-        if len(sys.argv) > 1
-        else Path(__file__).resolve().parents[1] / "tests"
-    )
+    script_dir = Path(__file__).resolve().parents[1]
+    if len(sys.argv) > 1:
+        target = Path(sys.argv[1])
+        if not target.is_absolute():
+            target = script_dir / target
+    else:
+        target = script_dir / "tests"
     if not target.exists():
         raise SystemExit(f"Test path {target} not found")
 
