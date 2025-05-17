@@ -357,6 +357,18 @@ docker run --pull=always -p 8000:8000 ghcr.io/montrealai/alpha-factory:latest
 #   alpha-factory --list-agents
 ```
 
+### Finance Demo Quick‑Start
+
+Launch the finance alpha demo directly from your terminal:
+
+```bash
+curl -L https://raw.githubusercontent.com/MontrealAI/AGI-Alpha-Agent-v0/main/alpha_factory_v1/demos/finance_alpha/deploy_alpha_factory_demo.sh | bash
+```
+
+The script pulls the signed demo container, runs a BTC/GLD strategy, prints open
+positions and P&L, and exposes the trace‑graph UI at
+<http://localhost:8088>.
+
 No GPU → falls back to GGML Llama‑3‑8B‑Q4.
 No `OPENAI_API_KEY` → switches to local SBERT + heuristics.
 
