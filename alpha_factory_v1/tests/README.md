@@ -52,7 +52,7 @@ This wrapper executes `pytest` with CPU and memory caps and strips credentials f
 | `test_memory.py` | Key‑value memory fabric |
 | `test_vector_memory.py` | Vector memory fabric |
 | `test_planner_agent.py` | Planner agent logic |
-| `test_requests_shim.py` | HTTP requests shim |
+| `test_requests_shim.py` | HTTP requests shim (minimal `requests` clone) |
 | `test_register_decorator.py` | Agent registration decorator |
 | `test_smoke.py` | Container build and API health check |
 | `redteam_prompts.json` | Prompts for security testing |
