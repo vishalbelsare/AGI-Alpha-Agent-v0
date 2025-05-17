@@ -139,7 +139,7 @@ All agents communicate via **A2A** (`protobuf`), can run on **OpenAI SDK** or *
 
 ```bash
 git clone https://github.com/MontrealAI/AGI-Alpha-Agent-v0.git
-cd AGI-Alpha-Agent-v0/alpha_factory_v1/demos/alpha_agi_marketplace_v01
+cd AGI-Alpha-Agent-v0/alpha_factory_v1/demos/alpha_agi_marketplace_v1
 
 # spin up full stack
 docker compose --profile full up -d
@@ -223,7 +223,7 @@ White‑paper → `docs/tokenomics_v1.pdf`.
 ---
 
 <a id="faq"></a>
-## 13 FAQ ❓
+<p align="center"><sub>Made with ❤, ☕ and real GPUs by the Alpha‑Factory core team.</sub></p>
 
 <details><summary>Do I need an <code>OPENAI_API_KEY</code>?</summary>
 <p>No. Offline mode loads GGUF models. If a key is present the system auto‑upgrades to GPT‑4o.</p>
