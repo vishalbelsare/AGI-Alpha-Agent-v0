@@ -50,6 +50,7 @@ flowchart LR
 git clone https://github.com/MontrealAI/AGI-Alpha-Agent-v0.git
 cd AGI-Alpha-Agent-v0/alpha_factory_v1/demos/macro_sentinel
 ./run_macro_demo.sh           # add --live for real‑time collectors
+                              # (--live exports LIVE_FEED=1)
 ```
 
 *Dashboard:* http://localhost:7864  
@@ -79,6 +80,7 @@ python agent_macro_entrypoint.py
 | `ETHERSCAN_API_KEY` | *(blank)* | Enables on‑chain stable‑flow collector |
 | `TW_BEARER_TOKEN` | *(blank)* | Enables Fed speech Twitter stream |
 | `PG_PASSWORD` | `alpha` | TimescaleDB superuser password |
+| `LIVE_FEED` | `0` | 1 uses live FRED/Etherscan feeds |
 
 Edit **`config.env`** or export variables before launch.
 
@@ -111,9 +113,18 @@ macro_sentinel/
 ---
 
 ## 🔐 Security notes
-* No secrets are baked into images.  
-* All containers drop root and listen on  `0.0.0.0` only when behind Docker bridge.  
+* No secrets are baked into images.
+* All containers drop root and listen on  `0.0.0.0` only when behind Docker bridge.
 * Network egress is restricted to required endpoints (FRED, Etherscan, ollama).
+
+---
+
+## WARNING: Disclaimer
+
+This demo is **for research and educational purposes only**. It
+does not constitute financial advice and should not be relied upon
+for real trading decisions. MontrealAI and the maintainers accept
+no liability for losses incurred from using this software.
 
 ---
 

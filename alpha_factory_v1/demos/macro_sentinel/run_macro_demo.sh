@@ -118,6 +118,7 @@ profiles=()
 has_gpu && profiles+=(gpu)
 [[ -z "${OPENAI_API_KEY:-}" ]] && profiles+=(offline)
 (( LIVE )) && profiles+=(live-feed)
+export LIVE_FEED=${LIVE}
 profile_arg=""
 [[ ${#profiles[@]} -gt 0 ]] && profile_arg="--profile $(IFS=,;echo "${profiles[*]}")"
 
