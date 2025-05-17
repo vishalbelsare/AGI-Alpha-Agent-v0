@@ -83,6 +83,9 @@ All steps are idempotent; re‑running the script is safe.
 | Follow live logs | `docker compose logs -f orchestrator ui` |
 | Clean up containers & volumes | `docker compose down -v --remove-orphans` |
 
+The ``import_dashboard.py`` helper requires ``GRAFANA_TOKEN`` and verifies the
+given JSON file exists before uploading.
+
 ---
 
 ## 🛡️ Security & Compliance

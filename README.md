@@ -399,8 +399,9 @@ Unit tests can be executed with the bundled helper script:
 python alpha_factory_v1/scripts/run_tests.py
 ```
 
-The script prefers `pytest` when available and otherwise falls back to
-`unittest`. Ensure all tests pass before deploying changes.
+The helper validates the target directory, prefers `pytest` when
+available and otherwise falls back to `unittest`. Ensure all tests pass
+before deploying changes.
 
 <a name="62-marketplace-demo-example"></a>
 ### 6.2 · Marketplace Demo Example 🛒
