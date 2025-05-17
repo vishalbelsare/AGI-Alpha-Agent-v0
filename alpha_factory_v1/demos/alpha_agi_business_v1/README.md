@@ -147,6 +147,8 @@ docker compose --profile business up -d
 
 open http://localhost:7878      # Dashboard SPA
 ./scripts/post_alpha_job.sh examples/job_copper_spread.json
+# customize API host/port if needed:
+# HOST=api.example.com PORT=8000 ./scripts/post_alpha_job.sh examples/job_copper_spread.json
 ```
 
 *No Docker?* 

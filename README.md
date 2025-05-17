@@ -18,6 +18,14 @@ Global markets seep *USD ✧ trillions/yr* in latent opportunity — “alph
 
 Built atop **OpenAI Agents SDK**, **Google ADK**, **A2A protocol**, and Anthropic’s **Model Context Protocol**, the stack runs cloud‑native *or* air‑gapped, hot‑swapping between frontier LLMs and distilled local models.
 
+### TL;DR Quick Start
+```bash
+git clone https://github.com/MontrealAI/AGI-Alpha-Agent-v0.git
+cd AGI-Alpha-Agent-v0
+./quickstart.sh
+open http://localhost:8000/docs 2>/dev/null || xdg-open http://localhost:8000/docs || start http://localhost:8000/docs
+```
+
 ---
 
 ## 📜 Table of Contents
