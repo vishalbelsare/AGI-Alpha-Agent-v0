@@ -151,7 +151,8 @@ class MetaEvolver:
     ):
         self.env_cls, self.pop_size, self.elitism = env_cls, pop_size, elitism
         self.parallel = parallel
-        self.ckpt_dir = checkpoint_dir
+        self.ckpt_dir = pathlib.Path(checkpoint_dir)
+        self.ckpt_dir.mkdir(parents=True, exist_ok=True)
         self.llm = llm
         self.rng = random.Random(int("A1GA", 16))
         self.gen = 0
@@ -191,6 +192,27 @@ class MetaEvolver:
             total += g.novelty_weight * novelty
         return total, bc_vec
 
+    @staticmethod
+    def _simulate_worker(env_cls, archive, js: str):
+        g = Genome.from_json(js)
+        env = env_cls()
+        obs_dim, act_dim = env.observation_space.shape[0], env.action_space.n
+        net = EvoNet(obs_dim, act_dim, g).to(Device)
+        obs, _ = env.reset()
+        total, bc = 0.0, []
+        for _ in range(env.genome.max_steps):
+            with torch.no_grad():
+                a = net(torch.tensor(obs, dtype=torch.float32, device=Device)).argmax().item()
+            obs, rew, done, truncated, _ = env.step(a)
+            total += rew; bc.append(obs)
+            if done or truncated:
+                break
+        bc_vec = np.mean(bc, axis=0)
+        if g.novelty_weight and archive:
+            novelty = float(np.mean([np.linalg.norm(bc_vec - a) for a in archive]))
+            total += g.novelty_weight * novelty
+        return total, bc_vec
+
     # -------- parallel dispatch ------------------------------------------
     def _evaluate_population(self) -> List[float]:
         if self.parallel and _HAS_RAY:
@@ -198,11 +220,13 @@ class MetaEvolver:
         return self._mp_eval() if self.parallel else self._thread_eval()
 
     def _ray_eval(self):
+        env_cls = self.env_cls
+        archive = self._archive.copy()
+
         @ray.remote
         def _worker(js: str):
-            g = Genome.from_json(js)
-            module = import_module(__name__)
-            return module.MetaEvolver._simulate(module.MetaEvolver, g)
+            return MetaEvolver._simulate_worker(env_cls, archive, js)
+
         futures = [_worker.remote(g.to_json()) for g in self.population]
         results = ray.get(futures)
         return self._post_eval(results)
@@ -261,7 +285,7 @@ class MetaEvolver:
             "best_genome": self.best_genome.to_json() if self.best_genome else None,
             "ts": datetime.now(timezone.utc).isoformat()
         }
-        p = CHKPT_DIR / f"gen_{self.gen:04d}.json.tmp"
+        p = self.ckpt_dir / f"gen_{self.gen:04d}.json.tmp"
         p.write_text(json.dumps(data)); p.replace(p.with_suffix(""))
 
     def save(self) -> None:
