@@ -27,5 +27,13 @@ class MemoryTest(unittest.TestCase):
             # query() should return the same result
             self.assertEqual(mem.query(limit=5), recs)
 
+    def test_flush(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            mem = Memory(tmpdir)
+            mem.write('agent', 'x', {'n': 1})
+            self.assertEqual(len(mem.read()), 1)
+            mem.flush()
+            self.assertEqual(mem.read(), [])
+
 if __name__ == '__main__':
     unittest.main()
