@@ -413,6 +413,8 @@ import subprocess, time
 from alpha_factory_v1.demos import alpha_agi_marketplace_v1 as market
 time.sleep(5)
 subprocess.run(["bash", str(market.POST_JOB_SCRIPT), str(market.SAMPLE_JOB)], check=True)
+marketplace_args = ["python", "-m", "alpha_factory_v1.demos.alpha_agi_marketplace_v1.marketplace", str(market.SAMPLE_JOB)]
+subprocess.run(marketplace_args, check=True)
 PY
 ```
 
