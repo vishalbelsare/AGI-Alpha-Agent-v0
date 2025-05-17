@@ -415,6 +415,17 @@ super = my_pkg.super_agent:MySuperAgent
 
 ---
 
+### Running Tests
+
+Use the helper script below to execute the full test-suite. It automatically
+falls back to Python's built-in `unittest` discovery when `pytest` is not
+available.
+
+```bash
+./scripts/run_tests.py
+```
+---
+
 <a name="12-roadmap"></a>
 ## 12 · Roadmap 🛣️
 
