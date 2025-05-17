@@ -66,6 +66,14 @@ sys.modules.setdefault(
     __name__ + ".finance_agent",
     importlib.import_module(".agents.finance_agent", __name__),
 )
+sys.modules.setdefault(
+    "backend.agents",
+    importlib.import_module(".agents", __name__),
+)
+sys.modules.setdefault(
+    __name__ + ".agents",
+    importlib.import_module(".agents", __name__),
+)
 
 # ────────────────────────── standard library deps ─────────────────────────
 import json
