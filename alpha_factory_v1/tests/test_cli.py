@@ -43,6 +43,11 @@ class CliParseTest(unittest.TestCase):
         self.assertEqual(os.environ['ALPHA_ENABLED_AGENTS'], 'foo,bar')
         self.assertEqual(os.environ['LOGLEVEL'], 'DEBUG')
 
+    def test_version_flag(self):
+        args = _parse_with(['--version'])
+        self.assertTrue(args.version)
+
 
 if __name__ == '__main__':
     unittest.main()
+
