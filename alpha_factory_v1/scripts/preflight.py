@@ -2,10 +2,11 @@ import os
 import shutil
 import sys
 import subprocess
+import tempfile
 from pathlib import Path
 
 MIN_PY = (3, 9)
-MEM_DIR = Path(os.getenv("AF_MEMORY_DIR", "/var/alphafactory"))
+MEM_DIR = Path(os.getenv("AF_MEMORY_DIR", f"{tempfile.gettempdir()}/alphafactory"))
 
 COLORS = {
     'RED': '\033[31m',

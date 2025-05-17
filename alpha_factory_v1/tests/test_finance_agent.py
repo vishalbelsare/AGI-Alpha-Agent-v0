@@ -1,9 +1,10 @@
-import json, pathlib
+import json, os, tempfile, pathlib
 
 REDTEAM = json.loads(open("tests/redteam_prompts.json").read())
 
 def load_memory():
-    db = pathlib.Path("/var/alphafactory/memory.db")
+    base = pathlib.Path(os.getenv("AF_MEMORY_DIR", f"{tempfile.gettempdir()}/alphafactory"))
+    db = base / "memory.db"
     assert db.exists()
     return db.read_bytes()  # smoke check
 
