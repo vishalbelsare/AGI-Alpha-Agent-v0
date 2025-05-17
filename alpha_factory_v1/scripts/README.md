@@ -22,7 +22,7 @@ This performs the preflight checks and deploys the full stack.
 If you prefer to execute the steps manually:
 
 ```bash
-# 0 · validate prerequisites
+# 0 · validate prerequisites (Docker, Docker Compose, Git)
 python3 scripts/preflight.py
 
 # 1 · make the installer executable

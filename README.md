@@ -339,6 +339,7 @@ Cells with \(Δ\mathcal F < 0\) glow 🔵 on Grafana; Ω‑Agents race to harves
 git clone https://github.com/MontrealAI/AGI-Alpha-Agent-v0.git
 cd AGI-Alpha-Agent-v0
 pip install -e .
+# Ensure Docker, Docker Compose and Git are installed
 
 export ALPHA_KAFKA_BROKER=localhost:9092
 # optional: set credentials or overrides in a .env file
