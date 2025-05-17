@@ -10,6 +10,10 @@ from __future__ import annotations
 import json as _json
 from urllib import request as _request, parse as _parse, error as _error
 
+# Default User-Agent header mimicking the real requests library.  Helps with
+# servers that reject requests without a UA and aids debugging/logging.
+_UA = "alpha-factory-requests/1.0"
+
 class Response:
     """Lightweight HTTP response container."""
 
@@ -26,17 +30,23 @@ class Response:
         if self.status_code >= 400:
             raise RuntimeError(f"HTTP {self.status_code}")
 
-def get(url: str, *, timeout: float | None = None) -> Response:
+def get(
+    url: str,
+    *,
+    timeout: float | None = None,
+    headers: dict | None = None,
+) -> Response:
     """Perform a simple HTTP GET request."""
+    req = _request.Request(url, headers={"User-Agent": _UA, **(headers or {})})
     try:
-        with _request.urlopen(url, timeout=timeout) as resp:
+        with _request.urlopen(req, timeout=timeout) as resp:
             data = resp.read().decode()
-            headers = dict(resp.headers.items())
-            return Response(resp.getcode(), data, headers)
+            resp_headers = dict(resp.headers.items())
+            return Response(resp.getcode(), data, resp_headers)
     except _error.HTTPError as exc:
         data = exc.read().decode()
-        headers = dict(exc.headers.items()) if hasattr(exc, "headers") else {}
-        return Response(exc.code, data, headers)
+        resp_headers = dict(exc.headers.items()) if hasattr(exc, "headers") else {}
+        return Response(exc.code, data, resp_headers)
 
 
 def post(
@@ -49,7 +59,7 @@ def post(
 ) -> Response:
     """Perform a minimal HTTP POST request."""
     body = b""
-    req_headers = headers or {}
+    req_headers = {"User-Agent": _UA, **(headers or {})}
     if json is not None:
         body = _json.dumps(json).encode()
         req_headers.setdefault("Content-Type", "application/json")
