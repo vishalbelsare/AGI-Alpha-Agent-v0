@@ -376,6 +376,10 @@ No `OPENAI_API_KEY` → switches to local SBERT + heuristics.
 | Metrics | Prometheus | `alpha_pnl_realised_usd` |
 | Traces | OpenTelemetry | `trace_id` |
 | Dashboards | Grafana | `alpha-factory/trade-lifecycle.json` |
+| Config | `docs/prometheus.yml` | Prometheus & Grafana defaults |
+
+Docker Compose mounts `docs/prometheus.yml` and the Grafana provisioning files
+so metrics are available out-of-the-box.
 
 ---
 
