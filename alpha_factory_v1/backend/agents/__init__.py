@@ -523,3 +523,14 @@ logger.info(
     len(AGENT_REGISTRY),
     len(CAPABILITY_GRAPH),
 )
+
+__all__ = [
+    "AGENT_REGISTRY",
+    "CAPABILITY_GRAPH",
+    "AgentMetadata",
+    "register_agent",
+    "register",
+    "list_agents",
+    "capability_agents",
+    "get_agent",
+]
