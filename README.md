@@ -355,6 +355,12 @@ docker run --pull=always -p 8000:8000 ghcr.io/montrealai/alpha-factory:latest
 # Or install directly from GitHub for a quick test:
 #   pip install git+https://github.com/MontrealAI/AGI-Alpha-Agent-v0.git
 #   alpha-factory --list-agents
+
+# Automated one-click setup (builds & starts Docker stack)
+./alpha_factory_v1/scripts/one_click_install.sh --deploy
+
+# Verify the Ω‑Lattice demo locally
+python alpha_factory_v1/demos/alpha_agi_business_3_v1/alpha_agi_business_3_v1.py --loglevel info
 ```
 
 No GPU → falls back to GGML Llama‑3‑8B‑Q4.
