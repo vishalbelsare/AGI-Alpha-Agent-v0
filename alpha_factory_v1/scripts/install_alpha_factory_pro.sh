@@ -113,7 +113,7 @@ if [[ -n $ALPHA_TOGGLE ]]; then
   if command -v yq >/dev/null; then
     yq -i ".finance.strategy = \"$ALPHA_TOGGLE\"" config/alpha_factory.yml
   else
-    echo "⚠️  yq not found; falling back to sed"
+    echo "Warning: yq not found; falling back to sed"
     sed -i "s/^strategy: .*$/strategy: $ALPHA_TOGGLE/" config/alpha_factory.yml
   fi
 fi

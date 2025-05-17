@@ -49,6 +49,24 @@ def check_docker_daemon() -> bool:
         return False
 
 
+def check_docker_compose() -> bool:
+    if not shutil.which('docker'):
+        banner('docker compose missing', 'RED')
+        return False
+    try:
+        subprocess.run(
+            ['docker', 'compose', 'version'],
+            check=True,
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+        )
+        banner('docker compose available', 'GREEN')
+        return True
+    except Exception:  # noqa: BLE001
+        banner('docker compose missing', 'RED')
+        return False
+
+
 def check_pkg(pkg: str) -> bool:
     """Return True if *pkg* is importable."""
     try:
@@ -74,6 +92,7 @@ def main() -> None:
     ok &= check_python()
     ok &= check_cmd('docker')
     ok &= check_docker_daemon()
+    ok &= check_docker_compose()
     ok &= check_pkg('openai')
     ok &= check_pkg('openai_agents')
     ensure_dir(MEM_DIR)
