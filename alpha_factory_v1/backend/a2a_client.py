@@ -30,13 +30,10 @@ NOTE:  Proto stubs are lazily imported, so you only need to `pip install grpcio`
 
 from __future__ import annotations
 
-import asyncio
 import json
 import os
 import ssl
-import sys
 from dataclasses import asdict, dataclass
-from pathlib import Path
 from types import TracebackType
 from typing import Any, AsyncGenerator, Literal, Type
 
@@ -247,7 +244,6 @@ def _spiffe_ssl_context(spiffe_id: str | None) -> ssl.SSLContext:
 
         bundle_set = X509BundleSet.new_empty_set()
         bundle_set.add(bundle=source.x509_bundle())
-        validator = cert_validator.create_default_x509_validator(bundle_set)
         ctx.verify_flags |= ssl.VERIFY_X509_TRUSTED_FIRST  # type: ignore[attr-defined]
 
         def _verify(conn, x509, errnum, depth, ok):  # noqa: D401

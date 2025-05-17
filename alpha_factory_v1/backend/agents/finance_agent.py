@@ -38,9 +38,7 @@ from typing import Any, Dict, List, MutableMapping, Sequence
 with contextlib.suppress(ModuleNotFoundError):
     import numpy as np  # type: ignore
 with contextlib.suppress(ModuleNotFoundError):
-    import pandas as pd  # type: ignore
-with contextlib.suppress(ModuleNotFoundError):
-    from scipy.stats import skew, kurtosis, norm  # type: ignore
+    from scipy.stats import skew, kurtosis  # type: ignore
 with contextlib.suppress(ModuleNotFoundError):
     from scipy.special import erfcinv  # type: ignore
 with contextlib.suppress(ModuleNotFoundError):
@@ -244,7 +242,7 @@ class _Planner:
 
     def __init__(self, depth: int = 5):
         self.depth = depth
-        if "torch" in globals():
+        if torch is not None:
             self.net = nn.Sequential(nn.Linear(10, 64), nn.ReLU(), nn.Linear(64, 1))  # type: ignore[attr-defined]
         elif "lgb" in globals():
             self.net = lgb.LGBMRegressor(n_estimators=32)
@@ -373,7 +371,7 @@ class FinanceAgent(AgentBase):
         # 5 · plan & execute trades
         orders = self.planner.rollout(self.portfolio, prices, targets)
         for o in orders:
-            fill = self.broker.market(o["side"], o["qty"], o["sym"])
+            self.broker.market(o["side"], o["qty"], o["sym"])
             self.portfolio.update(o["sym"], o["qty"] if o["side"] == "BUY" else -o["qty"])
             _log.info("Executed %s %s %.4f @ est %.2f USD", o["side"], o["sym"], o["qty"], o["est_fill_px"])
 
