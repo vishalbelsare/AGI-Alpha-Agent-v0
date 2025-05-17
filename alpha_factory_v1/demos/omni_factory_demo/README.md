@@ -114,6 +114,33 @@ One of the demo’s core strengths is its ability to **run on multiple platforms
 
 In summary, the deployment strategy ensures the demo is **ubiquitously accessible**: a researcher can train agents in Gym mode; a policymaker can run a quick scenario from a web link; a demonstrator can show a rich 3D visualization on a big screen; and multiple participants can collaboratively engage with the scenario remotely. All these modes run on the *same underlying engine*, proving the system’s versatility and robustness.
 
+## Quick Start
+
+Get the demo running in minutes.
+
+```bash
+# 1‒ Clone the repository
+git clone https://github.com/MontrealAI/AGI-Alpha-Agent-v0.git
+cd AGI-Alpha-Agent-v0
+
+# 2‒ Launch via Docker (recommended)
+cd alpha_factory_v1/demos/omni_factory_demo
+cp .env.example .env  # optional – edit to customise
+docker compose up -d  # builds image on first run
+
+# 3‒ Open the dashboard
+open http://localhost:8050 2>/dev/null || \
+  xdg-open http://localhost:8050 || start http://localhost:8050
+
+# Alternative: run directly with Python
+cd ../../..
+python -m alpha_factory_v1.demos.omni_factory_demo --metrics-port 9137
+python alpha_factory_v1/demos/omni_factory_demo/omni_dashboard.py
+```
+
+The demo operates fully offline but seamlessly uses cloud APIs (OpenAI, Google
+ADK, A2A) when keys are provided.
+
 ## Verification & Validation Strategy
 
 To gain trust from stakeholders (especially when aiming at policy and safety domains), we need a rigorous verification strategy. We will validate the system on multiple levels: from technical correctness of each module to the overall value and safety of its behavior in the simulated domain. The following approaches ensure the demo is **correct, valuable, and safe**:
