@@ -25,6 +25,7 @@ class CliParseTest(unittest.TestCase):
         self.assertIsNone(args.a2a_port)
         self.assertIsNone(args.enabled)
         self.assertEqual(args.loglevel, 'INFO')
+        self.assertFalse(args.list_agents)
 
     def test_apply_env(self):
         args = _parse_with([
@@ -48,6 +49,10 @@ class CliParseTest(unittest.TestCase):
     def test_version_flag(self):
         args = _parse_with(['--version'])
         self.assertTrue(args.version)
+
+    def test_list_agents_flag(self):
+        args = _parse_with(['--list-agents'])
+        self.assertTrue(args.list_agents)
 
     def test_env_file(self):
         with tempfile.NamedTemporaryFile('w', delete=False) as fh:

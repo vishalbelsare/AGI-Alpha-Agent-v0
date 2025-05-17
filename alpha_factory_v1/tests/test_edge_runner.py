@@ -24,6 +24,7 @@ class EdgeRunnerParseTest(unittest.TestCase):
         self.assertIsNone(args.a2a_port)
         self.assertIsNone(args.cycle)
         self.assertEqual(args.loglevel, "INFO")
+        self.assertFalse(args.list_agents)
 
     def test_env_defaults(self):
         os.environ["PORT"] = "9000"
@@ -41,6 +42,10 @@ class EdgeRunnerParseTest(unittest.TestCase):
     def test_version_flag(self):
         args = self._parse(["--version"])
         self.assertTrue(args.version)
+
+    def test_list_agents_flag(self):
+        args = self._parse(["--list-agents"])
+        self.assertTrue(args.list_agents)
 
     def test_invalid_port(self):
         with self.assertRaises(SystemExit):

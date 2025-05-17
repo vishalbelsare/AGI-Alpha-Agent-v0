@@ -83,6 +83,11 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         action="store_true",
         help="Print version and exit",
     )
+    ap.add_argument(
+        "--list-agents",
+        action="store_true",
+        help="List available agents and exit",
+    )
     return ap.parse_args(argv)
 
 
@@ -91,6 +96,11 @@ def main() -> None:
 
     if args.version:
         print(__version__)
+        return
+    if args.list_agents:
+        from .backend import agents
+        for name in agents.list_agents():
+            print(name)
         return
 
     cli = ["--dev", f"--port", str(args.port)]
