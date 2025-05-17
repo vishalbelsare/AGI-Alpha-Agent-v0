@@ -169,6 +169,8 @@ class _SurrogateModel:
 # Deterministic battery + DR MILP optimiser ----------------------------------
 def _battery_optim(prices: List[float], load: List[float]) -> Dict[str, Any]:
     """Simple 1-MW / 5-MWh battery + 1-MW DR schedule."""
+    if len(prices) != len(load):
+        raise ValueError("prices and load must have the same length")
     if pulp is None:
         logger.warning("PuLP missing – returning heuristic plan")
         return {"schedule": []}
