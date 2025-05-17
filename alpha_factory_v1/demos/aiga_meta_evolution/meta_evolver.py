@@ -153,10 +153,13 @@ class MetaEvolver:
         self.parallel = parallel
         self.ckpt_dir = checkpoint_dir
         self.llm = llm
-        self.rng = random.Random(0xA1GA)
+        self.rng = random.Random(int("A1GA", 16))
         self.gen = 0
         self.history: List[Tuple[int, float]] = []
         self._archive: List[np.ndarray] = []
+        self._best_fitness = -math.inf
+        self.best_genome: Genome | None = None
+        self._last_scores: List[float] = []
         self._init_population()
         if self.parallel and _HAS_RAY and not ray.is_initialized():
             ray.init(ignore_reinit_error=True, _temp_dir=str(self.ckpt_dir / "ray"))
@@ -166,6 +169,7 @@ class MetaEvolver:
     def _init_population(self):
         seed = Genome()
         self.population = [seed.mutate() for _ in range(self.pop_size)]
+        self.best_genome = self.population[0]
 
     # evaluation util ------------------------------------------------------
     def _simulate(self, g: Genome) -> Tuple[float, np.ndarray]:
@@ -227,9 +231,14 @@ class MetaEvolver:
     def run_generations(self, n: int = 5):
         for _ in range(n):
             scores = self._evaluate_population()
+            self._last_scores = scores
+            best_idx = int(np.argmax(scores))
+            if scores[best_idx] > self._best_fitness:
+                self._best_fitness = scores[best_idx]
+                self.best_genome = self.population[best_idx]
             avg = float(np.mean(scores)); self.history.append((self.gen, avg))
             if _fitness_gauge: _fitness_gauge.set(avg)
-            LOG.info("gen=%d avg=%.3f best=%.2f", self.gen, avg, max(scores))
+            LOG.info("gen=%d avg=%.3f best=%.2f", self.gen, avg, self._best_fitness)
             if _A2A: _A2A.sendjson({"gen": self.gen, "avg": avg, "sha": self.population_sha()})
             elite_idx = sorted(range(self.pop_size), key=lambda i: scores[i], reverse=True)[:self.elitism]
             new_pop = [self.population[i] for i in elite_idx]
@@ -248,19 +257,35 @@ class MetaEvolver:
             "arc": [a.tolist() for a in self._archive[-256:]],
             "seed": self.rng.random(),
             "sha": self.population_sha(),
+            "best_fitness": self._best_fitness,
+            "best_genome": self.best_genome.to_json() if self.best_genome else None,
             "ts": datetime.now(timezone.utc).isoformat()
         }
         p = CHKPT_DIR / f"gen_{self.gen:04d}.json.tmp"
         p.write_text(json.dumps(data)); p.replace(p.with_suffix(""))
 
-    def load(self, path: pathlib.Path):
+    def save(self) -> None:
+        """Public wrapper for checkpoint persistence."""
+        self._save()
+
+    def load(self, path: pathlib.Path | None = None):
+        if path is None:
+            latest = max(self.ckpt_dir.glob("gen_*.json"), default=None)
+            if not latest:
+                raise FileNotFoundError("no checkpoint found")
+            path = latest
         js = json.loads(path.read_text())
         self.gen = js["gen"]
         self.population = [Genome.from_json(j) for j in js["pop"]]
-        self.history = js["hist"]
-        self._archive = [np.array(a) for a in js["arc"]]
-        self.rng.seed(js["seed"])
-        LOG.info("Loaded checkpoint gen=%d sha=%s", self.gen, js["sha"])
+        self.history = js.get("hist", [])
+        self._archive = [np.array(a) for a in js.get("arc", [])]
+        self.rng.seed(js.get("seed", 0))
+        self._best_fitness = js.get("best_fitness", -math.inf)
+        bg = js.get("best_genome")
+        self.best_genome = Genome.from_json(bg) if bg else self.population[0]
+        if _fitness_gauge:
+            _fitness_gauge.set(self._best_fitness)
+        LOG.info("Loaded checkpoint gen=%d sha=%s", self.gen, js.get("sha", "?"))
 
     # utils ----------------------------------------------------------------
     def population_sha(self) -> str:
@@ -272,8 +297,16 @@ class MetaEvolver:
         return pd.DataFrame(self.history, columns=["generation", "avg_fitness"])
 
     def latest_log(self):
-        champ = max(self.population, key=lambda g: sum(g.layers))
+        champ = self.best_genome or max(self.population, key=lambda g: sum(g.layers))
         msg = f"Champion {champ.sha}: {champ.to_json()}"
         if self.llm:
             msg += "\n" + self.llm(f"Critique genome {champ.to_json()} in ≤30 words.")
         return msg
+
+    @property
+    def best_fitness(self) -> float:
+        return self._best_fitness
+
+    @property
+    def best_architecture(self) -> str:
+        return self.best_genome.to_json() if self.best_genome else ""
