@@ -265,6 +265,12 @@ def _should_register(meta: AgentMetadata) -> bool:
     if meta.name.lower() in _DISABLED:
         logger.info("Agent %s disabled via env", meta.name)
         return False
+    if (
+        meta.name == "ping"
+        and os.getenv("AF_DISABLE_PING_AGENT", "").lower() in ("1", "true")
+    ):
+        logger.info("Ping agent disabled via AF_DISABLE_PING_AGENT")
+        return False
     if meta.requires_api_key and not _OPENAI_READY:
         logger.warning("Skipping %s (needs OpenAI key)", meta.name)
         return False
