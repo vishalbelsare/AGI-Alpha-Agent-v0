@@ -181,20 +181,30 @@ def _auto_select_model() -> str:
 # ╭──────────────────────────────────────────────────────────────────────╮
 # │ 4 ▸ Default, *safe* tool-chain                                      │
 # ╰──────────────────────────────────────────────────────────────────────╯
-DEFAULT_TOOLS: List[Any] = [
-    FileSearchTool(max_num_results=5),
-    WebSearchTool(),
-    run_pytest,
-]
+def get_default_tools() -> List[Any]:
+    """Return the hardened default tool-chain.
 
-# Remote tools (ComputerTool runs in OpenAI’s sandbox) need an API key.
-if SDK_AVAILABLE and os.getenv("OPENAI_API_KEY"):
-    DEFAULT_TOOLS.append(ComputerTool())
+    The selection is recalculated each time to honour environment variables
+    that may change at runtime.  The returned list is safe to mutate.
+    """
+    base: List[Any] = [
+        FileSearchTool(max_num_results=5),
+        WebSearchTool(),
+        run_pytest,
+    ]
 
-# PythonTool executes *locally* – only enable if user opts in explicitly.
-ALLOW_LOCAL_CODE = os.getenv("ALPHAFAC_ALLOW_LOCAL_CODE") == "1"
-if SDK_AVAILABLE and ALLOW_LOCAL_CODE:
-    DEFAULT_TOOLS.append(PythonTool())
+    # Remote tools (ComputerTool runs in OpenAI's sandbox) need an API key.
+    if SDK_AVAILABLE and os.getenv("OPENAI_API_KEY"):
+        base.append(ComputerTool())
+
+    # PythonTool executes *locally* – only enable if user opts in explicitly.
+    if SDK_AVAILABLE and os.getenv("ALPHAFAC_ALLOW_LOCAL_CODE") == "1":
+        base.append(PythonTool())
+
+    return base
+
+
+DEFAULT_TOOLS: List[Any] = get_default_tools()
 
 # ╭──────────────────────────────────────────────────────────────────────╮
 # │ 5 ▸ Public factory helpers                                          │
@@ -225,8 +235,15 @@ def build_core_agent(
         LLM sampling temperature (ignored in stub mode).
     max_tokens:
         Optional generation cap; forwarded to ModelSettings when supported.
+
+    Notes
+    -----
+    The default tool selection honours ``OPENAI_API_KEY`` and
+    ``ALPHAFAC_ALLOW_LOCAL_CODE`` environment variables at call time.
+    Set them before invoking this function if the agent requires
+    networked or local code execution tools.
     """
-    toolset: List[Any] = [*DEFAULT_TOOLS, *(extra_tools or [])]
+    toolset: List[Any] = [*get_default_tools(), *(extra_tools or [])]
 
     selected_model = model or _auto_select_model()
     model_kwargs: Dict[str, Any] = {"temperature": temperature}
@@ -265,8 +282,10 @@ def save_agent_manifest(agent: Agent, path: str | Path) -> None:
         "python_version": sys.version,
         "platform": platform.platform(),
     }
-    Path(path).expanduser().write_text(json.dumps(out, indent=2))
-    LOGGER.info("Agent manifest saved to %s", path)
+    out_path = Path(path).expanduser()
+    out_path.parent.mkdir(parents=True, exist_ok=True)
+    out_path.write_text(json.dumps(out, indent=2))
+    LOGGER.info("Agent manifest saved to %s", out_path)
 
 
 # Backwards-compat shim – older notebooks call ``build_agent``
@@ -276,6 +295,7 @@ __all__ = [
     "build_core_agent",
     "build_agent",
     "save_agent_manifest",
+    "get_default_tools",
     "DEFAULT_TOOLS",
     *(
         # Only export SDK symbols when they are genuinely available

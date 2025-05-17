@@ -77,6 +77,12 @@ try:                                         # Google Agent Development Kit
 except ModuleNotFoundError:                  # pragma: no cover
     adk = None                               # type: ignore
 
+try:
+    from packaging.version import parse as _parse_version  # type: ignore
+except ModuleNotFoundError:  # pragma: no cover
+    def _parse_version(v: str):
+        return tuple(int(p) for p in v.split('.') if p.isdigit())
+
 ##############################################################################
 #                             configuration                                  #
 ##############################################################################
@@ -269,8 +275,22 @@ def _register(meta: AgentMetadata, *, overwrite: bool = False):
     if not _should_register(meta):
         return
     if meta.name in AGENT_REGISTRY and not overwrite:
-        logger.error("Duplicate agent name '%s' ignored", meta.name)
-        return
+        existing = AGENT_REGISTRY[meta.name]
+        try:
+            if _parse_version(meta.version) > _parse_version(existing.version):
+                logger.info(
+                    "Overriding agent %s with newer version %s > %s",
+                    meta.name,
+                    meta.version,
+                    existing.version,
+                )
+                overwrite = True
+            else:
+                logger.error("Duplicate agent name '%s' ignored", meta.name)
+                return
+        except Exception:  # pragma: no cover - version parse failed
+            logger.error("Duplicate agent name '%s' ignored", meta.name)
+            return
 
     AGENT_REGISTRY[meta.name] = meta
     for cap in meta.capabilities:

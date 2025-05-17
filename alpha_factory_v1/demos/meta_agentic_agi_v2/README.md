@@ -103,7 +103,7 @@ into the existing **Alpha‑Factory v1** (multi‑agent AGENTIC α‑AGI) pipe
 ```bash
 # 1️⃣ Clone & enter demo
 git clone https://github.com/MontrealAI/AGI-Alpha-Agent-v0.git
-cd AGI-Alpha-Agent-v0/alpha_factory_v1/demos/meta_agentic_agi
+cd AGI-Alpha-Agent-v0/alpha_factory_v1/demos/meta_agentic_agi_v2
 
 # 2️⃣ Environment (CPU‑only default)
 micromamba create -n metaagi python=3.11 -y
@@ -111,10 +111,10 @@ micromamba activate metaagi
 pip install -r requirements.txt        # ≤ 40 MiB wheels
 
 # 3️⃣ Run – zero‑API mode (pulls a gguf via Ollama)
-python meta_agentic_agi_demo.py --provider mistral:7b-instruct.gguf
+python meta_agentic_agi_demo_v2.py --provider mistral:7b-instruct.gguf
 
 #   …or point to any provider
-OPENAI_API_KEY=sk‑… python meta_agentic_agi_demo.py --provider openai:gpt-4o
+OPENAI_API_KEY=sk‑… python meta_agentic_agi_demo_v2.py --provider openai:gpt-4o
 
 # 4️⃣ Launch the lineage UI
 streamlit run ui/lineage_app.py
@@ -125,7 +125,7 @@ streamlit run ui/lineage_app.py
 
 ## 2 Folder Structure 📁
 ```
-meta_agentic_agi/
+meta_agentic_agi_v2/
 ├── core/                # provider‑agnostic primitives
 │   ├── fm.py            # unified FM wrapper
 │   ├── prompts.py       # reusable prompt fragments
@@ -142,7 +142,7 @@ meta_agentic_agi/
 │   └── assets/
 ├── configs/
 │   └── default.yml      # editable in‑UI
-└── meta_agentic_agi_demo.py
+└── meta_agentic_agi_demo_v2.py
 ```
 
 ---

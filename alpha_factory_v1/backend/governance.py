@@ -52,6 +52,9 @@ _DANGER_PATTERNS: List[str] = [
     # Violence
     r"\bkill\b",
 ]
+_EXTRA = os.getenv("GOVERNANCE_EXTRA_PATTERNS", "")
+if _EXTRA:
+    _DANGER_PATTERNS.extend(p.strip() for p in _EXTRA.split(',') if p.strip())
 _DANGER_RE = re.compile("|".join(_DANGER_PATTERNS), re.IGNORECASE)
 
 
@@ -73,13 +76,28 @@ class Governance:
         self.trade_limit = float(os.getenv("ALPHA_TRADE_LIMIT", "1000000"))
         profanity.load_censor_words()
 
+    def update_trade_limit(self, new_limit: float) -> None:
+        """Dynamically update :attr:`trade_limit` and log the change."""
+        self.trade_limit = float(new_limit)
+        self.log.info("Trade limit updated to %s", self.trade_limit)
+
+    def describe(self) -> str:
+        """Return a short human-readable summary of current policy."""
+        return (
+            f"Trade limit: {self.trade_limit}; "
+            f"danger patterns: {len(_DANGER_PATTERNS)}"
+        )
+
     # ── content guard‑rail --------------------------------------------------
     def moderate(self, text: str) -> bool:
         """Return **True** iff *text* passes policy checks."""
         if _DANGER_RE.search(text):
             self.log.warning("Blocked disallowed content: %s", text)
             return False
-        return not profanity.contains_profanity(text)
+        if profanity.contains_profanity(text):
+            self.log.warning("Blocked profanity: %s", text)
+            return False
+        return True
 
     # ── action / numeric guard‑rail ----------------------------------------
     def vet_plans(self, agent, plans: List[Dict[str, Any]]):
@@ -124,6 +142,8 @@ else:
         return _Sig()
     Credential, sign = _DummyCred, _dummy_sign  # type: ignore
 
+_VC_ENABLED = os.getenv("GOVERNANCE_DISABLE_CREDENTIALS", "false").lower() != "true"
+
 
 @contextmanager
 def decision_span(name: str, **attrs):
@@ -137,15 +157,15 @@ def decision_span(name: str, **attrs):
     """
     with _tracer.start_as_current_span(name, attributes=attrs) as span:
         yield span
-        # After successful decision, emit verifiable credential
-        cred = Credential(
-            id=name,
-            attrs=attrs | {"trace_id": getattr(span.get_span_context(), "trace_id", 0)},
-        )
-        try:
-            sign(cred).store_ipfs()  # non‑blocking
-        except Exception:  # pylint: disable=broad-except
-            logging.getLogger("Governance").exception("VC signing failed")
+        if _VC_ENABLED:
+            cred = Credential(
+                id=name,
+                attrs=attrs | {"trace_id": getattr(span.get_span_context(), "trace_id", 0)},
+            )
+            try:
+                sign(cred).store_ipfs()  # non‑blocking
+            except Exception:  # pylint: disable=broad-except
+                logging.getLogger("Governance").exception("VC signing failed")
 
 
 __all__ = ["Governance", "Memory", "decision_span"]

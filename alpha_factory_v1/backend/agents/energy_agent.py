@@ -9,10 +9,9 @@ weather forecasts and ISO/LMP price curves to surface *alpha* in short-
 term dispatch, virtual-power-plant (VPP) coordination and forward-curve
 hedging.  The control loop blends deterministic optimisation (unit-
 commitment MILP) with model-based RL planning (MuZero-style tree search
-over a learned surrogate world-model) following Schrittwieser et al.
-2020 :contentReference[oaicite:0]{index=0}&#8203;:contentReference[oaicite:1]{index=1} while embracing the *Era-of-Experience*
-paradigm :contentReference[oaicite:2]{index=2}&#8203;:contentReference[oaicite:3]{index=3} and Clune’s AI-GA principle of evolvable
-architecture :contentReference[oaicite:4]{index=4}&#8203;:contentReference[oaicite:5]{index=5}.
+over a learned surrogate world-model) following Schrittwieser et al. (2020),
+while embracing the *Era-of-Experience* paradigm and Clune’s AI-GA principle
+of evolvable architecture.
 
 Key pillars
 -----------

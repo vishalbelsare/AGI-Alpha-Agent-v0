@@ -17,12 +17,21 @@
 
 from __future__ import annotations
 
+import asyncio
+import inspect
 import logging
 import os
+import secrets
 import threading
 from typing import Iterable, Any
 
 logger = logging.getLogger("alpha_factory.adk_bridge")
+
+__all__ = [
+    "adk_enabled",
+    "auto_register",
+    "maybe_launch",
+]
 
 # ─────────────────────────────────────────────────────────────────────────────
 #  ➊  Feature flags & dynamic import
@@ -71,11 +80,9 @@ def _auth_middleware():                       # injected only when token set
     from fastapi.responses import JSONResponse
 
     async def _mw(request: Request, call_next):  # noqa: D401
-        # Constant-time header compare (tiny, but avoids timing shenanigans)
-        token_ok = (
-            (_TOKEN is None)
-            or request.headers.get("x-alpha-factory-token", "") == _TOKEN
-        )
+        # Constant-time header compare to resist timing attacks
+        header = request.headers.get("x-alpha-factory-token", "")
+        token_ok = (_TOKEN is None) or secrets.compare_digest(header, _TOKEN)
         if not token_ok:
             return JSONResponse(
                 status_code=401, content={"error": "unauthorised ADK call"}
@@ -169,7 +176,10 @@ class _AF2ADKWrapper(adk.Agent):
         prompt: str = task_request.content
         logger.debug("[ADK→%s] prompt=%s", self._impl.name, prompt[:120])
         try:
-            result = self._impl.run(prompt)                # sync/async agnostic
+            if inspect.iscoroutinefunction(self._impl.run):
+                result = await self._impl.run(prompt)
+            else:
+                result = await asyncio.to_thread(self._impl.run, prompt)
         except Exception as exc:                           # bubble up as ADK error payload
             logger.exception("Agent '%s' raised.", self._impl.name)
             raise adk.AgentException(str(exc)) from exc

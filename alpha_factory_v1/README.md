@@ -338,7 +338,9 @@ cd AGI-Alpha-Agent-v0/alpha_factory_v1
 
 # optional: point to an external Kafka broker
 export ALPHA_KAFKA_BROKER=localhost:9092
-./quickstart.sh
+echo "PORT=8000" > .env
+echo "LOGLEVEL=info" >> .env
+./quickstart.sh  # automatically loads .env
 open http://localhost:8000/docs
 ```
 
@@ -349,6 +351,9 @@ No `OPENAI_API_KEY` → switches to local SBERT + heuristics.
 
 <a name="7-deployment-recipes"></a>
 ## 7 · Deployment Recipes 🍳
+The repository ships with an `edge_runner.py` script for portable,
+offline deployments. It forwards to the Python module and supports
+extra flags such as `--cycle`, `--loglevel` and `--version`.
 
 | Target | Command | Notes |
 |--------|---------|-------|

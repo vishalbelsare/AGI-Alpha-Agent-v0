@@ -11,14 +11,27 @@ and offline fallback — **in ≈ 60 seconds.**
 
 ## 🚀 Quick start (default profile)
 
+For an all‑in‑one setup run:
+
 ```bash
+./scripts/one_click_install.sh
+```
+
+This performs the preflight checks and deploys the full stack.
+
+If you prefer to execute the steps manually:
+
+```bash
+# 0 · validate prerequisites (Docker, Docker Compose, Git)
+python3 scripts/preflight.py
+
 # 1 · make the installer executable
 chmod +x scripts/install_alpha_factory_pro.sh
 
 # 2 · launch the stack (clone + build + run + smoke‑test)
-./scripts/install_alpha_factory_pro.sh --bootstrap --deploy
+./scripts/install_alpha_factory_pro.sh --bootstrap --deploy --open
 
-# 3 · open the UI
+# 3 · open the UI (auto with --open)
 open http://localhost:8088        # Trace‑graph
 open http://localhost:8000/docs   # Interactive API
 ```
@@ -40,6 +53,7 @@ open http://localhost:8000/docs   # Interactive API
 | `--bootstrap` | Clone repo if `alpha_factory_v1/` absent | off |
 | `--deploy` | Build **and** run docker‑compose stack + pytest | off (build‑only) |
 | `--alpha <name>` | Pre‑enable finance strategy (e.g. `btc_gld`) | none |
+| `--open` | Launch web UI in browser after deploy | off |
 
 **TL;DR:** `--deploy` turns a static image build into a live, self‑tested stack.
 
@@ -64,9 +78,13 @@ All steps are idempotent; re‑running the script is safe.
 | Goal | Command |
 |------|---------|
 | Rebuild backend after code change | `docker compose build backend && docker compose up -d backend` |
-| Switch to GPU runtime | `PROFILE=cuda ./scripts/install_alpha_factory_pro.sh --deploy` |
+| Import latest Grafana dashboard | `python scripts/import_dashboard.py alpha_factory_v1/dashboards/alpha_factory_overview.json` |
+| Switch to GPU runtime | `PROFILE=cuda ./scripts/install_alpha_factory_pro.sh --deploy` |
 | Follow live logs | `docker compose logs -f orchestrator ui` |
 | Clean up containers & volumes | `docker compose down -v --remove-orphans` |
+
+The ``import_dashboard.py`` helper requires ``GRAFANA_TOKEN`` and verifies the
+given JSON file exists before uploading.
 
 ---
 

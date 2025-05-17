@@ -28,6 +28,16 @@ Browse **http://localhost:7863** → hit **“Heal Repository”**.
 * **With an OpenAI key** the agent uses GPT‑4o to reason about stack‑traces.  
 * **Offline?** Leave the key blank—Mixtral via Ollama drafts the patch.
 
+### Quick start (Python)
+Prefer a local run without Docker?
+```bash
+python3 -m venv .venv && source .venv/bin/activate
+pip install -e ../../..
+pip install -r ../../backend/requirements.txt
+python agent_selfheal_entrypoint.py
+```
+Then open **http://localhost:7863** and trigger **“Heal Repository”**.
+
 ---
 
 ## 🎓 Google Colab

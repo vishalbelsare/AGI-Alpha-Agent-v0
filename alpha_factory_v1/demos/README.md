@@ -1,7 +1,7 @@
 # Alpha‑Factory v1 👁️✨ — **Interactive Demo & Agent Gallery**
 *Out‑learn | Out‑think | Out‑design | Out‑strategise | Out‑execute*
 
-> “Intelligence is **experience** distilled through relentless self‑play.” — inspired by Sutton & Silver’s *Era of Experience* citeturn32file3
+> “Intelligence is **experience** distilled through relentless self‑play.” — inspired by Sutton & Silver’s *Era of Experience* 
 
 ---
 
@@ -18,14 +18,24 @@
 
 ---
 
-## 1 • Welcome  
-**Alpha‑Factory v1** is the **cross‑industry agentic engine** that captures live α‑signals and turns them into value across all industries & beyond.  This gallery lets you *touch* that power:
+## 1 • Welcome
+**Alpha‑Factory v1** is the **cross‑industry agentic engine** that captures live α‑signals and turns them into value across all industries & beyond. This gallery lets you *touch* that power.
 
+### Quick Start 🚀
 ```bash
-# one‑command immersive tour (CPU‑only)
+# One-command immersive tour (CPU‑only)
 curl -sSL https://raw.githubusercontent.com/MontrealAI/AGI-Alpha-Agent-v0/main/alpha_factory_v1/demos/quick_start.sh | bash
+
+# If cloned locally (run from repo root)
+./alpha_factory_v1/quickstart.sh
+
+# Cross‑platform Python launcher
+python alpha_factory_v1/quickstart.py
+
+# Or via Docker (no install)
+docker run --pull=always -p 7860:7860 ghcr.io/montrealai/alpha-factory-demos:latest
 ```
-Opens **http://localhost:7860** with a Gradio portal to every demo. Works on macOS, Linux, WSL 2 & Colab.
+Opens **http://localhost:7860** with a Gradio portal to every demo. Works on macOS, Linux, WSL 2 and Colab.
 
 ---
 
@@ -50,7 +60,7 @@ Opens **http://localhost:7860** with a Gradio portal to every demo. Works on ma
 ---
 
 ## 3 • Agent Roster 🖼️
-Each backend agent is callable as an **OpenAI Agents SDK** tool *and* as a REST endpoint (`/v1/agents/<name>`).  
+Each backend agent is callable as an **OpenAI Agents SDK** tool *and* as a REST endpoint (`/v1/agents/<name>`). 
 
 | # | File | Emoji | Core Alpha Skill | Key Env |
 |---|------|-------|------------------|--------|
@@ -77,14 +87,14 @@ Each backend agent is callable as an **OpenAI Agents SDK** tool *and* as a RES
 |Docker Compose|`docker compose up -d orchestrator`|Spins Kafka, Prometheus, Grafana, agents, demos.|
 |Kubernetes|`helm repo add alpha-factory https://montrealai.github.io/helm && helm install af alpha-factory/full`|mTLS via SPIFFE, HPA auto‑scales.|
 |Colab|Launch notebook ⇒ click *“Run on Colab”* badge.|GPU‑accelerated demos.|
-|Bare‑metal Edge|`python edge_runner.py --agents manufacturing,energy`|Zero external deps; SQLite state.|
+|Bare‑metal Edge|`python edge_runner.py --agents manufacturing,energy`|Zero external deps; SQLite state. The helper script is included in the repo.|
 
 ---
 
 ## 5 • Governance & Safety ⚖️
-* **Model Context Protocol** envelopes every artefact (SHA‑256 + ISO‑8601).  
-* **SPIFFE + mTLS** across the mesh → zero‑trust.  
-* **Cosign + Rekor** immutable supply chain.  
+* **Model Context Protocol** envelopes every artefact (SHA‑256 + ISO‑8601). 
+* **SPIFFE + mTLS** across the mesh → zero‑trust. 
+* **Cosign + Rekor** immutable supply chain. 
 * Live bias & harm evals via model‑graded tests each night.
 
 ---
@@ -94,8 +104,8 @@ Each backend agent is callable as an **OpenAI Agents SDK** tool *and* as a RES
 [project.entry-points."alpha_factory.demos"]
 my_demo = my_pkg.cool_demo:app
 ```
-1. Ship a Gradio or Streamlit `app` returning a FastAPI router.  
-2. Add Helm annotation `af.maturity=beta` → appears in UI.  
+1. Ship a Gradio or Streamlit `app` returning a FastAPI router. 
+2. Add Helm annotation `af.maturity=beta` → appears in UI. 
 3. Submit PR — CI auto‑runs red‑team prompts.
 
 ---

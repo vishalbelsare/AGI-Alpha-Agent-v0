@@ -12,12 +12,37 @@ import json
 import os
 import time
 from pathlib import Path
-from typing import Dict, List
+from dataclasses import asdict, dataclass
+from typing import Dict, List, Iterable
+
+try:  # optional OS specific locking modules
+    import fcntl  # type: ignore
+except ModuleNotFoundError:  # pragma: no cover - Windows
+    fcntl = None  # noqa: E701
+
+try:  # pragma: no cover - POSIX
+    import msvcrt  # type: ignore
+except ModuleNotFoundError:
+    msvcrt = None
 
 # Directory is overridable for tests (they patch $ALPHA_DATA_DIR)
 DATA_DIR = Path(os.getenv("ALPHA_DATA_DIR", "/tmp/alphafactory"))
 DB_PATH = DATA_DIR / "portfolio.jsonl"
 DATA_DIR.mkdir(parents=True, exist_ok=True)
+
+
+@dataclass(slots=True)
+class Fill:
+    """Normalized trade fill."""
+
+    ts: float
+    symbol: str
+    qty: float
+    price: float
+    side: str
+
+    def to_json(self) -> str:
+        return json.dumps(asdict(self), separators=(",", ":"))
 
 
 class Portfolio:
@@ -28,7 +53,10 @@ class Portfolio:
         # ── load existing fills (if any) ──────────────────────────────────
         if db_path.exists():
             for line in db_path.read_text().splitlines():
-                rec = json.loads(line)
+                try:
+                    rec = Fill(**json.loads(line))
+                except Exception:
+                    continue  # skip corrupt lines
                 self._apply(rec, persist=False)
 
     # ── public API ────────────────────────────────────────────────────────
@@ -39,37 +67,81 @@ class Portfolio:
         Additionally, broadcast the event to the Trace‑graph UI (best‑effort;
         never breaks the main flow if the WebSocket layer is absent).
         """
-        fill = {
-            "ts": time.time(),
-            "symbol": symbol,
-            "qty": float(qty),
-            "price": float(price),
-            "side": side.upper(),
-        }
+        side = side.upper()
+        if side not in {"BUY", "SELL"}:
+            raise ValueError("side must be BUY or SELL")
+        if qty <= 0 or price <= 0:
+            raise ValueError("qty and price must be positive")
+
+        fill = Fill(
+            ts=time.time(),
+            symbol=symbol,
+            qty=float(qty),
+            price=float(price),
+            side=side,
+        )
 
         self._apply(fill)         # update positions + append to disk
         self._broadcast(fill)     # fire‑and‑forget notification
+
+    def book(self) -> Dict[str, float]:
+        """Return a copy of the current position book."""
+        return dict(self._positions)
+
+    def history(self) -> Iterable[Fill]:
+        """Iterate over all persisted fills (newest-last)."""
+        if not self._db_path.exists():
+            return []
+        with self._db_path.open() as fh:
+            for line in fh:
+                try:
+                    yield Fill(**json.loads(line))
+                except Exception:
+                    continue
+
+    def clear(self) -> None:
+        """Erase all persisted fills and reset positions."""
+        self._positions.clear()
+        if self._db_path.exists():
+            self._db_path.write_text("")
+
+    async def arecord_fill(self, symbol: str, qty: float, price: float, side: str) -> None:
+        loop = asyncio.get_running_loop()
+        await loop.run_in_executor(None, self.record_fill, symbol, qty, price, side)
 
     def position(self, symbol: str) -> float:
         """Current net position (0.0 if the symbol has never traded)."""
         return self._positions.get(symbol, 0.0)
 
     # ── internal helpers ──────────────────────────────────────────────────
-    def _apply(self, fill: dict, *, persist: bool = True) -> None:
-        mult = 1 if fill["side"] == "BUY" else -1
-        self._positions[fill["symbol"]] = (
-            self._positions.get(fill["symbol"], 0.0) + mult * fill["qty"]
+    def _apply(self, fill: Fill, *, persist: bool = True) -> None:
+        mult = 1 if fill.side == "BUY" else -1
+        self._positions[fill.symbol] = (
+            self._positions.get(fill.symbol, 0.0) + mult * fill.qty
         )
         if persist:
             self._append(fill)
 
-    def _append(self, fill: dict) -> None:
-        """Append‑only JSONL persistence."""
-        with self._db_path.open("a") as fh:
-            fh.write(json.dumps(fill) + "\n")
+    def _append(self, fill: Fill) -> None:
+        """Append‑only JSONL persistence with basic file locking."""
+        fh = self._db_path.open("a")
+        try:
+            if fcntl:
+                fcntl.flock(fh, fcntl.LOCK_EX)
+            elif msvcrt:
+                msvcrt.locking(fh.fileno(), msvcrt.LK_LOCK, 1)
+            fh.write(fill.to_json() + "\n")
+        finally:
+            try:
+                if fcntl:
+                    fcntl.flock(fh, fcntl.LOCK_UN)
+                elif msvcrt:
+                    msvcrt.locking(fh.fileno(), msvcrt.LK_UNLCK, 1)
+            finally:
+                fh.close()
 
     # ── trace‑graph integration ───────────────────────────────────────────
-    def _broadcast(self, fill: dict) -> None:  # pragma: no cover
+    def _broadcast(self, fill: Fill) -> None:  # pragma: no cover
         """
         Best‑effort broadcast of the fill to any connected Trace‑graph UI.
 
@@ -84,10 +156,13 @@ class Portfolio:
         asyncio.create_task(
             hub.broadcast(
                 {
-                    "id": f"fill-{int(fill['ts']*1000)}",
-                    "label": f"{fill['side']} {fill['qty']} {fill['symbol']} @ {fill['price']}",
-                    "data": fill,
+                    "id": f"fill-{int(fill.ts*1000)}",
+                    "label": f"{fill.side} {fill.qty} {fill.symbol} @ {fill.price}",
+                    "data": asdict(fill),
                 }
             )
         )
+
+
+__all__ = ["Portfolio", "Fill"]
 

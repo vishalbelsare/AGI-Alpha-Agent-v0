@@ -116,6 +116,12 @@ If no external key is detected it seamlessly switches to local Llama‑3 GGUF w
 
 No key? No problem — the stack auto‑loads Llama‑3 8‑B GGUF weights and stays entirely offline.
 
+```bash
+git clone https://github.com/MontrealAI/AGI-Alpha-Agent-v0.git
+cd AGI-Alpha-Agent-v0/alpha_factory_v1/demos/alpha_agi_business_2_v1
+./run_business_2_demo.sh       # builds & launches locally
+```
+
 ---
 
 ## 📦 Deployment Recipes

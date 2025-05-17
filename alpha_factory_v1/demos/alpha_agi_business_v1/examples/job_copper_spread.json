@@ -1,0 +1,5 @@
+{
+  "agent": "planning",
+  "pair": "LME:HG/COMEX:HG",
+  "note": "Deploy copper spread arbitrage strategy"
+}

@@ -37,6 +37,8 @@ RUN if [ "$INSTALL_UI" = "1" ]; then npm run build; fi             # → dist/
 #  Stage 1 — Python Runtime                                           #
 #######################################################################
 FROM ${BASE_IMAGE} AS runtime
+LABEL org.opencontainers.image.title="Alpha-Factory Runtime" \
+      org.opencontainers.image.source="https://github.com/MontrealAI/AGI-Alpha-Agent-v0"
 
 #############################
 # 1) Environment variables   #
@@ -60,6 +62,7 @@ RUN apt-get update && \
         libopenblas0 \
         libomp5 \
         libstdc++6 \
+        patch \
         curl ca-certificates && \
     rm -rf /var/lib/apt/lists/*
 
@@ -85,12 +88,14 @@ RUN if [ -f /tmp/requirements-lock.txt ]; then \
         openai-agents~=0.5 \   # OpenAI Agents SDK (beta)
         "google-adk @ git+https://github.com/google/adk-python@main#egg=google-adk" \
         anthropic~=0.19 \
-        gunicorn rocketry prometheus-client
+        gunicorn rocketry prometheus-client && \
+    rm -rf /tmp/requirements-lock.txt /tmp/requirements.txt
 
 #############################
 # 4) Copy project source     #
 #############################
 COPY backend/        /app/backend/
+COPY ui/             /app/ui/
 COPY entrypoint.sh   /app/entrypoint.sh
 RUN chmod +x /app/entrypoint.sh
 
@@ -101,12 +106,20 @@ ARG INSTALL_UI
 COPY --from=ui-build /ui/dist/ /app/static/trace/
 
 #############################
-# 6) Health‑check           #
+# 6) Non-root user           #
+#############################
+RUN addgroup --system alphafactory && \
+    adduser --system --ingroup alphafactory --home /app alphafactory && \
+    chown -R alphafactory:alphafactory /app
+USER alphafactory
+
+#############################
+# 7) Health‑check           #
 #############################
 HEALTHCHECK --interval=30s --timeout=10s --retries=3 CMD curl -f http://localhost:8000/health || exit 1
 
 #############################
-# 7) Ports & Entrypoint      #
+# 8) Ports & Entrypoint      #
 #############################
 EXPOSE 8000 3000
 CMD ["/app/entrypoint.sh"]

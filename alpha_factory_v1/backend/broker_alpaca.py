@@ -1,9 +1,23 @@
-"""
-Alpaca Markets adapter
-=====================
+"""Alpaca Markets adapter.
+==========================
 
-* Uses **paper trading** by default (`ALPHA_ALPACA_PAPER=true`)
-* Automatic exponential back‑off on network / 5xx errors.
+Thin asynchronous wrapper around the Alpaca REST API used by
+``Alpha‑Factory`` agents.
+
+Environment variables
+---------------------
+``ALPHA_ALPACA_KEY``
+    Account API key. **Required**.
+``ALPHA_ALPACA_SECRET``
+    API secret associated with the key. **Required**.
+``ALPHA_ALPACA_PAPER``
+    When ``true`` (default) use paper trading endpoints.
+``ALPHA_ALPACA_BASE_URL``
+    Optional base URL overriding the default live/paper endpoint.
+
+The adapter automatically retries transient network failures using an
+exponential back‑off strategy.  Use it as an async context manager to
+ensure the underlying :class:`httpx.AsyncClient` is properly closed.
 """
 
 from __future__ import annotations
@@ -26,10 +40,14 @@ _PAPER: Final[bool] = os.getenv("ALPHA_ALPACA_PAPER", "true").lower() in ("1", "
 if _KEY is None or _SECRET is None:
     raise RuntimeError("ALPHA_ALPACA_KEY / ALPHA_ALPACA_SECRET env‑vars are required")
 
-_API = "https://paper-api.alpaca.markets" if _PAPER else "https://api.alpaca.markets"
+_API = os.getenv(
+    "ALPHA_ALPACA_BASE_URL",
+    "https://paper-api.alpaca.markets" if _PAPER else "https://api.alpaca.markets",
+)
 _HEADERS = {"APCA-API-KEY-ID": _KEY, "APCA-API-SECRET-KEY": _SECRET}
 
 class AlpacaBroker(TradeBrokerProtocol):  # noqa: D101
+    """Asynchronous trade broker for the Alpaca REST API."""
     _retry = AsyncRetrying(
         wait=wait_exponential(multiplier=1.5, min=1, max=30),
         stop=stop_after_attempt(4),
@@ -48,6 +66,7 @@ class AlpacaBroker(TradeBrokerProtocol):  # noqa: D101
         side: str,
         type: str = "market",
     ) -> str:
+        """Place a trade order and return the Alpaca order id."""
         order = {
             "symbol": symbol.upper(),
             "qty": qty,
@@ -63,6 +82,7 @@ class AlpacaBroker(TradeBrokerProtocol):  # noqa: D101
         return oid
 
     async def get_position(self, symbol: str) -> float:
+        """Return the current position for ``symbol`` in shares."""
         try:
             async for attempt in self._retry:
                 with attempt:
@@ -74,6 +94,7 @@ class AlpacaBroker(TradeBrokerProtocol):  # noqa: D101
             raise
 
     async def get_cash(self) -> float:
+        """Return the available cash balance."""
         async for attempt in self._retry:
             with attempt:
                 r = await self._http.get("/v2/account")
@@ -81,7 +102,9 @@ class AlpacaBroker(TradeBrokerProtocol):  # noqa: D101
 
     # ------------------------------------------------------------------ #
     async def __aenter__(self):
+        """Context manager entry: return ``self``."""
         return self
 
     async def __aexit__(self, *_exc):
+        """Close the underlying HTTP client on exit."""
         await self._http.aclose()

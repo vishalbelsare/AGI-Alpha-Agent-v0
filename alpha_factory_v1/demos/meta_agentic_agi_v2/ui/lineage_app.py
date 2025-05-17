@@ -7,7 +7,7 @@ Streamlit dashboard for **Meta-Agentic α-AGI** lineage tracking.
 Key features
 ------------
 • Zero-config launch – `streamlit run lineage_app.py` (or add to Procfile).  
-• Works with *any* SQLite DB produced by `meta_agentic_agi_demo.py`.  
+• Works with *any* SQLite DB produced by `meta_agentic_agi_demo_v2.py`.
 • Auto-refresh & reactive controls (no manual reloads).  
 • Interactive Altair charts for **multi-objective** metrics.  
 • Toggle code snippets, filter generations, export to CSV.  
@@ -40,7 +40,7 @@ THEME    = os.getenv("METAAGI_THEME", "light")  # Streamlit theme override
 DB_PATH = (
     Path(DB_ENV).expanduser().resolve()
     if DB_ENV else
-    (Path(__file__).parent / ".." / "meta_agentic_agi_demo.sqlite").resolve()
+    (Path(__file__).parent / ".." / "meta_agentic_agi_demo_v2.sqlite").resolve()
 )
 
 # ────────────────────────────────────────────────────────────────────────────────
@@ -52,7 +52,7 @@ def connect(db_path: Path) -> sqlite3.Connection:
     if not db_path.exists():
         raise FileNotFoundError(
             f"[lineage_app] SQLite database not found at: {db_path}\n"
-            "‣ Make sure you have run `meta_agentic_agi_demo.py` at least once, or\n"
+            "‣ Make sure you have run `meta_agentic_agi_demo_v2.py` at least once, or\n"
             "‣ Set METAAGI_DB env-var to the correct .sqlite path."
         )
     conn = sqlite3.connect(str(db_path), check_same_thread=False)

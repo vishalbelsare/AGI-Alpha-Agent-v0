@@ -45,11 +45,34 @@ class InteractiveBrokersBroker(TradeBrokerProtocol):  # noqa: D101
         reraise=True,
     )
 
-    def __init__(self) -> None:
-        if _TOKEN is None:
+    def __init__(
+        self,
+        *,
+        host: str = _HOST,
+        port: str = _PORT,
+        token: str | None = _TOKEN,
+        timeout: float = 10.0,
+    ) -> None:
+        """Create a new broker adapter.
+
+        Parameters
+        ----------
+        host:
+            Broker gateway host. Defaults to ``ALPHA_IBKR_HOST``.
+        port:
+            Broker gateway port. Defaults to ``ALPHA_IBKR_PORT``.
+        token:
+            SSO authentication token. Defaults to ``ALPHA_IBKR_SSO_TOKEN``.
+        timeout:
+            Request timeout in seconds.
+        """
+
+        if token is None:
             raise RuntimeError("ALPHA_IBKR_SSO_TOKEN is not set")
 
-        self._http = httpx.AsyncClient(base_url=_BASE, headers=_HEADERS, timeout=10.0)
+        base = f"http://{host}:{port}/v1/api"
+        headers = {"Content-Type": "application/json", "Authorization": f"Bearer {token}"}
+        self._http = httpx.AsyncClient(base_url=base, headers=headers, timeout=timeout)
 
     # ------------------------------------------------------------------ #
     # TradeBroker interface                                              #
@@ -120,3 +143,4 @@ class InteractiveBrokersBroker(TradeBrokerProtocol):  # noqa: D101
 
     async def __aexit__(self, *_exc):
         await self._http.aclose()
+

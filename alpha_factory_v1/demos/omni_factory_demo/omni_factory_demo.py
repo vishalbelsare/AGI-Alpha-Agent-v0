@@ -142,12 +142,24 @@ class Cfg:
     micro_curr:      str   = CFG_DEFAULTS["MICRO_CURRICULUM"]
     max_supply:      int   = CFG_DEFAULTS["AGIALPHA_SUPPLY"]
 
-CFG = Cfg(
-    **{
-        k.lower(): (Path(v) if k.endswith("PATH") else type(CFG_DEFAULTS[k])(os.getenv(f"OMNI_{k}", v)))
-        for k, v in CFG_DEFAULTS.items()
+def _cfg_from_env() -> dict[str, Any]:
+    mapping: dict[str, str] = {
+        "SUCCESS_THRESHOLD": "success_thresh",
+        "MAX_SIM_MINUTES": "max_minutes",
+        "MICRO_CURRICULUM": "micro_curr",
+        "AGIALPHA_SUPPLY": "max_supply",
     }
-)
+    cfg: dict[str, Any] = {}
+    for k, v in CFG_DEFAULTS.items():
+        key = mapping.get(k, k.lower())
+        val = os.getenv(f"OMNI_{k}", v)
+        if k.endswith("PATH"):
+            cfg[key] = Path(val)
+        else:
+            cfg[key] = type(CFG_DEFAULTS[k])(val)
+    return cfg
+
+CFG = Cfg(**_cfg_from_env())
 random.seed(CFG.seed)
 
 ###############################################################################
@@ -409,7 +421,7 @@ async def _episode(
         if METRICS.enabled and METRICS.tokens:
             METRICS.tokens.inc(tokens)  # type: ignore[misc]
     else:
-        msg = f"✖️  {scenario} ({minute+1}′, r̄={avg_reward:.3f}) – FAILED"
+        msg = f"✖  {scenario} ({minute+1}′, r̄={avg_reward:.3f}) – FAILED"
 
     if METRICS.enabled:
         if METRICS.avg_reward:
@@ -477,7 +489,7 @@ def main(argv: List[str] | None = None) -> None:  # noqa: D401
 
     if args.dry_run:
         globals()["_mint"] = lambda *_, **__: 0  # type: ignore[assignment]
-        print("⚠️  DRY‑RUN – token minting disabled.")
+        print("⚠  DRY‑RUN – token minting disabled.")
 
     loop = asyncio.new_event_loop()
     asyncio.set_event_loop(loop)

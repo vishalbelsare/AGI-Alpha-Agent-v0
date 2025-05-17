@@ -4,8 +4,8 @@ alpha_factory_v1.backend.memory_graph
 
 🕸️  *Causal-Graph Memory Fabric* – durable, observable, failure-proof
 ---------------------------------------------------------------------
-Primary store   : **Neo4j**           (ACID, highly-connected, Cypher)  
-Fallback store  : **NetworkX in-RAM** (zero-dep, ultra-portable)  
+Primary store   : **Neo4j**           (ACID, highly-connected, Cypher)
+Fallback store  : **NetworkX in-RAM** (zero-dep, ultra-portable)
 Last-resort     : **Minimal stub**    (guaranteed uptime, any Python)
 
 Why you’ll ❤️ it
@@ -33,6 +33,7 @@ Quick-start
 CLI smoke-test (works off-grid):
 $ python -m alpha_factory_v1.backend.memory_graph --verbose
 """
+
 from __future__ import annotations
 
 # ───────────────────────── stdlib & typing ──────────────────────────
@@ -49,18 +50,21 @@ from typing import Any, Dict, Iterable, List, Optional, Sequence, Tuple
 # ─────────────────── optional third-party imports ───────────────────
 try:
     from neo4j import GraphDatabase, basic_auth  # type: ignore
+
     _HAS_NEO = True
 except Exception:  # pragma: no cover
     _HAS_NEO = False
 
 try:
     import networkx as nx  # type: ignore
+
     _HAS_NX = True
 except Exception:  # pragma: no cover
     _HAS_NX = False
 
 try:
     from prometheus_client import Counter, Gauge, Histogram  # type: ignore
+
     _PM = True
 except Exception:  # pragma: no cover
     _PM = False
@@ -77,24 +81,26 @@ _log.setLevel(os.getenv("LOGLEVEL", "INFO"))
 if _PM:
     _MET_REL_ADD = Counter("af_graph_rel_add_total", "Relations inserted")
     _MET_NODE_UPS = Counter("af_graph_node_upsert_total", "Nodes upserted")
-    _MET_QRY_CNT  = Counter("af_graph_query_total", "Queries executed")
-    _MET_QRY_LAT  = Histogram("af_graph_query_seconds", "Query latency (s)")
-    _MET_NODE_G   = Gauge("af_graph_nodes", "Node count")
-    _MET_EDGE_G   = Gauge("af_graph_edges", "Edge count")
+    _MET_QRY_CNT = Counter("af_graph_query_total", "Queries executed")
+    _MET_QRY_LAT = Histogram("af_graph_query_seconds", "Query latency (s)")
+    _MET_NODE_G = Gauge("af_graph_nodes", "Node count")
+    _MET_EDGE_G = Gauge("af_graph_edges", "Edge count")
 else:  # pragma: no cover
-    class _No:                       # pylint: disable=too-few-public-methods
-        def __getattr__(self, *_a):   # type: ignore
+
+    class _No:  # pylint: disable=too-few-public-methods
+        def __getattr__(self, *_a):  # type: ignore
             return lambda *a, **k: None
+
     _MET_REL_ADD = _MET_NODE_UPS = _MET_QRY_CNT = _MET_QRY_LAT = _MET_NODE_G = _MET_EDGE_G = _No()  # type: ignore
 
 # ─────────────────────────── global state ───────────────────────────
-_LOCK   = threading.RLock()
+_LOCK = threading.RLock()
 _JITTER = random.Random(42)
 
 
 # ═════════════════════════ helper utilities ════════════════════════
 def _sleep_backoff(attempt: int) -> None:
-    time.sleep(min(2 ** attempt, 8) * 0.05 + _JITTER.random() * 0.03)
+    time.sleep(min(2**attempt, 8) * 0.05 + _JITTER.random() * 0.03)
 
 
 @contextmanager
@@ -105,13 +111,13 @@ def _neo_session(driver, database: str):
             with driver.session(database=database) as sess:
                 yield sess
                 return
-        except Exception as exc:                       # pragma: no cover
+        except Exception as exc:  # pragma: no cover
             _log.warning("Neo4j error (%s) – retry %d/3", exc, attempt + 1)
             _sleep_backoff(attempt)
     raise RuntimeError("Neo4j unreachable after 3 attempts")
 
 
-def _to_int(val: Any, default: int = 0) -> int:        # noqa: D401
+def _to_int(val: Any, default: int = 0) -> int:  # noqa: D401
     try:
         return int(val)
     except Exception:
@@ -141,13 +147,14 @@ class GraphMemory:
         *,
         database: str | None = None,
     ) -> None:
-        uri      = uri      or os.getenv("NEO4J_URI")
-        user     = user     or os.getenv("NEO4J_USER")
+        uri = uri or os.getenv("NEO4J_URI")
+        user = user or os.getenv("NEO4J_USER")
         password = password or os.getenv("NEO4J_PASS")
         self._db = database or os.getenv("NEO4J_DATABASE", "neo4j")
 
         self._driver = None
-        self._g      = None   # in-memory graph (NetworkX or stub)
+        self._g = None  # in-memory graph (NetworkX or stub)
+        self._backend = "stub"
 
         # Try Neo4j first
         if _HAS_NEO and uri and user and password:
@@ -159,7 +166,8 @@ class GraphMemory:
                 )
                 self._ensure_schema()
                 _log.info("GraphMemory connected to Neo4j @ %s", uri)
-            except Exception as exc:                   # pragma: no cover
+                self._backend = "neo4j"
+            except Exception as exc:  # pragma: no cover
                 _log.warning("Neo4j connect failed (%s), falling back", exc)
                 self._driver = None
 
@@ -167,13 +175,14 @@ class GraphMemory:
         if self._driver is None:
             if _HAS_NX:
                 self._g = nx.MultiDiGraph()
+                self._backend = "networkx"
             else:
                 # Minimal always-available stub
-                class _Stub:                           # pylint: disable=too-few-public-methods
+                class _Stub:  # pylint: disable=too-few-public-methods
                     nodes: set[str] = set()
                     edges: list[tuple[str, str, str, dict[str, Any]]] = []
 
-                    def add_node(self, n):             # noqa: D401
+                    def add_node(self, n):  # noqa: D401
                         self.nodes.add(n)
 
                     def add_edge(self, u, v, key=None, **d):
@@ -191,8 +200,18 @@ class GraphMemory:
                     def successors(self, n):
                         return [v for u, v, *_ in self.edges if u == n]
 
-                self._g = _Stub()      # type: ignore
+                    def clear(self):
+                        self.nodes.clear()
+                        self.edges.clear()
+
+                self._g = _Stub()  # type: ignore
             _log.warning("GraphMemory using *in-memory* backend – data not persisted")
+
+    # ------------------------------------------------------------------
+    @property
+    def backend(self) -> str:
+        """Current storage backend ('neo4j', 'networkx', or 'stub')."""
+        return self._backend
 
     # ────────────────────── public API ────────────────────────────
     def add(
@@ -215,7 +234,7 @@ class GraphMemory:
         with _LOCK:
             self._upsert_node(src)
             self._upsert_node(dst)
-            if self._driver:                               # Neo4j path
+            if self._driver:  # Neo4j path
                 cy = (
                     "MATCH (a:Entity {name:$src}), (b:Entity {name:$dst}) "
                     f"MERGE (a)-[r:{rel}]->(b) "
@@ -224,7 +243,7 @@ class GraphMemory:
                 with _neo_session(self._driver, self._db) as s:
                     s.run(cy, src=src, dst=dst, props=props)
                 self._refresh_gauges()
-            else:                                          # NX / stub
+            else:  # NX / stub
                 self._g.add_edge(src, dst, key=rel, **props)  # type: ignore[arg-type]
                 self._refresh_gauges_nx()
         _MET_REL_ADD.inc()
@@ -241,7 +260,7 @@ class GraphMemory:
         All triples share ``default_props`` – handy for timestamping events.
         """
         default_props = default_props or {}
-        triples = list(triples)          # may be generator
+        triples = list(triples)  # may be generator
         if not triples:
             return
         with _LOCK:
@@ -308,7 +327,8 @@ class GraphMemory:
         # NX / stub
         if rel:
             return [
-                v for _, v, k, _ in self._g.out_edges(node, keys=True, data=True)  # type: ignore[attr-defined]
+                v
+                for _, v, k, _ in self._g.out_edges(node, keys=True, data=True)  # type: ignore[attr-defined]
                 if k == rel
             ]
         return list(self._g.successors(node))  # type: ignore[attr-defined]
@@ -319,7 +339,7 @@ class GraphMemory:
         p = pathlib.Path(path)
         if self._driver and _HAS_NX:
             g_tmp = nx.MultiDiGraph()  # type: ignore[arg-type]
-            for n, in self.query("MATCH (n) RETURN n.name"):
+            for (n,) in self.query("MATCH (n) RETURN n.name"):
                 g_tmp.add_node(n)
             for s, r, d in self.query("MATCH (a)-[r]->(b) RETURN a.name,r,b.name"):
                 g_tmp.add_edge(s, d, key=r)
@@ -345,6 +365,43 @@ class GraphMemory:
             return _to_int(self.query("MATCH ()-[r]->() RETURN count(r)")[0][0])
         return self._g.number_of_edges()  # type: ignore[attr-defined]
 
+    # ------------------------------------------------------------------
+    def clear(self) -> None:
+        """Remove all nodes and relationships from the graph."""
+        with _LOCK:
+            if self._driver:
+                with _neo_session(self._driver, self._db) as s:
+                    s.run("MATCH (n) DETACH DELETE n")
+                self._refresh_gauges()
+            else:
+                if hasattr(self._g, "clear"):
+                    self._g.clear()  # type: ignore[attr-defined]
+                else:  # pragma: no cover - stub fallback
+                    self._g.nodes.clear()  # type: ignore[attr-defined]
+                    self._g.edges.clear()  # type: ignore[attr-defined]
+                self._refresh_gauges_nx()
+
+    # ------------------------------------------------------------------
+    def close(self) -> None:
+        """Close any open database connections."""
+        if self._driver:
+            try:
+                self._driver.close()
+            except Exception as exc:  # pragma: no cover - defensive
+                _log.warning("Neo4j driver close failed (%s)", exc)
+            finally:
+                self._driver = None
+
+    # ------------------------------------------------------------------
+    def __enter__(self) -> "GraphMemory":
+        return self
+
+    def __exit__(self, exc_type, exc, tb) -> None:
+        self.close()
+
+    def __del__(self) -> None:
+        self.close()
+
     # ═══════════════════ internal helpers (private) ══════════════════
     def _upsert_node(self, name: str) -> None:
         _MET_NODE_UPS.inc()
@@ -356,8 +413,10 @@ class GraphMemory:
 
     def _ensure_schema(self) -> None:
         with _neo_session(self._driver, self._db) as s:
-            s.run("CREATE CONSTRAINT IF NOT EXISTS "
-                  "FOR (e:Entity) REQUIRE e.name IS UNIQUE")
+            s.run(
+                "CREATE CONSTRAINT IF NOT EXISTS "
+                "FOR (e:Entity) REQUIRE e.name IS UNIQUE"
+            )
 
     def _refresh_gauges(self) -> None:
         n = _to_int(self.query("MATCH (n) RETURN count(n)")[0][0])
@@ -376,7 +435,7 @@ class GraphMemory:
                 thresh = float(cypher.split(">")[-1].split()[0])
             except Exception:
                 return []
-            return [                        # type: ignore
+            return [  # type: ignore
                 (u, v, d)
                 for u, v, k, d in self._g.edges(data=True, keys=True)  # type: ignore[attr-defined]
                 if d.get("delta_alpha", 0) > thresh
@@ -384,8 +443,9 @@ class GraphMemory:
         # default fallback – dump all edges
         return [tuple(e[:3]) for e in self._g.edges(keys=True)]  # type: ignore[attr-defined]
 
+
 # ═══════════════════════════ CLI entry-point ═══════════════════════
-if __name__ == "__main__":                                    # pragma: no cover
+if __name__ == "__main__":  # pragma: no cover
     import argparse
     from pprint import pprint
 

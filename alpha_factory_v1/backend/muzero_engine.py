@@ -35,6 +35,8 @@ from typing import Any, List, Sequence, Tuple
 _LOG = logging.getLogger("alpha_factory.muzero")
 _LOG.addHandler(logging.NullHandler())
 
+__all__ = ["MuZeroWorldModel"]
+
 # ---------------------------------------------------------------------- #
 #  Optional heavy-weight back-end – torch + open-source MuZero           #
 # ---------------------------------------------------------------------- #
@@ -77,9 +79,15 @@ class MuZeroWorldModel:  # noqa: D101
             self.env = _lab.GridWorldEnv()
             self._mode = "grid"
         elif env_name == "synthetic_market":
-            from backend.environments import market_sim
+            try:
+                from backend.environments import market_sim
 
-            self.env = market_sim.MarketEnv()
+                self.env = market_sim.MarketEnv()
+            except Exception as exc:  # pragma: no cover - optional dep
+                _LOG.warning("market_sim unavailable: %s", exc)
+                from backend.environments.market_sim import MarketEnv
+
+                self.env = MarketEnv()
             self._mode = "market"
         else:
             raise ValueError(f"Unknown environment {env_name!r}")

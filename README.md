@@ -18,6 +18,14 @@ Global markets seep *USD ✧ trillions/yr* in latent opportunity — “alph
 
 Built atop **OpenAI Agents SDK**, **Google ADK**, **A2A protocol**, and Anthropic’s **Model Context Protocol**, the stack runs cloud‑native *or* air‑gapped, hot‑swapping between frontier LLMs and distilled local models.
 
+### TL;DR Quick Start
+```bash
+git clone https://github.com/MontrealAI/AGI-Alpha-Agent-v0.git
+cd AGI-Alpha-Agent-v0
+./quickstart.sh
+open http://localhost:8000/docs 2>/dev/null || xdg-open http://localhost:8000/docs || start http://localhost:8000/docs
+```
+
 ---
 
 ## 📜 Table of Contents
@@ -26,9 +34,11 @@ Built atop **OpenAI Agents SDK**, **Google ADK**, **A2A protocol**, and Ant
 2. [World‑Model & Planner 🌌](#2-world-model--planner)  
 3. [Agent Gallery 🖼️ (12 agents)](#3-agent-gallery)  
 4. [Demo Showcase 🎬 (12 demos)](#4-demo-showcase)  
-5. [Memory & Knowledge Fabric 🧠](#5-memory--knowledge-fabric)  
-6. [5‑Minute Quick‑Start 🚀](#6-5-minute-quick-start)  
-7. [Deployment Recipes 🍳](#7-deployment-recipes)  
+5. [Memory & Knowledge Fabric 🧠](#5-memory--knowledge-fabric)
+6. [5‑Minute Quick‑Start 🚀](#6-5-minute-quick-start)
+6.1. [Running Tests 🧪](#61-running-tests)
+6.2. [Marketplace Demo Example 🛒](#62-marketplace-demo-example)
+7. [Deployment Recipes 🍳](#7-deployment-recipes)
 8. [Governance & Compliance ⚖️](#8-governance--compliance)  
 9. [Observability 🔭](#9-observability)  
 10. [Extending the Mesh 🔌](#10-extending-the-mesh)  
@@ -249,15 +259,15 @@ sequenceDiagram
 |---|--------|-------|-----------------|--------------------|---------------|
 |1|`aiga_meta_evolution`|🧬|Agents *evolve* new agents; genetic tests auto‑score fitness.|Expands strategy space, surfacing fringe alpha.|`docker compose -f demos/docker-compose.aiga_meta.yml up`|
 |2|`alpha_agi_business_v1`|🏦|Auto‑incorporates a digital‑first company end‑to‑end.|Shows AGI turning ideas → registered business.|`docker compose -f demos/docker-compose.business_v1.yml up`|
-|3|`alpha_agi_business_2_v1`|🏗️|Iterates business model with live market data RAG.|Continuous adaptation → durable competitive alpha.|`docker compose -f demos/docker-compose.business_2.yml up`|
+|3|`alpha_agi_business_2_v1`|🏗️|Iterates business model with live market data RAG.|Continuous adaptation → durable competitive alpha.|`./alpha_factory_v1/demos/alpha_agi_business_2_v1/run_business_2_demo.sh`|
 |4|`alpha_agi_business_3_v1`|📊|Financial forecasting & fundraising agent swarm.|Optimises capital stack for ROI alpha.|`docker compose -f demos/docker-compose.business_3.yml up`|
 |5|`alpha_agi_marketplace_v1`|🛒|Peer‑to‑peer agent marketplace simulating price discovery.|Validates micro‑alpha extraction via agent barter.|`docker compose -f demos/docker-compose.marketplace.yml up`|
 |6|`alpha_asi_world_model`|🌌|Scales MuZero‑style world‑model to an open‑ended grid‑world.|Stress‑tests anticipatory planning for ASI scenarios.|`docker compose -f demos/docker-compose.asi_world.yml up`|
-|7|`cross_industry_alpha_factory`|🌐|Full pipeline: ingest → plan → act across 4 verticals.|Proof that one orchestrator handles multi‑domain alpha.|`docker compose -f demos/docker-compose.cross_industry.yml up`|
-|8|`era_of_experience`|🏛️|Streams of life events build autobiographical memory‑graph tutor.|Transforms tacit SME knowledge into tradable signals.|`docker compose -f demos/docker-compose.era.yml up`|
+|7|`cross_industry_alpha_factory`|🌐|Full pipeline: ingest → plan → act across 4 verticals.|Proof that one orchestrator handles multi‑domain alpha.|`./alpha_factory_v1/demos/cross_industry_alpha_factory/deploy_alpha_factory_cross_industry_demo.sh`|
+|8|`era_of_experience`|🏛️|Streams of life events build autobiographical memory‑graph tutor.|Transforms tacit SME knowledge into tradable signals.|`./alpha_factory_v1/demos/era_of_experience/run_experience_demo.sh`|
 |9|`finance_alpha`|💹|Live momentum + risk‑parity bot on Binance test‑net.|Generates real P&L; stress‑tested against CVaR.|`docker compose -f demos/docker-compose.finance.yml up`|
 |10|`macro_sentinel`|🌐|GPT‑RAG news scanner auto‑hedges with CTA futures.|Shields portfolios from macro shocks.|`docker compose -f demos/docker-compose.macro.yml up`|
-|11|`muzero_planning`|♟️|MuZero plans synthetic markets → optimal execution curves.|Validates world‑model planning in noisy domains.|`docker compose -f demos/docker-compose.muzero.yml up`|
+|11|`muzero_planning`|♟️|MuZero plans synthetic markets → optimal execution curves.|Validates world‑model planning in noisy domains.|`./alpha_factory_v1/demos/muzero_planning/run_muzero_demo.sh`|
 |12|`self_healing_repo`|🩹|CI fails → agent crafts patch ⇒ PR green again.|Maintains pipeline uptime alpha.|`docker compose -f demos/docker-compose.selfheal.yml up`|
 
 > **Colab?** Each folder ships an `*.ipynb` that mirrors the Docker flow with free GPUs.
@@ -336,28 +346,101 @@ Cells with \(Δ\mathcal F < 0\) glow 🔵 on Grafana; Ω‑Agents race to harves
 ## 6 · 5‑Minute Quick‑Start 🚀
 ```bash
 git clone https://github.com/MontrealAI/AGI-Alpha-Agent-v0.git
-cd AGI-Alpha-Agent-v0/alpha_factory_v1
-pip install -r requirements.txt
+cd AGI-Alpha-Agent-v0
+./quickstart.sh --preflight   # optional environment check
+./quickstart.sh               # creates venv, installs deps, launches
+# open the docs in your browser
+open http://localhost:8000/docs 2>/dev/null || xdg-open http://localhost:8000/docs || start http://localhost:8000/docs
+# Alternatively, ``python alpha_factory_v1/quickstart.py`` provides the same
+# workflow on Windows and other systems without Bash.
 
-export ALPHA_KAFKA_BROKER=localhost:9092
-python -m alpha_factory_v1.run --preflight
-python -m alpha_factory_v1.run
-python -m alpha_factory_v1.run --version  # display package version
-open http://localhost:8000/docs
+# Deploy instantly with Docker (prebuilt image)
+docker run --pull=always -p 8000:8000 ghcr.io/montrealai/alpha-factory:latest
+
+# The `alpha-factory` CLI also works when the package is installed:
+#   pip install -e .
+#   alpha-factory --list-agents
+#   alpha-asi-demo --demo   # launch the α‑ASI world‑model UI
+#
+# Or install directly from GitHub for a quick test:
+#   pip install git+https://github.com/MontrealAI/AGI-Alpha-Agent-v0.git
+#   alpha-factory --list-agents
+
+# Automated one-click setup (builds & starts Docker stack)
+./alpha_factory_v1/scripts/one_click_install.sh --deploy
+
+# Verify the Ω‑Lattice demo locally
+python alpha_factory_v1/demos/alpha_agi_business_3_v1/alpha_agi_business_3_v1.py --loglevel info
 ```
 
-No GPU → falls back to GGML Llama‑3‑8B‑Q4.  
+### Finance Demo Quick‑Start
+
+Launch the finance alpha demo directly from your terminal:
+
+```bash
+curl -L https://raw.githubusercontent.com/MontrealAI/AGI-Alpha-Agent-v0/main/alpha_factory_v1/demos/finance_alpha/deploy_alpha_factory_demo.sh | bash
+```
+
+The script pulls the signed demo container, runs a BTC/GLD strategy, prints open
+positions and P&L, and exposes the trace‑graph UI at
+<http://localhost:8088>.
+
+No GPU → falls back to GGML Llama‑3‑8B‑Q4.
 No `OPENAI_API_KEY` → switches to local SBERT + heuristics.
+
+---
+
+<a name="61-running-tests"></a>
+### 6.1 · Running Tests 🧪
+
+Unit tests can be executed with the bundled helper script:
+
+```bash
+python alpha_factory_v1/scripts/run_tests.py
+```
+
+The helper validates the target directory, prefers `pytest` when
+available and otherwise falls back to `unittest`. Ensure all tests pass
+before deploying changes.
+
+<a name="62-marketplace-demo-example"></a>
+### 6.2 · Marketplace Demo Example 🛒
+A minimal snippet queues the sample job once the orchestrator is running:
+
+```bash
+alpha-factory --enabled finance,manufacturing &
+python - <<'PY'
+import subprocess, time
+from alpha_factory_v1.demos import alpha_agi_marketplace_v1 as market
+time.sleep(5)
+subprocess.run(["bash", str(market.POST_JOB_SCRIPT), str(market.SAMPLE_JOB)], check=True)
+marketplace_args = ["python", "-m", "alpha_factory_v1.demos.alpha_agi_marketplace_v1.marketplace", str(market.SAMPLE_JOB)]
+subprocess.run(marketplace_args, check=True)
+PY
+```
+
+---
+
+### 6.2 · Cross-Industry Demo Quick‑Start 🌐
+```bash
+git clone https://github.com/MontrealAI/AGI-Alpha-Agent-v0.git
+cd AGI-Alpha-Agent-v0/alpha_factory_v1/demos/cross_industry_alpha_factory
+./deploy_alpha_factory_cross_industry_demo.sh
+```
 
 ---
 
 <a name="7-deployment-recipes"></a>
 ## 7 · Deployment Recipes 🍳
+The repository bundles a lightweight `edge_runner.py` helper for running
+Alpha‑Factory on air‑gapped or resource‑constrained devices. The script
+forwards to `alpha_factory_v1.edge_runner` and exposes additional flags
+like `--cycle`, `--loglevel` and `--version`.
 
 | Target | Command | Notes |
 |--------|---------|-------|
 | **Docker Compose** | `docker compose up -d` | Kafka, Prometheus, Grafana |
-| **Helm (K8s)** | `helm install af charts/alpha-factory` | SPIFFE, HPA |
+| **Helm (K8s)** | `helm install af helm/alpha-factory` | SPIFFE, HPA |
 | **AWS Fargate** | `./infra/deploy_fargate.sh` | SQS shim for Kafka |
 | **IoT Edge** | `python edge_runner.py --agents manufacturing,energy` | Jetson Nano |
 

@@ -128,7 +128,7 @@ class PlanningAgent(Agent):
 
 orchestrator.register(PlanningAgent())
 ```
-*The orchestrator automatically exports this Agent Card and begins heart‑beating.* citeturn1file1
+*The orchestrator automatically exports this Agent Card and begins heart‑beating.* 
 
 ---
 
@@ -154,16 +154,16 @@ orchestrator.register(PlanningAgent())
 |**Cloud‑Native** | `helm install alpha-asi ./chart` | A100 80 GB + HPA |
 |**Air‑gapped** | `singularity run alpha-asi-offline.sif --offline` | No Internet |
 
-*All images are Cosign‑signed; SBOM attested via in‑toto.* citeturn1file2
+*All images are Cosign‑signed; SBOM attested via in‑toto.* 
 
 ---
 
 ## 9. Security & Compliance Checklist 🛡️
 - [x] A2A envelopes hashed (BLAKE3) & merklised hourly on Solana.  
 - [x] Full OpenTelemetry spans → Prometheus / Grafana dashboards.  
-- [x] KL‑divergence to safe‑policy ≤ 0.11 ⇒ provable reward‑hacking bound. citeturn1file7  
-- [x] Zero sandbox escapes in 10 k fuzz runs (3.8 ms overhead). citeturn1file7  
-- [x] EU AI‑Act Title VIII & ISO/IEC 42001 traceability satisfied. citeturn1file4  
+- [x] KL‑divergence to safe‑policy ≤ 0.11 ⇒ provable reward‑hacking bound.   
+- [x] Zero sandbox escapes in 10 k fuzz runs (3.8 ms overhead).   
+- [x] EU AI‑Act Title VIII & ISO/IEC 42001 traceability satisfied.   
 
 ---
 

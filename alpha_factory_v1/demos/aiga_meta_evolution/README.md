@@ -1,18 +1,18 @@
 <!--
-  AI‑GA Meta‑Evolution Demo
-  Alpha‑Factory v1 👁️✨ — Multi‑Agent **AGENTIC α‑AGI**
-  Out‑learn · Out‑think · Out‑strategise · Out‑evolve
-  © 2025 MONTREAL.AI   MIT License
-  -------------------------------------------------------------------------------
-  Exhaustive README: quick‑start, deep‑dive, SOC‑2 rails, CI/CD, K8s,
-  observability, SBOM notice. Rendered as GitHub‑flavoured Markdown.
+ AI‑GA Meta‑Evolution Demo
+ Alpha‑Factory v1 👁️✨ — Multi‑Agent **AGENTIC α‑AGI**
+ Out‑learn · Out‑think · Out‑strategise · Out‑evolve
+ © 2025 MONTREAL.AI   MIT License
+ -------------------------------------------------------------------------------
+ Exhaustive README: quick‑start, deep‑dive, SOC‑2 rails, CI/CD, K8s,
+ observability, SBOM notice. Rendered as GitHub‑flavoured Markdown.
 -->
 
 
 # 🌌 Algorithms That Invent Algorithms — <br>**AI‑GA Meta‑Evolution Demo**
 
-> *“Why hand‑craft intelligence when evolution can author it for you?”*  
-> — Jeff Clune, *AI‑GAs: AI‑Generating Algorithms* (2019) citeturn3file0
+> *“Why hand‑craft intelligence when evolution can author it for you?”* 
+> — Jeff Clune, *AI‑GAs: AI‑Generating Algorithms* (2019) 
 
 A single‑command, browser‑based showcase of Clune’s **Three Pillars**:
 
@@ -51,7 +51,7 @@ Within **&lt; 60 s** you’ll watch neural nets **rewrite their own blueprin
 git clone https://github.com/MontrealAI/AGI-Alpha-Agent-v0.git
 cd AGI-Alpha-Agent-v0/alpha_factory_v1/demos/aiga_meta_evolution
 
-# optional: --pull (signed image)  --gpu (NVIDIA runtime)
+# optional: --pull (signed image) --gpu (NVIDIA runtime)
 ./run_aiga_demo.sh
 ```
 
@@ -67,6 +67,22 @@ so you can stop and restart the container without losing progress.
 > 🧊 **Cold build** ≈ 40 s (900 MB). Subsequent runs are instant (cache).
 
 Minimal host reqs → Docker 24, ≥ 4 GB RAM, **no GPU** needed.
+
+## 🚀 Quick‑start (Python)
+
+Prefer running natively? The service also launches directly from the
+repository without Docker. This path is handy for quick experiments or
+when Docker is unavailable.
+
+```bash
+git clone https://github.com/MontrealAI/AGI-Alpha-Agent-v0.git
+cd AGI-Alpha-Agent-v0
+pip install -r alpha_factory_v1/requirements.txt
+python alpha_factory_v1/demos/aiga_meta_evolution/agent_aiga_entrypoint.py
+```
+
+Set `OPENAI_API_KEY` in your environment to enable cloud models. Without
+it the demo falls back to the bundled offline mixtral model.
 
 ---
 
@@ -93,23 +109,23 @@ LLMs supply *commentary & analysis* only – **core evolution is deterministic**
 
 ```text
 ┌── docker‑compose ─────────────┐
-│ orchestrator  (FastAPI + UI)  │◀─────────┐
-│ ollama  (Mixtral fallback)    │          │ WebSocket
-│ prometheus  (opt)             │          │
-└───────────────────────────────┘          │
-        ▲ REST / Ray RPC                   │
+│ orchestrator (FastAPI + UI) │◀─────────┐
+│ ollama (Mixtral fallback)  │     │ WebSocket
+│ prometheus (opt)       │     │
+└───────────────────────────────┘     │
+    ▲ REST / Ray RPC          │
 ┌────────────────────────────────────────┐ │
-│  MetaEvolver        checkpoint.json    │ │
-│    ├─ Ray / mp evaluation workers      │ │
-│    └─ EvoNet(nn.Module) ──┐            │ │ obs/reward
-│                           ▼            │ │
-│  CurriculumEnv (Gymnasium)             │◀┘
+│ MetaEvolver    checkpoint.json  │ │
+│  ├─ Ray / mp evaluation workers   │ │
+│  └─ EvoNet(nn.Module) ──┐      │ │ obs/reward
+│              ▼      │ │
+│ CurriculumEnv (Gymnasium)       │◀┘
 └────────────────────────────────────────┘
 ```
 
-* **MetaEvolver** – pop 24, tournament‑k 3, elitism 2, novelty bonus toggle  
-* **EvoNet** – arbitrary hidden layers, activation ∈ {relu,tanh,sigmoid}, optional Hebbian ΔW  
-* **CurriculumEnv** – 12 × 12 grid, DFS solvability check, energy budget, genome auto‑mutation  
+* **MetaEvolver** – pop 24, tournament‑k 3, elitism 2, novelty bonus toggle 
+* **EvoNet** – arbitrary hidden layers, activation ∈ {relu,tanh,sigmoid}, optional Hebbian ΔW 
+* **CurriculumEnv** – 12 × 12 grid, DFS solvability check, energy budget, genome auto‑mutation 
 
 ---
 
@@ -122,15 +138,15 @@ LLMs supply *commentary & analysis* only – **core evolution is deterministic**
 | `aiga_generations_total` | Counter |
 | `aiga_curriculum_stage` | 0–3 |
 
-Enable profile `telemetry` to autopush → Prometheus → Grafana.  
+Enable profile `telemetry` to autopush → Prometheus → Grafana. 
 `docker compose --profile telemetry up`.
 
 ---
 
 ## 🧪 Tests & CI
 
-* **Coverage ≥ 90 %** in < 0.5 s (`pytest -q`)  
-* GitHub Actions → lint → test → build → Cosign sign  
+* **Coverage ≥ 90 %** in < 0.5 s (`pytest -q`) 
+* GitHub Actions → lint → test → build → Cosign sign 
 * **SBOM** via *Syft* (SPDX v3) per release
 
 ---
@@ -142,20 +158,20 @@ apiVersion: apps/v1
 kind: Deployment
 metadata: { name: aiga-demo }
 spec:
-  replicas: 1
-  selector: { matchLabels: { app: aiga-demo } }
-  template:
-    metadata: { labels: { app: aiga-demo } }
-    spec:
-      containers:
-      - name: orchestrator
-        image: ghcr.io/montrealai/alpha-aiga:latest@sha256:<signed>
-        ports:
-        - { containerPort: 8000 }   # API
-        - { containerPort: 7862 }   # UI
-        readinessProbe:
-          httpGet: { path: /health, port: 8000 }
-        envFrom: [{ secretRef: { name: aiga-secrets } }]
+ replicas: 1
+ selector: { matchLabels: { app: aiga-demo } }
+ template:
+  metadata: { labels: { app: aiga-demo } }
+  spec:
+   containers:
+   - name: orchestrator
+    image: ghcr.io/montrealai/alpha-aiga:latest@sha256:<signed>
+    ports:
+    - { containerPort: 8000 }  # API
+    - { containerPort: 7862 }  # UI
+    readinessProbe:
+     httpGet: { path: /health, port: 8000 }
+    envFrom: [{ secretRef: { name: aiga-secrets } }]
 ```
 
 *Helm chart* → `infra/helm/aiga-demo/`.
@@ -164,10 +180,10 @@ spec:
 
 ## 🛡 SOC‑2 & supply‑chain
 
-* Cosign‑signed images (`cosign verify …`)  
-* Runs **non‑root UID 1001**, read‑only code volume  
-* Secrets via K8s / Docker *secrets* (never baked into layers)  
-* Dependencies hashed (Poetry lock) & validated at runtime  
+* Cosign‑signed images (`cosign verify …`) 
+* Runs **non‑root UID 1001**, read‑only code volume 
+* Secrets via K8s / Docker *secrets* (never baked into layers) 
+* Dependencies hashed (Poetry lock) & validated at runtime 
 * SBOM exported; SLSA level 2 pipeline
 
 ---
@@ -198,11 +214,11 @@ spec:
 
 ## ⚖️ License & credits
 
-*Source & assets* © 2025 Montreal.AI, released under the **MIT License**.  
+*Source & assets* © 2025 Montreal.AI, released under the **MIT License**. 
 Huge thanks to:
 
-* **Jeff Clune** – visionary behind AI‑GAs  
-* **OpenAI, Anthropic, Google** – open‑sourcing crucial agent tooling  
+* **Jeff Clune** – visionary behind AI‑GAs 
+* **OpenAI, Anthropic, Google** – open‑sourcing crucial agent tooling 
 * OSS maintainers – you make this possible ♥
 
 > **Alpha‑Factory** — forging intelligence that *invents* intelligence.
