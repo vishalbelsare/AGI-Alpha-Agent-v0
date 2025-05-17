@@ -252,6 +252,14 @@ python -m omega_lattice.orchestrator --offline
 
 No `OPENAI_API_KEY`? It auto‑switches to **Llama‑3‑8B.gguf**.
 
+#### Quick Local Demo
+
+Run the standalone script directly to simulate one Ω‑Lattice cycle:
+
+```bash
+python alpha_agi_business_3_v1.py --loglevel info
+```
+
 ---
 
 <a id="9"></a>
