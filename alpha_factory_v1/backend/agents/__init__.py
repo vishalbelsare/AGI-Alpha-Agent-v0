@@ -197,31 +197,45 @@ def _emit_kafka(topic: str, payload: str):
 ##############################################################################
 #                   unified decorator (optional nicety)                      #
 ##############################################################################
-def register(cls):  # type: ignore
-    """
-    Convenience decorator for agent modules that *do not* want to
-    manually fiddle with metadata.  Example::
+def register(cls=None, *, condition=True):  # type: ignore
+    """Decorator adding an :class:`AgentBase` subclass to the registry.
 
-        from alpha_factory_v1.backend.agents import register, AgentBase
+    ``condition`` may be a boolean or a callable returning ``True``/``False``.
+    When ``False`` the decorated class is returned but not registered.  Usage::
 
         @register
-        class FinanceAgent(AgentBase):
-            NAME = "Finance"
-            CAPABILITIES = ["trade", "forecast"]
+        class MyAgent(AgentBase):
+            ...
+
+        @register(condition=lambda: os.getenv("ENABLE_X") == "1")
+        class OptionalAgent(AgentBase):
+            ...
     """
-    from_backend_base = _agent_base()
-    if not issubclass(cls, from_backend_base):
-        raise TypeError("register() only allowed on AgentBase subclasses")
-    meta = AgentMetadata(
-        name=getattr(cls, "NAME", cls.__name__),
-        cls=cls,
-        version=getattr(cls, "__version__", "0.1.0"),
-        capabilities=list(getattr(cls, "CAPABILITIES", [])),
-        compliance_tags=list(getattr(cls, "COMPLIANCE_TAGS", [])),
-        requires_api_key=getattr(cls, "REQUIRES_API_KEY", False),
-    )
-    _register(meta, overwrite=False)
-    return cls
+
+    def decorator(inner_cls):
+        from_backend_base = _agent_base()
+        if not issubclass(inner_cls, from_backend_base):
+            raise TypeError("register() only allowed on AgentBase subclasses")
+
+        cond_result = condition() if callable(condition) else bool(condition)
+        if cond_result:
+            meta = AgentMetadata(
+                name=getattr(inner_cls, "NAME", inner_cls.__name__),
+                cls=inner_cls,
+                version=getattr(inner_cls, "__version__", "0.1.0"),
+                capabilities=list(getattr(inner_cls, "CAPABILITIES", [])),
+                compliance_tags=list(getattr(inner_cls, "COMPLIANCE_TAGS", [])),
+                requires_api_key=getattr(inner_cls, "REQUIRES_API_KEY", False),
+            )
+            _register(meta, overwrite=False)
+        else:
+            logger.info(
+                "Agent %s not registered (condition=false)",
+                getattr(inner_cls, "NAME", inner_cls.__name__),
+            )
+        return inner_cls
+
+    return decorator(cls) if cls is not None else decorator
 
 ##############################################################################
 #               internal — utility to import the master AgentBase            #
