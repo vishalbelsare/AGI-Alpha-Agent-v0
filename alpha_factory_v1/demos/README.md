@@ -18,18 +18,24 @@
 
 ---
 
-## 1 • Welcome 
-**Alpha‑Factory v1** is the **cross‑industry agentic engine** that captures live α‑signals and turns them into value across all industries & beyond. This gallery lets you *touch* that power:
+## 1 • Welcome
+**Alpha‑Factory v1** is the **cross‑industry agentic engine** that captures live α‑signals and turns them into value across all industries & beyond. This gallery lets you *touch* that power.
 
+### Quick Start 🚀
 ```bash
-# one‑command immersive tour (CPU‑only)
+# One-command immersive tour (CPU‑only)
 curl -sSL https://raw.githubusercontent.com/MontrealAI/AGI-Alpha-Agent-v0/main/alpha_factory_v1/demos/quick_start.sh | bash
-# or, if cloned locally (run from repo root):
+
+# If cloned locally (run from repo root)
 ./alpha_factory_v1/quickstart.sh
-# or via Docker (no install)
+
+# Cross‑platform Python launcher
+python alpha_factory_v1/quickstart.py
+
+# Or via Docker (no install)
 docker run --pull=always -p 7860:7860 ghcr.io/montrealai/alpha-factory-demos:latest
 ```
-Opens **http://localhost:7860** with a Gradio portal to every demo. Works on macOS, Linux, WSL 2 & Colab.
+Opens **http://localhost:7860** with a Gradio portal to every demo. Works on macOS, Linux, WSL 2 and Colab.
 
 ---
 
