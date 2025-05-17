@@ -1,11 +1,29 @@
-# backend/agent_base.py
+# SPDX-License-Identifier: Apache-2.0
+"""Compatibility Agent base-class used across Alpha‑Factory.
+
+This module preserves the historic ``backend.agent_base.AgentBase`` import
+location while providing a thin, production‑ready implementation.  Each agent
+cycle is traced, persisted and guarded by :mod:`backend.governance` so
+behaviour can be replayed and audited.
+"""
+
+from __future__ import annotations
+
 import abc
-import datetime
+import asyncio
+import datetime as _dt
 import logging
 import uuid
 from typing import Any, Dict, List
 
 from .tracer import Tracer
+
+
+async def _maybe_async(fn, *args, **kwargs):
+    """Run ``fn`` in the appropriate context (sync or async)."""
+    if asyncio.iscoroutinefunction(fn):
+        return await fn(*args, **kwargs)
+    return await asyncio.to_thread(fn, *args, **kwargs)
 
 class AgentBase(abc.ABC):
     """
@@ -20,7 +38,7 @@ class AgentBase(abc.ABC):
     """
 
     # ────────────────────────────────────────────────────────────────
-    def __init__(self, name: str, model, memory, gov):
+    def __init__(self, name: str, model: Any, memory: Any, gov: Any) -> None:
         self.id = str(uuid.uuid4())
         self.name = name
         self.model = model
@@ -44,28 +62,34 @@ class AgentBase(abc.ABC):
         ...
 
     # ───────── single life‑cycle ───────────────────────────────────
-    def run_cycle(self) -> None:
-        ts = datetime.datetime.utcnow().isoformat()
+    async def run_cycle(self) -> None:
+        """Execute one Observe → Think → Act cycle with tracing."""
+        ts = _dt.datetime.utcnow().isoformat()
         self.log.info("%s cycle start", self.name)
 
         try:
-            observations = self.observe()
+            observations = await _maybe_async(self.observe)
             self.tracer.record(self.name, "observe", observations)
 
-            ideas = self.think(observations)
+            ideas = await _maybe_async(self.think, observations)
             self.tracer.record(self.name, "think", ideas)
 
             vetted = self.gov.vet_plans(self, ideas)
             self.tracer.record(self.name, "vet", vetted)
 
-            self.act(vetted)
+            await _maybe_async(self.act, vetted)
             self.tracer.record(self.name, "act", vetted)
 
-        except Exception as err:
+        except Exception as err:  # pragma: no cover - safety net
             self.log.exception("Cycle error: %s", err)
             self.memory.write(
-                self.name, "error", {"msg": str(err), "ts": ts}
+                self.name,
+                "error",
+                {"msg": str(err), "ts": ts},
             )
 
         self.log.info("%s cycle end", self.name)
+
+
+__all__ = ["AgentBase"]
 
