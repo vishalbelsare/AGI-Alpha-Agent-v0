@@ -91,6 +91,7 @@ def main() -> None:
     ok = True
     ok &= check_python()
     ok &= check_cmd('docker')
+    ok &= check_cmd('git')
     ok &= check_docker_daemon()
     ok &= check_docker_compose()
     ok &= check_pkg('openai')
