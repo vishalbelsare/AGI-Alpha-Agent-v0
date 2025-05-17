@@ -306,7 +306,10 @@ def _build_rest(runners: Dict[str, AgentRunner]) -> Optional[FastAPI]:
     return app
 
 # ─────────────────────────── gRPC A2A ────────────────────────────────
+_GRPC_SERVER: Optional["grpc.aio.Server"] = None
+
 async def _serve_grpc(runners: Dict[str, AgentRunner]) -> None:
+    """Initialise the gRPC A2A server in the background."""
     if not A2A_PORT or "grpc" not in globals():
         return
     try:
@@ -341,6 +344,10 @@ async def _serve_grpc(runners: Dict[str, AgentRunner]) -> None:
     bind = f"[::]:{A2A_PORT}"
     server.add_secure_port(bind, creds) if creds else server.add_insecure_port(bind)
     await server.start()
+    global _GRPC_SERVER
+    _GRPC_SERVER = server
+    asyncio.create_task(server.wait_for_termination())
+    atexit.register(lambda: server.stop(0))
     log.info("gRPC A2A server listening on %s (%s)", bind, "TLS" if creds else "plaintext")
 
 # ─────────────────────── Heartbeat monitor ───────────────────────────
@@ -386,6 +393,8 @@ async def _main() -> None:
 
     # ─── Drain & exit cleanly ────────────────────────────────────────
     await asyncio.gather(*(r.task for r in runners.values() if r.task), return_exceptions=True)
+    if _GRPC_SERVER:
+        _GRPC_SERVER.stop(0)
     log.info("Orchestrator shutdown complete")
 
 # ───────────────────────── public API ───────────────────────────────
