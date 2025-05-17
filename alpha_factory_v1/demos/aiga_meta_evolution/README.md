@@ -68,6 +68,22 @@ so you can stop and restart the container without losing progress.
 
 Minimal host reqs → Docker 24, ≥ 4 GB RAM, **no GPU** needed.
 
+## 🚀 Quick‑start (Python)
+
+Prefer running natively? The service also launches directly from the
+repository without Docker. This path is handy for quick experiments or
+when Docker is unavailable.
+
+```bash
+git clone https://github.com/MontrealAI/AGI-Alpha-Agent-v0.git
+cd AGI-Alpha-Agent-v0
+pip install -r alpha_factory_v1/requirements.txt
+python alpha_factory_v1/demos/aiga_meta_evolution/agent_aiga_entrypoint.py
+```
+
+Set `OPENAI_API_KEY` in your environment to enable cloud models. Without
+it the demo falls back to the bundled offline mixtral model.
+
 ---
 
 ## 🎓 Run in Colab
