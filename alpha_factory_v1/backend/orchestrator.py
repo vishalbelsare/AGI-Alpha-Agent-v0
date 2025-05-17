@@ -40,6 +40,7 @@ import os
 import signal
 import sys
 import time
+import atexit
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Dict, List, Optional
@@ -162,6 +163,15 @@ if KAFKA_BROKER and "KafkaProducer" in globals():
 
     def publish(topic: str, msg: Dict[str, Any]) -> None:
         _producer.send(topic, msg)
+
+    def _close_producer() -> None:  # graceful flush on exit
+        try:
+            _producer.flush()
+            _producer.close()
+        except Exception:  # noqa: BLE001
+            log.exception("Kafka producer close failed")
+
+    atexit.register(_close_producer)
 else:  # in-memory async queue bus
     _queues: Dict[str, asyncio.Queue] = {}
     if KAFKA_BROKER and not DEV_MODE:
