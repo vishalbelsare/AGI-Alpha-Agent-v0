@@ -11,7 +11,7 @@
 #  ▸ `--live` flag starts real-time collectors (FRED, Etherscan, X/Twitter)
 #  ▸ `--reset` stops & purges any previous stack before fresh start
 #  ▸ Deterministic image tags, pre-pulls cache layers
-#  ▸ Health-gates the orchestrator on /__live (40 × 2 s)
+#  ▸ Health-gates the orchestrator on /healthz (40 × 2 s)
 #  ▸ Prints helper commands (logs, stop, purge) on success
 #
 #  Usage:
@@ -134,7 +134,7 @@ docker compose --project-name alpha_macro -f "$compose_file" $profile_arg up -d
 # ─────────────────────── health gate & trap ───────────────────
 trap 'docker compose -p alpha_macro stop; exit 0' INT
 say "⏳ Waiting for orchestrator health"
-health_wait "http://localhost:7864/__live" 40
+health_wait "http://localhost:7864/healthz" 40
 
 # ───────────────────────── success banner ─────────────────────
 printf '\n\033[1;32m🎉 Dashboard → http://localhost:7864\033[0m\n'
