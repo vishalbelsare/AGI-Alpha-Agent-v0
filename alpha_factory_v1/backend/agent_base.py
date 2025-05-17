@@ -49,17 +49,32 @@ class AgentBase(abc.ABC):
         self.tracer = Tracer(self.memory)
 
     # ───────── framework hooks (must be implemented) ───────────────
-    @abc.abstractmethod
     def observe(self) -> List[Dict[str, Any]]:
-        ...
+        """Collect observations from the environment.
 
-    @abc.abstractmethod
+        Subclasses may override this method.  The default implementation
+        returns an empty list so that legacy agents relying solely on a
+        custom ``run_cycle`` can still be instantiated without implementing
+        the observe/think/act trio explicitly.
+        """
+        return []
+
     def think(self, observations: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
-        ...
+        """Process *observations* and return proposed tasks.
 
-    @abc.abstractmethod
+        Provided for backwards compatibility with early AgentBase versions.
+        The base implementation simply returns an empty list.
+        """
+        return []
+
     def act(self, tasks: List[Dict[str, Any]]) -> None:
-        ...
+        """Execute approved *tasks*.
+
+        The default body performs no action.  Concrete agents overriding
+        :meth:`run_cycle` directly are therefore not forced to implement
+        this method, preserving historical behaviour.
+        """
+        return None
 
     # ───────── single life‑cycle ───────────────────────────────────
     async def run_cycle(self) -> None:
