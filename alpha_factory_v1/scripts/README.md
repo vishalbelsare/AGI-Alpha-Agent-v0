@@ -12,6 +12,9 @@ and offline fallback — **in ≈ 60 seconds.**
 ## 🚀 Quick start (default profile)
 
 ```bash
+# 0 · validate prerequisites
+python3 scripts/preflight.py
+
 # 1 · make the installer executable
 chmod +x scripts/install_alpha_factory_pro.sh
 
