@@ -348,6 +348,21 @@ class BiotechAgent(AgentBase):
         rows = await self.kg.query_pathway(entity)
         return json.dumps(_wrap_mcp(self.NAME, rows or {"error": "entity_not_found"}))
 
+    async def _optimise_async(self, sequence: str) -> Dict[str, Any]:
+        """Minimal GC-content optimisation when heavy libs are absent."""
+        gc_orig = sequence.count("G") + sequence.count("C")
+        gc_new_seq = sequence.replace("A", "G")
+        gc_new = gc_new_seq.count("G") + gc_new_seq.count("C")
+        delta = (gc_new - gc_orig) / len(sequence)
+        return {
+            "optimised_sequence": gc_new_seq,
+            "delta_stability": round(delta, 4),
+        }
+
+    def optimise(self, sequence: str) -> Dict[str, Any]:  # noqa: D401
+        loop = asyncio.get_event_loop()
+        return loop.run_until_complete(self._optimise_async(sequence))
+
     # ── data ingest helpers ──────────────────────────────────────────────
     async def _ingest_pubmed(self, term: str):
         """Fetch latest PubMed IDs and abstract titles for term; embed & log."""

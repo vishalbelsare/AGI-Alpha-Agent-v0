@@ -15,8 +15,8 @@ from __future__ import annotations
 import importlib
 from typing import Any, Dict
 
-from backend.manufacturing_agent import ManufacturingAgent
-from backend.biotech_agent import BiotechAgent
+from backend.agents.manufacturing_agent import ManufacturingAgent
+from backend.agents.biotech_agent import BiotechAgent
 from backend.governance import decision_span
 
 # ─── Optional ADK import (keeps ci green when adk not installed) ──────────
@@ -70,6 +70,7 @@ class ManufacturingADK(Agent):
         timeout=30
     )
     def schedule_jobs(self, *, jobs: list[dict[str, Any]], horizon: int) -> Dict[str, Any]:
+        """Return an optimised schedule via :class:`ManufacturingAgent`."""
         with decision_span("manufacturing.schedule_jobs", jobs=len(jobs), horizon=horizon):
             return self.impl.schedule(jobs, horizon)
 
@@ -107,6 +108,7 @@ class BiotechADK(Agent):
         timeout=60
     )
     def protein_optimise(self, *, sequence: str) -> Dict[str, Any]:
+        """Optimise *sequence* via :class:`BiotechAgent`."""
         with decision_span("biotech.protein_optimise", length=len(sequence)):
             return self.impl.optimise(sequence)
 
@@ -128,3 +130,9 @@ def adk_registry() -> Dict[str, Agent]:
         "manufacturing": ManufacturingAgent(),
         "biotech": BiotechAgent(),
     }
+
+__all__ = [
+    "ManufacturingADK",
+    "BiotechADK",
+    "adk_registry",
+]

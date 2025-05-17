@@ -239,6 +239,20 @@ class ManufacturingAgent(AgentBase):
         return loop.run_until_complete(self._what_if_async(req))
 
     # ------------------------------------------------------------------
+    # Public sync helpers ----------------------------------------------
+    # ------------------------------------------------------------------
+
+    def schedule(self, jobs: List[List[Dict[str, Any]]], horizon: int) -> Dict[str, Any]:
+        """Synchronous wrapper around :meth:`_build_async` returning a dict."""
+        req = {"jobs": jobs, "horizon": horizon}
+        loop = asyncio.get_event_loop()
+        res = loop.run_until_complete(self._build_async(req))
+        try:
+            return json.loads(res)["payload"]
+        except Exception:  # noqa: BLE001
+            return json.loads(res)
+
+    # ------------------------------------------------------------------
     # Orchestrator lifecycle -------------------------------------------
     # ------------------------------------------------------------------
 
