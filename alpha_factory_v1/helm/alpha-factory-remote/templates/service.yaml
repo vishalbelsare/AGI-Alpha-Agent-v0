@@ -11,5 +11,9 @@ spec:
       targetPort: 8000
       protocol: TCP
       name: rpc
+    - port: {{ .Values.env.METRICS_PORT | default 9090 }}
+      targetPort: {{ .Values.env.METRICS_PORT | default 9090 }}
+      protocol: TCP
+      name: metrics
   selector:
     app: {{ include "alpha-factory-remote.name" . }}

@@ -7,7 +7,9 @@ This chart deploys a remote worker pod for the **Alpha‑Factory** swarm. It pac
 helm upgrade --install af-remote ./helm/alpha-factory-remote \
   --set env.OPENAI_API_KEY=<key>
 ```
-The worker exposes gRPC + metrics on port `8000`.
+The worker exposes gRPC on port `8000` and publishes Prometheus metrics on the
+port defined by `env.METRICS_PORT` (default `9090`). Liveness and readiness
+probes query `/healthz` for reliable orchestration.
 
 ## Values
 - `image.repository` – container image (default `ghcr.io/montrealai/alpha-factory`)

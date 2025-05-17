@@ -11,6 +11,10 @@ helm upgrade --install alphafactory ./helm/alpha-factory \
 The service exposes:
 - REST + gRPC on port `8000`
 - Web UI on port `3000`
+- Prometheus metrics on port defined by `env.METRICS_PORT` (default `9090`)
+
+Liveness and readiness probes hit `/healthz` to ensure Kubernetes can reliably
+restart unhealthy pods.
 
 ## Values
 - `image.repository` – container image (default `ghcr.io/montrealai/alpha-factory`)

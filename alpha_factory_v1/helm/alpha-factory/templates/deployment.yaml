@@ -30,5 +30,18 @@ spec:
           ports:
             - containerPort: {{ .Values.service.port }}   # REST + gRPC
             - containerPort: {{ .Values.service.uiPort }}  # UI
+            - containerPort: {{ .Values.env.METRICS_PORT | default 9090 }}  # metrics
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: {{ .Values.service.port }}
+            initialDelaySeconds: 10
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: {{ .Values.service.port }}
+            initialDelaySeconds: 5
+            periodSeconds: 5
           resources: {{- toYaml .Values.resources | nindent 12 }}
 {{ include "af.spiffeSidecar" . | indent 8 }}

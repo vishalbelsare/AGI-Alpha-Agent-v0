@@ -15,5 +15,9 @@ spec:
       targetPort: {{ .Values.service.uiPort }}
       protocol: TCP
       name: ui
+    - port: {{ .Values.env.METRICS_PORT | default 9090 }}
+      targetPort: {{ .Values.env.METRICS_PORT | default 9090 }}
+      protocol: TCP
+      name: metrics
   selector:
     app: {{ include "alpha-factory.name" . }}
