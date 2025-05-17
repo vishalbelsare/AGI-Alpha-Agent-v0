@@ -379,9 +379,18 @@ async def _main() -> None:
     await asyncio.gather(*(r.task for r in runners.values() if r.task), return_exceptions=True)
     log.info("Orchestrator shutdown complete")
 
+# ───────────────────────── public API ───────────────────────────────
+class Orchestrator:
+    """Programmatic entry-point wrapping :func:`_main`."""
+
+    def run_forever(self) -> None:
+        """Start the orchestrator and block until interrupted."""
+        asyncio.run(_main())
+
+
 # ───────────────────────── CLI entry-point ──────────────────────────
 if __name__ == "__main__":
     try:
-        asyncio.run(_main())
+        Orchestrator().run_forever()
     except KeyboardInterrupt:
         pass
