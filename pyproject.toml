@@ -12,6 +12,7 @@ requires-python = ">=3.9"
 [project.scripts]
 alpha-factory = "alpha_factory_v1.run:run"
 governance-sim = "alpha_factory_v1.demos.solving_agi_governance.governance_sim:main"
+edge-runner = "alpha_factory_v1.edge_runner:main"
 
 [project.entry-points."alpha_factory.agents"]
 # custom agents can be registered here
