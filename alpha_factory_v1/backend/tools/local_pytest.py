@@ -21,6 +21,7 @@ import platform
 import subprocess
 import sys
 import time
+import shutil
 from pathlib import Path
 from typing import Any, Dict
 
