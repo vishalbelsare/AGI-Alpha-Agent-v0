@@ -22,8 +22,11 @@ def parse_args() -> argparse.Namespace:
 
 
 def apply_env(args: argparse.Namespace) -> None:
-    if args.env_file:
-        for line in Path(args.env_file).read_text().splitlines():
+    env_file = args.env_file
+    if env_file is None and Path(".env").is_file():
+        env_file = ".env"
+    if env_file:
+        for line in Path(env_file).read_text().splitlines():
             line = line.strip()
             if not line or line.startswith("#") or "=" not in line:
                 continue
