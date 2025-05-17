@@ -34,6 +34,14 @@ MuZero-style model-based search to stay sample-efficient.
 Both flows autodetect `OPENAI_API_KEY`; when absent they inject a **Mixtral 8×7B**
 local LLM container so the demo works **fully offline**.
 
+### Quick Start
+```bash
+git clone https://github.com/MontrealAI/AGI-Alpha-Agent-v0.git
+cd AGI-Alpha-Agent-v0/alpha_factory_v1/demos/cross_industry_alpha_factory
+./deploy_alpha_factory_cross_industry_demo.sh
+```
+
+
 ---
 
 ### 3 · Live endpoints after install
