@@ -52,8 +52,10 @@ from typing import Any, Mapping, Optional
 # ──────────────────────────────────────────────────────────────────────────────
 # Alpha-Factory internal imports
 # ──────────────────────────────────────────────────────────────────────────────
-from backend.agents.base import AgentBase
-from backend.agents import register
+from backend.agents import register, _agent_base
+
+# Ensure compatibility with both legacy and new AgentBase locations
+AgentBase = _agent_base()
 
 # ──────────────────────────────────────────────────────────────────────────────
 # Resilient, colourised logger (inherits project-wide JSON formatter)
