@@ -13,9 +13,10 @@ from urllib import request as _request, parse as _parse, error as _error
 class Response:
     """Lightweight HTTP response container."""
 
-    def __init__(self, status_code: int, text: str) -> None:
+    def __init__(self, status_code: int, text: str, headers: dict | None = None) -> None:
         self.status_code = status_code
         self.text = text
+        self.headers = headers or {}
 
     def json(self):
         return _json.loads(self.text)
@@ -30,10 +31,12 @@ def get(url: str, *, timeout: float | None = None) -> Response:
     try:
         with _request.urlopen(url, timeout=timeout) as resp:
             data = resp.read().decode()
-            return Response(resp.getcode(), data)
+            headers = dict(resp.headers.items())
+            return Response(resp.getcode(), data, headers)
     except _error.HTTPError as exc:
         data = exc.read().decode()
-        return Response(exc.code, data)
+        headers = dict(exc.headers.items()) if hasattr(exc, "headers") else {}
+        return Response(exc.code, data, headers)
 
 
 def post(
@@ -63,10 +66,12 @@ def post(
     try:
         with _request.urlopen(req, timeout=timeout) as resp:
             text = resp.read().decode()
-            return Response(resp.getcode(), text)
+            headers = dict(resp.headers.items())
+            return Response(resp.getcode(), text, headers)
     except _error.HTTPError as exc:
         text = exc.read().decode()
-        return Response(exc.code, text)
+        headers = dict(exc.headers.items()) if hasattr(exc, "headers") else {}
+        return Response(exc.code, text, headers)
 
 
 __all__ = ["get", "post", "Response"]

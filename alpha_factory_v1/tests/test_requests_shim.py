@@ -46,6 +46,7 @@ class RequestsShimTest(unittest.TestCase):
         self.assertEqual(resp.text, "ok")
         self.assertIsNone(H.received_body)
         self.assertIn("Host", H.received_headers)
+        self.assertIn("Server", resp.headers)
 
     def test_post_json(self):
         self.server, self.thread, H, url = start_server()
@@ -54,6 +55,7 @@ class RequestsShimTest(unittest.TestCase):
         self.assertEqual(resp.json(), payload)
         self.assertEqual(H.received_body, json.dumps(payload).encode())
         self.assertEqual(H.received_headers.get("Content-Type"), "application/json")
+        self.assertIn("Server", resp.headers)
 
     def test_post_bytes(self):
         self.server, self.thread, H, url = start_server()
@@ -65,6 +67,7 @@ class RequestsShimTest(unittest.TestCase):
             H.received_headers.get("Content-Type"),
             "application/x-www-form-urlencoded",
         )
+        self.assertIn("Server", resp.headers)
 
     def test_raise_for_status(self):
         self.server, self.thread, H, url = start_server(status=404)
