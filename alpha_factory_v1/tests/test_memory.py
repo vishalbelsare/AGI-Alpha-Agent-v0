@@ -16,5 +16,16 @@ class MemoryTest(unittest.TestCase):
             self.assertEqual(records[1]['agent'], 'agent2')
             self.assertEqual(records[1]['data']['msg'], 'world')
 
+    def test_limit_and_query_alias(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            mem = Memory(tmpdir)
+            for i in range(10):
+                mem.write('agent', 'num', {'i': i})
+            recs = mem.read(limit=5)
+            self.assertEqual(len(recs), 5)
+            self.assertEqual(recs[0]['data']['i'], 5)
+            # query() should return the same result
+            self.assertEqual(mem.query(limit=5), recs)
+
 if __name__ == '__main__':
     unittest.main()
