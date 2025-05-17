@@ -79,15 +79,19 @@ The protocol behaves as a **self-refining alpha-field**: every inefficiency touc
 ---
 
 ### 9 · Running the Demo
-Clone the repository and run the Monte‑Carlo simulation script:
+This demo has **no third‑party dependencies**.  Any Python ≥ 3.9 works.
+
+Clone the repository and launch the Monte‑Carlo simulator:
 
 ```bash
-python governance_sim.py --agents 1000 --rounds 6000 --delta 0.8
+python -m alpha_factory_v1.demos.solving_agi_governance.governance_sim \
+    --agents 1000 --rounds 6000 --delta 0.8 --seed 42
 ```
 
-The script outputs the mean cooperation rate after the simulated rounds,
-illustrating convergence toward the cooperative equilibrium when the
-discount factor `δ` is at least 0.8.
+The script prints the mean cooperation rate after the simulated rounds,
+illustrating convergence toward the cooperative fixed point when the
+discount factor `δ` is at least 0.8.  The optional `--seed` flag makes
+the run deterministic.
 
 ---
 
