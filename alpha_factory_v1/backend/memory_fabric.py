@@ -53,8 +53,10 @@ from pathlib import Path
 from typing import Any, Dict, Iterable, List, Optional, Sequence, Tuple, Union
 
 # ─────────────────────── dynamic soft-deps ░──────────────────
-with contextlib.suppress(ModuleNotFoundError):
+try:
     import numpy as np  # type: ignore
+except ModuleNotFoundError:  # pragma: no cover - optional dep
+    np = None  # type: ignore
 with contextlib.suppress(ModuleNotFoundError):
     from sentence_transformers import SentenceTransformer  # type: ignore
 with contextlib.suppress(ModuleNotFoundError):
@@ -129,11 +131,11 @@ def _load_embedder():
 
         def _openai(text: str):
             resp = openai.Embedding.create(model=model, input=text)  # type: ignore[attr-defined]
-            return np.array(resp["data"][0]["embedding"], dtype="float32")
+            return resp["data"][0]["embedding"]
 
         return _openai
 
-    if "SentenceTransformer" in globals():
+    if np is not None and "SentenceTransformer" in globals():
         logger.info("MemoryFabric: using local SBERT embeddings.")
         _model = SentenceTransformer("all-MiniLM-L6-v2")
 
@@ -148,9 +150,13 @@ def _load_embedder():
         h = hashlib.sha256(text.encode()).digest()
         v = [(1 if b & 1 else -1) * ((b >> 1) / 128.0) for b in h]
         v *= (dim + len(v) - 1) // len(v)
-        vec = np.array(v[:dim], dtype="float32")
-        vec /= np.linalg.norm(vec) or 1
-        return vec
+        if np is not None:
+            vec = np.array(v[:dim], dtype="float32")
+            vec /= np.linalg.norm(vec) or 1
+            return vec
+        vec = v[:dim]
+        norm = math.sqrt(sum(x * x for x in vec)) or 1.0
+        return [x / norm for x in vec]
 
     return _hash
 
@@ -217,6 +223,9 @@ class _VectorStore:
 
     # ───── FAISS / SQLite fallback ─────
     def _init_faiss_or_sqlite(self):
+        if np is None:
+            logger.info("VectorStore: numpy missing → RAM mode")
+            return
         if "faiss" in globals():
             self._faiss = faiss.IndexFlatIP(CFG.VECTOR_DIM)
             self._vectors: List[np.ndarray] = []
@@ -275,7 +284,9 @@ class _VectorStore:
     def add(self, agent: str, content: str):
         """Insert one memory row idempotently (by SHA-1 hash)."""
         h = _hash_content(content)
-        vec = _EMBED(content).astype("float32")
+        vec = _EMBED(content)
+        if np is not None:
+            vec = np.asarray(vec, dtype="float32")
         now = _NOW().isoformat()
         try:
             if self._mode == "pg":
@@ -341,7 +352,9 @@ class _VectorStore:
     # search (single query) ------------------------------------
     def search(self, query: str, k: int = 5) -> List[Dict[str, Any]]:
         with (_MET_V_SRCH.time() if _MET_V_SRCH else contextlib.nullcontext()):
-            qv = _EMBED(query).astype("float32")
+            qv = _EMBED(query)
+            if np is not None:
+                qv = np.asarray(qv, dtype="float32")
             if self._mode == "pg":
                 with self._pg.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:  # type: ignore[arg-type]
                     cur.execute(
