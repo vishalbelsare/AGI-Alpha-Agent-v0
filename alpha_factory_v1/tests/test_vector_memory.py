@@ -1,19 +1,14 @@
 import unittest
 
-try:
-    import numpy as np
-    import alpha_factory_v1.backend.memory_vector as mv
-except ModuleNotFoundError:  # pragma: no cover
-    np = None  # type: ignore
-    mv = None  # type: ignore
+import alpha_factory_v1.backend.memory_vector as mv
 
-@unittest.skipIf(np is None, "numpy not available")
+
 class VectorMemoryTest(unittest.TestCase):
     def setUp(self):
         self._orig_embed = mv._embed
-        mv._embed = lambda texts: np.array(
-            [[len(t), sum(t.encode())] for t in texts], dtype="float32"
-        )
+        mv._embed = lambda texts: [
+            [float(len(t)), float(sum(t.encode()))] for t in texts
+        ]
 
     def tearDown(self):
         mv._embed = self._orig_embed

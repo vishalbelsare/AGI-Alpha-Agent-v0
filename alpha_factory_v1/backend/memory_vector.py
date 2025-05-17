@@ -38,7 +38,37 @@ import time
 from pathlib import Path
 from typing import Iterable, List, Sequence, Tuple
 
-import numpy as _np
+try:  # NumPy optional – provide pure Python fallback
+    import numpy as _np
+    _HAS_NUMPY = True
+except ModuleNotFoundError:  # pragma: no cover - offline environments
+    from math import sqrt
+
+    _HAS_NUMPY = False
+
+    class _SimpleNP:  # very small subset used in tests
+        def array(self, obj, dtype=None):  # noqa: D401 - mimic numpy API
+            if obj and isinstance(obj[0], (list, tuple)):
+                return [list(map(float, row)) for row in obj]
+            return [float(x) for x in obj]
+
+        asarray = array
+
+        def vstack(self, arrays):
+            out: list[list[float]] = []
+            for arr in arrays:
+                out.extend(arr)
+            return out
+
+        class linalg:  # pragma: no cover - simple norm implementation
+            @staticmethod
+            def norm(mat, axis=1, keepdims=True):
+                if axis == 1:
+                    norms = [sqrt(sum(x * x for x in row)) for row in mat]
+                    return [[n] for n in norms] if keepdims else norms
+                raise NotImplementedError
+
+    _np = _SimpleNP()
 
 _LOG = logging.getLogger("alpha_factory.memory_vector")
 if not _LOG.handlers:
@@ -101,13 +131,19 @@ _DIM_OPENAI, _DIM_SBERT = 1536, 384
 _SBERT: SentenceTransformer | None = None
 
 
-def _l2(mat: _np.ndarray) -> _np.ndarray:
+def _l2(mat):
     """L2-normalise each row of *mat* (0-safe)."""
-    norm = _np.linalg.norm(mat, axis=1, keepdims=True) + 1e-12
-    return mat / norm
+    if _HAS_NUMPY:
+        norm = _np.linalg.norm(mat, axis=1, keepdims=True) + 1e-12
+        return mat / norm
+    out = []
+    for row in mat:
+        n = sum(x * x for x in row) ** 0.5 + 1e-12
+        out.append([x / n for x in row])
+    return out
 
 
-def _embed(texts: Sequence[str]) -> _np.ndarray:
+def _embed(texts: Sequence[str]):
     """Return L2-normalised embeddings for *texts*."""
     if _HAS_OPENAI:
         try:  # OpenAI – multilingual & SOTA
@@ -132,7 +168,7 @@ def _embed(texts: Sequence[str]) -> _np.ndarray:
             os.getenv("AF_SBER_MODEL", "all-MiniLM-L6-v2")
         )
     vectors = _SBERT.encode(list(texts), normalize_embeddings=True)
-    return _np.asarray(vectors, "float32")
+    return _l2(_np.asarray(vectors, "float32"))
 
 
 def _emb_dim() -> int:
@@ -251,17 +287,22 @@ class _FaissStore:
 
     def __init__(self):
         self._dim = _emb_dim()
-        self._faiss_idx = faiss.IndexFlatIP(self._dim) if _HAS_FAISS else None
+        self._faiss_idx = (
+            faiss.IndexFlatIP(self._dim) if (_HAS_FAISS and _HAS_NUMPY) else None
+        )
         self._meta: list[tuple[str, str]] = []  # (agent, text)
-        self._vecs: list[_np.ndarray] = []      # only used when FAISS absent
+        self._vecs: list[list[list[float]] | _np.ndarray] = []  # fallback store
 
     # ---------- CRUD ---------- #
     def add(self, agent: str, vecs: _np.ndarray, texts: List[str]):
         self._meta.extend((agent, t) for t in texts)
         if self._faiss_idx is not None:
             self._faiss_idx.add(vecs)
-        else:  # NumPy fallback
-            self._vecs.append(vecs.astype("float32", copy=False))
+        else:  # pure Python / NumPy fallback
+            if _HAS_NUMPY:
+                self._vecs.append(vecs.astype("float32", copy=False))
+            else:
+                self._vecs.append([[float(x) for x in row] for row in vecs])
         backend = "faiss" if self._faiss_idx is not None else "numpy"
         _MET_ADD.labels(backend).inc(len(texts))
         _MET_SZ.labels(backend).set(len(self))
@@ -276,18 +317,26 @@ class _FaissStore:
                 (*self._meta[idx], float(sim)) for idx, sim in zip(I[0], D[0])
             ]
 
-        # ---- NumPy brute-force cosine ----
-        mat = _np.vstack(self._vecs)  # type: ignore[arg-type]
-        sims = mat @ vec.T
-        order = sims[:, 0].argsort()[::-1][:k]
+        # ---- brute-force cosine ----
+        if _HAS_NUMPY:
+            mat = _np.vstack(self._vecs)  # type: ignore[arg-type]
+            sims = mat @ vec.T
+            order = sims[:, 0].argsort()[::-1][:k]
+            return [
+                (*self._meta[i], float(sims[i, 0])) for i in order
+            ]
+
+        mat = [row for block in self._vecs for row in block]
+        scores = [sum(a * b for a, b in zip(row, vec[0])) for row in mat]
+        order = sorted(range(len(scores)), key=lambda i: scores[i], reverse=True)[:k]
         return [
-            (*self._meta[i], float(sims[i, 0])) for i in order
+            (*self._meta[i], float(scores[i])) for i in order
         ]
 
     def __len__(self):
         if self._faiss_idx is not None:
             return self._faiss_idx.ntotal  # type: ignore[attr-defined]
-        return sum(v.shape[0] for v in self._vecs)
+        return sum(len(v) for v in self._vecs)
 
 
 # ─────────────────────── public façade ───────────────────────
@@ -306,10 +355,14 @@ class VectorMemory:
                     "Postgres unavailable (%s) – falling back to RAM store", exc
                 )
                 self._store = _FaissStore()
-                self.backend = "faiss" if _HAS_FAISS else "numpy"
+                self.backend = (
+                    "faiss" if (_HAS_FAISS and _HAS_NUMPY) else "numpy"
+                )
         else:
             self._store = _FaissStore()
-            self.backend = "faiss" if _HAS_FAISS else "numpy"
+            self.backend = (
+                "faiss" if (_HAS_FAISS and _HAS_NUMPY) else "numpy"
+            )
             _LOG.warning(
                 "VectorMemory running in *%s* mode (non-persistent)",
                 self.backend,
