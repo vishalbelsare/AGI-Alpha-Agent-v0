@@ -37,6 +37,7 @@ open http://localhost:8000/docs 2>/dev/null || xdg-open http://localhost:8000/do
 5. [Memory & Knowledge Fabric 🧠](#5-memory--knowledge-fabric)
 6. [5‑Minute Quick‑Start 🚀](#6-5-minute-quick-start)
 6.1. [Running Tests 🧪](#61-running-tests)
+6.2. [Marketplace Demo Example 🛒](#62-marketplace-demo-example)
 7. [Deployment Recipes 🍳](#7-deployment-recipes)
 8. [Governance & Compliance ⚖️](#8-governance--compliance)  
 9. [Observability 🔭](#9-observability)  
@@ -387,6 +388,20 @@ python alpha_factory_v1/scripts/run_tests.py
 
 The script prefers `pytest` when available and otherwise falls back to
 `unittest`. Ensure all tests pass before deploying changes.
+
+<a name="62-marketplace-demo-example"></a>
+### 6.2 · Marketplace Demo Example 🛒
+A minimal snippet queues the sample job once the orchestrator is running:
+
+```bash
+alpha-factory --enabled finance,manufacturing &
+python - <<'PY'
+import subprocess, time
+from alpha_factory_v1.demos import alpha_agi_marketplace_v1 as market
+time.sleep(5)
+subprocess.run(["bash", str(market.POST_JOB_SCRIPT), str(market.SAMPLE_JOB)], check=True)
+PY
+```
 
 ---
 
