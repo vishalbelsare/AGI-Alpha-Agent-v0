@@ -340,9 +340,13 @@ git clone https://github.com/MontrealAI/AGI-Alpha-Agent-v0.git
 cd AGI-Alpha-Agent-v0
 ./quickstart.sh --preflight   # optional environment check
 ./quickstart.sh               # creates venv, installs deps, launches
-open http://localhost:8000/docs
+# open the docs in your browser
+open http://localhost:8000/docs 2>/dev/null || xdg-open http://localhost:8000/docs || start http://localhost:8000/docs
 # Alternatively, ``python alpha_factory_v1/quickstart.py`` provides the same
 # workflow on Windows and other systems without Bash.
+
+# Deploy instantly with Docker (prebuilt image)
+docker run --pull=always -p 8000:8000 ghcr.io/montrealai/alpha-factory:latest
 
 # The `alpha-factory` CLI also works when the package is installed:
 #   pip install -e .
