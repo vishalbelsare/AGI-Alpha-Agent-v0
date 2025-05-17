@@ -25,7 +25,12 @@ IMAGE_TAG="alphafactory_pro:latest"
 ALPHA_TOGGLE=""
 
 # ─── defaults (original behaviour) ──────────────────────────────────────
-tty=${CI:-}; want_ui=${tty:-1}; want_trace=0; want_tests=0
+if [[ -n ${CI:-} ]]; then
+  want_ui=0
+else
+  want_ui=1
+fi
+want_trace=0; want_tests=0
 nocache_arg=""; do_deploy=0; do_bootstrap=0
 
 usage() { grep -E '^#( |$)' "$0" | sed 's/^# ?//' ; exit 0; }
@@ -41,7 +46,14 @@ while [[ $# -gt 0 ]]; do
     --no-cache)   nocache_arg="--no-cache" ;;
     --deploy)     do_deploy=1 ;;
     --bootstrap)  do_bootstrap=1 ;;
-    --alpha)      ALPHA_TOGGLE="$2"; shift ;;
+    --alpha)
+      if [[ -z ${2:-} ]]; then
+        echo "Error: --alpha requires a value" >&2
+        exit 1
+      fi
+      ALPHA_TOGGLE="$2"
+      shift
+      ;;
     -h|--help)    usage ;;
     *)            echo "Unknown flag: $1" >&2; exit 1 ;;
   esac; shift
@@ -56,11 +68,12 @@ printf "│ UI:%s Trace:%s Tests:%s Deploy:%s Alpha:%s\n" \
        "${ALPHA_TOGGLE:-none}"
 echo "╰────────────────────────────────────"
 
-command -v docker        >/dev/null || { echo "❌ docker not found"; exit 1; }
-command -v docker compose>/dev/null || { echo "❌ docker compose missing"; exit 1; }
+command -v docker >/dev/null || { echo "❌ docker not found"; exit 1; }
+docker compose version >/dev/null 2>&1 || { echo "❌ docker compose missing"; exit 1; }
 
 # ─── bootstrap clone (opt‑in) ──────────────────────────────────────────
 if [[ $do_bootstrap == 1 && ! -d alpha_factory_v1 ]]; then
+  command -v git >/dev/null || { echo "❌ git not found"; exit 1; }
   echo "→ cloning source tree…"
   git clone --depth 1 --branch "$BRANCH" "https://github.com/$REPO.git" factory_tmp
   mv factory_tmp/alpha_factory_v1 . && rm -rf factory_tmp
@@ -91,7 +104,9 @@ echo "🚀  Deploying full stack (profile: $PROFILE)"
 # 1. hot‑fix outdated test import (until upstream PR merged)
 PATCH_SIG=".patched_ci_v${VER}"
 if [[ ! -f $PATCH_SIG ]]; then
-  sed -i 's/risk\.ACCOUNT_EQUITY/portfolio.equity/' tests/test_finance_agent.py || true
+  if [[ -f tests/test_finance_agent.py ]]; then
+    sed -i 's/risk\.ACCOUNT_EQUITY/portfolio.equity/' tests/test_finance_agent.py || true
+  fi
   touch "$PATCH_SIG"
 fi
 
@@ -110,11 +125,15 @@ fi
 
 # 4. auto‑enable strategy toggle (requires yq, fallback to sed)
 if [[ -n $ALPHA_TOGGLE ]]; then
-  if command -v yq >/dev/null; then
-    yq -i ".finance.strategy = \"$ALPHA_TOGGLE\"" config/alpha_factory.yml
+  if [[ -f config/alpha_factory.yml ]]; then
+    if command -v yq >/dev/null; then
+      yq -i ".finance.strategy = \"$ALPHA_TOGGLE\"" config/alpha_factory.yml
+    else
+      echo "WARNING: yq not installed; using sed fallback"
+      sed -i "s/^strategy: .*$/strategy: $ALPHA_TOGGLE/" config/alpha_factory.yml
+    fi
   else
-    echo "WARNING: yq not installed; using sed fallback"
-    sed -i "s/^strategy: .*$/strategy: $ALPHA_TOGGLE/" config/alpha_factory.yml
+    echo "WARNING: config/alpha_factory.yml not found; skipping --alpha" >&2
   fi
 fi
 
