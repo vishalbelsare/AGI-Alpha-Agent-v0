@@ -16,6 +16,9 @@ orjson~=3.9
 python-dotenv~=1.0
 pydantic~=2.7
 better-profanity~=0.7
+httpx~=0.28
+aiohttp~=3.9
+backoff~=2.2
 
 # ─────────── Observability & task-orchestration ────────────────────────
 prometheus-client~=0.19
@@ -26,7 +29,7 @@ pytest~=8.2
 gitpython~=3.1          # local PR simulation for self-healing demo
 
 # ─────────── LLM / Agents stack ────────────────────────────────────────
-openai>=1.14            # GPT-4o & embeddings
+openai>=1.76.0,<2.0       # GPT-4o & embeddings
 openai-agents>=0.0.14   # **critical** – official Agents SDK
 anthropic>=0.21         # Claude & MCP bridge
 litellm>=1.31           # local gateway / fallback router
