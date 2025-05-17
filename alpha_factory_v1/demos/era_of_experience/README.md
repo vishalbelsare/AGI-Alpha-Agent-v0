@@ -27,6 +27,12 @@ chmod +x run_experience_demo.sh
 ./run_experience_demo.sh      # ← THAT’S IT
 ```
 
+Add `--live` to pull in real sensor feeds (wearables, RSS, etc.):
+
+```bash
+./run_experience_demo.sh --live
+```
+
 1. **Docker Desktop** builds a 300 MB image in ≈ 1 min. 
 2. Your browser opens **http://localhost:7860** featuring 
   * live trace‑graph 🪄 
