@@ -7,7 +7,19 @@ import shutil
 import socket
 import requests
 import pathlib
-import pytest
+try:
+    import pytest
+except ModuleNotFoundError:  # pragma: no cover - allow unittest fallback
+    class _DummyMark:
+        def skipif(self, *_, **__):
+            def wrapper(func):
+                return func
+            return wrapper
+
+    class _DummyPytest:
+        mark = _DummyMark()
+
+    pytest = _DummyPytest()  # type: ignore
 
 
 def _docker_available() -> bool:

@@ -1,6 +1,10 @@
-import json, os, tempfile, pathlib
+import json
+import os
+import tempfile
+import pathlib
 
-REDTEAM = json.loads(open("tests/redteam_prompts.json").read())
+DATA_DIR = pathlib.Path(__file__).resolve().parent
+REDTEAM = json.loads((DATA_DIR / "redteam_prompts.json").read_text())
 
 def load_memory():
     base = pathlib.Path(os.getenv("AF_MEMORY_DIR", f"{tempfile.gettempdir()}/alphafactory"))
