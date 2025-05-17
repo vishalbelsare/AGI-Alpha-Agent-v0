@@ -276,7 +276,9 @@ class FinanceAgent(AgentBase):
     VERSION = "0.7.0"
 
     def __init__(self, cfg: _FinCfg | None = None):
-        super().__init__()
+        # Avoid calling the legacy AgentBase.__init__ which expects multiple
+        # positional arguments.  Other agents in this package skip the super
+        # initializer entirely, so we follow the same convention.
         self.cfg = cfg or _FinCfg()
 
         # ── state ──
@@ -326,6 +328,10 @@ class FinanceAgent(AgentBase):
                 _log.exception("Unhandled error in FinanceAgent cycle: %s", exc)
             dt = max(0.0, self.cfg.cycle_sec - (time.perf_counter() - t0))
             await asyncio.sleep(dt)
+
+    async def run_cycle(self):
+        """Single orchestrator cycle wrapper."""
+        await self._cycle()
 
     # ─────────────────── internal cycle ─────────────────
     async def _cycle(self):
