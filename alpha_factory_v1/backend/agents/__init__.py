@@ -247,15 +247,17 @@ def register(cls=None, *, condition=True):  # type: ignore
 #               internal — utility to import the master AgentBase            #
 ##############################################################################
 def _agent_base():
-    """
-    We accept both historic path `backend.agent_base.AgentBase`
-    *and* the new location `backend.agents.base.AgentBase`.
+    """Return the canonical AgentBase implementation.
+
+    The lightweight ``backend.agents.base`` module is preferred.  We
+    fall back to the legacy ``backend.agent_base`` variant when the new
+    path is unavailable for full backward compatibility.
     """
     try:
-        from backend.agent_base import AgentBase  # type: ignore
-        return AgentBase
-    except ModuleNotFoundError:                   # fallback to new path
         from backend.agents.base import AgentBase  # type: ignore
+        return AgentBase
+    except ModuleNotFoundError:  # pragma: no cover - legacy only
+        from backend.agent_base import AgentBase  # type: ignore
         return AgentBase
 
 ##############################################################################

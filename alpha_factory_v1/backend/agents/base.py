@@ -154,6 +154,11 @@ class AgentBase(abc.ABC):
         """The agent's main unit of work.  MUST be overridden."""
         raise NotImplementedError
 
+    # ------------------------------------------------------------------
+    async def run_cycle(self) -> None:  # pragma: no cover - default wrapper
+        """Single orchestrator cycle – runs :meth:`step` once."""
+        await self.step()
+
     async def teardown(self) -> None:  # noqa: D401
         """Optional async clean-up (closing DB handles etc.)."""
         return None
