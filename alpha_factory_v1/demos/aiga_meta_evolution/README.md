@@ -55,6 +55,9 @@ cd AGI-Alpha-Agent-v0/alpha_factory_v1/demos/aiga_meta_evolution
 ./run_aiga_demo.sh
 ```
 
+The service automatically resumes from the latest checkpoint if one exists,
+so you can stop and restart the container without losing progress.
+
 | Endpoint | URL | Purpose |
 | --- | --- | --- |
 | **Gradio** UI | <http://localhost:7862> | Click **Evolve 5 Generations** |
