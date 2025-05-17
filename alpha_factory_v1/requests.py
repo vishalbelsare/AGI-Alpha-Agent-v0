@@ -7,8 +7,8 @@ implemented with very small feature sets.
 """
 from __future__ import annotations
 
-import json
-from urllib import request as _request, parse as _parse
+import json as _json
+from urllib import request as _request, parse as _parse, error as _error
 
 class Response:
     """Lightweight HTTP response container."""
@@ -18,7 +18,7 @@ class Response:
         self.text = text
 
     def json(self):
-        return json.loads(self.text)
+        return _json.loads(self.text)
 
     def raise_for_status(self) -> None:
         """Raise :class:`RuntimeError` if the status code signals an error."""
@@ -27,9 +27,13 @@ class Response:
 
 def get(url: str, *, timeout: float | None = None) -> Response:
     """Perform a simple HTTP GET request."""
-    with _request.urlopen(url, timeout=timeout) as resp:
-        data = resp.read().decode()
-        return Response(resp.getcode(), data)
+    try:
+        with _request.urlopen(url, timeout=timeout) as resp:
+            data = resp.read().decode()
+            return Response(resp.getcode(), data)
+    except _error.HTTPError as exc:
+        data = exc.read().decode()
+        return Response(exc.code, data)
 
 
 def post(
@@ -44,8 +48,7 @@ def post(
     body = b""
     req_headers = headers or {}
     if json is not None:
-        body = json_d = json
-        body = json.dumps(json_d).encode()
+        body = _json.dumps(json).encode()
         req_headers.setdefault("Content-Type", "application/json")
     elif data is not None:
         if isinstance(data, (bytes, bytearray)):
@@ -57,9 +60,13 @@ def post(
             )
 
     req = _request.Request(url, data=body, headers=req_headers, method="POST")
-    with _request.urlopen(req, timeout=timeout) as resp:
-        text = resp.read().decode()
-        return Response(resp.getcode(), text)
+    try:
+        with _request.urlopen(req, timeout=timeout) as resp:
+            text = resp.read().decode()
+            return Response(resp.getcode(), text)
+    except _error.HTTPError as exc:
+        text = exc.read().decode()
+        return Response(exc.code, text)
 
 
 __all__ = ["get", "post", "Response"]
