@@ -1,3 +1,32 @@
+
+image:
+  repository: ghcr.io/montrealai/alpha-factory
+  tag: v2
+  pullPolicy: IfNotPresent
+
+replicaCount: 1
+
+env:
+  OPENAI_API_KEY: ""
+  ALPHA_MARKET_PROVIDER: sim
+  ALPHA_BROKER: sim
+  A2A_PORT: "8000"
+
+resources:
+  limits:
+    cpu: 500m
+    memory: 1Gi
+  requests:
+    cpu: 250m
+    memory: 512Mi
+
+spiffe:
+  enabled: false
+
+workerService:
+  type: ClusterIP
+  port: 8000
+
 # ---------------------------------------------------------------------
 # Grafana & Prometheus – “kube‑prometheus‑stack” sub‑chart values
 # ---------------------------------------------------------------------
@@ -26,6 +55,6 @@ grafana:
 {{ .Files.Get "dashboards/finance_agent.json" | indent 8 }}
 
 # Expose Grafana (NodePort 30030 by default)
-service:
+grafanaService:
   type: NodePort
   nodePort: 30030
