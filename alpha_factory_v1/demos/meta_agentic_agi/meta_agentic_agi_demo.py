@@ -123,9 +123,12 @@ def novelty_hash(code: str) -> float:
 # ────────────────────────────────────────────────────────────────────
 # 2.  Lineage DB helpers
 # ────────────────────────────────────────────────────────────────────
-DB = Path(__file__).with_suffix('.sqlite')
+# Allow overriding the lineage DB path via the METAAGI_DB env-var so that
+# multiple runs can coexist or be redirected easily when used programmatically.
+DB = Path(os.getenv('METAAGI_DB', str(Path(__file__).with_suffix('.sqlite'))))
 
 def db_conn():
+    DB.parent.mkdir(parents=True, exist_ok=True)
     db = sqlite3.connect(DB)
     db.execute("""CREATE TABLE IF NOT EXISTS lineage(
         id      INTEGER PRIMARY KEY,
