@@ -18,11 +18,36 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
+          cache: 'pip'
+          cache-dependency-path: |
+            alpha_factory_v1/backend/requirements.txt
+            pyproject.toml
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
+          pip install coverage
           pip install -r alpha_factory_v1/backend/requirements.txt
           pip install -e .
-      - name: Run tests
+      - name: Run tests with coverage
         run: |
-          python -m alpha_factory_v1.scripts.run_tests
+          coverage run -m alpha_factory_v1.scripts.run_tests
+          coverage xml
+      - name: Upload coverage
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-${{ matrix.python-version }}
+          path: coverage.xml
+  lockfile:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+      - name: Ensure lock file up to date
+        run: |
+          python -m pip install --upgrade pip pip-tools
+          pip-compile --generate-hashes --output-file=alpha_factory_v1/requirements.lock alpha_factory_v1/requirements.txt
+          git diff --exit-code
