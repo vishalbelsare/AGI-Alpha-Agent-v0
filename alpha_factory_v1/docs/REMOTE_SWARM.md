@@ -1,12 +1,12 @@
 # Remote Swarm Quick‑start
 
 ## 1. Build & push image
-docker build -t myrepo/alpha-factory:v2remote .
-docker push myrepo/alpha-factory:v2remote
+docker build -t ghcr.io/montrealai/alpha-factory:v2remote .
+docker push ghcr.io/montrealai/alpha-factory:v2remote
 
 ## 2. Helm install on any cluster
 helm upgrade --install af-remote ./helm/alpha-factory-remote \
-  --set image.repository=myrepo/alpha-factory \
+  --set image.repository=ghcr.io/montrealai/alpha-factory \
   --set image.tag=v2remote \
   --set env.OPENAI_API_KEY=$OPENAI_API_KEY
 
