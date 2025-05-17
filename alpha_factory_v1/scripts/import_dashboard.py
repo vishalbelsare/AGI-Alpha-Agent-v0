@@ -28,11 +28,18 @@ else:
 
 
 def main() -> None:
-    path = Path(sys.argv[1]) if len(sys.argv) > 1 else Path("alpha_factory_v1/dashboards/alpha_factory_overview.json")
+    path = (
+        Path(sys.argv[1])
+        if len(sys.argv) > 1
+        else Path("alpha_factory_v1/dashboards/alpha_factory_overview.json")
+    )
     host = os.environ.get("GRAFANA_HOST", "http://localhost:3000").rstrip("/")
     token = os.environ.get("GRAFANA_TOKEN")
     if not token:
         raise SystemExit("GRAFANA_TOKEN environment variable is required")
+
+    if not path.exists():
+        raise SystemExit(f"Dashboard file {path} not found")
 
     with path.open() as f:
         dashboard = json.load(f)
