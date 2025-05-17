@@ -439,7 +439,7 @@ like `--cycle`, `--loglevel` and `--version`.
 | Target | Command | Notes |
 |--------|---------|-------|
 | **Docker Compose** | `docker compose up -d` | Kafka, Prometheus, Grafana |
-| **Helm (K8s)** | `helm install af charts/alpha-factory` | SPIFFE, HPA |
+| **Helm (K8s)** | `helm install af helm/alpha-factory` | SPIFFE, HPA |
 | **AWS Fargate** | `./infra/deploy_fargate.sh` | SQS shim for Kafka |
 | **IoT Edge** | `python edge_runner.py --agents manufacturing,energy` | Jetson Nano |
 
