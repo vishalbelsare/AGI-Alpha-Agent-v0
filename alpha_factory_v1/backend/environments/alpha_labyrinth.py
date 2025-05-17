@@ -44,8 +44,12 @@ _A2DIR = {
 }
 _ACTIONS = list(_A2DIR.keys())
 
+__all__ = ["GridWorldEnv"]
+
 
 class GridWorldEnv:  # noqa: D101
+    """Compact 2‑D labyrinth used for MuZero demos."""
+
     def __init__(self) -> None:
         self.height = len(_LAYOUT)
         self.width = len(_LAYOUT[0])
@@ -76,6 +80,11 @@ class GridWorldEnv:  # noqa: D101
         return self.pos
 
     def step(self, action: str):
+        """Execute ``action`` and return ``(pos, reward, done)``."""
+
+        if action not in _ACTIONS:
+            raise ValueError(f"invalid action {action!r}")
+
         dr, dc = _A2DIR[action]
         r, c = self.pos[0] + dr, self.pos[1] + dc
         if self.passable(r, c):
@@ -85,6 +94,8 @@ class GridWorldEnv:  # noqa: D101
         return self.pos, reward, done
 
     def legal_actions(self) -> List[str]:
+        """Return currently available moves."""
+
         return [
             a
             for a, (dr, dc) in _A2DIR.items()
@@ -105,3 +116,6 @@ class GridWorldEnv:  # noqa: D101
                     line += ch.replace("S", " ").replace("G", " ")
             rows.append(line)
         return "\n".join(rows)
+
+    def __repr__(self) -> str:  # noqa: D401
+        return f"GridWorldEnv(pos={self.pos})"
