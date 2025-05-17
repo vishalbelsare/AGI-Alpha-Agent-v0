@@ -351,6 +351,7 @@ docker run --pull=always -p 8000:8000 ghcr.io/montrealai/alpha-factory:latest
 # The `alpha-factory` CLI also works when the package is installed:
 #   pip install -e .
 #   alpha-factory --list-agents
+#   alpha-asi-demo --demo   # launch the α‑ASI world‑model UI
 #
 # Or install directly from GitHub for a quick test:
 #   pip install git+https://github.com/MontrealAI/AGI-Alpha-Agent-v0.git

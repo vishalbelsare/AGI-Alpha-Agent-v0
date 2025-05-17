@@ -53,7 +53,8 @@ Success criteria ✓
 # ░ Local Python (CPU or GPU)
 pip install -r requirements.txt        # torch, fastapi, uvicorn…
 
-python -m alpha_asi_world_model_demo --demo
+# new CLI (after `pip install -e .` at repo root)
+alpha-asi-demo --demo        # same as `python -m alpha_asi_world_model_demo --demo`
 open http://localhost:7860             # dashboard & Swagger
 
 # ░ One-liner Docker
