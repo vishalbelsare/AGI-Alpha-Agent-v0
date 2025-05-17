@@ -347,6 +347,10 @@ open http://localhost:8000/docs
 # The `alpha-factory` CLI also works when the package is installed:
 #   pip install -e .
 #   alpha-factory --list-agents
+#
+# Or install directly from GitHub for a quick test:
+#   pip install git+https://github.com/MontrealAI/AGI-Alpha-Agent-v0.git
+#   alpha-factory --list-agents
 ```
 
 No GPU → falls back to GGML Llama‑3‑8B‑Q4.
