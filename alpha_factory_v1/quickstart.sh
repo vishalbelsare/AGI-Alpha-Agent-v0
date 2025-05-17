@@ -24,13 +24,16 @@ if [ ! -d "$VENV_DIR" ]; then
   echo "→ Creating virtual environment"
   python3 -m venv "$VENV_DIR"
   "$VENV_DIR/bin/pip" install -U pip
-  "$VENV_DIR/bin/pip" install -r requirements.txt
+  REQ="requirements.lock"
+  [ -f "$REQ" ] || REQ="requirements.txt"
+  "$VENV_DIR/bin/pip" install -r "$REQ"
 fi
 
 source "$VENV_DIR/bin/activate"
 
 # run preflight checks
-python scripts/preflight.py
+python scripts/preflight.py && echo "✅ Preflight passed"
 
+echo "Starting Orchestrator..."
 # launch orchestrator
 exec python -m run "$@"
