@@ -54,6 +54,7 @@ LLM_MODEL          = ENV("WM_LLM_MODEL", "gpt-4o-mini")
 RISK_THRESHOLD     = float(ENV("WM_RISK_THRESHOLD", "-50"))
 RULES_JSON         = ENV("WM_SAFETY_RULES", "")
 PROM_ENABLED       = ENV("PROMETHEUS_DISABLE", "false").lower() != "true"
+LLAMA_MODEL_PATH   = ENV("LLAMA_MODEL_PATH", "models/llama-2-7b.gguf")
 KAFKA_BROKER       = ENV("ALPHA_KAFKA_BROKER")
 META_INTERVAL_SEC  = int(ENV("META_INTERVAL_SEC", "3600"))
 
@@ -161,13 +162,11 @@ class MuZeroPlanner:
 class LLMSimulator:
     def __init__(self) -> None:
         self._use_openai = "openai" in globals() and ENV("OPENAI_API_KEY")
-        self._use_local = "Llama" in globals() and Path(
-            ENV("LLAMA_MODEL_PATH", "models/llama-2-7b.gguf")
-        ).exists()
+        self._use_local = "Llama" in globals() and Path(LLAMA_MODEL_PATH).exists()
         if self._use_openai:
             openai.api_key = ENV("OPENAI_API_KEY")
         elif self._use_local:
-            self.llama = Llama(model_path=ENV("LLAMA_MODEL_PATH"))
+            self.llama = Llama(model_path=LLAMA_MODEL_PATH)
 
     # ---------------------------------------------------------------------
     def _chat(self, prompt: str) -> str:
@@ -245,9 +244,13 @@ if KAFKA_BROKER and "Producer" in globals():
 
 
 def _kafka_send(topic: str, msg: dict) -> None:
-    if _kafka:
+    if not _kafka:
+        return
+    try:
         _kafka.produce(topic, json.dumps(msg).encode())
         _kafka.poll(0)
+    except Exception:  # noqa: BLE001
+        pass
 
 
 # ═══════════════════ 6. Environment registry ════════════════════════════════
@@ -256,9 +259,15 @@ _ENV_REG: MutableMapping[str, _EnvCtor] = {"grid-world": lambda: GridWorldEnv()}
 
 
 def register_env(name: str, ctor: _EnvCtor, *, override: bool = False) -> None:
+    """Register a new environment constructor."""
     if not override and name in _ENV_REG:
         raise ValueError(f"Env '{name}' already registered.")
     _ENV_REG[name] = ctor
+
+
+def list_envs() -> List[str]:
+    """Return available environment names."""
+    return sorted(_ENV_REG.keys())
 
 
 # ═══════════════════ 7. Public singleton `wm` ═══════════════════════════════
@@ -275,6 +284,7 @@ class _WorldModel:
 
     # ── Env control ──────────────────────────────────────────────────────
     def set_env(self, name: str) -> None:
+        """Switch the active environment."""
         if name not in _ENV_REG:
             raise KeyError(name)
         self._env_name = name
@@ -282,10 +292,12 @@ class _WorldModel:
         self.muzero = MuZeroPlanner(self.env)
 
     def reset_env(self) -> Dict[str, Any]:
+        """Reset the environment and return the initial state."""
         return self.env.reset()
 
     # ── Planning ─────────────────────────────────────────────────────────
     def plan(self, agent: str, state: Dict[str, Any]) -> Dict[str, Any]:
+        """Compute the next best action for the given agent and state."""
         t0 = time.perf_counter()
         # sync env with given state when using grid-world
         if self._env_name == "grid-world":
@@ -310,6 +322,7 @@ class _WorldModel:
 
     # ── One-step sim ─────────────────────────────────────────────────────
     def simulate(self, state: Dict[str, Any], action: Dict[str, Any]) -> Dict[str, Any]:
+        """Simulate a single environment step."""
         if self._env_name == "grid-world" and "id" in action:
             saved = self.env.state
             self.env.state = GridState(**{k: state[k] for k in ("x", "y", "goal")})
@@ -320,6 +333,7 @@ class _WorldModel:
 
     # ── Meta KPIs ────────────────────────────────────────────────────────
     def ingest_kpis(self, kpis: Dict[str, float]) -> Optional[str]:
+        """Feed KPIs to the meta-learner, returning a proposal when generated."""
         prop = self.meta.propose(kpis)
         if prop:
             _kafka_send("wm.meta", {"ts": time.time(), "proposal": prop})
@@ -355,3 +369,11 @@ root_exploration_fraction = 0.25
 pb_c_base              = 19652
 pb_c_init              = 1.25
 """
+
+__all__ = [
+    "GridWorldEnv",
+    "GridState",
+    "register_env",
+    "list_envs",
+    "wm",
+]
