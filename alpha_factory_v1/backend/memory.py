@@ -47,6 +47,11 @@ class Memory:
             lines = fh.readlines()[-limit:]
         return [json.loads(l) for l in lines]
 
+    # ------------------------------------------------------------------
+    def query(self, limit: int = 100):
+        """Alias of :meth:`read` for backward compatibility."""
+        return self.read(limit)
+
 
 __all__ = ["Memory"]
 
