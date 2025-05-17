@@ -67,3 +67,13 @@ Pandas tables right inside the notebook.
 * Image is **Cosign‑signed**; SBOM available in GitHub Releases.
 
 Enjoy exploring **α‑Factory** – and out‑think the future! 🚀
+
+---
+
+## WARNING: Disclaimer
+
+This demo and the included trading strategy are **for research and
+educational purposes only**. They operate on a simulated exchange by
+default and **should not be used with real funds**. Nothing here
+constitutes financial advice. MontrealAI and the maintainers accept no
+liability for losses incurred from using this software.
