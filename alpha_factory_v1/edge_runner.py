@@ -11,7 +11,7 @@ from __future__ import annotations
 import argparse
 import os
 
-from alpha_factory_v1 import run as af_run
+from alpha_factory_v1 import run as af_run, __version__
 
 
 def parse_args() -> argparse.Namespace:
@@ -27,6 +27,16 @@ def parse_args() -> argparse.Namespace:
         help="REST API port (default: 8000)",
     )
     ap.add_argument(
+        "--cycle",
+        type=int,
+        help="Override agent cycle seconds",
+    )
+    ap.add_argument(
+        "--loglevel",
+        default="INFO",
+        help="Logging verbosity",
+    )
+    ap.add_argument(
         "--metrics-port",
         type=int,
         help="Prometheus metrics port",
@@ -36,11 +46,20 @@ def parse_args() -> argparse.Namespace:
         type=int,
         help="gRPC A2A port",
     )
+    ap.add_argument(
+        "--version",
+        action="store_true",
+        help="Print version and exit",
+    )
     return ap.parse_args()
 
 
 def main() -> None:
     args = parse_args()
+
+    if args.version:
+        print(__version__)
+        return
 
     cli = ["--dev", f"--port", str(args.port)]
     if args.metrics_port:
@@ -49,6 +68,10 @@ def main() -> None:
         cli += ["--a2a-port", str(args.a2a_port)]
     if args.agents:
         cli += ["--enabled", args.agents]
+    if args.cycle:
+        cli += ["--cycle", str(args.cycle)]
+    if args.loglevel:
+        cli += ["--loglevel", args.loglevel]
 
     ns = af_run.parse_args(cli)
     af_run.apply_env(ns)

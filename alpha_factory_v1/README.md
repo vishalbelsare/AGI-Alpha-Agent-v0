@@ -352,7 +352,8 @@ No `OPENAI_API_KEY` → switches to local SBERT + heuristics.
 <a name="7-deployment-recipes"></a>
 ## 7 · Deployment Recipes 🍳
 The repository ships with an `edge_runner.py` script for portable,
-offline deployments.
+offline deployments. It forwards to the Python module and supports
+extra flags such as `--cycle`, `--loglevel` and `--version`.
 
 | Target | Command | Notes |
 |--------|---------|-------|
