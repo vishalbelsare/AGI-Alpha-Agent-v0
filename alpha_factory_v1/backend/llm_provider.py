@@ -35,6 +35,11 @@ from typing import (
     Union,
 )
 
+__all__ = ["chat", "embed"]
+
+# Chat message type alias for clarity
+ChatMessage = Dict[str, str]
+
 # --------------------------------------------------------------------- #
 #  Third-party SDKs – imported lazily so the file works even when the   #
 #  corresponding cloud key / wheel is absent.                           #
@@ -124,7 +129,7 @@ async def embed(text: str) -> List[float]:
 #  Public API – chat / completions                                      #
 # --------------------------------------------------------------------- #
 async def chat(
-    prompt_or_messages: Union[str, List[Dict[str, str]]],
+    prompt_or_messages: Union[str, List[ChatMessage]],
     *,
     stream: bool = False,
     temperature: float = _DEFAULT_TEMP,
@@ -142,7 +147,7 @@ async def chat(
     """
     # Normalise input --------------------------------------------------- #
     if isinstance(prompt_or_messages, str):
-        messages: List[Dict[str, str]] = [{"role": "user", "content": prompt_or_messages}]
+        messages: List[ChatMessage] = [{"role": "user", "content": prompt_or_messages}]
     else:
         messages = prompt_or_messages
 
@@ -162,7 +167,7 @@ async def chat(
 #  Provider implementations                                             #
 # --------------------------------------------------------------------- #
 async def _chat_openai(
-    messages: List[Dict[str, str]],
+    messages: List[ChatMessage],
     stream: bool,
     temperature: float,
     max_tokens: int,
@@ -200,7 +205,7 @@ async def _chat_openai(
 
 
 async def _chat_anthropic(
-    messages: List[Dict[str, str]],
+    messages: List[ChatMessage],
     stream: bool,
     temperature: float,
     max_tokens: int,
@@ -242,13 +247,13 @@ async def _chat_anthropic(
 
 
 async def _chat_local(
-    messages: List[Dict[str, str]],
+    messages: List[ChatMessage],
     stream: bool,
 ) -> Union[str, AsyncGenerator[str, None]]:
     """Last-resort heuristic – keeps demos alive when no cloud key is present."""
     _note("local-sbert-heuristic")
     answer = (
-        "⚠️  Offline mode – heuristic reply:\n\n"
+        "⚠️ Offline mode heuristic reply:\n\n"
         + messages[-1]["content"][:400]
         + "\n\n[end of local answer]"
     )
