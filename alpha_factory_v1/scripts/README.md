@@ -11,6 +11,16 @@ and offline fallback — **in ≈ 60 seconds.**
 
 ## 🚀 Quick start (default profile)
 
+For an all‑in‑one setup run:
+
+```bash
+./scripts/one_click_install.sh
+```
+
+This performs the preflight checks and deploys the full stack.
+
+If you prefer to execute the steps manually:
+
 ```bash
 # 0 · validate prerequisites
 python3 scripts/preflight.py
