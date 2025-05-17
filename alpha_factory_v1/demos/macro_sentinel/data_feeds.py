@@ -20,6 +20,7 @@ from __future__ import annotations
 import os, csv, json, asyncio, datetime as dt, pathlib, aiohttp, random
 from typing import AsyncIterator, Dict, Any, Optional
 from collections import deque
+from urllib.request import urlopen
 
 # ───────────────────────── Config from env ──────────────────────────
 DATA_DIR = pathlib.Path(__file__).parent / "offline_samples"
@@ -40,9 +41,41 @@ REDIS_URL = os.getenv("REDIS_URL")
 VEC_URL   = os.getenv("VECTOR_HOST")    # Qdrant
 
 # ───────────────────────── Helpers / offline CSV ────────────────────
+OFFLINE_URLS = {
+    "fed_speeches.csv": "https://raw.githubusercontent.com/MontrealAI/demo-assets/main/fed_speeches.csv",
+    "yield_curve.csv":  "https://raw.githubusercontent.com/MontrealAI/demo-assets/main/yield_curve.csv",
+    "stable_flows.csv": "https://raw.githubusercontent.com/MontrealAI/demo-assets/main/stable_flows.csv",
+    "cme_settles.csv":  "https://raw.githubusercontent.com/MontrealAI/demo-assets/main/cme_settles.csv",
+}
+
+_DEFAULT_ROWS = {
+    "fed_speeches.csv": {"text": "No speech"},
+    "yield_curve.csv":  {"3m": "4.5", "10y": "4.4"},
+    "stable_flows.csv": {"usd_mn": "25"},
+    "cme_settles.csv":  {"settle": "5000"},
+}
+
+def _ensure_offline():
+    DATA_DIR.mkdir(exist_ok=True)
+    for name, url in OFFLINE_URLS.items():
+        path = DATA_DIR / name
+        if path.exists():
+            continue
+        try:
+            with urlopen(url, timeout=5) as r, open(path, "wb") as f:
+                f.write(r.read())
+        except Exception:
+            row = _DEFAULT_ROWS[name]
+            with open(path, "w", newline="") as f:
+                writer = csv.DictWriter(f, row.keys())
+                writer.writeheader()
+                writer.writerow(row)
+
 def _csv(name: str) -> list[dict]:
     with open(DATA_DIR / name, newline="") as f:
         return list(csv.DictReader(f))
+
+_ensure_offline()
 
 OFF_FED    = _csv("fed_speeches.csv")
 OFF_YIELD  = _csv("yield_curve.csv")

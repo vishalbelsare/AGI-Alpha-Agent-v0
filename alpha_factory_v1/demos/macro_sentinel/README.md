@@ -53,6 +53,9 @@ cd AGI-Alpha-Agent-v0/alpha_factory_v1/demos/macro_sentinel
                               # (--live exports LIVE_FEED=1)
 ```
 
+Offline sample data is fetched automatically the first time you run the
+launcher—no manual downloads required.
+
 *Dashboard:* http://localhost:7864  
 *Grafana:* http://localhost:3001 (admin/alpha)
 
@@ -66,6 +69,8 @@ cd AGI-Alpha-Agent-v0/alpha_factory_v1/demos/macro_sentinel
 pip install -U openai_agents gradio aiohttp psycopg2-binary qdrant-client
 python agent_macro_entrypoint.py
 ```
+The entry point pulls minimal CSV snapshots if they are missing so you can run
+fully offline.
 
 ---
 
