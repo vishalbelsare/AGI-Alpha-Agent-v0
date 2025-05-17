@@ -7,7 +7,7 @@ name = "alpha-factory-v1"
 version = "1.0.0"
 description = "Alpha-Factory v1"
 readme = "README.md"
-requires-python = ">=3.9,<3.12"
+requires-python = ">=3.9,<3.13"
 
 [tool.setuptools]
 packages = ["alpha_factory_v1", "requests"]
