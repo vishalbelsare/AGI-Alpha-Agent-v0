@@ -1,0 +1,25 @@
+# Ignore temporary files and development artifacts
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.pyc
+*.pytest_cache/
+*.coverage
+*.egg-info/
+build/
+dist/
+.eggs/
+*.log
+*.tmp
+*.swp
+.cache/
+.git/
+.gitignore
+Dockerfile*
+.dockerignore
+.env
+*.env
+*.md
+alpha_factory_v1/tests/
+requests/tests/
