@@ -61,8 +61,10 @@ async def launch_gradio():
             log_text += "\n### Proposed patch\n```diff\n"+patch+"```"
             log_text += "\n### Re‑test output\n```\n"+out2["out"]+"```"
             return log_text
-        gr.Button("🛠️ Heal Repository").click(run_pipeline, outputs=log)
+        run_btn = gr.Button("🩹 Heal Repository")
+        run_btn.click(run_pipeline, outputs=log)
     ui.launch(server_name="0.0.0.0", server_port=7863)
 
 if __name__ == "__main__":
     asyncio.run(launch_gradio())
+
