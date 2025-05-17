@@ -79,7 +79,7 @@ Each backend agent is callable as an **OpenAI Agents SDK** tool *and* as a RES
 |Docker Compose|`docker compose up -d orchestrator`|Spins Kafka, Prometheus, Grafana, agents, demos.|
 |Kubernetes|`helm repo add alpha-factory https://montrealai.github.io/helm && helm install af alpha-factory/full`|mTLS via SPIFFE, HPA auto‑scales.|
 |Colab|Launch notebook ⇒ click *“Run on Colab”* badge.|GPU‑accelerated demos.|
-|Bare‑metal Edge|`python edge_runner.py --agents manufacturing,energy`|Zero external deps; SQLite state.|
+|Bare‑metal Edge|`python edge_runner.py --agents manufacturing,energy`|Zero external deps; SQLite state. The helper script is included in the repo.|
 
 ---
 

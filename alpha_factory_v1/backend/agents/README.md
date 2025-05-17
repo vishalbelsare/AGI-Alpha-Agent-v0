@@ -243,7 +243,8 @@ crispr = bio.design_guides("ACGT...")
 ---
 
 <a name="7"></a>
-## 7 · Deployment Recipes 🍳  
+## 7 · Deployment Recipes 🍳
+Use the bundled `edge_runner.py` utility for minimal, offline-capable setups.
 
 | Target | Command | Highlights |
 |--------|---------|------------|
