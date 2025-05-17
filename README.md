@@ -353,8 +353,10 @@ No `OPENAI_API_KEY` → switches to local SBERT + heuristics.
 
 <a name="7-deployment-recipes"></a>
 ## 7 · Deployment Recipes 🍳
-The repository now bundles a lightweight `edge_runner.py` helper for running
-Alpha‑Factory on air‑gapped or resource‑constrained devices.
+The repository bundles a lightweight `edge_runner.py` helper for running
+Alpha‑Factory on air‑gapped or resource‑constrained devices. The script
+forwards to `alpha_factory_v1.edge_runner` and exposes additional flags
+like `--cycle`, `--loglevel` and `--version`.
 
 | Target | Command | Notes |
 |--------|---------|-------|
