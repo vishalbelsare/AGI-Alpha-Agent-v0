@@ -38,7 +38,24 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
-import networkx as nx
+try:
+    import networkx as nx  # type: ignore
+except ModuleNotFoundError:  # pragma: no cover - optional dep
+    class _FakeGraph:
+        def __init__(self) -> None:
+            self.nodes: dict = {}
+            self.edges: dict = {}
+
+        def add_node(self, node: str, **attrs: Any) -> None:
+            self.nodes[node] = attrs
+
+        def add_edge(self, u: str, v: str, **attrs: Any) -> None:
+            self.edges[(u, v)] = attrs
+
+    class _FakeNX:
+        DiGraph = _FakeGraph
+
+    nx = _FakeNX()  # type: ignore
 
 try:
     import numpy as np  # noqa: F401
