@@ -12,7 +12,7 @@
 #  • Event bus       – Redis Streams for pub/sub between agents
 #  • Risk cache      – Qdrant vector store (optional) for similarity RAG
 #  • Metrics         – Prometheus + Grafana dashboards (port 3001)
-#  • Health checks   – every service exposes /__live or container HC
+#  • Health checks   – every service exposes /healthz or container HC
 #  • GPU optional    – set ENABLE_CUDA=1 to build CUDA stage
 #
 #  Bring-up
@@ -139,7 +139,7 @@ services:
         condition: service_started
         required: false
     healthcheck:
-      test: ["CMD-SHELL","curl -f http://localhost:7864/__live || exit 1"]
+      test: ["CMD-SHELL","curl -f http://localhost:7864/healthz || exit 1"]
       <<: *hc
     restart: unless-stopped
 
