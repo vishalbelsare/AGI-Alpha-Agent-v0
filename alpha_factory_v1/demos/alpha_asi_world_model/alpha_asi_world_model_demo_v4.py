@@ -67,7 +67,7 @@ class Config:
     env_batch: int = 2
     buffer_limit: int = 100_000
     hidden: int = 256
-    lr: float = 5e‑4
+    lr: float = 5e-4
     train_batch: int = 256
     ui_tick: int = 100
     max_steps: int = 200_000
