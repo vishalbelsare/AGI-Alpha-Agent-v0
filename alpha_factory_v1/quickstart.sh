@@ -3,11 +3,29 @@
 # Professional production-ready script to bootstrap and run Alpha-Factory v1
 set -euo pipefail
 
+usage() {
+  cat <<EOF
+Usage: $0 [--skip-preflight] [orchestrator args...]
+
+Bootstraps and launches Alpha-Factory in an isolated virtual environment.
+Pass any additional arguments directly to the orchestrator.
+EOF
+}
+
+SKIP_PREFLIGHT=0
+if [[ ${1:-} == "--help" ]]; then
+  usage; exit 0
+elif [[ ${1:-} == "--skip-preflight" ]]; then
+  SKIP_PREFLIGHT=1
+  shift
+fi
+
 header() {
   echo "============================================"
   echo "         Alpha-Factory Quickstart 🚀"
   echo "============================================"
 }
+
 
 header
 
@@ -31,8 +49,10 @@ fi
 
 source "$VENV_DIR/bin/activate"
 
-# run preflight checks
-python scripts/preflight.py && echo "✅ Preflight passed"
+# run preflight checks unless skipped
+if [[ $SKIP_PREFLIGHT -eq 0 ]]; then
+  python scripts/preflight.py && echo "✅ Preflight passed"
+fi
 
 echo "Starting Orchestrator..."
 # launch orchestrator
