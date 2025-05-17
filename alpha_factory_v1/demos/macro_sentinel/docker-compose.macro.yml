@@ -27,6 +27,7 @@ x-common-env: &common-env
   OPENAI_API_KEY: "${OPENAI_API_KEY:-}"
   MODEL_NAME: "${MODEL_NAME:-gpt-4o-mini}"
   TEMPERATURE: "${TEMPERATURE:-0.2}"
+  LIVE_FEED: "${LIVE_FEED:-0}"
 
 x-health: &hc
   interval: 20s
