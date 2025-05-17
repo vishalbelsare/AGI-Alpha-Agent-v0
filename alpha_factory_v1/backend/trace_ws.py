@@ -177,8 +177,8 @@ def attach(app) -> None:  # noqa: D401
 
             _api_buffer.remove(init["csrf"])  # single‑use token
 
-            ping_task: asyncio.Task = asyncio.create_task(ws.receive_text())
-            queue_task: asyncio.Task = asyncio.create_task(queue.get())
+            ping_task: asyncio.Task | None = asyncio.create_task(ws.receive_text())
+            queue_task: asyncio.Task | None = asyncio.create_task(queue.get())
 
             while True:
                 done, _ = await asyncio.wait(
@@ -204,7 +204,8 @@ def attach(app) -> None:  # noqa: D401
             pass
         finally:
             for task in (ping_task, queue_task):
-                task.cancel()
+                if task is not None:
+                    task.cancel()
             await hub.unsubscribe(queue)
 
     app.include_router(router)
