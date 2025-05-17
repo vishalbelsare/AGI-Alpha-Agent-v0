@@ -4,8 +4,10 @@
 set -Eeuo pipefail
 trap 'echo -e "\n\u274c Error on line $LINENO" >&2' ERR
 
-# always operate from this directory
-cd "$(dirname "${BASH_SOURCE[0]}")"
+# always operate from repository root
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+cd "$SCRIPT_DIR/.."
+export PYTHONPATH="${PWD}:${PYTHONPATH:-}"
 
 usage() {
   cat <<EOF
@@ -52,8 +54,8 @@ if [ ! -d "$VENV_DIR" ]; then
   echo "→ Creating virtual environment"
   python3 -m venv "$VENV_DIR"
   "$VENV_DIR/bin/pip" install -U pip >/dev/null
-  REQ="requirements.lock"
-  [ -f "$REQ" ] || REQ="requirements.txt"
+  REQ="alpha_factory_v1/requirements.lock"
+  [ -f "$REQ" ] || REQ="alpha_factory_v1/requirements.txt"
   "$VENV_DIR/bin/pip" install -r "$REQ" >/dev/null
 fi
 
@@ -61,14 +63,14 @@ source "$VENV_DIR/bin/activate"
 
 # run preflight checks unless skipped
 if [[ $PRECHECK_ONLY -eq 1 ]]; then
-  python scripts/preflight.py
+  python alpha_factory_v1/scripts/preflight.py
   exit 0
 fi
 
 if [[ $SKIP_PREFLIGHT -eq 0 ]]; then
-  python scripts/preflight.py && echo "✅ Preflight passed"
+  python alpha_factory_v1/scripts/preflight.py && echo "✅ Preflight passed"
 fi
 
 echo "Starting Orchestrator..."
 # launch orchestrator
-exec python -m run "${ORCH_ARGS[@]}"
+exec python -m alpha_factory_v1.run "${ORCH_ARGS[@]}"
