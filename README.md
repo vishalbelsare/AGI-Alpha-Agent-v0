@@ -35,6 +35,7 @@ Built atop **OpenAI Agents SDK**, **Google ADK**, **A2A protocol**, and Ant
 11. [Troubleshooting 🛠️](#11-troubleshooting)  
 12. [Roadmap 🛣️](#12-roadmap)  
 13. [Credits 🌟](#13-credits)  
+14. [License 📝](#14-license)
 
 ---
 
@@ -430,6 +431,10 @@ super = my_pkg.super_agent:MySuperAgent
 
 Our **AGI ALPHA AGENT**, fuelled by the strictly‑utility **$AGIALPHA** token, now taps that foundation to unleash the ultimate α‑signal engine.
 
+<a name="14-license"></a>
+## 14 · License
+
+This project is distributed under the [Apache 2.0](LICENSE) license.
 ---
 
 *Made with ❤️ by the Alpha‑Factory Agentic Core Team — forging the tools that forge tomorrow.*
