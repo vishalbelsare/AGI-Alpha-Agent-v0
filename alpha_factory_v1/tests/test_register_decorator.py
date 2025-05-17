@@ -25,5 +25,12 @@ class RegisterDecoratorTest(unittest.TestCase):
             NAME = "baz"
         self.assertIn("baz", AGENT_REGISTRY)
 
+    def test_register_invalid_class(self):
+        """Decorator should reject non-AgentBase subclasses."""
+        with self.assertRaises(TypeError):
+            @register
+            class Bad:
+                NAME = "bad"
+
 if __name__ == "__main__":
     unittest.main()
