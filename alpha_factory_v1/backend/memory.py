@@ -52,6 +52,11 @@ class Memory:
         """Alias of :meth:`read` for backward compatibility."""
         return self.read(limit)
 
+    # ------------------------------------------------------------------
+    def flush(self) -> None:
+        """Erase all stored events."""
+        self.file.write_text("")
+
 
 __all__ = ["Memory"]
 
