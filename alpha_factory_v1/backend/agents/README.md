@@ -52,25 +52,26 @@ The stack **degrades gracefully**: pull the GPU, revoke an API key, sever the ne
 <a name="1"></a>
 ## 1 · Architecture 🏗️  
 
+
 ```mermaid
 flowchart TD
-    ORC["🛠️ Orchestrator"]
-    GEN{{"🧪 Env‑Generator"}}
-    LRN["🧠 MuZero++"]
+    ORC["🛠 Orchestrator"]
+    GEN["🧪 Env-Generator"]
+    LRN["🧠 MuZero++"]
 
     subgraph Agents
-        FIN["💰"]
-        BIO["🧬"]
-        MFG["⚙️"]
-        POL["📜"]
-        ENE["🔋"]
-        SUP["📦"]
-        RET["🛍️"]
-        MKT["📈"]
-        CYB["🛡️"]
-        CLM["🌎"]
-        DRG["💊"]
-        SMT["⛓️"]
+        FIN["💰 Finance"]
+        BIO["🧬 Biotech"]
+        MFG["⚙ Manufacturing"]
+        POL["📜 Policy"]
+        ENE["🔋 Energy"]
+        SUP["📦 Supply"]
+        RET["🛍 Retail"]
+        MKT["📈 Marketing"]
+        CYB["🛡 Cyber"]
+        CLM["🌎 Climate"]
+        DRG["💊 Drug"]
+        SMT["⛓ Smart Contract"]
     end
 
     %% message flows
@@ -93,45 +94,39 @@ flowchart TD
     ORC -- A2A --> GEN
     ORC -- A2A --> LRN
 
-    ORC -- Kafka --> DATALAKE["🗄️ Data Lake"]
+    ORC -- Kafka --> DATALAKE["🗄 Data Lake"]
     FIN -.->|Prometheus| GRAFANA{{"📊"}}
 ```
-
 ---
 
 <a name="2"></a>
 ## 2 · Capability Graph 🌐
 
 ```mermaid
-%% Legend
-%%  solid arrows  = primary value‑flow
-%%  dashed arrows = secondary / supporting influence
-%%  node emojis   = domain archetypes
-
 graph TD
     %% Core pillars
     FIN["💰 Finance"]
     BIO["🧬 Biotech"]
-    MFG["⚙️ Manufacturing"]
-    POL["📜 Policy / Reg‑Tech"]
+    MFG["⚙ Manufacturing"]
+    POL["📜 Policy / Reg-Tech"]
     ENE["🔋 Energy"]
-    SUP["📦 Supply‑Chain"]
-    RET["🛍️ Retail / Demand"]
-    CYB["🛡️ Cyber‑Security"]
+    SUP["📦 Supply-Chain"]
+    RET["🛍 Retail"]
+    CYB["🛡 Cybersecurity"]
     CLM["🌎 Climate"]
-    DRG["💊 Drug Design"]
-    SMT["⛓️ Smart Contracts"]
-    TLT["🧑‍💼 Talent"]
+    DRG["💊 Drug Design"]
+    SMT["⛓ Smart Contract"]
+    TLT["🧑 Talent"]
 
     %% Derived transversal competences
-    QNT["📊 Quant R&D"]
-    RES["🔬 Research Ops"]
+    QNT["📊 Quant R&D"]
+    RES["🔬 Research Ops"]
     DSG["🎨 Design"]
     OPS["🔧 DevOps"]
 
-    %% Primary value‑creation arcs
-    FIN -->|Price discovery| QNT
-    FIN -->|Risk stress‑test| CLM
+    %% Primary value-creation arcs
+    FIN -->|Price discovery| QNT
+    FIN -->|Risk stress-test| CLM
     BIO --> DRG
     BIO --> RES
     MFG --> SUP
@@ -140,7 +135,7 @@ graph TD
     POL --> CYB
     SMT --> FIN
 
-    %% Cross‑pollination (secondary, dashed)
+    %% Cross-pollination (secondary, dashed)
     FIN -.-> POL
     SUP -.-> CLM
     CYB -.-> OPS
@@ -171,41 +166,41 @@ graph TD
 <a name="3"></a>
 ## 3 · Agent Gallery 🖼️  
 
-| # | Agent File | Emoji | Prime Directive | Status | Heavy Deps | Key ENV Vars |
-|---|------------|-------|-----------------|--------|-----------|--------------|
-| 1 | `finance_agent.py` | 💰 | Multi‑factor alpha, OMS bridge, RL execution | **Prod** | `pandas`, `ccxt` | `ALPHA_UNIVERSE` |
-| 2 | `biotech_agent.py` | 🧬 | CRISPR design, UniProt KG RAG | **Prod** | `faiss`, `rdkit`, `openai` | `OPENAI_API_KEY` |
-| 3 | `manufacturing_agent.py` | ⚙️ | CP‑SAT scheduling, energy forecast | **Prod** | `ortools` | `SCHED_HORIZON` |
-| 4 | `policy_agent.py` | 📜 | Statute diff, ISO‑37301 tagging | **Prod** | `faiss` | `STATUTE_DIR` |
-| 5 | `energy_agent.py` | 🔋 | Demand‑response bidding | **Beta** | `numpy` | `ENERGY_API_TOKEN` |
-| 6 | `supply_chain_agent.py` | 📦 | VRP routing, ETA prediction | **Beta** | `networkx` | `SC_DB_DSN` |
-| 7 | `retail_demand_agent.py` | 🛍️ | LSTM demand forecast | **Beta** | `torch` | `POS_DB_DSN` |
-| 8 | `marketing_agent.py` | 📈 | RL ad‑spend optimiser | **Beta** | `torch`, `openai` | `MARKETO_KEY` |
-| 9 | `cyber_threat_agent.py` | 🛡️ | CVE triage, honeypots | **Beta** | threat‑intel APIs | `VT_API_KEY` |
-|10 | `climate_risk_agent.py` | 🌎 | Emission stress‑tests | **Beta** | `xarray` | `NOAA_TOKEN` |
-|11 | `drug_design_agent.py` | 💊 | Scaffold‑hopping, ADMET | **Incub** | `rdkit`, `openai` | `CHEMBL_KEY` |
-|12 | `smart_contract_agent.py` | ⛓️ | Formal‑verifies Solidity | **Incub** | `slither` | `ETH_RPC_URL` |
-
 ---
+| # | Agent File | Emoji | Prime Directive | Status | Heavy Deps | Key ENV Vars |
+|---|------------|-------|-----------------|--------|-----------|--------------|
+| 1 | `finance_agent.py` | 💰 | Multi-factor alpha, OMS bridge, RL execution | **Prod** | `pandas`, `ccxt` | `ALPHA_UNIVERSE` |
+| 2 | `biotech_agent.py` | 🧬 | CRISPR design, UniProt KG RAG | **Prod** | `faiss`, `rdkit`, `openai` | `OPENAI_API_KEY` |
+| 3 | `manufacturing_agent.py` | ⚙ | Job-shop scheduling, ESG budgets | **Prod** | `ortools`, `pandas` | `MF_SHOP_TOPIC` |
+| 4 | `policy_agent.py` | 📜 | Statute diff, ISO‑37301 tagging | **Prod** | `faiss` | `STATUTE_DIR` |
+| 5 | `energy_agent.py` | 🔋 | Demand-response bidding | **Beta** | `numpy` | `EN_DATA_ROOT` |
+| 6 | `supply_chain_agent.py` | 📦 | VRP routing, ETA prediction | **Beta** | `networkx` | `SC_DB_DSN` |
+| 7 | `retail_demand_agent.py` | 🛍 | Forecast & reorder planning | **Beta** | `lightgbm` | `RETAIL_DB_DSN` |
+| 8 | `cyber_threat_agent.py` | 🛡 | CVE triage & patch planner | **Beta** | `lightgbm` | `CTI_FEED_URL` |
+| 9 | `climate_risk_agent.py` | 🌎 | Emission stress-tests | **Beta** | `xarray` | `NOAA_TOKEN` |
+|10 | `drug_design_agent.py` | 💊 | Scaffold-hopping, ADMET | **Incub** | `rdkit`, `openai` | `CHEMBL_KEY` |
+|11 | `smart_contract_agent.py` | ⛓ | Solidity audit & gas optimization | **Beta** | `slither`, `mythril` | `ETH_NODE` |
+|12 | `talent_match_agent.py` | 🧑 | Recruiting pipeline optimiser | **Beta** | `faiss` | `TM_EVENTS_TOPIC` |
+|13 | `ping_agent.py` | 📶 | Health check & metrics | **Prod** | none | none |
 
 <a name="4"></a>
 ## 4 · Demo Showcase 🎮  
 
-| # | Folder | Emoji | Lightning Pitch | CLI |
+
+| # | Folder | Emoji | Lightning Pitch | CLI |
 |---|--------|-------|-----------------|-----|
-| 1 | `aiga_meta_evolution` | 🧬 | Agents **evolve new agents**; AI‑GA playground. | `af demo meta` |
-| 2 | `business_builder_v1` | 🏢 | Incorporates a digital‑first company E2E. | `af demo biz1` |
-| 3 | `business_iter_v1` | 🔄 | Iterates biz‑model from live market data. | `af demo biz2` |
-| 4 | `capital_stack_v1` | 💸 | Optimises fund‑raise & cap‑table. | `af demo cap` |
+| 1 | `aiga_meta_evolution` | 🧬 | Agents evolve new agents; AI-GA playground. | `af demo meta` |
+| 2 | `business_builder_v1` | 🏢 | Incorporates a digital-first company E2E. | `af demo biz1` |
+| 3 | `business_iter_v1` | 🔄 | Iterates biz-model from live market data. | `af demo biz2` |
+| 4 | `capital_stack_v1` | 💸 | Optimises fund-raise & cap-table. | `af demo cap` |
 | 5 | `agent_marketplace_v1` | 🌐 | P2P agent marketplace. | `af demo market` |
-| 6 | `asi_world_model` | 🌌 | MuZero++ world‑model showcase. | `af demo asi` |
-| 7 | `cross_industry_pipeline` | ⚙️ | Ingest ➜ Plan ➜ Act across 4 verticals. | `af demo xind` |
+| 6 | `asi_world_model` | 🌌 | MuZero++ world-model showcase. | `af demo asi` |
+| 7 | `cross_industry_pipeline` | ⚙ | End-to-end cross-industry pipeline. | `af demo pipeline` |
 | 8 | `era_of_experience` | 📚 | Autobiographical memory tutor. | `af demo era` |
 | 9 | `fin_momentum_bot` | 💹 | Live momentum + risk parity. | `af demo fin` |
-|10 | `macro_sentinel` | 🛰️ | News scanner auto‑hedges shocks. | `af demo macro` |
-|11 | `muzero_planner` | ♟️ | Synthetic markets → execution curves. | `af demo plan` |
+|10 | `macro_sentinel` | 🛰 | Macro data watcher for tail risk. | `af demo macro` |
+|11 | `muzero_planner` | ♟ | Tree-search planner with MuZero++ core. | `af demo plan` |
 |12 | `self_healing_repo` | 🩹 | CI fails → agent patches → PR green. | `af demo heal` |
-
 ---
 
 <a name="5"></a>
