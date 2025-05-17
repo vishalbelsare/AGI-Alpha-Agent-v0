@@ -22,10 +22,8 @@ Example
 from __future__ import annotations
 
 import asyncio
-import json
 import os
 import random
-import time
 from typing import Dict
 
 import aiohttp
@@ -38,12 +36,24 @@ __all__ = ["MarketData", "BaseMarketData", "PolygonMarketData", "BinanceMarketDa
 # ---------------------------------------------------------------------------#
 
 
+
 class BaseMarketData:  # pragma: no cover
-    """Abstract async price‑feed interface."""
+    """Abstract async price‑feed interface with context manager sugar."""
 
     async def price(self, symbol: str) -> float:  # noqa: D401
         """Return the latest *float* price for *symbol* (uppercase)."""
         raise NotImplementedError
+
+    # Async context-manager sugar ------------------------------------------
+    async def __aenter__(self):  # pragma: no cover - interface default
+        return self
+
+    async def __aexit__(self, *_exc):  # pragma: no cover - interface default
+        return None
+
+    async def close(self) -> None:  # pragma: no cover - interface default
+        """Gracefully close underlying resources."""
+        await self.__aexit__(None, None, None)
 
 
 # ---------------------------------------------------------------------------#
@@ -64,7 +74,9 @@ class PolygonMarketData(BaseMarketData):
 
     async def _client(self) -> aiohttp.ClientSession:
         if self._session is None or self._session.closed:
-            self._session = aiohttp.ClientSession()
+            timeout = aiohttp.ClientTimeout(total=8)
+            headers = {"User-Agent": "AlphaFactoryMarketData/1.0"}
+            self._session = aiohttp.ClientSession(timeout=timeout, headers=headers)
         return self._session
 
     @backoff.on_exception(backoff.expo, (aiohttp.ClientError, asyncio.TimeoutError), max_tries=5, jitter=backoff.full_jitter)
@@ -72,14 +84,21 @@ class PolygonMarketData(BaseMarketData):
         symbol = symbol.upper()
         url = self._BASE.format(symbol=symbol, key=self._key)
         sess = await self._client()
-        async with sess.get(url, timeout=8) as r:
+        async with sess.get(url) as r:
             r.raise_for_status()
             data = await r.json()
         return float(data["last"]["p"])
 
+    async def __aenter__(self) -> "PolygonMarketData":
+        await self._client()
+        return self
+
     async def __aexit__(self, *_) -> None:  # noqa: D401
         if self._session:
             await self._session.close()
+
+    async def close(self) -> None:
+        await self.__aexit__(None, None, None)
 
 
 # ---------------------------------------------------------------------------#
@@ -97,7 +116,9 @@ class BinanceMarketData(BaseMarketData):
 
     async def _client(self) -> aiohttp.ClientSession:
         if self._session is None or self._session.closed:
-            self._session = aiohttp.ClientSession()
+            timeout = aiohttp.ClientTimeout(total=8)
+            headers = {"User-Agent": "AlphaFactoryMarketData/1.0"}
+            self._session = aiohttp.ClientSession(timeout=timeout, headers=headers)
         return self._session
 
     @backoff.on_exception(backoff.expo, (aiohttp.ClientError, asyncio.TimeoutError), max_tries=5, jitter=backoff.full_jitter)
@@ -106,7 +127,7 @@ class BinanceMarketData(BaseMarketData):
         symbol = symbol.replace("/", "").upper()
         url = self._BASE.format(symbol=symbol)
         sess = await self._client()
-        async with sess.get(url, timeout=8) as r:
+        async with sess.get(url) as r:
             r.raise_for_status()
             data = await r.json()
         return float(data["price"])
@@ -114,6 +135,13 @@ class BinanceMarketData(BaseMarketData):
     async def __aexit__(self, *_) -> None:  # noqa: D401
         if self._session:
             await self._session.close()
+
+    async def __aenter__(self) -> "BinanceMarketData":
+        await self._client()
+        return self
+
+    async def close(self) -> None:
+        await self.__aexit__(None, None, None)
 
 
 # ---------------------------------------------------------------------------#
@@ -142,6 +170,15 @@ class SimulatedMarketData(BaseMarketData):
         await asyncio.sleep(0)  # keep signature strictly async
         return round(price, 4)
 
+    async def __aenter__(self) -> "SimulatedMarketData":
+        return self
+
+    async def __aexit__(self, *_exc) -> None:
+        return None
+
+    async def close(self) -> None:
+        return None
+
 
 # ---------------------------------------------------------------------------#
 #                     Factory wrapper exposed to callers                     #
@@ -167,6 +204,25 @@ class MarketData(BaseMarketData):
 
     async def price(self, symbol: str) -> float:
         return await self._backend.price(symbol)
+
+    async def prices(self, symbols: list[str]) -> dict[str, float]:
+        """Return latest prices for multiple symbols concurrently."""
+        tasks = [asyncio.create_task(self.price(sym)) for sym in symbols]
+        values = await asyncio.gather(*tasks)
+        return dict(zip(symbols, values))
+
+    async def close(self) -> None:
+        if hasattr(self._backend, "close"):
+            await self._backend.close()
+
+    async def __aenter__(self) -> "MarketData":
+        if hasattr(self._backend, "__aenter__"):
+            await self._backend.__aenter__()
+        return self
+
+    async def __aexit__(self, exc_type, exc, tb) -> None:
+        if hasattr(self._backend, "__aexit__"):
+            await self._backend.__aexit__(exc_type, exc, tb)
 
     # -- synchronous convenience -------------------------------------------#
     def spot(self, symbol: str) -> float:
