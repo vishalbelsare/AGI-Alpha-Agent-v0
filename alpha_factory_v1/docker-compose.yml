@@ -3,10 +3,20 @@
 #  Compose v2+ file (no explicit `version:` key required)                      #
 ################################################################################
 
+x-restart: &restart_policy
+  restart: unless-stopped
+
+x-healthcheck: &default_healthcheck
+  interval: 30s
+  timeout: 5s
+  retries: 3
+
 services:
 
   # ──────────────────────────── Core agents API ──────────────────────────── #
   alphafactory:
+    <<: *restart_policy
+    container_name: alphafactory
     build:
       context: .
       dockerfile: Dockerfile            # multi‑stage (UI pre‑built)
@@ -15,8 +25,9 @@ services:
         BASE_IMAGE: ${BASE_IMAGE:-python:3.11-slim-bookworm}
 
     image: ghcr.io/${DOCKER_USER:-alphafactory}/alpha-factory:dev
-    restart: unless-stopped
 
+    env_file:
+      - .env
     # Environment variables (override safely in `.env` or an override file)
     environment:
       OPENAI_API_KEY:       ${OPENAI_API_KEY:-}           # optional
@@ -36,6 +47,10 @@ services:
     networks:
       - af-net
 
+    healthcheck:
+      <<: *default_healthcheck
+      test: ["CMD", "curl", "-f", "http://localhost:8000/healthz"]
+
     deploy:
       # GPU stanza is ignored on non‑NVIDIA hosts (safe default)
       resources:
@@ -45,31 +60,43 @@ services:
 
   # ────────────────────────────── Prometheus ─────────────────────────────── #
   prometheus:
+    <<: *restart_policy
+    container_name: prometheus
     image: prom/prometheus:v2.52.0
     volumes:
+      - prometheus-data:/prometheus
       - ./docs/prometheus.yml:/etc/prometheus/prometheus.yml:ro
     ports:
       - "9090:9090"
     networks:
       - af-net
-    restart: unless-stopped
     depends_on:
-      - alphafactory
+      alphafactory:
+        condition: service_healthy
+    healthcheck:
+      <<: *default_healthcheck
+      test: ["CMD", "wget", "-q", "-O", "-", "http://localhost:9090/-/ready"]
 
   # ─────────────────────────────── Grafana ───────────────────────────────── #
   grafana:
+    <<: *restart_policy
+    container_name: grafana
     image: grafana/grafana:10.4.2
     environment:
       GF_SECURITY_ALLOW_EMBEDDING: "true"
     volumes:
+      - grafana-storage:/var/lib/grafana
       - ./docs/grafana/:/etc/grafana/provisioning:ro   # ships default dashboard
     ports:
       - "3001:3000"
     networks:
       - af-net
-    restart: unless-stopped
     depends_on:
-      - prometheus
+      prometheus:
+        condition: service_healthy
+    healthcheck:
+      <<: *default_healthcheck
+      test: ["CMD", "wget", "-q", "-O", "-", "http://localhost:3000/api/health"]
 
   # ───────────────────────── Optional SPIFFE / SPIRE (commented) ─────────── #
   # Enable by adding a `spire-server` & `spire-agent` section in an override,
@@ -79,6 +106,8 @@ services:
 volumes:
   data:
   logs:
+  grafana-storage:
+  prometheus-data:
 
 networks:
   af-net:
