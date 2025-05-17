@@ -1,0 +1,13 @@
+apiVersion: v2
+name: alpha-factory
+description: Core Alpha Factory orchestrator (API, UI and gRPC)
+type: application
+version: 0.1.0
+appVersion: "v2"
+dependencies:
+  - name: kube-prometheus-stack
+    version: "^56.0.0"
+    repository: "https://prometheus-community.github.io/helm-charts"
+maintainers:
+  - name: MontrealAI
+    url: https://github.com/MontrealAI
