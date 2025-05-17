@@ -28,6 +28,19 @@ spec:
           ports:
             - containerPort: 8000   # A2A RPC
             - containerPort: 3000   # UI (optional)
+            - containerPort: {{ .Values.env.METRICS_PORT | default 9090 }}  # metrics
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: 8000
+            initialDelaySeconds: 10
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: 8000
+            initialDelaySeconds: 5
+            periodSeconds: 5
           resources: {{- toYaml .Values.resources | nindent 12 }}
 
 {{ include "af.spiffeSidecar" . | indent 8 }}   # ② inject side‑car when enabled

@@ -11,6 +11,7 @@ env:
   ALPHA_MARKET_PROVIDER: sim
   ALPHA_BROKER: sim
   A2A_PORT: "8000"
+  METRICS_PORT: "9090"
 
 resources:
   limits:
