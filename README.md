@@ -397,7 +397,7 @@ No `OPENAI_API_KEY` → switches to local SBERT + heuristics.
 Unit tests can be executed with the bundled helper script:
 
 ```bash
-python alpha_factory_v1/scripts/run_tests.py
+python -m alpha_factory_v1.scripts.run_tests
 ```
 
 The helper validates the target directory, prefers `pytest` when
