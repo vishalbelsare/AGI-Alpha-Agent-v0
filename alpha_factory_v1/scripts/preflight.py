@@ -1,9 +1,11 @@
 import os
 import shutil
 import sys
+import subprocess
 from pathlib import Path
 
 MIN_PY = (3, 9)
+MEM_DIR = Path(os.getenv("AF_MEMORY_DIR", "/var/alphafactory"))
 
 COLORS = {
     'RED': '\033[31m',
@@ -34,6 +36,18 @@ def check_cmd(cmd: str) -> bool:
     return False
 
 
+def check_docker_daemon() -> bool:
+    if not shutil.which('docker'):
+        return False
+    try:
+        subprocess.run(['docker', 'info'], check=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        banner('docker daemon reachable', 'GREEN')
+        return True
+    except Exception:  # noqa: BLE001
+        banner('docker daemon not running', 'RED')
+        return False
+
+
 def ensure_dir(path: Path) -> None:
     if not path.exists():
         path.mkdir(parents=True, exist_ok=True)
@@ -47,7 +61,8 @@ def main() -> None:
     ok = True
     ok &= check_python()
     ok &= check_cmd('docker')
-    ensure_dir(Path('/var/alphafactory'))
+    ok &= check_docker_daemon()
+    ensure_dir(MEM_DIR)
 
     for key in ('OPENAI_API_KEY', 'ANTHROPIC_API_KEY'):
         if os.getenv(key):
