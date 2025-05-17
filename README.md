@@ -340,9 +340,12 @@ cd AGI-Alpha-Agent-v0
 pip install -e .
 
 export ALPHA_KAFKA_BROKER=localhost:9092
+# optional: set credentials or overrides in a .env file
+echo "OPENAI_API_KEY=sk-..." > .env
 alpha-factory --preflight
 alpha-factory
 alpha-factory --version  # display package version
+# the CLI auto-loads environment variables from .env if present
 open http://localhost:8000/docs
 ```
 
