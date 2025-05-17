@@ -1,7 +1,15 @@
 ###############################################################################
-#  docker‑compose.override.yml ‑‑ Development conveniences (hot reload)       #
-#  Compose v2+ file (no explicit `version:` key required)                      #
+#  docker-compose.override.yml -- Development conveniences (hot reload)       #
+#  Compose v2+ file (no explicit `version:` key required)                      #
 ###############################################################################
+
+x-restart: &restart_policy
+  restart: unless-stopped
+
+x-healthcheck: &default_healthcheck
+  interval: 30s
+  timeout: 5s
+  retries: 3
 
 services:
 
@@ -9,7 +17,9 @@ services:
   # 1️⃣  FastAPI back‑end – auto‑reload on source edits                      #
   ###########################################################################
   alphafactory:
-    # Re‑use the multi‑stage Dockerfile but build only the *runtime* stage
+    <<: *restart_policy
+    container_name: alphafactory-dev
+    # Re-use the multi-stage Dockerfile but build only the *runtime* stage
     build:
       context: .
       dockerfile: Dockerfile
@@ -22,6 +32,8 @@ services:
       --reload
       --host 0.0.0.0
       --port 8000
+    env_file:
+      - .env
     ports:
       - "8000:8000"
     volumes:
@@ -35,6 +47,9 @@ services:
       ALPHA_MARKET_PROVIDER: ${ALPHA_MARKET_PROVIDER:-sim}
       ALPHA_BROKER:         ${ALPHA_BROKER:-sim}
       PYTHONUNBUFFERED: "1"
+    healthcheck:
+      <<: *default_healthcheck
+      test: ["CMD", "curl", "-f", "http://localhost:8000/healthz"]
     depends_on:
       - redis
     networks: [af-net]
@@ -43,6 +58,8 @@ services:
   # 2️⃣  Trace‑graph UI – Vite dev server with HMR                           #
   ###########################################################################
   ui:
+    <<: *restart_policy
+    container_name: alphafactory-ui-dev
     image: node:20-bookworm-slim
     working_dir: /ui
     command: ["npm", "run", "dev", "--", "--host", "0.0.0.0", "--port", "3000"]
@@ -53,17 +70,25 @@ services:
     environment:
       # Vite proxies API requests during dev
       VITE_API_BASE: http://localhost:8000
+    healthcheck:
+      <<: *default_healthcheck
+      test: ["CMD", "wget", "-q", "-O", "-", "http://localhost:3000"]
     networks: [af-net]
 
   ###########################################################################
   # 3️⃣  (Optional) Redis – future task‑queue / pub‑sub backbone            #
   ###########################################################################
   redis:
+    <<: *restart_policy
+    container_name: alphafactory-redis
     image: redis:7-alpine
     ports:
       - "6379:6379"
     volumes:
       - redis-data:/data
+    healthcheck:
+      <<: *default_healthcheck
+      test: ["CMD", "redis-cli", "ping"]
     networks: [af-net]
 
 # ------------------------------------------------------------------------- #
