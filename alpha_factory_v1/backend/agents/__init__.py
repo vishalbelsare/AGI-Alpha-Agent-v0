@@ -476,6 +476,11 @@ def capability_agents(capability: str):
     return CAPABILITY_GRAPH.get(capability, []).copy()
 
 
+def list_capabilities():
+    """Return sorted list of all capabilities currently registered."""
+    return sorted(CAPABILITY_GRAPH.keys())
+
+
 def get_agent(name: str, **kwargs):
     """
     Instantiate agent by *name* and wrap its async `step()` coroutine
@@ -530,6 +535,7 @@ __all__ = [
     "AgentMetadata",
     "register_agent",
     "register",
+    "list_capabilities",
     "list_agents",
     "capability_agents",
     "get_agent",
