@@ -22,7 +22,8 @@ Last updated 2025-04-25   Maintainer → Montreal.AI Core AGI Team
 7. [Safety, antifragility & governance 🛡️](#7-safety-antifragility--governance-)
 8. [Extending the demo 🧩](#8-extending-the-demo-)
 9. [Troubleshooting 🔧](#9-troubleshooting-)
-10. [License & citation](#10-license--citation)
+10. [Production checklist ✅](#10-production-checklist-)
+11. [License & citation](#11-license--citation)
 
 ---
 
@@ -69,6 +70,8 @@ helm install alpha-asi ./helm_chart
 # ░ Notebook
 python -m alpha_asi_world_model_demo --emit-notebook
 jupyter lab alpha_asi_world_model_demo.ipynb
+# ░ Shell helper
+./deploy_alpha_asi_world_model_demo.sh
 ```
 
 > **Tip 💡** Set `ALPHA_ASI_SEED=<int>` to reproduce identical curriculum runs.
@@ -188,9 +191,17 @@ bus liveness even on a clean clone.)*
 
 Need help? Open an issue → **@MontrealAI/alpha-factory-core**.
 
+## 10  Production checklist ✅
+
+- Ensure `python3 --version` returns 3.10–3.12.
+- Install dependencies: `pip install -r requirements.txt`.
+- Launch via `./deploy_alpha_asi_world_model_demo.sh` and visit `http://localhost:7860`.
+- Set `OPENAI_API_KEY` to unlock LLM-planner features (optional).
+- For air‑gapped mode, export `NO_LLM=1` before starting.
+
 ---
 
-## 10  License & citation
+## 11  License & citation
 
 ```
 MIT © 2025 MONTREAL.AI
