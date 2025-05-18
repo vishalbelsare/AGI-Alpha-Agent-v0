@@ -2,6 +2,12 @@
 [![Colab](https://img.shields.io/badge/Try-on-Colab-yellow?logo=googlecolab)](colab_omni_factory_demo.ipynb)
 Run the full demo interactively in [Google Colab](colab_omni_factory_demo.ipynb).
 
+To verify local prerequisites before launching the demo, run:
+```bash
+python check_env.py
+```
+This checks for `pytest` and `prometheus_client` so tests and metrics work smoothly.
+
 
 ## Use Case Selection & Rationale
 
