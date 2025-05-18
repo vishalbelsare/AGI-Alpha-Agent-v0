@@ -84,6 +84,19 @@ python alpha_factory_v1/demos/aiga_meta_evolution/agent_aiga_entrypoint.py
 Set `OPENAI_API_KEY` in your environment to enable cloud models. Without
 it the demo falls back to the bundled offline mixtral model.
 
+### 🤖 OpenAI Agents bridge
+
+Expose the evolver to the **OpenAI Agents SDK** runtime:
+
+```bash
+python alpha_factory_v1/demos/aiga_meta_evolution/openai_agents_bridge.py
+```
+
+The bridge registers an `aiga_evolver` agent offering two tools:
+`evolve` (run N generations) and `best_alpha` (return the champion).
+It works offline by routing to the local Mixtral server when no API key
+is configured.
+
 ## 🔐 API authentication
 
 Export `AUTH_BEARER_TOKEN` to require a static token on every API request. For
