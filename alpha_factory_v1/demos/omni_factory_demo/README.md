@@ -6,7 +6,9 @@ To verify local prerequisites before launching the demo, run:
 ```bash
 python check_env.py
 ```
-This checks for `pytest` and `prometheus_client` so tests and metrics work smoothly.
+This checks for key optional packages like `pytest`, `prometheus_client`,
+`openai`, `openai_agents_sdk`, `google_adk` and `anthropic` so that
+tests, cloud integrations and metrics work smoothly.
 
 ### Offline Setup
 
@@ -189,7 +191,7 @@ open http://localhost:8050 2>/dev/null || \
 # Alternative: run directly with Python
 cd ../../..
 pip install -r requirements.txt  # install dependencies
-python check_env.py              # confirm pytest & prometheus_client
+python check_env.py              # confirm optional extras available
 # If packages are reported missing, install them:
 pip install -r requirements.txt  # or requirements-colab.txt in Colab
 pytest -q                        # optional quick self-test

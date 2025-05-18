@@ -6,6 +6,10 @@ import sys
 REQUIRED = [
     "pytest",
     "prometheus_client",
+    "openai",
+    "openai_agents_sdk",
+    "google_adk",
+    "anthropic",
 ]
 
 def main() -> int:
