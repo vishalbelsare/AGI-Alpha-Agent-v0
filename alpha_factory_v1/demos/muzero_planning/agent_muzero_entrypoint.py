@@ -1,7 +1,8 @@
 """
 MuZero Planning demo – Cross‑industry Alpha‑Factory illustration.
-Runs a lightweight MuZero agent (MiniMu) on Gymnasium’s CartPole‑v1,
-and streams a live Gradio dashboard (port 7861).
+Runs a lightweight MuZero agent (MiniMu) on Gymnasium’s CartPole‑v1
+(or ``$MUZERO_ENV_ID``) and streams a live Gradio dashboard
+on ``$HOST_PORT`` (default 7861).
 
 Core algorithm follows the public pseudocode from Schrittwieser et al. (2020)
 but trimmed to <300 LoC for pedagogy.
@@ -14,8 +15,9 @@ import gradio as gr
 # (full implementation lives in demo/minimuzero.py, imported here)
 from demo.minimuzero import MiniMu, mcts_policy, play_episode
 
-ENV_ID = "CartPole-v1"           # fast & visual
-EPISODES = 3
+ENV_ID = os.getenv("MUZERO_ENV_ID", "CartPole-v1")  # default environment
+EPISODES = int(os.getenv("MUZERO_EPISODES", 3))
+PORT = int(os.getenv("HOST_PORT", 7861))
 
 # ── Optional commentary agent -------------------------------------------------
 llm = OpenAIAgent(
@@ -45,7 +47,7 @@ def launch_dashboard():
             return (frames[::2], txt)
         start = gr.Button("▶ Run MuZero")
         start.click(run, outputs=[vid, log])
-    demo.launch(server_name="0.0.0.0", server_port=7861)
+    demo.launch(server_name="0.0.0.0", server_port=PORT)
 
 if __name__ == "__main__":
     launch_dashboard()

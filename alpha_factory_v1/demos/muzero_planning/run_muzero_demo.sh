@@ -15,7 +15,8 @@ command -v docker >/dev/null 2>&1 || {
   cp "$demo_dir/config.env.sample" "$demo_dir/config.env"; }
 
 echo "🚢  Building & starting MuZero Planning demo …"
+HOST_PORT=${HOST_PORT:-7861}
 docker compose --project-name alpha_muzero -f "$compose" up -d --build
 
-echo -e "\n🎉  Open http://localhost:7861 for the live MuZero dashboard."
+echo -e "\n🎉  Open http://localhost:${HOST_PORT} for the live MuZero dashboard."
 echo "🛑  Stop → docker compose -p alpha_muzero down\n"

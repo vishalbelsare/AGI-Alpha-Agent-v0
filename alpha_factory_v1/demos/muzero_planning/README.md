@@ -24,6 +24,9 @@ Clone the repository and run the helper script. It generates a
 `config.env` with safe defaults – edit it to add your `OPENAI_API_KEY` if
 you want narrated moves.
 
+Set `HOST_PORT` to expose a different dashboard port and `MUZERO_ENV_ID`
+to experiment with other Gymnasium tasks.
+
 ```bash
 git clone https://github.com/MontrealAI/AGI-Alpha-Agent-v0.git
 cd AGI-Alpha-Agent-v0/alpha_factory_v1/demos/muzero_planning
@@ -31,7 +34,7 @@ cd AGI-Alpha-Agent-v0/alpha_factory_v1/demos/muzero_planning
 ```
 
 1. **Docker Desktop** builds the container (~45 s on first run).
-2. **Open <http://localhost:7861>** and press **“▶ Run MuZero”**.
+2. **Open <http://localhost:${HOST_PORT:-7861}>** and press **“▶ Run MuZero”**.
 3. Watch the live video feed, reward ticker and optional commentary.
 
 > **Offline by default** – leaving `OPENAI_API_KEY` empty runs the demo
