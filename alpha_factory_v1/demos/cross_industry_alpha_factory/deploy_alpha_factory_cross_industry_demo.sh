@@ -29,6 +29,15 @@ need(){ command -v "$1" &>/dev/null || { echo "❌ $1 required"; exit 1; }; }
 need docker; need git; need curl; need openssl
 docker info &>/dev/null || { echo "❌ Docker daemon not running"; exit 1; }
 
+# docker compose plugin or binary
+if docker compose version &>/dev/null; then
+  DOCKER_COMPOSE="docker compose"
+elif command -v docker-compose &>/dev/null; then
+  DOCKER_COMPOSE="docker-compose"
+else
+  echo "❌ docker compose plugin required"; exit 1
+fi
+
 # containerised yq / cosign / rekor-cli / k6 / locust when missing
 yq(){ docker run --rm -i -v "$PWD":/workdir ghcr.io/mikefarah/yq "$@"; }
 cosign(){ docker run --rm -e COSIGN_EXPERIMENTAL=1 -v "$PWD":/workdir ghcr.io/sigstore/cosign/v2:latest "$@"; }
@@ -167,13 +176,13 @@ JS
 ############## 8. BUILD & DEPLOY ##############################################
 export DOCKER_BUILDKIT=1
 echo "🐳  Building containers & generating SBOM…"
-docker compose -f "$COMPOSE_FILE" --env-file alpha_factory_v1/.env up -d --build \
+"$DOCKER_COMPOSE" -f "$COMPOSE_FILE" --env-file alpha_factory_v1/.env up -d --build \
   --iidfile /tmp/IMAGE_ID orchestrator ${AGENTS[*]} policy-engine prometheus grafana \
   ray-head alpha-trainer pubmed-adapter carbon-api sbom
 
 echo "⏳  Waiting for orchestrator health…"
 for i in {1..40}; do
-  docker compose exec orchestrator curl -fs http://localhost:8000/healthz &>/dev/null && break
+  "$DOCKER_COMPOSE" exec orchestrator curl -fs http://localhost:8000/healthz &>/dev/null && break
   sleep 3; [[ $i == 40 ]] && { echo "❌ Orchestrator failed"; exit 1; }
 done
 
