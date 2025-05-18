@@ -435,7 +435,8 @@ async def _episode(
 # 8. Continuous open‑ended loop                                               #
 ###############################################################################
 async def _main_loop(max_episodes: int | None) -> None:
-    orch   = Orchestrator(dev_mode=True)
+    # Orchestrator has no __init__ arguments – dev mode is handled via env vars
+    orch   = Orchestrator()
     env    = SmartCityEnv()
     tgen   = TaskGenerator()
     evaler = SuccessEvaluator()
