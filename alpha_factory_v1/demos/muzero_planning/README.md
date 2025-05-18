@@ -87,6 +87,7 @@ python -m alpha_factory_v1.demos.muzero_planning
 [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/MontrealAI/AGI-Alpha-Agent-v0/blob/main/alpha_factory_v1/demos/muzero_planning/colab_muzero_planning.ipynb)
 
 Colab spins up the same dashboard via an ngrok tunnel — handy when Docker isn’t.
+It also runs a short unit test so you know the environment is ready before launching the demo.
 
 ---
 
