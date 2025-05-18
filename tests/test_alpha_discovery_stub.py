@@ -3,9 +3,9 @@ import subprocess
 import sys
 import unittest
 from pathlib import Path
+import tempfile
 
 STUB = 'alpha_factory_v1/demos/omni_factory_demo/alpha_discovery_stub.py'
-LEDGER = Path('alpha_factory_v1/demos/omni_factory_demo/omni_alpha_log.json')
 
 
 class TestAlphaDiscoveryStub(unittest.TestCase):
@@ -17,14 +17,18 @@ class TestAlphaDiscoveryStub(unittest.TestCase):
         self.assertGreaterEqual(len(data), 5)
 
     def test_sampling(self) -> None:
-        if LEDGER.exists():
-            LEDGER.unlink()
-        result = subprocess.run([sys.executable, STUB, '-n', '2', '--seed', '1'], capture_output=True, text=True)
-        self.assertEqual(result.returncode, 0)
-        self.assertTrue(LEDGER.exists())
-        logged = json.loads(LEDGER.read_text())
-        self.assertIsInstance(logged, list)
-        self.assertEqual(len(logged), 2)
+        with tempfile.TemporaryDirectory() as tmp:
+            ledger = Path(tmp) / 'log.json'
+            result = subprocess.run(
+                [sys.executable, STUB, '-n', '2', '--seed', '1', '--ledger', str(ledger)],
+                capture_output=True,
+                text=True,
+            )
+            self.assertEqual(result.returncode, 0, result.stderr)
+            self.assertTrue(ledger.exists())
+            logged = json.loads(ledger.read_text())
+            self.assertIsInstance(logged, list)
+            self.assertEqual(len(logged), 2)
 
 
 if __name__ == '__main__':  # pragma: no cover
