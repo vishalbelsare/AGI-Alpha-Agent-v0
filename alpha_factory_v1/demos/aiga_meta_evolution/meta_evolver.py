@@ -334,3 +334,28 @@ class MetaEvolver:
     @property
     def best_architecture(self) -> str:
         return self.best_genome.to_json() if self.best_genome else ""
+
+
+def cli() -> None:
+    """Run a short evolutionary loop and print the champion genome."""
+    import argparse
+
+    parser = argparse.ArgumentParser(description="AI-GA Meta-Evolver demo")
+    parser.add_argument("--gens", type=int, default=5, help="Generations to run")
+    args = parser.parse_args()
+
+    from curriculum_env import CurriculumEnv
+
+    evolver = MetaEvolver(env_cls=CurriculumEnv)
+    evolver.run_generations(args.gens)
+    print(evolver.latest_log())
+
+    try:
+        df = evolver.history_plot()
+        print(df.tail())
+    except Exception:  # pragma: no cover - pandas optional
+        pass
+
+
+if __name__ == "__main__":  # pragma: no cover
+    cli()
