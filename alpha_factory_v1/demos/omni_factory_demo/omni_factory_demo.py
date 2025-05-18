@@ -115,6 +115,8 @@ if "gadk" not in globals():
 from alpha_factory_v1.backend.orchestrator import Orchestrator               # noqa: E402
 from alpha_factory_v1.backend.world_model import wm                         # noqa: E402
 
+PLUGINS: list[ModuleType] = []
+
 ###############################################################################
 # Immutable runtime configuration                                             #
 ###############################################################################
@@ -366,7 +368,18 @@ def _plan(obs: List[float], scenario: str) -> Dict[str, Any]:
         action_id = int(sum(obs) * 10) % 5
         return {"action": {"id": action_id}}
     # 3) Alpha‑Factory world‑model planner ----------------------------------
-    return wm.plan("smart_city", {"obs": obs, "scenario": scenario})
+    plan = wm.plan("smart_city", {"obs": obs, "scenario": scenario})
+    if plan:
+        return plan
+    # 4) Plugin heuristics --------------------------------------------------
+    for plug in PLUGINS:
+        heur = getattr(plug, "heuristic_policy", None)
+        if heur:
+            try:
+                return heur(obs)
+            except Exception:
+                pass
+    return {"action": {"id": 0}}
 
 ###############################################################################
 # 6. Plugin autoloader (agents, env augmentations, …)                         #
@@ -379,13 +392,20 @@ def _load_plugins(folder: Path | None = None) -> List[ModuleType]:
     mods: list[ModuleType] = []
     if not folder.exists():
         return mods
+    global PLUGINS
     for py in folder.glob("*.py"):
         with contextlib.suppress(Exception):
             spec = importlib.util.spec_from_file_location(py.stem, py)
             if spec and spec.loader:
                 mod = importlib.util.module_from_spec(spec)
                 spec.loader.exec_module(mod)  # type: ignore[arg-type]
+                if hasattr(mod, "register"):
+                    try:
+                        mod.register()  # type: ignore[misc]
+                    except Exception:
+                        pass
                 mods.append(mod)
+    PLUGINS = mods
     return mods
 
 ###############################################################################

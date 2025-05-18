@@ -33,6 +33,15 @@ python alpha_discovery_stub.py -n 2 --seed 42
 
 The script logs the selected opportunity (unless `--no-log` is used) to `omni_alpha_log.json` for later reference.
 
+### Extending via Plugins
+
+You can augment the planner with custom heuristics without modifying the core
+code. Place Python files in the `plugins/` directory; each may define a
+`heuristic_policy(obs)` function. When the demo starts, it loads these modules
+and invokes their heuristics if the default planner yields no action. The
+provided [`plugins/example_agent_plugin.py`](plugins/example_agent_plugin.py)
+shows the minimal structure.
+
 
 
 ## Use Case Selection & Rationale
