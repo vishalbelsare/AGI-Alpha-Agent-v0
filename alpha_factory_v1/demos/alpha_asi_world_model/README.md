@@ -200,8 +200,8 @@ Need help? Open an issue → **@MontrealAI/alpha-factory-core**.
 - Ensure `python3 --version` returns 3.10–3.12.
 - Install dependencies: `pip install -r requirements.txt`.
 - Launch via `./deploy_alpha_asi_world_model_demo.sh` and visit `http://localhost:7860`.
-- Set `OPENAI_API_KEY` to unlock LLM-planner features (optional).
-- For air‑gapped mode, export `NO_LLM=1` before starting.
+- The script sets `NO_LLM=1` automatically when `OPENAI_API_KEY` is unset.
+- Provide an `OPENAI_API_KEY` to unlock planner features.
 
 ---
 
