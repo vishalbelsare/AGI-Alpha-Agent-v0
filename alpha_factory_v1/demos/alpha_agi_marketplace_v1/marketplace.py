@@ -19,10 +19,25 @@ def load_job(path: str | Path) -> dict[str, Any]:
 
 
 class MarketplaceClient:
-    """Minimal helper for submitting jobs to the orchestrator."""
+    """Minimal helper for interacting with the orchestrator."""
 
     def __init__(self, host: str = DEFAULT_HOST, port: int = DEFAULT_PORT) -> None:
         self.base_url = f"http://{host}:{port}"
+
+    # ──────────────────────────── helpers ────────────────────────────
+    def health(self) -> str:
+        """Return ``'ok'`` if the orchestrator is healthy."""
+        url = f"{self.base_url}/healthz"
+        resp = requests.get(url)
+        resp.raise_for_status()
+        return resp.text
+
+    def agents(self) -> list[str]:
+        """Return the list of registered agents."""
+        url = f"{self.base_url}/agents"
+        resp = requests.get(url)
+        resp.raise_for_status()
+        return resp.json()
 
     def queue_job(self, job: Mapping[str, Any]) -> requests.Response:
         """POST the job to the orchestrator and return the HTTP response."""
@@ -33,6 +48,13 @@ class MarketplaceClient:
         resp = requests.post(url, json=job)
         resp.raise_for_status()
         return resp
+
+    def recent_memory(self, agent: str, n: int = 5) -> list[Any]:
+        """Fetch the agent's most recent memory entries."""
+        url = f"{self.base_url}/memory/{agent}/recent"
+        resp = requests.get(url, params={"n": n})
+        resp.raise_for_status()
+        return resp.json()
 
 
 def submit_job(path: str | Path, host: str = DEFAULT_HOST, port: int = DEFAULT_PORT) -> None:
