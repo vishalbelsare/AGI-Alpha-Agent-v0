@@ -47,7 +47,7 @@ Add `--live` to pull in real sensor feeds (wearables, RSS, etc.):
 
    ```bash
    cp config.env.sample config.env
-   $EDITOR config.env      # set OPENAI_API_KEY, MODEL_NAME, etc.
+   $EDITOR config.env      # set OPENAI_API_KEY, MODEL_NAME, LIVE_FEED, etc.
    ```
 
 2. Enable real-time collectors and metrics with the `--live` flag:
@@ -55,6 +55,8 @@ Add `--live` to pull in real sensor feeds (wearables, RSS, etc.):
    ```bash
    ./run_experience_demo.sh --live
    ```
+
+   (equivalent to setting `LIVE_FEED=1` in `config.env`)
 
    The orchestrator automatically switches to offline mode whenever
    `OPENAI_API_KEY` is left empty.

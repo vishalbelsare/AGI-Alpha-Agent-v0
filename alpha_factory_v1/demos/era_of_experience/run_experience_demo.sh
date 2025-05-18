@@ -78,6 +78,7 @@ TEMPERATURE=0.2
 FRED_API_KEY=
 WEARABLES_API_KEY=
 PG_PASSWORD=alpha
+LIVE_FEED=0
 EOF
 fi
 
@@ -97,6 +98,7 @@ profiles=()
 has_gpu && profiles+=(gpu)
 [[ -z "${OPENAI_API_KEY:-}" ]] && profiles+=(offline)
 (( PROFILE_LIVE )) && profiles+=(live-feed)
+export LIVE_FEED=${PROFILE_LIVE}
 profile_arg=""
 [[ ${#profiles[@]} -gt 0 ]] && profile_arg="--profile $(IFS=,; echo "${profiles[*]}")"
 
