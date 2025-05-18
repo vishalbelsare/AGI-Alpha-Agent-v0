@@ -89,7 +89,7 @@ class MuZeroAgent(Agent):
 
     async def policy(self, obs, ctx):  # type: ignore[override]
         steps = int(obs.get("steps", 500)) if isinstance(obs, dict) else 500
-        return await self.tools.run_episode(steps)
+        return await run_episode(steps)
 
 
 _runtime = AgentRuntime(api_key=None)
