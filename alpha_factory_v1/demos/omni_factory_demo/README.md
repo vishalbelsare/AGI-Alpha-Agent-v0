@@ -19,6 +19,16 @@ pip install --no-index --find-links /path/to/wheels -r requirements.txt
 
 Ensure `pytest` and `prometheus_client` are present so the built-in tests and
 metrics exporter function correctly.
+### Quick Alpha Discovery
+
+Run the lightweight **alpha_discovery_stub.py** to generate example cross-industry opportunities entirely offline:
+
+```bash
+python alpha_discovery_stub.py
+```
+
+The script logs the selected opportunity to `omni_alpha_log.json` for later reference.
+
 
 
 ## Use Case Selection & Rationale
