@@ -8,7 +8,8 @@ class TestDemos(unittest.TestCase):
 
     def test_validate_demos(self) -> None:
         """``validate_demos`` succeeds for shipped demos."""
-        exit_code = validate_demos.main(validate_demos.DEFAULT_DIR, min_lines=3)
+        # Require slightly longer READMEs to ensure usefulness
+        exit_code = validate_demos.main(validate_demos.DEFAULT_DIR, min_lines=10)
         self.assertEqual(exit_code, 0)
 
     def test_quickstart_wrapper(self) -> None:
@@ -32,3 +33,12 @@ class TestDemos(unittest.TestCase):
                     (path / "__init__.py").exists(),
                     f"Missing __init__.py in {path.name}",
                 )
+
+    def test_demo_shell_scripts(self) -> None:
+        """All demo shell scripts should be executable and have shebangs."""
+        base = Path(validate_demos.DEFAULT_DIR)
+        for script in base.rglob("*.sh"):
+            with self.subTest(script=script.name):
+                content = script.read_text(errors="ignore")
+                self.assertTrue(content.startswith("#!/"), f"{script} missing shebang")
+                self.assertTrue(script.stat().st_mode & 0o111, f"{script} not executable")
