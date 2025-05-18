@@ -25,7 +25,7 @@ class TestPatcherCore(unittest.TestCase):
                 fh.write("hello\n")
             patch = """--- a/hello.txt
 +++ b/hello.txt
-@@
+@@ -1 +1 @@
 -hello
 +hello world
 """

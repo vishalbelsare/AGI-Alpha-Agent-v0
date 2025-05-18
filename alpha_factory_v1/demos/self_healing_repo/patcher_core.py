@@ -27,7 +27,10 @@ All file‑system mutations stay **inside `repo_path`** for container safety.
 from __future__ import annotations
 import subprocess, tempfile, pathlib, shutil, os, textwrap
 from typing import List, Tuple
-from openai_agents import OpenAIAgent
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:  # avoid hard dependency unless actually used
+    from openai_agents import OpenAIAgent
 
 # ─────────────────────────── helpers ─────────────────────────────────────────
 def _run(cmd: List[str], cwd: str) -> Tuple[int, str]:
@@ -115,6 +118,10 @@ if __name__ == "__main__":
     parser.add_argument("--repo", default=".", help="Repository path")
     args = parser.parse_args()
 
+    try:
+        from openai_agents import OpenAIAgent
+    except ImportError as e:
+        raise SystemExit("openai_agents package required. Install dependencies via requirements.txt") from e
     llm = OpenAIAgent(
         model=os.getenv("MODEL_NAME", "gpt-4o-mini"),
         api_key=os.getenv("OPENAI_API_KEY"),
