@@ -180,6 +180,8 @@ open http://localhost:8050 2>/dev/null || \
 cd ../../..
 pip install -r requirements.txt  # install dependencies
 python check_env.py              # confirm pytest & prometheus_client
+# If packages are reported missing, install them:
+pip install -r requirements.txt  # or requirements-colab.txt in Colab
 pytest -q                        # optional quick self-test
 python -m alpha_factory_v1.demos.omni_factory_demo --metrics-port 9137
 python alpha_factory_v1/demos/omni_factory_demo/omni_dashboard.py
