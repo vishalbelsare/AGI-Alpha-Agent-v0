@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import argparse
 import random
+import os
 
 # Payoff matrix for a standard Prisoner's Dilemma (T > R > P > S)
 R, T, P, S = 3.0, 5.0, 1.0, 0.0
@@ -67,6 +68,36 @@ def run_sim(
     return sum(probs) / agents
 
 
+def summarise_with_agent(mean_coop: float, *, agents: int, rounds: int, delta: float, stake: float) -> str:
+    """Return a natural-language summary of a simulation result.
+
+    If the ``openai`` package and an API key are available, the summary is
+    generated with an LLM via the OpenAI Agents SDK.  Otherwise a simple
+    fallback string is returned.
+    """
+
+    base_msg = (
+        "Simulation with {agents} agents, {rounds} rounds, delta={delta}, stake={stake} "
+        "yielded mean cooperation ≈ {coop:.3f}."
+    ).format(agents=agents, rounds=rounds, delta=delta, stake=stake, coop=mean_coop)
+
+    try:  # optional dependency
+        import openai
+
+        client = openai.OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+        completion = client.chat.completions.create(
+            model="gpt-4o",
+            messages=[
+                {"role": "system", "content": "Summarise AGIALPHA governance simulation results."},
+                {"role": "user", "content": base_msg},
+            ],
+            max_tokens=60,
+        )
+        return completion.choices[0].message.content.strip()
+    except Exception:
+        return base_msg
+
+
 def main(argv: list[str] | None = None) -> None:
     ap = argparse.ArgumentParser(description="AGIALPHA governance Monte-Carlo demo")
     ap.add_argument("-N", "--agents", type=int, default=100, help="number of agents")
@@ -75,6 +106,11 @@ def main(argv: list[str] | None = None) -> None:
     ap.add_argument("--stake", type=float, default=2.5, help="stake penalty")
     ap.add_argument("--seed", type=int, help="optional RNG seed")
     ap.add_argument("-v", "--verbose", action="store_true", help="print progress")
+    ap.add_argument(
+        "--summary",
+        action="store_true",
+        help="summarise results with OpenAI Agents SDK if available",
+    )
     args = ap.parse_args(argv)
 
     coop = run_sim(
@@ -86,6 +122,8 @@ def main(argv: list[str] | None = None) -> None:
         verbose=args.verbose,
     )
     print(f"mean cooperation ≈ {coop:.3f}")
+    if args.summary:
+        print(summarise_with_agent(coop, agents=args.agents, rounds=args.rounds, delta=args.delta, stake=args.stake))
 
 
 if __name__ == "__main__":
