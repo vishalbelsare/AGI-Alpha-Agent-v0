@@ -24,8 +24,9 @@ Clone the repository and run the helper script. It generates a
 `config.env` with safe defaults – edit it to add your `OPENAI_API_KEY` if
 you want narrated moves.
 
-Set `HOST_PORT` to expose a different dashboard port and `MUZERO_ENV_ID`
-to experiment with other Gymnasium tasks.
+Set `HOST_PORT` to expose a different dashboard port,
+`MUZERO_ENV_ID` to try other Gymnasium tasks,
+and `MUZERO_EPISODES` to adjust episode count.
 The helper script warns if the chosen port is already occupied.
 
 ```bash
