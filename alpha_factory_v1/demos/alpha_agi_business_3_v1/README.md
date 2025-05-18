@@ -250,6 +250,15 @@ pip install -r requirements.txt
 python -m omega_lattice.orchestrator --offline
 ```
 
+### 8.4 Colab Notebook
+
+Use our interactive Google Colab to run the pipeline without local setup:
+
+```
+https://colab.research.google.com/github/MontrealAI/AGI-Alpha-Agent-v0/blob/main/alpha_factory_v1/demos/alpha_agi_business_3_v1/colab_alpha_agi_business_3_demo.ipynb
+```
+
+
 No `OPENAI_API_KEY`? It auto‑switches to **Llama‑3‑8B.gguf**.
 
 #### Quick Local Demo
