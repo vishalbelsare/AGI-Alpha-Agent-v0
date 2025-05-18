@@ -11,6 +11,8 @@ import gradio as gr
 from openai_agents import Agent, OpenAIAgent, Tool
 from patcher_core import generate_patch, apply_patch
 
+GRADIO_SHARE = os.getenv("GRADIO_SHARE", "0") == "1"
+
 REPO_URL = "https://github.com/MontrealAI/sample_broken_calc.git"
 CLONE_DIR = "/tmp/demo_repo"
 
@@ -32,7 +34,7 @@ async def run_tests():
 @Tool(name="suggest_patch", description="propose code fix")
 async def suggest_patch():
     report = await run_tests()
-    patch = generate_patch(report["out"], llm=LLM)
+    patch = generate_patch(report["out"], llm=LLM, repo_path=CLONE_DIR)
     return {"patch": patch}
 
 @Tool(name="apply_patch_and_retst", description="apply patch & retest")
@@ -63,7 +65,7 @@ async def launch_gradio():
             return log_text
         run_btn = gr.Button("🩹 Heal Repository")
         run_btn.click(run_pipeline, outputs=log)
-    ui.launch(server_name="0.0.0.0", server_port=7863)
+    ui.launch(server_name="0.0.0.0", server_port=7863, share=GRADIO_SHARE)
 
 if __name__ == "__main__":
     asyncio.run(launch_gradio())
