@@ -102,6 +102,14 @@ illustrating convergence toward the cooperative fixed point when the
 discount factor `δ` is at least 0.8. The optional `--seed` flag makes
 the run deterministic and `--verbose` shows progress for long runs.
 
+Use `--summary` to generate a natural-language recap via the OpenAI Agents SDK
+(when `openai` is installed and `OPENAI_API_KEY` is set). Without network
+access, the script falls back to a local summary string.
+
+```bash
+governance-sim --agents 500 --summary
+```
+
 ---
 
 ### 10 · Quick Start & Troubleshooting
