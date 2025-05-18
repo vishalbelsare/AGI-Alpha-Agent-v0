@@ -272,7 +272,8 @@ def _run_generation(
 
 def evolutionary_search(args):
     # 0· prepare task – load a single ARC puzzle for brevity
-    with open("sample_task.json") as fh:
+    task_file = Path(__file__).with_name("sample_task.json")
+    with task_file.open() as fh:
         task = json.load(fh)["examples"][0]  # (input, output)
     task = (task["input"], task["output"])
 
