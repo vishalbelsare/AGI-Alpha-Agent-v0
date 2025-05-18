@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
-"""Offline alpha discovery stub with minimal CLI.
+"""Alpha discovery stub with minimal CLI.
 
-This script illustrates how the OMNI-Factory demo might surface
-cross-industry "alpha" opportunities without external services.
-It can list predefined scenarios or log a random selection to a
-JSON file. All functionality works offline.
+The script illustrates how the OMNI‑Factory demo might surface
+cross‑industry "alpha" opportunities. It works **fully offline** via
+predefined samples but will leverage an OpenAI LLM when an
+``OPENAI_API_KEY`` is configured to produce live suggestions.
+Results are logged to ``omni_alpha_log.json`` by default.
 """
 from __future__ import annotations
 
@@ -12,8 +13,12 @@ import argparse
 import json
 import random
 import os
+import contextlib
 from pathlib import Path
 from typing import List, Dict
+
+with contextlib.suppress(ModuleNotFoundError):
+    import openai  # type: ignore
 
 SAMPLE_ALPHA: List[Dict[str, str]] = [
     {"sector": "Energy", "opportunity": "Battery storage arbitrage between solar overproduction and evening peak demand"},
@@ -43,10 +48,32 @@ def discover_alpha(
     seed: int | None = None,
     ledger: Path | None = None,
 ) -> List[Dict[str, str]]:
-    """Return ``num`` randomly selected opportunities and log to *ledger*."""
+    """Return ``num`` opportunities and log to *ledger*.
+
+    If :mod:`openai` is available and ``OPENAI_API_KEY`` is set, an LLM is used
+    to generate live ideas. Otherwise the built-in samples are randomly chosen.
+    """
     if seed is not None:
         random.seed(seed)
-    picks = [random.choice(SAMPLE_ALPHA) for _ in range(max(1, num))]
+    picks: List[Dict[str, str]] = []
+    if "openai" in globals() and os.getenv("OPENAI_API_KEY"):
+        prompt = (
+            "List "
+            f"{num} short cross-industry investment opportunities as JSON"
+        )
+        try:
+            resp = openai.ChatCompletion.create(
+                model="gpt-4o-mini",
+                messages=[{"role": "user", "content": prompt}],
+            )
+            picks = json.loads(resp.choices[0].message.content)  # type: ignore[index]
+            if isinstance(picks, dict):
+                picks = [picks]
+        except Exception:
+            picks = []
+    if not picks:
+        picks = [random.choice(SAMPLE_ALPHA) for _ in range(max(1, num))]
+
     (_ledger_path(ledger) if ledger else DEFAULT_LEDGER).write_text(
         json.dumps(picks[0] if num == 1 else picks, indent=2)
     )

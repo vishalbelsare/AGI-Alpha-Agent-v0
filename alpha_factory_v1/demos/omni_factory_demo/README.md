@@ -31,7 +31,7 @@ python -m alpha_factory_v1.scripts.run_tests
 
 ### Quick Alpha Discovery
 
-Run the lightweight **alpha_discovery_stub.py** to generate example cross-industry opportunities entirely offline. It now supports a tiny CLI with a configurable output path:
+Run the lightweight **alpha_discovery_stub.py** to generate example cross-industry opportunities. It runs fully offline by default but will ask OpenAI for live suggestions when an `OPENAI_API_KEY` is configured. The stub exposes a tiny CLI with a configurable output path:
 
 ```bash
 # list all builtin samples
