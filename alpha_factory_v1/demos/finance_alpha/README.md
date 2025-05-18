@@ -40,6 +40,8 @@ different momentum pair on an alternate port.
 
 The first code cell checks for Docker and installs it automatically when running on Colab. Simply run each cell in order to launch Alpha‑Factory, view positions, and open the live trace‑graph.
 
+An additional cell now embeds the trace‑graph UI directly inside the notebook so you can follow the planner's decisions without leaving Colab.
+
 ```bash
 git clone --depth 1 https://github.com/MontrealAI/AGI-Alpha-Agent-v0.git
 cd AGI-Alpha-Agent-v0/alpha_factory_v1
