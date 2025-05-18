@@ -137,6 +137,9 @@ open http://localhost:8050 2>/dev/null || \
 
 # Alternative: run directly with Python
 cd ../../..
+pip install -r requirements.txt  # install dependencies
+python check_env.py              # confirm pytest & prometheus_client
+pytest -q                        # optional quick self-test
 python -m alpha_factory_v1.demos.omni_factory_demo --metrics-port 9137
 python alpha_factory_v1/demos/omni_factory_demo/omni_dashboard.py
 ```
