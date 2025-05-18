@@ -155,7 +155,16 @@ open http://localhost:7878      # Dashboard SPA
 
 Or open `colab_alpha_agi_business_v1_demo.ipynb` to run everything in Colab.
 
-*No Docker?* 
+### 🤖 OpenAI Agents bridge
+
+Expose the business demo via the OpenAI Agents SDK:
+
+```bash
+python openai_agents_bridge.py
+# → http://localhost:5001/v1/agents
+```
+
+*No Docker?*
 `bash <(curl -sL https://get.alpha-factory.ai/business_demo.sh)` boots an ephemeral VM (CPU‑only mode).
 
 ---
