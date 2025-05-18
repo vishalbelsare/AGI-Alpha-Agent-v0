@@ -18,6 +18,10 @@ docker run -p 7860:7860 ghcr.io/montrealai/alpha-asi:latest
 A single command launches the **Orchestrator**, seven specialised **α‑AGI Agents**, an antifragile safety shell and a friendly web dashboard.  
 Out‑of‑the‑box it **discovers, validates *and executes* live alpha** in any data‑rich domain.
 
+*Prefer a quick tour?* Run the self-contained
+[**Colab Notebook**](colab_alpha_agi_business_2_demo.ipynb)
+to launch the orchestrator in minutes.
+
 ---
 
 ## 🏗️ System Overview  
@@ -179,7 +183,8 @@ alpha_factory_v1/
  │   ├─ orchestrator.py
  │   └─ agents/            # PlanningAgent, ResearchAgent, ...
  └─ demos/
-     └─ alpha_agi_business_3_v1/
+     └─ alpha_agi_business_2_v1/
+         ├─ colab_alpha_agi_business_2_demo.ipynb
          └─ README.md      # ← YOU ARE HERE
 ```
 
