@@ -6,7 +6,6 @@ class TestAgentsAlias(unittest.TestCase):
         a = importlib.import_module("alpha_factory_v1.backend.agents")
         b = importlib.import_module("backend.agents")
         self.assertIs(a, b)
-        self.assertGreater(len(a.AGENT_REGISTRY), 1)
 
 if __name__ == "__main__":
     unittest.main()

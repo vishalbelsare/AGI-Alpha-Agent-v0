@@ -1,5 +1,6 @@
 import unittest
 import importlib
+import asyncio
 import os
 import sys
 import subprocess
@@ -51,6 +52,46 @@ class TestAgentRegistryFunctions(unittest.TestCase):
         self.assertEqual(capability_agents("foo"), [DummyAgent.NAME])
         agent = get_agent(DummyAgent.NAME)
         self.assertIsInstance(agent, DummyAgent)
+
+    def test_list_agents_sorted(self):
+        class AAgent(AgentBase):
+            NAME = "a_a"
+
+            async def step(self):
+                return None
+
+        class BAgent(AgentBase):
+            NAME = "b_b"
+
+            async def step(self):
+                return None
+
+        register_agent(AgentMetadata(name=BAgent.NAME, cls=BAgent))
+        register_agent(AgentMetadata(name=AAgent.NAME, cls=AAgent))
+
+        names = list_agents()
+        self.assertEqual(names, sorted(names))
+
+    def test_get_agent_health_queue(self):
+        from alpha_factory_v1.backend.agents import _HEALTH_Q
+
+        class WrapAgent(AgentBase):
+            NAME = "wrap"
+
+            async def step(self):
+                return "ok"
+
+        register_agent(AgentMetadata(name=WrapAgent.NAME, cls=WrapAgent))
+
+        while not _HEALTH_Q.empty():
+            _HEALTH_Q.get()
+
+        agent = get_agent(WrapAgent.NAME)
+        asyncio.run(agent.step())
+        name, latency, ok = _HEALTH_Q.get(timeout=1)
+        self.assertEqual(name, WrapAgent.NAME)
+        self.assertTrue(ok)
+        self.assertIsInstance(latency, float)
 
     def test_list_agents_detail(self):
         class DAgent(AgentBase):
