@@ -54,6 +54,14 @@ Click the badge above or run:
 open https://colab.research.google.com/github/MontrealAI/AGI-Alpha-Agent-v0/blob/main/alpha_factory_v1/demos/cross_industry_alpha_factory/colab_deploy_alpha_factory_cross_industry_demo.ipynb
 ```
 
+### Quick Alpha Discovery
+Generate offline sample opportunities with:
+```bash
+python cross_alpha_discovery_stub.py --list
+```
+Use `-n 3 --seed 42` to log three deterministic picks to
+`cross_alpha_log.json`. If `OPENAI_API_KEY` is set, the tool queries an LLM for fresh ideas.
+
 
 ---
 
