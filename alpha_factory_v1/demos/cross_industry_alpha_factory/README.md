@@ -67,8 +67,7 @@ open https://colab.research.google.com/github/MontrealAI/AGI-Alpha-Agent-v0/blob
 | Ray dashboard | `http://localhost:8265` |
 | REST orchestrator | `http://localhost:8000` (`GET /healthz`) |
 
-All ports are configurable: set `DASH_PORT / PROM_PORT` etc before running the
-installer.
+All ports are configurable: set environment variables like `DASH_PORT` or `PROM_PORT` before running the installer.
 
 ---
 

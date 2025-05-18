@@ -32,6 +32,7 @@ DEFAULT_COMPOSE="alpha_factory_v1/docker-compose.yml"
 COMPOSE_FILE=${COMPOSE_FILE:-"$DEFAULT_COMPOSE"}  # fallback bug fixed ✔
 AGENTS=(finance_agent biotech_agent climate_agent manufacturing_agent policy_agent)
 DASH_PORT=${DASH_PORT:-9000}   # Grafana
+PROM_PORT=${PROM_PORT:-9090}   # Prometheus
 RAY_PORT=${RAY_PORT:-8265}     # Ray dashboard
 KEY_DIR="alpha_factory_v1/keys"
 POLICY_DIR="alpha_factory_v1/policies"
@@ -90,7 +91,7 @@ ALPHA_FACTORY_MODE=cross_industry
 OPENAI_API_KEY=${OPENAI_API_KEY:-}
 OPENAI_API_BASE=${OPENAI_API_BASE:-https://api.openai.com/v1}
 AGENTS_ENABLED=${AGENTS[*]}
-PROM_PORT=$DASH_PORT
+PROM_PORT=$PROM_PORT
 RAY_PORT=$RAY_PORT
 PROJECT_SHA=$COMMIT_SHA
 PROMPT_SIGN_PUBKEY=$PROMPT_PUB
@@ -115,7 +116,7 @@ fi
 
 # core side-cars
 patch '.services += {"policy-engine":{image:"openai/mcp-engine:latest",volumes:["./alpha_factory_v1/policies:/policies:ro"]}}'
-patch '.services += {"prometheus":{image:"prom/prometheus:latest",ports:["9090:9090"]}}'
+patch '.services += {"prometheus":{image:"prom/prometheus:latest",ports:["'${PROM_PORT}':9090"]}}'
 patch ".services += {\"grafana\":{image:\"grafana/grafana:latest\",ports:[\"${DASH_PORT}:3000\"]}}"
 patch ".services += {\"ray-head\":{image:\"rayproject/ray:2.10.0\",command:\"ray start --head --dashboard-port ${RAY_PORT} --dashboard-host 0.0.0.0\",ports:[\"${RAY_PORT}:${RAY_PORT}\"]}}"
 patch '.services += {"pubmed-adapter":{image:"ghcr.io/alpha-factory/mock-pubmed:latest",ports:["8005:80"],labels:["optional=true"]}}'
