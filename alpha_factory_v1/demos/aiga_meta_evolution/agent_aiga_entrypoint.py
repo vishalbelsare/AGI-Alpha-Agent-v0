@@ -46,6 +46,11 @@ except ImportError:  # pragma: no cover
     A2ASocket = None  # type: ignore
 
 from openai_agents import OpenAIAgent, Tool
+try:
+    from alpha_factory_v1.backend import adk_bridge
+except Exception:  # pragma: no cover - optional dependency
+    adk_bridge = None
+from openai_agents_bridge import EvolverAgent
 from meta_evolver import MetaEvolver
 from curriculum_env import CurriculumEnv
 import gradio as gr
@@ -297,6 +302,10 @@ if __name__ == "__main__":
         AgentRuntime.register(SERVICE_NAME, f"http://localhost:{API_PORT}")
     if A2ASocket:
         A2ASocket(host="0.0.0.0", port=5555, app_id=SERVICE_NAME).start()
+    if adk_bridge and adk_bridge.adk_enabled():
+        evolver_agent = EvolverAgent()
+        adk_bridge.auto_register([evolver_agent])
+        adk_bridge.maybe_launch()
 
     # run FastAPI (blocking)
     uvicorn.run(app, host="0.0.0.0", port=API_PORT, log_level="info")

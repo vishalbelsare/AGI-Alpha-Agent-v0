@@ -10,6 +10,12 @@ from __future__ import annotations
 import os
 from openai_agents import Agent, AgentRuntime, OpenAIAgent, Tool
 
+try:
+    from alpha_factory_v1.backend.adk_bridge import auto_register, maybe_launch
+    ADK_AVAILABLE = True
+except Exception:  # pragma: no cover - optional
+    ADK_AVAILABLE = False
+
 from meta_evolver import MetaEvolver
 from curriculum_env import CurriculumEnv
 
@@ -67,8 +73,15 @@ class EvolverAgent(Agent):
 
 def main() -> None:
     runtime = AgentRuntime(api_key=None)
-    runtime.register(EvolverAgent())
+    agent = EvolverAgent()
+    runtime.register(agent)
     print("Registered EvolverAgent with runtime")
+
+    if ADK_AVAILABLE:
+        auto_register([agent])
+        maybe_launch()
+        print("EvolverAgent exposed via ADK gateway")
+
     runtime.run()
 
 
