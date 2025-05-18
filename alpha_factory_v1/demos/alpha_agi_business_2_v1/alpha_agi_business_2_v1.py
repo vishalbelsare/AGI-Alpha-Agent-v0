@@ -1,11 +1,9 @@
 #!/usr/bin/env python3
-"""alpha_agi_business_2_v1
-------------------------
-Minimal production-grade demo for the Alpha‑Factory stack. It
-registers a couple of simple agents and launches the orchestrator.
+"""Alpha‑AGI Business v2 demo.
 
-The demo runs fully offline but automatically upgrades to cloud
-LLM tools when `OPENAI_API_KEY` is detected.
+Boots the Alpha‑Factory orchestrator with two minimal agents. The demo
+operates fully offline but automatically upgrades to cloud LLM providers
+when ``OPENAI_API_KEY`` is detected.
 """
 from __future__ import annotations
 
@@ -22,41 +20,50 @@ from alpha_factory_v1.backend.agents import (
 
 
 class PlanningAgent(AgentBase):
+    """Toy planner agent emitting a single planning message."""
+
     NAME = "planning"
     CAPABILITIES = ["plan"]
+    __slots__ = ()
 
     async def step(self) -> None:
-        # Pretend to compute an optimal plan
+        """Publish a mock optimal plan."""
         await self.publish("alpha.plan", {"plan": "explore_market"})
 
 
 class ResearchAgent(AgentBase):
+    """Toy researcher agent publishing summarised findings."""
+
     NAME = "research"
     CAPABILITIES = ["research"]
     CYCLE_SECONDS = 90
+    __slots__ = ()
 
     async def step(self) -> None:
-        # Pretend to fetch and summarise data
+        """Publish a mock research summary."""
         await self.publish("alpha.research", {"summary": "market stable"})
 
 
-register_agent(
-    AgentMetadata(
-        name=PlanningAgent.NAME,
-        cls=PlanningAgent,
-        version="1.0.0",
-        capabilities=PlanningAgent.CAPABILITIES,
-    )
-)
+def register_demo_agents() -> None:
+    """Register built-in demo agents with the framework."""
 
-register_agent(
-    AgentMetadata(
-        name=ResearchAgent.NAME,
-        cls=ResearchAgent,
-        version="1.0.0",
-        capabilities=ResearchAgent.CAPABILITIES,
+    register_agent(
+        AgentMetadata(
+            name=PlanningAgent.NAME,
+            cls=PlanningAgent,
+            version="1.0.0",
+            capabilities=PlanningAgent.CAPABILITIES,
+        )
     )
-)
+
+    register_agent(
+        AgentMetadata(
+            name=ResearchAgent.NAME,
+            cls=ResearchAgent,
+            version="1.0.0",
+            capabilities=ResearchAgent.CAPABILITIES,
+        )
+    )
 
 
 def _parse_args(argv: list[str] | None = None) -> argparse.Namespace:
@@ -80,6 +87,8 @@ def main(argv: list[str] | None = None) -> None:
         format="%(asctime)s %(levelname)-8s | %(message)s",
         datefmt="%Y-%m-%d %H:%M:%S",
     )
+
+    register_demo_agents()
 
     try:
         orchestrator.Orchestrator().run_forever()
