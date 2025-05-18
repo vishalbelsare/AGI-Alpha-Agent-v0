@@ -1,5 +1,5 @@
-# Solving **α-AGI Governance**  
-*Minimal Conditions for Stable, Antifragile Multi-Agent Order*  
+# Solving **α-AGI Governance** [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/MontrealAI/AGI-Alpha-Agent-v0/blob/main/alpha_factory_v1/demos/solving_agi_governance/colab_solving_agi_governance.ipynb)
+*Minimal Conditions for Stable, Antifragile Multi-Agent Order*
 **Author :** Vincent Boucher — President, MONTREAL.AI · QUEBEC.AI  
 
 ---
@@ -75,6 +75,16 @@ Six million Monte-Carlo rounds at *N = 10⁴* confirm convergence ± 1.7 %.
 The protocol behaves as a **self-refining alpha-field**: every inefficiency touched by the swarm is converted into lasting, compounding value while the system **learns from stress, grows safer, and compounds returns** for all stakeholders.
 
 > **$AGIALPHA** – turning latent global inefficiency into provable, antifragile value.
+
+---
+
+### Interactive Notebook
+Open the Colab notebook for an end-to-end demo:
+
+```bash
+open https://colab.research.google.com/github/MontrealAI/AGI-Alpha-Agent-v0/blob/main/alpha_factory_v1/demos/solving_agi_governance/colab_solving_agi_governance.ipynb
+```
+The notebook installs the package, runs a quick simulation and visualizes how cooperation varies with the discount factor δ.
 
 ---
 
