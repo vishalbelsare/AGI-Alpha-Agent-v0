@@ -10,13 +10,19 @@ but trimmed to <300 LoC for pedagogy.
 
 import os, asyncio
 
+# Optional Google ADK gateway for Agent-to-Agent federation
+try:
+    from alpha_factory_v1.backend import adk_bridge
+except Exception:  # pragma: no cover - optional dependency
+    adk_bridge = None
+
 try:  # gymnasium optional for offline testing
     import gymnasium as gym
 except ModuleNotFoundError:  # pragma: no cover - fallback stub
     from .minimuzero import gym
 
 try:  # OpenAI Agents SDK is optional
-    from openai_agents import Agent, Tool, OpenAIAgent
+    from openai_agents import Agent, AgentRuntime, Tool, OpenAIAgent
 except ModuleNotFoundError:  # pragma: no cover - provide graceful degrade
 
     class OpenAIAgent:
@@ -32,11 +38,22 @@ except ModuleNotFoundError:  # pragma: no cover - provide graceful degrade
 
         return wrapper
 
+    class AgentRuntime:  # type: ignore[misc]
+        def __init__(self, *_, **__):
+            pass
+
+        def register(self, *_: object) -> None:
+            pass
+
+        def run(self) -> None:
+            pass
+
 
 import gradio as gr
 
 # ── Minimal MuZero utilities --------------------------------------------------
 # (full implementation lives in demo/minimuzero.py, imported here)
+from demo import minimuzero
 from demo.minimuzero import MiniMu
 
 ENV_ID = os.getenv("MUZERO_ENV_ID", "CartPole-v1")  # default environment
@@ -55,6 +72,33 @@ llm = OpenAIAgent(
 async def explain_move(state: str):
     prompt = f"You are New‑Yorker‑style columnist. Explain why MuZero picks {state}."
     return llm(prompt)
+
+
+@Tool(name="run_episode", description="Run a single MuZero episode and return the reward")
+async def run_episode(max_steps: int = 500) -> dict:
+    mu = MiniMu(env_id=ENV_ID)
+    frames, reward = minimuzero.play_episode(mu, render=False, max_steps=max_steps)
+    return {"reward": reward}
+
+
+class MuZeroAgent(Agent):
+    """Expose the MuZero demo as an OpenAI Agent."""
+
+    name = "muzero_demo"
+    tools = [run_episode]
+
+    async def policy(self, obs, ctx):  # type: ignore[override]
+        steps = int(obs.get("steps", 500)) if isinstance(obs, dict) else 500
+        return await run_episode(steps)
+
+
+_runtime = AgentRuntime(api_key=None)
+_agent = MuZeroAgent()
+_runtime.register(_agent)
+
+if adk_bridge and adk_bridge.adk_enabled():  # pragma: no cover - optional
+    adk_bridge.auto_register([_agent])
+    adk_bridge.maybe_launch()
 
 
 # ── Gradio UI -----------------------------------------------------------------
@@ -87,6 +131,12 @@ def launch_dashboard():
 
         start = gr.Button("▶ Run MuZero")
         start.click(run, outputs=[vid, log])
+    import threading
+
+    def _serve_runtime() -> None:
+        _runtime.run()
+
+    threading.Thread(target=_serve_runtime, daemon=True).start()
     demo.launch(server_name="0.0.0.0", server_port=PORT)
 
 

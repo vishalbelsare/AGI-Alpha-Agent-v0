@@ -49,6 +49,11 @@ python -m alpha_factory_v1.demos.muzero_planning
 > **Offline by default** – leaving `OPENAI_API_KEY` empty runs the demo
 > fully locally with **Ollama ✕ Mixtral**.
 
+This script also registers a small **MuZeroAgent** with the OpenAI Agents runtime.
+When `ALPHA_FACTORY_ENABLE_ADK=true` and the optional `google-adk` package is
+installed, the agent is automatically exposed via a Google ADK gateway for
+cross‑process collaboration.
+
 ---
 
 ## ✨ Why it matters
