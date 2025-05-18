@@ -32,7 +32,7 @@ from __future__ import annotations
 import asyncio
 import time
 import typing as _t
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, asdict
 from importlib import import_module
 from uuid import uuid4
 
@@ -56,17 +56,18 @@ except ModuleNotFoundError:  # pragma: no cover
 # --------------------------------------------------------------------- #
 @dataclass(slots=True, frozen=True)
 class TraceEvent:
-    """Immutable, hash‑able trace event."""
+    """Immutable, hash‑able trace event with optional metadata."""
 
     id: str = field(default_factory=lambda: uuid4().hex)
     ts: float = field(default_factory=time.time)
     type: str = "generic"
     label: str = ""
     edges: list[str] | None = None
+    meta: dict[str, _t.Any] | None = None
 
     # cache serialisation; fastest path for broadcast
     def to_bytes(self) -> bytes:  # noqa: D401
-        return _dumps(self.__dict__)
+        return _dumps(asdict(self))
 
 
 # --------------------------------------------------------------------- #
