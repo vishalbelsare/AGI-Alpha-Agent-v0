@@ -50,6 +50,11 @@ from meta_evolver import MetaEvolver
 from curriculum_env import CurriculumEnv
 import gradio as gr
 
+try:  # optional JWT auth
+    import jwt  # type: ignore
+except Exception:  # pragma: no cover - optional
+    jwt = None  # type: ignore
+
 # ---------------------------------------------------------------------------
 # CONFIG --------------------------------------------------------------------
 # ---------------------------------------------------------------------------
@@ -64,6 +69,9 @@ ENABLE_OTEL    = os.getenv("ENABLE_OTEL", "false").lower() == "true"
 ENABLE_SENTRY  = os.getenv("ENABLE_SENTRY", "false").lower() == "true"
 SENTRY_DSN     = os.getenv("SENTRY_DSN", "")
 RATE_LIMIT     = int(os.getenv("RATE_LIMIT_PER_MIN", "120"))
+AUTH_TOKEN     = os.getenv("AUTH_BEARER_TOKEN")
+JWT_PUBLIC_KEY = os.getenv("JWT_PUBLIC_KEY")
+JWT_ISSUER     = os.getenv("JWT_ISSUER", "aiga.local")
 
 SAVE_DIR = Path(os.getenv("CHECKPOINT_DIR", "/data/checkpoints"))
 SAVE_DIR.mkdir(parents=True, exist_ok=True)
@@ -177,6 +185,23 @@ async def _count_requests(request, call_next):
     path = request.url.path
     if path.startswith("/metrics"):
         return await call_next(request)
+    # -------- auth gate --------
+    if AUTH_TOKEN or JWT_PUBLIC_KEY:
+        header = request.headers.get("authorization")
+        if not header:
+            return JSONResponse({"detail": "unauthorized"}, status_code=401)
+        scheme, _, token = header.partition(" ")
+        if scheme.lower() != "bearer":
+            return JSONResponse({"detail": "unauthorized"}, status_code=401)
+        if AUTH_TOKEN and token == AUTH_TOKEN:
+            pass
+        elif JWT_PUBLIC_KEY and jwt:
+            try:
+                jwt.decode(token, JWT_PUBLIC_KEY, algorithms=["RS256"], issuer=JWT_ISSUER)
+            except Exception:
+                return JSONResponse({"detail": "unauthorized"}, status_code=401)
+        else:
+            return JSONResponse({"detail": "unauthorized"}, status_code=401)
     REQUEST_COUNTER.labels(route=path).inc()
     ip = request.client.host
     now = time.time()

@@ -84,6 +84,12 @@ python alpha_factory_v1/demos/aiga_meta_evolution/agent_aiga_entrypoint.py
 Set `OPENAI_API_KEY` in your environment to enable cloud models. Without
 it the demo falls back to the bundled offline mixtral model.
 
+## 🔐 API authentication
+
+Export `AUTH_BEARER_TOKEN` to require a static token on every API request. For
+JWT-based auth, provide `JWT_PUBLIC_KEY` (PEM) and optional `JWT_ISSUER`.
+The `/health` and `/metrics` endpoints remain public.
+
 ---
 
 ## 🎓 Run in Colab
