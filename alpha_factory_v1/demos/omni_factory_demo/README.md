@@ -1,4 +1,7 @@
 # OMNI-Factory: An Open-Ended Multi-Agent Simulation for Smart City Resilience (OMNI-EPIC + Alpha-Factory v1)
+[![Colab](https://img.shields.io/badge/Try-on-Colab-yellow?logo=googlecolab)](colab_omni_factory_demo.ipynb)
+Run the full demo interactively in [Google Colab](colab_omni_factory_demo.ipynb).
+
 
 ## Use Case Selection & Rationale
 
