@@ -34,6 +34,9 @@ MuZero-style model-based search to stay sample-efficient.
 Both flows autodetect `OPENAI_API_KEY`; when absent they inject a **Mixtral 8×7B**
 local LLM container so the demo works **fully offline**.
 
+> **Prerequisite**: Docker 24+ with the `docker compose` plugin (or the
+> legacy `docker-compose` binary) must be installed.
+
 ### Quick Start
 ```bash
 git clone https://github.com/MontrealAI/AGI-Alpha-Agent-v0.git
