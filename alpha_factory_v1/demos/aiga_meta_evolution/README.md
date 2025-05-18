@@ -98,6 +98,20 @@ The bridge registers an `aiga_evolver` agent exposing four tools:
 It works offline by routing to the local Mixtral server when no API key
 is configured.
 
+### 🛰️ Google ADK gateway
+
+Set `ALPHA_FACTORY_ENABLE_ADK=true` to expose the same agent via a local
+Google **Agent Development Kit** gateway:
+
+```bash
+ALPHA_FACTORY_ENABLE_ADK=true python openai_agents_bridge.py &
+```
+
+This publishes the tools over the **A2A protocol** so other agents can
+orchestrate evolution remotely.
+Set `ALPHA_FACTORY_ENABLE_ADK=1` in `config.env` to auto-start the gateway
+when running `./run_aiga_demo.sh`.
+
 ## 🔐 API authentication
 
 Export `AUTH_BEARER_TOKEN` to require a static token on every API request. For
