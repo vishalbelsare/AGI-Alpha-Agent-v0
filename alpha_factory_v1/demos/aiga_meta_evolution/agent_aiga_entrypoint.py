@@ -141,6 +141,10 @@ class AIGAMetaService:
         async with self._lock:
             self.evolver.save()
 
+    async def reset(self) -> None:
+        async with self._lock:
+            self.evolver.reset()
+
     async def best_alpha(self) -> Dict[str, Any]:
         arch = self.evolver.best_architecture
         summary = await describe_candidate(arch)
@@ -236,6 +240,11 @@ async def evolve_endpoint(gens: int, background_tasks: BackgroundTasks):
 async def checkpoint_endpoint(background_tasks: BackgroundTasks):
     background_tasks.add_task(service.checkpoint)
     return {"msg": "checkpoint scheduled"}
+
+@app.post("/reset")
+async def reset_endpoint(background_tasks: BackgroundTasks):
+    background_tasks.add_task(service.reset)
+    return {"msg": "reset scheduled"}
 
 @app.get("/alpha")
 async def best_alpha():

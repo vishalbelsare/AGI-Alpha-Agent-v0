@@ -92,8 +92,9 @@ Expose the evolver to the **OpenAI Agents SDK** runtime:
 python alpha_factory_v1/demos/aiga_meta_evolution/openai_agents_bridge.py
 ```
 
-The bridge registers an `aiga_evolver` agent offering two tools:
-`evolve` (run N generations) and `best_alpha` (return the champion).
+The bridge registers an `aiga_evolver` agent exposing four tools:
+`evolve` (run N generations), `best_alpha` (return the champion),
+`checkpoint` (persist state), and `reset` (fresh population).
 It works offline by routing to the local Mixtral server when no API key
 is configured.
 
@@ -216,6 +217,8 @@ spec:
 | New curriculum stage | `curriculum_env.py` | Extend `_valid_layout` |
 | Swap LLM | `config.env` | Any OpenAI model id |
 | Automate experimentation | FastAPI → `/evolve/{n}` | Deterministic SHA checkpoint id |
+| Manual reset | FastAPI → `POST /reset` | Fresh population |
+| Persist progress | FastAPI → `POST /checkpoint` | Atomic save |
 
 ---
 

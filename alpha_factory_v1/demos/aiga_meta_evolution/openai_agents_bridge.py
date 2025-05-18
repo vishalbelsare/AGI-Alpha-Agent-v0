@@ -41,11 +41,23 @@ async def best_alpha() -> dict:
     }
 
 
+@Tool(name="checkpoint", description="Persist current state to disk")
+async def checkpoint() -> str:
+    EVOLVER.save()
+    return "checkpoint saved"
+
+
+@Tool(name="reset", description="Reset evolution to generation zero")
+async def reset() -> str:
+    EVOLVER.reset()
+    return "evolver reset"
+
+
 class EvolverAgent(Agent):
     """Tiny agent exposing the meta-evolver tools."""
 
     name = "aiga_evolver"
-    tools = [evolve, best_alpha]
+    tools = [evolve, best_alpha, checkpoint, reset]
 
     async def policy(self, obs, ctx):  # type: ignore[override]
         gens = int(obs.get("gens", 1)) if isinstance(obs, dict) else 1
