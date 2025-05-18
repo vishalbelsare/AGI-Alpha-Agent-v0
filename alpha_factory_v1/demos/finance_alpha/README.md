@@ -52,6 +52,24 @@ Run the cells to spin up Alpha‑Factory and render positions & P&L as
 Pandas tables right inside the notebook. Tweak `STRATEGY` or `PORT_API`
 in the parameter cell if you need a custom pair or port.
 
+## 🧩 Programmatic control
+
+The container exposes a standard **OpenAI Agents** endpoint. After the
+notebook or CLI demo has launched you can drive the `FinanceAgent`
+directly from Python:
+
+```python
+from openai.agents import AgentRuntime
+rt = AgentRuntime(base_url="http://localhost:8000", api_key=None)
+fin = rt.get_agent("FinanceAgent")
+print("Alpha signals:", fin.alpha_signals())
+```
+
+If the `openai-agents` package is missing the optional
+`agent_control.py` script falls back to plain REST calls. When
+`ADK_MESH=1` is set the agent registers on the Google ADK mesh for
+cross‑agent discovery.
+
 ---
 
 
