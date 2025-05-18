@@ -73,7 +73,10 @@ class TestAgentRegistryFunctions(unittest.TestCase):
         self.assertEqual(names, sorted(names))
 
     def test_get_agent_health_queue(self):
-        from alpha_factory_v1.backend.agents import _HEALTH_Q
+        from alpha_factory_v1.backend import agents as agents_mod
+        from queue import Queue
+        saved_q = agents_mod._HEALTH_Q
+        agents_mod._HEALTH_Q = Queue()
 
         class WrapAgent(AgentBase):
             NAME = "wrap"
@@ -83,15 +86,17 @@ class TestAgentRegistryFunctions(unittest.TestCase):
 
         register_agent(AgentMetadata(name=WrapAgent.NAME, cls=WrapAgent))
 
-        while not _HEALTH_Q.empty():
-            _HEALTH_Q.get()
+        while not agents_mod._HEALTH_Q.empty():
+            agents_mod._HEALTH_Q.get()
 
         agent = get_agent(WrapAgent.NAME)
         asyncio.run(agent.step())
-        name, latency, ok = _HEALTH_Q.get(timeout=1)
+        name, latency, ok = agents_mod._HEALTH_Q.get(timeout=2)
         self.assertEqual(name, WrapAgent.NAME)
         self.assertTrue(ok)
         self.assertIsInstance(latency, float)
+
+        agents_mod._HEALTH_Q = saved_q
 
     def test_list_agents_detail(self):
         class DAgent(AgentBase):
