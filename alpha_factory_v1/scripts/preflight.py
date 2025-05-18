@@ -100,6 +100,9 @@ def main() -> None:
     ok &= check_docker_compose()
     ok &= check_pkg('openai')
     ok &= check_pkg('openai_agents')
+    # Ensure local dev environment can run automated tests
+    ok &= check_pkg('pytest')
+    ok &= check_pkg('prometheus_client')
     ensure_dir(MEM_DIR)
 
     for key in ('OPENAI_API_KEY', 'ANTHROPIC_API_KEY'):
