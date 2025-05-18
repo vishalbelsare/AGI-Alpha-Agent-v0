@@ -16,6 +16,13 @@ command -v docker >/dev/null 2>&1 || {
 
 echo "🚢  Building & starting MuZero Planning demo …"
 HOST_PORT=${HOST_PORT:-7861}
+
+# Warn if the requested port is already in use (best-effort check)
+if command -v lsof >/dev/null 2>&1 && lsof -i TCP:"${HOST_PORT}" -s TCP:LISTEN >/dev/null 2>&1; then
+  echo "🚨  Port ${HOST_PORT} already in use. Set HOST_PORT to an open port." >&2
+  exit 1
+fi
+
 docker compose --project-name alpha_muzero -f "$compose" up -d --build
 
 echo -e "\n🎉  Open http://localhost:${HOST_PORT} for the live MuZero dashboard."

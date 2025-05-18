@@ -26,6 +26,7 @@ you want narrated moves.
 
 Set `HOST_PORT` to expose a different dashboard port and `MUZERO_ENV_ID`
 to experiment with other Gymnasium tasks.
+The helper script warns if the chosen port is already occupied.
 
 ```bash
 git clone https://github.com/MontrealAI/AGI-Alpha-Agent-v0.git
