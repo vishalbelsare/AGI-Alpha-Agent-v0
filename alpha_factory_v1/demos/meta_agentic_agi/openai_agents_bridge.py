@@ -6,7 +6,12 @@ OpenAI Agents runtime. Works offline when no API key is configured.
 from __future__ import annotations
 
 import os
-from openai_agents import Agent, AgentRuntime, Tool
+try:
+    from openai_agents import Agent, AgentRuntime, Tool
+except ModuleNotFoundError as exc:  # pragma: no cover - graceful degradation
+    raise SystemExit(
+        "openai-agents package is missing. Install with `pip install openai-agents`"
+    ) from exc
 
 from meta_agentic_agi_demo import meta_loop
 
@@ -32,7 +37,17 @@ class MetaSearchAgent(Agent):
 
 def main() -> None:
     runtime = AgentRuntime(api_key=None)
-    runtime.register(MetaSearchAgent())
+    agent = MetaSearchAgent()
+    runtime.register(agent)
+    # Optional cross-process federation via Google ADK
+    try:
+        from alpha_factory_v1.backend import adk_bridge
+        if adk_bridge.adk_enabled():
+            adk_bridge.auto_register([agent])
+            adk_bridge.maybe_launch()
+    except Exception as exc:  # pragma: no cover - ADK optional
+        print(f"ADK bridge unavailable: {exc}")
+
     print("Registered MetaSearchAgent with runtime")
     runtime.run()
 
