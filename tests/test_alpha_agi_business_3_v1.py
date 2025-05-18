@@ -1,6 +1,7 @@
 import subprocess
 import sys
 import unittest
+import asyncio
 
 from alpha_factory_v1.demos.alpha_agi_business_3_v1 import alpha_agi_business_3_v1 as demo
 
@@ -57,6 +58,10 @@ class TestAlphaAgiBusiness3Demo(unittest.TestCase):
             text=True,
         )
         self.assertEqual(result.returncode, 0, result.stderr)
+
+    def test_llm_comment_offline(self) -> None:
+        msg = asyncio.run(demo._llm_comment(-0.1))
+        self.assertIsInstance(msg, str)
 
 
 if __name__ == "__main__":  # pragma: no cover
