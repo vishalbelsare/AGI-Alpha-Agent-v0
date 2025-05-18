@@ -17,7 +17,12 @@ Highlights
 """
 
 from __future__ import annotations
-import os, csv, json, asyncio, datetime as dt, pathlib, aiohttp, random
+import os, csv, json, asyncio, datetime as dt, pathlib, random
+
+try:  # aiohttp optional at test time
+    import aiohttp
+except ModuleNotFoundError:  # pragma: no cover - offline fallback
+    aiohttp = None
 from typing import AsyncIterator, Dict, Any, Optional
 from collections import deque
 from urllib.request import urlopen

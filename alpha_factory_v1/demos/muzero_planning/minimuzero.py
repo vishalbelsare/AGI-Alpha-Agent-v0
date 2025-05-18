@@ -4,7 +4,23 @@ from __future__ import annotations
 
 import math
 import random
-import gymnasium as gym
+try:
+    import gymnasium as gym
+except ModuleNotFoundError:  # pragma: no cover - lightweight stub
+    class _StubEnv:
+        observation_space = type("obs", (), {"shape": (4,)})
+        action_space = type("act", (), {"n": 2})
+        def reset(self, *, seed=None):
+            return [0.0]*4, {}
+        def step(self, action):
+            return [0.0]*4, 0.0, True, False, {}
+        def render(self):
+            return []
+        def close(self):
+            pass
+    def make(env_id, render_mode=None):
+        return _StubEnv()
+    gym = type("gym", (), {"make": make, "Env": _StubEnv})
 
 try:
     import torch
