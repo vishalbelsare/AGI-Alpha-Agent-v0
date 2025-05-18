@@ -17,11 +17,12 @@ curl -L https://raw.githubusercontent.com/MontrealAI/AGI-Alpha-Agent-v0/main/alp
 
 **What happens**
 
-1. Docker pulls the signed `alphafactory_pro:cpu-slim` image.  
-2. Container starts with the *BTC / GLD* momentum strategy.  
-3. The script prints JSON tables for **positions** and **P&L**.  
-4. You get a link to the live **trace‑graph UI** (`http://localhost:8088`).  
-5. Container stops automatically when you close the terminal.
+1. Docker pulls the signed `alphafactory_pro:cpu-slim` image.
+2. Container starts with the *BTC / GLD* momentum strategy.
+3. The script verifies the API port is free and waits for the health endpoint.
+4. The script prints JSON tables for **positions** and **P&L**.
+5. You get a link to the live **trace‑graph UI** (`http://localhost:8088`).
+6. Container stops automatically when you close the terminal.
 
 _No installation beyond Docker, `curl`, and `jq`._
 
@@ -55,7 +56,7 @@ Pandas tables right inside the notebook.
 | Symptom | Resolution |
 |---------|------------|
 | **“docker: command not found”** | Install Docker Desktop or Docker Engine |
-| Port 8000 already used | Edit the demo script and change `PORT_API=8001` |
+| Port 8000 already used | The script aborts; re-run with `PORT_API=8001` |
 | Corporate proxy blocks image pull | Pull image on a VPN, `docker save` → `docker load` |
 | Want GPU speed | `PROFILE=cuda ./scripts/install_alpha_factory_pro.sh --deploy` |
 
