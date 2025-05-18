@@ -42,6 +42,16 @@ pip install -r requirements.txt
 python -m alpha_factory_v1.demos.muzero_planning
 ```
 
+### Command-line options
+
+You can override the environment, episode count and port directly from the CLI:
+
+```bash
+python -m alpha_factory_v1.demos.muzero_planning --env MountainCar-v0 \
+       --episodes 5 --port 8888
+```
+
+
 1. **Docker Desktop** builds the container (~45 s on first run).
 2. **Open <http://localhost:${HOST_PORT:-7861}>** and press **“▶ Run MuZero”**.
 3. Watch the live video feed, reward ticker and optional commentary.
