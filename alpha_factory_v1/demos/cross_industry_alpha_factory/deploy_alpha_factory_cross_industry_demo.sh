@@ -6,6 +6,24 @@
 set -Eeuo pipefail
 IFS=$'\n\t'; shopt -s lastpipe
 
+usage(){
+  echo "Usage: $0 [--ci] [--skip-bench]" >&2
+}
+
+while [[ $# -gt 0 ]]; do
+  case $1 in
+    --ci)
+      CI=1;;
+    --skip-bench)
+      SKIP_BENCH=1;;
+    -h|--help)
+      usage; exit 0;;
+    *)
+      echo "Unknown option: $1" >&2; usage; exit 1;;
+  esac
+  shift
+done
+
 ############## 0. CONSTANTS ###################################################
 PROJECT_DIR=${PROJECT_DIR:-"$HOME/alpha_factory_demo"}
 REPO_URL="https://github.com/MontrealAI/AGI-Alpha-Agent-v0.git"
@@ -188,7 +206,7 @@ done
 
 ############## 9. OPTIONAL HEAVY-LOAD BENCH ###################################
 if [[ -z ${SKIP_BENCH:-} ]]; then
-  echo "🏋️  Starting 60-sec load test (k6)…"
+  echo "🏋 Running load test"
   k6 run -e AGENTS_ENABLED="${AGENTS[*]}" --duration 60s --vus 50 "$LOADTEST_DIR/k6.js" || true
 fi
 
