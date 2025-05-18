@@ -19,7 +19,18 @@ class TestCrossAlphaDiscoveryStub(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp:
             ledger = Path(tmp) / 'log.json'
             result = subprocess.run(
-                [sys.executable, STUB, '-n', '2', '--seed', '1', '--ledger', str(ledger)],
+                [
+                    sys.executable,
+                    STUB,
+                    '-n',
+                    '2',
+                    '--seed',
+                    '1',
+                    '--ledger',
+                    str(ledger),
+                    '--model',
+                    'gpt-4o-mini',
+                ],
                 capture_output=True,
                 text=True,
             )

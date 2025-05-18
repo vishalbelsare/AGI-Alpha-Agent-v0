@@ -4,7 +4,9 @@
 This minimal command‑line tool surfaces potential "alpha" opportunities
 across industries. It works **fully offline** using a small sample set but
 will query OpenAI when an ``OPENAI_API_KEY`` is configured for live ideas.
-Discovered items are logged to ``cross_alpha_log.json`` by default.
+Discovered items are logged to ``cross_alpha_log.json`` by default.  The
+queried model defaults to ``gpt-4o-mini`` but can be overridden with
+``--model`` or ``CROSS_ALPHA_MODEL``.
 """
 from __future__ import annotations
 
@@ -28,6 +30,8 @@ SAMPLE_ALPHA: List[Dict[str, str]] = [
     {"sector": "Agriculture", "opportunity": "Precision irrigation to save water during drought conditions"},
     {"sector": "Retail", "opportunity": "Dynamic pricing to clear excess seasonal inventory"},
     {"sector": "Transportation", "opportunity": "Last-mile delivery optimization with electric micro-vehicles"},
+    {"sector": "Construction", "opportunity": "Modular prefab builds to reduce on-site waste"},
+    {"sector": "Telecom", "opportunity": "Lease dark fiber to data-intensive startups"},
 ]
 
 DEFAULT_LEDGER = Path(__file__).with_name("cross_alpha_log.json")
@@ -46,11 +50,13 @@ def discover_alpha(
     *,
     seed: int | None = None,
     ledger: Path | None = None,
+    model: str = "gpt-4o-mini",
 ) -> List[Dict[str, str]]:
     """Return ``num`` opportunities and log to *ledger*.
 
     If :mod:`openai` is available and ``OPENAI_API_KEY`` is set, an LLM is used
-    to generate live ideas. Otherwise the built-in samples are randomly chosen.
+    to generate live ideas using *model* (defaults to ``gpt-4o-mini``).  When the
+    key or library is missing the built-in samples are randomly chosen.
     """
     if seed is not None:
         random.seed(seed)
@@ -62,7 +68,7 @@ def discover_alpha(
         )
         try:
             resp = openai.ChatCompletion.create(
-                model="gpt-4o-mini",
+                model=model,
                 messages=[{"role": "user", "content": prompt}],
             )
             picks = json.loads(resp.choices[0].message.content)  # type: ignore[index]
@@ -86,6 +92,11 @@ def main(argv: List[str] | None = None) -> None:  # pragma: no cover - CLI wrapp
     p.add_argument("--seed", type=int, help="seed RNG for reproducible output")
     p.add_argument("--ledger", help="path to ledger JSON file")
     p.add_argument("--no-log", action="store_true", help="do not write to ledger")
+    p.add_argument(
+        "--model",
+        default=os.getenv("CROSS_ALPHA_MODEL", "gpt-4o-mini"),
+        help="OpenAI model to query when API key available",
+    )
     args = p.parse_args(argv)
 
     if args.list:
@@ -93,7 +104,7 @@ def main(argv: List[str] | None = None) -> None:  # pragma: no cover - CLI wrapp
         return
 
     ledger = _ledger_path(args.ledger)
-    picks = discover_alpha(args.num, seed=args.seed, ledger=ledger)
+    picks = discover_alpha(args.num, seed=args.seed, ledger=ledger, model=args.model)
     if args.no_log:
         ledger.unlink(missing_ok=True)
     print(json.dumps(picks[0] if args.num == 1 else picks, indent=2))

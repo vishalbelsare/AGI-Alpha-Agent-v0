@@ -60,7 +60,7 @@ Generate offline sample opportunities with:
 python cross_alpha_discovery_stub.py --list
 ```
 Use `-n 3 --seed 42` to log three deterministic picks to
-`cross_alpha_log.json`. If `OPENAI_API_KEY` is set, the tool queries an LLM for fresh ideas.
+`cross_alpha_log.json`. If `OPENAI_API_KEY` is set, the tool queries an LLM for fresh ideas. The model may be overridden with `--model` (default `gpt-4o-mini`).
 
 
 ---
