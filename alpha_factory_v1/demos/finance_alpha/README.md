@@ -43,13 +43,6 @@ Pandas tables right inside the notebook.
 
 ---
 
-## 🎬 Preview video / GIF
-
-![Trace demo](../docs/trace_demo.gif)
-
-*(10‑second capture of the planner emitting decisions and tool‑calls.)*
-
----
 
 ## 🛠️ Troubleshooting
 
