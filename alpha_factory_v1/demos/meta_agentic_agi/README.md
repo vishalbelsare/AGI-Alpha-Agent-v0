@@ -105,6 +105,9 @@ python meta_agentic_agi_demo.py --provider mistral:7b-instruct.gguf
 streamlit run ui/lineage_app.py
 ```
 
+`meta_agentic_search/sample_task.json` includes a tiny ARC example used by the
+demo.  The path resolves automatically when running the scripts.
+
 *No GPU?* llama‑cpp‑python auto‑selects 4‑bit quantisation < 6 GB RAM.
 ---
 
