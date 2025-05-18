@@ -32,13 +32,17 @@ _No installation beyond Docker, `curl`, and `jq`._
 
 > Perfect for analysts who love Pandas or anyone on Google Colab.
 
+[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/MontrealAI/AGI-Alpha-Agent-v0/blob/main/alpha_factory_v1/demos/finance_alpha/finance_alpha.ipynb)
+
+The first code cell checks for Docker and installs it automatically when running on Colab. Simply run each cell in order to launch Alpha‑Factory, view positions, and open the live trace‑graph.
+
 ```bash
 git clone --depth 1 https://github.com/MontrealAI/AGI-Alpha-Agent-v0.git
 cd AGI-Alpha-Agent-v0/alpha_factory_v1
 jupyter notebook demos/finance_alpha/finance_alpha.ipynb
 ```
 
-Run the two cells to spin up Alpha‑Factory and render positions & P&L as
+Run the cells to spin up Alpha‑Factory and render positions & P&L as
 Pandas tables right inside the notebook.
 
 ---
