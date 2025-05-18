@@ -1,0 +1,11 @@
+fastapi
+uvicorn
+pyngrok
+ctransformers==0.2.27
+k6-python
+subprocess-tee
+ray[default]==2.10.0
+openai>=1.76.0,<2.0
+openai-agents>=0.0.14
+anthropic>=0.21
+litellm>=1.31

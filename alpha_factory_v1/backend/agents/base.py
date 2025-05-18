@@ -261,6 +261,16 @@ class AgentBase(abc.ABC):
         """Signal the agent to shut down gracefully."""
         self._stop_evt.set()
 
+    # ------------------------------------------------------------------
+    def load_weights(self, path: str) -> None:
+        """Load updated model weights from *path*.
+
+        Subclasses may override this to implement hot-swapping of
+        learning artefacts.  The default implementation simply stores the
+        path for later use.
+        """
+        self._weights_path = path
+
     # ────────────────────────────────────────────────────────────────────
     # Pretty representation (helps debugging & logging)
     # ────────────────────────────────────────────────────────────────────
