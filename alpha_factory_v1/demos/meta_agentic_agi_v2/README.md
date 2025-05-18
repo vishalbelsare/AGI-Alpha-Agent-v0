@@ -1,4 +1,3 @@
-
 # Meta‑Agentic α‑AGI 👁️✨ Demo v2 – **Production‑Grade v0.1.0**
 
 Identical to **v1** plus a statistical-physics wrapper that logs and minimises **Gibbs / variational free-energy** for each candidate agent during the evolutionary search.
@@ -111,6 +110,8 @@ micromamba activate metaagi
 pip install -r requirements.txt        # ≤ 40 MiB wheels
 
 # 3️⃣ Run – zero‑API mode (pulls a gguf via Ollama)
+python meta_agentic_agi_demo_v2.py --provider mock:echo       # offline demo
+#   …or real weights
 python meta_agentic_agi_demo_v2.py --provider mistral:7b-instruct.gguf
 
 #   …or point to any provider
@@ -201,9 +202,7 @@ Change **provider** to:
 | `openai:gpt-4o`             | needs `OPENAI_API_KEY`     |
 | `anthropic:claude-3-sonnet` | needs `ANTHROPIC_API_KEY`  |
 | `mistral:7b-instruct.gguf`  | default local model        |
-
-Wrapper normalises chat/completions, streams via **MCP**, and window‑slides tokens.
-
+| `mock:echo`                 | offline stub, for tests |
 ---
 
 ## 5 Multi‑Objective Search 🎯
