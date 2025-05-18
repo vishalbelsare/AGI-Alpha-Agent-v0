@@ -7,7 +7,7 @@ REQUIRED = [
     "pytest",
     "prometheus_client",
     "openai",
-    "openai_agents_sdk",
+    "openai_agents",
     "google_adk",
     "anthropic",
 ]
