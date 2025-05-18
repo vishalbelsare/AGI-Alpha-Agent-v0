@@ -35,6 +35,9 @@ cd AGI-Alpha-Agent-v0/alpha_factory_v1/demos/muzero_planning
 ./run_muzero_demo.sh
 ```
 
+The script prints the local URL and, when possible, automatically opens it in
+your default browser.
+
 Alternatively run natively:
 
 ```bash

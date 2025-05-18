@@ -27,3 +27,10 @@ docker compose --project-name alpha_muzero -f "$compose" up -d --build
 
 echo -e "\n🎉  Open http://localhost:${HOST_PORT} for the live MuZero dashboard."
 echo "🛑  Stop → docker compose -p alpha_muzero down\n"
+
+# Automatically open the dashboard in a browser when possible
+if command -v xdg-open >/dev/null 2>&1; then
+  xdg-open "http://localhost:${HOST_PORT}" >/dev/null 2>&1 &
+elif command -v open >/dev/null 2>&1; then  # macOS
+  open "http://localhost:${HOST_PORT}" &
+fi
