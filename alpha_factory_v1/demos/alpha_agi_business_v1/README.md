@@ -145,6 +145,10 @@ cd AGI-Alpha-Agent-v0/alpha_factory_v1/demos/alpha_agi_business_v1
 # launch demo (GPU optional)
 ./run_business_v1_demo.sh
 
+# the demo starts two stub agents:
+#   • **IncorporatorAgent** registers the business
+#   • **AlphaDiscoveryAgent** emits a placeholder market opportunity
+
 open http://localhost:7878      # Dashboard SPA
 ./scripts/post_alpha_job.sh examples/job_copper_spread.json
 ```

@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 """Alpha‑AGI Business v1 demo.
 
-Bootstraps a minimal Alpha‑Factory orchestrator with a single
-``IncorporatorAgent``. The demo runs fully offline but upgrades to cloud
-LLM tooling automatically when ``OPENAI_API_KEY`` is present.
+Bootstraps a minimal Alpha‑Factory orchestrator with two stub agents.
+The demo operates fully offline but upgrades to cloud LLM tooling
+automatically when ``OPENAI_API_KEY`` is present.
 """
 from __future__ import annotations
 
@@ -26,8 +26,22 @@ class IncorporatorAgent(AgentBase):
         await self.publish("alpha.business", {"msg": "company incorporated"})
 
 
+class AlphaDiscoveryAgent(AgentBase):
+    """Stub agent that emits a placeholder alpha opportunity."""
+
+    NAME = "alpha_discovery"
+    CAPABILITIES = ["discover"]
+    CYCLE_SECONDS = 120
+    __slots__ = ()
+
+    async def step(self) -> None:
+        await self.publish(
+            "alpha.discovery", {"alpha": "cross-market synergy identified"}
+        )
+
+
 def register_demo_agents() -> None:
-    """Register the demo agent with the framework."""
+    """Register built-in demo agents with the framework."""
 
     register_agent(
         AgentMetadata(
@@ -35,6 +49,15 @@ def register_demo_agents() -> None:
             cls=IncorporatorAgent,
             version="1.0.0",
             capabilities=IncorporatorAgent.CAPABILITIES,
+        )
+    )
+
+    register_agent(
+        AgentMetadata(
+            name=AlphaDiscoveryAgent.NAME,
+            cls=AlphaDiscoveryAgent,
+            version="1.0.0",
+            capabilities=AlphaDiscoveryAgent.CAPABILITIES,
         )
     )
 
