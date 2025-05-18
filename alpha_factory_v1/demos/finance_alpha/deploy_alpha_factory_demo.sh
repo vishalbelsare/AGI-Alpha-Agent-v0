@@ -50,7 +50,9 @@ fi
 banner "🚀  Starting Alpha‑Factory  (strategy: $STRATEGY)"
 CID=$(docker run -d --rm --name "$CONTAINER" \
         -e FINANCE_STRATEGY="$STRATEGY" \
-        -p "${PORT_API}:8000" "$IMAGE")
+        -e TRACE_WS_PORT=8088 \
+        -p "${PORT_API}:8000" \
+        -p 8088:8088 "$IMAGE")
 trap 'docker stop "$CID" >/dev/null' EXIT
 
 # ── wait for API health endpoint ────────────────────────────────────────

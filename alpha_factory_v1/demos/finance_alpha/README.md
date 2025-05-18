@@ -26,6 +26,10 @@ curl -L https://raw.githubusercontent.com/MontrealAI/AGI-Alpha-Agent-v0/main/alp
 
 _No installation beyond Docker, `curl`, and `jq`._
 
+**Customize**  
+`STRATEGY=my_pair PORT_API=8001 bash deploy_alpha_factory_demo.sh` runs a
+different momentum pair on an alternate port.
+
 ---
 
 ## 📒 Interactive notebook demo
@@ -43,7 +47,8 @@ jupyter notebook demos/finance_alpha/finance_alpha.ipynb
 ```
 
 Run the cells to spin up Alpha‑Factory and render positions & P&L as
-Pandas tables right inside the notebook.
+Pandas tables right inside the notebook. Tweak `STRATEGY` or `PORT_API`
+in the parameter cell if you need a custom pair or port.
 
 ---
 
