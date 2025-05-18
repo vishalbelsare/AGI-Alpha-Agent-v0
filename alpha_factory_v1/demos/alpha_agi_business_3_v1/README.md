@@ -270,6 +270,10 @@ python alpha_agi_business_3_v1.py --loglevel info
 ```
 If the **OpenAI Agents SDK** is installed, each cycle emits a concise LLM
 comment on the computed ΔG. Without it the demo uses an offline placeholder.
+You can also run the Dockerised version:
+```bash
+./run_business_3_demo.sh
+```
 
 ---
 
