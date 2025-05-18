@@ -4,6 +4,11 @@ from __future__ import annotations
 
 import math
 import random
+
+try:
+    import numpy as np  # for policy arrays when torch absent
+except ModuleNotFoundError:  # pragma: no cover - optional dependency
+    np = None
 try:
     import gymnasium as gym
 except ModuleNotFoundError:  # pragma: no cover - lightweight stub
@@ -108,7 +113,13 @@ def mcts_policy(net: MiniMuNet, env: gym.Env, obs, num_simulations: int = 64):
     """Return policy via MuZero-style MCTS (random if torch unavailable)."""
     if not _TORCH:
         n = env.action_space.n
-        return [1 / n] * n
+        if np is not None:
+            return np.full(n, 1 / n)
+        class _P(list):
+            def sum(self):  # minimal numpy-like API
+                from builtins import sum as _sum
+                return _sum(self)
+        return _P([1 / n] * n)
 
     state, value, policy_logits = net.initial(obs)
     root = Node(prior=1.0, state=state)
