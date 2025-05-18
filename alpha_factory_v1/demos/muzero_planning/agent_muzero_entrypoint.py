@@ -7,8 +7,29 @@ on ``$HOST_PORT`` (default 7861).
 Core algorithm follows the public pseudocode from Schrittwieser et al. (2020)
 but trimmed to <300 LoC for pedagogy.
 """
-import os, asyncio, random, gymnasium as gym
-from openai_agents import Agent, Tool, OpenAIAgent
+import os, asyncio, random
+
+try:  # gymnasium optional for offline testing
+    import gymnasium as gym
+except ModuleNotFoundError:  # pragma: no cover - fallback stub
+    from .minimuzero import gym
+
+try:  # OpenAI Agents SDK is optional
+    from openai_agents import Agent, Tool, OpenAIAgent
+except ModuleNotFoundError:  # pragma: no cover - provide graceful degrade
+    class OpenAIAgent:
+        def __init__(self, *_, **__):
+            pass
+
+        def __call__(self, *_: str) -> str:
+            return "LLM commentary unavailable."
+
+    def Tool(*_, **__):  # type: ignore[misc]
+        def wrapper(func):
+            return func
+
+        return wrapper
+
 import gradio as gr
 
 # ── Minimal MuZero utilities --------------------------------------------------
