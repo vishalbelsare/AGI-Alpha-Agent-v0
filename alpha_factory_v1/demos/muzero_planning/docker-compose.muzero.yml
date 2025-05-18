@@ -7,7 +7,9 @@ services:
       dockerfile: ./Dockerfile      # uses existing image recipe
     image: alpha_factory_orchestrator:muzero
     env_file: ./config.env
-    command: python /app/demo/agent_muzero_entrypoint.py
+    command: >-
+      sh -c "pip install --no-cache-dir -r /app/demo/requirements.txt && \
+             python /app/demo/agent_muzero_entrypoint.py"
     volumes:
       - ./:/app/demo:ro
     ports:

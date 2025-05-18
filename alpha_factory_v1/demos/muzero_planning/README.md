@@ -34,6 +34,13 @@ cd AGI-Alpha-Agent-v0/alpha_factory_v1/demos/muzero_planning
 ./run_muzero_demo.sh
 ```
 
+Alternatively run natively:
+
+```bash
+pip install -r requirements.txt
+python -m alpha_factory_v1.demos.muzero_planning
+```
+
 1. **Docker Desktop** builds the container (~45 s on first run).
 2. **Open <http://localhost:${HOST_PORT:-7861}>** and press **“▶ Run MuZero”**.
 3. Watch the live video feed, reward ticker and optional commentary.
