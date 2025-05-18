@@ -288,6 +288,20 @@ def _build_rest(runners: Dict[str, AgentRunner]) -> Optional[FastAPI]:
         runners[name].next_ts = 0  # run ASAP
         return {"queued": True}
 
+    @app.post("/agent/{name}/update_model")
+    async def _update_model(name: str, file: bytes = File(...)):
+        if name not in runners:
+            raise HTTPException(404, "Agent not found")
+        inst = runners[name].inst
+        if not hasattr(inst, "load_weights"):
+            raise HTTPException(501, "Agent does not support model updates")
+        import tempfile, zipfile, io
+        with tempfile.TemporaryDirectory() as td:
+            zf = zipfile.ZipFile(io.BytesIO(file))
+            zf.extractall(td)
+            inst.load_weights(td)  # type: ignore[attr-defined]
+        return {"status": "ok"}
+
     # ─── Memory-Fabric helper endpoints ──────────────────────────────
     @app.get("/memory/{agent}/recent")
     async def _recent(agent: str, n: int = 25):  # noqa: D401
