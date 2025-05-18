@@ -44,6 +44,33 @@ class ResearchAgent(AgentBase):
         await self.publish("alpha.research", {"summary": "market stable"})
 
 
+class LLMCommentAgent(AgentBase):
+    """Optional LLM-powered commentary agent."""
+
+    NAME = "llm_comment"
+    CAPABILITIES = ["insight"]
+    REQUIRES_API_KEY = False
+    __slots__ = ()
+
+    async def step(self) -> None:
+        """Post a short market insight using OpenAI Agents if available."""
+        insight = "LLM unavailable"
+        try:
+            from openai_agents import OpenAIAgent
+
+            agent = OpenAIAgent(
+                model=os.getenv("MODEL_NAME", "gpt-4o-mini"),
+                api_key=os.getenv("OPENAI_API_KEY"),
+                base_url=None
+                if os.getenv("OPENAI_API_KEY")
+                else "http://ollama:11434/v1",
+            )
+            insight = await agent("One sentence on today's market outlook")
+        except Exception as exc:  # noqa: BLE001
+            logging.getLogger(__name__).warning("LLM fallback: %s", exc)
+        await self.publish("alpha.insight", {"insight": insight})
+
+
 def register_demo_agents() -> None:
     """Register built-in demo agents with the framework."""
 
@@ -53,6 +80,16 @@ def register_demo_agents() -> None:
             cls=PlanningAgent,
             version="1.0.0",
             capabilities=PlanningAgent.CAPABILITIES,
+        )
+    )
+
+    register_agent(
+        AgentMetadata(
+            name=LLMCommentAgent.NAME,
+            cls=LLMCommentAgent,
+            version="1.0.0",
+            capabilities=LLMCommentAgent.CAPABILITIES,
+            requires_api_key=LLMCommentAgent.REQUIRES_API_KEY,
         )
     )
 

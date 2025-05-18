@@ -42,8 +42,9 @@ flowchart LR
   B -->|$AGIALPHA rewards| Users((Stake‑holders))
 ```
 
-*The orchestrator natively speaks **A2A** & **OpenAI Agents SDK**.  
+*The orchestrator natively speaks **A2A** & **OpenAI Agents SDK**.
 If no external key is detected it seamlessly switches to local Llama‑3 GGUF weights (no outbound traffic).*
+*A lightweight **LLMCommentAgent** publishes a market comment each cycle when the SDK is available.*
 
 ---
 
@@ -76,6 +77,7 @@ If no external key is detected it seamlessly switches to local Llama‑3 GGUF w
 | **CodeGenAgent** | Secure tool execution & infra scaffolding | Auto‑generates production‑ready ETL with tests |
 | **SafetyAgent** | Alignment, sandbox & red‑team | KL‑shield, seccomp jail, chaos‑testing |
 | **MemoryAgent** | Retrieval‑augmented long‑term store | Surfaces best alpha playbooks on demand |
+| **LLMCommentAgent** | Short market commentary via OpenAI Agents | Posts a one‑sentence outlook every cycle |
 
 ---
 
