@@ -42,3 +42,16 @@ class TestDemos(unittest.TestCase):
                 content = script.read_text(errors="ignore")
                 self.assertTrue(content.startswith("#!/"), f"{script} missing shebang")
                 self.assertTrue(script.stat().st_mode & 0o111, f"{script} not executable")
+
+    def test_validate_demos_cli(self) -> None:
+        """Running the module as a CLI should succeed."""
+        import sys
+        import subprocess
+
+        result = subprocess.run(
+            [sys.executable, "-m", "alpha_factory_v1.demos.validate_demos"],
+            capture_output=True,
+            text=True,
+        )
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertIn("validated", result.stdout.lower())
