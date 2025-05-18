@@ -53,6 +53,26 @@ class TestAgentRegistryFunctions(unittest.TestCase):
         agent = get_agent(DummyAgent.NAME)
         self.assertIsInstance(agent, DummyAgent)
 
+    def test_list_and_detail_counts_match(self):
+        # registry should return same number of agents regardless of detail flag
+        names = list_agents()
+        details = list_agents(detail=True)
+        self.assertEqual(len(names), len(details))
+
+    def test_ping_capability_present(self):
+        # diagnostics capability should map to the ping agent
+        from alpha_factory_v1.backend.agents.ping_agent import PingAgent
+        meta = AgentMetadata(
+            name=PingAgent.NAME,
+            cls=PingAgent,
+            version="0",
+            capabilities=PingAgent.CAPABILITIES,
+            compliance_tags=[],
+        )
+        register_agent(meta)
+        agents = capability_agents("diagnostics")
+        self.assertIn("ping", agents)
+
     def test_list_agents_sorted(self):
         class AAgent(AgentBase):
             NAME = "a_a"
