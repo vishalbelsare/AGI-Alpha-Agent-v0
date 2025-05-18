@@ -154,6 +154,7 @@ open http://localhost:7878      # Dashboard SPA
 ```
 
 Or open `colab_alpha_agi_business_v1_demo.ipynb` to run everything in Colab.
+To drive the orchestrator via the OpenAI Agents SDK run `python openai_agents_bridge.py` (see step 5 in the notebook).
 
 ### 🤖 OpenAI Agents bridge
 

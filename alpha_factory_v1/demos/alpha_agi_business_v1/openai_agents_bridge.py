@@ -5,10 +5,11 @@ local orchestrator. It works offline when no API key is configured.
 """
 from __future__ import annotations
 
+import os
 import requests
 from openai_agents import Agent, AgentRuntime, Tool
 
-HOST = "http://localhost:8000"
+HOST = os.getenv("BUSINESS_HOST", "http://localhost:8000")
 
 
 @Tool(name="list_agents", description="List active orchestrator agents")
@@ -38,7 +39,8 @@ class BusinessAgent(Agent):
 
 
 def main() -> None:
-    runtime = AgentRuntime(api_key=None)
+    api_key = os.getenv("OPENAI_API_KEY") or None
+    runtime = AgentRuntime(api_key=api_key)
     runtime.register(BusinessAgent())
     print("Registered BusinessAgent with runtime")
     runtime.run()
