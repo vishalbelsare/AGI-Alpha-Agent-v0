@@ -13,6 +13,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 import argparse
 import logging
+import time
 from typing import Any, Dict
 
 
@@ -99,6 +100,9 @@ def run_cycle(orchestrator: Orchestrator, fin_agent: AgentFin, res_agent: AgentR
     delta_h = fin_agent.latent_work(bundle)
     delta_s = res_agent.entropy(bundle)
     beta = ene_agent.market_temperature()
+    if abs(beta) < 1e-9:
+        log.warning("β is zero; skipping cycle")
+        return
     delta_g = delta_h - (delta_s / beta)
 
     log.info("ΔH=%s ΔS=%s β=%s → ΔG=%s", delta_h, delta_s, beta, delta_g)
@@ -116,6 +120,18 @@ def main(argv: list[str] | None = None) -> None:
 
     ap = argparse.ArgumentParser(description="Run the Ω‑Lattice business demo")
     ap.add_argument("--loglevel", default="INFO", help="Logging level")
+    ap.add_argument(
+        "--cycles",
+        type=int,
+        default=1,
+        help="Number of cycles to run (0 = forever)",
+    )
+    ap.add_argument(
+        "--interval",
+        type=float,
+        default=1.0,
+        help="Seconds to sleep between cycles",
+    )
     args = ap.parse_args(argv)
 
     logging.basicConfig(
@@ -131,7 +147,13 @@ def main(argv: list[str] | None = None) -> None:
     gdl_agent = AgentGdl()
     model = Model()
 
-    run_cycle(orchestrator, fin_agent, res_agent, ene_agent, gdl_agent, model)
+    cycle = 0
+    while True:
+        run_cycle(orchestrator, fin_agent, res_agent, ene_agent, gdl_agent, model)
+        cycle += 1
+        if args.cycles and cycle >= args.cycles:
+            break
+        time.sleep(args.interval)
 
 
 if __name__ == "__main__":  # pragma: no cover - manual execution
