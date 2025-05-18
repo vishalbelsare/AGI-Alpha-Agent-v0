@@ -11,7 +11,7 @@ services:
     volumes:
       - ./:/app/demo:ro
     ports:
-      - "7861:7861"
+      - "${HOST_PORT:-7861}:7861"  # allow custom external port
     depends_on:
       - ollama
 
