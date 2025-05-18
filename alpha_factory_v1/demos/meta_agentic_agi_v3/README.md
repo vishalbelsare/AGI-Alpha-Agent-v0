@@ -123,6 +123,8 @@ streamlit run ui/lineage_app.py      # provenance graph
 streamlit run ui/alpha_monitor.py     # live alpha dashboard
 ```
 
+For a **one‑click** experience, open [`colab_meta_agentic_agi_v3.ipynb`](colab_meta_agentic_agi_v3.ipynb) on Colab and run each cell in order.
+
 *Hardware:* CPU‑only works (llama‑cpp 4‑bit); GPU speeds things up. 8 GB RAM minimum.
 
 ---
