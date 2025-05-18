@@ -115,6 +115,7 @@ demo.  The path resolves automatically when running the scripts.
 [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/MontrealAI/AGI-Alpha-Agent-v0/blob/main/alpha_factory_v1/demos/meta_agentic_agi/colab_meta_agentic_agi.ipynb)
 
 Spin up the demo end‑to‑end without installing anything. Works offline using open‑weights or with your API keys.
+The notebook now includes a quick smoke test cell to verify the demo setup.
 ---
 
 ## 2 Folder Structure 📁
