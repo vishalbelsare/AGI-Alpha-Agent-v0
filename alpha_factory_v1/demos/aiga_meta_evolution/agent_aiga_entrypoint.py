@@ -142,6 +142,12 @@ class AIGAMetaService:
             self.evolver.save()
 
     async def reset(self) -> None:
+        """
+        Reset the state of the MetaEvolver to its initial configuration.
+
+        This method is thread-safe and uses a lock to prevent concurrent
+        modifications to the evolver's state.
+        """
         async with self._lock:
             self.evolver.reset()
 
