@@ -30,7 +30,12 @@ from types import ModuleType
 from typing import Final, List
 
 # Re-export the runnable demo components
-from .alpha_asi_world_model_demo import CFG, Orchestrator, app, _main as _demo_cli  # noqa: F401
+try:  # optional heavy deps (numpy, torch, etc.)
+    from .alpha_asi_world_model_demo import CFG, Orchestrator, app, _main as _demo_cli  # noqa: F401
+    _DEPS_AVAILABLE = True
+except Exception:  # pragma: no cover - missing optional deps
+    CFG = Orchestrator = app = _demo_cli = None  # type: ignore
+    _DEPS_AVAILABLE = False
 
 __all__: Final[List[str]] = [
     "Orchestrator",
