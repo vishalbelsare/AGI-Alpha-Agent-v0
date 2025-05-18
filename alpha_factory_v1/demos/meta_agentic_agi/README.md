@@ -89,6 +89,11 @@ cd AGI-Alpha-Agent-v0/alpha_factory_v1/demos/meta_agentic_agi
 python3 -m venv .venv && source .venv/bin/activate   # Windows: .venv\Scripts\activate
 pip install -r requirements.txt
 
+# Optional sanity check – verifies optional extras and offers
+# an offline install flow when `WHEELHOUSE` points to a local
+# directory of wheels.
+python ../../check_env.py
+
 python app.py --gens 6 --provider mistral:7b-instruct.gguf --ui
 # UI → http://localhost:8501
 ```
