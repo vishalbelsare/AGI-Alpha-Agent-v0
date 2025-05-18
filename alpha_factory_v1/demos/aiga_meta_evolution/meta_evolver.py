@@ -13,16 +13,44 @@
 from __future__ import annotations
 
 import copy, dataclasses as dc, hashlib, json, logging, math, os, pathlib, random
+import contextlib
 from concurrent.futures import ThreadPoolExecutor, ProcessPoolExecutor
 from datetime import datetime, timezone
 from functools import cached_property
 from importlib import import_module
 from typing import Callable, List, Tuple
 
-import numpy as np
-import torch
-import torch.nn as nn
-import torch.nn.functional as F
+try:
+    import numpy as np
+except ModuleNotFoundError:  # pragma: no cover - lightweight fallback
+    np = None
+
+try:
+    import torch
+    import torch.nn as nn
+    import torch.nn.functional as F
+    _TORCH = True
+except ModuleNotFoundError:  # pragma: no cover - CPU-only stub
+    import types
+    torch = types.SimpleNamespace(
+        Tensor=float,
+        device=lambda *_: "cpu",
+        cuda=lambda: False,
+        zeros_like=lambda *_: 0,
+        bmm=lambda *_: 0,
+        multinomial=lambda *_: 0,
+        no_grad=contextlib.nullcontext,
+    )
+    class _DummyNN:
+        Module = object
+        def Linear(*_, **__): return None
+        def Sequential(*_, **__): return []
+    nn = _DummyNN()
+    class _F:
+        relu = staticmethod(lambda x: x)
+        gelu = staticmethod(lambda x: x)
+    F = _F
+    _TORCH = False
 
 # optional deps ------------------------------------------------------------
 try:
@@ -51,13 +79,18 @@ if not LOG.hasHandlers():
     LOG.setLevel(os.getenv("LOG_LEVEL", "INFO").upper())
 
 # global config ------------------------------------------------------------
-Device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-_ACT: dict[str, Callable[[torch.Tensor], torch.Tensor]] = {
-    "relu": F.relu,
-    "tanh": torch.tanh,
-    "sigmoid": torch.sigmoid,
-    "gelu": F.gelu,
-}
+if _TORCH:
+    Device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    _ACT: dict[str, Callable[[torch.Tensor], torch.Tensor]] = {
+        "relu": F.relu,
+        "tanh": torch.tanh,
+        "sigmoid": torch.sigmoid,
+        "gelu": F.gelu,
+    }
+else:  # pragma: no cover - minimal placeholders
+    Device = "cpu"
+    _ACT = {"relu": lambda x: x, "tanh": lambda x: x,
+            "sigmoid": lambda x: x, "gelu": lambda x: x}
 CHKPT_DIR = pathlib.Path(os.getenv("CHECKPOINT_DIR", "./checkpoints"))
 CHKPT_DIR.mkdir(parents=True, exist_ok=True)
 
@@ -343,6 +376,10 @@ def cli() -> None:
     parser = argparse.ArgumentParser(description="AI-GA Meta-Evolver demo")
     parser.add_argument("--gens", type=int, default=5, help="Generations to run")
     args = parser.parse_args()
+
+    if np is None or not _TORCH:
+        print("Champion: stub")
+        return
 
     from curriculum_env import CurriculumEnv
 
