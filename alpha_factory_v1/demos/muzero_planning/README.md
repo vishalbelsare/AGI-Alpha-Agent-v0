@@ -36,7 +36,8 @@ cd AGI-Alpha-Agent-v0/alpha_factory_v1/demos/muzero_planning
 ```
 
 The script prints the local URL and, when possible, automatically opens it in
-your default browser.
+your default browser. Automatic browser opening is currently supported only
+on Linux (using `xdg-open`) and macOS (using `open`).
 
 Alternatively run natively:
 
