@@ -32,5 +32,5 @@ echo "🛑  Stop → docker compose -p alpha_muzero down\n"
 if command -v xdg-open >/dev/null 2>&1; then
   xdg-open "http://localhost:${HOST_PORT}" >/dev/null 2>&1 &
 elif command -v open >/dev/null 2>&1; then  # macOS
-  open "http://localhost:${HOST_PORT}" &
+  open "http://localhost:${HOST_PORT}" >/dev/null 2>&1 &
 fi
