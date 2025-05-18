@@ -8,6 +8,18 @@ python check_env.py
 ```
 This checks for `pytest` and `prometheus_client` so tests and metrics work smoothly.
 
+### Offline Setup
+
+The demo runs without Internet access when all Python wheels are pre-installed.
+On air‑gapped systems, install requirements from a local wheelhouse:
+
+```bash
+pip install --no-index --find-links /path/to/wheels -r requirements.txt
+```
+
+Ensure `pytest` and `prometheus_client` are present so the built-in tests and
+metrics exporter function correctly.
+
 
 ## Use Case Selection & Rationale
 
