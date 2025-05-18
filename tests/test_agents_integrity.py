@@ -27,5 +27,20 @@ class TestAgentsIntegrity(unittest.TestCase):
         # Should include at least one known capability from PingAgent
         self.assertIn("diagnostics", caps)
 
+    def test_agent_names_unique(self):
+        names = list_agents()
+        self.assertEqual(len(names), len(set(names)))
+
+    def test_step_coroutine(self):
+        import inspect
+        for name in list_agents():
+            meta = AGENT_REGISTRY[name]
+            try:
+                agent = meta.cls()
+            except Exception:
+                continue
+            if hasattr(agent, "step"):
+                self.assertTrue(inspect.iscoroutinefunction(agent.step))
+
 if __name__ == "__main__":  # pragma: no cover - manual execution
     unittest.main()
