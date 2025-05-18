@@ -14,7 +14,14 @@ from dataclasses import dataclass
 import argparse
 import logging
 import time
+import asyncio
+import os
 from typing import Any, Dict
+
+try:  # optional OpenAI Agents integration
+    from openai_agents import OpenAIAgent
+except Exception:  # pragma: no cover - offline fallback
+    OpenAIAgent = None
 
 
 log = logging.getLogger(__name__)
@@ -82,6 +89,26 @@ class AgentGdl:
         return True
 
 
+async def _llm_comment(delta_g: float) -> str:
+    """Return a short LLM comment on ``delta_g`` if OpenAI Agents is available."""
+
+    if OpenAIAgent is None:
+        return "LLM offline"
+
+    agent = OpenAIAgent(
+        model=os.getenv("MODEL_NAME", "gpt-4o-mini"),
+        api_key=os.getenv("OPENAI_API_KEY"),
+        base_url=(None if os.getenv("OPENAI_API_KEY") else "http://ollama:11434/v1"),
+    )
+    try:
+        return await agent(
+            f"In one sentence, comment on ΔG={delta_g:.4f} for the business."
+        )
+    except Exception as exc:  # pragma: no cover - network failures
+        log.warning("LLM comment failed: %s", exc)
+        return "LLM error"
+
+
 @dataclass(slots=True)
 class Model:
     """Persisted model whose weights evolve over time."""
@@ -106,6 +133,9 @@ def run_cycle(orchestrator: Orchestrator, fin_agent: AgentFin, res_agent: AgentR
     delta_g = delta_h - (delta_s / beta)
 
     log.info("ΔH=%s ΔS=%s β=%s → ΔG=%s", delta_h, delta_s, beta, delta_g)
+
+    comment = asyncio.run(_llm_comment(delta_g))
+    log.info("LLM: %s", comment)
 
     if delta_g < 0:
         orchestrator.post_alpha_job(id(bundle), delta_g)

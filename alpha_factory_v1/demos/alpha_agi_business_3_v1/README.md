@@ -268,6 +268,8 @@ Run the standalone script directly to simulate one Ω‑Lattice cycle:
 ```bash
 python alpha_agi_business_3_v1.py --loglevel info
 ```
+If the **OpenAI Agents SDK** is installed, each cycle emits a concise LLM
+comment on the computed ΔG. Without it the demo uses an offline placeholder.
 
 ---
 
