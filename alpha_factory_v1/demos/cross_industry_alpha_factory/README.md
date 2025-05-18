@@ -53,7 +53,7 @@ cd AGI-Alpha-Agent-v0/alpha_factory_v1/demos/cross_industry_alpha_factory
 |---------|---------------------|
 | Grafana dashboards | `http://localhost:9000` `admin/admin` |
 | Prometheus | `http://localhost:9090` |
-| Trace-Graph (A2A spans) | `http://localhost:7860` |
+| Trace-Graph (A2A spans) | `http://localhost:3000` |
 | Ray dashboard | `http://localhost:8265` |
 | REST orchestrator | `http://localhost:8000` (`GET /healthz`) |
 
