@@ -74,6 +74,8 @@ def _sanity_check_patch(patch: str, repo_root: pathlib.Path):
 def apply_patch(patch: str, repo_path: str):
     """Apply patch atomically with rollback on failure."""
     repo = pathlib.Path(repo_path)
+    if shutil.which("patch") is None:
+        raise RuntimeError("`patch` command not found. Install via apt-get install -y patch")
     backups = {}
 
     # write patch to temp file
@@ -106,3 +108,29 @@ def apply_patch(patch: str, repo_path: str):
         for bak in backups.values():
             if bak.exists():
                 os.unlink(bak)
+
+if __name__ == "__main__":
+    import argparse
+    parser = argparse.ArgumentParser(description="Minimal self-healing CLI")
+    parser.add_argument("--repo", default=".", help="Repository path")
+    args = parser.parse_args()
+
+    llm = OpenAIAgent(
+        model=os.getenv("MODEL_NAME", "gpt-4o-mini"),
+        api_key=os.getenv("OPENAI_API_KEY"),
+        base_url=("http://ollama:11434/v1" if not os.getenv("OPENAI_API_KEY") else None),
+    )
+    rc, out = validate_repo(args.repo)
+    print(out)
+    if rc != 0:
+        patch = generate_patch(out, llm=llm, repo_path=args.repo)
+        print(patch)
+        apply_patch(patch, repo_path=args.repo)
+        rc, out = validate_repo(args.repo)
+        print(out)
+        if rc == 0:
+            print("\n\u2728 Patch fixed the tests")
+        else:
+            print("\n\u26a0\ufe0f Patch did not fix the tests")
+    else:
+        print("Tests already pass")
