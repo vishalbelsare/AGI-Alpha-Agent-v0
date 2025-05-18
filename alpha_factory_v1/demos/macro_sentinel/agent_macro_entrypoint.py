@@ -19,6 +19,9 @@ Deploy via Docker (run_macro_demo.sh) or directly:
 from __future__ import annotations
 import os, json, asyncio, contextlib
 import pandas as pd, gradio as gr
+from fastapi import FastAPI
+from fastapi.responses import PlainTextResponse
+import uvicorn
 from openai_agents import Agent, OpenAIAgent, Tool
 from data_feeds import stream_macro_events
 from simulation_core import MonteCarloSimulator
@@ -74,8 +77,8 @@ sentinel = Agent(
 )
 
 # ─────────────────────────── Gradio UI ──────────────────────────────
-async def launch_ui():
-    with gr.Blocks(title="Macro-Sentinel") as app:
+async def launch_ui() -> None:
+    with gr.Blocks(title="Macro-Sentinel") as ui:
         gr.Markdown("## 📈 Macro-Sentinel — real-time macro risk radar")
 
         col1, col2 = gr.Row().children
@@ -106,7 +109,17 @@ async def launch_ui():
             outputs=[event_box, scen_df, metrics_md, story_md]
         )
 
-    app.launch(server_name="0.0.0.0", server_port=7864)
+    fast = FastAPI()
+
+    @fast.get("/healthz", response_class=PlainTextResponse, include_in_schema=False)
+    async def _health() -> str:  # noqa: D401
+        return "ok"
+
+    gr_app = gr.mount_gradio_app(fast, ui, path="/")
+    server = uvicorn.Server(
+        uvicorn.Config(gr_app, host="0.0.0.0", port=7864, loop="asyncio")
+    )
+    await server.serve()
 
 # ─────────────────────────── Main ───────────────────────────────────
 if __name__ == "__main__":
