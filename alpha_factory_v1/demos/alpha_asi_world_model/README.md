@@ -72,6 +72,8 @@ helm install alpha-asi ./helm_chart
 # ░ Notebook
 python -m alpha_asi_world_model_demo --emit-notebook
 jupyter lab alpha_asi_world_model_demo.ipynb
+# ░ Colab
+Open `alpha_asi_world_model_colab.ipynb` in Google Colab for an end-to-end guided setup
 # ░ Shell helper
 ./deploy_alpha_asi_world_model_demo.sh
 ```
