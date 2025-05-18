@@ -24,9 +24,32 @@ def run_sim(
     seed: int | None = None,
     verbose: bool = False,
 ) -> float:
-    """Return the mean cooperation probability after ``rounds`` iterations."""
+    """Return the mean cooperation probability after ``rounds`` iterations.
+
+    Parameters
+    ----------
+    agents:
+        Number of agents in the simulation. Must be positive.
+    rounds:
+        Number of interaction rounds to simulate. Must be positive.
+    delta:
+        Discount factor in ``[0, 1]`` controlling update momentum.
+    stake:
+        Penalty applied when an agent defects. Must be non-negative.
+    seed:
+        Optional random seed for deterministic runs.
+    verbose:
+        If ``True`` prints progress every 10%% of the run.
+    """
+
+    if agents <= 0:
+        raise ValueError("agents must be positive")
+    if rounds <= 0:
+        raise ValueError("rounds must be positive")
     if not 0.0 <= delta <= 1.0:
         raise ValueError("delta must be between 0 and 1")
+    if stake < 0:
+        raise ValueError("stake must be non-negative")
 
     rng = random.Random(seed)
 

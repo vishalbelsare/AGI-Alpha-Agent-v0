@@ -94,3 +94,32 @@ the run deterministic and `--verbose` shows progress for long runs.
 
 ---
 
+### 10 · Quick Start & Troubleshooting
+
+1. **Install** the package in a fresh virtual environment:
+
+   ```bash
+   python -m pip install -e .[tests]
+   ```
+
+   The demo requires only the Python standard library but the optional
+   `tests` extra installs `pytest` for validation.
+
+2. **Run the simulator** using the provided command:
+
+   ```bash
+   governance-sim -N 500 -r 2000 --delta 0.85 --verbose
+   ```
+
+3. **Verify** that everything works by launching the unit tests:
+
+   ```bash
+   python -m unittest discover -s alpha_factory_v1/tests -p 'test_governance_sim.py'
+   ```
+
+If you encounter issues, ensure Python ≥ 3.9 is in your PATH and that
+no corporate firewall interferes with package installation. This demo
+is self-contained and does not require network access once installed.
+
+---
+
