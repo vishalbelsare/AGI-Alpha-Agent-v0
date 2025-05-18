@@ -16,3 +16,8 @@ This archive contains all the user‑facing docs needed to understand, deploy, a
 All files are Markdown or vector graphics, so they render nicely on GitHub and in most IDEs.
 
 Enjoy exploring the future of **agentic AGI**! 🚀
+
+```bash
+# Example local build command
+docker compose up -d
+```

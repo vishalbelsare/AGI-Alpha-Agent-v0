@@ -9,7 +9,11 @@ class TestDemos(unittest.TestCase):
     def test_validate_demos(self) -> None:
         """``validate_demos`` succeeds for shipped demos."""
         # Require slightly longer READMEs to ensure usefulness
-        exit_code = validate_demos.main(validate_demos.DEFAULT_DIR, min_lines=10)
+        exit_code = validate_demos.main(
+            validate_demos.DEFAULT_DIR,
+            min_lines=10,
+            require_code_block=True,
+        )
         self.assertEqual(exit_code, 0)
 
     def test_quickstart_wrapper(self) -> None:
@@ -49,7 +53,14 @@ class TestDemos(unittest.TestCase):
         import subprocess
 
         result = subprocess.run(
-            [sys.executable, "-m", "alpha_factory_v1.demos.validate_demos"],
+            [
+                sys.executable,
+                "-m",
+                "alpha_factory_v1.demos.validate_demos",
+                "--min-lines",
+                "10",
+                "--require-code-block",
+            ],
             capture_output=True,
             text=True,
         )

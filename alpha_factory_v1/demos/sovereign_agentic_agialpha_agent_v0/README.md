@@ -10,6 +10,10 @@ Run `./deploy_sovereign_agentic_agialpha_agent_v0.sh` to build and launch the co
 4. Integrated agent chat backed by a language model.
 5. Agentic tree search explorer for open-ended strategy discovery.
 
+```bash
+./deploy_sovereign_agentic_agialpha_agent_v0.sh
+```
+
 ## Usage Tips
 - Ensure Docker and docker-compose are installed.
 - The script will guide you through optional model configuration.
