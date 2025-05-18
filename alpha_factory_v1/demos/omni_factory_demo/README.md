@@ -21,13 +21,17 @@ Ensure `pytest` and `prometheus_client` are present so the built-in tests and
 metrics exporter function correctly.
 ### Quick Alpha Discovery
 
-Run the lightweight **alpha_discovery_stub.py** to generate example cross-industry opportunities entirely offline:
+Run the lightweight **alpha_discovery_stub.py** to generate example cross-industry opportunities entirely offline. It now supports a tiny CLI:
 
 ```bash
-python alpha_discovery_stub.py
+# list all builtin samples
+python alpha_discovery_stub.py --list
+
+# record two random picks with a deterministic seed
+python alpha_discovery_stub.py -n 2 --seed 42
 ```
 
-The script logs the selected opportunity to `omni_alpha_log.json` for later reference.
+The script logs the selected opportunity (unless `--no-log` is used) to `omni_alpha_log.json` for later reference.
 
 
 
