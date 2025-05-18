@@ -39,6 +39,7 @@ class ChatLLM:
         • Anthropic →   anthropic:<model>         (needs ANTHROPIC_API_KEY)
         • Llama.cpp / Ollama-gguf ↴
               mistral:7b-instruct.gguf  (or any other local .gguf id)
+        • Mock provider for offline tests →  mock:echo
     """
     def __init__(self, spec: str):
         if ':' not in spec:
@@ -69,6 +70,8 @@ class ChatLLM:
                     shutil.copyfileobj(resp, tmp)
                 shutil.move(tmp.name, model_path)
             self._client = Llama(model_path=str(model_path), n_ctx=4096, n_threads=os.cpu_count() or 4)
+        elif self.kind == 'mock':
+            self._client = None  # offline dummy
         else:
             raise UnsupportedProvider(f"Unknown provider kind {self.kind}")
 
@@ -89,6 +92,9 @@ class ChatLLM:
                 temperature=0.6,
             )
             txt = resp.content[0].text
+            cost = 0.0
+        elif self.kind == 'mock':
+            txt = "```python\ndef forward(task_info: dict) -> any:\n    return 'mock'\n```"
             cost = 0.0
         else:  # llama_cpp sync
             txt = self._client.create_completion(prompt=prompt, temperature=0.6)['choices'][0]['text']
