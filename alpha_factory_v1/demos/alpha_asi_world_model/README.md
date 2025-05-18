@@ -76,6 +76,8 @@ jupyter lab alpha_asi_world_model_demo.ipynb
 Open `alpha_asi_world_model_colab.ipynb` in Google Colab for an end-to-end guided setup
 # ░ Shell helper
 ./deploy_alpha_asi_world_model_demo.sh
+# ░ OpenAI Agents bridge
+python openai_agents_bridge.py
 ```
 
 > **Tip 💡** Set `ALPHA_ASI_SEED=<int>` to reproduce identical curriculum runs.
