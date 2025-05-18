@@ -54,6 +54,8 @@ Success criteria ✓
 # ░ Local Python (CPU or GPU)
 pip install -r requirements.txt        # torch, fastapi, uvicorn…
 
+# All interactive helpers (`run_ui`, `run_headless`) require these packages.
+
 # new CLI (after `pip install -e .` at repo root)
 alpha-asi-demo --demo        # same as `python -m alpha_asi_world_model_demo --demo`
 open http://localhost:7860             # dashboard & Swagger

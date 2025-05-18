@@ -81,6 +81,11 @@ def run_headless(steps: int = 50_000) -> Orchestrator:  # pragma: no cover
         >>> orch = α.run_headless(10_000)
         >>> assert orch.learner.buffer  # trained a bit
     """
+    if not _DEPS_AVAILABLE:
+        raise ImportError(
+            "Optional dependencies missing; install requirements.txt to run"
+        )
+
     orch = Orchestrator()
 
     CFG.max_steps = steps
@@ -104,6 +109,11 @@ def run_ui(
         >>> import alpha_asi_world_model as α
         >>> α.run_ui(port=9999)  # then open http://localhost:9999
     """
+    if not _DEPS_AVAILABLE:
+        raise ImportError(
+            "Optional dependencies missing; install requirements.txt to run"
+        )
+
     uvicorn = _lazy_import_uvicorn()
     uvicorn.run(
         "alpha_factory_v1.demos.alpha_asi_world_model.alpha_asi_world_model_demo:app",
