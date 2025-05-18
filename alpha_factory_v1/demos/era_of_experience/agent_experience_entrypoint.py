@@ -45,6 +45,8 @@ import uvicorn
 import gradio as gr
 from openai_agents import Agent, OpenAIAgent, Tool, memory
 
+from .alpha_detection import detect_yield_curve_alpha
+
 # ───────────────────────────── configuration ────────────────────────────────
 MODEL       = os.getenv("MODEL_NAME", "gpt-4o-mini")
 TEMP        = float(os.getenv("TEMPERATURE", "0.2"))
@@ -114,7 +116,13 @@ async def schedule_workout(duration_min: int = 30,
             f"{duration_min} min {focus} – warm-up · interval · cool-down"}
 
 
-TOOLS = [web_search, plan_meal, schedule_workout]
+@Tool("detect_yield_curve_alpha", "Assess yield curve inversion using offline data.")
+async def detect_yield_curve_alpha_tool() -> Dict[str, str]:
+    msg = detect_yield_curve_alpha()
+    return {"alpha": msg}
+
+
+TOOLS = [web_search, plan_meal, schedule_workout, detect_yield_curve_alpha_tool]
 
 # ─────────────────────────────── reward functions ───────────────────────────
 def _fitness_reward(evt: Dict[str, Any]) -> float:

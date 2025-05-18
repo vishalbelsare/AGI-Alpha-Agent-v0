@@ -136,6 +136,15 @@ from openai_agents import Tool
 async def place_trade(ticker:str, qty:int, side:str="BUY"): ...
 ```
 
+This demo ships with a minimal example:
+
+```python
+@Tool("detect_yield_curve_alpha", "Assess yield curve inversion using offline data.")
+async def detect_yield_curve_alpha_tool():
+    return {"alpha": detect_yield_curve_alpha()}
+```
+
+
 * **Cluster‑scale**
 
 ```bash
