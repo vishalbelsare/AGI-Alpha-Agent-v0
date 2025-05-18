@@ -192,5 +192,57 @@ class TestHealthQuarantine(unittest.TestCase):
         time.sleep(0.05)
         self.assertIs(AGENT_REGISTRY["fail"].cls, StubAgent)
 
+
+class TestVersionOverride(unittest.TestCase):
+    def setUp(self):
+        self._backup = AGENT_REGISTRY.copy()
+        AGENT_REGISTRY.clear()
+
+    def tearDown(self):
+        AGENT_REGISTRY.clear()
+        AGENT_REGISTRY.update(self._backup)
+
+    def test_higher_version_replaces(self):
+        class AgentV1(AgentBase):
+            NAME = "dup"
+            VERSION = "1.0"
+
+            async def step(self):
+                return None
+
+        class AgentV2(AgentBase):
+            NAME = "dup"
+            VERSION = "1.1"
+
+            async def step(self):
+                return None
+
+        register_agent(AgentMetadata(name="dup", cls=AgentV1, version="1.0"))
+        register_agent(AgentMetadata(name="dup", cls=AgentV2, version="1.1"))
+
+        self.assertIs(AGENT_REGISTRY["dup"].cls, AgentV2)
+        self.assertEqual(AGENT_REGISTRY["dup"].version, "1.1")
+
+    def test_lower_version_ignored(self):
+        class AgentV1(AgentBase):
+            NAME = "dup"
+            VERSION = "1.0"
+
+            async def step(self):
+                return None
+
+        class AgentOld(AgentBase):
+            NAME = "dup"
+            VERSION = "0.9"
+
+            async def step(self):
+                return None
+
+        register_agent(AgentMetadata(name="dup", cls=AgentV1, version="1.0"))
+        register_agent(AgentMetadata(name="dup", cls=AgentOld, version="0.9"))
+
+        self.assertIs(AGENT_REGISTRY["dup"].cls, AgentV1)
+        self.assertEqual(AGENT_REGISTRY["dup"].version, "1.0")
+
 if __name__ == "__main__":
     unittest.main()
