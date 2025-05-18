@@ -108,6 +108,7 @@ declare -A SRC=(
   [fed_speeches.csv]="https://raw.githubusercontent.com/MontrealAI/demo-assets/main/fed_speeches.csv"
   [yield_curve.csv]="https://raw.githubusercontent.com/MontrealAI/demo-assets/main/yield_curve.csv"
   [stable_flows.csv]="https://raw.githubusercontent.com/MontrealAI/demo-assets/main/stable_flows.csv"
+  [cme_settles.csv]="https://raw.githubusercontent.com/MontrealAI/demo-assets/main/cme_settles.csv"
 )
 for f in "${!SRC[@]}"; do
   curl -fsSL "${SRC[$f]}" -o "$offline_dir/$f"
