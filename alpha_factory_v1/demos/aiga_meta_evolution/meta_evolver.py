@@ -326,7 +326,8 @@ class MetaEvolver:
         self._save()
 
     def reset(self) -> None:
-        """Return to generation zero with a fresh population."""
+        """Return to generation zero with a fresh population and clear checkpoints."""
+        # Clear in-memory state
         self._init_population()
         self.gen = 0
         self.history.clear()
