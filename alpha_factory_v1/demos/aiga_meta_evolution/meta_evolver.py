@@ -325,6 +325,17 @@ class MetaEvolver:
         """Public wrapper for checkpoint persistence."""
         self._save()
 
+    def reset(self) -> None:
+        """Return to generation zero with a fresh population and clear checkpoints."""
+        # Clear in-memory state
+        self._init_population()
+        self.gen = 0
+        self.history.clear()
+        self._archive.clear()
+        self._best_fitness = -math.inf
+        self.best_genome = self.population[0]
+        self._last_scores.clear()
+
     def load(self, path: pathlib.Path | None = None):
         if path is None:
             latest = max(self.ckpt_dir.glob("gen_*.json"), default=None)
