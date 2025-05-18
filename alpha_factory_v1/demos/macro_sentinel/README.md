@@ -49,6 +49,7 @@ flowchart LR
 ```bash
 git clone https://github.com/MontrealAI/AGI-Alpha-Agent-v0.git
 cd AGI-Alpha-Agent-v0/alpha_factory_v1/demos/macro_sentinel
+python ../../check_env.py    # verify optional dependencies
 ./run_macro_demo.sh           # add --live for real‑time collectors
                               # (--live exports LIVE_FEED=1)
 ```

@@ -408,6 +408,12 @@ The helper validates the target directory, prefers `pytest` when
 available and otherwise falls back to `unittest`. Ensure all tests pass
 before deploying changes.
 
+Install the optional test dependencies with:
+
+```bash
+pip install -r requirements-dev.txt
+```
+
 <a name="62-marketplace-demo-example"></a>
 ### 6.2 · Marketplace Demo Example 🛒
 A minimal snippet queues the sample job once the orchestrator is running:
