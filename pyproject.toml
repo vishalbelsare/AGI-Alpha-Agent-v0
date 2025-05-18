@@ -19,6 +19,7 @@ edge-runner = "alpha_factory_v1.edge_runner:main"
 alpha-asi-demo = "alpha_factory_v1.demos.alpha_asi_world_model.alpha_asi_world_model_demo:_main"
 validate-demos = "alpha_factory_v1.demos.validate_demos:main"
 aiga-meta-demo = "alpha_factory_v1.demos.aiga_meta_evolution.meta_evolver:cli"
+muzero-demo = "alpha_factory_v1.demos.muzero_planning.agent_muzero_entrypoint:launch_dashboard"
 
 [project.entry-points."alpha_factory.agents"]
 # custom agents can be registered here
