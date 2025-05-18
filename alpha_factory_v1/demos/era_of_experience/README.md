@@ -69,7 +69,7 @@ Add `--live` to pull in real sensor feeds (wearables, RSS, etc.):
 |----------|---------|--------|
 | `colab_era_of_experience.ipynb` | CPU / GPU | <a href="https://colab.research.google.com/github/MontrealAI/AGI-Alpha-Agent-v0/blob/main/alpha_factory_v1/demos/era_of_experience/colab_era_of_experience.ipynb"><img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open in Colab"></a> |
 
-The notebook installs a lean Python stack (&lt; 120 s), exposes Gradio via ngrok and lets you call tools directly from cells. It also verifies package versions and lists the reward back‑ends available for blending.
+The notebook installs a lean Python stack (&lt; 120 s), exposes Gradio via ngrok and lets you call tools directly from cells. It also verifies package versions and lists the reward back‑ends available for blending. A small example cell illustrates detecting "alpha" opportunities using the offline yield curve snapshot.
 
 ---
 
