@@ -19,6 +19,7 @@
 | **Risk engine** | 10 k × 30‑day 3‑factor Monte‑Carlo (< 20 ms CPU) |
 | **Action layer** | Draft JSON orders for Micro‑ES futures (Alpaca stub) |
 | **Observability** | TimescaleDB, Redis stream, Prometheus & Grafana dashboard |
+| **A2A gateway** | Optional Google ADK server via `ALPHA_FACTORY_ENABLE_ADK=1` |
 
 ---
 
@@ -60,6 +61,7 @@ launcher—no manual downloads required.
 *Dashboard:* http://localhost:7864
 *Health:*    http://localhost:7864/healthz
 *Grafana:* http://localhost:3001 (admin/alpha)
+*ADK gateway:* http://localhost:9000 (when `ALPHA_FACTORY_ENABLE_ADK=1`)
 
 ### Google Colab
 
@@ -88,6 +90,7 @@ fully offline.
 | `TW_BEARER_TOKEN` | *(blank)* | Enables Fed speech Twitter stream |
 | `PG_PASSWORD` | `alpha` | TimescaleDB superuser password |
 | `LIVE_FEED` | `0` | 1 uses live FRED/Etherscan feeds |
+| `ALPHA_FACTORY_ENABLE_ADK` | `0` | 1 exposes ADK gateway on port 9000 |
 
 Edit **`config.env`** or export variables before launch.
 

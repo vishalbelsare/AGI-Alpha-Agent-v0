@@ -76,6 +76,14 @@ sentinel = Agent(
     tools = [macro_event, mc_risk, order_stub, explain]
 )
 
+# Optionally expose via Google ADK (Agent-to-Agent federation)
+try:  # pragma: no cover - optional dependency
+    from alpha_factory_v1.backend import adk_bridge
+    adk_bridge.auto_register([sentinel])
+    adk_bridge.maybe_launch()
+except Exception:
+    pass
+
 # ─────────────────────────── Gradio UI ──────────────────────────────
 async def launch_ui() -> None:
     with gr.Blocks(title="Macro-Sentinel") as ui:
