@@ -9,8 +9,16 @@ LLM tools when `OPENAI_API_KEY` is detected.
 """
 from __future__ import annotations
 
+import argparse
+import logging
+import os
+
 from alpha_factory_v1.backend import orchestrator
-from alpha_factory_v1.backend.agents import AgentBase, AgentMetadata, register_agent
+from alpha_factory_v1.backend.agents import (
+    AgentBase,
+    AgentMetadata,
+    register_agent,
+)
 
 
 class PlanningAgent(AgentBase):
@@ -51,7 +59,28 @@ register_agent(
 )
 
 
-def main() -> None:
+def _parse_args(argv: list[str] | None = None) -> argparse.Namespace:
+    """Return parsed CLI arguments."""
+
+    parser = argparse.ArgumentParser(description="Run the α‑AGI Business demo")
+    parser.add_argument(
+        "--loglevel",
+        default=os.getenv("LOGLEVEL", "INFO"),
+        help="Logging verbosity (default: INFO)",
+    )
+    return parser.parse_args(argv)
+
+
+def main(argv: list[str] | None = None) -> None:
+    """Launch the orchestrator with demo agents registered."""
+
+    args = _parse_args(argv)
+    logging.basicConfig(
+        level=args.loglevel.upper(),
+        format="%(asctime)s %(levelname)-8s | %(message)s",
+        datefmt="%Y-%m-%d %H:%M:%S",
+    )
+
     try:
         orchestrator.Orchestrator().run_forever()
     except KeyboardInterrupt:
@@ -59,4 +88,6 @@ def main() -> None:
 
 
 if __name__ == "__main__":
-    main()
+    import sys
+
+    main(sys.argv[1:])
