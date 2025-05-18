@@ -38,6 +38,8 @@ python agent_selfheal_entrypoint.py
 ```
 Then open **http://localhost:7863** and trigger **“Heal Repository”**.
 
+Set `GRADIO_SHARE=1` to expose a public link (useful on Colab).
+
 ---
 
 ## 🎓 Google Colab
@@ -45,6 +47,7 @@ Then open **http://localhost:7863** and trigger **“Heal Repository”**.
 [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/MontrealAI/AGI-Alpha-Agent-v0/blob/main/alpha_factory_v1/demos/self_healing_repo/colab_self_healing_repo.ipynb)
 
 Runs the same flow with a public Gradio link.
+The notebook sets `GRADIO_SHARE=1` so the dashboard URL appears automatically.
 
 ---
 
