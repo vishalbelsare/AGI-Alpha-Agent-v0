@@ -34,6 +34,7 @@ Prefer a local run without Docker?
 python3 -m venv .venv && source .venv/bin/activate
 pip install -e ../../..
 pip install -r ../../backend/requirements.txt
+sudo apt-get update && sudo apt-get install -y patch
 python agent_selfheal_entrypoint.py
 ```
 Then open **http://localhost:7863** and trigger **“Heal Repository”**.
