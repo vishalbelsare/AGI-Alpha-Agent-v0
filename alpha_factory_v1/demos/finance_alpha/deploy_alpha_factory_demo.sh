@@ -27,8 +27,17 @@ banner() { printf "\033[1;36m%s\033[0m\n" "$*"; }
 for cmd in docker curl jq; do
   command -v "$cmd" >/dev/null || { echo "❌  $cmd not found"; exit 1; }
 done
-if lsof -i ":$PORT_API" >/dev/null 2>&1; then
-  echo "❌  Port $PORT_API is already in use"; exit 1;
+# Check whether the API port is free using lsof or ss
+if command -v lsof >/dev/null; then
+  if lsof -i ":$PORT_API" >/dev/null 2>&1; then
+    echo "❌  Port $PORT_API is already in use"; exit 1;
+  fi
+elif command -v ss >/dev/null; then
+  if ss -ltn | grep -q ":$PORT_API " ; then
+    echo "❌  Port $PORT_API is already in use"; exit 1;
+  fi
+else
+  echo "⚠  Unable to verify if port $PORT_API is free (missing lsof/ss)" >&2
 fi
 
 # ── pull image if missing ───────────────────────────────────────────────
@@ -47,11 +56,21 @@ trap 'docker stop "$CID" >/dev/null' EXIT
 # ── wait for API health endpoint ────────────────────────────────────────
 HEALTH="http://localhost:${PORT_API}/health"
 printf "⏳  Waiting for API"
+ready=false
 for _ in {1..60}; do
-  if curl -sf "$HEALTH" >/dev/null; then break; fi
+  if curl -sf "$HEALTH" >/dev/null; then
+    ready=true
+    break
+  fi
   printf "."; sleep 1
 done
-echo " ready!"
+if $ready; then
+  echo " ready!"
+else
+  echo " failed" >&2
+  docker logs "$CID" || true
+  exit 1
+fi
 
 # ── query positions & P&L ───────────────────────────────────────────────
 banner "📈  Finance Positions"
