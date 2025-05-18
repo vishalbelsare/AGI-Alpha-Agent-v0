@@ -19,6 +19,16 @@ pip install --no-index --find-links /path/to/wheels -r requirements.txt
 
 Ensure `pytest` and `prometheus_client` are present so the built-in tests and
 metrics exporter function correctly.
+
+### Running Tests
+
+Validate the demo using the bundled helper which falls back to
+``unittest`` when ``pytest`` is unavailable:
+
+```bash
+python -m alpha_factory_v1.scripts.run_tests
+```
+
 ### Quick Alpha Discovery
 
 Run the lightweight **alpha_discovery_stub.py** to generate example cross-industry opportunities entirely offline. It now supports a tiny CLI with a configurable output path:
