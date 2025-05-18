@@ -125,7 +125,7 @@ streamlit run ui/lineage_app.py
 
 [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/MontrealAI/AGI-Alpha-Agent-v0/blob/main/alpha_factory_v1/demos/meta_agentic_agi_v2/colab_meta_agentic_agi_v2.ipynb)
 
-Spin up the demo end‑to‑end without installing anything. Works offline using open‑weights or with your API keys.
+Spin up the demo end‑to‑end without installing anything. Works offline using open‑weights or with your API keys. The notebook now previews the latest lineage entries after the search loop so you can inspect results directly in Colab.
 
 ---
 
