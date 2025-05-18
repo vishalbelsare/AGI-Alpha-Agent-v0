@@ -56,7 +56,8 @@ cd AGI-Alpha-Agent-v0/alpha_factory_v1/demos/macro_sentinel
 Offline sample data is fetched automatically the first time you run the
 launcher—no manual downloads required.
 
-*Dashboard:* http://localhost:7864  
+*Dashboard:* http://localhost:7864
+*Health:*    http://localhost:7864/healthz
 *Grafana:* http://localhost:3001 (admin/alpha)
 
 ### Google Colab
