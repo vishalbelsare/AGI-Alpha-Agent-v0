@@ -1,5 +1,7 @@
 # 👁️ Alpha-Factory v1 — Cross-Industry **AGENTIC α-AGI** Demo
 *Out-learn • Out-think • Out-design • Out-strategise • Out-execute*
+[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/MontrealAI/AGI-Alpha-Agent-v0/blob/main/alpha_factory_v1/demos/cross_industry_alpha_factory/colab_deploy_alpha_factory_cross_industry_demo.ipynb)
+
 
 ---
 
@@ -44,6 +46,12 @@ local LLM container so the demo works **fully offline**.
 git clone https://github.com/MontrealAI/AGI-Alpha-Agent-v0.git
 cd AGI-Alpha-Agent-v0/alpha_factory_v1/demos/cross_industry_alpha_factory
 ./deploy_alpha_factory_cross_industry_demo.sh
+```
+
+#### Colab Quick Start
+Click the badge above or run:
+```bash
+open https://colab.research.google.com/github/MontrealAI/AGI-Alpha-Agent-v0/blob/main/alpha_factory_v1/demos/cross_industry_alpha_factory/colab_deploy_alpha_factory_cross_industry_demo.ipynb
 ```
 
 
