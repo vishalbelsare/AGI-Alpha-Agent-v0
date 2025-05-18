@@ -116,6 +116,19 @@ demo.  The path resolves automatically when running the scripts.
 
 Spin up the demo end‑to‑end without installing anything. Works offline using open‑weights or with your API keys.
 The notebook now includes a quick smoke test cell to verify the demo setup.
+
+### 🤖 OpenAI Agents & ADK
+
+Use `openai_agents_bridge.py` to expose the search loop via the **OpenAI Agents SDK**:
+
+```bash
+python openai_agents_bridge.py
+# → http://localhost:5001/v1/agents
+```
+
+For cross-process federation set `ALPHA_FACTORY_ENABLE_ADK=true` to auto-register
+agents with the bundled Google ADK gateway (`alpha_factory_v1/backend/adk_bridge.py`).
+
 ---
 
 ## 2 Folder Structure 📁
