@@ -142,14 +142,14 @@ All agents speak **A2A protobuf**, run on **OpenAI Agents SDK** or **Google AD
 git clone https://github.com/MontrealAI/AGI-Alpha-Agent-v0.git
 cd AGI-Alpha-Agent-v0/alpha_factory_v1/demos/alpha_agi_business_v1
 
-# launch full business stack (GPU optional)
-docker compose --profile business up -d
+# launch demo (GPU optional)
+./run_business_v1_demo.sh
 
 open http://localhost:7878      # Dashboard SPA
 ./scripts/post_alpha_job.sh examples/job_copper_spread.json
-# customize API host/port if needed:
-# HOST=api.example.com PORT=8000 ./scripts/post_alpha_job.sh examples/job_copper_spread.json
 ```
+
+Or open `colab_alpha_agi_business_v1_demo.ipynb` to run everything in Colab.
 
 *No Docker?* 
 `bash <(curl -sL https://get.alpha-factory.ai/business_demo.sh)` boots an ephemeral VM (CPU‑only mode).
