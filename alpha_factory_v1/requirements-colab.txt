@@ -9,3 +9,5 @@ openai>=1.76.0,<2.0
 openai-agents>=0.0.14
 anthropic>=0.21
 litellm>=1.31
+pytest
+prometheus_client
