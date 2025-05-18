@@ -20,7 +20,7 @@ Out‑of‑the‑box it **discovers, validates *and executes* live alpha** in an
 
 *Prefer a quick tour?* Run the self-contained
 [**Colab Notebook**](colab_alpha_agi_business_2_demo.ipynb)
-to launch the orchestrator in minutes.
+to launch the orchestrator and try a live API call in minutes.
 
 ---
 
