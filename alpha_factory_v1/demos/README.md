@@ -42,7 +42,7 @@ Opens **http://localhost:7860** with a Gradio portal to every demo. Works on ma
 ## 2 • Demo Showcase 🎮
 | # | Folder | Emoji | Lightning Pitch | Alpha Contribution | Start Locally |
 |---|--------|-------|-----------------|--------------------|---------------|
-|1|`aiga_meta_evolution`|🧬|Agents *evolve* new agents; genetic tests auto‑score fitness.|Expands strategy space, surfacing fringe alpha.|`docker compose -f demos/docker-compose.aiga_meta.yml up`|
+|1|`aiga_meta_evolution`|🧬|Agents *evolve* new agents; genetic tests auto‑score fitness.|Expands strategy space, surfacing fringe alpha.|`cd alpha_factory_v1/demos/aiga_meta_evolution && ./run_aiga_demo.sh`|
 |2|`alpha_agi_business_v1`|🏦|Auto‑incorporates a digital‑first company end‑to‑end.|Shows AGI turning ideas → registered business.|`docker compose -f demos/docker-compose.business_v1.yml up`|
 |3|`alpha_agi_business_2_v1`|🏗️|Iterates business model with live market data RAG.|Continuous adaptation → durable competitive alpha.|`docker compose -f demos/docker-compose.business_2.yml up`|
 |4|`alpha_agi_business_3_v1`|📊|Financial forecasting & fundraising agent swarm.|Optimises capital stack for ROI alpha.|`docker compose -f demos/docker-compose.business_3.yml up`|
