@@ -22,6 +22,7 @@ from typing import Any, Dict
 import uvicorn
 from fastapi import FastAPI, BackgroundTasks, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
 from prometheus_client import (
     Counter, Gauge, Histogram, generate_latest, CONTENT_TYPE_LATEST
 )
@@ -59,6 +60,10 @@ MODEL_NAME     = os.getenv("MODEL_NAME", "gpt-4o-mini")
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 OLLAMA_URL     = os.getenv("OLLAMA_BASE_URL", "http://ollama:11434/v1")
 MAX_GEN        = int(os.getenv("MAX_GEN", "1000"))  # safety rail
+ENABLE_OTEL    = os.getenv("ENABLE_OTEL", "false").lower() == "true"
+ENABLE_SENTRY  = os.getenv("ENABLE_SENTRY", "false").lower() == "true"
+SENTRY_DSN     = os.getenv("SENTRY_DSN", "")
+RATE_LIMIT     = int(os.getenv("RATE_LIMIT_PER_MIN", "120"))
 
 SAVE_DIR = Path(os.getenv("CHECKPOINT_DIR", "/data/checkpoints"))
 SAVE_DIR.mkdir(parents=True, exist_ok=True)
@@ -72,6 +77,14 @@ logging.basicConfig(
 )
 log = logging.getLogger(SERVICE_NAME)
 
+if ENABLE_SENTRY and SENTRY_DSN:
+    try:
+        import sentry_sdk  # type: ignore
+        sentry_sdk.init(dsn=SENTRY_DSN, traces_sample_rate=1.0)
+        log.info("Sentry enabled")
+    except ImportError:  # pragma: no cover - optional
+        log.warning("Sentry requested but sentry_sdk missing")
+
 # ---------------------------------------------------------------------------
 # METRICS --------------------------------------------------------------------
 # ---------------------------------------------------------------------------
@@ -79,6 +92,9 @@ FITNESS_GAUGE   = Gauge("aiga_best_fitness", "Best fitness achieved so far")
 GEN_COUNTER     = Counter("aiga_generations_total", "Total generations processed")
 STEP_LATENCY    = Histogram("aiga_step_seconds", "Seconds spent per evolution step")
 REQUEST_COUNTER = Counter("aiga_http_requests", "API requests", ["route"])
+
+# rate-limit state
+_REQUEST_LOG: dict[str, list[float]] = {}
 
 # ---------------------------------------------------------------------------
 # LLM TOOLING ----------------------------------------------------------------
@@ -151,7 +167,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-if FastAPIInstrumentor:
+if ENABLE_OTEL and FastAPIInstrumentor:
     FastAPIInstrumentor.instrument_app(app)
 
 # ---------- routes ----------
@@ -162,6 +178,14 @@ async def _count_requests(request, call_next):
     if path.startswith("/metrics"):
         return await call_next(request)
     REQUEST_COUNTER.labels(route=path).inc()
+    ip = request.client.host
+    now = time.time()
+    window = now - 60
+    times = [t for t in _REQUEST_LOG.get(ip, []) if t > window]
+    if len(times) >= RATE_LIMIT:
+        return JSONResponse({"detail": "rate limit exceeded"}, status_code=429)
+    times.append(now)
+    _REQUEST_LOG[ip] = times
     return await call_next(request)
 
 @app.get("/health")
