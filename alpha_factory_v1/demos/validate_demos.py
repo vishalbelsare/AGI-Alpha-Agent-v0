@@ -5,7 +5,7 @@ import sys
 DEFAULT_DIR = os.path.dirname(__file__)
 
 
-def main(base_dir: str = DEFAULT_DIR, min_lines: int = 3) -> int:
+def main(base_dir: str = DEFAULT_DIR, min_lines: int = 3, require_code_block: bool = False) -> int:
     """Validate each demo directory for basic production readiness.
 
     Parameters
@@ -33,6 +33,8 @@ def main(base_dir: str = DEFAULT_DIR, min_lines: int = 3) -> int:
                     )
                 if not any(l.strip().startswith("#") for l in lines):
                     failures.append(f"README.md in {entry} missing a Markdown heading")
+                if require_code_block and not any("```" in l for l in lines):
+                    failures.append(f"README.md in {entry} missing fenced code block")
             init_file = os.path.join(path, "__init__.py")
             if not os.path.isfile(init_file):
                 failures.append(f"Missing __init__.py in {entry}")
@@ -54,4 +56,32 @@ def main(base_dir: str = DEFAULT_DIR, min_lines: int = 3) -> int:
 
 
 if __name__ == "__main__":
-    raise SystemExit(main())
+    import argparse
+
+    parser = argparse.ArgumentParser(description="Validate demo directories")
+    parser.add_argument(
+        "base_dir",
+        nargs="?",
+        default=DEFAULT_DIR,
+        help="Directory containing demo sub-packages",
+    )
+    parser.add_argument(
+        "--min-lines",
+        type=int,
+        default=3,
+        help="Minimum number of lines required in each README.md",
+    )
+    parser.add_argument(
+        "--require-code-block",
+        action="store_true",
+        help="Require each README to include a fenced code block",
+    )
+
+    args = parser.parse_args()
+    raise SystemExit(
+        main(
+            base_dir=args.base_dir,
+            min_lines=args.min_lines,
+            require_code_block=args.require_code_block,
+        )
+    )
