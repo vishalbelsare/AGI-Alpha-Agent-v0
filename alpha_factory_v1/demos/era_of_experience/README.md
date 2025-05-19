@@ -216,6 +216,19 @@ Shared Redis memory + A2A = emergent cooperation.
 
 ---
 
+## ✅ Tests
+
+Verify the demo locally with Python's builtin test runner:
+
+```bash
+python -m unittest tests.test_era_experience
+```
+
+Run `python ../../../check_env.py --auto-install` first to ensure optional
+packages like `pytest` and `openai-agents` are available.
+
+---
+
 ## 🗺 Road‑map
 
 - [ ] Plug‑and‑play Gym‑Retrowrapper for atari‑style sims 
