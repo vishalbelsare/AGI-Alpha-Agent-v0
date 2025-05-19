@@ -8,11 +8,18 @@ automatically when ``OPENAI_API_KEY`` is present.
 from __future__ import annotations
 
 import argparse
+import json
 import logging
 import os
+import random
+from pathlib import Path
 
 from alpha_factory_v1.backend import orchestrator
-from alpha_factory_v1.backend.agents import AgentBase, AgentMetadata, register_agent
+from alpha_factory_v1.backend.agents import (
+    AgentBase,
+    AgentMetadata,
+    register_agent,
+)
 
 
 class IncorporatorAgent(AgentBase):
@@ -45,10 +52,25 @@ class AlphaOpportunityAgent(AgentBase):
     NAME = "alpha_opportunity"
     CAPABILITIES = ["opportunity"]
     CYCLE_SECONDS = 300
-    __slots__ = ()
+    __slots__ = ("_opportunities",)
+
+    def __init__(self) -> None:
+        super().__init__()
+        path = Path(__file__).with_name("examples") / "alpha_opportunities.json"
+        try:
+            self._opportunities = json.loads(path.read_text(encoding="utf-8"))
+        except FileNotFoundError:  # pragma: no cover - fallback when file missing
+            self._opportunities = [
+                {"alpha": "generic supply-chain inefficiency"}
+            ]
+        except json.JSONDecodeError:  # pragma: no cover - fallback for invalid JSON
+            self._opportunities = [
+                {"alpha": "generic supply-chain inefficiency"}
+            ]
 
     async def step(self) -> None:
-        await self.publish("alpha.opportunity", {"alpha": "supply-chain bottleneck detected"})
+        choice = random.choice(self._opportunities)
+        await self.publish("alpha.opportunity", choice)
 
 
 class AlphaExecutionAgent(AgentBase):
