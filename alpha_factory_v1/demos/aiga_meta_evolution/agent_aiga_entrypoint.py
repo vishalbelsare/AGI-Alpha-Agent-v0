@@ -47,7 +47,7 @@ except ImportError:  # pragma: no cover
 
 try:  # optional dependency
     from openai_agents import OpenAIAgent, Tool
-except Exception as exc:  # pragma: no cover - missing package
+except ImportError as exc:  # pragma: no cover - missing package
     raise SystemExit(
         "openai_agents package is required. Install with `pip install openai-agents`"
     ) from exc
