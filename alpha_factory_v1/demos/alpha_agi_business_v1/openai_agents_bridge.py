@@ -12,13 +12,43 @@ import sys
 import time
 import requests
 
-try:  # soft dependency
-    from openai_agents import Agent, AgentRuntime, Tool  # type: ignore
-except ModuleNotFoundError as exc:  # pragma: no cover - optional dep
-    sys.stderr.write(
-        "\n❌  openai_agents not installed. Install with 'pip install openai-agents'\n"
-    )
-    sys.exit(1)
+# ---------------------------------------------------------------------------
+# Lazy dependency bootstrap
+# ---------------------------------------------------------------------------
+def _require_openai_agents() -> None:
+    """Ensure the ``openai_agents`` package is available.
+
+    Attempts an automatic install via :mod:`check_env` when the package is
+    missing so the bridge remains usable in fresh environments or Colab
+    runtimes. Any installation errors are surfaced to the user.
+    """
+
+    try:  # soft dependency
+        import openai_agents  # type: ignore
+    except ModuleNotFoundError:  # pragma: no cover - optional dep
+        try:
+            import check_env
+
+            print("ℹ️  openai_agents missing – attempting auto-install…")
+            check_env.main(["--auto-install"])
+        except Exception as exc:  # pragma: no cover - install failed
+            sys.stderr.write(
+                f"\n❌  openai_agents not installed and auto-install failed: {exc}\n"
+            )
+            sys.stderr.write("   Install manually with 'pip install openai-agents'\n")
+            sys.exit(1)
+        try:
+            import openai_agents  # type: ignore  # noqa: F401
+        except ModuleNotFoundError:
+            sys.stderr.write(
+                "\n❌  openai_agents still missing after auto-install.\n"
+            )
+            sys.stderr.write("   Install manually with 'pip install openai-agents'\n")
+            sys.exit(1)
+
+
+_require_openai_agents()
+from openai_agents import Agent, AgentRuntime, Tool  # type: ignore
 
 try:
     # Optional ADK bridge
