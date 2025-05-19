@@ -394,6 +394,8 @@ def _load_plugins(folder: Path | None = None) -> List[ModuleType]:
         return mods
     global PLUGINS
     for py in folder.glob("*.py"):
+        if py.name == "__init__.py":
+            continue  # ignore package marker
         with contextlib.suppress(Exception):
             spec = importlib.util.spec_from_file_location(py.stem, py)
             if spec and spec.loader:
