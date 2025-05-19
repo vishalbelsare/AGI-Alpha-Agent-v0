@@ -187,8 +187,8 @@ python alpha_factory_v1/demos/aiga_meta_evolution/workflow_demo.py
 
 The `alpha_workflow` agent lists opportunities in the chosen domain, selects the
 first suggestion and returns a short execution plan. When Google ADK is enabled
-(via `ALPHA_FACTORY_ENABLE_ADK=1`), the same agent is published over the A2A
-protocol for orchestration by external controllers.
+(via `ALPHA_FACTORY_ENABLE_ADK=1` and successful import of the ADK module), the same
+agent is published over the A2A protocol for orchestration by external controllers.
 
 
 ---
