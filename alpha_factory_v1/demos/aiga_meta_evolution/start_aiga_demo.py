@@ -73,7 +73,7 @@ def main() -> None:
     print("Stop     → start_aiga_demo.py --stop")
 
     if args.logs:
-        subprocess.run(compose + ["logs", "-f"])
+        run(compose + ["logs", "-f"])
 
 
 if __name__ == "__main__":
