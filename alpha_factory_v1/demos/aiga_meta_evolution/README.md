@@ -137,6 +137,17 @@ The `/health` and `/metrics` endpoints remain public.
 
 LLMs supply *commentary & analysis* only – **core evolution is deterministic**.
 
+## 🔍 Alpha discovery stub
+
+For a bite-size illustration of agent-driven opportunity scanning, run:
+
+```bash
+python alpha_factory_v1/demos/aiga_meta_evolution/alpha_opportunity_stub.py
+```
+
+The `alpha_discovery` agent exposes a single `identify_alpha` tool that asks the LLM to suggest three inefficiencies in a chosen domain. It works offline when `OPENAI_API_KEY` is unset.
+
+
 ---
 
 ## 🛠 Architecture deep‑dive
