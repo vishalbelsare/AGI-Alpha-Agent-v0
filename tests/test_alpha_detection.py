@@ -13,8 +13,10 @@ class TestAlphaDetection(unittest.TestCase):
         msg = alpha_detection.detect_supply_chain_alpha()
         self.assertIsInstance(msg, str)
         # The message should either mention "USD" or indicate that "offline data" is missing.
-        self.assertTrue("USD" in msg, "Expected 'USD' to be in the message.")
-        self.assertTrue("offline data missing" in msg, "Expected 'offline data missing' to be in the message.")
+        self.assertTrue(
+            "USD" in msg or "offline data missing" in msg,
+            "Expected 'USD' or 'offline data missing' in the message.",
+        )
 
 
 if __name__ == "__main__":  # pragma: no cover
