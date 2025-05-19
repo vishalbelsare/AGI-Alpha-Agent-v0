@@ -39,7 +39,7 @@ def main(argv: list[str] | None = None) -> None:
     if args.bridge:
         _start_bridge()
 
-    alpha_agi_business_v1.main([])
+    alpha_agi_business_v1.main()
 
 
 if __name__ == "__main__":  # pragma: no cover - manual execution
