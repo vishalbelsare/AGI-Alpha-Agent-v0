@@ -8,8 +8,9 @@ This short guide distils the steps required to run the **AI‑GA Meta‑Evolutio
    - Optionally enable the Google ADK gateway by setting `ALPHA_FACTORY_ENABLE_ADK=true`. A token can be enforced with `ALPHA_FACTORY_ADK_TOKEN`.
    - For API protection, set `AUTH_BEARER_TOKEN` or provide `JWT_PUBLIC_KEY`/`JWT_ISSUER` values.
    - Verify all Python packages are available:
+     Run the following command from the project root directory:
      ```bash
-     AUTO_INSTALL_MISSING=1 python ../../check_env.py
+     AUTO_INSTALL_MISSING=1 python alpha_factory_v1/check_env.py
      ```
      This attempts to install `openai-agents`, `google-adk` and other required
      packages if they are missing. Offline environments can point the script to
