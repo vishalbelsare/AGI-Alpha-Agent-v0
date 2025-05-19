@@ -40,9 +40,9 @@ def best_alpha(signals: Dict[str, str]) -> str:
     sc = signals.get("supply_chain", "")
 
     # simple heuristics
-    if "bottleneck" in sc.lower():
+    if BOTTLENECK_KEYWORD in sc.lower():
         return sc
-    if "long bonds" in yc.lower():
+    if LONG_BONDS_KEYWORD in yc.lower():
         return yc
     return yc if yc else sc
 
