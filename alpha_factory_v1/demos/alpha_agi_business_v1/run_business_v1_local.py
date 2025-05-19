@@ -51,20 +51,18 @@ def main(argv: list[str] | None = None) -> None:
 
     check_env.main(check_opts)
 
-    # Lazy-import demo after environment is configured so the orchestrator
-    # picks up the ALPHA_ENABLED_AGENTS value at module import time.
-    from alpha_factory_v1.demos.alpha_agi_business_v1 import alpha_agi_business_v1
-
+    # Configure the environment so the orchestrator picks up the ALPHA_ENABLED_AGENTS value at module import time.
     if not os.getenv("ALPHA_ENABLED_AGENTS"):
         os.environ["ALPHA_ENABLED_AGENTS"] = ",".join(
             [
-                alpha_agi_business_v1.IncorporatorAgent.NAME,
-                alpha_agi_business_v1.AlphaDiscoveryAgent.NAME,
-                alpha_agi_business_v1.AlphaOpportunityAgent.NAME,
-                alpha_agi_business_v1.AlphaExecutionAgent.NAME,
+                "IncorporatorAgent",
+                "AlphaDiscoveryAgent",
+                "AlphaOpportunityAgent",
+                "AlphaExecutionAgent",
             ]
         )
 
+    from alpha_factory_v1.demos.alpha_agi_business_v1 import alpha_agi_business_v1
     if args.bridge:
         _start_bridge()
 
