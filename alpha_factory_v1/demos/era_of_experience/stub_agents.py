@@ -14,15 +14,19 @@ from __future__ import annotations
 
 from typing import Any, Dict
 
-try:  # OpenAI Agents SDK (tool-calling, memory, planning)
-    from openai_agents import Agent
-except Exception:  # pragma: no cover - optional dependency
-    Agent = object  # type: ignore
+def _safe_import_agent(module_name: str, class_name: str) -> type:
+    """Safely import an agent class, falling back to `object` if unavailable."""
+    try:
+        module = __import__(module_name, fromlist=[class_name])
+        agent_class = getattr(module, class_name)
+        if not isinstance(agent_class, type):  # shim may return a sentinel object
+            return object  # type: ignore[misc]
+        return agent_class
+    except Exception:  # pragma: no cover - optional dependency
+        return object  # type: ignore
 
-try:  # Google Agent Development Kit (A2A protocol)
-    from google_adk import Agent as ADKAgent
-except Exception:  # pragma: no cover - optional dependency
-    ADKAgent = object  # type: ignore
+Agent = _safe_import_agent("openai_agents", "Agent")  # OpenAI Agents SDK
+ADKAgent = _safe_import_agent("google_adk", "Agent")  # Google ADK
 
 
 class ExperienceAgent(Agent):
