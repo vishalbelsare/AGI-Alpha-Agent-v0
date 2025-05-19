@@ -44,11 +44,11 @@ import uvicorn
 
 try:  # gradio may be absent in minimal environments
     import gradio as gr
-except Exception:  # pragma: no cover - optional dependency
+except ImportError:  # pragma: no cover - optional dependency
     gr = None
 try:  # optional for tests
     from openai_agents import Agent, OpenAIAgent, Tool, memory
-except Exception:  # pragma: no cover - allow import without package
+except ImportError:  # pragma: no cover - allow import without package
     Agent = OpenAIAgent = Tool = memory = None
 
 if Tool is None:  # type: ignore
