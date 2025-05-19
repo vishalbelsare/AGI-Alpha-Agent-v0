@@ -105,6 +105,13 @@ async def trigger_execution() -> str:
     return "alpha_execution queued"
 
 
+@Tool(name="trigger_risk", description="Trigger the AlphaRiskAgent")
+async def trigger_risk() -> str:
+    resp = requests.post(f"{HOST}/agent/alpha_risk/trigger", timeout=5)
+    resp.raise_for_status()
+    return "alpha_risk queued"
+
+
 @Tool(
     name="submit_job",
     description="Submit a custom alpha job JSON to the orchestrator",
@@ -163,6 +170,7 @@ class BusinessAgent(Agent):
         trigger_discovery,
         trigger_opportunity,
         trigger_execution,
+        trigger_risk,
         recent_alpha,
         submit_job,
     ]
@@ -175,6 +183,8 @@ class BusinessAgent(Agent):
                 return await self.tools.trigger_opportunity()
             elif obs.get("action") == "execute":
                 return await self.tools.trigger_execution()
+            elif obs.get("action") == "risk":
+                return await self.tools.trigger_risk()
             elif obs.get("action") == "recent_alpha":
                 return await self.tools.recent_alpha()
             elif obs.get("action") == "submit_job":
