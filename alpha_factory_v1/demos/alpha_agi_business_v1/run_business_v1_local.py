@@ -8,10 +8,10 @@ experimentation on a developer workstation or inside a Colab runtime.
 from __future__ import annotations
 
 import argparse
+import os
 import threading
 
 import check_env
-from alpha_factory_v1.demos.alpha_agi_business_v1 import alpha_agi_business_v1
 
 
 def _start_bridge() -> None:
@@ -51,6 +51,18 @@ def main(argv: list[str] | None = None) -> None:
 
     check_env.main(check_opts)
 
+    # Configure the environment so the orchestrator picks up the ALPHA_ENABLED_AGENTS value at module import time.
+    if not os.getenv("ALPHA_ENABLED_AGENTS"):
+        os.environ["ALPHA_ENABLED_AGENTS"] = ",".join(
+            [
+                "IncorporatorAgent",
+                "AlphaDiscoveryAgent",
+                "AlphaOpportunityAgent",
+                "AlphaExecutionAgent",
+            ]
+        )
+
+    from alpha_factory_v1.demos.alpha_agi_business_v1 import alpha_agi_business_v1
     if args.bridge:
         _start_bridge()
 

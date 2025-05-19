@@ -32,7 +32,12 @@ def main(argv: Optional[List[str]] = None) -> int:
 
     missing: list[str] = []
     for pkg in REQUIRED:
-        if importlib.util.find_spec(pkg) is None:
+        try:
+            spec = importlib.util.find_spec(pkg)
+        except ValueError:
+            # handle cases where a namespace package left an invalid entry
+            spec = None
+        if spec is None:
             missing.append(pkg)
     if missing:
         print("WARNING: Missing packages:", ", ".join(missing))
