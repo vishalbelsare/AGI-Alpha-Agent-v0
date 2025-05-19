@@ -53,9 +53,10 @@ class AlphaOpportunityAgent(AgentBase):
 
     def __init__(self) -> None:
         super().__init__()
-        path = Path(__file__).with_name("examples") / "alpha_opportunities.json"
+        env_path = os.getenv("ALPHA_OPPS_FILE")
+        path = Path(env_path) if env_path else Path(__file__).with_name("examples") / "alpha_opportunities.json"
         try:
-            self._opportunities = json.loads(path.read_text(encoding="utf-8"))
+            self._opportunities = json.loads(Path(path).read_text(encoding="utf-8"))
         except FileNotFoundError:  # pragma: no cover - fallback when file missing
             self._opportunities = [
                 {"alpha": "generic supply-chain inefficiency"}
