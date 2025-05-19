@@ -45,7 +45,10 @@ import uvicorn
 import gradio as gr
 from openai_agents import Agent, OpenAIAgent, Tool, memory
 
-from .alpha_detection import detect_yield_curve_alpha
+from .alpha_detection import (
+    detect_yield_curve_alpha,
+    detect_supply_chain_alpha,
+)
 
 # ───────────────────────────── configuration ────────────────────────────────
 MODEL       = os.getenv("MODEL_NAME", "gpt-4o-mini")
@@ -122,7 +125,22 @@ async def detect_yield_curve_alpha_tool() -> Dict[str, str]:
     return {"alpha": msg}
 
 
-TOOLS = [web_search, plan_meal, schedule_workout, detect_yield_curve_alpha_tool]
+@Tool(
+    "detect_supply_chain_alpha",
+    "Check for potential supply-chain disruptions using offline data.",
+)
+async def detect_supply_chain_alpha_tool(threshold: float = 50.0) -> Dict[str, str]:
+    msg = detect_supply_chain_alpha(threshold)
+    return {"alpha": msg}
+
+
+TOOLS = [
+    web_search,
+    plan_meal,
+    schedule_workout,
+    detect_yield_curve_alpha_tool,
+    detect_supply_chain_alpha_tool,
+]
 
 # ─────────────────────────────── reward functions ───────────────────────────
 def _fitness_reward(evt: Dict[str, Any]) -> float:

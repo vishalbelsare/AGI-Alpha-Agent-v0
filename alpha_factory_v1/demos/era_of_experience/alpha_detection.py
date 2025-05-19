@@ -1,9 +1,12 @@
 """Alpha detection utilities for Era-of-Experience demo.
 
-This module demonstrates how one might detect simple 'alpha' signals
-from offline data samples. Currently it provides a helper analysing the
-U.S. Treasury yield curve to check for potential opportunities when the
-curve is inverted.
+This module demonstrates how one might detect simple "alpha" signals
+from offline data samples.  A tiny snapshot of the U.S. Treasury yield
+curve is included to highlight macro opportunities.  For a more
+industry‑agnostic flavour we also provide a toy ``stable_flows`` data
+set representing supply‑chain throughput.  Both helpers are purposely
+minimal yet illustrate how bespoke detectors could be plugged into the
+agent toolkit.
 """
 from __future__ import annotations
 
@@ -13,9 +16,10 @@ from typing import Dict
 import pandas as pd
 
 # Path to offline sample within the repo
-_YIELD_CURVE_CSV = (
-    Path(__file__).resolve().parent.parent / "macro_sentinel" / "offline_samples" / "yield_curve.csv"
-)
+_BASE = Path(__file__).resolve().parent.parent / "macro_sentinel" / "offline_samples"
+
+_YIELD_CURVE_CSV = _BASE / "yield_curve.csv"
+_STABLE_FLOWS_CSV = _BASE / "stable_flows.csv"
 
 
 def detect_yield_curve_alpha() -> str:
@@ -33,4 +37,20 @@ def detect_yield_curve_alpha() -> str:
     )
 
 
-__all__ = ["detect_yield_curve_alpha"]
+def detect_supply_chain_alpha(threshold: float = 50.0) -> str:
+    """Return a basic message about supply‑chain flow levels."""
+    try:
+        data = pd.read_csv(_STABLE_FLOWS_CSV)
+    except FileNotFoundError:
+        return "offline data missing"
+
+    flow = float(data["usd_mn"][0])
+    if flow < threshold:
+        return f"Flows {flow:.1f} M USD – potential bottleneck"
+    return f"Flows {flow:.1f} M USD – supply chain normal"
+
+
+__all__ = [
+    "detect_yield_curve_alpha",
+    "detect_supply_chain_alpha",
+]
