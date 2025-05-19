@@ -160,6 +160,16 @@ python alpha_factory_v1/demos/aiga_meta_evolution/alpha_opportunity_stub.py
 
 The `alpha_discovery` agent exposes a single `identify_alpha` tool that asks the LLM to suggest three inefficiencies in a chosen domain. It works offline when `OPENAI_API_KEY` is unset.
 
+## ♻️ Alpha conversion stub
+
+Turn a discovered opportunity into a short execution plan:
+
+```bash
+python alpha_factory_v1/demos/aiga_meta_evolution/alpha_conversion_stub.py --alpha "Battery arbitrage"
+```
+
+The tool outputs a three‑step JSON plan and logs it to `alpha_conversion_log.json`. When `OPENAI_API_KEY` is configured, it queries an OpenAI model; otherwise a sample plan is returned.
+
 
 ---
 
