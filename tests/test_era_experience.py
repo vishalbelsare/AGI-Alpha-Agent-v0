@@ -3,6 +3,7 @@ import asyncio
 
 from alpha_factory_v1.demos.era_of_experience import agent_experience_entrypoint as demo
 from alpha_factory_v1.demos.era_of_experience import reward_backends
+from alpha_factory_v1.demos.era_of_experience.simulation import SimpleExperienceEnv
 
 class TestEraOfExperience(unittest.TestCase):
     def test_experience_stream_yields_event(self) -> None:
@@ -22,6 +23,13 @@ class TestEraOfExperience(unittest.TestCase):
             self.assertIsInstance(val, float)
             self.assertGreaterEqual(val, 0.0)
             self.assertLessEqual(val, 1.0)
+
+    def test_simple_env_runs(self) -> None:
+        env = SimpleExperienceEnv()
+        state = env.reset()
+        self.assertEqual(state, 0)
+        state, reward, done, info = env.step("act")
+        self.assertIsInstance(reward, float)
 
 if __name__ == "__main__":  # pragma: no cover
     unittest.main()

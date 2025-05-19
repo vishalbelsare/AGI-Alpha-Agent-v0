@@ -132,7 +132,7 @@ Result: an agent that <strong>evolves faster than you can refresh the page</stro
 | `run_experience_demo.sh` | 1‑liner prod launcher (health‑gated) |
 | `docker-compose.experience.yml` | orchestrator + Ollama services |
 | `reward_backends/` | 🍬 Drop‑in reward plug‑ins (auto‑discovery) |
-| `simulation/` | Tiny Gym‑like env stubs (road‑map) |
+| `simulation/` | Tiny Gym‑like env stubs (ready to extend) |
 | `colab_era_of_experience.ipynb` | Cloud twin notebook |
 
 ---
@@ -165,6 +165,21 @@ async def detect_yield_curve_alpha_tool():
 @Tool("detect_supply_chain_alpha", "Check for potential supply-chain disruptions using offline data.")
 async def detect_supply_chain_alpha_tool(threshold: float = 50.0):
     return {"alpha": detect_supply_chain_alpha(threshold)}
+```
+
+* **Run in simulation**
+
+The `simulation` package ships with `SimpleExperienceEnv`, a tiny
+Gym-like environment for experimenting with offline loops:
+
+```python
+from alpha_factory_v1.demos.era_of_experience.simulation import SimpleExperienceEnv
+
+env = SimpleExperienceEnv()
+state = env.reset()
+for _ in range(3):
+    state, reward, done, info = env.step("act")
+    print(state, reward)
 ```
 
 
