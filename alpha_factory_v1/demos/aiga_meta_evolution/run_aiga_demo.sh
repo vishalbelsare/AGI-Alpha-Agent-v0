@@ -82,6 +82,7 @@ fi
 
 # ------------- START-UP -----------------------------------------------------
 cd "$ROOT_DIR"
+AUTO_INSTALL_MISSING=1 python "$ROOT_DIR/../check_env.py" || true
 
 (( PULL )) && { cinfo "Pulling image $GHCR_IMAGE"; docker pull "$GHCR_IMAGE"; }
 

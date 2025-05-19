@@ -43,6 +43,17 @@ def ensure_env_file() -> None:
         CONFIG_ENV.write_bytes(sample.read_bytes())
 
 
+def ensure_deps() -> None:
+    """Run the repo's dependency checker with auto-install enabled."""
+    if os.getenv("SKIP_DEPS_CHECK") == "1":
+        return
+    checker = ROOT_DIR.parent / "check_env.py"
+    if checker.exists():
+        env = os.environ.copy()
+        env["AUTO_INSTALL_MISSING"] = "1"
+        subprocess.run([sys.executable, str(checker)], env=env, check=False)
+
+
 def main() -> None:
     ap = argparse.ArgumentParser(description="Launch the AI-GA meta-evolution demo")
     ap.add_argument("--pull", action="store_true", help="pull signed image instead of building")
@@ -57,6 +68,7 @@ def main() -> None:
 
     os.chdir(ROOT_DIR)
     ensure_env_file()
+    ensure_deps()
 
     if args.reset:
         run(compose + ["down", "-v", "--rmi", "all"])
