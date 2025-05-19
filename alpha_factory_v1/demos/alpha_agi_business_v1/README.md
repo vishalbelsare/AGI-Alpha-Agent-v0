@@ -145,7 +145,7 @@ cd AGI-Alpha-Agent-v0/alpha_factory_v1/demos/alpha_agi_business_v1
 
 # launch demo (GPU optional)
 ./run_business_v1_demo.sh
-# or run directly without Docker (adds --auto-install to fetch deps)
+# or run directly without Docker (adds --auto-install and optionally --wheelhouse to fetch deps, including offline installs)
 python run_business_v1_local.py --bridge --auto-install
 
 # the demo starts three stub agents:
