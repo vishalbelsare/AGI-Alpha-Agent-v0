@@ -70,9 +70,9 @@ need curl
 
 ################################ env check ####################################
 if [[ "${SKIP_ENV_CHECK:-0}" != "1" ]]; then
-  if command -v python &>/dev/null && [[ -f ../check_env.py ]]; then
+  if command -v python3 &>/dev/null && [[ -f ../check_env.py ]]; then
     say "Checking host Python packages"
-    python ../check_env.py --auto-install || warn "Environment check failed"
+    python3 ../check_env.py --auto-install || warn "Environment check failed"
   fi
 fi
 
