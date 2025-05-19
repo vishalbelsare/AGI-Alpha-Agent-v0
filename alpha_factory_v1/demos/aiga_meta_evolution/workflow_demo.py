@@ -60,7 +60,7 @@ class WorkflowAgent(Agent):
 
 
 def main() -> None:
-    runtime = AgentRuntime(api_key=None)
+    runtime = AgentRuntime(llm=LLM)
     agent = WorkflowAgent()
     runtime.register(agent)
     print("Registered WorkflowAgent with runtime")
