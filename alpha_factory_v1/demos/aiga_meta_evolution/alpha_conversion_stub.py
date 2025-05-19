@@ -16,6 +16,10 @@ from pathlib import Path
 from typing import Dict
 import logging
 
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s - %(levelname)s - %(message)s"
+)
 with contextlib.suppress(ModuleNotFoundError):
     import openai  # type: ignore
 
