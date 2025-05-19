@@ -10,6 +10,7 @@ agent toolkit.
 """
 from __future__ import annotations
 
+import os
 from pathlib import Path
 from typing import Dict
 
@@ -20,7 +21,8 @@ except ImportError:  # pragma: no cover - fallback when pandas missing
 import csv
 
 # Path to offline sample within the repo
-_BASE = Path(__file__).resolve().parent.parent / "macro_sentinel" / "offline_samples"
+_DEFAULT_BASE = Path(__file__).resolve().parent.parent / "macro_sentinel" / "offline_samples"
+_BASE = Path(os.getenv("SAMPLE_DATA_DIR", _DEFAULT_BASE))
 
 _YIELD_CURVE_CSV = _BASE / "yield_curve.csv"
 _STABLE_FLOWS_CSV = _BASE / "stable_flows.csv"

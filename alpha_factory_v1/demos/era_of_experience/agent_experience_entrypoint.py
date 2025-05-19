@@ -50,6 +50,9 @@ try:  # optional for tests
     from openai_agents import Agent, OpenAIAgent, Tool, memory
 except ImportError:  # pragma: no cover - allow import without package
     Agent = OpenAIAgent = Tool = memory = None
+    _NO_OPENAI_AGENTS = True
+else:
+    _NO_OPENAI_AGENTS = False
 
 if Tool is None:  # type: ignore
     def Tool(*_args, **_kwargs):  # noqa: D401 - simple passthrough decorator
@@ -213,6 +216,10 @@ async def main() -> None:
     • Feeds the stream to the agent
     • Shows a slim Gradio dashboard (memory + live reasoning)
     """
+    if _NO_OPENAI_AGENTS:
+        raise RuntimeError(
+            "OpenAI Agents SDK is required; install via 'pip install openai-agents'"
+        )
     if gr is None:
         raise RuntimeError(
             "gradio is required for the demo UI; install via 'pip install gradio'"
