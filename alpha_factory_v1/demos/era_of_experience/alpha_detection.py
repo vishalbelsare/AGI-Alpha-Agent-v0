@@ -30,7 +30,7 @@ def _read_first_row(path: Path) -> Dict[str, str] | None:
     """Return the first row of a CSV as a mapping or ``None`` if empty."""
     if pd is not None:  # use pandas when available for convenience
         try:
-            df = pd.read_csv(path)
+            df = pd.read_csv(path, nrows=1)
         except FileNotFoundError:
             raise
         except Exception:  # pragma: no cover - handle corrupt CSV gracefully
