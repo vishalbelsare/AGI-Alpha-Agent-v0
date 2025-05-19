@@ -59,6 +59,14 @@ async def checkpoint() -> str:
     return "checkpoint saved"
 
 
+@Tool(
+    name="history",
+    description="Return evolution history as a list of (generation, avg_fitness)",
+)
+async def history() -> dict:
+    return {"history": EVOLVER.history}
+
+
 @Tool(name="reset", description="Reset evolution to generation zero")
 async def reset() -> str:
     EVOLVER.reset()
@@ -69,7 +77,7 @@ class EvolverAgent(Agent):
     """Tiny agent exposing the meta-evolver tools."""
 
     name = "aiga_evolver"
-    tools = [evolve, best_alpha, checkpoint, reset]
+    tools = [evolve, best_alpha, checkpoint, reset, history]
 
     async def policy(self, obs, ctx):  # type: ignore[override]
         gens = int(obs.get("gens", 1)) if isinstance(obs, dict) else 1
