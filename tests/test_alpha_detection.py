@@ -9,6 +9,11 @@ class TestAlphaDetection(unittest.TestCase):
         self.assertIsInstance(msg, str)
         self.assertTrue("Yield curve spread" in msg)
 
+    def test_detect_supply_chain_alpha(self) -> None:
+        msg = alpha_detection.detect_supply_chain_alpha()
+        self.assertIsInstance(msg, str)
+        self.assertTrue("USD" in msg or "offline data missing" in msg)
+
 
 if __name__ == "__main__":  # pragma: no cover
     unittest.main()
