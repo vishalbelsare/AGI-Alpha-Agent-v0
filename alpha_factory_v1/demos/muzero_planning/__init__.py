@@ -2,7 +2,7 @@
 
 try:
     from .agent_muzero_entrypoint import launch_dashboard
-except Exception:  # pragma: no cover - optional deps may be missing
+except ImportError:  # pragma: no cover - optional deps may be missing
     def launch_dashboard() -> None:  # type: ignore[return-type]
         """Placeholder when optional dependencies are absent."""
         raise RuntimeError(
