@@ -19,6 +19,10 @@ PROJECT = "alpha_aiga"
 GHCR_IMAGE = "ghcr.io/montrealai/alpha-aiga:latest"
 CONFIG_ENV = DEMO_DIR / "config.env"
 
+# URLs printed after the stack is up -----------------------------------------
+DASHBOARD_URL = f"http://localhost:{os.getenv('GRADIO_PORT', '7862')}"
+OPENAPI_URL = f"http://localhost:{os.getenv('API_PORT', '8000')}/docs"
+
 
 def run(cmd: list[str]) -> None:
     subprocess.run(cmd, check=True)
