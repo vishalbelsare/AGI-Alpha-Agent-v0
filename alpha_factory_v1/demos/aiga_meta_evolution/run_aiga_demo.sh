@@ -82,7 +82,9 @@ fi
 
 # ------------- START-UP -----------------------------------------------------
 cd "$ROOT_DIR"
-AUTO_INSTALL_MISSING=1 python "$ROOT_DIR/../check_env.py" || true
+if ! AUTO_INSTALL_MISSING=1 python "$ROOT_DIR/../check_env.py"; then
+  cfatal "Environment check failed. Please resolve the issues and try again."
+fi
 
 (( PULL )) && { cinfo "Pulling image $GHCR_IMAGE"; docker pull "$GHCR_IMAGE"; }
 
