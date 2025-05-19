@@ -43,7 +43,7 @@ class BusinessAgent(Agent):
         if isinstance(obs, dict):
             if obs.get("action") == "discover":
                 return await self.tools.trigger_discovery()
-            if obs.get("action") == "opportunity":
+            elif obs.get("action") == "opportunity":
                 return await self.tools.trigger_opportunity()
         return await self.tools.list_agents()
 
