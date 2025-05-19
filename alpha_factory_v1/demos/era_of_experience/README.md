@@ -25,7 +25,10 @@ Within 60 seconds you will witness an agent <em>rewrite its own playbook</em> e
 - *(Optional)* `OPENAI_API_KEY` for cloud LLMs — leave blank to use the built‑in Mixtral via Ollama
 - If running without `run_experience_demo.sh`, install the
   [`openai-agents`](https://openai.github.io/openai-agents-python/) SDK and
-  `gradio` via `pip install openai-agents gradio`
+  `gradio` via `pip install openai-agents gradio`.
+  Then, you can run the script directly with a command like:
+  ```bash
+  SAMPLE_DATA_DIR=/path/to/csvs python agent_experience_entrypoint.py
 
 ---
 
