@@ -134,6 +134,7 @@ Result: an agent that <strong>evolves faster than you can refresh the page</stro
 | `docker-compose.experience.yml` | orchestrator + Ollama services |
 | `reward_backends/` | 🍬 Drop‑in reward plug‑ins (auto‑discovery) |
 | `simulation/` | Tiny Gym‑like env stubs (ready to extend) |
+| `stub_agents.py` | Minimal agent classes for OpenAI SDK & ADK workflows |
 | `colab_era_of_experience.ipynb` | Cloud twin notebook |
 
 ---
@@ -182,6 +183,12 @@ for _ in range(3):
     state, reward, done, info = env.step("act")
     print(state, reward)
 ```
+
+* **Prototype a custom agent**
+
+  `stub_agents.py` contains minimal classes
+  (`ExperienceAgent`, `FederatedExperienceAgent`) illustrating how to build
+  on the OpenAI SDK and Google ADK respectively.
 
 
 * **Cluster‑scale**
