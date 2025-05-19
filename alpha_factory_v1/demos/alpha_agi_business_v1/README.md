@@ -148,10 +148,20 @@ cd AGI-Alpha-Agent-v0/alpha_factory_v1/demos/alpha_agi_business_v1
 # the demo starts two stub agents:
 #   • **IncorporatorAgent** registers the business
 #   • **AlphaDiscoveryAgent** emits a placeholder market opportunity
+#   • **AlphaOpportunityAgent** signals a supply‑chain bottleneck example
 
 open http://localhost:7878      # Dashboard SPA
 ./scripts/post_alpha_job.sh examples/job_copper_spread.json
+# or
+./scripts/post_alpha_job.sh examples/job_supply_chain_alpha.json
 ```
+
+If dependencies are missing, run:
+
+```bash
+python ../../../check_env.py --auto-install
+```
+Use `--wheelhouse /path/to/wheels` for offline installs.
 
 Or open `colab_alpha_agi_business_v1_demo.ipynb` to run everything in Colab.
 To drive the orchestrator via the OpenAI Agents SDK run `python openai_agents_bridge.py` (see step 5 in the notebook).
