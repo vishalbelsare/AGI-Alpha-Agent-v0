@@ -145,8 +145,8 @@ cd AGI-Alpha-Agent-v0/alpha_factory_v1/demos/alpha_agi_business_v1
 
 # launch demo (GPU optional)
 ./run_business_v1_demo.sh
-# or run directly without Docker
-python run_business_v1_local.py --bridge
+# or run directly without Docker (adds --auto-install and optionally --wheelhouse to fetch deps, including offline installs)
+python run_business_v1_local.py --bridge --auto-install
 
 # the demo starts three stub agents:
 #   • **IncorporatorAgent** registers the business
@@ -162,12 +162,12 @@ open http://localhost:7878      # Dashboard SPA
 ./scripts/post_alpha_job.sh examples/job_execute_alpha.json
 ```
 
-If dependencies are missing, run:
+If dependencies are missing, pass `--auto-install` (and optionally
+`--wheelhouse /path/to/wheels`) to the local launcher:
 
 ```bash
-python ../../../check_env.py --auto-install
+python run_business_v1_local.py --auto-install --wheelhouse /path/to/wheels
 ```
-Use `--wheelhouse /path/to/wheels` for offline installs.
 
 Or open `colab_alpha_agi_business_v1_demo.ipynb` to run everything in Colab.
 To drive the orchestrator via the OpenAI Agents SDK run `python openai_agents_bridge.py` (see step 5 in the notebook). Use `--host http://<host>:<port>` when the orchestrator is exposed elsewhere. If the script complains about a missing `openai_agents` package, install it with:
