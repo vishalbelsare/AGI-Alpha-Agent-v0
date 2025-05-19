@@ -78,6 +78,7 @@ when Docker is unavailable.
 git clone https://github.com/MontrealAI/AGI-Alpha-Agent-v0.git
 cd AGI-Alpha-Agent-v0
 pip install -r alpha_factory_v1/requirements.txt
+# ensures `openai-agents` and friends are installed
 python alpha_factory_v1/demos/aiga_meta_evolution/agent_aiga_entrypoint.py
 ```
 
@@ -91,6 +92,8 @@ Expose the evolver to the **OpenAI Agents SDK** runtime:
 ```bash
 python alpha_factory_v1/demos/aiga_meta_evolution/openai_agents_bridge.py
 ```
+
+Requires the `openai-agents` package (installed via requirements).
 
 The bridge registers an `aiga_evolver` agent exposing four tools:
 `evolve` (run N generations), `best_alpha` (return the champion),
