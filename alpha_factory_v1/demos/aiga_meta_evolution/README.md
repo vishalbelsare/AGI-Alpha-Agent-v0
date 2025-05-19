@@ -177,6 +177,19 @@ python alpha_factory_v1/demos/aiga_meta_evolution/alpha_conversion_stub.py --alp
 
 The tool outputs a three‑step JSON plan and logs it to `alpha_conversion_log.json`. When `OPENAI_API_KEY` is configured, it queries an OpenAI model; otherwise a sample plan is returned.
 
+## 🤝 End‑to‑end workflow
+
+Combine discovery and conversion into a single agent:
+
+```bash
+python alpha_factory_v1/demos/aiga_meta_evolution/workflow_demo.py --domain finance
+```
+
+The `alpha_workflow` agent lists opportunities in the chosen domain, selects the
+first suggestion and returns a short execution plan. When Google ADK is enabled
+(via `ALPHA_FACTORY_ENABLE_ADK=1`), the same agent is published over the A2A
+protocol for orchestration by external controllers.
+
 
 ---
 
