@@ -16,11 +16,15 @@ from typing import Any, Dict
 
 try:  # OpenAI Agents SDK (tool-calling, memory, planning)
     from openai_agents import Agent
+    if not isinstance(Agent, type):  # shim may return a sentinel object
+        Agent = object  # type: ignore[misc]
 except Exception:  # pragma: no cover - optional dependency
     Agent = object  # type: ignore
 
 try:  # Google Agent Development Kit (A2A protocol)
     from google_adk import Agent as ADKAgent
+    if not isinstance(ADKAgent, type):  # missing package -> sentinel object
+        ADKAgent = object  # type: ignore[misc]
 except Exception:  # pragma: no cover - optional dependency
     ADKAgent = object  # type: ignore
 
