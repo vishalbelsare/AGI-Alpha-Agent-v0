@@ -10,6 +10,12 @@ from __future__ import annotations
 
 from typing import Dict
 
+# Keywords used by :func:`best_alpha` when ranking opportunities.  These
+# are kept here to avoid typos and make the heuristics easier to tune or
+# override in tests.
+BOTTLENECK_KEYWORD = "bottleneck"
+LONG_BONDS_KEYWORD = "long bonds"
+
 try:
     from alpha_factory_v1.demos.era_of_experience.alpha_detection import (
         detect_yield_curve_alpha,
