@@ -349,7 +349,7 @@ Cells with \(Δ\mathcal F < 0\) glow 🔵 on Grafana; Ω‑Agents race to harves
 git clone https://github.com/MontrealAI/AGI-Alpha-Agent-v0.git
 cd AGI-Alpha-Agent-v0
 ./quickstart.sh --preflight   # optional environment check
-python check_env.py           # verify test dependencies
+AUTO_INSTALL_MISSING=1 python check_env.py  # verify & auto-install deps
 ./quickstart.sh               # creates venv, installs deps, launches
 # If the host has no internet access set `WHEELHOUSE=/path/to/wheels` and
 # the helper attempts an offline install.
