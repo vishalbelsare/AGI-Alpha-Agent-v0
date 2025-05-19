@@ -46,7 +46,14 @@ except ModuleNotFoundError:                                  # SDK not installed
 
     # Expose typical top-level symbols so `from openai_agents import Agent`
     # fails with an informative message *at call-time* rather than import-time.
-    for _name in ("Agent", "OpenAIAgent", "Tool", "FunctionTool", "tool"):
+    for _name in (
+        "Agent",
+        "OpenAIAgent",
+        "Tool",
+        "FunctionTool",
+        "tool",
+        "AgentRuntime",
+    ):
         setattr(shim, _name, _MissingSDK())
 
     sys.modules["openai_agents"] = shim
