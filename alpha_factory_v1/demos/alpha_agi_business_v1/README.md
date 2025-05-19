@@ -151,7 +151,7 @@ python run_business_v1_local.py --bridge
 # the demo starts three stub agents:
 #   • **IncorporatorAgent** registers the business
 #   • **AlphaDiscoveryAgent** emits a placeholder market opportunity
-#   • **AlphaOpportunityAgent** signals a supply‑chain bottleneck example
+#   • **AlphaOpportunityAgent** picks a random scenario from `examples/alpha_opportunities.json`
 #   • **AlphaExecutionAgent** converts an opportunity into an executed trade
 
 open http://localhost:7878      # Dashboard SPA
