@@ -145,6 +145,8 @@ cd AGI-Alpha-Agent-v0/alpha_factory_v1/demos/alpha_agi_business_v1
 
 # launch demo (GPU optional)
 ./run_business_v1_demo.sh
+# or run directly without Docker
+python run_business_v1_local.py --bridge
 
 # the demo starts three stub agents:
 #   • **IncorporatorAgent** registers the business
