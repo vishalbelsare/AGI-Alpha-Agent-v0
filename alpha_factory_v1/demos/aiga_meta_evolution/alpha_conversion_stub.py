@@ -20,6 +20,8 @@ logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s - %(levelname)s - %(message)s"
 )
+# Initialize `openai` to `None` as a fallback in case the module import fails.
+openai = None
 with contextlib.suppress(ModuleNotFoundError):
     import openai  # type: ignore
 
