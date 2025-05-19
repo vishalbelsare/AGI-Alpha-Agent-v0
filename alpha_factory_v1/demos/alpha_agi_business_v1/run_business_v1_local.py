@@ -32,9 +32,24 @@ def main(argv: list[str] | None = None) -> None:
         action="store_true",
         help="Launch OpenAI Agents bridge if available",
     )
+    parser.add_argument(
+        "--auto-install",
+        action="store_true",
+        help="Attempt automatic installation of missing packages",
+    )
+    parser.add_argument(
+        "--wheelhouse",
+        help="Optional local wheelhouse path for offline installs",
+    )
     args = parser.parse_args(argv)
 
-    check_env.main([])
+    check_opts: list[str] = []
+    if args.auto_install:
+        check_opts.append("--auto-install")
+    if args.wheelhouse:
+        check_opts += ["--wheelhouse", args.wheelhouse]
+
+    check_env.main(check_opts)
 
     if args.bridge:
         _start_bridge()
