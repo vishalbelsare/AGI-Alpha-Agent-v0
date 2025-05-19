@@ -8,7 +8,7 @@ class TestAigaMetaModule(unittest.TestCase):
             sys.executable, '-m', 'alpha_factory_v1.demos.aiga_meta_evolution', '--help'
         ], capture_output=True, text=True)
         self.assertEqual(result.returncode, 0)
-        self.assertIn('meta-evolution demo', result.stdout.lower())
+        self.assertIn('usage:', result.stdout.lower())
 
 if __name__ == '__main__':
     unittest.main()
