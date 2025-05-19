@@ -6,8 +6,16 @@ local orchestrator. It works offline when no API key is configured.
 from __future__ import annotations
 
 import os
+import sys
 import requests
-from openai_agents import Agent, AgentRuntime, Tool
+
+try:  # soft dependency
+    from openai_agents import Agent, AgentRuntime, Tool  # type: ignore
+except ModuleNotFoundError as exc:  # pragma: no cover - optional dep
+    sys.stderr.write(
+        "\n❌  openai_agents not installed. Install with 'pip install openai-agents'\n"
+    )
+    sys.exit(1)
 
 HOST = os.getenv("BUSINESS_HOST", "http://localhost:8000")
 
