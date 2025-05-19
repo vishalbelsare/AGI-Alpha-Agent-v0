@@ -15,7 +15,7 @@ REQUIRED = [
     "anthropic",
 ]
 
-def main(argv: list[str] | None = None) -> int:
+def main(argv: Optional[List[str]] = None) -> int:
     parser = argparse.ArgumentParser(description="Validate runtime dependencies")
     parser.add_argument(
         "--auto-install",
