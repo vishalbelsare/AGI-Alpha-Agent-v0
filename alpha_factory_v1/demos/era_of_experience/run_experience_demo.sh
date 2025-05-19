@@ -66,6 +66,7 @@ need docker
 docker compose version &>/dev/null || die "Docker Compose plugin missing"
 ver=$(docker version --format '{{.Server.Version}}')
 [[ "${ver%%.*}" -ge 24 ]] || warn "Docker $ver < 24 may slow multi-stage builds"
+need curl
 
 ################################ config.env ###################################
 if [[ ! -f "$env_file" ]]; then
