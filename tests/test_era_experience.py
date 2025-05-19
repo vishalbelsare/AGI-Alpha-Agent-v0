@@ -4,6 +4,10 @@ import asyncio
 from alpha_factory_v1.demos.era_of_experience import agent_experience_entrypoint as demo
 from alpha_factory_v1.demos.era_of_experience import reward_backends
 from alpha_factory_v1.demos.era_of_experience.simulation import SimpleExperienceEnv
+from alpha_factory_v1.demos.era_of_experience.stub_agents import (
+    ExperienceAgent,
+    FederatedExperienceAgent,
+)
 
 class TestEraOfExperience(unittest.TestCase):
     def test_experience_stream_yields_event(self) -> None:
@@ -30,6 +34,12 @@ class TestEraOfExperience(unittest.TestCase):
         self.assertEqual(state, 0)
         state, reward, done, info = env.step("act")
         self.assertIsInstance(reward, float)
+
+    def test_stub_agents_instantiable(self) -> None:
+        exp = ExperienceAgent()
+        fed = FederatedExperienceAgent()
+        self.assertTrue(hasattr(exp, "act"))
+        self.assertTrue(hasattr(fed, "handle_request"))
 
 if __name__ == "__main__":  # pragma: no cover
     unittest.main()
