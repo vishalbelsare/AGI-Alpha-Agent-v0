@@ -193,9 +193,13 @@ python openai_agents_bridge.py --host http://localhost:8000
 When the optional `google-adk` dependency is installed and `ALPHA_FACTORY_ENABLE_ADK=true` is set,
 the same helper agent is also exposed via an ADK gateway for A2A messaging.
 
-The bridge exposes four helper tools (`list_agents`, `trigger_discovery`, `trigger_opportunity`,
-`trigger_execution`) and a new `recent_alpha` tool that returns the latest alpha
-opportunities stored in the orchestrator memory.
+The bridge exposes several helper tools:
+- `list_agents`
+- `trigger_discovery`
+- `trigger_opportunity`
+- `trigger_execution`
+- `recent_alpha` (to retrieve the latest opportunities)
+- `submit_job` (to post a custom job payload to any orchestrator agent)
 
 *No Docker?*
 `bash <(curl -sL https://get.alpha-factory.ai/business_demo.sh)` boots an ephemeral VM (CPU‑only mode).

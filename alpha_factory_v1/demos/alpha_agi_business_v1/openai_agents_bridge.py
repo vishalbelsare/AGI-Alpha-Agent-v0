@@ -106,6 +106,28 @@ async def trigger_execution() -> str:
 
 
 @Tool(
+    name="submit_job",
+    description="Submit a custom alpha job JSON to the orchestrator",
+)
+async def submit_job(job: dict) -> str:
+    """Post a JSON job definition to the orchestrator.
+
+    The dictionary must include an ``agent`` field specifying the target
+    agent name. Additional fields are forwarded verbatim.
+    """
+    agent = job.get("agent")
+    if not agent:
+        raise ValueError("'agent' field required in job spec")
+    resp = requests.post(
+        f"{HOST}/agent/{agent}/trigger",
+        json=job,
+        timeout=5,
+    )
+    resp.raise_for_status()
+    return f"job for {agent} queued"
+
+
+@Tool(
     name="recent_alpha",
     description="Return recently discovered alpha opportunities",
 )
@@ -142,6 +164,7 @@ class BusinessAgent(Agent):
         trigger_opportunity,
         trigger_execution,
         recent_alpha,
+        submit_job,
     ]
 
     async def policy(self, obs, ctx):  # type: ignore[override]
@@ -154,6 +177,9 @@ class BusinessAgent(Agent):
                 return await self.tools.trigger_execution()
             elif obs.get("action") == "recent_alpha":
                 return await self.tools.recent_alpha()
+            elif obs.get("action") == "submit_job":
+                job = obs.get("job", {})
+                return await self.tools.submit_job(job)
         return await self.tools.list_agents()
 
 
