@@ -37,6 +37,7 @@ Within 60 seconds you will witness an agent <em>rewrite its own playbook</em> e
 ```bash
 git clone https://github.com/MontrealAI/AGI-Alpha-Agent-v0.git
 cd AGI-Alpha-Agent-v0/alpha_factory_v1/demos/era_of_experience
+python ../../../check_env.py --auto-install  # optional env check
 chmod +x run_experience_demo.sh
 ./run_experience_demo.sh      # ← THAT’S IT
 ```
