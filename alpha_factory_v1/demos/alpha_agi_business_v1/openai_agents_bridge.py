@@ -105,6 +105,21 @@ async def trigger_execution() -> str:
     return "alpha_execution queued"
 
 
+@Tool(
+    name="recent_alpha",
+    description="Return recently discovered alpha opportunities",
+)
+async def recent_alpha(limit: int = 5) -> list[str]:
+    """Fetch the latest alpha items from the orchestrator memory."""
+    resp = requests.get(
+        f"{HOST}/memory/alpha_opportunity/recent",
+        params={"n": limit},
+        timeout=5,
+    )
+    resp.raise_for_status()
+    return resp.json()
+
+
 def wait_ready(url: str, timeout: float = 5.0) -> None:
     """Block until the orchestrator healthcheck responds or timeout expires."""
     deadline = time.monotonic() + timeout
@@ -121,7 +136,13 @@ class BusinessAgent(Agent):
     """Tiny agent exposing orchestrator helper tools."""
 
     name = "business_helper"
-    tools = [list_agents, trigger_discovery, trigger_opportunity, trigger_execution]
+    tools = [
+        list_agents,
+        trigger_discovery,
+        trigger_opportunity,
+        trigger_execution,
+        recent_alpha,
+    ]
 
     async def policy(self, obs, ctx):  # type: ignore[override]
         if isinstance(obs, dict):
@@ -131,6 +152,8 @@ class BusinessAgent(Agent):
                 return await self.tools.trigger_opportunity()
             elif obs.get("action") == "execute":
                 return await self.tools.trigger_execution()
+            elif obs.get("action") == "recent":
+                return await self.tools.recent_alpha()
         return await self.tools.list_agents()
 
 
