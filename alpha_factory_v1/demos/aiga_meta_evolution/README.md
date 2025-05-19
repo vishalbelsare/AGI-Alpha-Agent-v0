@@ -31,6 +31,7 @@ Within **&lt; 60 s** you’ll watch neural nets **rewrite their own blueprin
 
 - [🚀 Quick‑start (Docker)](#-quick‑start-docker)
 - [🎓 Run in Colab](#-run-in-colab)
+- [🚀 Production deployment](#-production-deployment)
 - [🔑 Online vs offline LLMs](#-online-vs-offline-llms)
 - [🛠 Architecture deep‑dive](#-architecture-deep‑dive)
 - [📈 Observability & metrics](#-observability--metrics)
@@ -124,6 +125,10 @@ JWT-based auth, provide `JWT_PUBLIC_KEY` (PEM) and optional `JWT_ISSUER`.
 The `/health` and `/metrics` endpoints remain public.
 
 ---
+## 🚀 Production deployment
+
+For step-by-step instructions on running the service in a production or workshop environment, see [PRODUCTION_GUIDE.md](PRODUCTION_GUIDE.md).
+
 
 ## 🎓 Run in Colab
 
