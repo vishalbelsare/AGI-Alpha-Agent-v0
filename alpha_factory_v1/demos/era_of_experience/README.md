@@ -23,6 +23,9 @@ Within 60 seconds you will witness an agent <em>rewrite its own playbook</em> e
 - **Docker 24+** with the Compose plugin
 - At least **4 CPU cores** (or a modest GPU) for smooth local runs
 - *(Optional)* `OPENAI_API_KEY` for cloud LLMs — leave blank to use the built‑in Mixtral via Ollama
+- If running without `run_experience_demo.sh`, install the
+  [`openai-agents`](https://openai.github.io/openai-agents-python/) SDK and
+  `gradio` via `pip install openai-agents gradio`
 
 ---
 
@@ -58,6 +61,8 @@ Add `--live` to pull in real sensor feeds (wearables, RSS, etc.):
    cp config.env.sample config.env
    $EDITOR config.env      # set OPENAI_API_KEY, MODEL_NAME, LIVE_FEED, etc.
    ```
+   You may override the path for built-in offline samples with
+   `SAMPLE_DATA_DIR=/path/to/csvs`.
 
 2. Enable real-time collectors and metrics with the `--live` flag:
 
