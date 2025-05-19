@@ -148,6 +148,10 @@ cd AGI-Alpha-Agent-v0/alpha_factory_v1/demos/alpha_agi_business_v1
 # or run directly without Docker (adds --auto-install and optionally --wheelhouse to fetch deps, including offline installs)
 python run_business_v1_local.py --bridge --auto-install
 
+By default this launcher restricts `ALPHA_ENABLED_AGENTS` to the four
+lightweight demo stubs so the orchestrator runs even on minimal setups.
+Set the variable yourself to customise the agent list.
+
 # the demo starts three stub agents:
 #   • **IncorporatorAgent** registers the business
 #   • **AlphaDiscoveryAgent** emits a placeholder market opportunity

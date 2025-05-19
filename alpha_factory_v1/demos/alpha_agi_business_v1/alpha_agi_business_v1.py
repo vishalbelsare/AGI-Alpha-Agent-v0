@@ -15,11 +15,8 @@ import random
 from pathlib import Path
 
 from alpha_factory_v1.backend import orchestrator
-from alpha_factory_v1.backend.agents import (
-    AgentBase,
-    AgentMetadata,
-    register_agent,
-)
+from alpha_factory_v1.backend.agents import AgentMetadata, register_agent
+from alpha_factory_v1.backend.agents.base import AgentBase
 
 
 class IncorporatorAgent(AgentBase):

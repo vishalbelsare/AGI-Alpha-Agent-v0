@@ -8,10 +8,10 @@ experimentation on a developer workstation or inside a Colab runtime.
 from __future__ import annotations
 
 import argparse
+import os
 import threading
 
 import check_env
-from alpha_factory_v1.demos.alpha_agi_business_v1 import alpha_agi_business_v1
 
 
 def _start_bridge() -> None:
@@ -50,6 +50,20 @@ def main(argv: list[str] | None = None) -> None:
         check_opts.extend(["--wheelhouse", args.wheelhouse])
 
     check_env.main(check_opts)
+
+    # Lazy-import demo after environment is configured so the orchestrator
+    # picks up the ALPHA_ENABLED_AGENTS value at module import time.
+    from alpha_factory_v1.demos.alpha_agi_business_v1 import alpha_agi_business_v1
+
+    if not os.getenv("ALPHA_ENABLED_AGENTS"):
+        os.environ["ALPHA_ENABLED_AGENTS"] = ",".join(
+            [
+                alpha_agi_business_v1.IncorporatorAgent.NAME,
+                alpha_agi_business_v1.AlphaDiscoveryAgent.NAME,
+                alpha_agi_business_v1.AlphaOpportunityAgent.NAME,
+                alpha_agi_business_v1.AlphaExecutionAgent.NAME,
+            ]
+        )
 
     if args.bridge:
         _start_bridge()
