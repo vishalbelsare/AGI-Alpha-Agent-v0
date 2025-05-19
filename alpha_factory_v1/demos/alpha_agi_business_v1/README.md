@@ -118,6 +118,7 @@ flowchart LR
 | **MarketAnalysisAgent** | 5 M ticks/s ingest, micro‑alpha scanner | Benchmark edge vs baseline & stress‑test PnL | `backend/agents/market_analysis` |
 | **MemoryAgent** | Retrieval‑augmented vector store | Persist & recall reusable alpha templates | `backend/agents/memory` |
 | **SafetyAgent** | Constitutional‑AI & seccomp sandbox | Filter unsafe code / data exfiltration | `backend/agents/safety` |
+| **ExecutionAgent** | Order‑routing & trade settlement | Convert opportunities into executed trades | `backend/agents/execution` |
 
 All agents speak **A2A protobuf**, run on **OpenAI Agents SDK** or **Google ADK**, auto‑fallback to offline GGUF models — *no API key required*.
 
@@ -130,7 +131,7 @@ All agents speak **A2A protobuf**, run on **OpenAI Agents SDK** or **Google AD
 2. **MarketAnalysisAgent** detects anomalous spread widening in copper vs renewable‑ETF flows. 
 3. **PlanningAgent** forks tasks → **StrategyAgent** crafts hedged LME‑COMEX pair‑trade + FX overlay. 
 4. **SafetyAgent** signs‑off compliance pack (Dodd‑Frank §716, EMIR RTS 6). 
-5. Orders hit venue; fills + k‑sigs hashed on‑chain; escrow releases **$AGIALPHA**; live PnL feeds Grafana. 
+5. **ExecutionAgent** routes orders to venues; fills + k‑sigs hashed on‑chain; escrow releases **$AGIALPHA**; live PnL feeds Grafana.
 *Wall clock: 4 min 18 s on a CPU‑only laptop.*
 
 ---
@@ -145,15 +146,18 @@ cd AGI-Alpha-Agent-v0/alpha_factory_v1/demos/alpha_agi_business_v1
 # launch demo (GPU optional)
 ./run_business_v1_demo.sh
 
-# the demo starts two stub agents:
+# the demo starts three stub agents:
 #   • **IncorporatorAgent** registers the business
 #   • **AlphaDiscoveryAgent** emits a placeholder market opportunity
 #   • **AlphaOpportunityAgent** signals a supply‑chain bottleneck example
+#   • **AlphaExecutionAgent** converts an opportunity into an executed trade
 
 open http://localhost:7878      # Dashboard SPA
 ./scripts/post_alpha_job.sh examples/job_copper_spread.json
 # or
 ./scripts/post_alpha_job.sh examples/job_supply_chain_alpha.json
+# or
+./scripts/post_alpha_job.sh examples/job_execute_alpha.json
 ```
 
 If dependencies are missing, run:

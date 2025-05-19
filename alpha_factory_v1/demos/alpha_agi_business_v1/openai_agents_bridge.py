@@ -61,11 +61,18 @@ async def trigger_opportunity() -> str:
     return "alpha_opportunity queued"
 
 
+@Tool(name="trigger_execution", description="Trigger the AlphaExecutionAgent")
+async def trigger_execution() -> str:
+    resp = requests.post(f"{HOST}/agent/alpha_execution/trigger", timeout=5)
+    resp.raise_for_status()
+    return "alpha_execution queued"
+
+
 class BusinessAgent(Agent):
     """Tiny agent exposing orchestrator helper tools."""
 
     name = "business_helper"
-    tools = [list_agents, trigger_discovery, trigger_opportunity]
+    tools = [list_agents, trigger_discovery, trigger_opportunity, trigger_execution]
 
     async def policy(self, obs, ctx):  # type: ignore[override]
         if isinstance(obs, dict):
@@ -73,6 +80,8 @@ class BusinessAgent(Agent):
                 return await self.tools.trigger_discovery()
             elif obs.get("action") == "opportunity":
                 return await self.tools.trigger_opportunity()
+            elif obs.get("action") == "execute":
+                return await self.tools.trigger_execution()
         return await self.tools.list_agents()
 
 

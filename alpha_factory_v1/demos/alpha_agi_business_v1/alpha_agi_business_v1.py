@@ -51,6 +51,18 @@ class AlphaOpportunityAgent(AgentBase):
         await self.publish("alpha.opportunity", {"alpha": "supply-chain bottleneck detected"})
 
 
+class AlphaExecutionAgent(AgentBase):
+    """Stub agent converting an opportunity into an executed trade."""
+
+    NAME = "alpha_execution"
+    CAPABILITIES = ["execute"]
+    CYCLE_SECONDS = 180
+    __slots__ = ()
+
+    async def step(self) -> None:
+        await self.publish("alpha.execution", {"alpha": "order executed"})
+
+
 def register_demo_agents() -> None:
     """Register built-in demo agents with the framework."""
 
@@ -78,6 +90,15 @@ def register_demo_agents() -> None:
             cls=AlphaOpportunityAgent,
             version="1.0.0",
             capabilities=AlphaOpportunityAgent.CAPABILITIES,
+        )
+    )
+
+    register_agent(
+        AgentMetadata(
+            name=AlphaExecutionAgent.NAME,
+            cls=AlphaExecutionAgent,
+            version="1.0.0",
+            capabilities=AlphaExecutionAgent.CAPABILITIES,
         )
     )
 
