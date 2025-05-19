@@ -26,15 +26,25 @@ async def trigger_discovery() -> str:
     return "alpha_discovery queued"
 
 
+@Tool(name="trigger_opportunity", description="Trigger the AlphaOpportunityAgent")
+async def trigger_opportunity() -> str:
+    resp = requests.post(f"{HOST}/agent/alpha_opportunity/trigger", timeout=5)
+    resp.raise_for_status()
+    return "alpha_opportunity queued"
+
+
 class BusinessAgent(Agent):
     """Tiny agent exposing orchestrator helper tools."""
 
     name = "business_helper"
-    tools = [list_agents, trigger_discovery]
+    tools = [list_agents, trigger_discovery, trigger_opportunity]
 
     async def policy(self, obs, ctx):  # type: ignore[override]
-        if isinstance(obs, dict) and obs.get("action") == "discover":
-            return await self.tools.trigger_discovery()
+        if isinstance(obs, dict):
+            if obs.get("action") == "discover":
+                return await self.tools.trigger_discovery()
+            elif obs.get("action") == "opportunity":
+                return await self.tools.trigger_opportunity()
         return await self.tools.list_agents()
 
 

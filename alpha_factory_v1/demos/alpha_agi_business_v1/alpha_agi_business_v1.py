@@ -39,6 +39,17 @@ class AlphaDiscoveryAgent(AgentBase):
             "alpha.discovery", {"alpha": "cross-market synergy identified"}
         )
 
+class AlphaOpportunityAgent(AgentBase):
+    """Stub agent emitting a sample market inefficiency."""
+
+    NAME = "alpha_opportunity"
+    CAPABILITIES = ["opportunity"]
+    CYCLE_SECONDS = 300
+    __slots__ = ()
+
+    async def step(self) -> None:
+        await self.publish("alpha.opportunity", {"alpha": "supply-chain bottleneck detected"})
+
 
 def register_demo_agents() -> None:
     """Register built-in demo agents with the framework."""
@@ -58,6 +69,15 @@ def register_demo_agents() -> None:
             cls=AlphaDiscoveryAgent,
             version="1.0.0",
             capabilities=AlphaDiscoveryAgent.CAPABILITIES,
+        )
+    )
+
+    register_agent(
+        AgentMetadata(
+            name=AlphaOpportunityAgent.NAME,
+            cls=AlphaOpportunityAgent,
+            version="1.0.0",
+            capabilities=AlphaOpportunityAgent.CAPABILITIES,
         )
     )
 
