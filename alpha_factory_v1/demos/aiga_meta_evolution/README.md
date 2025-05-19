@@ -158,6 +158,13 @@ For a bite-size illustration of agent-driven opportunity scanning, run:
 python alpha_factory_v1/demos/aiga_meta_evolution/alpha_opportunity_stub.py
 ```
 
+To query a specific domain once without starting the full runtime:
+
+```bash
+python alpha_factory_v1/demos/aiga_meta_evolution/alpha_opportunity_stub.py \
+  --domain supply-chain --once
+```
+
 The `alpha_discovery` agent exposes a single `identify_alpha` tool that asks the LLM to suggest three inefficiencies in a chosen domain. It works offline when `OPENAI_API_KEY` is unset.
 
 ## ♻️ Alpha conversion stub

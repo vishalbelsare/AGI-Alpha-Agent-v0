@@ -42,7 +42,25 @@ class AlphaDiscoveryAgent(Agent):
         return await identify_alpha(domain)
 
 
-def main() -> None:
+def main(argv: list[str] | None = None) -> None:
+    """Launch the agent runtime or run a single query."""
+    import argparse
+    import asyncio
+
+    ap = argparse.ArgumentParser(description=__doc__)
+    ap.add_argument("--domain", default="finance", help="domain to scan")
+    ap.add_argument(
+        "--once",
+        action="store_true",
+        help="run a single identify_alpha call and exit",
+    )
+    args = ap.parse_args(argv)
+
+    if args.once:
+        result = asyncio.run(identify_alpha(args.domain))
+        print(result)
+        return
+
     runtime = AgentRuntime(api_key=None)
     agent = AlphaDiscoveryAgent()
     runtime.register(agent)
