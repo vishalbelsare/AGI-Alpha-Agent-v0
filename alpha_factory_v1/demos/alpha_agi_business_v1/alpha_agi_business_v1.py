@@ -59,7 +59,11 @@ class AlphaOpportunityAgent(AgentBase):
         path = Path(__file__).with_name("examples") / "alpha_opportunities.json"
         try:
             self._opportunities = json.loads(path.read_text(encoding="utf-8"))
-        except Exception:  # pragma: no cover - fallback when file missing
+        except FileNotFoundError:  # pragma: no cover - fallback when file missing
+            self._opportunities = [
+                {"alpha": "generic supply-chain inefficiency"}
+            ]
+        except json.JSONDecodeError:  # pragma: no cover - fallback for invalid JSON
             self._opportunities = [
                 {"alpha": "generic supply-chain inefficiency"}
             ]
