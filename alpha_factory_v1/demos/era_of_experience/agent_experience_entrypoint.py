@@ -42,8 +42,21 @@ from fastapi import FastAPI
 from fastapi.responses import PlainTextResponse
 import uvicorn
 
-import gradio as gr
-from openai_agents import Agent, OpenAIAgent, Tool, memory
+try:  # gradio may be absent in minimal environments
+    import gradio as gr
+except Exception:  # pragma: no cover - optional dependency
+    gr = None
+try:  # optional for tests
+    from openai_agents import Agent, OpenAIAgent, Tool, memory
+except Exception:  # pragma: no cover - allow import without package
+    Agent = OpenAIAgent = Tool = memory = None
+
+if Tool is None:  # type: ignore
+    def Tool(*_args, **_kwargs):  # noqa: D401 - simple passthrough decorator
+        """Fallback no-op decorator when openai_agents is unavailable."""
+        def _wrap(func):
+            return func
+        return _wrap
 
 from .alpha_detection import (
     detect_yield_curve_alpha,
@@ -168,28 +181,31 @@ def grounded_reward(state: Dict[str, Any],
 
 
 # ─────────────────────────────── LLM & memory ───────────────────────────────
-LLM = OpenAIAgent(
-    model=MODEL,
-    temperature=TEMP,
-    api_key=os.getenv("OPENAI_API_KEY") or None,
-    base_url=os.getenv("LLM_BASE_URL", "http://ollama:11434/v1")
-    if not os.getenv("OPENAI_API_KEY") else None,
-)
+if OpenAIAgent is not None and memory is not None:
+    LLM = OpenAIAgent(
+        model=MODEL,
+        temperature=TEMP,
+        api_key=os.getenv("OPENAI_API_KEY") or None,
+        base_url=os.getenv("LLM_BASE_URL", "http://ollama:11434/v1")
+        if not os.getenv("OPENAI_API_KEY") else None,
+    )
 
-VECTOR_STORE = memory.LocalQdrantMemory(
-    collection_name="experience_mem",
-    host=os.getenv("VECTOR_DB_URL", ":memory:"),
-)
+    VECTOR_STORE = memory.LocalQdrantMemory(
+        collection_name="experience_mem",
+        host=os.getenv("VECTOR_DB_URL", ":memory:"),
+    )
 
-# ────────────────────────────── agent definition ────────────────────────────
-agent = Agent(
-    llm=LLM,
-    tools=TOOLS,
-    memory=VECTOR_STORE,
-    planning="mcts",
-    reward_fn=grounded_reward,
-    name="Era-Of-Experience-Agent",
-)
+    # ────────────────────────────── agent definition ────────────────────────────
+    agent = Agent(
+        llm=LLM,
+        tools=TOOLS,
+        memory=VECTOR_STORE,
+        planning="mcts",
+        reward_fn=grounded_reward,
+        name="Era-Of-Experience-Agent",
+    )
+else:  # pragma: no cover - minimal mode for docs/tests
+    LLM = VECTOR_STORE = agent = None
 
 # ───────────────────────────── orchestrator loop ────────────────────────────
 async def main() -> None:
@@ -197,6 +213,11 @@ async def main() -> None:
     • Feeds the stream to the agent
     • Shows a slim Gradio dashboard (memory + live reasoning)
     """
+    if gr is None:
+        raise RuntimeError(
+            "gradio is required for the demo UI; install via 'pip install gradio'"
+        )
+
     evt_gen = experience_stream()
 
     async def ingest_loop():
