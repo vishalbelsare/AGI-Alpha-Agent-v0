@@ -45,7 +45,12 @@ try:
 except ImportError:  # pragma: no cover
     A2ASocket = None  # type: ignore
 
-from openai_agents import OpenAIAgent, Tool
+try:  # optional dependency
+    from openai_agents import OpenAIAgent, Tool
+except Exception as exc:  # pragma: no cover - missing package
+    raise SystemExit(
+        "openai_agents package is required. Install with `pip install openai-agents`"
+    ) from exc
 try:
     from alpha_factory_v1.backend import adk_bridge
 except Exception:  # pragma: no cover - optional dependency

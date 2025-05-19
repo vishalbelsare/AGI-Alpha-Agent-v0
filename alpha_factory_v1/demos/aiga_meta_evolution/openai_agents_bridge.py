@@ -8,7 +8,13 @@ instance started by ``run_aiga_demo.sh``.
 from __future__ import annotations
 
 import os
-from openai_agents import Agent, AgentRuntime, OpenAIAgent, Tool
+
+try:  # optional dependency
+    from openai_agents import Agent, AgentRuntime, OpenAIAgent, Tool
+except Exception as exc:  # pragma: no cover - missing package
+    raise SystemExit(
+        "openai_agents package is required. Install with `pip install openai-agents`"
+    ) from exc
 
 try:
     from alpha_factory_v1.backend.adk_bridge import auto_register, maybe_launch
