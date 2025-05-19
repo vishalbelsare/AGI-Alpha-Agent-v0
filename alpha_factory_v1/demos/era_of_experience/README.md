@@ -136,6 +136,7 @@ Result: an agent that <strong>evolves faster than you can refresh the page</stro
 | `simulation/` | Tiny Gym‑like env stubs (ready to extend) |
 | `stub_agents.py` | Minimal agent classes for OpenAI SDK & ADK workflows |
 | `colab_era_of_experience.ipynb` | Cloud twin notebook |
+| `alpha_report.py` | CLI helper printing current offline alpha signals |
 
 ---
 
