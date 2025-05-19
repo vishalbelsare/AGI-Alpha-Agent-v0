@@ -150,7 +150,7 @@ python run_business_v1_local.py --bridge --auto-install
 # Set `ALPHA_OPPS_FILE` to use a custom opportunity list
 # ALPHA_OPPS_FILE=examples/my_alpha.json python run_business_v1_local.py --bridge
 
-By default this launcher restricts `ALPHA_ENABLED_AGENTS` to the four
+By default this launcher restricts `ALPHA_ENABLED_AGENTS` to the five
 lightweight demo stubs so the orchestrator runs even on minimal setups.
 Set the variable yourself to customise the agent list.
 
@@ -160,6 +160,7 @@ Set the variable yourself to customise the agent list.
 #   • **AlphaOpportunityAgent** picks a random scenario from `examples/alpha_opportunities.json`
 #     (override with `ALPHA_OPPS_FILE=/path/to/custom.json`)
 #   • **AlphaExecutionAgent** converts an opportunity into an executed trade
+#   • **AlphaRiskAgent** performs a trivial risk assessment
 
 open http://localhost:7878      # Dashboard SPA
 ./scripts/post_alpha_job.sh examples/job_copper_spread.json
