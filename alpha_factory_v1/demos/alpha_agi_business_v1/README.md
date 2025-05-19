@@ -177,6 +177,8 @@ Expose the business demo via the OpenAI Agents SDK (specify `--host` if the orch
 python openai_agents_bridge.py --host http://localhost:8000
 # → http://localhost:5001/v1/agents
 ```
+When the optional `google-adk` dependency is installed and `ALPHA_FACTORY_ENABLE_ADK=true` is set,
+the same helper agent is also exposed via an ADK gateway for A2A messaging.
 
 *No Docker?*
 `bash <(curl -sL https://get.alpha-factory.ai/business_demo.sh)` boots an ephemeral VM (CPU‑only mode).

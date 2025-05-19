@@ -18,6 +18,13 @@ except ModuleNotFoundError as exc:  # pragma: no cover - optional dep
     )
     sys.exit(1)
 
+try:
+    # Optional ADK bridge
+    from alpha_factory_v1.backend.adk_bridge import auto_register, maybe_launch
+    ADK_AVAILABLE = True
+except ImportError:  # pragma: no cover - ADK not installed
+    ADK_AVAILABLE = False
+
 HOST = os.getenv("BUSINESS_HOST", "http://localhost:8000")
 
 
@@ -75,8 +82,15 @@ def main() -> None:
     HOST = args.host
     api_key = os.getenv("OPENAI_API_KEY") or None
     runtime = AgentRuntime(api_key=api_key)
-    runtime.register(BusinessAgent())
+    agent = BusinessAgent()
+    runtime.register(agent)
     print(f"Registered BusinessAgent -> {HOST}")
+
+    if ADK_AVAILABLE:
+        auto_register([agent])
+        maybe_launch()
+        print("BusinessAgent exposed via ADK gateway")
+
     runtime.run()
 
 
