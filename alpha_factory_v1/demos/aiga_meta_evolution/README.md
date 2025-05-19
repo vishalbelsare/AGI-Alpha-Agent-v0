@@ -80,6 +80,8 @@ cd AGI-Alpha-Agent-v0
 pip install -r alpha_factory_v1/requirements.txt
 # ensures `openai-agents` and friends are installed
 python alpha_factory_v1/demos/aiga_meta_evolution/agent_aiga_entrypoint.py
+# optional cross‑platform launcher
+python alpha_factory_v1/demos/aiga_meta_evolution/start_aiga_demo.py --help
 ```
 
 Set `OPENAI_API_KEY` in your environment to enable cloud models. Without
