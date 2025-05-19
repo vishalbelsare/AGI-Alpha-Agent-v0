@@ -182,7 +182,7 @@ The tool outputs a three‑step JSON plan and logs it to `alpha_conversion_log.j
 Combine discovery and conversion into a single agent:
 
 ```bash
-python alpha_factory_v1/demos/aiga_meta_evolution/workflow_demo.py --domain finance
+python alpha_factory_v1/demos/aiga_meta_evolution/workflow_demo.py
 ```
 
 The `alpha_workflow` agent lists opportunities in the chosen domain, selects the
