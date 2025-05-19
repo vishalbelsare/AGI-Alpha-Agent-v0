@@ -152,7 +152,7 @@ class BusinessAgent(Agent):
                 return await self.tools.trigger_opportunity()
             elif obs.get("action") == "execute":
                 return await self.tools.trigger_execution()
-            elif obs.get("action") == "recent":
+            elif obs.get("action") == "recent_alpha":
                 return await self.tools.recent_alpha()
         return await self.tools.list_agents()
 
