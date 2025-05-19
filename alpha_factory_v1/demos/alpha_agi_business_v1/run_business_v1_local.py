@@ -47,7 +47,7 @@ def main(argv: list[str] | None = None) -> None:
     if args.auto_install:
         check_opts.append("--auto-install")
     if args.wheelhouse:
-        check_opts += ["--wheelhouse", args.wheelhouse]
+        check_opts.extend(["--wheelhouse", args.wheelhouse])
 
     check_env.main(check_opts)
 
