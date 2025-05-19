@@ -22,18 +22,24 @@ def main() -> int:
         wheelhouse = os.getenv("WHEELHOUSE")
         auto = os.getenv("AUTO_INSTALL_MISSING") == "1"
         if auto:
-            cmd = [sys.executable, "-m", "pip", "install"]
+            cmd = [sys.executable, "-m", "pip", "install", "--quiet"]
             if wheelhouse:
                 cmd += ["--no-index", "--find-links", wheelhouse]
             cmd += missing
             print("Attempting automatic install:", " ".join(cmd))
-            subprocess.call(cmd)
+            rc = subprocess.call(cmd)
+            if rc != 0:
+                print("Automatic install failed with code", rc)
+            else:
+                print("Install completed, verifying …")
+                missing = [p for p in missing if importlib.util.find_spec(p) is None]
         else:
             hint = "pip install " + " ".join(missing)
             if wheelhouse:
                 hint = f"pip install --no-index --find-links {wheelhouse} " + " ".join(missing)
             print("Some features may be degraded. Install with:", hint)
-    else:
+
+    if not missing:
         print("Environment OK")
     return 0
 
