@@ -8,6 +8,7 @@ from __future__ import annotations
 import argparse
 import os
 import sys
+import time
 import requests
 
 try:  # soft dependency
@@ -36,6 +37,11 @@ def _parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         "--host",
         default=HOST,
         help="Orchestrator host URL (default: http://localhost:8000)",
+    )
+    parser.add_argument(
+        "--no-wait",
+        action="store_true",
+        help="Do not wait for orchestrator readiness",
     )
     return parser.parse_args(argv)
 
@@ -68,6 +74,18 @@ async def trigger_execution() -> str:
     return "alpha_execution queued"
 
 
+def wait_ready(url: str, timeout: float = 5.0) -> None:
+    """Block until the orchestrator healthcheck responds or timeout expires."""
+    deadline = time.monotonic() + timeout
+    while time.monotonic() < deadline:
+        try:
+            if requests.get(f"{url}/healthz", timeout=1).status_code == 200:
+                return
+        except Exception:
+            time.sleep(0.2)
+    raise RuntimeError(f"Orchestrator not reachable at {url}")
+
+
 class BusinessAgent(Agent):
     """Tiny agent exposing orchestrator helper tools."""
 
@@ -90,6 +108,15 @@ def main() -> None:
     global HOST
     HOST = args.host
     api_key = os.getenv("OPENAI_API_KEY") or None
+    if not args.no_wait:
+        try:
+            wait_ready(HOST)
+        except RuntimeError as exc:
+            sys.stderr.write(f"\n⚠️  {exc}\n")
+            if api_key is None:
+                sys.stderr.write("   continuing in offline mode...\n")
+            else:
+                sys.exit(1)
     runtime = AgentRuntime(api_key=api_key)
     agent = BusinessAgent()
     runtime.register(agent)
