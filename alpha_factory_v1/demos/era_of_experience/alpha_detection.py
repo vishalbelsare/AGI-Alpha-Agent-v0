@@ -15,7 +15,7 @@ from typing import Dict
 
 try:  # Optional dependency
     import pandas as pd  # type: ignore
-except Exception:  # pragma: no cover - fallback when pandas missing
+except ImportError:  # pragma: no cover - fallback when pandas missing
     pd = None
 import csv
 
