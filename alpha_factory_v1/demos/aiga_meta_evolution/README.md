@@ -82,6 +82,8 @@ AUTO_INSTALL_MISSING=1 python check_env.py  # verify deps offline/online
 pip install -r alpha_factory_v1/requirements.txt
 # ensures `openai-agents` and friends are installed
 python alpha_factory_v1/demos/aiga_meta_evolution/agent_aiga_entrypoint.py
+# offline machines can supply predownloaded wheels:
+#   WHEELHOUSE=/path/to/wheels AUTO_INSTALL_MISSING=1 python check_env.py
 # optional cross‑platform launcher
 python alpha_factory_v1/demos/aiga_meta_evolution/start_aiga_demo.py --help
 # or via module entrypoint
