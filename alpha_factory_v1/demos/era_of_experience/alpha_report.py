@@ -44,7 +44,7 @@ def best_alpha(signals: Dict[str, str]) -> str:
         return sc
     if LONG_BONDS_KEYWORD in yc.lower():
         return yc
-    return yc if yc else sc
+    return yc or sc
 
 
 def main() -> None:
