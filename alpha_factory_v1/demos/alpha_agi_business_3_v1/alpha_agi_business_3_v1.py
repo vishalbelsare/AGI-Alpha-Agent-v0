@@ -92,7 +92,10 @@ class AgentGdl:
 async def _llm_comment(delta_g: float) -> str:
     """Return a short LLM comment on ``delta_g`` if OpenAI Agents is available."""
 
-    if OpenAIAgent is None:
+    # When the OpenAI Agents SDK is missing the shim in
+    # ``alpha_factory_v1.backend`` exposes a non-callable placeholder.
+    # Guard against that scenario as well so offline tests succeed.
+    if OpenAIAgent is None or not callable(OpenAIAgent):
         return "LLM offline"
 
     agent = OpenAIAgent(
