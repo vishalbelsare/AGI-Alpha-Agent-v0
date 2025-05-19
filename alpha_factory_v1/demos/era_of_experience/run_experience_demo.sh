@@ -68,6 +68,14 @@ ver=$(docker version --format '{{.Server.Version}}')
 [[ "${ver%%.*}" -ge 24 ]] || warn "Docker $ver < 24 may slow multi-stage builds"
 need curl
 
+################################ env check ####################################
+if [[ "${SKIP_ENV_CHECK:-0}" != "1" ]]; then
+  if command -v python &>/dev/null && [[ -f ../check_env.py ]]; then
+    say "Checking host Python packages"
+    python ../check_env.py --auto-install || warn "Environment check failed"
+  fi
+fi
+
 ################################ config.env ###################################
 if [[ ! -f "$env_file" ]]; then
   say "Creating default config.env"
