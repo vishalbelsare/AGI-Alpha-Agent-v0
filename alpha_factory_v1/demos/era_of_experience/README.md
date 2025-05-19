@@ -35,9 +35,10 @@ Add `--live` to pull in real sensor feeds (wearables, RSS, etc.):
 
 1. **Docker Desktop** builds a 300 MB image in ≈ 1 min. 
 2. Your browser opens **http://localhost:7860** featuring 
-  * live trace‑graph 🪄 
-  * reward dashboards 📈 
-  * interactive chat / tool console 💬 
+  * live trace‑graph 🪄
+  * reward dashboards 📈
+  * interactive chat / tool console 💬
+  * built‑in alpha detectors (yield curve & supply‑chain) 🔍
 
 > **Offline/Private mode** — leave `OPENAI_API_KEY=` blank in <code>config.env</code>; the stack falls back to <strong>Ollama ✕ Mixtral‑8x7B</strong> and stays air‑gapped.
 
@@ -69,7 +70,7 @@ Add `--live` to pull in real sensor feeds (wearables, RSS, etc.):
 |----------|---------|--------|
 | `colab_era_of_experience.ipynb` | CPU / GPU | <a href="https://colab.research.google.com/github/MontrealAI/AGI-Alpha-Agent-v0/blob/main/alpha_factory_v1/demos/era_of_experience/colab_era_of_experience.ipynb"><img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open in Colab"></a> |
 
-The notebook installs a lean Python stack (&lt; 120 s), exposes Gradio via ngrok and lets you call tools directly from cells. It also verifies package versions and lists the reward back‑ends available for blending. A small example cell illustrates detecting "alpha" opportunities using the offline yield curve snapshot.
+The notebook installs a lean Python stack (&lt; 120 s), exposes Gradio via ngrok and lets you call tools directly from cells. It also verifies package versions and lists the reward back‑ends available for blending. Example cells illustrate detecting "alpha" opportunities using the offline yield curve **and** a toy supply‑chain flow snapshot.
 
 ---
 
@@ -142,6 +143,10 @@ This demo ships with a minimal example:
 @Tool("detect_yield_curve_alpha", "Assess yield curve inversion using offline data.")
 async def detect_yield_curve_alpha_tool():
     return {"alpha": detect_yield_curve_alpha()}
+
+@Tool("detect_supply_chain_alpha", "Check for potential supply-chain disruptions using offline data.")
+async def detect_supply_chain_alpha_tool(threshold: float = 50.0):
+    return {"alpha": detect_supply_chain_alpha(threshold)}
 ```
 
 
