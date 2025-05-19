@@ -14,6 +14,7 @@ import os
 import contextlib
 from pathlib import Path
 from typing import Dict
+import logging
 
 with contextlib.suppress(ModuleNotFoundError):
     import openai  # type: ignore
@@ -54,7 +55,7 @@ def convert_alpha(alpha: str, *, ledger: Path | None = None, model: str = "gpt-4
             plan = json.loads(resp.choices[0].message.content)  # type: ignore[index]
             if not isinstance(plan, dict):
                 plan = SAMPLE_PLAN
-        except Exception as e:
+        except Exception:
             logging.exception("OpenAI API call failed. Falling back to SAMPLE_PLAN.")
             plan = SAMPLE_PLAN
     (_ledger_path(ledger)).write_text(json.dumps(plan, indent=2))
