@@ -5,6 +5,7 @@ local orchestrator. It works offline when no API key is configured.
 """
 from __future__ import annotations
 
+import argparse
 import os
 import sys
 import requests
@@ -18,6 +19,18 @@ except ModuleNotFoundError as exc:  # pragma: no cover - optional dep
     sys.exit(1)
 
 HOST = os.getenv("BUSINESS_HOST", "http://localhost:8000")
+
+
+def _parse_args(argv: list[str] | None = None) -> argparse.Namespace:
+    parser = argparse.ArgumentParser(
+        description="Expose alpha_agi_business_v1 via OpenAI Agents runtime"
+    )
+    parser.add_argument(
+        "--host",
+        default=HOST,
+        help="Orchestrator host URL (default: http://localhost:8000)",
+    )
+    return parser.parse_args(argv)
 
 
 @Tool(name="list_agents", description="List active orchestrator agents")
@@ -57,10 +70,13 @@ class BusinessAgent(Agent):
 
 
 def main() -> None:
+    args = _parse_args()
+    global HOST
+    HOST = args.host
     api_key = os.getenv("OPENAI_API_KEY") or None
     runtime = AgentRuntime(api_key=api_key)
     runtime.register(BusinessAgent())
-    print("Registered BusinessAgent with runtime")
+    print(f"Registered BusinessAgent -> {HOST}")
     runtime.run()
 
 

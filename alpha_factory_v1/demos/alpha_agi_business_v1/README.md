@@ -164,17 +164,17 @@ python ../../../check_env.py --auto-install
 Use `--wheelhouse /path/to/wheels` for offline installs.
 
 Or open `colab_alpha_agi_business_v1_demo.ipynb` to run everything in Colab.
-To drive the orchestrator via the OpenAI Agents SDK run `python openai_agents_bridge.py` (see step 5 in the notebook). If the script complains about a missing `openai_agents` package, install it with:
+To drive the orchestrator via the OpenAI Agents SDK run `python openai_agents_bridge.py` (see step 5 in the notebook). Use `--host http://<host>:<port>` when the orchestrator is exposed elsewhere. If the script complains about a missing `openai_agents` package, install it with:
 ```bash
 pip install openai-agents
 ```
 
 ### 🤖 OpenAI Agents bridge
 
-Expose the business demo via the OpenAI Agents SDK:
+Expose the business demo via the OpenAI Agents SDK (specify `--host` if the orchestrator runs elsewhere):
 
 ```bash
-python openai_agents_bridge.py
+python openai_agents_bridge.py --host http://localhost:8000
 # → http://localhost:5001/v1/agents
 ```
 
