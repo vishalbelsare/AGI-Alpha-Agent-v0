@@ -43,7 +43,7 @@ class AIGAEvolverAgent(AgentBase):
     async def step(self) -> None:
         if not self.evolver:
             return
-        self.evolver.run_generations(1)
+        await asyncio.to_thread(self.evolver.run_generations, 1)
         _publish(
             "aiga.best",
             {"gen": self.evolver.gen, "fitness": self.evolver.best_fitness},
