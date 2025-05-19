@@ -15,7 +15,7 @@ except ModuleNotFoundError as exc:  # pragma: no cover - optional dep
     sys.stderr.write(
         "\n❌  openai_agents not installed. Install with 'pip install openai-agents'\n"
     )
-    raise SystemExit(1) from exc
+    sys.exit(1)
 
 HOST = os.getenv("BUSINESS_HOST", "http://localhost:8000")
 
