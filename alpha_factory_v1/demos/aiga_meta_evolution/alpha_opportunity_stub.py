@@ -28,7 +28,7 @@ async def identify_alpha(domain: str = "finance") -> str:
         f"List three emerging opportunities or inefficiencies in the {domain} domain "
         "that a small team could exploit for outsized value."
     )
-    return LLM(prompt)
+    return await LLM(prompt)
 
 
 class AlphaDiscoveryAgent(Agent):
