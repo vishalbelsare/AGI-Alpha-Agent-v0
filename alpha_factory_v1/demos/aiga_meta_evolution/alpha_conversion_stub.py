@@ -41,7 +41,7 @@ def _ledger_path(path: str | os.PathLike | None) -> Path:
 def convert_alpha(alpha: str, *, ledger: Path | None = None, model: str = "gpt-4o-mini") -> Dict[str, object]:
     """Return a plan dictionary and log to *ledger*."""
     plan: Dict[str, object] = SAMPLE_PLAN
-    if "openai" in globals() and os.getenv("OPENAI_API_KEY"):
+    if openai is not None and os.getenv("OPENAI_API_KEY"):
         prompt = (
             f"Given the opportunity: {alpha}\n"
             "Provide a short JSON plan with three concise steps to realise value."
