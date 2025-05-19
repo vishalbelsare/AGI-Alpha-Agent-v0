@@ -27,6 +27,9 @@ cd AGI-Alpha-Agent-v0
 open http://localhost:8000/docs 2>/dev/null || xdg-open http://localhost:8000/docs || start http://localhost:8000/docs
 ```
 
+## Disclaimer
+This repository is a conceptual research prototype. References to "AGI" and "superintelligence" describe aspirational goals and do not indicate the presence of a real general intelligence. Use at your own risk.
+
 ---
 
 ## 📜 Table of Contents
