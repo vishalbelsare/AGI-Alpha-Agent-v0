@@ -90,6 +90,10 @@ declare -A urls=(
   [edu_progress.csv]  =https://raw.githubusercontent.com/MontrealAI/demo-assets/main/edu_progress.csv
 )
 for f in "${!urls[@]}"; do
+  if [[ -f "$offline_dir/$f" ]]; then
+    say "Local file detected: $offline_dir/$f – skipping download"
+    continue  # local file already present
+  fi
   if ! curl -sfL "${urls[$f]}" -o "$offline_dir/$f"; then
     warn "Failed downloading $f – using empty placeholder"
     : > "$offline_dir/$f"
