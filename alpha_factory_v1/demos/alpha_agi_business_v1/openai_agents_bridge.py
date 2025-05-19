@@ -22,7 +22,7 @@ try:
     # Optional ADK bridge
     from alpha_factory_v1.backend.adk_bridge import auto_register, maybe_launch
     ADK_AVAILABLE = True
-except Exception:  # pragma: no cover - ADK not installed
+except ImportError:  # pragma: no cover - ADK not installed
     ADK_AVAILABLE = False
 
 HOST = os.getenv("BUSINESS_HOST", "http://localhost:8000")
