@@ -18,6 +18,14 @@ Within 60 seconds you will witness an agent <em>rewrite its own playbook</em> e
 
 ---
 
+## 🛠 Requirements
+
+- **Docker 24+** with the Compose plugin
+- At least **4 CPU cores** (or a modest GPU) for smooth local runs
+- *(Optional)* `OPENAI_API_KEY` for cloud LLMs — leave blank to use the built‑in Mixtral via Ollama
+
+---
+
 ## 🚀 Quick‑start (macOS / Windows / Linux)
 
 ```bash
