@@ -68,8 +68,8 @@ def main() -> None:
     extra = ["--no-build"] if args.pull else []
     run(compose + gpu_args + ["up", "-d", *extra])
 
-    print("Dashboard → http://localhost:7862")
-    print("OpenAPI  → http://localhost:8000/docs")
+    print(f"Dashboard → {DASHBOARD_URL}")
+    print(f"OpenAPI  → {OPENAPI_URL}")
     print("Stop     → start_aiga_demo.py --stop")
 
     if args.logs:
