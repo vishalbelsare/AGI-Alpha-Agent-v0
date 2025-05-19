@@ -27,16 +27,23 @@ This short guide distils the steps required to run the **AI‑GA Meta‑Evolutio
      python agent_aiga_entrypoint.py
      ```
 
-3. **Access the interface**
+3. **Run in Colab**
+   - Open the notebook at
+     [colab_aiga_meta_evolution.ipynb](colab_aiga_meta_evolution.ipynb).
+     Click the “Open in Colab” badge and run the setup cell. The notebook
+     launches the same service with a public Gradio URL and includes test
+     and API usage examples.
+
+4. **Access the interface**
    - Gradio dashboard: [http://localhost:7862](http://localhost:7862)
    - OpenAPI docs: [http://localhost:8000/docs](http://localhost:8000/docs)
    - Prometheus metrics: [http://localhost:8000/metrics](http://localhost:8000/metrics)
 
-4. **Persisting state**
+5. **Persisting state**
    - Checkpoints are written to the directory specified by `CHECKPOINT_DIR` (default `./checkpoints`).
    - The service automatically reloads the latest checkpoint on start-up.
 
-5. **Shutting down**
+6. **Shutting down**
    - Docker: `./run_aiga_demo.sh --stop`
    - Python: send `SIGINT` or `SIGTERM`; the service will persist state before exiting.
 
