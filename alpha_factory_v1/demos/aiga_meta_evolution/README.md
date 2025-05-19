@@ -84,6 +84,8 @@ pip install -r alpha_factory_v1/requirements.txt
 python alpha_factory_v1/demos/aiga_meta_evolution/agent_aiga_entrypoint.py
 # optional cross‑platform launcher
 python alpha_factory_v1/demos/aiga_meta_evolution/start_aiga_demo.py --help
+# or via module entrypoint
+python -m alpha_factory_v1.demos.aiga_meta_evolution --help
 ```
 
 Set `OPENAI_API_KEY` in your environment to enable cloud models. Without
