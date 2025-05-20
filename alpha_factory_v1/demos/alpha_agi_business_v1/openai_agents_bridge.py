@@ -104,6 +104,13 @@ def _parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         action="store_true",
         help="Do not wait for orchestrator readiness",
     )
+    parser.add_argument(
+        "--wait-secs",
+        type=float,
+        default=5.0,
+        metavar="SECONDS",
+        help="How long to wait for orchestrator health check (default: 5)",
+    )
     return parser.parse_args(argv)
 
 
@@ -290,7 +297,7 @@ def main() -> None:
     api_key = os.getenv("OPENAI_API_KEY") or None
     if not args.no_wait:
         try:
-            wait_ready(HOST)
+            wait_ready(HOST, timeout=args.wait_secs)
         except RuntimeError as exc:
             sys.stderr.write(f"\n⚠️  {exc}\n")
             if api_key is None:
