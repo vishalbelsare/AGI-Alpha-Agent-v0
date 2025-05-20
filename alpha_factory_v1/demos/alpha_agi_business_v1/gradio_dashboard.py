@@ -40,6 +40,7 @@ def main() -> None:
             opp_btn = gr.Button("Trigger Opportunity")
             exe_btn = gr.Button("Trigger Execution")
             risk_btn = gr.Button("Trigger Risk")
+            comp_btn = gr.Button("Trigger Compliance")
             alpha_btn = gr.Button("Recent Alpha")
 
         list_btn.click(_list_agents, outputs=out)
@@ -47,6 +48,7 @@ def main() -> None:
         opp_btn.click(lambda: _trigger("alpha_opportunity"), outputs=out)
         exe_btn.click(lambda: _trigger("alpha_execution"), outputs=out)
         risk_btn.click(lambda: _trigger("alpha_risk"), outputs=out)
+        comp_btn.click(lambda: _trigger("alpha_compliance"), outputs=out)
         alpha_btn.click(_recent_alpha, outputs=out)
 
     ui.launch(server_name="0.0.0.0", server_port=PORT, share=False)
