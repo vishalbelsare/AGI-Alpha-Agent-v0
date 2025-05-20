@@ -64,6 +64,7 @@ Open‑source framework for immediate strategic action: **[github.com/MontrealAI
 
 ---
 ---
+---
 
 > **Mission 🎯**  Identify 🔍 → Learn 📚 → Think 🧠 → Design 🎨 → Strategise ♟️ → Execute ⚡ — compounding real‑world **α** across *all* industries.
 
