@@ -88,8 +88,8 @@ class AlphaOpportunityAgent(AgentBase):
                     {"symbol": self._symbol, "price": float(price)},
                 )
                 return
-            except Exception:  # pragma: no cover - network/unavailable
-                pass
+            except Exception as e:  # pragma: no cover - network/unavailable
+                logging.error("Failed to download live price feed for symbol %s: %s", self._symbol, e, exc_info=True)
 
         choice = random.choice(self._opportunities)
         await self.publish("alpha.opportunity", choice)
