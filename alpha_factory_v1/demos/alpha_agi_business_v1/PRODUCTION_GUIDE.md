@@ -41,3 +41,11 @@ This guide summarises the minimal steps required to run the **Alpha‑AGI Busine
    - Native Python: press `Ctrl+C`; the orchestrator shuts down gracefully.
 
 For advanced options see [`README.md`](README.md) in the same directory.
+
+---
+
+## Further Resources
+
+- [OpenAI Agents SDK docs](https://openai.github.io/openai-agents-python/)
+- [Google ADK reference](https://google.github.io/adk-docs/)
+- [Agent-to-Agent protocol](https://github.com/google/A2A)

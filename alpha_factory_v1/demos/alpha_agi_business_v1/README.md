@@ -39,6 +39,7 @@
 11. [Roadmap](#roadmap)
 12. [FAQ](#faq)
 13. [License](#license)
+14. [Resources](#resources)
 
 ---
 
@@ -356,3 +357,14 @@ The **SafetyAgent** & **PlanningAgent** collaborate to absorb shocks; metrics sh
 Apache 2.0 © 2025 **MONTREAL.AI**
 
 <p align="center"><sub>Made with ❤️, ☕ and <b>real</b> GPUs by the Alpha‑Factory core team.</sub></p>
+
+---
+
+<a id="resources"></a>
+## 14 Resources 📚
+
+- [OpenAI Agents SDK documentation](https://openai.github.io/openai-agents-python/)
+- [A&nbsp;practical guide to building agents](https://cdn.openai.com/business-guides-and-resources/a-practical-guide-to-building-agents.pdf)
+- [Google Agent Development Kit docs](https://google.github.io/adk-docs/)
+- [Agent‑to‑Agent protocol](https://github.com/google/A2A)
+- [Model Context Protocol](https://www.anthropic.com/news/model-context-protocol)
