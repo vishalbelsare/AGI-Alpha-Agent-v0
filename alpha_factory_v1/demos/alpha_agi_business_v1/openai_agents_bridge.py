@@ -10,7 +10,10 @@ import argparse
 import os
 import sys
 import time
-import requests
+try:
+    import requests  # type: ignore
+except ModuleNotFoundError:  # pragma: no cover - offline shim
+    from alpha_factory_v1 import requests  # type: ignore
 
 # ---------------------------------------------------------------------------
 # Lazy dependency bootstrap
