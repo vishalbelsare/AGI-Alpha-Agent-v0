@@ -81,6 +81,7 @@ except ImportError:  # pragma: no cover - ADK not installed
     ADK_AVAILABLE = False
 
 HOST = os.getenv("BUSINESS_HOST", "http://localhost:8000")
+AGENT_PORT = int(os.getenv("AGENTS_RUNTIME_PORT", "5001"))
 
 
 def _parse_args(argv: list[str] | None = None) -> argparse.Namespace:
@@ -91,6 +92,12 @@ def _parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         "--host",
         default=HOST,
         help="Orchestrator host URL (default: http://localhost:8000)",
+    )
+    parser.add_argument(
+        "--port",
+        type=int,
+        default=AGENT_PORT,
+        help="Port for the Agents runtime (default: 5001)",
     )
     parser.add_argument(
         "--no-wait",
@@ -245,10 +252,10 @@ def main() -> None:
                 sys.stderr.write("   continuing in offline mode...\n")
             else:
                 sys.exit(1)
-    runtime = AgentRuntime(api_key=api_key)
+    runtime = AgentRuntime(api_key=api_key, port=args.port)
     agent = BusinessAgent()
     runtime.register(agent)
-    print(f"Registered BusinessAgent -> {HOST}")
+    print(f"Registered BusinessAgent -> {HOST} [port {args.port}]")
 
     if ADK_AVAILABLE:
         auto_register([agent])

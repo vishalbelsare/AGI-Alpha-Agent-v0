@@ -185,9 +185,10 @@ pip install openai-agents
 
 ### 🤖 OpenAI Agents bridge
 
-Expose the business demo via the OpenAI Agents SDK (specify `--host` if the orchestrator runs elsewhere):
+Expose the business demo via the OpenAI Agents SDK (specify `--host` if the orchestrator runs elsewhere and `--port` to change the runtime port):
 
 ```bash
+# default port 5001; customise via `--port` or `AGENTS_RUNTIME_PORT`
 python openai_agents_bridge.py --host http://localhost:8000
 # → http://localhost:5001/v1/agents
 ```
