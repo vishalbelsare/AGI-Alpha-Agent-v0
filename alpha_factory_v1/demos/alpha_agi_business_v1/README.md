@@ -254,13 +254,22 @@ When the optional `google-adk` dependency is installed and `ALPHA_FACTORY_ENABLE
 the same helper agent is also exposed via an ADK gateway for A2A messaging.
 Visit `http://localhost:9000/docs` to explore the gateway when enabled (default port: 9000). To use a custom port, set the `GATEWAY_PORT` environment variable accordingly.
 
-The bridge exposes several helper tools:
+- The bridge exposes several helper tools:
 - `list_agents`
 - `trigger_discovery`
 - `trigger_opportunity`
 - `trigger_execution`
-- `recent_alpha` (to retrieve the latest opportunities)
-- `search_memory` (search stored alpha by keyword; parameters: `query` (string, required) to specify the search term, and `limit` (integer, optional) to limit the number of results)
+- `trigger_risk`
+- `trigger_compliance`
+- `trigger_portfolio`
+- `trigger_planning`
+- `trigger_research`
+- `trigger_strategy`
+- `trigger_market_analysis`
+- `trigger_memory`
+- `trigger_safety`
+- `recent_alpha` (retrieve latest opportunities)
+- `search_memory` (search stored alpha by keyword; parameters: `query` (string, required) and `limit` (integer, optional))
   Example usage:
   ```bash
   curl -X POST http://localhost:6001/v1/agents/search_memory \

@@ -174,6 +174,48 @@ async def trigger_portfolio() -> str:
     return "alpha_portfolio queued"
 
 
+@Tool(name="trigger_planning", description="Trigger the PlanningAgent")
+async def trigger_planning() -> str:
+    resp = requests.post(f"{HOST}/agent/planning/trigger", timeout=5)
+    resp.raise_for_status()
+    return "planning queued"
+
+
+@Tool(name="trigger_research", description="Trigger the ResearchAgent")
+async def trigger_research() -> str:
+    resp = requests.post(f"{HOST}/agent/research/trigger", timeout=5)
+    resp.raise_for_status()
+    return "research queued"
+
+
+@Tool(name="trigger_strategy", description="Trigger the StrategyAgent")
+async def trigger_strategy() -> str:
+    resp = requests.post(f"{HOST}/agent/strategy/trigger", timeout=5)
+    resp.raise_for_status()
+    return "strategy queued"
+
+
+@Tool(name="trigger_market_analysis", description="Trigger the MarketAnalysisAgent")
+async def trigger_market_analysis() -> str:
+    resp = requests.post(f"{HOST}/agent/market_analysis/trigger", timeout=5)
+    resp.raise_for_status()
+    return "market_analysis queued"
+
+
+@Tool(name="trigger_memory", description="Trigger the MemoryAgent")
+async def trigger_memory() -> str:
+    resp = requests.post(f"{HOST}/agent/memory/trigger", timeout=5)
+    resp.raise_for_status()
+    return "memory queued"
+
+
+@Tool(name="trigger_safety", description="Trigger the SafetyAgent")
+async def trigger_safety() -> str:
+    resp = requests.post(f"{HOST}/agent/safety/trigger", timeout=5)
+    resp.raise_for_status()
+    return "safety queued"
+
+
 @Tool(name="check_health", description="Return orchestrator health status")
 async def check_health() -> str:
     """Check orchestrator /healthz endpoint."""
@@ -263,6 +305,12 @@ class BusinessAgent(Agent):
         trigger_risk,
         trigger_compliance,
         trigger_portfolio,
+        trigger_planning,
+        trigger_research,
+        trigger_strategy,
+        trigger_market_analysis,
+        trigger_memory,
+        trigger_safety,
         check_health,
         recent_alpha,
         search_memory,
@@ -283,6 +331,18 @@ class BusinessAgent(Agent):
                 return await self.tools.trigger_compliance()
             elif obs.get("action") == "portfolio":
                 return await self.tools.trigger_portfolio()
+            elif obs.get("action") == "planning":
+                return await self.tools.trigger_planning()
+            elif obs.get("action") == "research":
+                return await self.tools.trigger_research()
+            elif obs.get("action") == "strategy":
+                return await self.tools.trigger_strategy()
+            elif obs.get("action") == "market_analysis":
+                return await self.tools.trigger_market_analysis()
+            elif obs.get("action") == "memory":
+                return await self.tools.trigger_memory()
+            elif obs.get("action") == "safety":
+                return await self.tools.trigger_safety()
             elif obs.get("action") == "health":
                 return await self.tools.check_health()
             elif obs.get("action") == "recent_alpha":
