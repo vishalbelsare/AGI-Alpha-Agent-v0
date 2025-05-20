@@ -3,8 +3,10 @@
 
 This helper checks dependencies, starts the local orchestrator with the
 OpenAI Agents bridge enabled, and opens the REST dashboard in the
-system default web browser.  Useful for non‑technical users.
+system default web browser. Pass ``--no-browser`` to suppress the
+automatic browser launch (useful in headless or Colab environments).
 """
+import argparse
 import os
 import subprocess
 import sys
@@ -28,7 +30,18 @@ SCRIPT_DIR = os.path.dirname(__file__)
 MAX_HEALTH_CHECK_RETRIES = 20
 
 
-def main() -> None:
+def _parse_args(argv: list[str] | None = None) -> argparse.Namespace:
+    parser = argparse.ArgumentParser(description="Launch the alpha_agi_business_v1 demo")
+    parser.add_argument(
+        "--no-browser",
+        action="store_true",
+        help="Do not open the REST docs in a web browser",
+    )
+    return parser.parse_args(argv)
+
+
+def main(argv: list[str] | None = None) -> None:
+    args = _parse_args(argv)
     try:
         check_env.main(["--auto-install"])
     except Exception as exc:  # pragma: no cover - optional network failure
@@ -49,10 +62,13 @@ def main() -> None:
                 break
         except Exception:
             time.sleep(0.5)
-    try:
-        webbrowser.open(url, new=1)
-    except Exception:
-        print(f"Open {url} to access the dashboard")
+    if not args.no_browser:
+        try:
+            webbrowser.open(url, new=1)
+        except Exception:
+            print(f"Open {url} to access the dashboard")
+    else:
+        print(f"Dashboard available at {url}")
     try:
         proc.wait()
     except KeyboardInterrupt:
