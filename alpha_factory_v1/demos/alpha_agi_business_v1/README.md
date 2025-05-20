@@ -279,6 +279,11 @@ Visit `http://localhost:9000/docs` to explore the gateway when enabled (default 
 - `check_health` (orchestrator health status)
 - `submit_job` (to post a custom job payload to any orchestrator agent)
 
+For a programmatic example see `examples/openai_agent_client.py`:
+```bash
+python examples/openai_agent_client.py --action recent_alpha
+```
+
 *No Docker?*
 `bash <(curl -sL https://get.alpha-factory.ai/business_demo.sh)` boots an ephemeral VM (CPU‑only mode).
 
