@@ -49,7 +49,7 @@ class AlphaOpportunityAgent(AgentBase):
     NAME = "alpha_opportunity"
     CAPABILITIES = ["opportunity"]
     CYCLE_SECONDS = 300
-    __slots__ = ("_opportunities",)
+    __slots__ = ("_opportunities", "_yf", "_symbol")
 
     def __init__(self) -> None:
         super().__init__()
@@ -66,7 +66,31 @@ class AlphaOpportunityAgent(AgentBase):
                 {"alpha": "generic supply-chain inefficiency"}
             ]
 
+        # Optional live price feed via yfinance
+        self._symbol = os.getenv("YFINANCE_SYMBOL")
+        if self._symbol:
+            try:  # soft dependency
+                import yfinance as yf  # type: ignore
+
+                self._yf = yf
+            except Exception:  # pragma: no cover - fallback when yfinance missing
+                self._yf = None
+        else:
+            self._yf = None
+
     async def step(self) -> None:
+        if self._symbol and self._yf:
+            try:
+                data = self._yf.download(self._symbol, period="1d", progress=False)
+                price = data["Close"].iloc[-1]
+                await self.publish(
+                    "alpha.opportunity",
+                    {"symbol": self._symbol, "price": float(price)},
+                )
+                return
+            except Exception as e:  # pragma: no cover - network/unavailable
+                logging.error("Failed to download live price feed for symbol %s: %s", self._symbol, e, exc_info=True)
+
         choice = random.choice(self._opportunities)
         await self.publish("alpha.opportunity", choice)
 
