@@ -177,10 +177,12 @@ Set the variable yourself to customise the agent list.
 #   • **IncorporatorAgent** registers the business
 #   • **AlphaDiscoveryAgent** generates a short opportunity via the LLM provider
 #     (logged via MCP when `MCP_ENDPOINT` is set)
-#   • **AlphaOpportunityAgent** picks a random scenario from `examples/alpha_opportunities.json`
+#   • **AlphaOpportunityAgent** emits market inefficiencies from `examples/alpha_opportunities.json`
 #     (override with `ALPHA_OPPS_FILE=/path/to/custom.json`)
-#     or set `YFINANCE_SYMBOL=SPY` to pull a live price via `yfinance`
-#     set `ALPHA_BEST_ONLY=1` to always emit the highest-scoring entry
+#     set `ALPHA_TOP_N=N` to broadcast the top-N entries or
+#     set `ALPHA_BEST_ONLY=1` to only emit the single highest-scoring one
+#     and optionally `YFINANCE_SYMBOL=SPY` to pull a live price via `yfinance`
+#     set `ALPHA_TOP_N=3` to publish the top 3 opportunities each cycle
 #   • **AlphaExecutionAgent** converts an opportunity into an executed trade
 #   • **AlphaRiskAgent** performs a trivial risk assessment
 #   • **PlanningAgent**, **ResearchAgent**, **StrategyAgent**, **MarketAnalysisAgent**,

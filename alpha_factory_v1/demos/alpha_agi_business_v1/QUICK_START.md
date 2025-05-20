@@ -27,6 +27,7 @@ This short guide summarises how to launch the business demo either locally or in
 Set `OPENAI_API_KEY` to enable cloud models. Offline mode works automatically when the key is absent.
 Set `YFINANCE_SYMBOL` (e.g. `YFINANCE_SYMBOL=SPY`) to fetch a live price when `yfinance` is available.
 Set `ALPHA_BEST_ONLY=1` to emit the highest-scoring opportunity from `examples/alpha_opportunities.json`.
+Set `ALPHA_TOP_N=5` to publish the top 5 opportunities each cycle.
 
 ## Colab Notebook
 Open [`colab_alpha_agi_business_v1_demo.ipynb`](colab_alpha_agi_business_v1_demo.ipynb) and run all cells. The notebook checks requirements, starts the orchestrator, and exposes helper tools via the OpenAI Agents SDK.
