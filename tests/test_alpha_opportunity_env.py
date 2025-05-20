@@ -56,10 +56,8 @@ class TestAlphaOpportunityEnv(unittest.TestCase):
         tmp = Path("/tmp/opps3.json")
         tmp.write_text(json.dumps(data), encoding="utf-8")
         self.temp_files.append(tmp)
-        os.environ["ALPHA_OPPS_FILE"] = str(tmp)
-        os.environ["ALPHA_TOP_N"] = "2"
-        self.env_vars["ALPHA_OPPS_FILE"] = str(tmp)
-        self.env_vars["ALPHA_TOP_N"] = "2"
+        self.set_env_var("ALPHA_OPPS_FILE", str(tmp))
+        self.set_env_var("ALPHA_TOP_N", "2")
         agent = biz.AlphaOpportunityAgent()
         self.assertEqual(agent._top_n, 2)
         self.assertEqual(agent._opportunities[0]["alpha"], "high")
