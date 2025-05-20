@@ -17,6 +17,12 @@ from pathlib import Path
 from alpha_factory_v1.backend import orchestrator
 from alpha_factory_v1.backend.agents import AgentMetadata, register_agent
 from alpha_factory_v1.backend.agents.base import AgentBase
+from alpha_factory_v1.backend.agents.planning_agent import PlanningAgent
+from alpha_factory_v1.backend.agents.research_agent import ResearchAgent
+from alpha_factory_v1.backend.agents.strategy_agent import StrategyAgent
+from alpha_factory_v1.backend.agents.market_analysis_agent import MarketAnalysisAgent
+from alpha_factory_v1.backend.agents.memory_agent import MemoryAgent
+from alpha_factory_v1.backend.agents.safety_agent import SafetyAgent
 
 
 class IncorporatorAgent(AgentBase):
@@ -164,6 +170,61 @@ def register_demo_agents() -> None:
             cls=AlphaRiskAgent,
             version="1.0.0",
             capabilities=AlphaRiskAgent.CAPABILITIES,
+        )
+    )
+
+    # --- additional role agents ---
+    register_agent(
+        AgentMetadata(
+            name=PlanningAgent.NAME,
+            cls=PlanningAgent,
+            version="1.0.0",
+            capabilities=PlanningAgent.CAPABILITIES,
+        )
+    )
+
+    register_agent(
+        AgentMetadata(
+            name=ResearchAgent.NAME,
+            cls=ResearchAgent,
+            version="1.0.0",
+            capabilities=ResearchAgent.CAPABILITIES,
+        )
+    )
+
+    register_agent(
+        AgentMetadata(
+            name=StrategyAgent.NAME,
+            cls=StrategyAgent,
+            version="1.0.0",
+            capabilities=StrategyAgent.CAPABILITIES,
+        )
+    )
+
+    register_agent(
+        AgentMetadata(
+            name=MarketAnalysisAgent.NAME,
+            cls=MarketAnalysisAgent,
+            version="1.0.0",
+            capabilities=MarketAnalysisAgent.CAPABILITIES,
+        )
+    )
+
+    register_agent(
+        AgentMetadata(
+            name=MemoryAgent.NAME,
+            cls=MemoryAgent,
+            version="1.0.0",
+            capabilities=MemoryAgent.CAPABILITIES,
+        )
+    )
+
+    register_agent(
+        AgentMetadata(
+            name=SafetyAgent.NAME,
+            cls=SafetyAgent,
+            version="1.0.0",
+            capabilities=SafetyAgent.CAPABILITIES,
         )
     )
 

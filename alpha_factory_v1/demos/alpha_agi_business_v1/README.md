@@ -112,12 +112,12 @@ flowchart LR
 
 | Agent | Core Skill | Business Role | Repo Path |
 |-------|------------|---------------|-----------|
-| **PlanningAgent** | Task‑graph MuZero++ search | Decompose α‑jobs, allocate compute & budget | `backend/agents/planning` |
-| **ResearchAgent** | Tool‑former LLM + Web/DB taps | Harvest filings, patents, alt‑data | `backend/agents/research` |
-| **StrategyAgent** | Game‑theoretic optimiser | Transform raw alpha into executable, risk‑adjusted playbooks | `backend/agents/strategy` |
-| **MarketAnalysisAgent** | 5 M ticks/s ingest, micro‑alpha scanner | Benchmark edge vs baseline & stress‑test PnL | `backend/agents/market_analysis` |
-| **MemoryAgent** | Retrieval‑augmented vector store | Persist & recall reusable alpha templates | `backend/agents/memory` |
-| **SafetyAgent** | Constitutional‑AI & seccomp sandbox | Filter unsafe code / data exfiltration | `backend/agents/safety` |
+| **PlanningAgent** | Task‑graph MuZero++ search | Decompose α‑jobs, allocate compute & budget | `backend/agents/planning_agent.py` |
+| **ResearchAgent** | Tool‑former LLM + Web/DB taps | Harvest filings, patents, alt‑data | `backend/agents/research_agent.py` |
+| **StrategyAgent** | Game‑theoretic optimiser | Transform raw alpha into executable, risk‑adjusted playbooks | `backend/agents/strategy_agent.py` |
+| **MarketAnalysisAgent** | 5 M ticks/s ingest, micro‑alpha scanner | Benchmark edge vs baseline & stress‑test PnL | `backend/agents/market_analysis_agent.py` |
+| **MemoryAgent** | Retrieval‑augmented vector store | Persist & recall reusable alpha templates | `backend/agents/memory_agent.py` |
+| **SafetyAgent** | Constitutional‑AI & seccomp sandbox | Filter unsafe code / data exfiltration | `backend/agents/safety_agent.py` |
 | **ExecutionAgent** | Order‑routing & trade settlement | Convert opportunities into executed trades | `backend/agents/execution` |
 
 All agents speak **A2A protobuf**, run on **OpenAI Agents SDK** or **Google ADK**, auto‑fallback to offline GGUF models — *no API key required*.
@@ -160,7 +160,7 @@ By default this launcher restricts `ALPHA_ENABLED_AGENTS` to the five
 lightweight demo stubs so the orchestrator runs even on minimal setups.
 Set the variable yourself to customise the agent list.
 
-# the demo starts three stub agents:
+# the demo starts several stub agents:
 #   • **IncorporatorAgent** registers the business
 #   • **AlphaDiscoveryAgent** emits a placeholder market opportunity
 #   • **AlphaOpportunityAgent** picks a random scenario from `examples/alpha_opportunities.json`
@@ -168,6 +168,9 @@ Set the variable yourself to customise the agent list.
 #     or set `YFINANCE_SYMBOL=SPY` to pull a live price via `yfinance`
 #   • **AlphaExecutionAgent** converts an opportunity into an executed trade
 #   • **AlphaRiskAgent** performs a trivial risk assessment
+#   • **PlanningAgent**, **ResearchAgent**, **StrategyAgent**, **MarketAnalysisAgent**,
+#     **MemoryAgent** and **SafetyAgent** emit placeholder events to illustrate the
+#     full role architecture
 
 open http://localhost:7878      # Dashboard SPA
 ./scripts/post_alpha_job.sh examples/job_copper_spread.json
