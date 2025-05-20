@@ -52,7 +52,7 @@ def main(argv: list[str] | None = None) -> None:
     resp = requests.post(url, json=payload, headers=headers, timeout=10)
     try:
         print(json.dumps(resp.json(), indent=2))
-    except Exception:
+    except json.JSONDecodeError:
         print(resp.text)
 
 
