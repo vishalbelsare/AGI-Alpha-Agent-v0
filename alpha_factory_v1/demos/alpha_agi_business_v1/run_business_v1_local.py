@@ -35,7 +35,7 @@ def main(argv: list[str] | None = None) -> None:
     parser.add_argument(
         "--port",
         type=int,
-        default=None,
+        default=8000,
         help="Expose orchestrator on this port (default: 8000)",
     )
     parser.add_argument(
