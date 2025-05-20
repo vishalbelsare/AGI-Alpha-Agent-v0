@@ -189,8 +189,8 @@ Expose the business demo via the OpenAI Agents SDK (specify `--host` if the orch
 
 ```bash
 # default port 5001; customise via `--port` or `AGENTS_RUNTIME_PORT`
-python openai_agents_bridge.py --host http://localhost:8000
-# → http://localhost:5001/v1/agents
+python openai_agents_bridge.py --host http://localhost:8000 --port 6001
+# → http://localhost:6001/v1/agents
 ```
 When the optional `google-adk` dependency is installed and `ALPHA_FACTORY_ENABLE_ADK=true` is set,
 the same helper agent is also exposed via an ADK gateway for A2A messaging.
