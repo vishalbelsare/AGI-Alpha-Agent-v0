@@ -15,40 +15,56 @@ import requests
 # ---------------------------------------------------------------------------
 # Lazy dependency bootstrap
 # ---------------------------------------------------------------------------
-def _require_openai_agents() -> None:
+def _require_openai_agents() -> bool:
     """Ensure the ``openai_agents`` package is available.
 
     Attempts an automatic install via :mod:`check_env` when the package is
     missing so the bridge remains usable in fresh environments or Colab
-    runtimes. Any installation errors are surfaced to the user.
+    runtimes.  Returns ``True`` when the package can be imported, ``False``
+    otherwise without raising ``SystemExit``.  This allows the demo to run in
+    fully offline environments where installation may fail.
     """
 
     try:  # soft dependency
         import openai_agents  # type: ignore
+        return True
     except ModuleNotFoundError:  # pragma: no cover - optional dep
         try:
             import check_env
 
             print("ℹ️  openai_agents missing – attempting auto-install…")
             check_env.main(["--auto-install"])
+            import openai_agents  # type: ignore  # noqa: F401
+            return True
         except Exception as exc:  # pragma: no cover - install failed
             sys.stderr.write(
-                f"\n❌  openai_agents not installed and auto-install failed: {exc}\n"
+                f"\n⚠️  openai_agents unavailable: {exc}\n"
             )
-            sys.stderr.write("   Install manually with 'pip install openai-agents'\n")
-            sys.exit(1)
-        try:
-            import openai_agents  # type: ignore  # noqa: F401
-        except ModuleNotFoundError:
-            sys.stderr.write(
-                "\n❌  openai_agents still missing after auto-install.\n"
-            )
-            sys.stderr.write("   Install manually with 'pip install openai-agents'\n")
-            sys.exit(1)
+            sys.stderr.write("   Continuing without OpenAI Agents bridge.\n")
+            return False
 
 
-_require_openai_agents()
-from openai_agents import Agent, AgentRuntime, Tool  # type: ignore
+_OPENAI_AGENTS_AVAILABLE = _require_openai_agents()
+if _OPENAI_AGENTS_AVAILABLE:
+    from openai_agents import Agent, AgentRuntime, Tool  # type: ignore
+else:  # pragma: no cover - offline fallback
+    Agent = object  # type: ignore
+
+    class AgentRuntime:  # type: ignore
+        def __init__(self, *a, **kw) -> None:
+            pass
+
+        def register(self, *a, **kw) -> None:
+            pass
+
+        def run(self) -> None:
+            print("OpenAI Agents bridge disabled.")
+
+    def Tool(*_args, **_kw):  # type: ignore
+        def _decorator(func):
+            return func
+
+        return _decorator
 
 try:
     # Optional ADK bridge
@@ -194,6 +210,10 @@ class BusinessAgent(Agent):
 
 
 def main() -> None:
+    if not _OPENAI_AGENTS_AVAILABLE:
+        print("OpenAI Agents SDK not available; bridge inactive.")
+        return
+
     args = _parse_args()
     global HOST
     HOST = args.host
