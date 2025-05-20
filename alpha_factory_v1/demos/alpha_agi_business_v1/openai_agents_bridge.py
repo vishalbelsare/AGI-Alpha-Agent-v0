@@ -276,6 +276,17 @@ async def search_memory(query: str, limit: int = 5) -> list[str]:
     return resp.json()
 
 
+@Tool(
+    name="fetch_logs",
+    description="Return recent orchestrator log lines",
+)
+async def fetch_logs() -> list[str]:
+    """Retrieve the latest orchestrator logs via the REST API."""
+    resp = requests.get(f"{HOST}/api/logs", timeout=5)
+    resp.raise_for_status()
+    return resp.json()
+
+
 def wait_ready(url: str, timeout: float = 5.0) -> None:
     """Block until the orchestrator healthcheck responds or timeout expires."""
     deadline = time.monotonic() + timeout
@@ -314,6 +325,7 @@ class BusinessAgent(Agent):
         check_health,
         recent_alpha,
         search_memory,
+        fetch_logs,
         submit_job,
     ]
 
@@ -351,6 +363,8 @@ class BusinessAgent(Agent):
                 query = obs.get("query", "")
                 limit = int(obs.get("limit", 5))
                 return await self.tools.search_memory(query, limit)
+            elif obs.get("action") == "fetch_logs":
+                return await self.tools.fetch_logs()
             elif obs.get("action") == "submit_job":
                 job = obs.get("job", {})
                 return await self.tools.submit_job(job)

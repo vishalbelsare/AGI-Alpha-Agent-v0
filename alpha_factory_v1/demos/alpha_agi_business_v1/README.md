@@ -275,6 +275,7 @@ Visit `http://localhost:9000/docs` to explore the gateway when enabled (default 
   curl -X POST http://localhost:6001/v1/agents/search_memory \
        -H "Content-Type: application/json" \
        -d '{"query": "market trend", "limit": 5}'
+- `fetch_logs` (return recent orchestrator log lines)
 - `check_health` (orchestrator health status)
 - `submit_job` (to post a custom job payload to any orchestrator agent)
 
