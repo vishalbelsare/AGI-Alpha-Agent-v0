@@ -69,6 +69,12 @@ def main(argv: list[str] | None = None) -> None:
                 "AlphaOpportunityAgent",
                 "AlphaExecutionAgent",
                 "AlphaRiskAgent",
+                "PlanningAgent",
+                "ResearchAgent",
+                "StrategyAgent",
+                "MarketAnalysisAgent",
+                "MemoryAgent",
+                "SafetyAgent",
             ]
         )
 

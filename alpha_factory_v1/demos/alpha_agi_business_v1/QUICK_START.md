@@ -20,6 +20,9 @@ This short guide summarises how to launch the business demo either locally or in
    PORT=9000 python start_alpha_business.py
    ```
    The dashboard is available at [http://localhost:<port>/docs](http://localhost:<port>/docs), where `<port>` is the port number used (default is `8000`).
+   By default the orchestrator launches stub agents for planning, research,
+   strategy, market analysis, memory and safety in addition to the core
+   discovery/execution pipeline.
 
 Set `OPENAI_API_KEY` to enable cloud models. Offline mode works automatically when the key is absent.
 Set `YFINANCE_SYMBOL` (e.g. `YFINANCE_SYMBOL=SPY`) to fetch a live price when `yfinance` is available.
