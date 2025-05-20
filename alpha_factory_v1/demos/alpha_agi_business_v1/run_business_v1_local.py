@@ -14,6 +14,26 @@ import threading
 import check_env
 
 
+def _set_business_host(host: str) -> None:
+    """Propagate the orchestrator base URL to the bridge module.
+
+    This helper updates the ``BUSINESS_HOST`` environment variable and
+    mirrors the value inside :mod:`openai_agents_bridge` when that module
+    is available.  It keeps the launcher functional even when the bridge
+    was imported prior to setting the environment variable.
+    """
+
+    os.environ["BUSINESS_HOST"] = host
+    try:  # soft dependency
+        from alpha_factory_v1.demos.alpha_agi_business_v1 import (
+            openai_agents_bridge,
+        )
+
+        openai_agents_bridge.HOST = host
+    except Exception:
+        pass
+
+
 def _start_bridge(host: str) -> None:
     """Start the OpenAI Agents bridge in a background thread.
 
