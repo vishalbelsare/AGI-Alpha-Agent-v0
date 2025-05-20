@@ -23,5 +23,10 @@ class TestOpenAIBridge(unittest.TestCase):
         path = Path('alpha_factory_v1/demos/aiga_meta_evolution/openai_agents_bridge.py')
         py_compile.compile(path, doraise=True)
 
+    def test_cross_industry_bridge_compiles(self):
+        """Ensure the cross-industry demo bridge compiles."""
+        path = Path('alpha_factory_v1/demos/cross_industry_alpha_factory/openai_agents_bridge.py')
+        py_compile.compile(path, doraise=True)
+
 if __name__ == '__main__':
     unittest.main()
