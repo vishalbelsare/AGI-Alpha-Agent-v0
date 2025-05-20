@@ -13,15 +13,18 @@ import sys
 import time
 import webbrowser
 
+# allow running this script directly from its folder
+SCRIPT_DIR = os.path.dirname(__file__)
+ROOT = os.path.abspath(os.path.join(SCRIPT_DIR, "..", "..", ".."))
+if ROOT not in sys.path:
+    sys.path.insert(0, ROOT)
+
 try:  # optional dependency
     import requests  # type: ignore
 except ModuleNotFoundError:  # pragma: no cover - offline shim
     from alpha_factory_v1 import requests  # type: ignore
 
 import check_env
-
-
-SCRIPT_DIR = os.path.dirname(__file__)
 
 # Maximum number of times to poll the orchestrator health endpoint
 # before giving up on opening the dashboard.  Keep this small so the

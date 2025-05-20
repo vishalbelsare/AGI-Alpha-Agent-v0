@@ -11,6 +11,12 @@ import os
 import sys
 import time
 
+# allow running this script directly from its folder
+SCRIPT_DIR = os.path.dirname(__file__)
+ROOT = os.path.abspath(os.path.join(SCRIPT_DIR, "..", "..", ".."))
+if ROOT not in sys.path:
+    sys.path.insert(0, ROOT)
+
 try:
     import requests  # type: ignore
 except ModuleNotFoundError:  # pragma: no cover - offline shim

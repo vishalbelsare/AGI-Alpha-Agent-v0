@@ -12,7 +12,14 @@ import json
 import logging
 import os
 import random
+import sys
 from pathlib import Path
+
+# allow running this script directly from its folder
+SCRIPT_DIR = os.path.dirname(__file__)
+ROOT = os.path.abspath(os.path.join(SCRIPT_DIR, "..", "..", ".."))
+if ROOT not in sys.path:
+    sys.path.insert(0, ROOT)
 
 from alpha_factory_v1.backend import orchestrator
 from alpha_factory_v1.backend.agents import AgentMetadata, register_agent
