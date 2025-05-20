@@ -52,6 +52,59 @@ flowchart TD
     G -.↺ Feedback loops .-> C
 ```
 
+```mermaid
+flowchart TD
+    %% ─────────────────────────  CORE NARRATIVE  ─────────────────────────
+    A["🚀 🎖️ α-AGI Ascension 🌌"]
+
+    subgraph Layer0["Prelude — Exponential Insight"]
+        direction TB
+        B["🎖️ α-AGI Insight 👁️✨"]
+    end
+
+    subgraph Layer1["Sovereign Engine"]
+        direction TB
+        C["🎖️ α-AGI Sovereign 👁️✨"]
+        G["🎖️ α-AGI Architect 👁️✨"]
+    end
+
+    subgraph Layer2["Decentralized Value Fabric"]
+        direction TB
+        D["🎖️ α-AGI Marketplace 👁️✨"]
+        E["🎖️ α-AGI Jobs 👁️✨"]
+        F["🎖️ α-AGI Agents 👁️✨"]
+        V["💎 Value Reservoir ∞"]  %% compounding wealth node
+    end
+
+    %% ───────────────────────────  PRIMARY FLOWS  ────────────────────────
+    A --> B
+    B --> C
+    C --> D
+    D --> E
+    D --> F
+    C --> G
+    G -.↺ Continuous Optimization .-> C   %% original feedback loop
+
+    %% ───────────────────────  WEALTH FEEDBACK LOOPS  ────────────────────
+    E -- Harvest ΔΣUSD --> V
+    F -- Compound Returns --> V
+    V -- Capital Reinvestment --> D
+
+    %% ────────────────────────────  STYLING  ────────────────────────────
+    classDef ascension fill:#0f172a,color:#ffffff,font-weight:bold,stroke-width:0px;
+    classDef engine    fill:#1e3a8a,color:#ffffff,stroke-width:0px;
+    classDef fabric    fill:#0e7490,color:#ffffff,stroke-width:0px;
+    classDef value     fill:#fde047,color:#000000,font-weight:bold,stroke-width:0px;
+
+    class A ascension;
+    class B,C,G engine;
+    class D,E,F fabric;
+    class V value;
+
+    linkStyle default stroke-width:2px;
+```
+
+
 ---
 
 ## Deploy Now
