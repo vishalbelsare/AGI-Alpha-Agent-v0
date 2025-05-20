@@ -158,6 +158,15 @@ python run_business_v1_local.py --bridge --port 9000
 # Set `ALPHA_OPPS_FILE` to use a custom opportunity list
 # ALPHA_OPPS_FILE=examples/my_alpha.json python run_business_v1_local.py --bridge
 
+```bash
+# Optional configuration
+cp config.env.sample config.env
+# Edit the `config.env` file to set variables such as:
+#   - OPENAI_API_KEY
+#   - YFINANCE_SYMBOL
+#   - ALPHA_BEST_ONLY
+# The launcher automatically picks up these settings.
+
 By default this launcher restricts `ALPHA_ENABLED_AGENTS` to the five
 lightweight demo stubs so the orchestrator runs even on minimal setups.
 Set the variable yourself to customise the agent list.
