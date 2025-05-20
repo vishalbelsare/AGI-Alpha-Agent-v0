@@ -14,13 +14,21 @@ import threading
 import check_env
 
 
-def _start_bridge() -> None:
-    """Start the OpenAI Agents bridge in a background thread."""
+def _start_bridge(host: str) -> None:
+    """Start the OpenAI Agents bridge in a background thread.
+
+    Parameters
+    ----------
+    host:
+        Base URL for the orchestrator that the bridge should
+        communicate with (e.g. ``"http://localhost:8000"``).
+    """
     try:
         from alpha_factory_v1.demos.alpha_agi_business_v1 import openai_agents_bridge
     except Exception as exc:  # pragma: no cover - optional dep
         print(f"⚠️  OpenAI bridge not available: {exc}")
         return
+    os.environ.setdefault("BUSINESS_HOST", host)
     thread = threading.Thread(target=openai_agents_bridge.main, daemon=True)
     thread.start()
 
@@ -59,6 +67,7 @@ def main(argv: list[str] | None = None) -> None:
 
     if args.port:
         os.environ["PORT"] = str(args.port)
+        os.environ.setdefault("BUSINESS_HOST", f"http://localhost:{args.port}")
 
     # Configure the environment so the orchestrator picks up the ALPHA_ENABLED_AGENTS value at module import time.
     if not os.getenv("ALPHA_ENABLED_AGENTS"):
@@ -80,7 +89,8 @@ def main(argv: list[str] | None = None) -> None:
 
     from alpha_factory_v1.demos.alpha_agi_business_v1 import alpha_agi_business_v1
     if args.bridge:
-        _start_bridge()
+        host = os.getenv("BUSINESS_HOST", f"http://localhost:{args.port}")
+        _start_bridge(host)
 
     alpha_agi_business_v1.main()
 
