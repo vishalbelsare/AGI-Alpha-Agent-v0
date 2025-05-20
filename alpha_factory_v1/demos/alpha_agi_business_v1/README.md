@@ -119,6 +119,7 @@ flowchart LR
 | **MemoryAgent** | Retrieval‑augmented vector store | Persist & recall reusable alpha templates | `backend/agents/memory_agent.py` |
 | **SafetyAgent** | Constitutional‑AI & seccomp sandbox | Filter unsafe code / data exfiltration | `backend/agents/safety_agent.py` |
 | **ExecutionAgent** | Order‑routing & trade settlement | Convert opportunities into executed trades | `backend/agents/execution` |
+| **AlphaComplianceAgent** | Regulatory checklist | Validate trade compliance | `demos/alpha_agi_business_v1/alpha_agi_business_v1.py` |
 
 All agents speak **A2A protobuf**, run on **OpenAI Agents SDK** or **Google ADK**, auto‑fallback to offline GGUF models — *no API key required*.
 
@@ -185,6 +186,7 @@ Set the variable yourself to customise the agent list.
 #     set `ALPHA_TOP_N=3` to publish the top 3 opportunities each cycle
 #   • **AlphaExecutionAgent** converts an opportunity into an executed trade
 #   • **AlphaRiskAgent** performs a trivial risk assessment
+#   • **AlphaComplianceAgent** validates regulatory compliance
 #   • **PlanningAgent**, **ResearchAgent**, **StrategyAgent**, **MarketAnalysisAgent**,
 #     **MemoryAgent** and **SafetyAgent** emit placeholder events to illustrate the
 #     full role architecture

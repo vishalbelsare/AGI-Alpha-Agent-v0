@@ -142,6 +142,13 @@ async def trigger_risk() -> str:
     return "alpha_risk queued"
 
 
+@Tool(name="trigger_compliance", description="Trigger the AlphaComplianceAgent")
+async def trigger_compliance() -> str:
+    resp = requests.post(f"{HOST}/agent/alpha_compliance/trigger", timeout=5)
+    resp.raise_for_status()
+    return "alpha_compliance queued"
+
+
 @Tool(name="check_health", description="Return orchestrator health status")
 async def check_health() -> str:
     """Check orchestrator /healthz endpoint."""
@@ -229,6 +236,7 @@ class BusinessAgent(Agent):
         trigger_opportunity,
         trigger_execution,
         trigger_risk,
+        trigger_compliance,
         check_health,
         recent_alpha,
         search_memory,
@@ -245,6 +253,8 @@ class BusinessAgent(Agent):
                 return await self.tools.trigger_execution()
             elif obs.get("action") == "risk":
                 return await self.tools.trigger_risk()
+            elif obs.get("action") == "compliance":
+                return await self.tools.trigger_compliance()
             elif obs.get("action") == "health":
                 return await self.tools.check_health()
             elif obs.get("action") == "recent_alpha":

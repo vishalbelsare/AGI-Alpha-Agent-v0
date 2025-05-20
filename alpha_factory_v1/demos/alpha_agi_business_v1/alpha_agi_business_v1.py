@@ -159,6 +159,18 @@ class AlphaRiskAgent(AgentBase):
         await self.publish("alpha.risk", {"risk": "risk level nominal"})
 
 
+class AlphaComplianceAgent(AgentBase):
+    """Stub agent performing a simple compliance check."""
+
+    NAME = "alpha_compliance"
+    CAPABILITIES = ["compliance"]
+    CYCLE_SECONDS = 300
+    __slots__ = ()
+
+    async def step(self) -> None:
+        await self.publish("alpha.compliance", {"status": "ok"})
+
+
 def register_demo_agents() -> None:
     """Register built-in demo agents with the framework."""
 
@@ -204,6 +216,15 @@ def register_demo_agents() -> None:
             cls=AlphaRiskAgent,
             version="1.0.0",
             capabilities=AlphaRiskAgent.CAPABILITIES,
+        )
+    )
+
+    register_agent(
+        AgentMetadata(
+            name=AlphaComplianceAgent.NAME,
+            cls=AlphaComplianceAgent,
+            version="1.0.0",
+            capabilities=AlphaComplianceAgent.CAPABILITIES,
         )
     )
 
