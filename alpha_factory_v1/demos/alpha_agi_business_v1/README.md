@@ -192,6 +192,19 @@ To drive the orchestrator via the OpenAI Agents SDK run `python openai_agents_br
 pip install openai-agents
 ```
 
+### 🎛️ Local Gradio Dashboard
+
+For a quick interactive UI run `python gradio_dashboard.py` after the orchestrator starts.
+The dashboard exposes buttons to trigger each demo agent and fetch recent alpha
+opportunities without writing any code.
+
+```bash
+python gradio_dashboard.py  # visits http://localhost:7860
+```
+
+Set `GRADIO_PORT` to use a different port. The dashboard communicates with the
+orchestrator via its REST API (`BUSINESS_HOST` environment variable).
+
 ### 🤖 OpenAI Agents bridge
 
 Expose the business demo via the OpenAI Agents SDK (specify `--host` if the orchestrator runs elsewhere and `--port` to change the runtime port):
