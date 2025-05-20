@@ -152,54 +152,40 @@ flowchart TD
 
 ```mermaid
 flowchart TD
-    %% ───────────────────────────  CORE ARC  ───────────────────────────
+    %% ───────────────────────────  CORE LAYERS  ───────────────────────────
     A[🚀 🎖️ α-AGI Ascension 🌌]
+    B[🎖️ α-AGI Insight 👁️✨]
+    C[🎖️ α-AGI Sovereign 👁️✨]
+    D[🎖️ α-AGI Marketplace 👁️✨]
+    E[🎖️ α-AGI Jobs 👁️✨]
+    F[🎖️ α-AGI Agents 👁️✨]
+    G[🎖️ α-AGI Architect 👁️✨]
+    V[💎 Infinite Value Reservoir]
 
-    %% Layer 0 — Insight
-    subgraph L0[" "]
-        direction TB
-        B[🎖️ α-AGI Insight 👁️✨]
-    end
-
-    %% Layer 1 — Sovereign Engine
-    subgraph L1[" "]
-        direction TB
-        C[🎖️ α-AGI Sovereign 👁️✨]
-        G[🎖️ α-AGI Architect 👁️✨]
-    end
-
-    %% Layer 2 — Decentralised Value Fabric
-    subgraph L2[" "]
-        direction TB
-        D[🎖️ α-AGI Marketplace 👁️✨]
-        E[🎖️ α-AGI Jobs 👁️✨]
-        F[🎖️ α-AGI Agents 👁️✨]
-        V[💎 Value Reservoir ∞]
-    end
-
-    %% ───────────────────────────  PRIMARY FLOW  ───────────────────────────
+    %% ───────────────────────────  PRIMARY FLOWS  ─────────────────────────
     A --> B
     B --> C
     C --> D
     D --> E
     D --> F
     C --> G
-    G -.↺ Adaptive Refinement .-> C
+    G -.↺ Continuous optimisation .-> C
 
-    %% ─────────────────────  WEALTH COMPOUNDING LOOP  ─────────────────────
+    %% ───────────────────────  WEALTH FEEDBACK LOOPS  ─────────────────────
     E -- Harvest ΔΣUSD --> V
-    F -- Compound Returns --> V
-    V -- Strategic Re-allocation --> D
+    F -- Compound returns --> V
+    V -- Reinvest capital --> D
 
     %% ──────────────────────────────  STYLE  ──────────────────────────────
-    classDef ascension fill:#0f172a,color:#fff,font-weight:bold,stroke-width:0px
-    classDef engine    fill:#1e3a8a,color:#fff,stroke-width:0px
-    classDef fabric    fill:#0e7490,color:#fff,stroke-width:0px
-    classDef value     fill:#fde047,color:#000,font-weight:bold,stroke-width:0px
+    classDef asc     fill:#0f172a,color:#ffffff,font-weight:bold,stroke-width:0px
+    classDef insight fill:#1e3a8a,color:#ffffff,stroke-width:0px
+    classDef market  fill:#0e7490,color:#ffffff,stroke-width:0px
+    classDef value   fill:#fde047,color:#000000,font-weight:bold,stroke-width:0px
 
-    class A ascension
-    class B,C,G engine
-    class D,E,F fabric
+    class A asc
+    class B insight
+    class C,G insight
+    class D,E,F market
     class V value
 
     linkStyle default stroke-width:2px
