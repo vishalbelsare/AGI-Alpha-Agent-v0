@@ -60,7 +60,7 @@ class AlphaOpportunityAgent(AgentBase):
     NAME = "alpha_opportunity"
     CAPABILITIES = ["opportunity"]
     CYCLE_SECONDS = 300
-    __slots__ = ("_opportunities", "_yf", "_symbol", "_select_best")
+    __slots__ = ("_opportunities", "_yf", "_symbol", "_select_best", "_top_n")
 
     def __init__(self) -> None:
         super().__init__()
@@ -83,7 +83,14 @@ class AlphaOpportunityAgent(AgentBase):
 
         # Optional deterministic ranking when ALPHA_BEST_ONLY=1
         self._select_best = os.getenv("ALPHA_BEST_ONLY", "0") == "1"
-        if self._select_best:
+
+        # Allow publishing the top-N opportunities
+        try:
+            self._top_n = max(0, int(os.getenv("ALPHA_TOP_N", "0")))
+        except ValueError:
+            self._top_n = 0
+
+        if self._select_best or self._top_n:
             self._opportunities.sort(key=lambda x: x.get("score", 0), reverse=True)
 
         # Optional live price feed via yfinance
@@ -115,6 +122,11 @@ class AlphaOpportunityAgent(AgentBase):
                     e,
                     exc_info=True,
                 )
+
+        if self._top_n and self._opportunities:
+            for item in self._opportunities[: self._top_n]:
+                await self.publish("alpha.opportunity", item)
+            return
 
         if self._select_best and self._opportunities:
             choice = self._opportunities[0]
