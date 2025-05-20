@@ -97,7 +97,7 @@ def _parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         "--agents-port",
         type=int,
         default=AGENT_PORT,
-        help="Port for the Agents runtime (default: 5001)",
+        help=f"Port for the Agents runtime (default: {AGENT_PORT})",
     )
     parser.add_argument(
         "--no-wait",
