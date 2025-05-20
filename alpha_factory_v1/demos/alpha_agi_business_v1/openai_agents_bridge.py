@@ -325,7 +325,7 @@ def main() -> None:
             import webbrowser
 
             webbrowser.open(url, new=1)
-        except Exception:
+        except webbrowser.Error:
             print(f"Open {url} to access the Agents runtime")
 
     if ADK_AVAILABLE:
