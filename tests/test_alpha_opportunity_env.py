@@ -12,9 +12,12 @@ class TestAlphaOpportunityEnv(unittest.TestCase):
         self.env_vars: dict[str, str] = {}
 
     def set_env_var(self, key: str, value: str) -> None:
-        """Helper to track environment variable overrides."""
+        """Helper to track environment variable overrides and capture original values."""
+        if key not in self.env_vars and key in os.environ:
+            self.env_vars[key] = os.environ[key]  # Save original value
+        elif key not in self.env_vars:
+            self.env_vars[key] = None  # Mark as not originally set
         os.environ[key] = value
-        self.env_vars[key] = value
 
     def tearDown(self) -> None:
         for p in self.temp_files:
