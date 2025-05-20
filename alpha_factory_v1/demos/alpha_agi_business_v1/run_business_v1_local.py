@@ -9,7 +9,14 @@ from __future__ import annotations
 
 import argparse
 import os
+import sys
 import threading
+
+# allow running this script directly from its folder
+SCRIPT_DIR = os.path.dirname(__file__)
+ROOT = os.path.abspath(os.path.join(SCRIPT_DIR, "..", "..", ".."))
+if ROOT not in sys.path:
+    sys.path.insert(0, ROOT)
 
 import check_env
 

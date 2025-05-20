@@ -3,7 +3,18 @@
 from __future__ import annotations
 
 import os
-import requests
+import sys
+
+SCRIPT_DIR = os.path.dirname(__file__)
+ROOT = os.path.abspath(os.path.join(SCRIPT_DIR, "..", "..", ".."))
+if ROOT not in sys.path:
+    sys.path.insert(0, ROOT)
+
+try:
+    import requests  # type: ignore
+except ModuleNotFoundError:  # pragma: no cover - offline shim
+    from alpha_factory_v1 import requests  # type: ignore
+
 import gradio as gr
 
 HOST = os.getenv("BUSINESS_HOST", "http://localhost:8000")
