@@ -11,6 +11,11 @@ class TestAlphaOpportunityEnv(unittest.TestCase):
         self.temp_files: list[Path] = []
         self.env_vars: dict[str, str] = {}
 
+    def set_env_var(self, key: str, value: str) -> None:
+        """Helper to track environment variable overrides."""
+        os.environ[key] = value
+        self.env_vars[key] = value
+
     def tearDown(self) -> None:
         for p in self.temp_files:
             try:
