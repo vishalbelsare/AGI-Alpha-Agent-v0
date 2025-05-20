@@ -10,10 +10,12 @@ import argparse
 import os
 import sys
 import time
+
 try:
     import requests  # type: ignore
 except ModuleNotFoundError:  # pragma: no cover - offline shim
     from alpha_factory_v1 import requests  # type: ignore
+
 
 # ---------------------------------------------------------------------------
 # Lazy dependency bootstrap
@@ -30,6 +32,7 @@ def _require_openai_agents() -> bool:
 
     try:  # soft dependency
         import openai_agents  # type: ignore
+
         return True
     except ModuleNotFoundError:  # pragma: no cover - optional dep
         try:
@@ -38,11 +41,10 @@ def _require_openai_agents() -> bool:
             print("ℹ️  openai_agents missing – attempting auto-install…")
             check_env.main(["--auto-install"])
             import openai_agents  # type: ignore  # noqa: F401
+
             return True
         except Exception as exc:  # pragma: no cover - install failed
-            sys.stderr.write(
-                f"\n⚠️  openai_agents unavailable: {exc}\n"
-            )
+            sys.stderr.write(f"\n⚠️  openai_agents unavailable: {exc}\n")
             sys.stderr.write("   Continuing without OpenAI Agents bridge.\n")
             return False
 
@@ -69,9 +71,11 @@ else:  # pragma: no cover - offline fallback
 
         return _decorator
 
+
 try:
     # Optional ADK bridge
     from alpha_factory_v1.backend.adk_bridge import auto_register, maybe_launch
+
     ADK_AVAILABLE = True
 except ImportError:  # pragma: no cover - ADK not installed
     ADK_AVAILABLE = False
@@ -129,6 +133,14 @@ async def trigger_risk() -> str:
     resp = requests.post(f"{HOST}/agent/alpha_risk/trigger", timeout=5)
     resp.raise_for_status()
     return "alpha_risk queued"
+
+
+@Tool(name="check_health", description="Return orchestrator health status")
+async def check_health() -> str:
+    """Check orchestrator /healthz endpoint."""
+    resp = requests.get(f"{HOST}/healthz", timeout=5)
+    resp.raise_for_status()
+    return resp.text
 
 
 @Tool(
@@ -190,6 +202,7 @@ class BusinessAgent(Agent):
         trigger_opportunity,
         trigger_execution,
         trigger_risk,
+        check_health,
         recent_alpha,
         submit_job,
     ]
@@ -204,6 +217,8 @@ class BusinessAgent(Agent):
                 return await self.tools.trigger_execution()
             elif obs.get("action") == "risk":
                 return await self.tools.trigger_risk()
+            elif obs.get("action") == "health":
+                return await self.tools.check_health()
             elif obs.get("action") == "recent_alpha":
                 return await self.tools.recent_alpha()
             elif obs.get("action") == "submit_job":
