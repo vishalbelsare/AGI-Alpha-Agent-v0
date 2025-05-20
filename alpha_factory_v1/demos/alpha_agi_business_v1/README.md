@@ -227,6 +227,7 @@ The bridge exposes several helper tools:
 - `trigger_opportunity`
 - `trigger_execution`
 - `recent_alpha` (to retrieve the latest opportunities)
+- `search_memory` (search stored alpha by keyword)
 - `check_health` (orchestrator health status)
 - `submit_job` (to post a custom job payload to any orchestrator agent)
 
