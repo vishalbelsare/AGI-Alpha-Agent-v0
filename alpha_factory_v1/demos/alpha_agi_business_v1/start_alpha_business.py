@@ -33,7 +33,6 @@ def main() -> None:
         if proc.poll() is not None:
             break
         try:
-            import requests
 
             if requests.get(f"http://localhost:{port}/healthz", timeout=1).status_code == 200:
                 break
