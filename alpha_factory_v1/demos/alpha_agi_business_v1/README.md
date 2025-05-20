@@ -252,6 +252,7 @@ python openai_agents_bridge.py --host http://localhost:8000 --port 6001 --wait-s
 Pass `--open-ui` to automatically open the runtime URL in your browser.
 When the optional `google-adk` dependency is installed and `ALPHA_FACTORY_ENABLE_ADK=true` is set,
 the same helper agent is also exposed via an ADK gateway for A2A messaging.
+Visit `http://localhost:9000/docs` to explore the gateway when enabled (default port: 9000). To use a custom port, set the `GATEWAY_PORT` environment variable accordingly.
 
 The bridge exposes several helper tools:
 - `list_agents`
