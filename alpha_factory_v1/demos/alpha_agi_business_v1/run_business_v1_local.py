@@ -28,7 +28,7 @@ def _start_bridge(host: str) -> None:
     except Exception as exc:  # pragma: no cover - optional dep
         print(f"⚠️  OpenAI bridge not available: {exc}")
         return
-    os.environ.setdefault("BUSINESS_HOST", host)
+    _set_business_host(host=host)
     thread = threading.Thread(target=openai_agents_bridge.main, daemon=True)
     thread.start()
 
