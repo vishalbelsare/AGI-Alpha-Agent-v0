@@ -386,3 +386,4 @@ Apache 2.0 © 2025 **MONTREAL.AI**
 - [Google Agent Development Kit docs](https://google.github.io/adk-docs/)
 - [Agent‑to‑Agent protocol](https://github.com/google/A2A)
 - [Model Context Protocol](https://www.anthropic.com/news/model-context-protocol)
+- [Conceptual Framework](CONCEPTUAL_FRAMEWORK.md)
