@@ -227,7 +227,12 @@ The bridge exposes several helper tools:
 - `trigger_opportunity`
 - `trigger_execution`
 - `recent_alpha` (to retrieve the latest opportunities)
-- `search_memory` (search stored alpha by keyword)
+- `search_memory` (search stored alpha by keyword; parameters: `query` (string, required) to specify the search term, and `limit` (integer, optional) to limit the number of results)
+  Example usage:
+  ```bash
+  curl -X POST http://localhost:6001/v1/agents/search_memory \
+       -H "Content-Type: application/json" \
+       -d '{"query": "market trend", "limit": 5}'
 - `check_health` (orchestrator health status)
 - `submit_job` (to post a custom job payload to any orchestrator agent)
 
