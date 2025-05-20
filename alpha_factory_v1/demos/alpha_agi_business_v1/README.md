@@ -169,6 +169,8 @@ cp config.env.sample config.env
 #   - ALPHA_BEST_ONLY
 #   - MCP_ENDPOINT (optional Model Context Protocol URL)
 #   - MCP_TIMEOUT_SEC (optional timeout in seconds for MCP network requests)
+#   - AUTO_INSTALL_MISSING=1 to let `check_env.py` install any missing packages
+#   - WHEELHOUSE=/path/to/wheels for offline package installs
 # The launcher automatically picks up these settings.
 
 By default this launcher restricts `ALPHA_ENABLED_AGENTS` to the five
