@@ -29,7 +29,7 @@ def main() -> None:
     proc = subprocess.Popen(cmd, cwd=SCRIPT_DIR, env=env)
 
     url = f"http://localhost:{port}/docs"
-    for _ in range(20):
+    for _ in range(MAX_HEALTH_CHECK_RETRIES):
         if proc.poll() is not None:
             break
         try:
