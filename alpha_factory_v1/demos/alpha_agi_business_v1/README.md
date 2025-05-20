@@ -158,6 +158,8 @@ python start_alpha_business.py
 python run_business_v1_local.py --bridge --auto-install
 # expose orchestrator on a custom port
 python run_business_v1_local.py --bridge --port 9000
+# automatically open the REST docs in your browser
+python run_business_v1_local.py --bridge --open-ui
 # Set `ALPHA_OPPS_FILE` to use a custom opportunity list
 # ALPHA_OPPS_FILE=examples/my_alpha.json python run_business_v1_local.py --bridge
 
