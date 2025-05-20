@@ -25,3 +25,13 @@ Set `YFINANCE_SYMBOL` (e.g. `YFINANCE_SYMBOL=SPY`) to fetch a live price when `y
 
 ## Colab Notebook
 Open [`colab_alpha_agi_business_v1_demo.ipynb`](colab_alpha_agi_business_v1_demo.ipynb) and run all cells. The notebook checks requirements, starts the orchestrator, and exposes helper tools via the OpenAI Agents SDK.
+
+## ADK Bridge
+To expose the helper agent via Google's Agent Development Kit (ADK), install the
+`google-adk` package and enable the bridge:
+```bash
+pip install google-adk  # optional dependency
+ALPHA_FACTORY_ENABLE_ADK=true python openai_agents_bridge.py --host http://localhost:8000
+```
+The ADK gateway listens on `ALPHA_FACTORY_ADK_PORT` (default `9000`) and supports
+Agent-to-Agent (A2A) messaging.
