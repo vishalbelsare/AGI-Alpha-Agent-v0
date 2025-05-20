@@ -200,6 +200,7 @@ The bridge exposes several helper tools:
 - `trigger_opportunity`
 - `trigger_execution`
 - `recent_alpha` (to retrieve the latest opportunities)
+- `check_health` (orchestrator health status)
 - `submit_job` (to post a custom job payload to any orchestrator agent)
 
 *No Docker?*
