@@ -172,7 +172,11 @@ class AlphaComplianceAgent(AgentBase):
 
 
 class AlphaPortfolioAgent(AgentBase):
-    """Stub agent summarising portfolio state."""
+    """Stub agent summarising portfolio state.
+
+    This agent publishes a static placeholder summary of the portfolio state.
+    In a production implementation, this would dynamically summarize executed positions.
+    """
 
     NAME = "alpha_portfolio"
     CAPABILITIES = ["portfolio"]
@@ -180,7 +184,10 @@ class AlphaPortfolioAgent(AgentBase):
     __slots__ = ()
 
     async def step(self) -> None:
-        await self.publish("alpha.portfolio", {"summary": "nominal"})
+        await self.publish(
+            "alpha.portfolio",
+            {"summary": "nominal", "note": "This is a placeholder summary."},
+        )
 
 
 def register_demo_agents() -> None:
