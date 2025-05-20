@@ -11,10 +11,21 @@ import sys
 import time
 import webbrowser
 
+try:  # optional dependency
+    import requests  # type: ignore
+except ModuleNotFoundError:  # pragma: no cover - offline shim
+    from alpha_factory_v1 import requests  # type: ignore
+
 import check_env
 
 
 SCRIPT_DIR = os.path.dirname(__file__)
+
+# Maximum number of times to poll the orchestrator health endpoint
+# before giving up on opening the dashboard.  Keep this small so the
+# launcher remains responsive even when the orchestrator fails to
+# start correctly.
+MAX_HEALTH_CHECK_RETRIES = 20
 
 
 def main() -> None:
