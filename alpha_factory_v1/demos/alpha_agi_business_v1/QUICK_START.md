@@ -14,9 +14,10 @@ This short guide summarises how to launch the business demo either locally or in
    ```
 3. **Run the demo**
    ```bash
-   python run_business_v1_local.py --bridge
+   # one-click launcher (opens docs in your browser)
+   python start_alpha_business.py
    # optional: choose a different port
-   python run_business_v1_local.py --bridge --port 9000
+   PORT=9000 python start_alpha_business.py
    ```
    The dashboard is available at [http://localhost:<port>/docs](http://localhost:<port>/docs), where `<port>` is the port number used (default is `8000`).
 

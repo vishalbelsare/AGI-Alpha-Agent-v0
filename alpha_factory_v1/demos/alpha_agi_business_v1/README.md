@@ -144,9 +144,12 @@ All agents speak **A2A protobuf**, run on **OpenAI Agents SDK** or **Google AD
 git clone https://github.com/MontrealAI/AGI-Alpha-Agent-v0.git
 cd AGI-Alpha-Agent-v0/alpha_factory_v1/demos/alpha_agi_business_v1
 
-# launch demo (GPU optional)
+# easiest path – auto-installs dependencies and opens the docs
+python start_alpha_business.py
+
+# Docker-based run (GPU optional)
 ./run_business_v1_demo.sh
-# or run directly without Docker (adds --auto-install and optionally --wheelhouse to fetch deps, including offline installs)
+# or run directly without Docker
 python run_business_v1_local.py --bridge --auto-install
 # expose orchestrator on a custom port
 python run_business_v1_local.py --bridge --port 9000
