@@ -107,6 +107,49 @@ flowchart TD
     linkStyle default stroke-width:2px
 ```
 
+```mermaid
+flowchart TD
+    %% ───────────────────────  CORE LIFECYCLE  ───────────────────────
+    A[🚀 🎖️ α-AGI Ascension 🌌]
+    B[🎖️ α-AGI Insight 👁️✨]
+    C[🎖️ α-AGI Sovereign 👁️✨]
+    D[🎖️ α-AGI Marketplace 👁️✨]
+    E[🎖️ α-AGI Jobs 👁️✨]
+    F[🎖️ α-AGI Agents 👁️✨]
+    G[🎖️ α-AGI Architect 👁️✨]
+
+    A --> B
+    B --> C
+    C --> D
+    D --> E
+    D --> F
+    C --> G
+    G -.↺ Continuous optimisation .-> C
+
+    %% ───────────────  VALUE-ACCUMULATION & MACRO IMPACT  ───────────────
+    subgraph " "
+        V[💎 Value Reservoir ∞]
+        P[🌐 World-Order Realignment]
+    end
+
+    E -- Harvest α --> V
+    F -- Compound returns --> V
+    V -- Capital re-deployment --> D
+    V -. systemic shift .-> P
+    P -. strategic gravity .-> A
+
+    %% ──────────────────────────  STYLING  ──────────────────────────
+    classDef asc fill:#0f172a,color:#fff,font-weight:bold,stroke-width:0px;
+    classDef layer1 fill:#1e3a8a,color:#fff,stroke-width:0px;
+    classDef layer2 fill:#0e7490,color:#fff,stroke-width:0px;
+    classDef value fill:#fde047,color:#000,font-weight:bold,stroke-width:0px;
+
+    class A asc;
+    class B,C,G layer1;
+    class D,E,F layer2;
+    class V value;
+```
+
 
 ---
 
