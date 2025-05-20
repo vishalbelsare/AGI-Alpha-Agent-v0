@@ -94,7 +94,7 @@ def _parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         help="Orchestrator host URL (default: http://localhost:8000)",
     )
     parser.add_argument(
-        "--port",
+        "--agents-port",
         type=int,
         default=AGENT_PORT,
         help="Port for the Agents runtime (default: 5001)",
