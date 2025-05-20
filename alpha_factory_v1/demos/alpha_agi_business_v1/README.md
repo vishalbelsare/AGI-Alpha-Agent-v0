@@ -140,6 +140,8 @@ All agents speak **A2A protobuf**, run on **OpenAI Agents SDK** or **Google AD
 ## 6 Quick Start 🚀
 
 *For a concise walkthrough see [QUICK_START.md](QUICK_START.md).*
+For a deployment checklist aimed at production environments consult
+[PRODUCTION_GUIDE.md](PRODUCTION_GUIDE.md).
 ```bash
 git clone https://github.com/MontrealAI/AGI-Alpha-Agent-v0.git
 cd AGI-Alpha-Agent-v0/alpha_factory_v1/demos/alpha_agi_business_v1
