@@ -1,5 +1,5 @@
 
-# Alpha‑Factory v1 👁️✨ — Multi‑Agent **META-AGENTIC** α‑AGI
+# Alpha‑Factory v1 👁️✨ — **META-AGENTIC** α‑AGI
 
 **Out‑learn · Out‑think · Out‑design · Out‑strategise · Out‑execute**
 
