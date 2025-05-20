@@ -27,6 +27,97 @@ cd AGI-Alpha-Agent-v0
 open http://localhost:8000/docs 2>/dev/null || xdg-open http://localhost:8000/docs || start http://localhost:8000/docs
 ```
 
+# Alpha‑Factory v1 👁️✨ — Multi‑Agent **AGENTIC** α‑AGI
+
+**Out‑learn · Out‑think · Out‑design · Out‑strategise · Out‑execute**
+
+---
+
+# 🚀 [ 🎖️ α‑AGI Ascension 🌌 ]
+
+## Humanity’s Structured Rise to Economic Supremacy via Strategic AGI Mastery
+
+### 🎖️ α‑AGI Insight 👁️✨ — Beyond Human Foresight
+Where human foresight reaches its limits, α‑AGI Insight sees beyond. Humanity stands at the precipice of history’s most profound economic transformation. α‑AGI Insight identifies with pinpoint accuracy those sectors poised for imminent disruption by Artificial General Intelligence (AGI). With authoritative and rigorously validated projections estimating economic opportunities surpassing **$15 Quadrillion (15 000 trillion USD)**, today’s strategic anticipation unlocks extraordinary economic advantages tomorrow.
+
+* **Precision Forecasting** — Identify and proactively engage critical sectors before AGI disruption.  
+* **First‑Mover Advantage** — Maximize returns through strategic foresight and superior positioning.
+
+### 🎖️ α‑AGI Sovereign 👁️✨ — Autonomous Economic Transformation
+Meta‑Agentic mastery at global scale. α‑AGI Sovereign represents a revolutionary class of autonomous, blockchain‑based enterprises deploying advanced Meta‑Agentic frameworks. Through dynamically evolving swarms of intelligent agents, these enterprises systematically identify and transform global inefficiencies into measurable economic value (“$AGIALPHA”), fundamentally reshaping market dynamics and strategically realigning global economic structures.
+
+* **α‑AGI Marketplace 👁️✨** — Decentralized global platform matching strategic AGI tasks with optimal execution.  
+  * **α‑AGI Jobs 👁️✨** — Autonomous missions precisely targeting identified inefficiencies.  
+  * **α‑AGI Agents 👁️✨** — Adaptive, self‑optimizing intelligent agents executing α‑Jobs, yielding immediate economic returns.
+
+Strategic Edge:
+
+* Decentralized autonomy ensures superior agility and resilience.  
+* Strategically validated methodologies guarantee consistent economic leadership.
+
+### 🎖️ α‑AGI Architect 👁️✨ — Foundational Operational Blueprint
+Empowering Meta‑Agentic visionaries with strategic infrastructure. At the core of α‑AGI Ascension is α‑AGI Architect — the foundational operational framework for scalable global deployment. Rooted in the groundbreaking “Multi‑Agent AI DAO” model, α‑AGI Architect delivers immediate, scalable, and adaptive infrastructure ensuring continuous strategic evolution.
+
+* Robust feedback loops driving continuous refinement between Sovereign operations and Architect infrastructure.  
+* Engineered for rapid global scalability and strategic responsiveness.
+
+```mermaid
+flowchart TD
+    A["🚀 🎖️ α‑AGI Ascension 🌌"]
+    B["🎖️ α‑AGI Insight 👁️✨"]
+    C["🎖️ α‑AGI Sovereign 👁️✨"]
+    D["🎖️ α‑AGI Marketplace 👁️✨"]
+    E["🎖️ α‑AGI Jobs 👁️✨"]
+    F["🎖️ α‑AGI Agents 👁️✨"]
+    G["🎖️ α‑AGI Architect 👁️✨"]
+
+    A --> B
+    B --> C
+    C --> D
+    D --> E
+    D --> F
+    C --> G
+    G -.↺ Feedback loops .-> C
+```
+
+---
+
+## Deploy Now
+Open‑source framework for immediate strategic action: **[github.com/MontrealAI/AGI-Alpha-Agent-v0](https://github.com/MontrealAI/AGI-Alpha-Agent-v0)**
+
+---
+
+## 👑👁️✨ Conclusion
+**[ 🎖️ α‑AGI Ascension 🌌 ]** launches humanity into an entirely new economic epoch. By systematically harnessing AGI’s transformative capabilities, it rewrites global economic structures, implicitly realigning international power dynamics and propelling humanity toward unprecedented sovereign economic prosperity.
+
+---
+
+> *The section above was generated at the edge of human knowledge and integrated here without altering existing functionality.*
+
+---
+
+> **Mission 🎯**  Identify 🔍 → Learn 📚 → Think 🧠 → Design 🎨 → Strategise ♟️ → Execute ⚡ — compounding real‑world **α** across *all* industries.
+
+Global markets seep *USD ✧ trillions/yr* in latent opportunity — “alpha” in the broadest sense:  
+<kbd>pricing dislocations • supply‑chain entropy • novel drug targets • policy loopholes • undiscovered materials</kbd>.
+
+**Alpha‑Factory v1** is an antifragile constellation of self‑improving Agentic α‑AGI Agents 👁️✨ orchestrated to **spot live alpha across any industry and transmute it into compounding value**.
+
+**Definition**: An **α‑AGI Business** 👁️✨ is an on‑chain autonomous enterprise (<name>.a.agi.eth) that unleashes a swarm of self‑improving agentic **α‑AGI agents** 👁️✨ (<name>.a.agent.agi.eth) to hunt down inefficiencies across any domain and transmute them into **$AGIALPHA**.
+
+**Official definition – Meta-Agentic (adj.)**: Describes an agent whose **primary role** is to **create, select, evaluate, or re‑configure other agents** and the rules governing their interactions, thereby exercising **second‑order agency** over a population of first‑order agents. *The term was **pioneered by [Vincent Boucher](https://www.linkedin.com/in/montrealai/), President of MONTREAL.AI**.*
+
+Built atop **OpenAI Agents SDK**, **Google ADK**, **A2A protocol**, and Anthropic’s **Model Context Protocol**, the stack runs cloud‑native *or* air‑gapped, hot‑swapping between frontier LLMs and distilled local models.
+
+### TL;DR Quick Start
+```bash
+git clone https://github.com/MontrealAI/AGI-Alpha-Agent-v0.git
+cd AGI-Alpha-Agent-v0
+# Requires Python 3.9–3.12 (<3.13)
+./quickstart.sh
+open http://localhost:8000/docs 2>/dev/null || xdg-open http://localhost:8000/docs || start http://localhost:8000/docs
+```
+
 ## Disclaimer
 This repository is a conceptual research prototype. References to "AGI" and "superintelligence" describe aspirational goals and do not indicate the presence of a real general intelligence. Use at your own risk.
 
