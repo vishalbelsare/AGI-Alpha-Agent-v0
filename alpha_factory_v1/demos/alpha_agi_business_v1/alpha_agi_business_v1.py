@@ -55,7 +55,7 @@ class AlphaOpportunityAgent(AgentBase):
     NAME = "alpha_opportunity"
     CAPABILITIES = ["opportunity"]
     CYCLE_SECONDS = 300
-    __slots__ = ("_opportunities", "_yf", "_symbol")
+    __slots__ = ("_opportunities", "_yf", "_symbol", "_select_best")
 
     def __init__(self) -> None:
         super().__init__()
@@ -65,12 +65,17 @@ class AlphaOpportunityAgent(AgentBase):
             self._opportunities = json.loads(Path(path).read_text(encoding="utf-8"))
         except FileNotFoundError:  # pragma: no cover - fallback when file missing
             self._opportunities = [
-                {"alpha": "generic supply-chain inefficiency"}
+                {"alpha": "generic supply-chain inefficiency", "score": 0}
             ]
         except json.JSONDecodeError:  # pragma: no cover - fallback for invalid JSON
             self._opportunities = [
-                {"alpha": "generic supply-chain inefficiency"}
+                {"alpha": "generic supply-chain inefficiency", "score": 0}
             ]
+
+        # Optional deterministic ranking when ALPHA_BEST_ONLY=1
+        self._select_best = os.getenv("ALPHA_BEST_ONLY", "0") == "1"
+        if self._select_best:
+            self._opportunities.sort(key=lambda x: x.get("score", 0), reverse=True)
 
         # Optional live price feed via yfinance
         self._symbol = os.getenv("YFINANCE_SYMBOL")
@@ -97,7 +102,10 @@ class AlphaOpportunityAgent(AgentBase):
             except Exception as e:  # pragma: no cover - network/unavailable
                 logging.error("Failed to download live price feed for symbol %s: %s", self._symbol, e, exc_info=True)
 
-        choice = random.choice(self._opportunities)
+        if self._select_best and self._opportunities:
+            choice = self._opportunities[0]
+        else:
+            choice = random.choice(self._opportunities)
         await self.publish("alpha.opportunity", choice)
 
 

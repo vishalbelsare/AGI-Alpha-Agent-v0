@@ -166,6 +166,7 @@ Set the variable yourself to customise the agent list.
 #   • **AlphaOpportunityAgent** picks a random scenario from `examples/alpha_opportunities.json`
 #     (override with `ALPHA_OPPS_FILE=/path/to/custom.json`)
 #     or set `YFINANCE_SYMBOL=SPY` to pull a live price via `yfinance`
+#     set `ALPHA_BEST_ONLY=1` to always emit the highest-scoring entry
 #   • **AlphaExecutionAgent** converts an opportunity into an executed trade
 #   • **AlphaRiskAgent** performs a trivial risk assessment
 #   • **PlanningAgent**, **ResearchAgent**, **StrategyAgent**, **MarketAnalysisAgent**,
