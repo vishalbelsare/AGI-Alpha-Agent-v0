@@ -120,6 +120,7 @@ flowchart LR
 | **SafetyAgent** | Constitutional‑AI & seccomp sandbox | Filter unsafe code / data exfiltration | `backend/agents/safety_agent.py` |
 | **ExecutionAgent** | Order‑routing & trade settlement | Convert opportunities into executed trades | `backend/agents/execution` |
 | **AlphaComplianceAgent** | Regulatory checklist | Validate trade compliance | `demos/alpha_agi_business_v1/alpha_agi_business_v1.py` |
+| **AlphaPortfolioAgent** | Portfolio snapshot | Summarise executed positions | `demos/alpha_agi_business_v1/alpha_agi_business_v1.py` |
 
 All agents speak **A2A protobuf**, run on **OpenAI Agents SDK** or **Google ADK**, auto‑fallback to offline GGUF models — *no API key required*.
 
@@ -187,6 +188,7 @@ Set the variable yourself to customise the agent list.
 #   • **AlphaExecutionAgent** converts an opportunity into an executed trade
 #   • **AlphaRiskAgent** performs a trivial risk assessment
 #   • **AlphaComplianceAgent** validates regulatory compliance
+#   • **AlphaPortfolioAgent** summarises portfolio state
 #   • **PlanningAgent**, **ResearchAgent**, **StrategyAgent**, **MarketAnalysisAgent**,
 #     **MemoryAgent** and **SafetyAgent** emit placeholder events to illustrate the
 #     full role architecture

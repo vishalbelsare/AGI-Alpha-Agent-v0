@@ -171,6 +171,25 @@ class AlphaComplianceAgent(AgentBase):
         await self.publish("alpha.compliance", {"status": "ok"})
 
 
+class AlphaPortfolioAgent(AgentBase):
+    """Stub agent summarising portfolio state.
+
+    This agent publishes a static placeholder summary of the portfolio state.
+    In a production implementation, this would dynamically summarize executed positions.
+    """
+
+    NAME = "alpha_portfolio"
+    CAPABILITIES = ["portfolio"]
+    CYCLE_SECONDS = 300
+    __slots__ = ()
+
+    async def step(self) -> None:
+        await self.publish(
+            "alpha.portfolio",
+            {"summary": "nominal", "note": "This is a placeholder summary."},
+        )
+
+
 def register_demo_agents() -> None:
     """Register built-in demo agents with the framework."""
 
@@ -225,6 +244,15 @@ def register_demo_agents() -> None:
             cls=AlphaComplianceAgent,
             version="1.0.0",
             capabilities=AlphaComplianceAgent.CAPABILITIES,
+        )
+    )
+
+    register_agent(
+        AgentMetadata(
+            name=AlphaPortfolioAgent.NAME,
+            cls=AlphaPortfolioAgent,
+            version="1.0.0",
+            capabilities=AlphaPortfolioAgent.CAPABILITIES,
         )
     )
 
