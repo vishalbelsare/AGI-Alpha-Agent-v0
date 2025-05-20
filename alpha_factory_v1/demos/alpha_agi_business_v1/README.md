@@ -231,6 +231,8 @@ pip install openai-agents
 For a quick interactive UI run `python gradio_dashboard.py` after the orchestrator starts.
 The dashboard exposes buttons to trigger each demo agent and fetch recent alpha
 opportunities without writing any code.
+It now also supports searching the orchestrator memory and fetching recent log
+lines for quick troubleshooting.
 
 ```bash
 python gradio_dashboard.py  # visits http://localhost:7860

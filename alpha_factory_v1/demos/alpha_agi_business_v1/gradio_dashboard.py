@@ -41,6 +41,20 @@ def _recent_alpha(limit: int = 5) -> list[dict]:
     return resp.json()
 
 
+def _search_memory(query: str, limit: int = 5) -> list[dict]:
+    resp = requests.get(
+        f"{HOST}/memory/search", params={"q": query, "k": limit}, timeout=5
+    )
+    resp.raise_for_status()
+    return resp.json()
+
+
+def _fetch_logs() -> list[str]:
+    resp = requests.get(f"{HOST}/api/logs", timeout=5)
+    resp.raise_for_status()
+    return resp.json()
+
+
 def main() -> None:
     with gr.Blocks(title="Alpha‑AGI Business Dashboard") as ui:
         gr.Markdown("# Alpha‑AGI Business Dashboard")
@@ -53,6 +67,11 @@ def main() -> None:
             risk_btn = gr.Button("Trigger Risk")
             comp_btn = gr.Button("Trigger Compliance")
             alpha_btn = gr.Button("Recent Alpha")
+            logs_btn = gr.Button("Fetch Logs")
+        with gr.Row():
+            query_in = gr.Textbox(label="Search Memory")
+            limit_in = gr.Slider(1, 20, value=5, step=1, label="Results")
+            search_btn = gr.Button("Search")
 
         list_btn.click(_list_agents, outputs=out)
         disc_btn.click(lambda: _trigger("alpha_discovery"), outputs=out)
@@ -61,6 +80,12 @@ def main() -> None:
         risk_btn.click(lambda: _trigger("alpha_risk"), outputs=out)
         comp_btn.click(lambda: _trigger("alpha_compliance"), outputs=out)
         alpha_btn.click(_recent_alpha, outputs=out)
+        logs_btn.click(_fetch_logs, outputs=out)
+        search_btn.click(
+            lambda q, k: _search_memory(q, int(k)),
+            inputs=[query_in, limit_in],
+            outputs=out,
+        )
 
     ui.launch(server_name="0.0.0.0", server_port=PORT, share=False)
 
