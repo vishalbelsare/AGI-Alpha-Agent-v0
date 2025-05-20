@@ -45,7 +45,6 @@ class AlphaDiscoveryAgent(AgentBase):
     __slots__ = ()
 
     async def step(self) -> None:
-        from alpha_factory_v1.backend import llm_provider
 
         prompt = "Suggest one brief, plausible market inefficiency suitable for a demo."
         try:
