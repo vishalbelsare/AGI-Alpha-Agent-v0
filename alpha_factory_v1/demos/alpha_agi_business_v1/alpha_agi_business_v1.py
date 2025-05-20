@@ -45,9 +45,15 @@ class AlphaDiscoveryAgent(AgentBase):
     __slots__ = ()
 
     async def step(self) -> None:
-        await self.publish(
-            "alpha.discovery", {"alpha": "cross-market synergy identified"}
-        )
+        from alpha_factory_v1.backend import llm_provider
+
+        prompt = "Suggest one brief, plausible market inefficiency suitable for a demo."
+        try:
+            summary = await llm_provider.chat(prompt, max_tokens=50)
+        except Exception as exc:  # pragma: no cover - LLM optional
+            summary = f"demo opportunity (llm error: {exc})"
+        await self.publish("alpha.discovery", {"alpha": summary})
+
 
 class AlphaOpportunityAgent(AgentBase):
     """Stub agent emitting a sample market inefficiency."""
@@ -60,7 +66,11 @@ class AlphaOpportunityAgent(AgentBase):
     def __init__(self) -> None:
         super().__init__()
         env_path = os.getenv("ALPHA_OPPS_FILE")
-        path = Path(env_path) if env_path else Path(__file__).with_name("examples") / "alpha_opportunities.json"
+        path = (
+            Path(env_path)
+            if env_path
+            else Path(__file__).with_name("examples") / "alpha_opportunities.json"
+        )
         try:
             self._opportunities = json.loads(Path(path).read_text(encoding="utf-8"))
         except FileNotFoundError:  # pragma: no cover - fallback when file missing
@@ -100,7 +110,12 @@ class AlphaOpportunityAgent(AgentBase):
                 )
                 return
             except Exception as e:  # pragma: no cover - network/unavailable
-                logging.error("Failed to download live price feed for symbol %s: %s", self._symbol, e, exc_info=True)
+                logging.error(
+                    "Failed to download live price feed for symbol %s: %s",
+                    self._symbol,
+                    e,
+                    exc_info=True,
+                )
 
         if self._select_best and self._opportunities:
             choice = self._opportunities[0]

@@ -6,6 +6,7 @@ This guide summarises the minimal steps required to run the **Alpha‑AGI Busine
    - Copy `config.env.sample` to `config.env` and edit as needed.
    - Set `OPENAI_API_KEY` to enable cloud models or leave empty to use the bundled local fallbacks.
    - Optionally enable the Google ADK gateway by setting `ALPHA_FACTORY_ENABLE_ADK=true`.
+   - Set `MCP_ENDPOINT` to push logs to a Model Context Protocol server (optional).
    - For API protection set either `AUTH_BEARER_TOKEN` or `JWT_PUBLIC_KEY`/`JWT_ISSUER`.
    - Validate that all Python packages are available. From the project root run:
      ```bash
