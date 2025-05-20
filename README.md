@@ -1,33 +1,5 @@
 
-# Alpha‑Factory v1 👁️✨ — Multi‑Agent **AGENTIC** α‑AGI
-
-**Out‑learn · Out‑think · Out‑design · Out‑strategise · Out‑execute**
-
----
-
-> **Mission 🎯**  Identify 🔍 → Learn 📚 → Think 🧠 → Design 🎨 → Strategise ♟️ → Execute ⚡ — compounding real‑world **α** across *all* industries.
-
-Global markets seep *USD ✧ trillions/yr* in latent opportunity — “alpha” in the broadest sense:  
-<kbd>pricing dislocations • supply‑chain entropy • novel drug targets • policy loopholes • undiscovered materials</kbd>.
-
-**Alpha‑Factory v1** is an antifragile constellation of self‑improving Agentic α‑AGI Agents 👁️✨ orchestrated to **spot live alpha across any industry and transmute it into compounding value**.
-
-**Definition**: An **α‑AGI Business** 👁️✨ is an on‑chain autonomous enterprise (`<name>.a.agi.eth`) that unleashes a swarm of self‑improving agentic **α‑AGI agents** 👁️✨ (`<name>.a.agent.agi.eth`) to hunt down inefficiencies across any domain and transmute them into **$AGIALPHA**.
-
-**Official definition – Meta-Agentic (adj.)**: Describes an agent whose **primary role** is to **create, select, evaluate, or re‑configure other agents** and the rules governing their interactions, thereby exercising **second‑order agency** over a population of first‑order agents. *The term was **pioneered by [Vincent Boucher](https://www.linkedin.com/in/montrealai/), President of MONTREAL.AI**.*
-
-Built atop **OpenAI Agents SDK**, **Google ADK**, **A2A protocol**, and Anthropic’s **Model Context Protocol**, the stack runs cloud‑native *or* air‑gapped, hot‑swapping between frontier LLMs and distilled local models.
-
-### TL;DR Quick Start
-```bash
-git clone https://github.com/MontrealAI/AGI-Alpha-Agent-v0.git
-cd AGI-Alpha-Agent-v0
-# Requires Python 3.9–3.12 (<3.13)
-./quickstart.sh
-open http://localhost:8000/docs 2>/dev/null || xdg-open http://localhost:8000/docs || start http://localhost:8000/docs
-```
-
-# Alpha‑Factory v1 👁️✨ — Multi‑Agent **AGENTIC** α‑AGI
+# Alpha‑Factory v1 👁️✨ — Multi‑Agent **META-AGENTIC** α‑AGI
 
 **Out‑learn · Out‑think · Out‑design · Out‑strategise · Out‑execute**
 
@@ -91,9 +63,6 @@ Open‑source framework for immediate strategic action: **[github.com/MontrealAI
 **[ 🎖️ α‑AGI Ascension 🌌 ]** launches humanity into an entirely new economic epoch. By systematically harnessing AGI’s transformative capabilities, it rewrites global economic structures, implicitly realigning international power dynamics and propelling humanity toward unprecedented sovereign economic prosperity.
 
 ---
-
-> *The section above was generated at the edge of human knowledge and integrated here without altering existing functionality.*
-
 ---
 
 > **Mission 🎯**  Identify 🔍 → Learn 📚 → Think 🧠 → Design 🎨 → Strategise ♟️ → Execute ⚡ — compounding real‑world **α** across *all* industries.
