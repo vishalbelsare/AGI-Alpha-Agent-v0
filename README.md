@@ -150,6 +150,61 @@ flowchart TD
     class V value;
 ```
 
+```mermaid
+flowchart TD
+    %% ───────────────────────────  CORE ARC  ───────────────────────────
+    A[🚀 🎖️ α-AGI Ascension 🌌]
+
+    %% Layer 0 — Insight
+    subgraph L0[" "]
+        direction TB
+        B[🎖️ α-AGI Insight 👁️✨]
+    end
+
+    %% Layer 1 — Sovereign Engine
+    subgraph L1[" "]
+        direction TB
+        C[🎖️ α-AGI Sovereign 👁️✨]
+        G[🎖️ α-AGI Architect 👁️✨]
+    end
+
+    %% Layer 2 — Decentralised Value Fabric
+    subgraph L2[" "]
+        direction TB
+        D[🎖️ α-AGI Marketplace 👁️✨]
+        E[🎖️ α-AGI Jobs 👁️✨]
+        F[🎖️ α-AGI Agents 👁️✨]
+        V[💎 Value Reservoir ∞]
+    end
+
+    %% ───────────────────────────  PRIMARY FLOW  ───────────────────────────
+    A --> B
+    B --> C
+    C --> D
+    D --> E
+    D --> F
+    C --> G
+    G -.↺ Adaptive Refinement .-> C
+
+    %% ─────────────────────  WEALTH COMPOUNDING LOOP  ─────────────────────
+    E -- Harvest ΔΣUSD --> V
+    F -- Compound Returns --> V
+    V -- Strategic Re-allocation --> D
+
+    %% ──────────────────────────────  STYLE  ──────────────────────────────
+    classDef ascension fill:#0f172a,color:#fff,font-weight:bold,stroke-width:0px
+    classDef engine    fill:#1e3a8a,color:#fff,stroke-width:0px
+    classDef fabric    fill:#0e7490,color:#fff,stroke-width:0px
+    classDef value     fill:#fde047,color:#000,font-weight:bold,stroke-width:0px
+
+    class A ascension
+    class B,C,G engine
+    class D,E,F fabric
+    class V value
+
+    linkStyle default stroke-width:2px
+```
+
 
 ---
 
