@@ -166,6 +166,7 @@ cp config.env.sample config.env
 #   - YFINANCE_SYMBOL
 #   - ALPHA_BEST_ONLY
 #   - MCP_ENDPOINT (optional Model Context Protocol URL)
+#   - MCP_TIMEOUT_SEC (optional timeout in seconds for MCP network requests)
 # The launcher automatically picks up these settings.
 
 By default this launcher restricts `ALPHA_ENABLED_AGENTS` to the five
