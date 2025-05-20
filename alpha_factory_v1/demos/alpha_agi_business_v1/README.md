@@ -190,6 +190,7 @@ python run_business_v1_local.py --auto-install --wheelhouse /path/to/wheels
 ```
 
 Or open `colab_alpha_agi_business_v1_demo.ipynb` to run everything in Colab.
+The notebook now includes an optional **Gradio dashboard** (step 5b) so you can interact with the agents without writing any code.
 To drive the orchestrator via the OpenAI Agents SDK run `python openai_agents_bridge.py` (see step 5 in the notebook). Use `--host http://<host>:<port>` when the orchestrator is exposed elsewhere. If the script complains about a missing `openai_agents` package, install it with:
 ```bash
 pip install openai-agents
