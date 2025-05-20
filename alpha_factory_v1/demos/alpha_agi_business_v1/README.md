@@ -165,6 +165,8 @@ cp config.env.sample config.env
 #   - OPENAI_API_KEY
 #   - YFINANCE_SYMBOL
 #   - ALPHA_BEST_ONLY
+#   - MCP_ENDPOINT (optional Model Context Protocol URL)
+#   - MCP_TIMEOUT_SEC (optional timeout in seconds for MCP network requests)
 # The launcher automatically picks up these settings.
 
 By default this launcher restricts `ALPHA_ENABLED_AGENTS` to the five
@@ -173,7 +175,8 @@ Set the variable yourself to customise the agent list.
 
 # the demo starts several stub agents:
 #   • **IncorporatorAgent** registers the business
-#   • **AlphaDiscoveryAgent** emits a placeholder market opportunity
+#   • **AlphaDiscoveryAgent** generates a short opportunity via the LLM provider
+#     (logged via MCP when `MCP_ENDPOINT` is set)
 #   • **AlphaOpportunityAgent** picks a random scenario from `examples/alpha_opportunities.json`
 #     (override with `ALPHA_OPPS_FILE=/path/to/custom.json`)
 #     or set `YFINANCE_SYMBOL=SPY` to pull a live price via `yfinance`
