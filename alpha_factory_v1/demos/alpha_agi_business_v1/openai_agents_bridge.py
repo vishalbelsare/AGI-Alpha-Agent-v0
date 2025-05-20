@@ -117,6 +117,11 @@ def _parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         metavar="SECONDS",
         help="How long to wait for orchestrator health check (default: 5)",
     )
+    parser.add_argument(
+        "--open-ui",
+        action="store_true",
+        help="Open the Agents runtime URL in the default browser",
+    )
     return parser.parse_args(argv)
 
 
@@ -314,6 +319,14 @@ def main() -> None:
     agent = BusinessAgent()
     runtime.register(agent)
     print(f"Registered BusinessAgent -> {HOST} [port {args.port}]")
+    if args.open_ui:
+        url = f"http://localhost:{args.port}/v1/agents"
+        try:
+            import webbrowser
+
+            webbrowser.open(url, new=1)
+        except Exception:
+            print(f"Open {url} to access the Agents runtime")
 
     if ADK_AVAILABLE:
         auto_register([agent])
