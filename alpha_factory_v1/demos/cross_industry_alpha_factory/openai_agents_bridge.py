@@ -68,9 +68,9 @@ def main() -> None:
         auto_register([agent])
         maybe_launch()
     except Exception as exc:  # pragma: no cover - ADK optional
-        print(f"ADK bridge unavailable: {exc}")
+        logging.warning(f"ADK bridge unavailable: {exc}")
 
-    print("Registered CrossIndustryAgent with runtime")
+    logging.info("Registered CrossIndustryAgent with runtime")
     runtime.run()
 
 
