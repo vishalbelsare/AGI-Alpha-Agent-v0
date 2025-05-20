@@ -33,6 +33,12 @@ def main(argv: list[str] | None = None) -> None:
         help="Launch OpenAI Agents bridge if available",
     )
     parser.add_argument(
+        "--port",
+        type=int,
+        default=None,
+        help="Expose orchestrator on this port (default: 8000)",
+    )
+    parser.add_argument(
         "--auto-install",
         action="store_true",
         help="Attempt automatic installation of missing packages",
@@ -50,6 +56,9 @@ def main(argv: list[str] | None = None) -> None:
         check_opts.extend(["--wheelhouse", args.wheelhouse])
 
     check_env.main(check_opts)
+
+    if args.port:
+        os.environ["PORT"] = str(args.port)
 
     # Configure the environment so the orchestrator picks up the ALPHA_ENABLED_AGENTS value at module import time.
     if not os.getenv("ALPHA_ENABLED_AGENTS"):

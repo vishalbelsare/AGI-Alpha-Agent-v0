@@ -148,6 +148,8 @@ cd AGI-Alpha-Agent-v0/alpha_factory_v1/demos/alpha_agi_business_v1
 ./run_business_v1_demo.sh
 # or run directly without Docker (adds --auto-install and optionally --wheelhouse to fetch deps, including offline installs)
 python run_business_v1_local.py --bridge --auto-install
+# expose orchestrator on a custom port
+python run_business_v1_local.py --bridge --port 9000
 # Set `ALPHA_OPPS_FILE` to use a custom opportunity list
 # ALPHA_OPPS_FILE=examples/my_alpha.json python run_business_v1_local.py --bridge
 

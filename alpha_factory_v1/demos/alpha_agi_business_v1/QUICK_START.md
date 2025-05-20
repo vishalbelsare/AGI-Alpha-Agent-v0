@@ -15,8 +15,10 @@ This short guide summarises how to launch the business demo either locally or in
 3. **Run the demo**
    ```bash
    python run_business_v1_local.py --bridge
+   # optional: choose a different port
+   python run_business_v1_local.py --bridge --port 9000
    ```
-   The dashboard is available at [http://localhost:8000/docs](http://localhost:8000/docs).
+   The dashboard is available at [http://localhost:8000/docs](http://localhost:8000/docs) unless `--port` is used.
 
 Set `OPENAI_API_KEY` to enable cloud models. Offline mode works automatically when the key is absent.
 Set `YFINANCE_SYMBOL` (e.g. `YFINANCE_SYMBOL=SPY`) to fetch a live price when `yfinance` is available.
