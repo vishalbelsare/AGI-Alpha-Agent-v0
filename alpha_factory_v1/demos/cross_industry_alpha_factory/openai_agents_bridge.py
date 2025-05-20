@@ -23,7 +23,7 @@ def _read_log(limit: int) -> List[Dict[str, str]]:
         if isinstance(data, dict):
             data = [data]
         return data[-limit:]
-    except Exception:  # pragma: no cover - missing or invalid log
+    except (FileNotFoundError, PermissionError, json.JSONDecodeError):  # pragma: no cover - missing or invalid log
         return []
 
 
