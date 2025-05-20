@@ -187,6 +187,21 @@ async def recent_alpha(limit: int = 5) -> list[str]:
     return resp.json()
 
 
+@Tool(
+    name="search_memory",
+    description="Search orchestrator memory for a text query",
+)
+async def search_memory(query: str, limit: int = 5) -> list[str]:
+    """Query the orchestrator memory vector store."""
+    resp = requests.get(
+        f"{HOST}/memory/search",
+        params={"q": query, "k": limit},
+        timeout=5,
+    )
+    resp.raise_for_status()
+    return resp.json()
+
+
 def wait_ready(url: str, timeout: float = 5.0) -> None:
     """Block until the orchestrator healthcheck responds or timeout expires."""
     deadline = time.monotonic() + timeout
@@ -200,7 +215,12 @@ def wait_ready(url: str, timeout: float = 5.0) -> None:
 
 
 class BusinessAgent(Agent):
-    """Tiny agent exposing orchestrator helper tools."""
+    """Tiny agent exposing orchestrator helper tools.
+
+    The helper surfaces a curated set of REST endpoints via the
+    OpenAI Agents runtime and optional ADK gateway.  It also supports
+    vector memory search for quick retrieval of stored alpha.
+    """
 
     name = "business_helper"
     tools = [
@@ -211,6 +231,7 @@ class BusinessAgent(Agent):
         trigger_risk,
         check_health,
         recent_alpha,
+        search_memory,
         submit_job,
     ]
 
@@ -228,6 +249,10 @@ class BusinessAgent(Agent):
                 return await self.tools.check_health()
             elif obs.get("action") == "recent_alpha":
                 return await self.tools.recent_alpha()
+            elif obs.get("action") == "search_memory":
+                query = obs.get("query", "")
+                limit = int(obs.get("limit", 5))
+                return await self.tools.search_memory(query, limit)
             elif obs.get("action") == "submit_job":
                 job = obs.get("job", {})
                 return await self.tools.submit_job(job)
