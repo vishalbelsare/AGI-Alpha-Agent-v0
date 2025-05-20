@@ -25,15 +25,13 @@ class TestAlphaOpportunityEnv(unittest.TestCase):
         ]
         tmp = Path("/tmp/opps2.json")
         tmp.write_text(json.dumps(data), encoding="utf-8")
+        self.temp_files.append(tmp)
         os.environ["ALPHA_OPPS_FILE"] = str(tmp)
         os.environ["ALPHA_BEST_ONLY"] = "1"
-        try:
-            agent = biz.AlphaOpportunityAgent()
-            self.assertEqual(agent._opportunities[0]["alpha"], "high")
-        finally:
-            del os.environ["ALPHA_OPPS_FILE"]
-            del os.environ["ALPHA_BEST_ONLY"]
-            tmp.unlink()
+        self.env_vars["ALPHA_OPPS_FILE"] = str(tmp)
+        self.env_vars["ALPHA_BEST_ONLY"] = "1"
+        agent = biz.AlphaOpportunityAgent()
+        self.assertEqual(agent._opportunities[0]["alpha"], "high")
 
 if __name__ == "__main__":  # pragma: no cover
     unittest.main()
