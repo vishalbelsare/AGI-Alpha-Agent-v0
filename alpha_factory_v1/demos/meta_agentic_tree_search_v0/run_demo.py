@@ -3,8 +3,9 @@
 from __future__ import annotations
 
 import argparse
+import random
 from pathlib import Path
-from typing import List
+from typing import List, Optional
 
 try:  # PyYAML optional for offline environments
     import yaml  # type: ignore
@@ -23,6 +24,7 @@ def run(
     rewriter: str = "random",
     *,
     target: int = 5,
+    seed: Optional[int] = None,
 ) -> None:
     """Run a toy tree search for a small number of episodes.
 
@@ -34,7 +36,12 @@ def run(
         Exploration constant for UCB1.
     rewriter:
         Which rewrite strategy to use: ``"random"`` or ``"openai"``.
+    seed:
+        Optional RNG seed for reproducible runs.
     """
+    if seed is not None:
+        random.seed(seed)
+
     root_agents: List[int] = [0, 0, 0, 0]
     env = NumberLineEnv(target=target)
     tree = Tree(Node(root_agents), exploration=exploration)
@@ -81,13 +88,16 @@ def main(argv: List[str] | None = None) -> None:
         help="Rewrite strategy",
     )
     parser.add_argument("--target", type=int, help="Target integer for the environment")
+    parser.add_argument("--seed", type=int, help="Optional RNG seed")
     args = parser.parse_args(argv)
     cfg = load_config(args.config)
     episodes = args.episodes or int(cfg.get("episodes", 10))
     exploration = float(cfg.get("exploration", 1.4))
     rewriter = args.rewriter or cfg.get("rewriter", "random")
     target = args.target if args.target is not None else int(cfg.get("target", 5))
-    run(episodes, exploration, rewriter, target=target)
+    seed = args.seed if args.seed is not None else cfg.get("seed")
+    seed = int(seed) if seed is not None else None
+    run(episodes, exploration, rewriter, target=target, seed=seed)
 
 
 if __name__ == "__main__":  # pragma: no cover - CLI entry
