@@ -2,5 +2,5 @@
 
 from . import mats
 
-__all__ = ["run_demo", "mats"]
+__all__ = ["run_demo", "mats", "openai_agents_bridge"]
 
