@@ -10,12 +10,20 @@ from __future__ import annotations
 import os
 import argparse
 import importlib.util
+import sys
+import pathlib
+
+if __package__ is None:  # pragma: no cover - allow direct execution
+    sys.path.append(str(pathlib.Path(__file__).resolve().parents[3]))
 
 has_oai = importlib.util.find_spec("openai_agents") is not None
 if has_oai:
     from openai_agents import Agent, AgentRuntime, Tool  # type: ignore
 
-    from .run_demo import run
+    try:
+        from .run_demo import run
+    except ImportError:  # pragma: no cover - direct script execution
+        from alpha_factory_v1.demos.meta_agentic_tree_search_v0.run_demo import run
 
     @Tool(name="run_search", description="Run the MATS demo for a few episodes")
     async def run_search(episodes: int = 10, target: int = 5) -> str:
@@ -49,7 +57,10 @@ if has_oai:
         print("Registered MATSAgent with runtime")
         runtime.run()
 else:
-    from .run_demo import run
+    try:
+        from .run_demo import run
+    except ImportError:  # pragma: no cover - direct script execution
+        from alpha_factory_v1.demos.meta_agentic_tree_search_v0.run_demo import run
 
     def _run_search_helper(episodes: int, target: int) -> str:
         """Execute the search loop and return a summary string."""
