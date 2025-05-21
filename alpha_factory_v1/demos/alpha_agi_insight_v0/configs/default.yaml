@@ -6,4 +6,4 @@ target: 3
 seed: 0
 model: gpt-4o
 # comma-separated list or YAML array of sectors
-# sectors: [Finance, Healthcare, Education]
+sectors: [Finance, Healthcare, Education]
