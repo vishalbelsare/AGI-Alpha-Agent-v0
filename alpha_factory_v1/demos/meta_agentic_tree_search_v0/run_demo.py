@@ -5,8 +5,15 @@ from __future__ import annotations
 import argparse
 import os
 import random
+import sys
+import pathlib
 from pathlib import Path
 from typing import List, Optional
+
+if __package__ is None:  # pragma: no cover - allow execution via `python run_demo.py`
+    # Add repository root so package imports resolve when executed directly
+    sys.path.append(str(pathlib.Path(__file__).resolve().parents[3]))
+    __package__ = "alpha_factory_v1.demos.meta_agentic_tree_search_v0"
 
 try:  # PyYAML optional for offline environments
     import yaml  # type: ignore
