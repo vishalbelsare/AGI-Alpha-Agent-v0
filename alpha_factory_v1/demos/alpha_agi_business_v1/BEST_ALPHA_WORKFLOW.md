@@ -4,7 +4,7 @@ This short note summarises the highest ranked alpha signal included with the dem
 
 ## 1. Identified Alpha
 
-Using `examples/find_best_alpha.py` the top opportunity from `examples/alpha_opportunities.json` is:
+Using `examples/find_best_alpha.py` (run from the root of the project directory) the top opportunity from `examples/alpha_opportunities.json` is:
 
 ```
 gene therapy patent undervalued by market
