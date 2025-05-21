@@ -143,7 +143,7 @@ else:
         if not _has_key:
             reasons.append("OPENAI_API_KEY not set")
         msg = " and ".join(reasons) or "offline mode"
-        print(f"Running offline demo ({msg})…")
+        print(f"Running offline demo in {msg}…")
         sector_list = parse_sectors(None, None)
         run(
             episodes=episodes,
