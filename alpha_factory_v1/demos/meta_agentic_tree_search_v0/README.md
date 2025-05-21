@@ -1,6 +1,6 @@
 # Meta‑Agentic Tree Search (MATS) Demo — v0
 
-**Abstract:** We introduce **Meta-Agentic Tree Search (MATS)**, a novel framework for autonomous multi-agent decision optimization in complex strategic domains. MATS enables intelligent agents to collaboratively navigate and optimize high-dimensional strategic search spaces through **recursive agent-to-agent interactions**. In this **second-order agentic** scheme, each agent in the system iteratively refines the intermediate strategies proposed by other agents, yielding a self-improving decision-making process. This recursive optimization mechanism systematically uncovers latent inefficiencies and unexploited opportunities that static or single-agent approaches often overlook.
+**Abstract:** We pioneer **Meta-Agentic Tree Search (MATS)**, a novel framework for autonomous multi-agent decision optimization in complex strategic domains. MATS enables intelligent agents to collaboratively navigate and optimize high-dimensional strategic search spaces through **recursive agent-to-agent interactions**. In this **second-order agentic** scheme, each agent in the system iteratively refines the intermediate strategies proposed by other agents, yielding a self-improving decision-making process. This recursive optimization mechanism systematically uncovers latent inefficiencies and unexploited opportunities that static or single-agent approaches often overlook.
 
 > **Status:** Experimental · Proof‑of‑Concept · Alpha  
 > **Location:** `alpha_factory_v1/demos/meta_agentic_tree_search_v0`  
