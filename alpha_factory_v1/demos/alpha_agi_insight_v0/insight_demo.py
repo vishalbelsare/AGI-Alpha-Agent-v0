@@ -63,6 +63,7 @@ def load_config(path: Path) -> dict:
                     cfg[key.strip()] = val
         return cfg
 
+
 DEFAULT_SECTORS = [
     "Finance",
     "Healthcare",
@@ -74,7 +75,6 @@ DEFAULT_SECTORS = [
     "Agriculture",
     "Defense",
     "Real Estate",
-
 ]
 
 
@@ -99,7 +99,9 @@ def parse_sectors(cfg_val: object | None, cli_val: str | None) -> List[str]:
         if file_candidate.exists():
             lines = file_candidate.read_text(encoding="utf-8").splitlines()
             return [line.strip() for line in lines if line.strip()]
-        return [s.strip() for s in text.split("\n" if "\n" in text else ",") if s.strip()]
+        return [
+            s.strip() for s in text.split("\n" if "\n" in text else ",") if s.strip()
+        ]
     return list(DEFAULT_SECTORS)
 
 
@@ -149,9 +151,7 @@ def run(
         tree.add_child(node, child)
         tree.backprop(child)
         idx = improved[0] % len(sectors)
-        print(
-            f"Episode {idx_ep+1:>3}: candidate {sectors[idx]} → reward {reward:.3f}"
-        )
+        print(f"Episode {idx_ep+1:>3}: candidate {sectors[idx]} → reward {reward:.3f}")
         if log_fh:
             log_fh.write(f"{idx_ep+1},{sectors[idx]},{reward:.6f}\n")
     best = tree.best_leaf()
@@ -168,7 +168,12 @@ def run(
 def main(argv: List[str] | None = None) -> None:
     parser = argparse.ArgumentParser(description="Run the α‑AGI Insight demo")
     parser.add_argument("--episodes", type=int, help="Number of search iterations")
-    parser.add_argument("--config", type=Path, default=Path("configs/default.yaml"), help="YAML configuration")
+    parser.add_argument(
+        "--config",
+        type=Path,
+        default=Path("configs/default.yaml"),
+        help="YAML configuration",
+    )
     parser.add_argument(
         "--rewriter",
         choices=["random", "openai", "anthropic"],
@@ -176,13 +181,22 @@ def main(argv: List[str] | None = None) -> None:
     )
     parser.add_argument("--target", type=int, help="Target sector index")
     parser.add_argument("--seed", type=int, help="Optional RNG seed")
-    parser.add_argument("--exploration", type=float, help="Exploration constant for UCB1")
+    parser.add_argument(
+        "--exploration", type=float, help="Exploration constant for UCB1"
+    )
     parser.add_argument("--model", type=str, help="Model for the rewriter")
-    parser.add_argument("--log-dir", type=Path, help="Optional directory to store episode logs")
+    parser.add_argument(
+        "--log-dir", type=Path, help="Optional directory to store episode logs"
+    )
     parser.add_argument(
         "--sectors",
         type=str,
         help="Comma-separated sector names or path to a text file",
+    )
+    parser.add_argument(
+        "--list-sectors",
+        action="store_true",
+        help="Print the resolved sector list and exit",
     )
     parser.add_argument(
         "--verify-env",
@@ -195,13 +209,24 @@ def main(argv: List[str] | None = None) -> None:
     if args.verify_env:
         verify_environment()
     episodes = args.episodes or int(cfg.get("episodes", 5))
-    exploration = args.exploration if args.exploration is not None else float(cfg.get("exploration", 1.4))
+    exploration = (
+        args.exploration
+        if args.exploration is not None
+        else float(cfg.get("exploration", 1.4))
+    )
     rewriter = args.rewriter or cfg.get("rewriter", "random")
     target = args.target if args.target is not None else int(cfg.get("target", 3))
     seed = args.seed if args.seed is not None else cfg.get("seed")
     seed = int(seed) if seed is not None else None
     model = args.model or cfg.get("model")
     sectors = parse_sectors(cfg.get("sectors"), args.sectors)
+
+    if args.list_sectors:
+        print("Sectors:")
+        for name in sectors:
+            print(f"- {name}")
+        return
+
     run(
         episodes,
         exploration,
