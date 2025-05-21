@@ -25,8 +25,11 @@ def verify_environment() -> None:
         import check_env  # type: ignore
 
         check_env.main([])
-    except Exception as exc:  # pragma: no cover - optional helper
+    except (ImportError, ModuleNotFoundError) as exc:  # pragma: no cover - optional helper
         print(f"Environment verification failed: {exc}")
+    except Exception as exc:
+        print(f"Unexpected error during environment verification: {exc}")
+        raise
 
 
 def run(
