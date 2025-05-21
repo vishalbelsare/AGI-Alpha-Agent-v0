@@ -7,9 +7,11 @@ local orchestrator. It works offline when no API key is configured.
 from __future__ import annotations
 
 import argparse
+import json
 import os
 import sys
 import time
+from pathlib import Path
 
 # allow running this script directly from its folder
 SCRIPT_DIR = os.path.dirname(__file__)
@@ -144,6 +146,29 @@ async def trigger_opportunity() -> str:
     resp = requests.post(f"{HOST}/agent/alpha_opportunity/trigger", timeout=5)
     resp.raise_for_status()
     return "alpha_opportunity queued"
+
+
+@Tool(
+    name="trigger_best_alpha",
+    description="Submit the highest scoring demo opportunity to AlphaExecutionAgent",
+)
+async def trigger_best_alpha() -> str:
+    """Read the bundled alpha opportunities and enqueue the best one."""
+    try:
+        path = Path(__file__).with_name("examples") / "alpha_opportunities.json"
+        data = json.loads(path.read_text(encoding="utf-8"))
+        if not data:
+            raise RuntimeError("No alpha opportunities found in the file.")
+        best = max(data, key=lambda x: x.get("score", 0))
+    except Exception as exc:  # pragma: no cover - file may be missing
+        raise RuntimeError(f"failed to load alpha opportunities: {exc}") from exc
+    resp = requests.post(
+        f"{HOST}/agent/alpha_execution/trigger",
+        json=best,
+        timeout=5,
+    )
+    resp.raise_for_status()
+    return "best alpha queued"
 
 
 @Tool(name="trigger_execution", description="Trigger the AlphaExecutionAgent")
@@ -312,6 +337,7 @@ class BusinessAgent(Agent):
         list_agents,
         trigger_discovery,
         trigger_opportunity,
+        trigger_best_alpha,
         trigger_execution,
         trigger_risk,
         trigger_compliance,
@@ -335,6 +361,8 @@ class BusinessAgent(Agent):
                 return await self.tools.trigger_discovery()
             elif obs.get("action") == "opportunity":
                 return await self.tools.trigger_opportunity()
+            elif obs.get("action") == "best_alpha":
+                return await self.tools.trigger_best_alpha()
             elif obs.get("action") == "execute":
                 return await self.tools.trigger_execution()
             elif obs.get("action") == "risk":
