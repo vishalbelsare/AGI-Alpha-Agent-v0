@@ -98,6 +98,22 @@ class TestMetaAgenticTreeSearchDemo(unittest.TestCase):
         self.assertEqual(result.returncode, 0, result.stderr)
         self.assertIn("Best agents", result.stdout)
 
+    def test_run_demo_verify_env(self) -> None:
+        result = subprocess.run(
+            [
+                sys.executable,
+                "-m",
+                "alpha_factory_v1.demos.meta_agentic_tree_search_v0.run_demo",
+                "--episodes",
+                "1",
+                "--verify-env",
+            ],
+            capture_output=True,
+            text=True,
+        )
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertIn("Best agents", result.stdout)
+
     def test_bridge_fallback(self) -> None:
         result = subprocess.run(
             [
@@ -126,6 +142,21 @@ class TestMetaAgenticTreeSearchDemo(unittest.TestCase):
 
         result = asyncio.run(bridge.run_search(episodes=1, target=2))
         self.assertIn("completed", result)
+
+    def test_bridge_verify_env(self) -> None:
+        result = subprocess.run(
+            [
+                sys.executable,
+                "-m",
+                "alpha_factory_v1.demos.meta_agentic_tree_search_v0.openai_agents_bridge",
+                "--episodes",
+                "1",
+                "--verify-env",
+            ],
+            capture_output=True,
+            text=True,
+        )
+        self.assertEqual(result.returncode, 0, result.stderr)
 
 
 if __name__ == "__main__":  # pragma: no cover

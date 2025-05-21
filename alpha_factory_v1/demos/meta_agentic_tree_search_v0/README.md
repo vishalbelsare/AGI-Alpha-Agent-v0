@@ -86,6 +86,10 @@ the bridge to control the demo through API calls or the Agents runtime UI:
 ```bash
 python openai_agents_bridge.py --help
 ```
+Run a quick environment check with ``--verify-env`` if desired:
+```bash
+python openai_agents_bridge.py --verify-env --episodes 3 --target 4 --model gpt-4o
+```
 If the `openai_agents` package or API keys are missing the bridge automatically
 falls back to running the search loop locally so the notebook remains
 reproducible anywhere.  When running offline you can still invoke
@@ -104,6 +108,7 @@ git clone https://github.com/MontrealAI/AGI-Alpha-Agent-v0.git
 cd AGI-Alpha-Agent-v0/alpha_factory_v1/demos/meta_agentic_tree_search_v0
 python -m venv .venv && source .venv/bin/activate
 pip install -r requirements.txt          # torch, gymnasium, networkx, etc.
+python run_demo.py --verify-env          # optional sanity check
 python run_demo.py --config configs/default.yaml --episodes 500 --target 5 --seed 42
 ```
 `run_demo.py` prints a per‑episode scoreboard.  Pass `--log-dir logs` to save a
