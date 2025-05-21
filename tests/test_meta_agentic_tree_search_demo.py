@@ -1,6 +1,9 @@
 import subprocess
 import sys
 import unittest
+from alpha_factory_v1.demos.meta_agentic_tree_search_v0.openai_agents_bridge import (
+    DEFAULT_MODEL_NAME,
+)
 
 
 class TestMetaAgenticTreeSearchDemo(unittest.TestCase):
