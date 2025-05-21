@@ -139,7 +139,7 @@ else:
     ) -> None:
         reasons = []
         if _spec is None:
-            reasons.append("openai-agents missing")
+            reasons.append("OpenAI Agents package missing")
         if not _has_key:
             reasons.append("OPENAI_API_KEY unset")
         msg = " & ".join(reasons) or "offline mode"
