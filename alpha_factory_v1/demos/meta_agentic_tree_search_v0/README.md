@@ -149,11 +149,15 @@ meta_agentic_tree_search_v0/
 ## 8 Extending this prototype
 | Goal                           | Hook/function                     |
 |--------------------------------|-----------------------------------|
-| Plug‑in real execution broker  | `mats.environment.LiveBrokerEnv`  |
+| Plug‑in real execution broker  | `mats.env.LiveBrokerEnv`          |
 | Swap rewrite strategy          | Subclass `MetaRewriter`           |
 | Use distributed workers        | `ray tune` launcher               |
 | Custom tree policy             | Implement `acquire()` in `Tree`   |
 | Custom output parser           | `_parse_numbers` helper           |
+
+`LiveBrokerEnv` is a minimal subclass of :class:`NumberLineEnv` that accepts a
+market data sequence. It serves as a stub for wiring real brokerage feeds into
+the search loop while keeping the demo runnable completely offline.
 
 ## 9 Safety & governance guard‑rails
 * Sandboxed code‑gen (`firejail + seccomp + tmpfs`)  
