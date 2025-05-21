@@ -104,7 +104,7 @@ else:
             rewriter=rewriter,
             sectors=(sectors.split(",") if sectors else None),
         )
-        return f"fallback_mode_active: {summary}"
+        return f"{FALLBACK_MODE_PREFIX}{summary}"
 
     def _run_runtime(
         episodes: int, target: int, model: str | None = None, rewriter: str | None = None
