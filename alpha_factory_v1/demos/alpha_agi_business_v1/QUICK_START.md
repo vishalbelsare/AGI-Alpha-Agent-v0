@@ -16,6 +16,8 @@ This short guide summarises how to launch the business demo either locally or in
    ```bash
    # one-click launcher (opens docs in your browser)
    python start_alpha_business.py
+   # auto-submit the top ranked opportunity once running
+   python start_alpha_business.py --submit-best
    # optional: choose a different port
    PORT=9000 python start_alpha_business.py
    ```
