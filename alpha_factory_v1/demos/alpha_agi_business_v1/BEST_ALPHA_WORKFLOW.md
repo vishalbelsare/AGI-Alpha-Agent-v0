@@ -41,7 +41,7 @@ Use the built‑in dashboard or the OpenAI Agents bridge to query recent alpha i
 python openai_agents_bridge.py --host http://localhost:<PORT> --open-ui
 ```
 
-Once the bridge is running, open `http://localhost:5001/v1/agents` to interact via the OpenAI Agents SDK. The `recent_alpha` and `fetch_logs` tools provide a quick view of system activity.
+Replace `<PORT>` with the OpenAI Agents bridge port (default is 5001). Once the bridge is running, open `http://localhost:5001/v1/agents` to interact via the OpenAI Agents SDK. The `recent_alpha` and `fetch_logs` tools provide a quick view of system activity.
 
 ---
 
