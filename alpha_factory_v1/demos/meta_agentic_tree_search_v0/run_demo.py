@@ -22,7 +22,7 @@ from .mats.env import NumberLineEnv
 def run(
     episodes: int = 10,
     exploration: float = 1.4,
-    rewriter: str | None = "random",
+    rewriter: str | None = None,
     log_dir: Path | None = None,
     *,
     target: int = 5,
