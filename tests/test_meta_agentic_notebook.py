@@ -18,5 +18,8 @@ class TestMetaAgenticNotebook(unittest.TestCase):
     def test_notebook_v2_valid(self) -> None:
         self._check_notebook(Path("alpha_factory_v1/demos/meta_agentic_agi_v2/colab_meta_agentic_agi_v2.ipynb"))
 
+    def test_mats_notebook_valid(self) -> None:
+        self._check_notebook(Path("alpha_factory_v1/demos/meta_agentic_tree_search_v0/colab_meta_agentic_tree_search.ipynb"))
+
 if __name__ == "__main__":  # pragma: no cover
     unittest.main()
