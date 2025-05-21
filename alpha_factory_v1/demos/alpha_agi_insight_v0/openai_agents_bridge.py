@@ -97,13 +97,14 @@ else:
         rewriter: str | None = None,
         sectors: str | None = None,
     ) -> str:
-        return run(
+        summary = run(
             episodes=episodes,
             target=target,
             model=model,
             rewriter=rewriter,
             sectors=(sectors.split(",") if sectors else None),
         )
+        return f"{FALLBACK_MODE_PREFIX}{summary}"
 
     def _run_runtime(
         episodes: int, target: int, model: str | None = None, rewriter: str | None = None
