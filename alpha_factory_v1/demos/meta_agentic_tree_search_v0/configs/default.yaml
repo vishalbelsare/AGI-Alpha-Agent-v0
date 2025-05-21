@@ -3,3 +3,4 @@ episodes: 10
 exploration: 1.4
 rewriter: random
 target: 5
+seed: 0
