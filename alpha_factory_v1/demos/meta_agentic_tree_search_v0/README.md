@@ -91,6 +91,8 @@ reproducible anywhere.  When running offline you can still invoke
 ```bash
 python openai_agents_bridge.py --episodes 3 --target 4 --model gpt-4o
 ```
+Enable the optional ADK gateway with ``--enable-adk`` (or set
+``ALPHA_FACTORY_ENABLE_ADK=true``) to expose the agent over the A2A protocol.
 This prints a short completion summary after executing the demo loop.
 
 ## 5 Quick start
@@ -104,6 +106,8 @@ python run_demo.py --config configs/default.yaml --episodes 500 --target 5 --see
 `run_demo.py` prints a per‑episode scoreboard.  Pass `--log-dir logs` to save a
 `scores.csv` file for further analysis. A ready‑to‑run Colab notebook is also
 provided as `colab_meta_agentic_tree_search.ipynb`.
+Add ``--enable-adk`` to the command above to start the optional ADK
+gateway for remote control via the A2A protocol.
 The default environment is a simple number‑line task defined in `mats/env.py` where each agent must approach a target integer. Pass `--target 7` (for example) to experiment with different goals.
 Use `--seed 42` to reproduce a specific search trajectory.
 

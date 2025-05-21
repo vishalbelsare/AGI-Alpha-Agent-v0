@@ -52,10 +52,13 @@ if has_oai:
         agent = MATSAgent()
         runtime.register(agent)
         try:
-            from alpha_factory_v1.backend.adk_bridge import auto_register, maybe_launch
+            from alpha_factory_v1.backend import adk_bridge
 
-            auto_register([agent])
-            maybe_launch()
+            if adk_bridge.adk_enabled():
+                adk_bridge.auto_register([agent])
+                adk_bridge.maybe_launch()
+            else:
+                print("ADK gateway disabled.")
         except Exception as exc:  # pragma: no cover - ADK optional
             print(f"ADK bridge unavailable: {exc}")
 
@@ -82,12 +85,20 @@ def main(argv: list[str] | None = None) -> None:
     parser.add_argument("--episodes", type=int, default=10, help="Search episodes when offline")
     parser.add_argument("--target", type=int, default=5, help="Target integer when offline")
     parser.add_argument("--model", type=str, help="Optional OpenAI model override")
+    parser.add_argument(
+        "--enable-adk",
+        action="store_true",
+        help="Enable the Google ADK gateway for remote control",
+    )
     args = parser.parse_args(argv)
 
     if not has_oai:
         print("openai-agents package is missing. Running offline demo...")
         run(episodes=args.episodes, target=args.target)
         return
+
+    if args.enable_adk:
+        os.environ.setdefault("ALPHA_FACTORY_ENABLE_ADK", "true")
 
     _run_runtime(args.episodes, args.target, args.model)
 
