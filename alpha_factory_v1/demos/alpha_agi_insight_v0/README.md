@@ -81,7 +81,8 @@ python -m alpha_factory_v1.demos.alpha_agi_insight_v0.openai_agents_bridge --ver
 ```
 The bridge automatically falls back to offline mode when the optional
 packages or API keys are missing. Use ``--enable-adk`` to expose the agent via
-the optional Google ADK gateway when available. Pass ``--log-dir`` to store
+the optional Google ADK gateway when available. Use ``--list-sectors`` to view
+the resolved sector list without running the search. Pass ``--log-dir`` to store
 episode metrics in ``scores.csv``.
 
 ### MCP Logging

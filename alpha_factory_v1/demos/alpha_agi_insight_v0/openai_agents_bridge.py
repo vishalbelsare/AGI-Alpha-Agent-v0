@@ -85,11 +85,14 @@ if has_oai:
         model: str | None = None,
         rewriter: str | None = None,
         log_dir: str | None = None,
+        sectors: str | None = None,
     ) -> None:
         if model:
             os.environ.setdefault("OPENAI_MODEL", model)
         if rewriter:
             os.environ.setdefault("MATS_REWRITER", rewriter)
+        if sectors:
+            os.environ.setdefault("ALPHA_AGI_SECTORS", sectors)
         runtime = AgentRuntime(api_key=os.getenv("OPENAI_API_KEY"))
         agent = InsightAgent()
         runtime.register(agent)
@@ -136,6 +139,7 @@ else:
         model: str | None = None,
         rewriter: str | None = None,
         log_dir: str | None = None,
+        sectors: str | None = None,
     ) -> None:
         reasons = []
         if _spec is None:
@@ -144,7 +148,7 @@ else:
             reasons.append("OPENAI_API_KEY not set")
         msg = " and ".join(reasons) or "offline mode"
         print(f"Running offline demo in {msg}…")
-        sector_list = parse_sectors(None, None)
+        sector_list = parse_sectors(None, sectors)
         run(
             episodes=episodes,
             target=target,
@@ -178,6 +182,11 @@ def main(argv: list[str] | None = None) -> None:
         help="Directory to store episode logs",
     )
     parser.add_argument(
+        "--list-sectors",
+        action="store_true",
+        help="Print the resolved sector list and exit",
+    )
+    parser.add_argument(
         "--enable-adk",
         action="store_true",
         help="Enable the Google ADK gateway",
@@ -192,10 +201,24 @@ def main(argv: list[str] | None = None) -> None:
     if args.verify_env:
         verify_environment()
 
+    sector_list = parse_sectors(None, args.sectors)
+    if args.list_sectors:
+        print("Sectors:")
+        for name in sector_list:
+            print(f"- {name}")
+        return
+
     if args.enable_adk:
         os.environ.setdefault("ALPHA_FACTORY_ENABLE_ADK", "true")
 
-    _run_runtime(args.episodes, args.target, args.model, args.rewriter, args.log_dir)
+    _run_runtime(
+        args.episodes,
+        args.target,
+        args.model,
+        args.rewriter,
+        args.log_dir,
+        args.sectors,
+    )
 
 
 __all__ = [
