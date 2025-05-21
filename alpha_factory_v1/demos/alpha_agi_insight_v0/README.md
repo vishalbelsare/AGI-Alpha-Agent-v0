@@ -1,9 +1,10 @@
-# α‑AGI Insight Demo — v0
+# α‑AGI Insight 👁️✨ — Beyond Human Foresight — Official Demo
 
 The **α‑AGI Insight** demo predicts which industry sector is most likely to be
-transformed by Artificial General Intelligence.  It runs a small
-**Meta‑Agentic Tree Search** (MATS) over a list of sector names.  No external
-data is required so the script executes fully offline.
+transformed by Artificial General Intelligence. It runs a small
+**Meta‑Agentic Tree Search** (MATS) over a list of sector names. No external
+data is required so the script executes fully offline.  Pass a custom sector
+list with ``--sectors`` to experiment with your own domains.
 
 ```bash
 python -m alpha_factory_v1.demos.alpha_agi_insight_v0.insight_demo --episodes 5
@@ -18,7 +19,8 @@ python -m alpha_factory_v1.demos.alpha_agi_insight_v0.insight_demo \
     --episodes 10 \
     --rewriter openai \
     --model gpt-4o \
-    --log-dir logs
+    --log-dir logs \
+    --sectors Finance,Healthcare,Energy
 ```
 
 When optional dependencies such as ``openai`` or ``anthropic`` are not

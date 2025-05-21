@@ -16,14 +16,14 @@ import random
 from pathlib import Path
 from typing import List, Optional
 
-from alpha_factory_v1.meta_agentic_tree_search_v0.mats.tree import Node, Tree
-from alpha_factory_v1.meta_agentic_tree_search_v0.mats.meta_rewrite import (
+from alpha_factory_v1.demos.meta_agentic_tree_search_v0.mats.tree import Node, Tree
+from alpha_factory_v1.demos.meta_agentic_tree_search_v0.mats.meta_rewrite import (
     meta_rewrite,
     openai_rewrite,
     anthropic_rewrite,
 )
-from alpha_factory_v1.meta_agentic_tree_search_v0.mats.evaluators import evaluate
-from alpha_factory_v1.meta_agentic_tree_search_v0.mats.env import NumberLineEnv
+from alpha_factory_v1.demos.meta_agentic_tree_search_v0.mats.evaluators import evaluate
+from alpha_factory_v1.demos.meta_agentic_tree_search_v0.mats.env import NumberLineEnv
 
 
 def verify_environment() -> None:
@@ -63,7 +63,7 @@ def load_config(path: Path) -> dict:
                     cfg[key.strip()] = val
         return cfg
 
-SECTORS = [
+DEFAULT_SECTORS = [
     "Finance",
     "Healthcare",
     "Education",
@@ -74,6 +74,7 @@ SECTORS = [
     "Agriculture",
     "Defense",
     "Real Estate",
+
 ]
 
 
@@ -86,6 +87,7 @@ def run(
     target: int = 3,
     seed: Optional[int] = None,
     model: str | None = None,
+    sectors: Optional[List[str]] = None,
 ) -> str:
     """Run a short search predicting the target sector index."""
     if seed is not None:
@@ -105,6 +107,7 @@ def run(
     else:
         rewrite_fn = meta_rewrite
 
+    sectors = sectors or DEFAULT_SECTORS
     root_agents: List[int] = [0]
     env = NumberLineEnv(target=target)
     tree = Tree(Node(root_agents), exploration=exploration)
@@ -120,14 +123,14 @@ def run(
         child = Node(improved, reward=reward)
         tree.add_child(node, child)
         tree.backprop(child)
-        idx = improved[0] % len(SECTORS)
+        idx = improved[0] % len(sectors)
         print(
-            f"Episode {idx_ep+1:>3}: candidate {SECTORS[idx]} → reward {reward:.3f}"
+            f"Episode {idx_ep+1:>3}: candidate {sectors[idx]} → reward {reward:.3f}"
         )
         if log_fh:
-            log_fh.write(f"{idx_ep+1},{SECTORS[idx]},{reward:.6f}\n")
+            log_fh.write(f"{idx_ep+1},{sectors[idx]},{reward:.6f}\n")
     best = tree.best_leaf()
-    sector = SECTORS[best.agents[0] % len(SECTORS)]
+    sector = sectors[best.agents[0] % len(sectors)]
     score = best.reward / (best.visits or 1)
     summary = f"Best sector: {sector} score: {score:.3f}"
     print(summary)
@@ -152,6 +155,11 @@ def main(argv: List[str] | None = None) -> None:
     parser.add_argument("--model", type=str, help="Model for the rewriter")
     parser.add_argument("--log-dir", type=Path, help="Optional directory to store episode logs")
     parser.add_argument(
+        "--sectors",
+        type=str,
+        help="Comma-separated sector names or path to a text file",
+    )
+    parser.add_argument(
         "--verify-env",
         action="store_true",
         help="Check runtime dependencies before running",
@@ -168,6 +176,19 @@ def main(argv: List[str] | None = None) -> None:
     seed = args.seed if args.seed is not None else cfg.get("seed")
     seed = int(seed) if seed is not None else None
     model = args.model or cfg.get("model")
+    sectors = DEFAULT_SECTORS
+    cfg_sectors = cfg.get("sectors")
+    if cfg_sectors and not args.sectors:
+        if isinstance(cfg_sectors, list):
+            sectors = [str(s) for s in cfg_sectors]
+        else:
+            sectors = [s.strip() for s in str(cfg_sectors).split(",") if s.strip()]
+    if args.sectors:
+        path = Path(args.sectors)
+        if path.exists():
+            sectors = [line.strip() for line in path.read_text(encoding="utf-8").splitlines() if line.strip()]
+        else:
+            sectors = [s.strip() for s in args.sectors.split(",") if s.strip()]
     run(
         episodes,
         exploration,
@@ -176,6 +197,7 @@ def main(argv: List[str] | None = None) -> None:
         target=target,
         seed=seed,
         model=model,
+        sectors=sectors,
     )
 
 
