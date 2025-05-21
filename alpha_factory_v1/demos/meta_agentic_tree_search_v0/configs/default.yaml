@@ -1,3 +1,4 @@
 # Default configuration for the MATS demo
 episodes: 10
 exploration: 1.4
+rewriter: random

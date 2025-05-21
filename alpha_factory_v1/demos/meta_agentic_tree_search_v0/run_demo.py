@@ -12,19 +12,30 @@ except Exception:  # pragma: no cover - fallback parser
     yaml = None
 
 from .mats.tree import Node, Tree
-from .mats.meta_rewrite import meta_rewrite
+from .mats.meta_rewrite import meta_rewrite, openai_rewrite
 from .mats.evaluators import evaluate
 from .mats.env import NumberLineEnv
 
 
-def run(episodes: int = 10, exploration: float = 1.4) -> None:
-    """Run a toy tree search for a small number of episodes."""
+def run(episodes: int = 10, exploration: float = 1.4, rewriter: str = "random") -> None:
+    """Run a toy tree search for a small number of episodes.
+
+    Parameters
+    ----------
+    episodes:
+        Number of tree search iterations.
+    exploration:
+        Exploration constant for UCB1.
+    rewriter:
+        Which rewrite strategy to use: ``"random"`` or ``"openai"``.
+    """
     root_agents: List[int] = [0, 0, 0, 0]
     env = NumberLineEnv()
     tree = Tree(Node(root_agents), exploration=exploration)
+    rewrite_fn = openai_rewrite if rewriter == "openai" else meta_rewrite
     for _ in range(episodes):
         node = tree.select()
-        improved = meta_rewrite(node.agents)
+        improved = rewrite_fn(node.agents)
         reward = evaluate(improved, env)
         child = Node(improved, reward=reward)
         tree.add_child(node, child)
@@ -42,12 +53,15 @@ def load_config(path: Path) -> dict:
     text = path.read_text(encoding="utf-8")
     if yaml:
         return yaml.safe_load(text) or {}
-    cfg: dict[str, float] = {}
+    cfg: dict[str, object] = {}
     for line in text.splitlines():
         if ":" in line:
             key, val = line.split(":", 1)
             val = val.strip()
-            cfg[key.strip()] = float(val) if "." in val else int(val)
+            if val.replace('.', '', 1).isdigit():
+                cfg[key.strip()] = float(val) if "." in val else int(val)
+            else:
+                cfg[key.strip()] = val
     return cfg
 
 
@@ -55,11 +69,17 @@ def main(argv: List[str] | None = None) -> None:
     parser = argparse.ArgumentParser(description="Run the Meta-Agentic Tree Search demo")
     parser.add_argument("--episodes", type=int, help="Number of search iterations")
     parser.add_argument("--config", type=Path, default=Path("configs/default.yaml"), help="YAML configuration")
+    parser.add_argument(
+        "--rewriter",
+        choices=["random", "openai"],
+        help="Rewrite strategy",
+    )
     args = parser.parse_args(argv)
     cfg = load_config(args.config)
     episodes = args.episodes or int(cfg.get("episodes", 10))
     exploration = float(cfg.get("exploration", 1.4))
-    run(episodes, exploration)
+    rewriter = args.rewriter or cfg.get("rewriter", "random")
+    run(episodes, exploration, rewriter)
 
 
 if __name__ == "__main__":  # pragma: no cover - CLI entry
