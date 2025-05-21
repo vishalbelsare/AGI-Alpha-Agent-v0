@@ -52,8 +52,8 @@ else:
     from .run_demo import run
 
     async def run_search(episodes: int = 10, target: int = 5) -> str:
-        run(episodes=episodes, target=target)
-        return f"completed {episodes} episodes toward target {target}"
+        """Execute the search loop and return a summary string."""
+        return _run_search_helper(episodes, target)
 
 
 def main(argv: list[str] | None = None) -> None:
