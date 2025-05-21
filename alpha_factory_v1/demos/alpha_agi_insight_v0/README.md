@@ -39,6 +39,10 @@ python -m alpha_factory_v1.demos.alpha_agi_insight_v0.insight_demo \
 Use ``--list-sectors`` to display the resolved sector list without running the
 search. This is helpful when providing custom lists via ``--sectors``.
 
+Set the ``ALPHA_AGI_SECTORS`` environment variable to override the default
+sector list without editing configuration files.  Provide a comma-separated
+string or the path to a text file containing one sector per line.
+
 Export ``MCP_ENDPOINT`` to capture all prompts and replies for later audit using
 the Model Context Protocol. When unset the logging step is silently skipped.
 

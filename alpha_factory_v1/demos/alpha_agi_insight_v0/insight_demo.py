@@ -88,9 +88,13 @@ def parse_sectors(cfg_val: object | None, cli_val: str | None) -> List[str]:
         a YAML array.
     cli_val:
         Optional value passed via ``--sectors``.
+
+    Environment variable ``ALPHA_AGI_SECTORS`` overrides ``cfg_val`` when
+    ``cli_val`` is not supplied. The variable accepts a comma-separated list or
+    a text file path.
     """
 
-    source = cli_val or cfg_val
+    source = cli_val or os.getenv("ALPHA_AGI_SECTORS") or cfg_val
     if isinstance(source, list):
         return [str(s).strip() for s in source if str(s).strip()]
     if isinstance(source, str):
