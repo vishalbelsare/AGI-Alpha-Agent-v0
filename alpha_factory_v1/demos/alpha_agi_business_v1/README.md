@@ -130,11 +130,13 @@ All agents speak **A2A protobuf**, run on **OpenAI Agents SDK** or **Google AD
 <a id="story"></a>
 ## 5 End‑to‑End Alpha Walk‑through 📖
 
-1. **ResearchAgent** scrapes SEC 13‑F deltas, maritime AIS pings & macro calendars. 
-2. **MarketAnalysisAgent** detects anomalous spread widening in copper vs renewable‑ETF flows. 
-3. **PlanningAgent** forks tasks → **StrategyAgent** crafts hedged LME‑COMEX pair‑trade + FX overlay. 
-4. **SafetyAgent** signs‑off compliance pack (Dodd‑Frank §716, EMIR RTS 6). 
+1. **ResearchAgent** scrapes SEC 13‑F deltas, maritime AIS pings & macro calendars.
+2. **MarketAnalysisAgent** detects anomalous spread widening in copper vs renewable‑ETF flows.
+3. **PlanningAgent** forks tasks → **StrategyAgent** crafts hedged LME‑COMEX pair‑trade + FX overlay.
+4. **SafetyAgent** signs‑off compliance pack (Dodd‑Frank §716, EMIR RTS 6).
 5. **ExecutionAgent** routes orders to venues; fills + k‑sigs hashed on‑chain; escrow releases **$AGIALPHA**; live PnL feeds Grafana.
+6. **Best Alpha Example**
+   *Using the bundled sample opportunities the top ranked item is “gene therapy patent undervalued by market” (score 88). Launching the demo with `--submit-best` automatically queues this opportunity for execution.*
 *Wall clock: 4 min 18 s on a CPU‑only laptop.*
 
 ---
