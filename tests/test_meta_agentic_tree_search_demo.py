@@ -21,12 +21,35 @@ class TestMetaAgenticTreeSearchDemo(unittest.TestCase):
         self.assertEqual(result.returncode, 0, result.stderr)
         self.assertIn("Best agents", result.stdout)
 
+    def test_run_demo_openai_rewriter(self) -> None:
+        result = subprocess.run(
+            [
+                sys.executable,
+                "-m",
+                "alpha_factory_v1.demos.meta_agentic_tree_search_v0.run_demo",
+                "--episodes",
+                "2",
+                "--rewriter",
+                "openai",
+            ],
+            capture_output=True,
+            text=True,
+        )
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertIn("Best agents", result.stdout)
+
     def test_env_rollout(self) -> None:
         from alpha_factory_v1.demos.meta_agentic_tree_search_v0.mats.env import NumberLineEnv
 
         env = NumberLineEnv(target=3)
         reward = env.rollout([3, 3, 3])
         self.assertGreaterEqual(reward, -0.1)
+
+    def test_openai_rewrite_fallback(self) -> None:
+        from alpha_factory_v1.demos.meta_agentic_tree_search_v0.mats.meta_rewrite import openai_rewrite
+
+        out = openai_rewrite([1, 2, 3])
+        self.assertEqual(len(out), 3)
 
 
 if __name__ == "__main__":  # pragma: no cover

@@ -53,6 +53,17 @@ def MATS(root_agents, env, horizon_days):
 | Reward             | IRR, CumPnL/√Var, Sharpe (IRR) |
 | Environment        | Toy number-line env (default), limit‑order‑book sim, OpenAI Gym trading env |
 
+### 4.1 · OpenAI/ADK rewrite option
+When the optional `openai-agents` and `google-adk` packages are installed the
+demo can leverage the OpenAI Agents SDK together with the A2A protocol to
+generate candidate policies. Enable this behaviour with:
+
+```bash
+python run_demo.py --rewriter openai --episodes 500
+```
+The script automatically falls back to the offline rewriter when the
+dependencies are unavailable so the notebook remains runnable anywhere.
+
 ## 5 Quick start
 ```bash
 git clone https://github.com/MontrealAI/AGI-Alpha-Agent-v0.git
