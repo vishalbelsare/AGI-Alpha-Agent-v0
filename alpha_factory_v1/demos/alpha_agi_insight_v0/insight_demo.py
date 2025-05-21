@@ -6,10 +6,10 @@ from __future__ import annotations
 import argparse
 from typing import List
 
-from ..meta_agentic_tree_search_v0.mats.tree import Node, Tree
-from ..meta_agentic_tree_search_v0.mats.meta_rewrite import meta_rewrite
-from ..meta_agentic_tree_search_v0.mats.evaluators import evaluate
-from ..meta_agentic_tree_search_v0.mats.env import NumberLineEnv
+from alpha_factory_v1.meta_agentic_tree_search_v0.mats.tree import Node, Tree
+from alpha_factory_v1.meta_agentic_tree_search_v0.mats.meta_rewrite import meta_rewrite
+from alpha_factory_v1.meta_agentic_tree_search_v0.mats.evaluators import evaluate
+from alpha_factory_v1.meta_agentic_tree_search_v0.mats.env import NumberLineEnv
 
 SECTORS = [
     "Finance",
