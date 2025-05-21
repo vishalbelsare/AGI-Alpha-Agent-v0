@@ -93,17 +93,15 @@ def openai_rewrite(agents: List[int]) -> List[int]:
                     _ = agent2agent  # pragma: no cover - placeholder use
                 return list(result)
 
-            result: list[int] | None = None
-
-            async def _runner() -> list[int]:
-                return await _run()
-
-            result = asyncio.run(asyncio.to_thread(_runner))
-            if result is not None:
-                return result
-            else:
+            try:
+                result = asyncio.run(_run())
+            except RuntimeError:
+                # Reuse the running loop when inside async context
+                result = asyncio.get_event_loop().run_until_complete(_run())
+            if result is None:
                 logging.warning("Result is None; falling back to meta_rewrite.")
                 return meta_rewrite(agents)
+            return result
         except Exception as exc:  # pragma: no cover - safety net
             logging.warning(f"openai_rewrite fallback due to error: {exc}")
 

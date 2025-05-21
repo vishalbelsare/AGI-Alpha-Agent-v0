@@ -76,9 +76,9 @@ proposed policy elements so the rest of the demo keeps working.  You can
 override the model used by setting ``OPENAI_MODEL`` (defaults to ``gpt-4o``).
 Output from the model is processed via the new ``_parse_numbers`` helper which
 extracts integers from free‑form text so the search loop remains stable even when
-the LLM response contains extra commentary.
-The rewrite routine executes the LLM call in a background thread so it remains
-compatible with async runtimes such as the Agents SDK.
+the LLM response contains extra commentary. The rewrite routine executes the LLM
+call via a small synchronous helper so it functions both with and without an
+active event loop.
 
 ### 4.2 · OpenAI Agents bridge
 The `openai_agents_bridge.py` script exposes the search loop via the
