@@ -40,6 +40,7 @@ def run(
     *,
     target: int = 5,
     seed: Optional[int] = None,
+    model: str | None = None,
 ) -> None:
     """Run a toy tree search for a small number of episodes.
 
@@ -55,6 +56,8 @@ def run(
         Optional directory where a ``scores.csv`` log is written.
     seed:
         Optional RNG seed for reproducible runs.
+    model:
+        Optional OpenAI model override used by :func:`openai_rewrite`.
     """
     if seed is not None:
         random.seed(seed)
@@ -64,7 +67,10 @@ def run(
     tree = Tree(Node(root_agents), exploration=exploration)
     if rewriter is None:
         rewriter = "openai" if os.getenv("OPENAI_API_KEY") else "random"
-    rewrite_fn = openai_rewrite if rewriter == "openai" else meta_rewrite
+    if rewriter == "openai":
+        rewrite_fn = lambda ag: openai_rewrite(ag, model=model)
+    else:
+        rewrite_fn = meta_rewrite
     log_fh = None
     if log_dir is not None:
         log_dir.mkdir(parents=True, exist_ok=True)
@@ -118,6 +124,7 @@ def main(argv: List[str] | None = None) -> None:
     )
     parser.add_argument("--target", type=int, help="Target integer for the environment")
     parser.add_argument("--seed", type=int, help="Optional RNG seed")
+    parser.add_argument("--model", type=str, help="OpenAI model for the rewriter")
     parser.add_argument("--log-dir", type=Path, help="Optional directory to store episode logs")
     parser.add_argument(
         "--verify-env",
@@ -135,7 +142,16 @@ def main(argv: List[str] | None = None) -> None:
     target = args.target if args.target is not None else int(cfg.get("target", 5))
     seed = args.seed if args.seed is not None else cfg.get("seed")
     seed = int(seed) if seed is not None else None
-    run(episodes, exploration, rewriter, target=target, seed=seed, log_dir=args.log_dir)
+    model = args.model or cfg.get("model")
+    run(
+        episodes,
+        exploration,
+        rewriter,
+        target=target,
+        seed=seed,
+        log_dir=args.log_dir,
+        model=model,
+    )
 
 
 if __name__ == "__main__":  # pragma: no cover - CLI entry

@@ -26,7 +26,7 @@ def _parse_numbers(text: str, fallback: List[int]) -> List[int]:
     return numbers or [p + 1 for p in fallback]
 
 
-def openai_rewrite(agents: List[int]) -> List[int]:
+def openai_rewrite(agents: List[int], model: str | None = None) -> List[int]:
     """Improve ``agents`` using OpenAI Agents SDK and Google ADK when available.
 
     The routine falls back to :func:`meta_rewrite` when the required
@@ -48,6 +48,8 @@ def openai_rewrite(agents: List[int]) -> List[int]:
             from openai_agents import Agent, Tool  # type: ignore
             import openai  # type: ignore
 
+            oai_model = model or os.getenv("OPENAI_MODEL", "gpt-4o")
+
             if have_adk:
                 from google_adk import agent2agent  # type: ignore
 
@@ -61,7 +63,7 @@ def openai_rewrite(agents: List[int]) -> List[int]:
                 )
                 try:
                     response = openai.ChatCompletion.create(
-                        model=os.getenv("OPENAI_MODEL", "gpt-4o"),
+                        model=oai_model,
                         messages=[
                             {
                                 "role": "system",

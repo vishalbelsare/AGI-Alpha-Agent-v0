@@ -124,6 +124,8 @@ class TestMetaAgenticTreeSearchDemo(unittest.TestCase):
                 "1",
                 "--target",
                 "3",
+                "--model",
+                "gpt-4o",
             ],
             capture_output=True,
             text=True,
@@ -140,7 +142,7 @@ class TestMetaAgenticTreeSearchDemo(unittest.TestCase):
         if bridge.has_oai:  # pragma: no cover - only run offline path
             self.skipTest("openai-agents installed")
 
-        result = asyncio.run(bridge.run_search(episodes=1, target=2))
+        result = asyncio.run(bridge.run_search(episodes=1, target=2, model="gpt-4o"))
         self.assertIn("completed", result)
 
     def test_bridge_verify_env(self) -> None:
