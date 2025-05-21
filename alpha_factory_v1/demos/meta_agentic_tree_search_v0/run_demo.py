@@ -115,12 +115,7 @@ def main(argv: List[str] | None = None) -> None:
     cfg = load_config(args.config)
 
     if args.verify_env:
-        try:
-            import check_env  # type: ignore
-
-            check_env.main([])
-        except Exception as exc:  # pragma: no cover - best effort
-            print(f"Environment verification failed: {exc}")
+        verify_environment()
     episodes = args.episodes or int(cfg.get("episodes", 10))
     exploration = float(cfg.get("exploration", 1.4))
     rewriter = args.rewriter or cfg.get("rewriter", "random")
