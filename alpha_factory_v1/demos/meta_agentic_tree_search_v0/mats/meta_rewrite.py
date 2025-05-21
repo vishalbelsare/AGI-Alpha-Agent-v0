@@ -118,3 +118,37 @@ def openai_rewrite(agents: List[int], model: str | None = None) -> List[int]:
 
     # Fallback: simple random tweak
     return meta_rewrite(agents)
+
+
+def anthropic_rewrite(agents: List[int], model: str | None = None) -> List[int]:
+    """Improve ``agents`` using the Anthropic API when available."""
+
+    have_anthropic = importlib.util.find_spec("anthropic") is not None
+    if have_anthropic and os.getenv("ANTHROPIC_API_KEY"):
+        try:  # pragma: no cover - optional integration
+            import anthropic  # type: ignore
+
+            claude_model = model or os.getenv(
+                "ANTHROPIC_MODEL", "claude-3-opus-20240229"
+            )
+            client = anthropic.Anthropic(api_key=os.getenv("ANTHROPIC_API_KEY"))
+
+            prompt = (
+                "Given the current integer policy "
+                f"{agents}, suggest a slightly improved list of integers."
+            )
+
+            msg = client.messages.create(
+                model=claude_model,
+                max_tokens=20,
+                messages=[{"role": "user", "content": prompt}],
+                system="You rewrite policies for a simple number line game.",
+            )
+
+            text = msg.content[0].text if getattr(msg, "content", None) else ""
+            result = _parse_numbers(text, agents)
+            return result
+        except Exception as exc:  # pragma: no cover - safety net
+            logging.warning(f"anthropic_rewrite fallback due to error: {exc}")
+
+    return meta_rewrite(agents)

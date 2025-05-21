@@ -83,7 +83,20 @@ the output is malformed or incomplete the helper simply increments the previous
 policy as a safe fallback. The rewrite routine executes the LLM call via a small
 synchronous helper so it functions both with and without an active event loop.
 
-### 4.2 · OpenAI Agents bridge
+### 4.2 · Anthropic rewrite option
+When the optional `anthropic` package is installed and an `ANTHROPIC_API_KEY`
+environment variable is configured the demo can use Claude models to refine
+candidate policies via the ``anthropic_rewrite`` helper. Enable this behaviour
+with:
+
+```bash
+python run_demo.py --rewriter anthropic --episodes 500 --model claude-3-opus-20240229
+```
+As with the OpenAI path the call automatically falls back to the offline
+rewriter whenever dependencies or API keys are missing so the notebook remains
+fully reproducible.
+
+### 4.3 · OpenAI Agents bridge
 The `openai_agents_bridge.py` script exposes the search loop via the
 **OpenAI Agents SDK** and optionally the **Google ADK** federation layer. Launch
 the bridge to control the demo through API calls or the Agents runtime UI:

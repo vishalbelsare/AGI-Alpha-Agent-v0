@@ -13,6 +13,7 @@ class TestMetaAgenticTreeSearchImport(unittest.TestCase):
         self.assertTrue(hasattr(mod, "openai_agents_bridge"))
         env_mod = mod.mats
         self.assertTrue(hasattr(env_mod, "LiveBrokerEnv"))
+        self.assertTrue(hasattr(env_mod, "anthropic_rewrite"))
 
 if __name__ == "__main__":  # pragma: no cover
     unittest.main()

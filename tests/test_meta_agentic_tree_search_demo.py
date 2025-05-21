@@ -41,6 +41,23 @@ class TestMetaAgenticTreeSearchDemo(unittest.TestCase):
         self.assertEqual(result.returncode, 0, result.stderr)
         self.assertIn("Best agents", result.stdout)
 
+    def test_run_demo_anthropic_rewriter(self) -> None:
+        result = subprocess.run(
+            [
+                sys.executable,
+                "-m",
+                "alpha_factory_v1.demos.meta_agentic_tree_search_v0.run_demo",
+                "--episodes",
+                "2",
+                "--rewriter",
+                "anthropic",
+            ],
+            capture_output=True,
+            text=True,
+        )
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertIn("Best agents", result.stdout)
+
     def test_env_rollout(self) -> None:
         from alpha_factory_v1.demos.meta_agentic_tree_search_v0.mats.env import (
             NumberLineEnv,
@@ -61,6 +78,14 @@ class TestMetaAgenticTreeSearchDemo(unittest.TestCase):
         )
 
         out = openai_rewrite([1, 2, 3])
+        self.assertEqual(len(out), 3)
+
+    def test_anthropic_rewrite_fallback(self) -> None:
+        from alpha_factory_v1.demos.meta_agentic_tree_search_v0.mats.meta_rewrite import (
+            anthropic_rewrite,
+        )
+
+        out = anthropic_rewrite([1, 2, 3])
         self.assertEqual(len(out), 3)
 
     def test_parse_numbers_helper(self) -> None:
