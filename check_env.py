@@ -1,4 +1,16 @@
-"""Light-weight dependency check for demos and tests."""
+"""Light-weight dependency check for demos and tests.
+
+This helper validates that the Python packages required by the
+Alpha‑Factory demos and unit tests are present.  When invoked with the
+``--auto-install`` flag (or ``AUTO_INSTALL_MISSING=1`` environment
+variable) it attempts to install any missing dependencies using
+``pip``.  For air‑gapped environments supply ``--wheelhouse`` or set
+``WHEELHOUSE=/path/to/wheels`` so ``pip`` can resolve packages from a
+local directory.
+
+The script prints a warning when packages are missing but continues to
+run so the demos remain usable in restricted setups.
+"""
 
 import importlib.util
 import subprocess
