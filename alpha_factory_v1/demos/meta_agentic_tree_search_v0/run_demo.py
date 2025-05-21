@@ -66,14 +66,12 @@ def run(
     env = NumberLineEnv(target=target)
     tree = Tree(Node(root_agents), exploration=exploration)
     if rewriter is None:
-        rewriter = os.getenv("MATS_REWRITER")
-    if rewriter is None:
-        if os.getenv("OPENAI_API_KEY"):
-            rewriter = "openai"
-        elif os.getenv("ANTHROPIC_API_KEY"):
-            rewriter = "anthropic"
-        else:
-            rewriter = "random"
+        rewriter = (
+            os.getenv("MATS_REWRITER")
+            or ("openai" if os.getenv("OPENAI_API_KEY") else None)
+            or ("anthropic" if os.getenv("ANTHROPIC_API_KEY") else None)
+            or "random"
+        )
     if rewriter == "openai":
         rewrite_fn = lambda ag: openai_rewrite(ag, model=model)
     elif rewriter == "anthropic":
