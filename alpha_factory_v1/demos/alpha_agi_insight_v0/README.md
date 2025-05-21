@@ -23,6 +23,12 @@ python -m alpha_factory_v1.demos.alpha_agi_insight_v0 --verify-env
 
 Pass ``--offline`` to skip the agent runtime entirely.
 
+For a quick offline run from anywhere:
+
+```bash
+python -m alpha_factory_v1.demos.alpha_agi_insight_v0 --offline --episodes 2
+```
+
 ### Quick Start Script
 
 Ensure the shell helper is executable by running ``chmod +x run_insight_demo.sh`` if needed.
