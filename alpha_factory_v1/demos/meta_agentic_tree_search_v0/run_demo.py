@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import argparse
+import os
 import random
 from pathlib import Path
 from typing import List, Optional
@@ -21,7 +22,8 @@ from .mats.env import NumberLineEnv
 def run(
     episodes: int = 10,
     exploration: float = 1.4,
-    rewriter: str = "random",
+    rewriter: str | None = None,
+    log_dir: Path | None = None,
     *,
     target: int = 5,
     seed: Optional[int] = None,
@@ -36,6 +38,8 @@ def run(
         Exploration constant for UCB1.
     rewriter:
         Which rewrite strategy to use: ``"random"`` or ``"openai"``.
+    log_dir:
+        Optional directory where a ``scores.csv`` log is written.
     seed:
         Optional RNG seed for reproducible runs.
     """
@@ -45,7 +49,14 @@ def run(
     root_agents: List[int] = [0, 0, 0, 0]
     env = NumberLineEnv(target=target)
     tree = Tree(Node(root_agents), exploration=exploration)
+    if rewriter is None:
+        rewriter = "openai" if os.getenv("OPENAI_API_KEY") else "random"
     rewrite_fn = openai_rewrite if rewriter == "openai" else meta_rewrite
+    log_fh = None
+    if log_dir is not None:
+        log_dir.mkdir(parents=True, exist_ok=True)
+        log_fh = open(log_dir / "scores.csv", "w", encoding="utf-8")
+        log_fh.write("episode,candidate,reward\n")
     for _ in range(episodes):
         node = tree.select()
         improved = rewrite_fn(node.agents)
@@ -54,9 +65,14 @@ def run(
         tree.add_child(node, child)
         tree.backprop(child)
         print(f"Episode {_+1:>3}: candidate {improved} → reward {reward:.3f}")
+        if log_fh:
+            log_fh.write(f"{_+1},{improved},{reward:.6f}\n")
     best = tree.best_leaf()
     score = best.reward / (best.visits or 1)
     print(f"Best agents: {best.agents} score: {score:.3f}")
+    if log_fh:
+        log_fh.write(f"best,{best.agents},{score:.6f}\n")
+        log_fh.close()
 
 
 def load_config(path: Path) -> dict:
@@ -89,6 +105,7 @@ def main(argv: List[str] | None = None) -> None:
     )
     parser.add_argument("--target", type=int, help="Target integer for the environment")
     parser.add_argument("--seed", type=int, help="Optional RNG seed")
+    parser.add_argument("--log-dir", type=Path, help="Optional directory to store episode logs")
     args = parser.parse_args(argv)
     cfg = load_config(args.config)
     episodes = args.episodes or int(cfg.get("episodes", 10))
@@ -97,7 +114,7 @@ def main(argv: List[str] | None = None) -> None:
     target = args.target if args.target is not None else int(cfg.get("target", 5))
     seed = args.seed if args.seed is not None else cfg.get("seed")
     seed = int(seed) if seed is not None else None
-    run(episodes, exploration, rewriter, target=target, seed=seed)
+    run(episodes, exploration, rewriter, target=target, seed=seed, log_dir=args.log_dir)
 
 
 if __name__ == "__main__":  # pragma: no cover - CLI entry

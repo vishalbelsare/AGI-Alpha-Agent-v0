@@ -100,7 +100,9 @@ python -m venv .venv && source .venv/bin/activate
 pip install -r requirements.txt          # torch, gymnasium, networkx, etc.
 python run_demo.py --config configs/default.yaml --episodes 500 --target 5 --seed 42
 ```
-`run_demo.py` prints a per‑episode scoreboard and writes checkpoints to `./checkpoints/`. A ready‑to‑run Colab notebook is also provided as `colab_meta_agentic_tree_search.ipynb`.
+`run_demo.py` prints a per‑episode scoreboard.  Pass `--log-dir logs` to save a
+`scores.csv` file for further analysis. A ready‑to‑run Colab notebook is also
+provided as `colab_meta_agentic_tree_search.ipynb`.
 The default environment is a simple number‑line task defined in `mats/env.py` where each agent must approach a target integer. Pass `--target 7` (for example) to experiment with different goals.
 Use `--seed 42` to reproduce a specific search trajectory.
 
