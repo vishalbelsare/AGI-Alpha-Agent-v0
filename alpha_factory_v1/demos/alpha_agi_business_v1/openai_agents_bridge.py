@@ -53,6 +53,11 @@ def _require_openai_agents() -> bool:
             return True
         except Exception as exc:  # pragma: no cover - install failed
             sys.stderr.write(f"\n⚠️  openai_agents unavailable: {exc}\n")
+            if isinstance(exc, requests.exceptions.ConnectionError):
+                sys.stderr.write(
+                    "   Network appears unreachable. Install 'openai_agents' "
+                    "manually or provide a local wheel via WHEELHOUSE.\n"
+                )
             sys.stderr.write("   Continuing without OpenAI Agents bridge.\n")
             return False
 
