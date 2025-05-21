@@ -3,8 +3,11 @@
 from __future__ import annotations
 
 import json
+import logging
 from pathlib import Path
 from typing import List, Dict
+
+logger = logging.getLogger(__name__)
 
 from .cross_alpha_discovery_stub import SAMPLE_ALPHA, discover_alpha, _ledger_path
 
@@ -23,7 +26,11 @@ def _read_log(limit: int) -> List[Dict[str, str]]:
         if isinstance(data, dict):
             data = [data]
         return data[-limit:]
-    except (FileNotFoundError, PermissionError, json.JSONDecodeError):  # pragma: no cover - missing or invalid log
+    except (
+        FileNotFoundError,
+        PermissionError,
+        json.JSONDecodeError,
+    ):  # pragma: no cover - missing or invalid log
         return []
 
 
@@ -68,9 +75,9 @@ def main() -> None:
         auto_register([agent])
         maybe_launch()
     except Exception as exc:  # pragma: no cover - ADK optional
-        logging.warning(f"ADK bridge unavailable: {exc}")
+        logger.warning(f"ADK bridge unavailable: {exc}")
 
-    logging.info("Registered CrossIndustryAgent with runtime")
+    logger.info("Registered CrossIndustryAgent with runtime")
     runtime.run()
 
 

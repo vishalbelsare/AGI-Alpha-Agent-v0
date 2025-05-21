@@ -13,6 +13,9 @@ import argparse
 import importlib.util
 import sys
 import pathlib
+import logging
+
+logger = logging.getLogger(__name__)
 
 DEFAULT_MODEL_NAME = os.getenv("OPENAI_MODEL", "gpt-4o")
 
@@ -74,7 +77,10 @@ if has_oai:
             )
 
     def _run_runtime(
-        episodes: int, target: int, model: str | None = None, rewriter: str | None = None
+        episodes: int,
+        target: int,
+        model: str | None = None,
+        rewriter: str | None = None,
     ) -> None:
         if model:
             os.environ.setdefault("OPENAI_MODEL", model)
@@ -98,6 +104,7 @@ if has_oai:
 
         logger.info("Registered InsightAgent with runtime")
         runtime.run()
+
 else:
 
     async def run_insight_search(
@@ -117,16 +124,25 @@ else:
         return f"{FALLBACK_MODE_PREFIX}{summary}"
 
     def _run_runtime(
-        episodes: int, target: int, model: str | None = None, rewriter: str | None = None
+        episodes: int,
+        target: int,
+        model: str | None = None,
+        rewriter: str | None = None,
     ) -> None:
         print("openai-agents package is missing. Running offline demo...")
         run(episodes=episodes, target=target, model=model, rewriter=rewriter)
 
 
 def main(argv: list[str] | None = None) -> None:
-    parser = argparse.ArgumentParser(description="OpenAI Agents bridge for the α‑AGI Insight demo")
-    parser.add_argument("--episodes", type=int, default=5, help="Search episodes when offline")
-    parser.add_argument("--target", type=int, default=3, help="Target sector index when offline")
+    parser = argparse.ArgumentParser(
+        description="OpenAI Agents bridge for the α‑AGI Insight demo"
+    )
+    parser.add_argument(
+        "--episodes", type=int, default=5, help="Search episodes when offline"
+    )
+    parser.add_argument(
+        "--target", type=int, default=3, help="Target sector index when offline"
+    )
     parser.add_argument("--model", type=str, help="Model name override")
     parser.add_argument(
         "--rewriter",
