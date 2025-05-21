@@ -69,14 +69,10 @@ def main(argv: list[str] | None = None) -> None:
                 break
             if not action or action.lower() in {"quit", "exit"}:
                 break
-            payload = {"action": action}
-            if action == "submit_job" and args.job:
-                payload["job"] = json.loads(Path(args.job).read_text(encoding="utf-8"))
+            payload = _construct_payload(action, args.job)
             _invoke(payload)
     else:
-        payload: dict[str, object] = {"action": args.action}
-        if args.job:
-            payload["job"] = json.loads(Path(args.job).read_text(encoding="utf-8"))
+        payload = _construct_payload(args.action, args.job)
         _invoke(payload)
 
 
