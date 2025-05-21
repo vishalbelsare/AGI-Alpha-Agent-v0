@@ -13,6 +13,8 @@ import importlib.util
 import sys
 import pathlib
 
+DEFAULT_MODEL_NAME = os.getenv("OPENAI_MODEL", "gpt-4o")
+
 if __package__ is None:  # pragma: no cover - allow direct execution
     sys.path.append(str(pathlib.Path(__file__).resolve().parents[3]))
 
@@ -114,6 +116,14 @@ def main(argv: list[str] | None = None) -> None:
         os.environ.setdefault("ALPHA_FACTORY_ENABLE_ADK", "true")
 
     _run_runtime(args.episodes, args.target, args.model)
+
+
+__all__ = [
+    "DEFAULT_MODEL_NAME",
+    "has_oai",
+    "run_search",
+    "main",
+]
 
 
 if __name__ == "__main__":  # pragma: no cover
