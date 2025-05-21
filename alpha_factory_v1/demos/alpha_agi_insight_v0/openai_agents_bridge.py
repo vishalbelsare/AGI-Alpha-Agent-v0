@@ -27,7 +27,11 @@ if __package__ is None:  # pragma: no cover - allow direct execution
 
 from .insight_demo import run, verify_environment
 
-has_oai = importlib.util.find_spec("openai_agents") is not None
+try:
+    _spec = importlib.util.find_spec("openai_agents")
+except ValueError:  # loaded stub with missing spec
+    _spec = None
+has_oai = _spec is not None
 
 if has_oai:
     from openai_agents import Agent, AgentRuntime, Tool  # type: ignore
