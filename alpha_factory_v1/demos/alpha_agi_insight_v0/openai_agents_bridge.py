@@ -28,7 +28,7 @@ if __package__ is None:  # pragma: no cover - allow direct execution
     sys.path.append(str(pathlib.Path(__file__).resolve().parents[3]))
     __package__ = "alpha_factory_v1.demos.alpha_agi_insight_v0"
 
-from .insight_demo import run, verify_environment
+from .insight_demo import run, verify_environment, parse_sectors
 
 try:
     _spec = importlib.util.find_spec("openai_agents")
@@ -53,12 +53,13 @@ if has_oai:
             os.environ.setdefault("OPENAI_MODEL", model)
         if rewriter:
             os.environ.setdefault("MATS_REWRITER", rewriter)
+        sector_list = parse_sectors(None, sectors)
         result = run(
             episodes=episodes,
             target=target,
             model=model,
             rewriter=rewriter,
-            sectors=(sectors.split(",") if sectors else None),
+            sectors=sector_list,
         )
         return result
 
@@ -114,12 +115,13 @@ else:
         rewriter: str | None = None,
         sectors: str | None = None,
     ) -> str:
+        sector_list = parse_sectors(None, sectors)
         summary = run(
             episodes=episodes,
             target=target,
             model=model,
             rewriter=rewriter,
-            sectors=(sectors.split(",") if sectors else None),
+            sectors=sector_list,
         )
         return f"{FALLBACK_MODE_PREFIX}{summary}"
 
@@ -130,7 +132,14 @@ else:
         rewriter: str | None = None,
     ) -> None:
         print("openai-agents package is missing. Running offline demo...")
-        run(episodes=episodes, target=target, model=model, rewriter=rewriter)
+        sector_list = parse_sectors(None, None)
+        run(
+            episodes=episodes,
+            target=target,
+            model=model,
+            rewriter=rewriter,
+            sectors=sector_list,
+        )
 
 
 def main(argv: list[str] | None = None) -> None:

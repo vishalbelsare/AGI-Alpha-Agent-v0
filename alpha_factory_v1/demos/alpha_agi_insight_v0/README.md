@@ -41,7 +41,9 @@ search. This is helpful when providing custom lists via ``--sectors``.
 
 Set the ``ALPHA_AGI_SECTORS`` environment variable to override the default
 sector list without editing configuration files.  Provide a comma-separated
-string or the path to a text file containing one sector per line.
+string or the path to a text file containing one sector per line.  The
+``openai_agents_bridge`` respects the same variable when launching via the
+Agents runtime so your custom sector lists work in both modes.
 
 Export ``MCP_ENDPOINT`` to capture all prompts and replies for later audit using
 the Model Context Protocol. When unset the logging step is silently skipped.
