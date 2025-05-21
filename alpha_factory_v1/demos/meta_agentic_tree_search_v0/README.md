@@ -74,6 +74,17 @@ When the optional `openai` package is also present, `openai_rewrite` uses
 key or in fully offline environments the routine simply increments the
 proposed policy elements so the rest of the demo keeps working.
 
+### 4.2 · OpenAI Agents bridge
+A standalone script `openai_agents_bridge.py` exposes the search loop via the
+**OpenAI Agents SDK** and optionally the **Google ADK** federation layer. Launch
+the bridge to control the demo through API calls or the Agents runtime UI:
+
+```bash
+python openai_agents_bridge.py --help
+```
+The bridge runs entirely offline when the `openai_agents` package or API keys
+are missing so the notebook remains reproducible anywhere.
+
 ## 5 Quick start
 ```bash
 git clone https://github.com/MontrealAI/AGI-Alpha-Agent-v0.git
