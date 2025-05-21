@@ -51,6 +51,23 @@ class TestMetaAgenticTreeSearchDemo(unittest.TestCase):
         out = openai_rewrite([1, 2, 3])
         self.assertEqual(len(out), 3)
 
+    def test_run_demo_with_target(self) -> None:
+        result = subprocess.run(
+            [
+                sys.executable,
+                "-m",
+                "alpha_factory_v1.demos.meta_agentic_tree_search_v0.run_demo",
+                "--episodes",
+                "2",
+                "--target",
+                "7",
+            ],
+            capture_output=True,
+            text=True,
+        )
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertIn("Best agents", result.stdout)
+
 
 if __name__ == "__main__":  # pragma: no cover
     unittest.main()
