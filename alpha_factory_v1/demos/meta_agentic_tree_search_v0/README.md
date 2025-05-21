@@ -84,7 +84,13 @@ python openai_agents_bridge.py --help
 ```
 If the `openai_agents` package or API keys are missing the bridge automatically
 falls back to running the search loop locally so the notebook remains
-reproducible anywhere.
+reproducible anywhere.  When running offline you can still invoke
+`run_search` directly to verify the helper logic:
+
+```bash
+python openai_agents_bridge.py --episodes 3 --target 4
+```
+This prints a short completion summary after executing the demo loop.
 
 ## 5 Quick start
 ```bash
