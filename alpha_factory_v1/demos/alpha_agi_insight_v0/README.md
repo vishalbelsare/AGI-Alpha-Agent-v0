@@ -49,9 +49,9 @@ and optionally written to ``scores.csv`` when ``--log-dir`` is supplied.
 
 ### Graceful Offline Mode
 
-The demo detects missing API keys and transparently switches to a local search
-strategy so it operates without network access. Supply ``--verify-env`` to run a
-best‑effort dependency check before launching.
+The demo automatically falls back to an offline search strategy whenever the
+required API keys are absent or network access is restricted. Use
+``--verify-env`` for a quick dependency check before launching.
 
 ## OpenAI Agents Bridge
 

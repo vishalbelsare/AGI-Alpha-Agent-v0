@@ -31,7 +31,9 @@ try:
     _spec = importlib.util.find_spec("openai_agents")
 except ValueError:  # loaded stub with missing spec
     _spec = None
-has_oai = _spec is not None
+
+_has_key = bool(os.getenv("OPENAI_API_KEY"))
+has_oai = _spec is not None and _has_key
 
 if has_oai:
     from openai_agents import Agent, AgentRuntime, Tool  # type: ignore
