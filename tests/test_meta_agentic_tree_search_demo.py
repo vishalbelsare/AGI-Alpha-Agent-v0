@@ -85,6 +85,23 @@ class TestMetaAgenticTreeSearchDemo(unittest.TestCase):
         self.assertEqual(result.returncode, 0, result.stderr)
         self.assertIn("Best agents", result.stdout)
 
+    def test_bridge_fallback(self) -> None:
+        result = subprocess.run(
+            [
+                sys.executable,
+                "-m",
+                "alpha_factory_v1.demos.meta_agentic_tree_search_v0.openai_agents_bridge",
+                "--episodes",
+                "1",
+                "--target",
+                "3",
+            ],
+            capture_output=True,
+            text=True,
+        )
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertIn("offline demo", result.stdout.lower())
+
 
 if __name__ == "__main__":  # pragma: no cover
     unittest.main()
