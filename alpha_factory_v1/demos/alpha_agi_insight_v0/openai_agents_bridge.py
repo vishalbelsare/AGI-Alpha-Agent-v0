@@ -16,6 +16,10 @@ import pathlib
 
 DEFAULT_MODEL_NAME = os.getenv("OPENAI_MODEL", "gpt-4o")
 
+# Prefix used when running without the optional ``openai-agents`` package.
+# Makes it easy for unit tests and calling code to detect the offline path.
+FALLBACK_MODE_PREFIX = "fallback_mode_active: "
+
 
 if __package__ is None:  # pragma: no cover - allow direct execution
     sys.path.append(str(pathlib.Path(__file__).resolve().parents[3]))

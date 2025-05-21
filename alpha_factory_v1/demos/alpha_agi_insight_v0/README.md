@@ -11,6 +11,18 @@ transformed by Artificial General Intelligence. It runs a small
 python -m alpha_factory_v1.demos.alpha_agi_insight_v0.insight_demo --episodes 5
 ```
 
+### Single Command Launcher
+
+Run the package itself to automatically select the best interface. By default it
+routes through the OpenAI Agents runtime when available and transparently
+degrades to the local CLI otherwise:
+
+```bash
+python -m alpha_factory_v1.demos.alpha_agi_insight_v0 --verify-env
+```
+
+Pass ``--offline`` to skip the agent runtime entirely.
+
 ## Usage
 
 The command line interface mirrors the options of the general MATS demo:
