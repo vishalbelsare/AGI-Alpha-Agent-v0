@@ -29,6 +29,12 @@ installed, the program automatically falls back to a simple offline rewriter so
 the demo remains functional anywhere.  Episode scores are printed to the console
 and optionally written to ``scores.csv`` when ``--log-dir`` is supplied.
 
+### Graceful Offline Mode
+
+The demo detects missing API keys and transparently switches to a local search
+strategy so it operates without network access. Supply ``--verify-env`` to run a
+best‑effort dependency check before launching.
+
 ## OpenAI Agents Bridge
 
 Launch ``openai_agents_bridge.py`` to control the demo via the
@@ -38,4 +44,5 @@ Launch ``openai_agents_bridge.py`` to control the demo via the
 python -m alpha_factory_v1.demos.alpha_agi_insight_v0.openai_agents_bridge --verify-env
 ```
 The bridge automatically falls back to offline mode when the optional
-packages or API keys are missing.
+packages or API keys are missing. Use ``--enable-adk`` to expose the agent via
+the optional Google ADK gateway when available.
