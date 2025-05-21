@@ -86,7 +86,7 @@ def main(argv: List[str] | None = None) -> None:
     episodes = args.episodes or int(cfg.get("episodes", 10))
     exploration = float(cfg.get("exploration", 1.4))
     rewriter = args.rewriter or cfg.get("rewriter", "random")
-    target = args.target or int(cfg.get("target", 5))
+    target = args.target if args.target is not None else int(cfg.get("target", 5))
     run(episodes, exploration, rewriter, target=target)
 
 
