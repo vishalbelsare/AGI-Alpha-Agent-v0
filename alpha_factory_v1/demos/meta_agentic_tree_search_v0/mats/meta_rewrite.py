@@ -23,7 +23,9 @@ def openai_rewrite(agents: List[int]) -> List[int]:
     functional in fully offline environments. When the optional
     dependencies are present, a tiny ``RewriterAgent`` is instantiated
     and invoked once to illustrate how the Agents SDK could be wired
-    into the search loop.
+    into the search loop.  The implementation uses ``asyncio`` under the
+    hood but exposes a synchronous API so the rest of the demo can run
+    without an event loop.
     """
 
     have_oai = importlib.util.find_spec("openai_agents") is not None
@@ -48,13 +50,14 @@ def openai_rewrite(agents: List[int]) -> List[int]:
                     return await improve_policy(list(cand))
 
             agent = RewriterAgent()
-            # Execute the policy once via asyncio to keep things simple and
-            # avoid setting up a full runtime. ``agent2agent`` is touched so
-            # static analysers confirm integration when available.
-            result = await agent.policy({"policy": agents}, {})
-            if have_adk:
-                _ = agent2agent  # pragma: no cover - placeholder use
-            return list(result)
+
+            async def _run() -> list[int]:
+                result = await agent.policy({"policy": agents}, {})
+                if have_adk:
+                    _ = agent2agent  # pragma: no cover - placeholder use
+                return list(result)
+
+            return asyncio.run(_run())
         except Exception:  # pragma: no cover - safety net
             pass
 
