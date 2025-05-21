@@ -15,6 +15,16 @@ import pathlib
 
 DEFAULT_MODEL_NAME = os.getenv("OPENAI_MODEL", "gpt-4o")
 
+
+def verify_env() -> None:
+    """Best-effort runtime dependency check."""
+    try:
+        import check_env  # type: ignore
+
+        check_env.main([])
+    except Exception as exc:  # pragma: no cover - best effort
+        print(f"Environment verification failed: {exc}")
+
 if __package__ is None:  # pragma: no cover - allow direct execution
     # Ensure imports resolve when running the script directly
     sys.path.append(str(pathlib.Path(__file__).resolve().parents[3]))
@@ -129,12 +139,7 @@ def main(argv: list[str] | None = None) -> None:
     args = parser.parse_args(argv)
 
     if args.verify_env:
-        try:
-            import check_env  # type: ignore
-
-            check_env.main([])
-        except Exception as exc:  # pragma: no cover - best effort
-            print(f"Environment verification failed: {exc}")
+        verify_env()
 
     if not has_oai:
         print("openai-agents package is missing. Running offline demo...")
@@ -156,6 +161,7 @@ __all__ = [
     "DEFAULT_MODEL_NAME",
     "has_oai",
     "run_search",
+    "verify_env",
     "main",
 ]
 

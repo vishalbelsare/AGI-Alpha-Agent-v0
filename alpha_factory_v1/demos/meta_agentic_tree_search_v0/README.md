@@ -108,9 +108,11 @@ Run a quick environment check with ``--verify-env`` if desired:
 ```bash
 python openai_agents_bridge.py --verify-env --episodes 3 --target 4 --model gpt-4o
 ```
-If the `openai_agents` package or API keys are missing the bridge automatically
-falls back to running the search loop locally so the notebook remains
-reproducible anywhere.  When running offline you can still invoke
+The bridge exposes a small :func:`verify_env` helper that performs the same
+sanity check programmatically. Call it from Python or rely on the command
+above. If the `openai_agents` package or API keys are missing the bridge
+automatically falls back to running the search loop locally so the notebook
+remains reproducible anywhere. When running offline you can still invoke
 `run_search` directly to verify the helper logic:
 
 ```bash
@@ -135,6 +137,14 @@ python -m alpha_factory_v1.demos.meta_agentic_tree_search_v0.run_demo --episodes
 `run_demo.py` prints a per‑episode scoreboard.  Pass `--log-dir logs` to save a
 `scores.csv` file for further analysis. A ready‑to‑run Colab notebook is also
 provided as `colab_meta_agentic_tree_search.ipynb`.
+
+### Notebook quick start
+1. Click the “Open In Colab” badge at the top of this document.
+2. Execute the first cell to clone the repository and install dependencies.
+3. Optionally provide `OPENAI_API_KEY` or `ANTHROPIC_API_KEY` values in the second cell.
+4. Run the demo cell to launch the search loop.
+5. Optionally invoke `openai_agents_bridge.py --verify-env` from a new cell to confirm your runtime.
+
 Add ``--enable-adk`` to the command above to start the optional ADK
 gateway for remote control via the A2A protocol.
 The default environment is a simple number‑line task defined in `mats/env.py` where each agent must approach a target integer. Pass `--target 7` (for example) to experiment with different goals.
