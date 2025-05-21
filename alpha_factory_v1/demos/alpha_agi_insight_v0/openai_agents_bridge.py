@@ -137,7 +137,13 @@ else:
         rewriter: str | None = None,
         log_dir: str | None = None,
     ) -> None:
-        print("openai-agents package is missing. Running offline demo...")
+        reasons = []
+        if _spec is None:
+            reasons.append("openai-agents missing")
+        if not _has_key:
+            reasons.append("OPENAI_API_KEY unset")
+        msg = " & ".join(reasons) or "offline mode"
+        print(f"Running offline demo ({msg})…")
         sector_list = parse_sectors(None, None)
         run(
             episodes=episodes,
