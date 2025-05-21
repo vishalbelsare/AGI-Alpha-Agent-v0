@@ -21,9 +21,18 @@ def meta_rewrite(agents: List[int]) -> List[int]:
 
 
 def _parse_numbers(text: str, fallback: List[int]) -> List[int]:
-    """Return integers parsed from ``text`` or a simple increment fallback."""
+    """Return integers parsed from ``text`` or a simple increment fallback.
+
+    The helper ensures the returned list has the same length as ``fallback`` so
+    the rest of the demo remains stable even when the LLM response is malformed
+    or incomplete. If ``fallback`` is an empty list, an empty list is returned.
+    """
     numbers = [int(n) for n in re.findall(r"-?\d+", text)]
-    return numbers or [p + 1 for p in fallback]
+    if not fallback:
+        return []
+    if len(numbers) != len(fallback) or not numbers:
+        return [p + 1 for p in fallback]
+    return numbers
 
 
 def openai_rewrite(agents: List[int], model: str | None = None) -> List[int]:
