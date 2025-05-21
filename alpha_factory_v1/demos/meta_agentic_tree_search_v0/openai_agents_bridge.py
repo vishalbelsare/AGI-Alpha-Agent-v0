@@ -51,8 +51,12 @@ if has_oai:
 else:
     from .run_demo import run
 
-    async def run_search(episodes: int = 10, target: int = 5) -> str:
+    def _run_search_helper(episodes: int, target: int) -> str:
         """Execute the search loop and return a summary string."""
+        run(episodes=episodes, target=target)
+        return f"completed {episodes} episodes toward target {target}"
+
+    async def run_search(episodes: int = 10, target: int = 5) -> str:
         return _run_search_helper(episodes, target)
 
 

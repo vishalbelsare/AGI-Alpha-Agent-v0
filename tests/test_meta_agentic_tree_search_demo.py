@@ -102,6 +102,16 @@ class TestMetaAgenticTreeSearchDemo(unittest.TestCase):
         self.assertEqual(result.returncode, 0, result.stderr)
         self.assertIn("offline demo", result.stdout.lower())
 
+    def test_bridge_run_search_helper(self) -> None:
+        import asyncio
+        from alpha_factory_v1.demos.meta_agentic_tree_search_v0 import openai_agents_bridge as bridge
+
+        if bridge.has_oai:  # pragma: no cover - only run offline path
+            self.skipTest("openai-agents installed")
+
+        result = asyncio.run(bridge.run_search(episodes=1, target=2))
+        self.assertIn("completed", result)
+
 
 if __name__ == "__main__":  # pragma: no cover
     unittest.main()
