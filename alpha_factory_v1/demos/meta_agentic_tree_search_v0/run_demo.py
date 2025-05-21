@@ -19,6 +19,19 @@ from .mats.evaluators import evaluate
 from .mats.env import NumberLineEnv
 
 
+def verify_environment() -> None:
+    """Best-effort runtime dependency check."""
+    try:
+        import check_env  # type: ignore
+
+        check_env.main([])
+    except (ImportError, ModuleNotFoundError) as exc:  # pragma: no cover - optional helper
+        print(f"Environment verification failed: {exc}")
+    except Exception as exc:
+        print(f"Unexpected error during environment verification: {exc}")
+        raise
+
+
 def run(
     episodes: int = 10,
     exploration: float = 1.4,
