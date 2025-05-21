@@ -51,6 +51,9 @@ def load_config(path: Path) -> dict:
     except Exception:
         cfg: dict[str, object] = {}
         for line in text.splitlines():
+            line = line.strip()
+            if not line or line.startswith("#"):
+                continue
             if ":" in line:
                 key, val = line.split(":", 1)
                 val = val.strip()
