@@ -84,7 +84,7 @@ def openai_rewrite(agents: List[int]) -> List[int]:
 
             return asyncio.run(_run())
         except Exception as exc:  # pragma: no cover - safety net
-            print(f"openai_rewrite fallback due to error: {exc}")
+            logging.warning(f"openai_rewrite fallback due to error: {exc}")
 
     # Fallback: simple random tweak
     return meta_rewrite(agents)
