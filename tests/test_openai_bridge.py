@@ -33,5 +33,10 @@ class TestOpenAIBridge(unittest.TestCase):
         path = Path('alpha_factory_v1/demos/meta_agentic_tree_search_v0/openai_agents_bridge.py')
         py_compile.compile(path, doraise=True)
 
+    def test_insight_bridge_compiles(self):
+        """Ensure the α‑AGI Insight demo bridge compiles."""
+        path = Path('alpha_factory_v1/demos/alpha_agi_insight_v0/openai_agents_bridge.py')
+        py_compile.compile(path, doraise=True)
+
 if __name__ == '__main__':
     unittest.main()
