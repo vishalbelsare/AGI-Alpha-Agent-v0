@@ -72,7 +72,8 @@ When the optional `openai` package is also present, `openai_rewrite` uses
 `ChatCompletion` to refine candidate integer policies.  Supply an
 `OPENAI_API_KEY` environment variable to activate this behaviour.  Without a
 key or in fully offline environments the routine simply increments the
-proposed policy elements so the rest of the demo keeps working.
+proposed policy elements so the rest of the demo keeps working.  You can
+override the model used by setting ``OPENAI_MODEL`` (defaults to ``gpt-4o``).
 
 ### 4.2 · OpenAI Agents bridge
 The `openai_agents_bridge.py` script exposes the search loop via the
@@ -88,7 +89,7 @@ reproducible anywhere.  When running offline you can still invoke
 `run_search` directly to verify the helper logic:
 
 ```bash
-python openai_agents_bridge.py --episodes 3 --target 4
+python openai_agents_bridge.py --episodes 3 --target 4 --model gpt-4o
 ```
 This prints a short completion summary after executing the demo loop.
 
