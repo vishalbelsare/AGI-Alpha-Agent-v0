@@ -56,7 +56,7 @@ def openai_rewrite(agents: List[int]) -> List[int]:
                 text = response.choices[0].message.content or ""
                 try:
                     numbers = [int(t) for t in text.strip().split() if t.lstrip("-+").isdigit()]
-                except Exception:
+                except ValueError:
                     numbers = []
                 return numbers or [p + 1 for p in policy]
 
