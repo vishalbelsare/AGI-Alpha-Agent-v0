@@ -6,6 +6,7 @@ from typing import List
 import importlib
 import asyncio
 import os
+import logging
 
 
 def meta_rewrite(agents: List[int]) -> List[int]:
