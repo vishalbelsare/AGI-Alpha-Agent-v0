@@ -106,8 +106,21 @@ def main(argv: List[str] | None = None) -> None:
     parser.add_argument("--target", type=int, help="Target integer for the environment")
     parser.add_argument("--seed", type=int, help="Optional RNG seed")
     parser.add_argument("--log-dir", type=Path, help="Optional directory to store episode logs")
+    parser.add_argument(
+        "--verify-env",
+        action="store_true",
+        help="Check runtime dependencies before running",
+    )
     args = parser.parse_args(argv)
     cfg = load_config(args.config)
+
+    if args.verify_env:
+        try:
+            import check_env  # type: ignore
+
+            check_env.main([])
+        except Exception as exc:  # pragma: no cover - best effort
+            print(f"Environment verification failed: {exc}")
     episodes = args.episodes or int(cfg.get("episodes", 10))
     exploration = float(cfg.get("exploration", 1.4))
     rewriter = args.rewriter or cfg.get("rewriter", "random")

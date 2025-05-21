@@ -90,7 +90,20 @@ def main(argv: list[str] | None = None) -> None:
         action="store_true",
         help="Enable the Google ADK gateway for remote control",
     )
+    parser.add_argument(
+        "--verify-env",
+        action="store_true",
+        help="Check runtime dependencies before launching",
+    )
     args = parser.parse_args(argv)
+
+    if args.verify_env:
+        try:
+            import check_env  # type: ignore
+
+            check_env.main([])
+        except Exception as exc:  # pragma: no cover - best effort
+            print(f"Environment verification failed: {exc}")
 
     if not has_oai:
         print("openai-agents package is missing. Running offline demo...")
