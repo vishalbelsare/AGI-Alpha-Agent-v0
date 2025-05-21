@@ -11,6 +11,8 @@ import argparse
 import os
 import sys
 import threading
+import time
+import webbrowser
 
 # allow running this script directly from its folder
 SCRIPT_DIR = os.path.dirname(__file__)
@@ -60,6 +62,39 @@ def _start_bridge(host: str) -> None:
     thread.start()
 
 
+def _open_browser_when_ready(url: str, timeout: float = 5.0) -> None:
+    """Open *url* in the default browser once the orchestrator responds.
+
+    Parameters
+    ----------
+    url : str
+        The URL to open in the browser.
+    timeout : float, optional
+        The maximum time to wait (in seconds) for the orchestrator to respond
+        before falling back to opening the URL anyway. Default is 5.0 seconds.
+
+    Fallback Behavior
+    -----------------
+    If the orchestrator does not respond within the specified timeout, the
+    URL will still be opened in the browser as a fallback.
+    """
+    def _wait_and_open() -> None:
+        import requests  # type: ignore
+
+        deadline = time.monotonic() + timeout
+        while time.monotonic() < deadline:
+            try:
+                if requests.get(f"{url.rstrip('/')}/healthz", timeout=1).status_code == 200:
+                    webbrowser.open(url, new=1)
+                    return
+            except Exception:
+                time.sleep(0.2)
+        # fallback: open anyway
+        webbrowser.open(url, new=1)
+
+    threading.Thread(target=_wait_and_open, daemon=True).start()
+
+
 def main(argv: list[str] | None = None) -> None:
     parser = argparse.ArgumentParser(description="Run alpha_agi_business_v1 locally")
     parser.add_argument(
@@ -81,6 +116,11 @@ def main(argv: list[str] | None = None) -> None:
     parser.add_argument(
         "--wheelhouse",
         help="Optional local wheelhouse path for offline installs",
+    )
+    parser.add_argument(
+        "--open-ui",
+        action="store_true",
+        help="Open the REST docs in a web browser once ready",
     )
     args = parser.parse_args(argv)
 
@@ -120,6 +160,10 @@ def main(argv: list[str] | None = None) -> None:
     if args.bridge:
         host = os.getenv("BUSINESS_HOST", f"http://localhost:{args.port}")
         _start_bridge(host)
+
+    if args.open_ui:
+        url = os.getenv("BUSINESS_HOST", f"http://localhost:{args.port}") + "/docs"
+        _open_browser_when_ready(url)
 
     alpha_agi_business_v1.main()
 
