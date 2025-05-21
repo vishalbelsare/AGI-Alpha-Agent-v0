@@ -1,0 +1,7 @@
+# Meta-Agentic Tree Search demo dependencies
+-r ../../requirements.txt
+# Additional RL tooling (optional)
+torch>=2.2
+gymnasium>=0.29
+networkx>=3.3
+
