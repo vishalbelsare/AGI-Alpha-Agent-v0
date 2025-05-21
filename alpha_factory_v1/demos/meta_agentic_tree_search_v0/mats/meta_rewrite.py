@@ -30,16 +30,35 @@ def openai_rewrite(agents: List[int]) -> List[int]:
 
     have_oai = importlib.util.find_spec("openai_agents") is not None
     have_adk = importlib.util.find_spec("google_adk") is not None
+    have_openai = importlib.util.find_spec("openai") is not None
 
-    if have_oai:
+    if have_oai and have_openai:
         try:  # pragma: no cover - optional integration
             from openai_agents import Agent, Tool  # type: ignore
+            import openai  # type: ignore
             if have_adk:
                 from google_adk import agent2agent  # type: ignore
 
             @Tool(name="improve_policy", description="Return an improved integer policy")
             async def improve_policy(policy: list[int]) -> list[int]:
-                return [p + 1 for p in policy]
+                prompt = (
+                    "Given the current integer policy "
+                    f"{policy}, suggest a slightly improved list of integers."
+                )
+                response = await openai.ChatCompletion.acreate(
+                    model="gpt-4o",
+                    messages=[
+                        {"role": "system", "content": "You rewrite policies for a simple number line game."},
+                        {"role": "user", "content": prompt},
+                    ],
+                    max_tokens=20,
+                )
+                text = response.choices[0].message.content or ""
+                try:
+                    numbers = [int(t) for t in text.strip().split() if t.lstrip("-+").isdigit()]
+                except Exception:
+                    numbers = []
+                return numbers or [p + 1 for p in policy]
 
             class RewriterAgent(Agent):
                 name = "mats_rewriter"
