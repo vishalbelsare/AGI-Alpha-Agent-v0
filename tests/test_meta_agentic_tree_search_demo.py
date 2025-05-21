@@ -44,11 +44,16 @@ class TestMetaAgenticTreeSearchDemo(unittest.TestCase):
     def test_env_rollout(self) -> None:
         from alpha_factory_v1.demos.meta_agentic_tree_search_v0.mats.env import (
             NumberLineEnv,
+            LiveBrokerEnv,
         )
 
         env = NumberLineEnv(target=3)
         reward = env.rollout([3, 3, 3])
         self.assertGreaterEqual(reward, -0.1)
+
+        live = LiveBrokerEnv(target=2, market_data=[2, 2])
+        live_reward = live.rollout([2, 2])
+        self.assertIsInstance(live_reward, float)
 
     def test_openai_rewrite_fallback(self) -> None:
         from alpha_factory_v1.demos.meta_agentic_tree_search_v0.mats.meta_rewrite import (
