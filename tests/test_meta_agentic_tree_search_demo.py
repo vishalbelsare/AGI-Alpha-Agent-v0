@@ -21,6 +21,13 @@ class TestMetaAgenticTreeSearchDemo(unittest.TestCase):
         self.assertEqual(result.returncode, 0, result.stderr)
         self.assertIn("Best agents", result.stdout)
 
+    def test_env_rollout(self) -> None:
+        from alpha_factory_v1.demos.meta_agentic_tree_search_v0.mats.env import NumberLineEnv
+
+        env = NumberLineEnv(target=3)
+        reward = env.rollout([3, 3, 3])
+        self.assertGreaterEqual(reward, -0.1)
+
 
 if __name__ == "__main__":  # pragma: no cover
     unittest.main()

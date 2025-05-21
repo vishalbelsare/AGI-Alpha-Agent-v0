@@ -51,7 +51,7 @@ def MATS(root_agents, env, horizon_days):
 | `best_first`       | UCB1, TS, ε‑greedy (UCB1) |
 | `meta_rewrite`     | PPO fine‑tune, CMA‑ES, GPT‑4 code‑gen (PPO) |
 | Reward             | IRR, CumPnL/√Var, Sharpe (IRR) |
-| Environment        | Toy limit‑order‑book sim, OpenAI Gym trading env (Gym) |
+| Environment        | Toy number-line env (default), limit‑order‑book sim, OpenAI Gym trading env |
 
 ## 5 Quick start
 ```bash
@@ -61,7 +61,8 @@ python -m venv .venv && source .venv/bin/activate
 pip install -r requirements.txt          # torch, gymnasium, networkx, etc.
 python run_demo.py --config configs/default.yaml --episodes 500
 ```
-`run_demo.py` prints a live scoreboard of best‑leaf α and writes checkpoints to `./checkpoints/`. A ready‑to‑run Colab notebook is also provided as `colab_meta_agentic_tree_search.ipynb`.
+`run_demo.py` prints a per‑episode scoreboard and writes checkpoints to `./checkpoints/`. A ready‑to‑run Colab notebook is also provided as `colab_meta_agentic_tree_search.ipynb`.
+The default environment is a simple number‑line task defined in `mats/env.py` where each agent must approach a target integer.
 
 > **Tip:** Set `--market-data my_feed.csv` to replay real tick data.
 
@@ -73,7 +74,8 @@ meta_agentic_tree_search_v0/
 ├── mats/                    ← core library
 │   ├── tree.py
 │   ├── meta_rewrite.py
-│   └── evaluators.py
+│   ├── evaluators.py
+│   └── env.py
 └── configs/
     └── default.yaml
 ```

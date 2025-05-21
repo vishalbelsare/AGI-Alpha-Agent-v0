@@ -14,19 +14,22 @@ except Exception:  # pragma: no cover - fallback parser
 from .mats.tree import Node, Tree
 from .mats.meta_rewrite import meta_rewrite
 from .mats.evaluators import evaluate
+from .mats.env import NumberLineEnv
 
 
 def run(episodes: int = 10, exploration: float = 1.4) -> None:
     """Run a toy tree search for a small number of episodes."""
     root_agents: List[int] = [0, 0, 0, 0]
+    env = NumberLineEnv()
     tree = Tree(Node(root_agents), exploration=exploration)
     for _ in range(episodes):
         node = tree.select()
         improved = meta_rewrite(node.agents)
-        reward = evaluate(improved)
+        reward = evaluate(improved, env)
         child = Node(improved, reward=reward)
         tree.add_child(node, child)
         tree.backprop(child)
+        print(f"Episode {_+1:>3}: candidate {improved} → reward {reward:.3f}")
     best = tree.best_leaf()
     score = best.reward / (best.visits or 1)
     print(f"Best agents: {best.agents} score: {score:.3f}")
