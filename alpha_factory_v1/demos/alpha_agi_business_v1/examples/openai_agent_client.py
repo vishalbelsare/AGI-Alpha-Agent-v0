@@ -44,6 +44,31 @@ def _parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     return parser.parse_args(argv)
 
 
+def _construct_payload(action: str, job_path: str | None) -> dict[str, object]:
+    """Return request payload for ``action``.
+
+    Parameters
+    ----------
+    action:
+        Name of the helper action to invoke via ``business_helper``.
+    job_path:
+        Optional path to a JSON file with additional job parameters.
+
+    The resulting dictionary is posted as JSON to the ``/invoke`` endpoint of
+    the OpenAI Agents runtime. When ``job_path`` is provided the file contents
+    are loaded and included under the ``job`` key.
+    """
+
+    payload: dict[str, object] = {"action": action}
+    if job_path:
+        try:
+            job_json = json.loads(Path(job_path).read_text(encoding="utf-8"))
+            payload["job"] = job_json
+        except Exception as exc:  # pragma: no cover - malformed file
+            raise SystemExit(f"Failed to load job JSON: {exc}")
+    return payload
+
+
 def main(argv: list[str] | None = None) -> None:
     args = _parse_args(argv)
     headers = {}
