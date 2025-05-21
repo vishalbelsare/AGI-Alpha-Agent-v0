@@ -1,4 +1,5 @@
 """Placeholder meta-rewrite function."""
+
 from __future__ import annotations
 
 import random
@@ -7,6 +8,7 @@ import importlib
 import asyncio
 import os
 import logging
+import re
 
 
 def meta_rewrite(agents: List[int]) -> List[int]:
@@ -15,6 +17,12 @@ def meta_rewrite(agents: List[int]) -> List[int]:
     idx = random.randrange(len(new_agents))
     new_agents[idx] += random.choice([-1, 1])
     return new_agents
+
+
+def _parse_numbers(text: str, fallback: List[int]) -> List[int]:
+    """Return integers parsed from ``text`` or a simple increment fallback."""
+    numbers = [int(n) for n in re.findall(r"-?\d+", text)]
+    return numbers or [p + 1 for p in fallback]
 
 
 def openai_rewrite(agents: List[int]) -> List[int]:
@@ -38,10 +46,13 @@ def openai_rewrite(agents: List[int]) -> List[int]:
         try:  # pragma: no cover - optional integration
             from openai_agents import Agent, Tool  # type: ignore
             import openai  # type: ignore
+
             if have_adk:
                 from google_adk import agent2agent  # type: ignore
 
-            @Tool(name="improve_policy", description="Return an improved integer policy")
+            @Tool(
+                name="improve_policy", description="Return an improved integer policy"
+            )
             async def improve_policy(policy: list[int]) -> list[int]:
                 prompt = (
                     "Given the current integer policy "
@@ -51,21 +62,19 @@ def openai_rewrite(agents: List[int]) -> List[int]:
                     response = await openai.ChatCompletion.acreate(
                         model=os.getenv("OPENAI_MODEL", "gpt-4o"),
                         messages=[
-                            {"role": "system", "content": "You rewrite policies for a simple number line game."},
+                            {
+                                "role": "system",
+                                "content": "You rewrite policies for a simple number line game.",
+                            },
                             {"role": "user", "content": prompt},
                         ],
                         max_tokens=20,
                     )
                     text = response.choices[0].message.content or ""
-                except Exception as e:
-                    # Log the error or handle it gracefully
-                    text = ""  # Fallback to an empty response
+                except Exception:
+                    text = ""
 
-                try:
-                    numbers = [int(t) for t in text.strip().split() if t.lstrip("-+").isdigit()]
-                except ValueError:
-                    numbers = []
-                return numbers or [p + 1 for p in policy]
+                return _parse_numbers(text, policy)
 
             class RewriterAgent(Agent):
                 name = "mats_rewriter"
@@ -89,4 +98,3 @@ def openai_rewrite(agents: List[int]) -> List[int]:
 
     # Fallback: simple random tweak
     return meta_rewrite(agents)
-

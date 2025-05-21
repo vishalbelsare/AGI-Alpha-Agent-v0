@@ -39,17 +39,30 @@ class TestMetaAgenticTreeSearchDemo(unittest.TestCase):
         self.assertIn("Best agents", result.stdout)
 
     def test_env_rollout(self) -> None:
-        from alpha_factory_v1.demos.meta_agentic_tree_search_v0.mats.env import NumberLineEnv
+        from alpha_factory_v1.demos.meta_agentic_tree_search_v0.mats.env import (
+            NumberLineEnv,
+        )
 
         env = NumberLineEnv(target=3)
         reward = env.rollout([3, 3, 3])
         self.assertGreaterEqual(reward, -0.1)
 
     def test_openai_rewrite_fallback(self) -> None:
-        from alpha_factory_v1.demos.meta_agentic_tree_search_v0.mats.meta_rewrite import openai_rewrite
+        from alpha_factory_v1.demos.meta_agentic_tree_search_v0.mats.meta_rewrite import (
+            openai_rewrite,
+        )
 
         out = openai_rewrite([1, 2, 3])
         self.assertEqual(len(out), 3)
+
+    def test_parse_numbers_helper(self) -> None:
+        from alpha_factory_v1.demos.meta_agentic_tree_search_v0.mats.meta_rewrite import (
+            _parse_numbers,
+        )
+
+        text = "[1, 2, -3]"
+        res = _parse_numbers(text, [0, 0, 0])
+        self.assertEqual(res, [1, 2, -3])
 
     def test_run_demo_with_target(self) -> None:
         result = subprocess.run(
@@ -104,7 +117,9 @@ class TestMetaAgenticTreeSearchDemo(unittest.TestCase):
 
     def test_bridge_run_search_helper(self) -> None:
         import asyncio
-        from alpha_factory_v1.demos.meta_agentic_tree_search_v0 import openai_agents_bridge as bridge
+        from alpha_factory_v1.demos.meta_agentic_tree_search_v0 import (
+            openai_agents_bridge as bridge,
+        )
 
         if bridge.has_oai:  # pragma: no cover - only run offline path
             self.skipTest("openai-agents installed")
@@ -115,4 +130,3 @@ class TestMetaAgenticTreeSearchDemo(unittest.TestCase):
 
 if __name__ == "__main__":  # pragma: no cover
     unittest.main()
-

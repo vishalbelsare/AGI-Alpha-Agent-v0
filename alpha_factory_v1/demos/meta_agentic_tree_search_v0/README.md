@@ -74,6 +74,9 @@ When the optional `openai` package is also present, `openai_rewrite` uses
 key or in fully offline environments the routine simply increments the
 proposed policy elements so the rest of the demo keeps working.  You can
 override the model used by setting ``OPENAI_MODEL`` (defaults to ``gpt-4o``).
+Output from the model is processed via the new ``_parse_numbers`` helper which
+extracts integers from free‑form text so the search loop remains stable even when
+the LLM response contains extra commentary.
 
 ### 4.2 · OpenAI Agents bridge
 The `openai_agents_bridge.py` script exposes the search loop via the
@@ -140,6 +143,7 @@ meta_agentic_tree_search_v0/
 | Swap rewrite strategy          | Subclass `MetaRewriter`           |
 | Use distributed workers        | `ray tune` launcher               |
 | Custom tree policy             | Implement `acquire()` in `Tree`   |
+| Custom output parser           | `_parse_numbers` helper           |
 
 ## 9 Safety & governance guard‑rails
 * Sandboxed code‑gen (`firejail + seccomp + tmpfs`)  
