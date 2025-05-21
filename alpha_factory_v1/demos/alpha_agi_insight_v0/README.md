@@ -28,3 +28,14 @@ When optional dependencies such as ``openai`` or ``anthropic`` are not
 installed, the program automatically falls back to a simple offline rewriter so
 the demo remains functional anywhere.  Episode scores are printed to the console
 and optionally written to ``scores.csv`` when ``--log-dir`` is supplied.
+
+## OpenAI Agents Bridge
+
+Launch ``openai_agents_bridge.py`` to control the demo via the
+`openai-agents` runtime and optionally the Google ADK A2A protocol:
+
+```bash
+python -m alpha_factory_v1.demos.alpha_agi_insight_v0.openai_agents_bridge --verify-env
+```
+The bridge automatically falls back to offline mode when the optional
+packages or API keys are missing.
