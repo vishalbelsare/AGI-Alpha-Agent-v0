@@ -48,7 +48,7 @@ class Tree:
         stack = [self.root]
         while stack:
             n = stack.pop()
-            if n.visits and (n.reward / n.visits) > (best.reward / (best.visits or 1)):
+            if n.visits and (n.reward / n.visits) > (best.reward / (best.visits or self.exploration)):
                 best = n
             stack.extend(n.children)
         return best
