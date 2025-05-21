@@ -17,7 +17,13 @@ from .mats.evaluators import evaluate
 from .mats.env import NumberLineEnv
 
 
-def run(episodes: int = 10, exploration: float = 1.4, rewriter: str = "random") -> None:
+def run(
+    episodes: int = 10,
+    exploration: float = 1.4,
+    rewriter: str = "random",
+    *,
+    target: int = 5,
+) -> None:
     """Run a toy tree search for a small number of episodes.
 
     Parameters
@@ -30,7 +36,7 @@ def run(episodes: int = 10, exploration: float = 1.4, rewriter: str = "random") 
         Which rewrite strategy to use: ``"random"`` or ``"openai"``.
     """
     root_agents: List[int] = [0, 0, 0, 0]
-    env = NumberLineEnv()
+    env = NumberLineEnv(target=target)
     tree = Tree(Node(root_agents), exploration=exploration)
     rewrite_fn = openai_rewrite if rewriter == "openai" else meta_rewrite
     for _ in range(episodes):
@@ -74,12 +80,14 @@ def main(argv: List[str] | None = None) -> None:
         choices=["random", "openai"],
         help="Rewrite strategy",
     )
+    parser.add_argument("--target", type=int, help="Target integer for the environment")
     args = parser.parse_args(argv)
     cfg = load_config(args.config)
     episodes = args.episodes or int(cfg.get("episodes", 10))
     exploration = float(cfg.get("exploration", 1.4))
     rewriter = args.rewriter or cfg.get("rewriter", "random")
-    run(episodes, exploration, rewriter)
+    target = args.target or int(cfg.get("target", 5))
+    run(episodes, exploration, rewriter, target=target)
 
 
 if __name__ == "__main__":  # pragma: no cover - CLI entry

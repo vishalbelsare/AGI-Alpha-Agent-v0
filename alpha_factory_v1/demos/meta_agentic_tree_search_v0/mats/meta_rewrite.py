@@ -5,6 +5,7 @@ import random
 from typing import List
 import importlib
 import asyncio
+import os
 
 
 def meta_rewrite(agents: List[int]) -> List[int]:
@@ -32,7 +33,7 @@ def openai_rewrite(agents: List[int]) -> List[int]:
     have_adk = importlib.util.find_spec("google_adk") is not None
     have_openai = importlib.util.find_spec("openai") is not None
 
-    if have_oai and have_openai:
+    if have_oai and have_openai and os.getenv("OPENAI_API_KEY"):
         try:  # pragma: no cover - optional integration
             from openai_agents import Agent, Tool  # type: ignore
             import openai  # type: ignore
