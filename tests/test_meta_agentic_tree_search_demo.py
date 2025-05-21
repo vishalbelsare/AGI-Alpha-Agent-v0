@@ -67,6 +67,10 @@ class TestMetaAgenticTreeSearchDemo(unittest.TestCase):
         res = _parse_numbers(text, [0, 0, 0])
         self.assertEqual(res, [1, 2, -3])
 
+        malformed = "{oops: 7}"
+        res_fallback = _parse_numbers(malformed, [4, 4, 4])
+        self.assertEqual(res_fallback, [5, 5, 5])
+
     def test_run_demo_with_target(self) -> None:
         result = subprocess.run(
             [

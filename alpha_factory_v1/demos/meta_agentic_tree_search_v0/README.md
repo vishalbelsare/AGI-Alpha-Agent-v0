@@ -76,11 +76,12 @@ When the optional `openai` package is also present, `openai_rewrite` uses
 key or in fully offline environments the routine simply increments the
 proposed policy elements so the rest of the demo keeps working.  You can
 override the model used by setting ``OPENAI_MODEL`` (defaults to ``gpt-4o``).
-Output from the model is processed via the new ``_parse_numbers`` helper which
-extracts integers from free‑form text so the search loop remains stable even when
-the LLM response contains extra commentary. The rewrite routine executes the LLM
-call via a small synchronous helper so it functions both with and without an
-active event loop.
+Output from the model is processed via the ``_parse_numbers`` helper which
+extracts integers from free‑form text and validates their length so the search
+loop remains stable even when the LLM response contains extra commentary. When
+the output is malformed or incomplete the helper simply increments the previous
+policy as a safe fallback. The rewrite routine executes the LLM call via a small
+synchronous helper so it functions both with and without an active event loop.
 
 ### 4.2 · OpenAI Agents bridge
 The `openai_agents_bridge.py` script exposes the search loop via the
