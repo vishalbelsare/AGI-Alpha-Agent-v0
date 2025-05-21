@@ -176,19 +176,7 @@ def main(argv: List[str] | None = None) -> None:
     seed = args.seed if args.seed is not None else cfg.get("seed")
     seed = int(seed) if seed is not None else None
     model = args.model or cfg.get("model")
-    sectors = DEFAULT_SECTORS
-    cfg_sectors = cfg.get("sectors")
-    if cfg_sectors and not args.sectors:
-        if isinstance(cfg_sectors, list):
-            sectors = [str(s) for s in cfg_sectors]
-        else:
-            sectors = [s.strip() for s in str(cfg_sectors).split(",") if s.strip()]
-    if args.sectors:
-        path = Path(args.sectors)
-        if path.exists():
-            sectors = [line.strip() for line in path.read_text(encoding="utf-8").splitlines() if line.strip()]
-        else:
-            sectors = [s.strip() for s in args.sectors.split(",") if s.strip()]
+    sectors = parse_sectors(cfg.get("sectors"), args.sectors)
     run(
         episodes,
         exploration,
