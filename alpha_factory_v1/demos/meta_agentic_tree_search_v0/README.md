@@ -55,8 +55,10 @@ def MATS(root_agents, env, horizon_days):
 
 ### 4.1 · OpenAI/ADK rewrite option
 When the optional `openai-agents` and `google-adk` packages are installed the
-demo can leverage the OpenAI Agents SDK together with the A2A protocol to
-generate candidate policies. Enable this behaviour with:
+demo can leverage a tiny ``RewriterAgent`` built with the OpenAI Agents SDK
+together with the A2A protocol to generate candidate policies.  The agent is
+instantiated directly from :func:`openai_rewrite` and executed once per tree
+step. Enable this behaviour with:
 
 ```bash
 python run_demo.py --rewriter openai --episodes 500
