@@ -25,10 +25,15 @@ Pass ``--offline`` to skip the agent runtime entirely.
 
 ### Quick Start Script
 
-Ensure the script is executable by running ``chmod +x run_insight_demo.sh`` if needed.
-Then, run ``./run_insight_demo.sh`` from this directory for an instant launch. The
-helper delegates to the package entry point so the demo works with or without
-OpenAI API credentials.
+Ensure the shell helper is executable by running ``chmod +x run_insight_demo.sh`` if needed.
+Execute ``./run_insight_demo.sh`` from this directory for an instant launch. The
+wrapper delegates to the package entry point so the demo works with or without
+OpenAI API credentials.  Alternatively invoke ``run_demo.py`` directly with
+Python for the same behaviour:
+
+```bash
+python run_demo.py --episodes 5
+```
 
 ## Usage
 
