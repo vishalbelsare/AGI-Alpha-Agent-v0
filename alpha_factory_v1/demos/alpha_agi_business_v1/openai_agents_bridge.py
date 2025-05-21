@@ -157,6 +157,8 @@ async def trigger_best_alpha() -> str:
     try:
         path = Path(__file__).with_name("examples") / "alpha_opportunities.json"
         data = json.loads(path.read_text(encoding="utf-8"))
+        if not data:
+            raise RuntimeError("No alpha opportunities found in the file.")
         best = max(data, key=lambda x: x.get("score", 0))
     except Exception as exc:  # pragma: no cover - file may be missing
         raise RuntimeError(f"failed to load alpha opportunities: {exc}") from exc
