@@ -80,11 +80,13 @@ if has_oai:
                 adk_bridge.auto_register([agent])
                 adk_bridge.maybe_launch()
             else:
-                print("ADK gateway disabled.")
-        except Exception as exc:  # pragma: no cover - optional ADK
-            print(f"ADK bridge unavailable: {exc}")
+                logger.info("ADK gateway disabled.")
+        except ImportError as exc:  # pragma: no cover - optional ADK
+            logger.warning(f"ADK bridge import failed: {exc}")
+        except AttributeError as exc:  # pragma: no cover - optional ADK
+            logger.error(f"ADK bridge attribute error: {exc}")
 
-        print("Registered InsightAgent with runtime")
+        logger.info("Registered InsightAgent with runtime")
         runtime.run()
 else:
 
