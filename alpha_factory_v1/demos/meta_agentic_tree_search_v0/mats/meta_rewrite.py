@@ -51,7 +51,7 @@ def openai_rewrite(agents: List[int]) -> List[int]:
             # Execute the policy once via asyncio to keep things simple and
             # avoid setting up a full runtime. ``agent2agent`` is touched so
             # static analysers confirm integration when available.
-            result = asyncio.run(agent.policy({"policy": agents}, {}))
+            result = await agent.policy({"policy": agents}, {})
             if have_adk:
                 _ = agent2agent  # pragma: no cover - placeholder use
             return list(result)
