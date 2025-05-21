@@ -120,7 +120,7 @@ This repository is a conceptual research prototype. References to "AGI" and "sup
 1. [System Topology 🗺️](#1-system-topology)  
 2. [World‑Model & Planner 🌌](#2-world-model--planner)  
 3. [Agent Gallery 🖼️ (12 agents)](#3-agent-gallery)  
-4. [Demo Showcase 🎬 (12 demos)](#4-demo-showcase)  
+4. [Demo Showcase 🎬 (13 demos)](#4-demo-showcase)
 5. [Memory & Knowledge Fabric 🧠](#5-memory--knowledge-fabric)
 6. [5‑Minute Quick‑Start 🚀](#6-5-minute-quick-start)
 6.1. [Running Tests 🧪](#61-running-tests)
@@ -356,6 +356,7 @@ sequenceDiagram
 |10|`macro_sentinel`|🌐|GPT‑RAG news scanner auto‑hedges with CTA futures.|Shields portfolios from macro shocks.|`docker compose -f demos/docker-compose.macro.yml up`|
 |11|`muzero_planning`|♟|MuZero in 60 s; online world‑model with MCTS.|Distills planning research into a one‑command demo.|`./alpha_factory_v1/demos/muzero_planning/run_muzero_demo.sh`|
 |12|`self_healing_repo`|🩹|CI fails → agent crafts patch ⇒ PR green again.|Maintains pipeline uptime alpha.|`docker compose -f demos/docker-compose.selfheal.yml up`|
+|13|`meta_agentic_tree_search_v0`|🌳|Recursive agent rewrites via best‑first search.|Rapidly surfaces AGI-driven trading alpha.|`cd alpha_factory_v1/demos/meta_agentic_tree_search_v0 && python run_demo.py --episodes 10`|
 
 > **Colab?** Each folder ships an `*.ipynb` that mirrors the Docker flow with free GPUs.
 
