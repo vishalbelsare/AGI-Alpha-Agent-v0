@@ -95,13 +95,10 @@ def openai_rewrite(agents: List[int]) -> List[int]:
 
             result: list[int] | None = None
 
-            def _runner() -> None:
-                nonlocal result
-                result = asyncio.run(_run())
+            async def _runner() -> list[int]:
+                return await _run()
 
-            thread = threading.Thread(target=_runner)
-            thread.start()
-            thread.join()
+            result = asyncio.run(asyncio.to_thread(_runner))
             if result is not None:
                 return result
             else:
