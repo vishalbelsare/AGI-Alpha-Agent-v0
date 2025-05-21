@@ -45,15 +45,20 @@ def openai_rewrite(agents: List[int]) -> List[int]:
                     "Given the current integer policy "
                     f"{policy}, suggest a slightly improved list of integers."
                 )
-                response = await openai.ChatCompletion.acreate(
-                    model="gpt-4o",
-                    messages=[
-                        {"role": "system", "content": "You rewrite policies for a simple number line game."},
-                        {"role": "user", "content": prompt},
-                    ],
-                    max_tokens=20,
-                )
-                text = response.choices[0].message.content or ""
+                try:
+                    response = await openai.ChatCompletion.acreate(
+                        model="gpt-4o",
+                        messages=[
+                            {"role": "system", "content": "You rewrite policies for a simple number line game."},
+                            {"role": "user", "content": prompt},
+                        ],
+                        max_tokens=20,
+                    )
+                    text = response.choices[0].message.content or ""
+                except Exception as e:
+                    # Log the error or handle it gracefully
+                    text = ""  # Fallback to an empty response
+
                 try:
                     numbers = [int(t) for t in text.strip().split() if t.lstrip("-+").isdigit()]
                 except ValueError:
