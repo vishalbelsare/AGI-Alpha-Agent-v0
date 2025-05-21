@@ -1,0 +1,7 @@
+# Default configuration for the α‑AGI Insight demo
+episodes: 5
+exploration: 1.4
+rewriter: random
+target: 3
+seed: 0
+model: gpt-4o
