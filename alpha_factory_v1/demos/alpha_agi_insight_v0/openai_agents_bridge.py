@@ -141,7 +141,7 @@ else:
         if _spec is None:
             reasons.append("OpenAI Agents package missing")
         if not _has_key:
-            reasons.append("OPENAI_API_KEY unset")
+            reasons.append("OPENAI_API_KEY not set")
         msg = " & ".join(reasons) or "offline mode"
         print(f"Running offline demo ({msg})…")
         sector_list = parse_sectors(None, None)
