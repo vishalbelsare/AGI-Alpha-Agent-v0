@@ -12,7 +12,7 @@ import os
 import argparse
 import importlib.util
 import sys
-import pathlib
+from pathlib import Path
 import logging
 
 logger = logging.getLogger(__name__)
@@ -25,7 +25,7 @@ FALLBACK_MODE_PREFIX = "fallback_mode_active: "
 
 
 if __package__ is None:  # pragma: no cover - allow direct execution
-    sys.path.append(str(pathlib.Path(__file__).resolve().parents[3]))
+    sys.path.append(str(Path(__file__).resolve().parents[3]))
     __package__ = "alpha_factory_v1.demos.alpha_agi_insight_v0"
 
 from .insight_demo import run, verify_environment, parse_sectors
@@ -48,6 +48,7 @@ if has_oai:
         model: str | None = None,
         rewriter: str | None = None,
         sectors: str | None = None,
+        log_dir: str | None = None,
     ) -> str:
         if model:
             os.environ.setdefault("OPENAI_MODEL", model)
@@ -59,6 +60,7 @@ if has_oai:
             target=target,
             model=model,
             rewriter=rewriter,
+            log_dir=Path(log_dir) if log_dir else None,
             sectors=sector_list,
         )
         return result
@@ -82,6 +84,7 @@ if has_oai:
         target: int,
         model: str | None = None,
         rewriter: str | None = None,
+        log_dir: str | None = None,
     ) -> None:
         if model:
             os.environ.setdefault("OPENAI_MODEL", model)
@@ -114,6 +117,7 @@ else:
         model: str | None = None,
         rewriter: str | None = None,
         sectors: str | None = None,
+        log_dir: str | None = None,
     ) -> str:
         sector_list = parse_sectors(None, sectors)
         summary = run(
@@ -121,6 +125,7 @@ else:
             target=target,
             model=model,
             rewriter=rewriter,
+            log_dir=Path(log_dir) if log_dir else None,
             sectors=sector_list,
         )
         return f"{FALLBACK_MODE_PREFIX}{summary}"
@@ -130,6 +135,7 @@ else:
         target: int,
         model: str | None = None,
         rewriter: str | None = None,
+        log_dir: str | None = None,
     ) -> None:
         print("openai-agents package is missing. Running offline demo...")
         sector_list = parse_sectors(None, None)
@@ -138,6 +144,7 @@ else:
             target=target,
             model=model,
             rewriter=rewriter,
+            log_dir=Path(log_dir) if log_dir else None,
             sectors=sector_list,
         )
 
@@ -160,6 +167,11 @@ def main(argv: list[str] | None = None) -> None:
     )
     parser.add_argument("--sectors", type=str, help="Comma-separated sector names")
     parser.add_argument(
+        "--log-dir",
+        type=str,
+        help="Directory to store episode logs",
+    )
+    parser.add_argument(
         "--enable-adk",
         action="store_true",
         help="Enable the Google ADK gateway",
@@ -177,7 +189,7 @@ def main(argv: list[str] | None = None) -> None:
     if args.enable_adk:
         os.environ.setdefault("ALPHA_FACTORY_ENABLE_ADK", "true")
 
-    _run_runtime(args.episodes, args.target, args.model, args.rewriter)
+    _run_runtime(args.episodes, args.target, args.model, args.rewriter, args.log_dir)
 
 
 __all__ = [
