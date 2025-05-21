@@ -9,6 +9,7 @@ import asyncio
 import os
 import logging
 import re
+import threading
 
 
 def meta_rewrite(agents: List[int]) -> List[int]:
@@ -53,13 +54,13 @@ def openai_rewrite(agents: List[int]) -> List[int]:
             @Tool(
                 name="improve_policy", description="Return an improved integer policy"
             )
-            async def improve_policy(policy: list[int]) -> list[int]:
+            def improve_policy(policy: list[int]) -> list[int]:
                 prompt = (
                     "Given the current integer policy "
                     f"{policy}, suggest a slightly improved list of integers."
                 )
                 try:
-                    response = await openai.ChatCompletion.acreate(
+                    response = openai.ChatCompletion.create(
                         model=os.getenv("OPENAI_MODEL", "gpt-4o"),
                         messages=[
                             {
@@ -82,7 +83,7 @@ def openai_rewrite(agents: List[int]) -> List[int]:
 
                 async def policy(self, obs, _ctx):  # type: ignore[override]
                     cand = obs.get("policy", []) if isinstance(obs, dict) else obs
-                    return await improve_policy(list(cand))
+                    return improve_policy(list(cand))
 
             agent = RewriterAgent()
 
@@ -92,7 +93,17 @@ def openai_rewrite(agents: List[int]) -> List[int]:
                     _ = agent2agent  # pragma: no cover - placeholder use
                 return list(result)
 
-            return asyncio.run(_run())
+            result: list[int] | None = None
+
+            async def _runner() -> list[int]:
+                return await _run()
+
+            result = asyncio.run(asyncio.to_thread(_runner))
+            if result is not None:
+                return result
+            else:
+                logging.warning("Result is None; falling back to meta_rewrite.")
+                return meta_rewrite(agents)
         except Exception as exc:  # pragma: no cover - safety net
             logging.warning(f"openai_rewrite fallback due to error: {exc}")
 
