@@ -227,6 +227,7 @@ To drive the orchestrator via the OpenAI Agents SDK run `python openai_agents_br
 ```bash
 pip install openai-agents
 ```
+In fully offline environments provide a local wheel via the `WHEELHOUSE` environment variable and run `check_env.py --auto-install` before launching the bridge.
 
 ### 🎛️ Local Gradio Dashboard
 
