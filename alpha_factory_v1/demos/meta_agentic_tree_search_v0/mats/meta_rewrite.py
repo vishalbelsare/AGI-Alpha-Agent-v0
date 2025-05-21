@@ -49,7 +49,7 @@ def openai_rewrite(agents: List[int]) -> List[int]:
                 )
                 try:
                     response = await openai.ChatCompletion.acreate(
-                        model="gpt-4o",
+                        model=os.getenv("OPENAI_MODEL", "gpt-4o"),
                         messages=[
                             {"role": "system", "content": "You rewrite policies for a simple number line game."},
                             {"role": "user", "content": prompt},
