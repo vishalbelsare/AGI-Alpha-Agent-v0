@@ -63,8 +63,21 @@ def _start_bridge(host: str) -> None:
 
 
 def _open_browser_when_ready(url: str, timeout: float = 5.0) -> None:
-    """Open *url* in the default browser once the orchestrator responds."""
+    """Open *url* in the default browser once the orchestrator responds.
 
+    Parameters
+    ----------
+    url : str
+        The URL to open in the browser.
+    timeout : float, optional
+        The maximum time to wait (in seconds) for the orchestrator to respond
+        before falling back to opening the URL anyway. Default is 5.0 seconds.
+
+    Fallback Behavior
+    -----------------
+    If the orchestrator does not respond within the specified timeout, the
+    URL will still be opened in the browser as a fallback.
+    """
     def _wait_and_open() -> None:
         import requests  # type: ignore
 
