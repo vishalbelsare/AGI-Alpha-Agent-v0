@@ -14,7 +14,7 @@ except Exception:  # pragma: no cover - fallback parser
     yaml = None
 
 from .mats.tree import Node, Tree
-from .mats.meta_rewrite import meta_rewrite, openai_rewrite
+from .mats.meta_rewrite import meta_rewrite, openai_rewrite, anthropic_rewrite
 from .mats.evaluators import evaluate
 from .mats.env import NumberLineEnv
 
@@ -51,13 +51,13 @@ def run(
     exploration:
         Exploration constant for UCB1.
     rewriter:
-        Which rewrite strategy to use: ``"random"`` or ``"openai"``.
+        Which rewrite strategy to use: ``"random"``, ``"openai"`` or ``"anthropic"``.
     log_dir:
         Optional directory where a ``scores.csv`` log is written.
     seed:
         Optional RNG seed for reproducible runs.
     model:
-        Optional OpenAI model override used by :func:`openai_rewrite`.
+        Optional model override used by the rewriter.
     """
     if seed is not None:
         random.seed(seed)
@@ -66,9 +66,16 @@ def run(
     env = NumberLineEnv(target=target)
     tree = Tree(Node(root_agents), exploration=exploration)
     if rewriter is None:
-        rewriter = "openai" if os.getenv("OPENAI_API_KEY") else "random"
+        rewriter = (
+            os.getenv("MATS_REWRITER")
+            or ("openai" if os.getenv("OPENAI_API_KEY") else None)
+            or ("anthropic" if os.getenv("ANTHROPIC_API_KEY") else None)
+            or "random"
+        )
     if rewriter == "openai":
         rewrite_fn = lambda ag: openai_rewrite(ag, model=model)
+    elif rewriter == "anthropic":
+        rewrite_fn = lambda ag: anthropic_rewrite(ag, model=model)
     else:
         rewrite_fn = meta_rewrite
     log_fh = None
@@ -119,12 +126,16 @@ def main(argv: List[str] | None = None) -> None:
     parser.add_argument("--config", type=Path, default=Path("configs/default.yaml"), help="YAML configuration")
     parser.add_argument(
         "--rewriter",
-        choices=["random", "openai"],
+        choices=["random", "openai", "anthropic"],
         help="Rewrite strategy",
     )
     parser.add_argument("--target", type=int, help="Target integer for the environment")
     parser.add_argument("--seed", type=int, help="Optional RNG seed")
-    parser.add_argument("--model", type=str, help="OpenAI model for the rewriter")
+    parser.add_argument(
+        "--model",
+        type=str,
+        help="Model name for the rewriter (OpenAI or Anthropic)",
+    )
     parser.add_argument("--log-dir", type=Path, help="Optional directory to store episode logs")
     parser.add_argument(
         "--verify-env",
