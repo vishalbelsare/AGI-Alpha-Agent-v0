@@ -85,7 +85,7 @@ def main(argv: list[str] | None = None) -> None:
             )
             resp.raise_for_status()
             print("Queued best alpha opportunity via BusinessAgent")
-        except Exception as exc:
+        except requests.RequestException as exc:
             print(f"⚠️  Failed to queue best alpha: {exc}")
     if not args.no_browser:
         try:
