@@ -24,6 +24,9 @@ python -m alpha_factory_v1.demos.alpha_agi_insight_v0.insight_demo \
     --sectors Finance,Healthcare,Energy
 ```
 
+Use ``--list-sectors`` to display the resolved sector list without running the
+search. This is helpful when providing custom lists via ``--sectors``.
+
 When optional dependencies such as ``openai`` or ``anthropic`` are not
 installed, the program automatically falls back to a simple offline rewriter so
 the demo remains functional anywhere.  Episode scores are printed to the console
