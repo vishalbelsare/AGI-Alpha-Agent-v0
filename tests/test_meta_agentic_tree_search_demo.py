@@ -125,7 +125,7 @@ class TestMetaAgenticTreeSearchDemo(unittest.TestCase):
                 "--target",
                 "3",
                 "--model",
-                "gpt-4o",
+                DEFAULT_MODEL_NAME,
             ],
             capture_output=True,
             text=True,
