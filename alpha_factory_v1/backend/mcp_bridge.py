@@ -23,7 +23,10 @@ import os
 import time
 from typing import Dict, List, TypedDict
 
-import httpx
+try:
+    import httpx  # type: ignore
+except Exception:  # pragma: no cover - optional dep
+    httpx = None
 
 from .logger import get_logger
 
@@ -50,6 +53,10 @@ async def store(messages: List[ChatMessage]) -> None:
     The call is fire-and-forget and **never** raises – MCP is non-critical.
     """
     if not _ENDPOINT:
+        return
+
+    if httpx is None:
+        _LOG.debug("MCP disabled – httpx missing")
         return
 
     payload = {"messages": messages, "timestamp": time.time()}

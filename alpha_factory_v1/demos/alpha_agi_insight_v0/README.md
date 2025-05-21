@@ -39,6 +39,9 @@ python -m alpha_factory_v1.demos.alpha_agi_insight_v0.insight_demo \
 Use ``--list-sectors`` to display the resolved sector list without running the
 search. This is helpful when providing custom lists via ``--sectors``.
 
+Export ``MCP_ENDPOINT`` to capture all prompts and replies for later audit using
+the Model Context Protocol. When unset the logging step is silently skipped.
+
 When optional dependencies such as ``openai`` or ``anthropic`` are not
 installed, the program automatically falls back to a simple offline rewriter so
 the demo remains functional anywhere.  Episode scores are printed to the console
@@ -61,3 +64,11 @@ python -m alpha_factory_v1.demos.alpha_agi_insight_v0.openai_agents_bridge --ver
 The bridge automatically falls back to offline mode when the optional
 packages or API keys are missing. Use ``--enable-adk`` to expose the agent via
 the optional Google ADK gateway when available.
+
+### MCP Logging
+
+Set the ``MCP_ENDPOINT`` environment variable to automatically store all
+LLM prompts and replies using the
+[Model Context Protocol](https://www.anthropic.com/news/model-context-protocol).
+This best-effort persistence operates transparently and never blocks the
+search loop.

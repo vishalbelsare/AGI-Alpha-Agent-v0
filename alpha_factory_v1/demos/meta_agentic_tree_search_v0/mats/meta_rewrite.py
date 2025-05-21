@@ -4,6 +4,8 @@ from __future__ import annotations
 
 import random
 from typing import List
+
+from alpha_factory_v1.backend.mcp_bridge import store_sync
 import importlib
 import asyncio
 import os
@@ -70,21 +72,24 @@ def openai_rewrite(agents: List[int], model: str | None = None) -> List[int]:
                     "Given the current integer policy "
                     f"{policy}, suggest a slightly improved list of integers."
                 )
+                messages = [
+                    {
+                        "role": "system",
+                        "content": "You rewrite policies for a simple number line game.",
+                    },
+                    {"role": "user", "content": prompt},
+                ]
                 try:
                     response = openai.ChatCompletion.create(
                         model=oai_model,
-                        messages=[
-                            {
-                                "role": "system",
-                                "content": "You rewrite policies for a simple number line game.",
-                            },
-                            {"role": "user", "content": prompt},
-                        ],
+                        messages=messages,
                         max_tokens=20,
                     )
                     text = response.choices[0].message.content or ""
                 except Exception:
                     text = ""
+                else:
+                    store_sync(messages + [{"role": "assistant", "content": text}])
 
                 return _parse_numbers(text, policy)
 
@@ -138,14 +143,16 @@ def anthropic_rewrite(agents: List[int], model: str | None = None) -> List[int]:
                 f"{agents}, suggest a slightly improved list of integers."
             )
 
+            messages = [{"role": "user", "content": prompt}]
             msg = client.messages.create(
                 model=claude_model,
                 max_tokens=20,
-                messages=[{"role": "user", "content": prompt}],
+                messages=messages,
                 system="You rewrite policies for a simple number line game.",
             )
 
             text = msg.content[0].text if getattr(msg, "content", None) else ""
+            store_sync(messages + [{"role": "assistant", "content": text}])
             result = _parse_numbers(text, agents)
             return result
         except Exception as exc:  # pragma: no cover - safety net

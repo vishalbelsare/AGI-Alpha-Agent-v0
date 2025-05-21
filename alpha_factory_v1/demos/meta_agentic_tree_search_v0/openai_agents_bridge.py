@@ -30,7 +30,11 @@ if __package__ is None:  # pragma: no cover - allow direct execution
     sys.path.append(str(pathlib.Path(__file__).resolve().parents[3]))
     __package__ = "alpha_factory_v1.demos.meta_agentic_tree_search_v0"
 
-has_oai = importlib.util.find_spec("openai_agents") is not None
+try:
+    _spec = importlib.util.find_spec("openai_agents")
+except ValueError:
+    _spec = None
+has_oai = _spec is not None
 if has_oai:
     from openai_agents import Agent, AgentRuntime, Tool  # type: ignore
 
