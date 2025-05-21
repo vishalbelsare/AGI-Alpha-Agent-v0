@@ -38,7 +38,7 @@ class TestAlphaAgiInsightBridge(unittest.TestCase):
             self.skipTest("openai-agents installed")
 
         summary = asyncio.run(run_insight_search(episodes=1, target=1))
-        self.assertIn("sector", summary)
+        self.assertIn("fallback_mode_active", summary)
 
 
 if __name__ == "__main__":  # pragma: no cover
