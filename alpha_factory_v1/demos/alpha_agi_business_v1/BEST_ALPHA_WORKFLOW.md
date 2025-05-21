@@ -31,6 +31,15 @@ curl -X POST http://localhost:<PORT>/agent/alpha_execution/trigger \
      -d '{"alpha": "gene therapy patent undervalued by market", "score": 88}'
 ```
 
+Or trigger it via the OpenAI Agents bridge using the ``trigger_best_alpha``
+helper:
+
+```bash
+curl -X POST http://localhost:5001/v1/agents/business_helper/invoke \
+     -H 'Content-Type: application/json' \
+     -d '{"action": "best_alpha"}'
+```
+
 The execution agent will process the input and propagate tasks to downstream agents such as risk and compliance.
 
 ## 4. Monitor Progress

@@ -262,6 +262,7 @@ Visit `http://localhost:9000/docs` to explore the gateway when enabled (default 
 - `list_agents`
 - `trigger_discovery`
 - `trigger_opportunity`
+- `trigger_best_alpha` (send the highest scoring demo opportunity)
 - `trigger_execution`
 - `trigger_risk`
 - `trigger_compliance`
