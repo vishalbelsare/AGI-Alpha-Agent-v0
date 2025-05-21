@@ -30,7 +30,7 @@ if has_oai:
         """Execute the search loop and return a summary string."""
         if model:
             os.environ.setdefault("OPENAI_MODEL", model)
-        run(episodes=episodes, target=target)
+        run(episodes=episodes, target=target, model=model)
         return f"completed {episodes} episodes toward target {target}"
 
     class MATSAgent(Agent):
@@ -74,7 +74,7 @@ else:
         """Execute the search loop and return a summary string."""
         if model:
             os.environ.setdefault("OPENAI_MODEL", model)
-        run(episodes=episodes, target=target)
+        run(episodes=episodes, target=target, model=model)
         return f"completed {episodes} episodes toward target {target}"
     async def run_search(episodes: int = 10, target: int = 5, model: str | None = None) -> str:
         return _run_search_helper(episodes, target, model)
@@ -107,7 +107,7 @@ def main(argv: list[str] | None = None) -> None:
 
     if not has_oai:
         print("openai-agents package is missing. Running offline demo...")
-        run(episodes=args.episodes, target=args.target)
+        run(episodes=args.episodes, target=args.target, model=args.model)
         return
 
     if args.enable_adk:

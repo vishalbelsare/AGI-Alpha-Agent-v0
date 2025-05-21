@@ -1,5 +1,7 @@
 # Meta‑Agentic Tree Search (MATS) Demo — v0
 
+[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/MontrealAI/AGI-Alpha-Agent-v0/blob/main/alpha_factory_v1/demos/meta_agentic_tree_search_v0/colab_meta_agentic_tree_search.ipynb)
+
 **Abstract:** We pioneer **Meta-Agentic Tree Search (MATS)**, a novel framework for autonomous multi-agent decision optimization in complex strategic domains. MATS enables intelligent agents to collaboratively navigate and optimize high-dimensional strategic search spaces through **recursive agent-to-agent interactions**. In this **second-order agentic** scheme, each agent in the system iteratively refines the intermediate strategies proposed by other agents, yielding a self-improving decision-making process. This recursive optimization mechanism systematically uncovers latent inefficiencies and unexploited opportunities that static or single-agent approaches often overlook.
 
 > **Status:** Experimental · Proof‑of‑Concept · Alpha  
@@ -63,7 +65,7 @@ instantiated directly from :func:`openai_rewrite` and executed once per tree
 step. Enable this behaviour with:
 
 ```bash
-python run_demo.py --rewriter openai --episodes 500
+python run_demo.py --rewriter openai --episodes 500 --model gpt-4o
 ```
 The script automatically falls back to the offline rewriter when the
 dependencies are unavailable so the notebook remains runnable anywhere.
@@ -111,7 +113,7 @@ cd AGI-Alpha-Agent-v0/alpha_factory_v1/demos/meta_agentic_tree_search_v0
 python -m venv .venv && source .venv/bin/activate
 pip install -r requirements.txt          # torch, gymnasium, networkx, etc.
 python run_demo.py --verify-env          # optional sanity check
-python run_demo.py --config configs/default.yaml --episodes 500 --target 5 --seed 42
+python run_demo.py --config configs/default.yaml --episodes 500 --target 5 --seed 42 --model gpt-4o
 ```
 `run_demo.py` prints a per‑episode scoreboard.  Pass `--log-dir logs` to save a
 `scores.csv` file for further analysis. A ready‑to‑run Colab notebook is also
