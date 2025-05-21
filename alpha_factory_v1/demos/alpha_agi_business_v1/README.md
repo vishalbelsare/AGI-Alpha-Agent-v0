@@ -152,6 +152,9 @@ cd AGI-Alpha-Agent-v0/alpha_factory_v1/demos/alpha_agi_business_v1
 # easiest path – auto-installs dependencies and opens the docs
 python start_alpha_business.py
 
+# automatically queue the highest scoring demo opportunity
+python start_alpha_business.py --submit-best
+
 # Docker-based run (GPU optional)
 ./run_business_v1_demo.sh
 # or run directly without Docker
