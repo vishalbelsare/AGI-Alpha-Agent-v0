@@ -24,6 +24,8 @@ class TestAlphaAgiInsightBridge(unittest.TestCase):
                 "2",
                 "--model",
                 DEFAULT_MODEL_NAME,
+                "--log-dir",
+                "logs",
             ],
             capture_output=True,
             text=True,
@@ -37,7 +39,7 @@ class TestAlphaAgiInsightBridge(unittest.TestCase):
         if has_oai:  # pragma: no cover - only run offline path
             self.skipTest("openai-agents installed")
 
-        summary = asyncio.run(run_insight_search(episodes=1, target=1))
+        summary = asyncio.run(run_insight_search(episodes=1, target=1, log_dir="logs"))
         self.assertIn("fallback_mode_active", summary)
 
 
