@@ -38,7 +38,7 @@ def run(episodes: int = 5, *, target: int = 3) -> str:
         tree.add_child(node, child)
         tree.backprop(child)
         idx = improved[0] % len(SECTORS)
-        print(f"Episode {_+1}: candidate {SECTORS[idx]} → reward {reward:.3f}")
+        print(f"Episode {_+1}: candidate {SECTORS[idx]} -> reward {reward:.3f}")
     best = tree.best_leaf()
     sector = SECTORS[best.agents[0] % len(SECTORS)]
     score = best.reward / (best.visits or 1)
