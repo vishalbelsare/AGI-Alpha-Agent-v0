@@ -66,11 +66,11 @@ def _open_browser_when_ready(url: str, timeout: float = 5.0) -> None:
     """Open *url* in the default browser once the orchestrator responds."""
 
     def _wait_and_open() -> None:
+        import requests  # type: ignore
+
         deadline = time.monotonic() + timeout
         while time.monotonic() < deadline:
             try:
-                import requests  # type: ignore
-
                 if requests.get(f"{url.rstrip('/')}/healthz", timeout=1).status_code == 200:
                     webbrowser.open(url, new=1)
                     return
