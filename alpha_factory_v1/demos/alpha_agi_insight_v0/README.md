@@ -3,8 +3,9 @@
 The **α‑AGI Insight** demo predicts which industry sector is most likely to be
 transformed by Artificial General Intelligence. It runs a small
 **Meta‑Agentic Tree Search** (MATS) over a list of sector names. No external
-data is required so the script executes fully offline.  Pass a custom sector
-list with ``--sectors`` to experiment with your own domains.
+ data is required so the script executes fully offline.  Pass a custom sector
+ list with ``--sectors`` to experiment with your own domains. When the argument
+ points to a text file, each non-empty line is treated as a sector name.
 
 ```bash
 python -m alpha_factory_v1.demos.alpha_agi_insight_v0.insight_demo --episodes 5

@@ -78,6 +78,31 @@ DEFAULT_SECTORS = [
 ]
 
 
+def parse_sectors(cfg_val: object | None, cli_val: str | None) -> List[str]:
+    """Return a cleaned list of sector names.
+
+    Parameters
+    ----------
+    cfg_val:
+        Value loaded from ``default.yaml``. Can be a comma-separated string or
+        a YAML array.
+    cli_val:
+        Optional value passed via ``--sectors``.
+    """
+
+    source = cli_val or cfg_val
+    if isinstance(source, list):
+        return [str(s).strip() for s in source if str(s).strip()]
+    if isinstance(source, str):
+        text = source.strip()
+        file_candidate = Path(text)
+        if file_candidate.exists():
+            lines = file_candidate.read_text(encoding="utf-8").splitlines()
+            return [line.strip() for line in lines if line.strip()]
+        return [s.strip() for s in text.split("\n" if "\n" in text else ",") if s.strip()]
+    return list(DEFAULT_SECTORS)
+
+
 def run(
     episodes: int = 5,
     exploration: float = 1.4,
