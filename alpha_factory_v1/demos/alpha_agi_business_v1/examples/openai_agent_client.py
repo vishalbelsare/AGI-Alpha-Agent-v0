@@ -64,8 +64,12 @@ def _construct_payload(action: str, job_path: str | None) -> dict[str, object]:
         try:
             job_json = json.loads(Path(job_path).read_text(encoding="utf-8"))
             payload["job"] = job_json
-        except Exception as exc:  # pragma: no cover - malformed file
-            raise SystemExit(f"Failed to load job JSON: {exc}")
+        except FileNotFoundError as exc:
+            raise SystemExit(f"Job file not found: {exc}")
+        except PermissionError as exc:
+            raise SystemExit(f"Permission denied when accessing job file: {exc}")
+        except json.JSONDecodeError as exc:
+            raise SystemExit(f"Failed to parse job JSON: {exc}")
     return payload
 
 
