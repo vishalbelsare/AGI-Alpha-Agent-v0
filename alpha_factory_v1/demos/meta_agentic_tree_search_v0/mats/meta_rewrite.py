@@ -104,6 +104,9 @@ def openai_rewrite(agents: List[int]) -> List[int]:
             thread.join()
             if result is not None:
                 return result
+            else:
+                logging.warning("Result is None; falling back to meta_rewrite.")
+                return meta_rewrite(agents)
         except Exception as exc:  # pragma: no cover - safety net
             logging.warning(f"openai_rewrite fallback due to error: {exc}")
 
