@@ -114,6 +114,8 @@ def main(argv: List[str] | None = None) -> None:
     )
     args = parser.parse_args(argv)
 
+    enable_adk = args.enable_adk or os.getenv("ALPHA_AGI_ENABLE_ADK") == "true"
+
     if not args.skip_verify:
         insight_demo.verify_environment()
 
@@ -127,7 +129,7 @@ def main(argv: List[str] | None = None) -> None:
     if args.offline or not _agents_available():
         _run_offline(args)
     else:
-        if args.enable_adk:
+        if enable_adk:
             os.environ.setdefault("ALPHA_FACTORY_ENABLE_ADK", "true")
         openai_agents_bridge._run_runtime(
             args.episodes or 5,

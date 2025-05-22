@@ -215,6 +215,8 @@ def main(argv: list[str] | None = None) -> None:
     )
     args = parser.parse_args(argv)
 
+    enable_adk = args.enable_adk or os.getenv("ALPHA_AGI_ENABLE_ADK") == "true"
+
     if not args.skip_verify:
         verify_environment()
 
@@ -225,7 +227,7 @@ def main(argv: list[str] | None = None) -> None:
             print(f"- {name}")
         return
 
-    if args.enable_adk:
+    if enable_adk:
         os.environ.setdefault("ALPHA_FACTORY_ENABLE_ADK", "true")
 
     _run_runtime(
