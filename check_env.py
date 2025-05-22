@@ -23,9 +23,13 @@ REQUIRED = [
     "pytest",
     "prometheus_client",
     "openai",
+    "anthropic",
+]
+
+# Optional integrations that may not be present in restricted environments.
+OPTIONAL = [
     "openai_agents",
     "google_adk",
-    "anthropic",
 ]
 
 def main(argv: Optional[List[str]] = None) -> int:
@@ -42,15 +46,20 @@ def main(argv: Optional[List[str]] = None) -> int:
 
     args = parser.parse_args(argv)
 
-    missing: list[str] = []
-    for pkg in REQUIRED:
+    missing_required: list[str] = []
+    missing_optional: list[str] = []
+    for pkg in REQUIRED + OPTIONAL:
         try:
             spec = importlib.util.find_spec(pkg)
         except ValueError:
             # handle cases where a namespace package left an invalid entry
             spec = None
         if spec is None:
-            missing.append(pkg)
+            if pkg in OPTIONAL:
+                missing_optional.append(pkg)
+            else:
+                missing_required.append(pkg)
+    missing = missing_required + missing_optional
     if missing:
         print("WARNING: Missing packages:", ", ".join(missing))
         wheelhouse = args.wheelhouse or os.getenv("WHEELHOUSE")
@@ -67,8 +76,9 @@ def main(argv: Optional[List[str]] = None) -> int:
             else:
                 print("Install completed, verifying …")
                 missing = [p for p in missing if importlib.util.find_spec(p) is None]
-                if missing:
-                    print("ERROR: The following packages are still missing after the installation attempt:", ", ".join(missing))
+                missing_required = [p for p in missing if p not in OPTIONAL]
+                if missing_required:
+                    print("ERROR: The following packages are still missing after the installation attempt:", ", ".join(missing_required))
                     return 1
         else:
             hint = "pip install " + " ".join(missing)
@@ -76,7 +86,7 @@ def main(argv: Optional[List[str]] = None) -> int:
                 hint = f"pip install --no-index --find-links {wheelhouse} " + " ".join(missing)
             print("Some features may be degraded. Install with:", hint)
 
-    if not missing:
+    if not missing_required:
         print("Environment OK")
     return 0
 
