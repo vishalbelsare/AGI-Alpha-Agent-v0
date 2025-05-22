@@ -6,7 +6,9 @@ search. When the optional OpenAI Agents runtime is available and an API
 key is configured the agent is registered with the runtime. Otherwise the
 script falls back to the lightweight command line interface that runs the
 Meta‑Agentic Tree Search locally.  Runtime dependencies are verified when
-``--verify-env`` is supplied.
+``--verify-env`` is supplied. The same launcher exposes the optional
+Google ADK gateway and gracefully degrades to a self‑contained CLI when
+any dependency is missing.
 """
 from __future__ import annotations
 
