@@ -6,6 +6,9 @@ disruption by running a lightweight Meta‑Agentic Tree Search (MATS).  The
 implementation mirrors ``run_demo`` from ``meta_agentic_tree_search_v0`` but is
 tailored to search over a small list of sector names.  The routine requires no
 external data and works fully offline.
+
+Environment variables such as ``ALPHA_AGI_EPISODES`` and
+``ALPHA_AGI_TARGET`` override the default configuration when present.
 """
 
 from __future__ import annotations
@@ -212,16 +215,20 @@ def main(argv: List[str] | None = None) -> None:
 
     if args.verify_env:
         verify_environment()
-    episodes = args.episodes or int(cfg.get("episodes", 5))
-    exploration = (
+    episodes = int(
+        args.episodes or os.getenv("ALPHA_AGI_EPISODES", 0) or cfg.get("episodes", 5)
+    )
+    exploration = float(
         args.exploration
         if args.exploration is not None
-        else float(cfg.get("exploration", 1.4))
+        else os.getenv("ALPHA_AGI_EXPLORATION", cfg.get("exploration", 1.4))
     )
-    rewriter = args.rewriter or cfg.get("rewriter", "random")
-    target = args.target if args.target is not None else int(cfg.get("target", 3))
-    seed = args.seed if args.seed is not None else cfg.get("seed")
-    seed = int(seed) if seed is not None else None
+    rewriter = args.rewriter or os.getenv("MATS_REWRITER") or cfg.get("rewriter", "random")
+    target = int(
+        args.target if args.target is not None else os.getenv("ALPHA_AGI_TARGET", cfg.get("target", 3))
+    )
+    seed_val = args.seed if args.seed is not None else os.getenv("ALPHA_AGI_SEED") or cfg.get("seed")
+    seed = int(seed_val) if seed_val is not None else None
     model = args.model or cfg.get("model")
     sectors = parse_sectors(cfg.get("sectors"), args.sectors)
 
