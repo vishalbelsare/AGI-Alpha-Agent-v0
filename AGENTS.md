@@ -4,8 +4,8 @@ This repository hosts the Alpha-Factory v1 package and demos. These rules apply 
 
 ## Development Environment
 - Run `./codex/setup.sh` to install minimal dependencies. Set `WHEELHOUSE=/path/to/wheels` for offline installs.
-- After setup execute `python check_env.py --auto-install`.
-- Run `pytest -q` and ensure all tests pass. If a test fails explain the reason in the PR description.
+- After setup run `python check_env.py --auto-install` to verify and auto-install any missing packages.
+- Execute `pytest -q` and ensure all tests pass. If a test fails explain the reason in the PR description.
 
 ## Coding Style
 - Target **Python 3.11** or newer and provide type hints.

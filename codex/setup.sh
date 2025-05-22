@@ -26,3 +26,10 @@ packages=(
 )
 $PYTHON -m pip install --quiet "${wheel_opts[@]}" "${packages[@]}"
 
+# Validate environment and install any remaining deps
+check_env_opts=()
+if [[ -n "${WHEELHOUSE:-}" ]]; then
+  check_env_opts+=(--wheelhouse "$WHEELHOUSE")
+fi
+$PYTHON check_env.py --auto-install "${check_env_opts[@]}"
+
