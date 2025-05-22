@@ -29,7 +29,16 @@ from ... import get_version
 
 
 def _agents_available() -> bool:
-    """Return ``True`` when ``openai_agents`` can be used."""
+    """Return ``True`` when the OpenAI Agents runtime is usable.
+
+    An explicit ``ALPHA_AGI_OFFLINE`` environment variable forces offline mode
+    even when the package and API key are present.  This mirrors the
+    ``--offline`` command line option and offers parity with other demos.
+    """
+
+    if os.getenv("ALPHA_AGI_OFFLINE"):
+        return False
+
     spec = importlib.util.find_spec("openai_agents")
     return bool(spec and os.getenv("OPENAI_API_KEY"))
 
