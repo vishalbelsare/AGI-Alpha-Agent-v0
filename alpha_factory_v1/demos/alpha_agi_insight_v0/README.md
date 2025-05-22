@@ -37,6 +37,13 @@ For a quick offline run from anywhere:
 python -m alpha_factory_v1.demos.alpha_agi_insight_v0 --offline --episodes 2
 ```
 
+When installed as a package the ``alpha-agi-insight-demo`` command provides the
+same behaviour without specifying the module path:
+
+```bash
+alpha-agi-insight-demo --episodes 2
+```
+
 ### Quick Start Script
 
 Ensure the shell helper is executable by running ``chmod +x run_insight_demo.sh`` if needed.
