@@ -202,13 +202,13 @@ def main(argv: list[str] | None = None) -> None:
     parser.add_argument("--adk-host", type=str, help="ADK bind host")
     parser.add_argument("--adk-port", type=int, help="ADK bind port")
     parser.add_argument(
-        "--verify-env",
+        "--skip-verify",
         action="store_true",
-        help="Check runtime dependencies before launching",
+        help="Skip runtime dependency checks",
     )
     args = parser.parse_args(argv)
 
-    if args.verify_env:
+    if not args.skip_verify:
         verify_environment()
 
     sector_list = parse_sectors(None, args.sectors)
