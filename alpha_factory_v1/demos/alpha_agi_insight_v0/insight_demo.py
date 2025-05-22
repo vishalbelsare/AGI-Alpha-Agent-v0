@@ -14,6 +14,7 @@ Environment variables such as ``ALPHA_AGI_EPISODES`` and
 from __future__ import annotations
 
 import argparse
+import json
 import os
 import random
 from pathlib import Path
@@ -190,6 +191,10 @@ def run(
         log_fh.close()
         if log_path:
             print(f"Episode metrics written to {log_path}")
+            summary_path = log_path.with_name("summary.json")
+            data = {"best": sector, "score": score, "ranking": ranking}
+            summary_path.write_text(json.dumps(data, indent=2), encoding="utf-8")
+            print(f"Summary written to {summary_path}")
     return summary
 
 
