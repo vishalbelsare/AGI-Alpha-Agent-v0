@@ -8,7 +8,9 @@ transformed by Artificial General Intelligence. It runs a small
  points to a text file, each non-empty line is treated as a sector name.
 
 **Quick Start:** run ``alpha-agi-beyond-foresight --episodes 5`` to launch the
-production demo with automatic environment selection.
+final production demo with automatic environment selection. This command maps to
+``official_demo_final.py`` and transparently chooses between the hosted runtime
+and offline mode depending on available credentials.
 
 ## Overview
 
