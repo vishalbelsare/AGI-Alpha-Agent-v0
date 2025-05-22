@@ -250,6 +250,13 @@ def main(argv: list[str] | None = None) -> None:
     args = parser.parse_args(argv)
 
     enable_adk = args.enable_adk or os.getenv("ALPHA_AGI_ENABLE_ADK") == "true"
+    if args.adk_host is None:
+        args.adk_host = os.getenv("ALPHA_AGI_ADK_HOST")
+    if args.adk_port is None and os.getenv("ALPHA_AGI_ADK_PORT"):
+        try:
+            args.adk_port = int(os.getenv("ALPHA_AGI_ADK_PORT"))
+        except ValueError:
+            args.adk_port = None
 
     if not args.skip_verify:
         verify_environment()
