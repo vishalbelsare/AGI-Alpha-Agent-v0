@@ -24,6 +24,7 @@ alpha-agi-insight-demo = "alpha_factory_v1.demos.alpha_agi_insight_v0.run_demo:m
 alpha-agi-insight-bridge = "alpha_factory_v1.demos.alpha_agi_insight_v0.openai_agents_bridge:main"
 alpha-agi-insight-official = "alpha_factory_v1.demos.alpha_agi_insight_v0.official_demo:main"
 alpha-agi-insight-final = "alpha_factory_v1.demos.alpha_agi_insight_v0.official_demo_final:main"
+alpha-agi-beyond-foresight = "alpha_factory_v1.demos.alpha_agi_insight_v0.beyond_human_foresight:main"
 
 [project.entry-points."alpha_factory.agents"]
 # custom agents can be registered here
