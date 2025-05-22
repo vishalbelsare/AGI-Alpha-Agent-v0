@@ -84,6 +84,7 @@ python official_demo_final.py --episodes 5
 Use ``--enable-adk`` to expose the agent via the optional Google ADK gateway.
 Pass ``--list-sectors`` to display the resolved sector list without running the search.
 ``--adk-host`` and ``--adk-port`` customise the gateway bind address.
+Use ``--version`` to show the installed package version and exit.
 
 ## Usage
 

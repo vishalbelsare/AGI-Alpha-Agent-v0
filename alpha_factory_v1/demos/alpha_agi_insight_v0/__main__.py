@@ -11,6 +11,7 @@ from __future__ import annotations
 
 import argparse
 from . import insight_demo
+from ... import get_version
 import os
 
 
@@ -20,6 +21,12 @@ def main(argv: list[str] | None = None) -> None:
         "--offline",
         action="store_true",
         help="Run the basic CLI without the OpenAI Agents runtime",
+    )
+    parser.add_argument(
+        "--version",
+        action="version",
+        version=f"%(prog)s {get_version()}",
+        help="Show package version and exit",
     )
     args, remainder = parser.parse_known_args(argv)
 
