@@ -21,6 +21,7 @@ validate-demos = "alpha_factory_v1.demos.validate_demos:main"
 aiga-meta-demo = "alpha_factory_v1.demos.aiga_meta_evolution.meta_evolver:cli"
 muzero-demo = "alpha_factory_v1.demos.muzero_planning.agent_muzero_entrypoint:launch_dashboard"
 alpha-agi-insight-demo = "alpha_factory_v1.demos.alpha_agi_insight_v0.run_demo:main"
+alpha-agi-insight-bridge = "alpha_factory_v1.demos.alpha_agi_insight_v0.openai_agents_bridge:main"
 
 [project.entry-points."alpha_factory.agents"]
 # custom agents can be registered here

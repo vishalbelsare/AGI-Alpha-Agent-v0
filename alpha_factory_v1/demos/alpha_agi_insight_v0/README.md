@@ -44,6 +44,13 @@ same behaviour without specifying the module path:
 alpha-agi-insight-demo --episodes 2
 ```
 
+To expose the demo via the OpenAI Agents runtime (and optional ADK gateway), use
+the companion ``alpha-agi-insight-bridge`` command:
+
+```bash
+alpha-agi-insight-bridge --verify-env --episodes 5
+```
+
 ### Quick Start Script
 
 Ensure the shell helper is executable by running ``chmod +x run_insight_demo.sh`` if needed.
