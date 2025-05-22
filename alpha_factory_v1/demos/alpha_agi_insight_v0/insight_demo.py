@@ -199,7 +199,7 @@ def main(argv: List[str] | None = None) -> None:
     parser.add_argument(
         "--config",
         type=Path,
-        default=Path("configs/default.yaml"),
+        default=Path(__file__).resolve().parent / "configs" / "default.yaml",
         help="YAML configuration",
     )
     parser.add_argument(
