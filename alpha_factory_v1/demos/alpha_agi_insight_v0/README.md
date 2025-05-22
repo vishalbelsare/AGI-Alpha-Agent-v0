@@ -63,6 +63,13 @@ Python for the same behaviour:
 python run_demo.py --episodes 5
 ```
 
+To always verify dependencies before running, launch the companion
+``official_demo.py`` script instead:
+
+```bash
+python official_demo.py --episodes 5
+```
+
 ## Usage
 
 The command line interface mirrors the options of the general MATS demo:
