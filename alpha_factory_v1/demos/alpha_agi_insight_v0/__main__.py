@@ -11,6 +11,7 @@ from __future__ import annotations
 
 import argparse
 from . import openai_agents_bridge, insight_demo
+import os
 
 
 def main(argv: list[str] | None = None) -> None:
@@ -21,6 +22,9 @@ def main(argv: list[str] | None = None) -> None:
         help="Run the basic CLI without the OpenAI Agents runtime",
     )
     args, remainder = parser.parse_known_args(argv)
+
+    # Soften noisy logs from the wider Alpha‑Factory environment.
+    os.environ.setdefault("LOGLEVEL", "WARNING")
 
     if args.offline:
         insight_demo.main(remainder)
