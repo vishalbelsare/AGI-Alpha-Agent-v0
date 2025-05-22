@@ -54,11 +54,24 @@ def main(argv: List[str] | None = None) -> None:
     parser.add_argument("--exploration", type=float, help="Exploration constant")
     parser.add_argument("--seed", type=int, help="Optional RNG seed")
     parser.add_argument("--model", type=str, help="Model override")
-    parser.add_argument("--rewriter", choices=["random", "openai", "anthropic"], help="Rewrite strategy")
-    parser.add_argument("--sectors", type=str, help="Comma-separated sectors or path to file")
+    parser.add_argument(
+        "--rewriter", choices=["random", "openai", "anthropic"], help="Rewrite strategy"
+    )
+    parser.add_argument(
+        "--sectors", type=str, help="Comma-separated sectors or path to file"
+    )
     parser.add_argument("--log-dir", type=str, help="Directory for episode metrics")
     parser.add_argument("--offline", action="store_true", help="Force offline mode")
-    parser.add_argument("--skip-verify", action="store_true", help="Skip environment check")
+    parser.add_argument(
+        "--skip-verify", action="store_true", help="Skip environment check"
+    )
+    parser.add_argument(
+        "--enable-adk",
+        action="store_true",
+        help="Expose agent via the optional ADK gateway",
+    )
+    parser.add_argument("--adk-host", type=str, help="ADK bind host")
+    parser.add_argument("--adk-port", type=int, help="ADK bind port")
     parser.add_argument(
         "--list-sectors",
         action="store_true",
@@ -79,6 +92,8 @@ def main(argv: List[str] | None = None) -> None:
     if args.offline or not _agents_available():
         _run_offline(args)
     else:
+        if args.enable_adk:
+            os.environ.setdefault("ALPHA_FACTORY_ENABLE_ADK", "true")
         openai_agents_bridge._run_runtime(
             args.episodes or 5,
             args.target or 3,
@@ -86,6 +101,8 @@ def main(argv: List[str] | None = None) -> None:
             args.rewriter,
             args.log_dir,
             args.sectors,
+            adk_host=args.adk_host,
+            adk_port=args.adk_port,
         )
 
 
