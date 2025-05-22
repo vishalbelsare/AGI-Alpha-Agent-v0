@@ -23,6 +23,7 @@ muzero-demo = "alpha_factory_v1.demos.muzero_planning.agent_muzero_entrypoint:la
 alpha-agi-insight-demo = "alpha_factory_v1.demos.alpha_agi_insight_v0.run_demo:main"
 alpha-agi-insight-bridge = "alpha_factory_v1.demos.alpha_agi_insight_v0.openai_agents_bridge:main"
 alpha-agi-insight-official = "alpha_factory_v1.demos.alpha_agi_insight_v0.official_demo:main"
+alpha-agi-insight-final = "alpha_factory_v1.demos.alpha_agi_insight_v0.official_demo_final:main"
 
 [project.entry-points."alpha_factory.agents"]
 # custom agents can be registered here
