@@ -95,14 +95,14 @@ Pass ``--list-sectors`` to display the resolved sector list without running the 
 For production deployments launch ``official_demo_production.py`` or use the
 ``alpha-agi-insight-production`` entrypoint. This variant verifies the
 environment by default and automatically selects between the hosted runtime
-and the offline CLI.
-For a splashier startup message use ``alpha-agi-beyond-foresight`` which
-displays a short banner before running the same final demo:
+and the offline CLI.  For a splashier startup message run
+``alpha-agi-beyond-foresight`` which displays a short banner before delegating
+to the same production demo:
 
 ```bash
 alpha-agi-beyond-foresight --offline --episodes 2
 ```
-The arguments mirror ``alpha-agi-insight-final``.
+The arguments mirror ``alpha-agi-insight-production``.
 Use ``--version`` to show the installed package version and exit.
 
 ## Usage

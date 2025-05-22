@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
 """Launch the Beyond Human Foresight variant of the α‑AGI Insight demo.
 
-This thin wrapper simply prints a short banner before delegating to
-:mod:`official_demo_final`. It inherits all functionality from the
-standard final demo including automatic environment verification,
-optional OpenAI Agents SDK integration and graceful offline mode.
+This thin wrapper prints a short banner then delegates to
+:mod:`official_demo_production`, inheriting automatic environment
+verification, optional OpenAI Agents SDK integration and graceful
+offline mode.  The behaviour mirrors ``alpha-agi-insight-production``
+while providing a flashier startup message.
 """
 from __future__ import annotations
 
@@ -17,7 +18,7 @@ if __package__ is None:  # pragma: no cover - allow direct execution
     sys.path.insert(0, str(pathlib.Path(__file__).resolve().parents[3]))
     __package__ = "alpha_factory_v1.demos.alpha_agi_insight_v0"
 
-from .official_demo_final import main as _main
+from .official_demo_production import main as _main
 
 
 def main(argv: List[str] | None = None) -> None:
