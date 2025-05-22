@@ -129,6 +129,7 @@ path to the log file is displayed after the run completes.
 - ``ALPHA_AGI_EXPLORATION`` – set the exploration constant for UCB1.
 - ``ALPHA_AGI_TARGET`` – specify the target sector index.
 - ``ALPHA_AGI_SEED`` – RNG seed for deterministic runs.
+- ``ALPHA_AGI_OFFLINE`` – force offline mode even when OpenAI Agents is available.
 
 ### Graceful Offline Mode
 
