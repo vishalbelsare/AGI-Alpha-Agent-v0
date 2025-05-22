@@ -1,13 +1,18 @@
-# AGENTS.md
+# Contribution Guidelines
 
-These guidelines apply to all contributors and automated agents.
+These instructions apply to all contributors and automated agents.
 
-## Coding style
-- Target Python 3.11 or newer and use type hints.
-- Indent with 4 spaces and keep lines under 120 characters.
-- Write concise Google style docstrings for all public modules, classes and functions.
+## Coding Style
+- Target **Python 3.11** or newer and include type hints.
+- Use 4 spaces per indentation level and keep lines under 120 characters.
+- Provide concise Google style docstrings for all public modules, classes and functions.
 
-## Workflow
-1. Run `.codex/setup.sh` to configure the environment.
+## Environment Setup
+1. Run `./codex/setup.sh` to install the project and minimal dependencies. Set `WHEELHOUSE=/path/to/wheels` for offline installation.
 2. Execute `python check_env.py --auto-install`.
-3. Run `pytest -q`. If tests fail, note the cause in the pull request description.
+3. Run `pytest -q`. If any tests fail, explain the reason in the pull request description.
+
+## Pull Requests
+- Keep commits focused and descriptive.
+- Ensure the working tree is clean (`git status` shows no changes) before submitting.
+
