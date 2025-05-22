@@ -7,6 +7,9 @@ transformed by Artificial General Intelligence. It runs a small
  list with ``--sectors`` to experiment with your own domains. When the argument
  points to a text file, each non-empty line is treated as a sector name.
 
+**Quick Start:** run ``alpha-agi-beyond-foresight --episodes 5`` to launch the
+production demo with automatic environment selection.
+
 ## Overview
 
 - **Zero Data Dependency**: runs entirely offline by default. The default
