@@ -7,4 +7,5 @@ root_dir="$(dirname "$(dirname "$script_dir")")"
 
 cd "$root_dir"
 
-python -m alpha_factory_v1.demos.alpha_agi_insight_v0 "$@"
+echo "Launching α‑AGI Insight demo…"
+python -m alpha_factory_v1.demos.alpha_agi_insight_v0.official_demo_final "$@"
