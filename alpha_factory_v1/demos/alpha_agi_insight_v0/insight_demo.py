@@ -146,9 +146,11 @@ def run(
     env = NumberLineEnv(target=target)
     tree = Tree(Node(root_agents), exploration=exploration)
     log_fh = None
+    log_path: Path | None = None
     if log_dir is not None:
         log_dir.mkdir(parents=True, exist_ok=True)
-        log_fh = open(log_dir / "scores.csv", "w", encoding="utf-8")
+        log_path = log_dir / "scores.csv"
+        log_fh = open(log_path, "w", encoding="utf-8")
         log_fh.write("episode,candidate,reward\n")
     for idx_ep in range(episodes):
         node = tree.select()
@@ -169,6 +171,8 @@ def run(
     if log_fh:
         log_fh.write(f"best,{sector},{score:.6f}\n")
         log_fh.close()
+        if log_path:
+            print(f"Episode metrics written to {log_path}")
     return summary
 
 
@@ -223,11 +227,19 @@ def main(argv: List[str] | None = None) -> None:
         if args.exploration is not None
         else os.getenv("ALPHA_AGI_EXPLORATION", cfg.get("exploration", 1.4))
     )
-    rewriter = args.rewriter or os.getenv("MATS_REWRITER") or cfg.get("rewriter", "random")
-    target = int(
-        args.target if args.target is not None else os.getenv("ALPHA_AGI_TARGET", cfg.get("target", 3))
+    rewriter = (
+        args.rewriter or os.getenv("MATS_REWRITER") or cfg.get("rewriter", "random")
     )
-    seed_val = args.seed if args.seed is not None else os.getenv("ALPHA_AGI_SEED") or cfg.get("seed")
+    target = int(
+        args.target
+        if args.target is not None
+        else os.getenv("ALPHA_AGI_TARGET", cfg.get("target", 3))
+    )
+    seed_val = (
+        args.seed
+        if args.seed is not None
+        else os.getenv("ALPHA_AGI_SEED") or cfg.get("seed")
+    )
     seed = int(seed_val) if seed_val is not None else None
     model = args.model or cfg.get("model")
     sectors = parse_sectors(cfg.get("sectors"), args.sectors)

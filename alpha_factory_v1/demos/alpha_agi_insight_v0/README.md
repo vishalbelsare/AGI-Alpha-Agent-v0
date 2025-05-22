@@ -77,7 +77,8 @@ the Model Context Protocol. When unset the logging step is silently skipped.
 When optional dependencies such as ``openai`` or ``anthropic`` are not
 installed, the program automatically falls back to a simple offline rewriter so
 the demo remains functional anywhere.  Episode scores are printed to the console
-and optionally written to ``scores.csv`` when ``--log-dir`` is supplied.
+and optionally written to ``scores.csv`` when ``--log-dir`` is supplied.  The
+path to the log file is displayed after the run completes.
 
 ### Environment Variables
 
