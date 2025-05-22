@@ -73,6 +73,14 @@ python official_demo.py --episodes 5
 When installed as a package, the `alpha-agi-insight-official` command
 offers the same behaviour.
 
+The standalone ``official_demo_final.py`` wrapper combines environment
+verification with automatic runtime selection. Invoke it directly or via
+the ``alpha-agi-insight-final`` command:
+
+```bash
+python official_demo_final.py --episodes 5
+```
+
 ## Usage
 
 The command line interface mirrors the options of the general MATS demo:
