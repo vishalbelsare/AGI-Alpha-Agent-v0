@@ -8,12 +8,12 @@ It gracefully degrades to offline mode when the optional
 """
 from __future__ import annotations
 
-import os
 import argparse
 import importlib.util
+import logging
+import os
 import sys
 from pathlib import Path
-import logging
 
 logger = logging.getLogger(__name__)
 
@@ -28,7 +28,7 @@ if __package__ is None:  # pragma: no cover - allow direct execution
     sys.path.append(str(Path(__file__).resolve().parents[3]))
     __package__ = "alpha_factory_v1.demos.alpha_agi_insight_v0"
 
-from .insight_demo import run, verify_environment, parse_sectors
+from .insight_demo import parse_sectors, run, verify_environment
 
 try:
     _spec = importlib.util.find_spec("openai_agents")
@@ -86,6 +86,9 @@ if has_oai:
         rewriter: str | None = None,
         log_dir: str | None = None,
         sectors: str | None = None,
+        *,
+        adk_host: str | None = None,
+        adk_port: int | None = None,
     ) -> None:
         if model:
             os.environ.setdefault("OPENAI_MODEL", model)
@@ -101,7 +104,7 @@ if has_oai:
 
             if adk_bridge.adk_enabled():
                 adk_bridge.auto_register([agent])
-                adk_bridge.maybe_launch()
+                adk_bridge.maybe_launch(host=adk_host, port=adk_port)
             else:
                 logger.info("ADK gateway disabled.")
         except ImportError as exc:  # pragma: no cover - optional ADK
@@ -140,6 +143,9 @@ else:
         rewriter: str | None = None,
         log_dir: str | None = None,
         sectors: str | None = None,
+        *,
+        adk_host: str | None = None,
+        adk_port: int | None = None,
     ) -> None:
         reasons = []
         if _spec is None:
@@ -191,6 +197,8 @@ def main(argv: list[str] | None = None) -> None:
         action="store_true",
         help="Enable the Google ADK gateway",
     )
+    parser.add_argument("--adk-host", type=str, help="ADK bind host")
+    parser.add_argument("--adk-port", type=int, help="ADK bind port")
     parser.add_argument(
         "--verify-env",
         action="store_true",
@@ -218,6 +226,8 @@ def main(argv: list[str] | None = None) -> None:
         args.rewriter,
         args.log_dir,
         args.sectors,
+        adk_host=args.adk_host,
+        adk_port=args.adk_port,
     )
 
 
