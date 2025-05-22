@@ -114,6 +114,11 @@ def main(argv: List[str] | None = None) -> None:
         version=f"%(prog)s {get_version()}",
         help="Show package version and exit",
     )
+    parser.add_argument(
+        "--no-banner",
+        action="store_true",
+        help="Suppress the startup banner",
+    )
     args = parser.parse_args(argv)
 
     enable_adk = args.enable_adk or os.getenv("ALPHA_AGI_ENABLE_ADK") == "true"
@@ -124,6 +129,12 @@ def main(argv: List[str] | None = None) -> None:
             args.adk_port = int(os.getenv("ALPHA_AGI_ADK_PORT"))
         except ValueError:
             args.adk_port = None
+
+    if not args.no_banner:
+        print(
+            "\N{MILITARY MEDAL} \N{GREEK SMALL LETTER ALPHA}\N{HYPHEN-MINUS}AGI Insight "
+            "\N{EYE}\N{SPARKLES} — Beyond Human Foresight"
+        )
 
     if not args.skip_verify:
         insight_demo.verify_environment()
