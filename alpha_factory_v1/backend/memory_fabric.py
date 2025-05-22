@@ -74,7 +74,11 @@ with contextlib.suppress(ModuleNotFoundError):
 with contextlib.suppress(ModuleNotFoundError):
     import openai  # type: ignore
 with contextlib.suppress(ModuleNotFoundError):
-    from pydantic import BaseSettings, Field, PositiveInt  # type: ignore
+    try:
+        from pydantic import BaseSettings, Field, PositiveInt  # type: ignore
+    except ImportError:  # pragma: no cover - pydantic >= 2
+        from pydantic import Field, PositiveInt  # type: ignore
+        from pydantic_settings import BaseSettings  # type: ignore
 
 # ───────────────────────── logging ░──────────────────────────
 logger = logging.getLogger("AlphaFactory.MemoryFabric")
