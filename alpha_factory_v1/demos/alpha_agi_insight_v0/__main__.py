@@ -10,7 +10,7 @@ can be controlled via the OpenAI Agents runtime when available.  Use
 from __future__ import annotations
 
 import argparse
-from . import openai_agents_bridge, insight_demo
+from . import insight_demo
 import os
 
 
@@ -29,6 +29,7 @@ def main(argv: list[str] | None = None) -> None:
     if args.offline:
         insight_demo.main(remainder)
     else:
+        from . import openai_agents_bridge
         openai_agents_bridge.main(remainder)
 
 
