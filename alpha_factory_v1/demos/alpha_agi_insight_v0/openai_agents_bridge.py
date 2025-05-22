@@ -29,6 +29,7 @@ if __package__ is None:  # pragma: no cover - allow direct execution
     __package__ = "alpha_factory_v1.demos.alpha_agi_insight_v0"
 
 from .insight_demo import parse_sectors, run, verify_environment
+from ... import get_version
 
 try:
     _spec = importlib.util.find_spec("openai_agents")
@@ -205,6 +206,12 @@ def main(argv: list[str] | None = None) -> None:
         "--skip-verify",
         action="store_true",
         help="Skip runtime dependency checks",
+    )
+    parser.add_argument(
+        "--version",
+        action="version",
+        version=f"%(prog)s {get_version()}",
+        help="Show package version and exit",
     )
     args = parser.parse_args(argv)
 
