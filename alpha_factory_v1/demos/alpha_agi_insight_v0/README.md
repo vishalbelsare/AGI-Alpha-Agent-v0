@@ -94,6 +94,7 @@ python official_demo_final.py --offline --episodes 2
 ```
 Use ``--enable-adk`` to expose the agent via the optional Google ADK gateway.
 Pass ``--list-sectors`` to display the resolved sector list without running the search.
+Use `--no-banner` to suppress the startup banner when embedding the demo in automated scripts.
 ``--adk-host`` and ``--adk-port`` customise the gateway bind address.
 For production deployments launch ``official_demo_production.py`` or use the
 ``alpha-agi-insight-production`` entrypoint. This variant verifies the
