@@ -81,6 +81,7 @@ the ``alpha-agi-insight-final`` command:
 ```bash
 python official_demo_final.py --episodes 5
 ```
+Pass ``--list-sectors`` to display the resolved sector list without running the search.
 
 ## Usage
 

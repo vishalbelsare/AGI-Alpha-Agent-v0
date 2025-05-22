@@ -59,10 +59,22 @@ def main(argv: List[str] | None = None) -> None:
     parser.add_argument("--log-dir", type=str, help="Directory for episode metrics")
     parser.add_argument("--offline", action="store_true", help="Force offline mode")
     parser.add_argument("--skip-verify", action="store_true", help="Skip environment check")
+    parser.add_argument(
+        "--list-sectors",
+        action="store_true",
+        help="Display the resolved sector list and exit",
+    )
     args = parser.parse_args(argv)
 
     if not args.skip_verify:
         insight_demo.verify_environment()
+
+    if args.list_sectors:
+        sector_list = insight_demo.parse_sectors(None, args.sectors)
+        print("Sectors:")
+        for name in sector_list:
+            print(f"- {name}")
+        return
 
     if args.offline or not _agents_available():
         _run_offline(args)
