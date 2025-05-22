@@ -26,10 +26,11 @@ routes through the OpenAI Agents runtime when available and transparently
 degrades to the local CLI otherwise:
 
 ```bash
-python -m alpha_factory_v1.demos.alpha_agi_insight_v0 --verify-env
+python -m alpha_factory_v1.demos.alpha_agi_insight_v0
 ```
 
 Pass ``--offline`` to skip the agent runtime entirely.
+Use ``--skip-verify`` to bypass the startup environment check if desired.
 
 For a quick offline run from anywhere:
 
@@ -48,7 +49,7 @@ To expose the demo via the OpenAI Agents runtime (and optional ADK gateway), use
 the companion ``alpha-agi-insight-bridge`` command:
 
 ```bash
-alpha-agi-insight-bridge --verify-env --episodes 5
+alpha-agi-insight-bridge --episodes 5
 ```
 
 ### Quick Start Script
@@ -128,8 +129,8 @@ path to the log file is displayed after the run completes.
 ### Graceful Offline Mode
 
 The demo automatically falls back to an offline search strategy whenever the
-required API keys are absent or network access is restricted. Use
-``--verify-env`` for a quick dependency check before launching.
+required API keys are absent or network access is restricted. Dependency checks
+run automatically at launch.
 
 ## OpenAI Agents Bridge
 
@@ -137,7 +138,7 @@ Launch ``openai_agents_bridge.py`` to control the demo via the
 `openai-agents` runtime and optionally the Google ADK A2A protocol:
 
 ```bash
-python -m alpha_factory_v1.demos.alpha_agi_insight_v0.openai_agents_bridge --verify-env
+python -m alpha_factory_v1.demos.alpha_agi_insight_v0.openai_agents_bridge
 ```
 
 Run with ``--enable-adk`` to expose the agent via the optional Google ADK gateway when available. Custom host and

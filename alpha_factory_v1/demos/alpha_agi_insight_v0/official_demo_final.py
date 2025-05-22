@@ -51,10 +51,10 @@ def main(argv: List[str] | None = None) -> None:
     parser.add_argument("--sectors", type=str, help="Comma-separated sectors or path to file")
     parser.add_argument("--log-dir", type=str, help="Directory for episode metrics")
     parser.add_argument("--offline", action="store_true", help="Force offline mode")
-    parser.add_argument("--verify-env", action="store_true", help="Validate runtime dependencies")
+    parser.add_argument("--skip-verify", action="store_true", help="Skip environment check")
     args = parser.parse_args(argv)
 
-    if args.verify_env:
+    if not args.skip_verify:
         insight_demo.verify_environment()
 
     if args.offline or not _agents_available():
