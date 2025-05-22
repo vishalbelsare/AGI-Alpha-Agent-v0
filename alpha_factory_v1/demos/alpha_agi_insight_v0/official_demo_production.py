@@ -16,6 +16,13 @@ import os
 from pathlib import Path
 from typing import List
 
+if __package__ is None:  # pragma: no cover - allow direct execution
+    import pathlib
+    import sys
+
+    sys.path.insert(0, str(pathlib.Path(__file__).resolve().parents[3]))
+    __package__ = "alpha_factory_v1.demos.alpha_agi_insight_v0"
+
 from . import insight_demo, openai_agents_bridge
 from ... import get_version
 
