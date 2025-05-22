@@ -70,6 +70,9 @@ To always verify dependencies before running, launch the companion
 python official_demo.py --episodes 5
 ```
 
+When installed as a package, the `alpha-agi-insight-official` command
+offers the same behaviour.
+
 ## Usage
 
 The command line interface mirrors the options of the general MATS demo:
