@@ -48,7 +48,7 @@ except ModuleNotFoundError:  # pragma: no cover
 # Sandbox / resource limits
 # ───────────────────────────────────────────────────────────────────────────
 CPU_SOFT_SEC = int(os.getenv("PYTEST_CPU_SOFT_SEC", "5"))
-CPU_HARD_SEC = CPU_SOFT_SEC + 1          # kill grace window
+CPU_HARD_SEC = CPU_SOFT_SEC + 1  # kill grace window
 MEM_CAP_MB = int(os.getenv("PYTEST_MEM_MB", "256"))
 NETWORK_OFF = os.getenv("PYTEST_NET_OFF", "1") == "1"
 
@@ -134,11 +134,12 @@ def _run_pytest(path: Path) -> Dict[str, Any]:
 # ───────────────────────────────────────────────────────────────────────────
 @function_tool(
     name_override="run_pytest",
-    description=(
+    description_override=(
         "Run pytest on the specified directory or file under strict "
         "resource limits (default: current repo). Returns JSON with "
         "returncode, stdout, stderr, and timing."
     ),
+    strict_mode=False,
 )
 def run_pytest(  # noqa: D401
     ctx: RunContextWrapper | Dict,  # SDK passes full RunContextWrapper

@@ -84,18 +84,24 @@ from backend.agents import list_agents, get_agent  # auto-disc helpers
 try:
     from backend.memory_fabric import mem  # type: ignore
 except ModuleNotFoundError:  # pragma: no cover
+
     class _VecDummy:  # pylint: disable=too-few-public-methods
         def add(self, *_a, **_kw): ...
-        def search(self, *_a, **_kw): return []
-        def recent(self, *_a, **_kw): return []
+        def search(self, *_a, **_kw):
+            return []
+
+        def recent(self, *_a, **_kw):
+            return []
 
     class _GraphDummy:  # pylint: disable=too-few-public-methods
         def add(self, *_a, **_kw): ...
-        def query(self, *_a, **_kw): return []
+        def query(self, *_a, **_kw):
+            return []
 
     class _MemStub:  # pylint: disable=too-few-public-methods
         vector = _VecDummy()
         graph = _GraphDummy()
+
     mem = _MemStub()  # type: ignore
 
 
@@ -123,30 +129,41 @@ log = logging.getLogger("alpha_factory.orchestrator")
 # OTEL tracer — noop if lib missing
 tracer = trace.get_tracer(__name__) if "trace" in globals() else None  # type: ignore
 
+
 # ─────────────────── Prometheus metrics (safe-noop) ───────────────────
 def _noop(*_a, **_kw):  # type: ignore
     class _N:  # pylint: disable=too-few-public-methods
-        def labels(self, *_a, **_kw): return self
+        def labels(self, *_a, **_kw):
+            return self
+
         def observe(self, *_a): ...
         def inc(self, *_a): ...
         def set(self, *_a): ...
+
     return _N()
 
-MET_LAT = (
-    Histogram("af_agent_cycle_latency_ms", "Per-cycle latency", ["agent"])
-    if "Histogram" in globals()
-    else _noop()
-)
-MET_ERR = (
-    Counter("af_agent_cycle_errors_total", "Exceptions per agent", ["agent"])
-    if "Counter" in globals()
-    else _noop()
-)
-MET_UP = (
-    Gauge("af_agent_up", "1 = agent alive according to HB", ["agent"])
-    if "Gauge" in globals()
-    else _noop()
-)
+
+if "Histogram" in globals():
+    from prometheus_client import REGISTRY as _REG
+
+    def _get_metric(cls, name: str, desc: str, labels=None):
+        if name in getattr(_REG, "_names_to_collectors", {}):
+            return _REG._names_to_collectors[name]
+        return cls(name, desc, labels) if labels else cls(name, desc)
+
+    MET_LAT = _get_metric(
+        Histogram, "af_agent_cycle_latency_ms", "Per-cycle latency", ["agent"]
+    )
+    MET_ERR = _get_metric(
+        Counter, "af_agent_cycle_errors_total", "Exceptions per agent", ["agent"]
+    )
+    MET_UP = _get_metric(
+        Gauge, "af_agent_up", "1 = agent alive according to HB", ["agent"]
+    )
+else:
+    MET_LAT = _noop()
+    MET_ERR = _noop()
+    MET_UP = _noop()
 
 if METRICS_PORT and "start_http_server" in globals():
     start_http_server(METRICS_PORT)
@@ -175,22 +192,32 @@ else:  # in-memory async queue bus
     _queues: Dict[str, asyncio.Queue] = {}
     if KAFKA_BROKER and not DEV_MODE:
         log.warning("Kafka unavailable → falling back to in-proc bus")
+
     def publish(topic: str, msg: Dict[str, Any]) -> None:  # type: ignore
         _queues.setdefault(topic, asyncio.Queue()).put_nowait(msg)
 
+
 # Backwards-compatibility alias
 _publish = publish
+
 
 # ───────────────────── helper utilities ───────────────────────────────
 def utc_now() -> str:
     return datetime.now(timezone.utc).isoformat(timespec="milliseconds")
 
+
 async def maybe_await(fn, *a, **kw):  # type: ignore
-    return await fn(*a, **kw) if asyncio.iscoroutinefunction(fn) else await asyncio.to_thread(fn, *a, **kw)
+    return (
+        await fn(*a, **kw)
+        if asyncio.iscoroutinefunction(fn)
+        else await asyncio.to_thread(fn, *a, **kw)
+    )
+
 
 # ─────────────── OpenAI Agents & Google ADK bridges ───────────────────
 class _OAI:
     _runtime: Optional[AgentRuntime] = None
+
     @classmethod
     def runtime(cls) -> Optional[AgentRuntime]:
         if cls._runtime is None and "AgentRuntime" in globals():
@@ -198,12 +225,14 @@ class _OAI:
             log.info("OpenAI Agents SDK detected → runtime initialised")
         return cls._runtime
 
+
 async def _adk_register() -> None:
     if DEV_MODE or "adk" not in globals():
         return
     client = adk.Client()
     await client.register(node_type="orchestrator", metadata={"version": "v3.0.0"})
     log.info("Registered with Google ADK mesh  (node-id %s)", client.node_id)
+
 
 # ──────────────────────── Agent Runner ────────────────────────────────
 class AgentRunner:
@@ -230,7 +259,10 @@ class AgentRunner:
         if self.spec:
             with contextlib.suppress(ModuleNotFoundError, ValueError):
                 from croniter import croniter  # type: ignore
-                self.next_ts = croniter(self.spec, datetime.fromtimestamp(now)).get_next(float)
+
+                self.next_ts = croniter(
+                    self.spec, datetime.fromtimestamp(now)
+                ).get_next(float)
                 return
         self.next_ts = now + self.period
 
@@ -243,13 +275,23 @@ class AgentRunner:
 
         async def _cycle() -> None:
             t0 = time.time()
-            span_cm = tracer.start_as_current_span(self.name) if tracer else contextlib.nullcontext()
+            span_cm = (
+                tracer.start_as_current_span(self.name)
+                if tracer
+                else contextlib.nullcontext()
+            )
             with span_cm:
                 try:
-                    await asyncio.wait_for(maybe_await(self.inst.run_cycle), timeout=MAX_CYCLE_SEC)
+                    await asyncio.wait_for(
+                        maybe_await(self.inst.run_cycle), timeout=MAX_CYCLE_SEC
+                    )
                 except asyncio.TimeoutError:
                     MET_ERR.labels(self.name).inc()
-                    log.error("%s run_cycle exceeded %ss budget – skipped", self.name, MAX_CYCLE_SEC)
+                    log.error(
+                        "%s run_cycle exceeded %ss budget – skipped",
+                        self.name,
+                        MAX_CYCLE_SEC,
+                    )
                 except Exception as exc:  # noqa: BLE001
                     MET_ERR.labels(self.name).inc()
                     log.exception("%s.run_cycle crashed: %s", self.name, exc)
@@ -257,9 +299,13 @@ class AgentRunner:
                     dur_ms = (time.time() - t0) * 1_000
                     MET_LAT.labels(self.name).observe(dur_ms)
                     self.last_beat = time.time()
-                    publish("agent.cycle", {"agent": self.name, "latency_ms": dur_ms, "ts": utc_now()})
+                    publish(
+                        "agent.cycle",
+                        {"agent": self.name, "latency_ms": dur_ms, "ts": utc_now()},
+                    )
 
         self.task = asyncio.create_task(_cycle())
+
 
 # ─────────────────────────── REST API ─────────────────────────────────
 def _build_rest(runners: Dict[str, AgentRunner]) -> Optional[FastAPI]:
@@ -296,6 +342,7 @@ def _build_rest(runners: Dict[str, AgentRunner]) -> Optional[FastAPI]:
         if not hasattr(inst, "load_weights"):
             raise HTTPException(501, "Agent does not support model updates")
         import tempfile, zipfile, io
+
         with tempfile.TemporaryDirectory() as td:
             zf = zipfile.ZipFile(io.BytesIO(file))
             zf.extractall(td)
@@ -319,15 +366,20 @@ def _build_rest(runners: Dict[str, AgentRunner]) -> Optional[FastAPI]:
 
     return app
 
+
 # ─────────────────────────── gRPC A2A ────────────────────────────────
 _GRPC_SERVER: Optional["grpc.aio.Server"] = None
+
 
 async def _serve_grpc(runners: Dict[str, AgentRunner]) -> None:
     """Initialise the gRPC A2A server in the background."""
     if not A2A_PORT or "grpc" not in globals():
         return
     try:
-        from backend.proto import a2a_pb2, a2a_pb2_grpc  # generated stubs  # type: ignore
+        from backend.proto import (
+            a2a_pb2,
+            a2a_pb2_grpc,
+        )  # generated stubs  # type: ignore
     except ModuleNotFoundError:
         log.warning("A2A_PORT set but proto stubs missing – gRPC disabled")
         return
@@ -344,7 +396,9 @@ async def _serve_grpc(runners: Dict[str, AgentRunner]) -> None:
                         a2a_pb2.AgentStat(name=n, next_run=int(r.next_ts))
                         for n, r in runners.items()
                     ]
-                    yield a2a_pb2.StreamReply(status_reply=a2a_pb2.StatusReply(stats=stats))
+                    yield a2a_pb2.StreamReply(
+                        status_reply=a2a_pb2.StatusReply(stats=stats)
+                    )
 
     creds = None
     if not SSL_DISABLE:
@@ -362,7 +416,10 @@ async def _serve_grpc(runners: Dict[str, AgentRunner]) -> None:
     _GRPC_SERVER = server
     asyncio.create_task(server.wait_for_termination())
     atexit.register(lambda: server.stop(0))
-    log.info("gRPC A2A server listening on %s (%s)", bind, "TLS" if creds else "plaintext")
+    log.info(
+        "gRPC A2A server listening on %s (%s)", bind, "TLS" if creds else "plaintext"
+    )
+
 
 # ─────────────────────── Heartbeat monitor ───────────────────────────
 async def _hb_watch(runners: Dict[str, AgentRunner]) -> None:
@@ -372,6 +429,7 @@ async def _hb_watch(runners: Dict[str, AgentRunner]) -> None:
             alive = int(now - r.last_beat < r.period * 3.0)
             MET_UP.labels(n).set(alive)
         await asyncio.sleep(5)
+
 
 # ───────────────────────────── main() ────────────────────────────────
 async def _main() -> None:
@@ -406,10 +464,13 @@ async def _main() -> None:
         await asyncio.sleep(0.25)
 
     # ─── Drain & exit cleanly ────────────────────────────────────────
-    await asyncio.gather(*(r.task for r in runners.values() if r.task), return_exceptions=True)
+    await asyncio.gather(
+        *(r.task for r in runners.values() if r.task), return_exceptions=True
+    )
     if _GRPC_SERVER:
         _GRPC_SERVER.stop(0)
     log.info("Orchestrator shutdown complete")
+
 
 # ───────────────────────── public API ───────────────────────────────
 class Orchestrator:
