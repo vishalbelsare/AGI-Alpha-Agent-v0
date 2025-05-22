@@ -136,6 +136,7 @@ path to the log file is displayed after the run completes.
 - ``ALPHA_AGI_TARGET`` – specify the target sector index.
 - ``ALPHA_AGI_SEED`` – RNG seed for deterministic runs.
 - ``ALPHA_AGI_OFFLINE`` – force offline mode even when OpenAI Agents is available.
+- ``ALPHA_AGI_ENABLE_ADK`` – enable the ADK gateway without ``--enable-adk``.
 
 ### Graceful Offline Mode
 
