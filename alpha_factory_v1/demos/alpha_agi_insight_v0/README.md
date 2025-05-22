@@ -108,12 +108,13 @@ Launch ``openai_agents_bridge.py`` to control the demo via the
 python -m alpha_factory_v1.demos.alpha_agi_insight_v0.openai_agents_bridge --verify-env
 ```
 
-Run with ``--enable-adk`` to expose the agent via the optional Google ADK gateway when available. The following
-example launches the runtime with five episodes and stores episode metrics in ``scores.csv``:
+Run with ``--enable-adk`` to expose the agent via the optional Google ADK gateway when available. Custom host and
+port may be specified via ``--adk-host`` and ``--adk-port``. The following example launches the runtime with five
+episodes and stores episode metrics in ``scores.csv``:
 
 ```bash
 python -m alpha_factory_v1.demos.alpha_agi_insight_v0.openai_agents_bridge \
-    --enable-adk --episodes 5 --log-dir logs
+    --enable-adk --adk-host 0.0.0.0 --adk-port 9000 --episodes 5 --log-dir logs
 ```
 The bridge automatically falls back to offline mode when the optional
 packages or API keys are missing. Use ``--enable-adk`` to expose the agent via
