@@ -50,6 +50,7 @@ if has_oai:
         sectors: str | None = None,
         log_dir: str | None = None,
     ) -> str:
+        """Execute the search loop and return the textual summary."""
         if model:
             os.environ.setdefault("OPENAI_MODEL", model)
         if rewriter:
@@ -77,6 +78,7 @@ if has_oai:
                 model=params.get("model"),
                 rewriter=params.get("rewriter"),
                 sectors=params.get("sectors"),
+                log_dir=params.get("log_dir"),
             )
 
     def _run_runtime(
