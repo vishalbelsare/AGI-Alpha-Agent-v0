@@ -9,24 +9,24 @@ Production-grade episodic & causal memory layer for Alpha-Factory v1.
 
 Highlights
 ──────────
-• **Vector Memory**   – PostgreSQL + pgvector ▸ FAISS ▸ SQLite fallback (CPU-only)  
-• **Graph Memory**    –  Neo4j ▸ NetworkX ▸ python-list fallback  
-• **Sync & Async**    – one call signature, fabric switches under the hood  
-• **Metrics & Tracing** – Prometheus + OpenTelemetry (graceful if libs absent)  
-• **Graceful-Degrade** – never throws un-caught exceptions; always returns data  
-• **Thread/Task safe** – re-entrant locks + asyncio.Lock for mixed usage  
-• **No secrets in code** – all configuration via env-vars or pydantic settings  
-• **Self-Provisioning** – creates tables, indices, constraints on first use  
+• **Vector Memory**   – PostgreSQL + pgvector ▸ FAISS ▸ SQLite fallback (CPU-only)
+• **Graph Memory**    –  Neo4j ▸ NetworkX ▸ python-list fallback
+• **Sync & Async**    – one call signature, fabric switches under the hood
+• **Metrics & Tracing** – Prometheus + OpenTelemetry (graceful if libs absent)
+• **Graceful-Degrade** – never throws un-caught exceptions; always returns data
+• **Thread/Task safe** – re-entrant locks + asyncio.Lock for mixed usage
+• **No secrets in code** – all configuration via env-vars or pydantic settings
+• **Self-Provisioning** – creates tables, indices, constraints on first use
 • **One-command export** – `mem.export_all("snapshot.parquet")`
 
 Environment variables (factory defaults in brackets)
 ─────────────────────────────────────────────────────
-PGHOST / PGPORT[5432] / PGUSER / PGPASSWORD / PGDATABASE[memdb]  
-PGVECTOR_INDEX_IVFFLAT_LISTS[100]  – performance tuning  
-NEO4J_URI[bolt://localhost:7687] / NEO4J_USER[neo4j] / NEO4J_PASS[neo4j]  
-OPENAI_API_KEY (optional) – OpenAI embeddings used if present  
-VECTOR_DIM[768]           – embedding dimension for pgvector & FAISS  
-MEM_TTL_SECONDS[0]        – 0 = keep forever, else soft-delete after TTL  
+PGHOST / PGPORT[5432] / PGUSER / PGPASSWORD / PGDATABASE[memdb]
+PGVECTOR_INDEX_IVFFLAT_LISTS[100]  – performance tuning
+NEO4J_URI[bolt://localhost:7687] / NEO4J_USER[neo4j] / NEO4J_PASS[neo4j]
+OPENAI_API_KEY (optional) – OpenAI embeddings used if present
+VECTOR_DIM[768]           – embedding dimension for pgvector & FAISS
+MEM_TTL_SECONDS[0]        – 0 = keep forever, else soft-delete after TTL
 MEM_MAX_PER_AGENT[100000] – per-agent quota (oldest evicted on overflow)
 
 Python extras automatically used when available:
@@ -88,6 +88,7 @@ if not logger.handlers:
     _h.setFormatter(logging.Formatter("[%(asctime)s] %(levelname)s | %(message)s"))
     logger.addHandler(_h)
 
+
 # ─────────────────── configuration (pydantic) ░───────────────
 class _Settings(BaseSettings):
     # Vector
@@ -105,7 +106,7 @@ class _Settings(BaseSettings):
     NEO4J_PASS: str = "neo4j"
 
     # Memory policies
-    MEM_TTL_SECONDS: int = 0          # 0 = infinite
+    MEM_TTL_SECONDS: int = 0  # 0 = infinite
     MEM_MAX_PER_AGENT: PositiveInt = Field(100_000, env="MEM_MAX_PER_AGENT")
 
     # Quotas / circuit breaker
@@ -119,14 +120,28 @@ class _Settings(BaseSettings):
 CFG = _Settings()  # single instance
 
 # ───────────────────── telemetry helpers ░────────────────────
-_MET_V_ADD = Counter("af_mem_vector_add_total", "Vectors stored") if "Counter" in globals() else None
-_MET_V_SRCH = Histogram(  # noqa: SIM105
-    "af_mem_vector_search_latency_seconds", "Vector search latency"
-) if "Histogram" in globals() else contextlib.nullcontext()
+if "Counter" in globals():
+    from prometheus_client import REGISTRY as _REG
+
+    def _get_metric(cls, name: str, desc: str):
+        if name in getattr(_REG, "_names_to_collectors", {}):
+            return _REG._names_to_collectors[name]
+        return cls(name, desc)
+
+    _MET_V_ADD = _get_metric(Counter, "af_mem_vector_add_total", "Vectors stored")
+    _MET_V_SRCH = _get_metric(
+        Histogram,
+        "af_mem_vector_search_latency_seconds",
+        "Vector search latency",
+    )
+else:
+    _MET_V_ADD = None
+    _MET_V_SRCH = contextlib.nullcontext()
 
 tracer = trace.get_tracer(__name__) if "trace" in globals() else None  # type: ignore
 
 # ──────────────────────── EMBEDDING back-end ░────────────────
+
 
 def _load_embedder():
     if "openai" in globals() and os.getenv("OPENAI_API_KEY"):
@@ -170,8 +185,10 @@ _EMBED = _load_embedder()
 # ────────────────────────── util ░─────────────────────────────
 _NOW = lambda: datetime.now(timezone.utc)  # noqa: E731
 
+
 def _hash_content(s: str) -> str:
     return hashlib.sha1(s.encode()).hexdigest()
+
 
 # ═════════════════════ VECTOR STORE ══════════════════════════
 class _VectorStore:
@@ -183,7 +200,7 @@ class _VectorStore:
         self._alock = asyncio.Lock()
         self._mode = "ram"
         self._fail_until = 0.0
-        self._init_postgres()   # may set self._mode
+        self._init_postgres()  # may set self._mode
         if self._mode == "ram":
             self._init_faiss_or_sqlite()
 
@@ -267,8 +284,7 @@ class _VectorStore:
         elif self._mode == "faiss":
             # lightweight: we simply pop oldest from meta/vectors
             while sum(1 for a, *_ in self._meta if a == agent) > CFG.MEM_MAX_PER_AGENT:
-                idx = next(i for i, (a, *_)
-                           in enumerate(self._meta) if a == agent)
+                idx = next(i for i, (a, *_) in enumerate(self._meta) if a == agent)
                 self._meta.pop(idx)
                 self._vectors.pop(idx)
                 self._faiss.reset()
@@ -280,8 +296,8 @@ class _VectorStore:
             return
         with self._pg, self._pg.cursor() as cur:
             cur.execute(
-                "DELETE FROM memories WHERE ts < NOW() - INTERVAL '%s seconds'" %
-                CFG.MEM_TTL_SECONDS
+                "DELETE FROM memories WHERE ts < NOW() - INTERVAL '%s seconds'"
+                % CFG.MEM_TTL_SECONDS
             )
 
     # ───── public (sync) API ─────
@@ -355,7 +371,7 @@ class _VectorStore:
 
     # search (single query) ------------------------------------
     def search(self, query: str, k: int = 5) -> List[Dict[str, Any]]:
-        with (_MET_V_SRCH.time() if _MET_V_SRCH else contextlib.nullcontext()):
+        with _MET_V_SRCH.time() if _MET_V_SRCH else contextlib.nullcontext():
             qv = _EMBED(query)
             if np is not None:
                 qv = np.asarray(qv, dtype="float32")
@@ -374,7 +390,9 @@ class _VectorStore:
                     if i == -1:
                         continue
                     a, c, ts = self._meta[i]
-                    out.append({"agent": a, "content": c, "ts": ts, "score": float(score)})
+                    out.append(
+                        {"agent": a, "content": c, "ts": ts, "score": float(score)}
+                    )
                 return out
             if self._mode == "sqlite":
                 cur = self._sql.execute("SELECT agent, vec, content, ts FROM memories")
@@ -382,11 +400,14 @@ class _VectorStore:
                 scored = []
                 for a, vb, c, ts in rows:
                     v = np.frombuffer(vb, dtype="float32")
-                    s = float(np.dot(v, qv) / (np.linalg.norm(v) * np.linalg.norm(qv) or 1))
+                    s = float(
+                        np.dot(v, qv) / (np.linalg.norm(v) * np.linalg.norm(qv) or 1)
+                    )
                     scored.append((s, a, c, ts))
                 scored.sort(reverse=True)
                 return [
-                    {"agent": a, "content": c, "ts": ts, "score": s} for s, a, c, ts in scored[:k]
+                    {"agent": a, "content": c, "ts": ts, "score": s}
+                    for s, a, c, ts in scored[:k]
                 ]
             return []
 
@@ -404,7 +425,9 @@ class _VectorStore:
                 cur.execute("SELECT agent, content, ts FROM memories")
                 rows = cur.fetchall()
         elif self._mode == "sqlite":
-            rows = self._sql.execute("SELECT agent, content, ts FROM memories").fetchall()
+            rows = self._sql.execute(
+                "SELECT agent, content, ts FROM memories"
+            ).fetchall()
         elif self._mode == "faiss":
             rows = [(a, c, ts) for a, c, ts in self._meta]
         if path.suffix == ".jsonl":
@@ -414,10 +437,12 @@ class _VectorStore:
         else:  # parquet
             try:
                 import pandas as pd  # type: ignore
+
                 df = pd.DataFrame(rows, columns=["agent", "content", "ts"])
                 df.to_parquet(path)
             except Exception as e:  # noqa: BLE001
                 logger.error("export_all failed: %s", e)
+
 
 # ═════════════════════ GRAPH STORE ═══════════════════════════
 class _GraphStore:
@@ -524,6 +549,7 @@ class _GraphStore:
                 seen.add(n)
         return []
 
+
 # ═════════════════════ FABRIC FACADE ═════════════════════════
 class MemoryFabric:
     """Exposes .vector and .graph for sync + async contexts."""
@@ -539,7 +565,9 @@ class MemoryFabric:
     def search(self, query: str, k: int = 5):
         return self.vector.search(query, k)
 
-    def add_relation(self, a: str, rel: str, b: str, props: Optional[Dict[str, Any]] = None):
+    def add_relation(
+        self, a: str, rel: str, b: str, props: Optional[Dict[str, Any]] = None
+    ):
         self.graph.add(a, rel, b, props)
 
     def find_path(self, s: str, e: str, max_len: int = 3):
@@ -554,13 +582,16 @@ class MemoryFabric:
         async with self.vector._alock:
             return self.vector.search(query, k)
 
-    async def aadd_relation(self, a: str, rel: str, b: str, props: Optional[Dict[str, Any]] = None):
+    async def aadd_relation(
+        self, a: str, rel: str, b: str, props: Optional[Dict[str, Any]] = None
+    ):
         async with self.graph._alock:
             self.graph.add(a, rel, b, props)
 
     async def afind_path(self, s: str, e: str, max_len: int = 3):
         async with self.graph._alock:
             return self.graph.find_path(s, e, max_len)
+
 
 # ────────────────── global singleton ░────────────────────────
 mem = MemoryFabric()

@@ -25,6 +25,7 @@ def verify_env() -> None:
     except Exception as exc:  # pragma: no cover - best effort
         print(f"Environment verification failed: {exc}")
 
+
 if __package__ is None:  # pragma: no cover - allow direct execution
     # Ensure imports resolve when running the script directly
     sys.path.append(str(pathlib.Path(__file__).resolve().parents[3]))
@@ -36,14 +37,38 @@ except ValueError:
     _spec = None
 has_oai = _spec is not None
 if has_oai:
-    from openai_agents import Agent, AgentRuntime, Tool  # type: ignore
+    import openai_agents
+    from openai_agents import Agent, function_tool  # type: ignore
+
+    if hasattr(openai_agents, "AgentRuntime"):
+        from openai_agents import AgentRuntime  # type: ignore
+    else:  # fallback shim for newer SDKs without AgentRuntime
+        from agents.run import Runner
+
+        class AgentRuntime:  # type: ignore
+            def __init__(self, *_, **__):
+                self._runner = Runner()
+                self._agent = None
+
+            def register(self, agent: Agent) -> None:
+                self._agent = agent
+
+            def run(self) -> None:
+                import asyncio
+
+                if self._agent is None:
+                    raise RuntimeError("No agent registered")
+                asyncio.run(self._runner.run(self._agent, ""))
 
     try:
         from .run_demo import run
     except ImportError:  # pragma: no cover - direct script execution
         from alpha_factory_v1.demos.meta_agentic_tree_search_v0.run_demo import run
 
-    @Tool(name="run_search", description="Run the MATS demo for a few episodes")
+    @function_tool(
+        name_override="run_search",
+        description_override="Run the MATS demo for a few episodes",
+    )
     async def run_search(
         episodes: int = 10,
         target: int = 5,
@@ -74,7 +99,10 @@ if has_oai:
             )
 
     def _run_runtime(
-        episodes: int, target: int, model: str | None = None, rewriter: str | None = None
+        episodes: int,
+        target: int,
+        model: str | None = None,
+        rewriter: str | None = None,
     ) -> None:
         if model:
             os.environ.setdefault("OPENAI_MODEL", model)
@@ -96,6 +124,7 @@ if has_oai:
 
         print("Registered MATSAgent with runtime")
         runtime.run()
+
 else:
     try:
         from .run_demo import run
@@ -103,7 +132,10 @@ else:
         from alpha_factory_v1.demos.meta_agentic_tree_search_v0.run_demo import run
 
     def _run_search_helper(
-        episodes: int, target: int, model: str | None = None, rewriter: str | None = None
+        episodes: int,
+        target: int,
+        model: str | None = None,
+        rewriter: str | None = None,
     ) -> str:
         """Execute the search loop and return a summary string."""
         if model:
@@ -122,8 +154,12 @@ else:
 
 def main(argv: list[str] | None = None) -> None:
     parser = argparse.ArgumentParser(description="OpenAI Agents bridge for MATS")
-    parser.add_argument("--episodes", type=int, default=10, help="Search episodes when offline")
-    parser.add_argument("--target", type=int, default=5, help="Target integer when offline")
+    parser.add_argument(
+        "--episodes", type=int, default=10, help="Search episodes when offline"
+    )
+    parser.add_argument(
+        "--target", type=int, default=5, help="Target integer when offline"
+    )
     parser.add_argument("--model", type=str, help="Optional model override")
     parser.add_argument(
         "--rewriter",
