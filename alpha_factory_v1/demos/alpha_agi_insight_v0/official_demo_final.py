@@ -46,6 +46,8 @@ def _agents_available() -> bool:
 def _run_offline(args: argparse.Namespace) -> None:
     """Execute the search loop using local defaults and environment overrides."""
 
+    print("Running offline demo…")
+
     sectors = insight_demo.parse_sectors(None, args.sectors)
 
     episodes = int(args.episodes or os.getenv("ALPHA_AGI_EPISODES", 0) or 5)
