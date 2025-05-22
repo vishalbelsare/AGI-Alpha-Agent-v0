@@ -6,5 +6,13 @@ from . import openai_agents_bridge
 from .run_demo import main as run_demo
 from .official_demo import main as official_demo
 from .official_demo_final import main as official_demo_final
+from .beyond_human_foresight import main as beyond_human_foresight
 
-__all__ = ["main", "openai_agents_bridge", "run_demo", "official_demo", "official_demo_final"]
+__all__ = [
+    "main",
+    "openai_agents_bridge",
+    "run_demo",
+    "official_demo",
+    "official_demo_final",
+    "beyond_human_foresight",
+]

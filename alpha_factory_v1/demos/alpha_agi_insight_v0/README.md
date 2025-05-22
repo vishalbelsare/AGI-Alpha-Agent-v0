@@ -92,6 +92,13 @@ python official_demo_final.py --offline --episodes 2
 Use ``--enable-adk`` to expose the agent via the optional Google ADK gateway.
 Pass ``--list-sectors`` to display the resolved sector list without running the search.
 ``--adk-host`` and ``--adk-port`` customise the gateway bind address.
+For a splashier startup message use ``alpha-agi-beyond-foresight`` which
+displays a short banner before running the same final demo:
+
+```bash
+alpha-agi-beyond-foresight --offline --episodes 2
+```
+The arguments mirror ``alpha-agi-insight-final``.
 Use ``--version`` to show the installed package version and exit.
 
 ## Usage
