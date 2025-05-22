@@ -79,6 +79,15 @@ installed, the program automatically falls back to a simple offline rewriter so
 the demo remains functional anywhere.  Episode scores are printed to the console
 and optionally written to ``scores.csv`` when ``--log-dir`` is supplied.
 
+### Environment Variables
+
+- ``OPENAI_API_KEY`` – enable OpenAI-based rewriting via ``openai_rewrite``.
+- ``ANTHROPIC_API_KEY`` – use ``anthropic_rewrite`` with Claude models.
+- ``OPENAI_MODEL`` – override the OpenAI model (default ``gpt-4o``).
+- ``MATS_REWRITER`` – select the rewrite strategy when unspecified.
+- ``ALPHA_AGI_SECTORS`` – comma-separated sector list or path to a text file.
+- ``MCP_ENDPOINT`` – optional URL for Model Context Protocol logging.
+
 ### Graceful Offline Mode
 
 The demo automatically falls back to an offline search strategy whenever the
