@@ -146,6 +146,8 @@ path to the log file is displayed after the run completes.
 - ``ALPHA_AGI_SEED`` – RNG seed for deterministic runs.
 - ``ALPHA_AGI_OFFLINE`` – force offline mode even when OpenAI Agents is available.
 - ``ALPHA_AGI_ENABLE_ADK`` – enable the ADK gateway without ``--enable-adk``.
+- ``ALPHA_AGI_ADK_HOST`` – custom bind host for the ADK gateway.
+- ``ALPHA_AGI_ADK_PORT`` – custom bind port for the ADK gateway.
 
 ### Graceful Offline Mode
 
