@@ -3,13 +3,21 @@
 from __future__ import annotations
 
 import random
+import logging
 from typing import List
 
-from alpha_factory_v1.backend.mcp_bridge import store_sync
+try:
+    from alpha_factory_v1.backend.mcp_bridge import store_sync
+except Exception as exc:  # pragma: no cover - optional dep may fail
+    logging.getLogger(__name__).warning("MCP bridge unavailable: %s", exc)
+
+    def store_sync(messages: list) -> None:
+        """No-op fallback when the MCP helper is missing."""
+        return
+
 import importlib
 import asyncio
 import os
-import logging
 import re
 import threading
 
