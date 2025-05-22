@@ -6,18 +6,31 @@ import random
 import logging
 from typing import List
 
-try:
-    from alpha_factory_v1.backend.mcp_bridge import store_sync
-except Exception as exc:  # pragma: no cover - optional dep may fail
-    logging.getLogger(__name__).warning("MCP bridge unavailable: %s", exc)
+try:  # pragma: no cover - optional httpx dependency
+    import httpx  # type: ignore
+except Exception:  # noqa: BLE001 - optional dependency may be absent
+    httpx = None
 
-    def store_sync(messages: list) -> None:
-        """No-op fallback when the MCP helper is missing."""
+
+def store_sync(messages: list[dict[str, str]]) -> None:
+    """Persist prompts via the Model Context Protocol when configured."""
+
+    endpoint = os.getenv("MCP_ENDPOINT")
+    timeout = float(os.getenv("MCP_TIMEOUT_SEC", 10))
+    if not endpoint or httpx is None:
         return
+    payload = {"messages": messages, "timestamp": time.time()}
+    try:
+        httpx.post(f"{endpoint}/context", json=payload, timeout=timeout)
+    except Exception:  # noqa: BLE001 - never raise on logging failures
+        logging.getLogger(__name__).debug(
+            "MCP push failed – continuing without persistence", exc_info=True
+        )
 
 import importlib
 import asyncio
 import os
+import time
 import re
 import threading
 
