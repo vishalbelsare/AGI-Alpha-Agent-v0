@@ -9,7 +9,8 @@ transformed by Artificial General Intelligence. It runs a small
 
 ## Overview
 
-- **Zero Data Dependency**: runs entirely offline by default.
+- **Zero Data Dependency**: runs entirely offline by default. The default
+  sector list ships with the package so no external resources are required.
 - **OpenAI Agents SDK Integration**: seamlessly switches to hosted execution when API credentials are present.
 - **Automatic ADK Support**: optional Google ADK gateway activates when available.
 - **Model Context Protocol Logging**: export `MCP_ENDPOINT` to persist all prompts and replies.
