@@ -158,12 +158,21 @@ else:
         msg = " and ".join(reasons) or "offline mode"
         print(f"Running offline demo in {msg}…")
         sector_list = parse_sectors(None, sectors)
+        episodes = int(episodes or os.getenv("ALPHA_AGI_EPISODES", 0) or 5)
+        exploration = float(os.getenv("ALPHA_AGI_EXPLORATION", 1.4))
+        rewriter = rewriter or os.getenv("MATS_REWRITER")
+        target = int(target or os.getenv("ALPHA_AGI_TARGET", 3))
+        seed_env = os.getenv("ALPHA_AGI_SEED")
+        seed = int(seed_env) if seed_env else None
+        model = model or os.getenv("OPENAI_MODEL")
         run(
             episodes=episodes,
-            target=target,
-            model=model,
+            exploration=exploration,
             rewriter=rewriter,
             log_dir=Path(log_dir) if log_dir else None,
+            target=target,
+            seed=seed,
+            model=model,
             sectors=sector_list,
         )
 
