@@ -7,6 +7,14 @@ transformed by Artificial General Intelligence. It runs a small
  list with ``--sectors`` to experiment with your own domains. When the argument
  points to a text file, each non-empty line is treated as a sector name.
 
+## Overview
+
+- **Zero Data Dependency**: runs entirely offline by default.
+- **OpenAI Agents SDK Integration**: seamlessly switches to hosted execution when API credentials are present.
+- **Automatic ADK Support**: optional Google ADK gateway activates when available.
+- **Model Context Protocol Logging**: export `MCP_ENDPOINT` to persist all prompts and replies.
+
+
 ```bash
 python -m alpha_factory_v1.demos.alpha_agi_insight_v0.insight_demo --episodes 5
 ```
