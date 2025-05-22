@@ -25,6 +25,7 @@ if __package__ is None:  # pragma: no cover - allow `python official_demo_final.
 
 from . import insight_demo
 from . import openai_agents_bridge
+from ... import get_version
 
 
 def _agents_available() -> bool:
@@ -76,6 +77,12 @@ def main(argv: List[str] | None = None) -> None:
         "--list-sectors",
         action="store_true",
         help="Display the resolved sector list and exit",
+    )
+    parser.add_argument(
+        "--version",
+        action="version",
+        version=f"%(prog)s {get_version()}",
+        help="Show package version and exit",
     )
     args = parser.parse_args(argv)
 
