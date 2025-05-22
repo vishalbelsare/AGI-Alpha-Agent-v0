@@ -87,6 +87,10 @@ and optionally written to ``scores.csv`` when ``--log-dir`` is supplied.
 - ``MATS_REWRITER`` – select the rewrite strategy when unspecified.
 - ``ALPHA_AGI_SECTORS`` – comma-separated sector list or path to a text file.
 - ``MCP_ENDPOINT`` – optional URL for Model Context Protocol logging.
+- ``ALPHA_AGI_EPISODES`` – override the number of search episodes.
+- ``ALPHA_AGI_EXPLORATION`` – set the exploration constant for UCB1.
+- ``ALPHA_AGI_TARGET`` – specify the target sector index.
+- ``ALPHA_AGI_SEED`` – RNG seed for deterministic runs.
 
 ### Graceful Offline Mode
 
