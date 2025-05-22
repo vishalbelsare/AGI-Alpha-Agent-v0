@@ -50,6 +50,8 @@ if has_oai:
         rewriter: str | None = None,
         sectors: str | None = None,
         log_dir: str | None = None,
+        exploration: float | None = None,
+        seed: int | None = None,
     ) -> str:
         """Execute the search loop and return the textual summary."""
         if model:
@@ -63,6 +65,8 @@ if has_oai:
             model=model,
             rewriter=rewriter,
             log_dir=Path(log_dir) if log_dir else None,
+            exploration=exploration or 1.4,
+            seed=seed,
             sectors=sector_list,
         )
         return result
@@ -80,6 +84,8 @@ if has_oai:
                 rewriter=params.get("rewriter"),
                 sectors=params.get("sectors"),
                 log_dir=params.get("log_dir"),
+                exploration=float(params.get("exploration", 1.4)),
+                seed=params.get("seed"),
             )
 
     def _run_runtime(
@@ -89,6 +95,8 @@ if has_oai:
         rewriter: str | None = None,
         log_dir: str | None = None,
         sectors: str | None = None,
+        exploration: float | None = None,
+        seed: int | None = None,
         *,
         adk_host: str | None = None,
         adk_port: int | None = None,
@@ -99,6 +107,10 @@ if has_oai:
             os.environ.setdefault("MATS_REWRITER", rewriter)
         if sectors:
             os.environ.setdefault("ALPHA_AGI_SECTORS", sectors)
+        if exploration is not None:
+            os.environ.setdefault("ALPHA_AGI_EXPLORATION", str(exploration))
+        if seed is not None:
+            os.environ.setdefault("ALPHA_AGI_SEED", str(seed))
         runtime = AgentRuntime(api_key=os.getenv("OPENAI_API_KEY"))
         agent = InsightAgent()
         runtime.register(agent)
@@ -127,6 +139,8 @@ else:
         rewriter: str | None = None,
         sectors: str | None = None,
         log_dir: str | None = None,
+        exploration: float | None = None,
+        seed: int | None = None,
     ) -> str:
         sector_list = parse_sectors(None, sectors)
         summary = run(
@@ -135,6 +149,8 @@ else:
             model=model,
             rewriter=rewriter,
             log_dir=Path(log_dir) if log_dir else None,
+            exploration=exploration or 1.4,
+            seed=seed,
             sectors=sector_list,
         )
         return f"{FALLBACK_MODE_PREFIX}{summary}"
@@ -146,6 +162,8 @@ else:
         rewriter: str | None = None,
         log_dir: str | None = None,
         sectors: str | None = None,
+        exploration: float | None = None,
+        seed: int | None = None,
         *,
         adk_host: str | None = None,
         adk_port: int | None = None,
@@ -159,11 +177,12 @@ else:
         print(f"Running offline demo in {msg}…")
         sector_list = parse_sectors(None, sectors)
         episodes = int(episodes or os.getenv("ALPHA_AGI_EPISODES", 0) or 5)
-        exploration = float(os.getenv("ALPHA_AGI_EXPLORATION", 1.4))
+        exploration = float(exploration or os.getenv("ALPHA_AGI_EXPLORATION", 1.4))
         rewriter = rewriter or os.getenv("MATS_REWRITER")
         target = int(target or os.getenv("ALPHA_AGI_TARGET", 3))
-        seed_env = os.getenv("ALPHA_AGI_SEED")
-        seed = int(seed_env) if seed_env else None
+        if seed is None:
+            seed_env = os.getenv("ALPHA_AGI_SEED")
+            seed = int(seed_env) if seed_env else None
         model = model or os.getenv("OPENAI_MODEL")
         run(
             episodes=episodes,
@@ -193,6 +212,12 @@ def main(argv: list[str] | None = None) -> None:
         choices=["random", "openai", "anthropic"],
         help="Rewrite strategy",
     )
+    parser.add_argument(
+        "--exploration",
+        type=float,
+        help="Exploration constant when offline",
+    )
+    parser.add_argument("--seed", type=int, help="Optional RNG seed")
     parser.add_argument("--sectors", type=str, help="Comma-separated sector names")
     parser.add_argument(
         "--log-dir",
@@ -246,6 +271,8 @@ def main(argv: list[str] | None = None) -> None:
         args.rewriter,
         args.log_dir,
         args.sectors,
+        args.exploration,
+        args.seed,
         adk_host=args.adk_host,
         adk_port=args.adk_port,
     )
