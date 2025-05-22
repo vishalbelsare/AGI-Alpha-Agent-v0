@@ -44,15 +44,32 @@ def _agents_available() -> bool:
 
 
 def _run_offline(args: argparse.Namespace) -> None:
+    """Execute the search loop using local defaults and environment overrides."""
+
     sectors = insight_demo.parse_sectors(None, args.sectors)
+
+    episodes = int(args.episodes or os.getenv("ALPHA_AGI_EPISODES", 0) or 5)
+    exploration = float(
+        args.exploration
+        if args.exploration is not None
+        else os.getenv("ALPHA_AGI_EXPLORATION", 1.4)
+    )
+    rewriter = args.rewriter or os.getenv("MATS_REWRITER")
+    target = int(
+        args.target if args.target is not None else os.getenv("ALPHA_AGI_TARGET", 3)
+    )
+    seed_val = args.seed if args.seed is not None else os.getenv("ALPHA_AGI_SEED")
+    seed = int(seed_val) if seed_val is not None else None
+    model = args.model or os.getenv("OPENAI_MODEL")
+
     insight_demo.run(
-        episodes=args.episodes or 5,
-        exploration=args.exploration or 1.4,
-        rewriter=args.rewriter,
+        episodes=episodes,
+        exploration=exploration,
+        rewriter=rewriter,
         log_dir=Path(args.log_dir) if args.log_dir else None,
-        target=args.target or 3,
-        seed=args.seed,
-        model=args.model,
+        target=target,
+        seed=seed,
+        model=model,
         sectors=sectors,
     )
 
