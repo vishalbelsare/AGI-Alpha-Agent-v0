@@ -168,6 +168,23 @@ def run(
     score = best.reward / (best.visits or 1)
     summary = f"Best sector: {sector} score: {score:.3f}"
     print(summary)
+
+    sector_scores: dict[int, float] = {}
+    stack = [tree.root]
+    while stack:
+        n = stack.pop()
+        if n.visits:
+            idx = n.agents[0] % len(sectors)
+            sector_scores[idx] = max(sector_scores.get(idx, float("-inf")), n.reward / n.visits)
+        stack.extend(n.children)
+
+    ranking = sorted(
+        ((sectors[i], sc) for i, sc in sector_scores.items()), key=lambda t: t[1], reverse=True
+    )
+    if ranking:
+        print("Top sectors:")
+        for pos, (name, sc) in enumerate(ranking[:3], 1):
+            print(f" {pos}. {name} → {sc:.3f}")
     if log_fh:
         log_fh.write(f"best,{sector},{score:.6f}\n")
         log_fh.close()
