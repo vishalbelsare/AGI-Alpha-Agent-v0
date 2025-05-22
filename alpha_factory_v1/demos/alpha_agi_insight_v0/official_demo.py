@@ -16,15 +16,13 @@ if __package__ is None:  # pragma: no cover - allow direct execution
     sys.path.insert(0, str(pathlib.Path(__file__).resolve().parents[3]))
     __package__ = "alpha_factory_v1.demos.alpha_agi_insight_v0"
 
-from . import __main__
+from . import __main__, insight_demo
 
 
 def main(argv: List[str] | None = None) -> None:
     """Run the α‑AGI Insight demo with environment validation."""
-    args = ["--verify-env"]
-    if argv:
-        args.extend(argv)
-    __main__.main(args)
+    insight_demo.verify_environment()
+    __main__.main(argv)
 
 
 if __name__ == "__main__":  # pragma: no cover
