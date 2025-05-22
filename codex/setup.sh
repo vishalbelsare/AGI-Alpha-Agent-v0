@@ -9,8 +9,8 @@ if [[ -n "${WHEELHOUSE:-}" ]]; then
   wheel_opts+=(--no-index --find-links "$WHEELHOUSE")
 fi
 
-# Upgrade pip quietly
-$PYTHON -m pip install --quiet --upgrade pip
+# Upgrade pip and core build tools
+$PYTHON -m pip install --quiet "${wheel_opts[@]}" --upgrade pip setuptools wheel
 
 # Install package in editable mode
 $PYTHON -m pip install --quiet "${wheel_opts[@]}" -e .
