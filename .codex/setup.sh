@@ -1,22 +1,28 @@
 #!/usr/bin/env bash
-# Minimal setup script for Codex development environments.
 set -euo pipefail
 
-# Optional upgrade of packaging tools. Failures are ignored to allow offline use.
-python -m pip install --upgrade pip setuptools wheel >/tmp/pip-tools.log || true
+PYTHON=${PYTHON:-python3}
 
-# Core runtime requirements. Install from $WHEELHOUSE when provided.
-REQS=(pytest prometheus_client openai openai-agents google-adk anthropic)
-CMD=(python -m pip install --prefer-binary)
+# Support offline installation via WHEELHOUSE
+wheel_opts=()
 if [[ -n "${WHEELHOUSE:-}" ]]; then
-    CMD+=(--no-index --find-links "$WHEELHOUSE")
+  wheel_opts+=(--no-index --find-links "$WHEELHOUSE")
 fi
-"${CMD[@]}" "${REQS[@]}" >/tmp/pip-install.log || true
 
-# Install the project in editable mode.
-python -m pip install -e . >/tmp/pip-project.log
+# Upgrade pip quietly
+$PYTHON -m pip install --quiet --upgrade pip
 
-# Validate runtime dependencies. Errors are non-fatal to support air-gapped setups.
-python check_env.py --auto-install || true
+# Install package in editable mode
+$PYTHON -m pip install --quiet "${wheel_opts[@]}" -e .
 
-echo "Environment setup complete."
+# Minimal runtime/test dependencies
+packages=(
+  pytest
+  prometheus_client
+  openai
+  openai_agents
+  google_adk
+  anthropic
+)
+$PYTHON -m pip install --quiet "${wheel_opts[@]}" "${packages[@]}"
+
