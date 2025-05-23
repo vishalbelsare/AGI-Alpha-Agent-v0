@@ -13,7 +13,9 @@ final production demo with automatic environment selection. This command maps to
 and offline mode depending on available credentials.
 Alternatively run ``alpha-agi-insight-final`` for the same behaviour or
 ``alpha-agi-insight-production`` to verify the environment and enable the
-optional ADK gateway when available.
+optional ADK gateway when available. The companion
+``official_demo_production.py`` script offers identical behaviour and is
+recommended when deploying the demo in production settings.
 
 ## Overview
 
