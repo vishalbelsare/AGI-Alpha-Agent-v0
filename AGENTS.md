@@ -22,5 +22,7 @@ for modules, classes and functions.
 ## Pull Requests
 - Keep commits focused and descriptive. Use meaningful commit messages.
 - Ensure `git status` shows a clean working tree before committing.
+- Run `python check_env.py --auto-install` and `pytest -q` before committing. \
+  Document any remaining test failures in the PR description.
 - Summarize your changes and test results in the PR body.
 - Title PRs using `[alpha_factory] <Title>`.
