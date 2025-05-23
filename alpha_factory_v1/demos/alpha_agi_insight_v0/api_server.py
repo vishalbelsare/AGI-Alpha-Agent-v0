@@ -15,7 +15,12 @@ from fastapi import FastAPI
 from pydantic import BaseModel
 import uvicorn
 
-from .insight_demo import parse_sectors, run, verify_environment
+from .insight_demo import (
+    DEFAULT_SECTORS,
+    parse_sectors,
+    run,
+    verify_environment,
+)
 
 app = FastAPI(title="α‑AGI Insight API")
 
@@ -55,6 +60,13 @@ def insight(req: InsightRequest) -> dict:
         json_output=True,
     )
     return json.loads(summary)
+
+
+@app.get("/sectors")
+def list_sectors() -> list[str]:
+    """Return the default sector list."""
+
+    return list(DEFAULT_SECTORS)
 
 
 def main(argv: list[str] | None = None) -> None:
