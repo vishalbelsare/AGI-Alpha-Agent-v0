@@ -174,7 +174,8 @@ def run(
     sector = sectors[best.agents[0] % len(sectors)]
     score = best.reward / (best.visits or 1)
     summary_text = f"Best sector: {sector} score: {score:.3f}"
-    print(summary_text)
+    if not json_output:
+        print(summary_text)
 
     sector_scores: dict[int, float] = {}
     stack = [tree.root]
@@ -188,7 +189,7 @@ def run(
     ranking = sorted(
         ((sectors[i], sc) for i, sc in sector_scores.items()), key=lambda t: t[1], reverse=True
     )
-    if ranking:
+    if ranking and not json_output:
         print("Top sectors:")
         for pos, (name, sc) in enumerate(ranking[:3], 1):
             print(f" {pos}. {name} → {sc:.3f}")

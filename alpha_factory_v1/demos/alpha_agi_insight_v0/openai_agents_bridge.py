@@ -216,7 +216,7 @@ else:
             seed_env = os.getenv("ALPHA_AGI_SEED")
             seed = int(seed_env) if seed_env else None
         model = model or os.getenv("OPENAI_MODEL")
-        run(
+        summary = run(
             episodes=episodes,
             exploration=exploration,
             rewriter=rewriter,
@@ -227,6 +227,8 @@ else:
             sectors=sector_list,
             json_output=bool(json_output),
         )
+        if json_output:
+            print(summary)
 
 
 def main(argv: list[str] | None = None) -> None:
