@@ -56,6 +56,11 @@ Highlights:
 - Optional OpenAI Agents runtime for hosted execution.
 - Built-in Google ADK gateway support via `--enable-adk`.
 - Runs entirely with zero external data by default.
+
+### Colab Notebook
+
+For an interactive walkthrough open `colab_alpha_agi_insight_demo.ipynb` directly in Google Colab. The badge at the top of this document links to the hosted version. The notebook mirrors the command line interface and is ideal for non‑technical users exploring the demo from a browser.
+
 For programmatic access launch the companion FastAPI server:
 
 ```bash
