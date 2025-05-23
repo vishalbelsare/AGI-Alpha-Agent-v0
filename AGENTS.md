@@ -13,6 +13,7 @@ This installs any missing optional packages from the wheelhouse if provided.
 - Run `./quickstart.sh --preflight` to verify your environment, then `./quickstart.sh` to launch the project. The
   script creates the virtual environment and installs required dependencies automatically. See the
   [5‑Minute Quick‑Start](README.md#6-5-minute-quick-start) section in the README for more details.
+- On Windows or systems without Bash, run `python alpha_factory_v1/quickstart.py`.
 
 ## Coding Style
 - Use **Python&nbsp;3.11** or newer and include type hints for public APIs.
