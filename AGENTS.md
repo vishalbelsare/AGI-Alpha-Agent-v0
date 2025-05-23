@@ -9,7 +9,7 @@ The instructions below apply to all contributors and automated agents.
 - When offline, run `WHEELHOUSE=/path/to/wheels ./codex/setup.sh`. The same path can be passed to `check_env.py --wheelhouse`.
 - After setup, validate with `python check_env.py --auto-install`.
 This installs any missing optional packages from the wheelhouse if provided.
-- Execute `pytest -q` and ensure the entire suite passes. If failures remain, document them in the PR description.
+- Execute `pytest -q` (or `python -m alpha_factory_v1.scripts.run_tests`) and ensure the entire suite passes. If failures remain, document them in the PR description.
 - Run `python alpha_factory_v1/scripts/preflight.py` or
   `./quickstart.sh --preflight` to verify Docker, git, and required
   packages. After verification, run `./quickstart.sh` to launch the
