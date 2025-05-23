@@ -28,6 +28,8 @@ The instructions below apply to all contributors and automated agents.
 - Provide concise [Google style](https://google.github.io/styleguide/pyguide.html#381-docstrings) docstrings
 for modules, classes and functions.
 - Format code with `black` (line length 120) and run `ruff` or `flake8` for linting, if available.
+- `pyproject.toml` contains the configuration for `black`, `ruff` and `flake8`.
+  Adjust lint settings there if needed.
 - Ensure code is formatted before committing.
 - Run `ruff` or `flake8` and `mypy --strict` before committing to enforce
   consistent style and type safety.
