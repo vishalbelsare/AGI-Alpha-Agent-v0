@@ -52,6 +52,15 @@ alpha-agi-insight-final --episodes 5
 This wrapper transparently falls back to the offline Meta‑Agentic Tree
 Search when API credentials are absent, ensuring the demo runs anywhere.
 
+For a guaranteed offline run without external dependencies, use:
+
+```bash
+alpha-agi-insight-offline --episodes 5
+```
+
+This wrapper sets ALPHA_AGI_OFFLINE=true before delegating to the production demo so the search loop never attempts network access.
+
+
 ### 🎖️ α‑AGI Architect 👁️✨ — Foundational Operational Blueprint
 Empowering Meta‑Agentic visionaries with strategic infrastructure. At the core of α‑AGI Ascension is α‑AGI Architect — the foundational operational framework for scalable global deployment. Rooted in the groundbreaking “Multi‑Agent AI DAO” model, α‑AGI Architect delivers immediate, scalable, and adaptive infrastructure ensuring continuous strategic evolution.
 
