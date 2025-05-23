@@ -8,6 +8,7 @@ from .official_demo import main as official_demo
 from .official_demo_final import main as official_demo_final
 from .official_demo_production import main as official_demo_production
 from .beyond_human_foresight import main as beyond_human_foresight
+from .api_server import main as api_server
 
 __all__ = [
     "main",
@@ -17,4 +18,5 @@ __all__ = [
     "official_demo_final",
     "official_demo_production",
     "beyond_human_foresight",
+    "api_server",
 ]

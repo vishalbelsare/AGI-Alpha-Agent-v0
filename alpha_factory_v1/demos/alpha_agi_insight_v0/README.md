@@ -60,6 +60,18 @@ the companion ``alpha-agi-insight-bridge`` command:
 alpha-agi-insight-bridge --episodes 5
 ```
 
+### REST API
+
+Launch a small FastAPI server that exposes the search loop via ``/insight``. The
+service runs entirely offline by default and mirrors the CLI options:
+
+```bash
+alpha-agi-insight-api --port 8000
+```
+
+Send a POST request with JSON payload ``{"episodes":5}`` to ``/insight`` to
+retrieve the ranking as structured data.
+
 ### Quick Start Script
 
 Ensure the shell helper is executable by running ``chmod +x run_insight_demo.sh`` if needed.
