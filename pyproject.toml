@@ -28,6 +28,7 @@ alpha-agi-beyond-foresight = "alpha_factory_v1.demos.alpha_agi_insight_v0.beyond
 alpha-agi-bhf = "alpha_factory_v1.demos.alpha_agi_insight_v0.beyond_human_foresight:main"
 alpha-agi-insight-production = "alpha_factory_v1.demos.alpha_agi_insight_v0.official_demo_production:main"
 alpha-agi-insight-api = "alpha_factory_v1.demos.alpha_agi_insight_v0.api_server:main"
+alpha-agi-insight-dashboard = "alpha_factory_v1.demos.alpha_agi_insight_v0.insight_dashboard:main"
 
 [project.entry-points."alpha_factory.agents"]
 # custom agents can be registered here
