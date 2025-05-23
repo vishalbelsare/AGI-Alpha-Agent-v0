@@ -30,6 +30,7 @@ from alpha_factory_v1.backend.agents.strategy_agent import StrategyAgent
 from alpha_factory_v1.backend.agents.market_analysis_agent import MarketAnalysisAgent
 from alpha_factory_v1.backend.agents.memory_agent import MemoryAgent
 from alpha_factory_v1.backend.agents.safety_agent import SafetyAgent
+from alpha_factory_v1.backend.llm_provider import chat as llm_provider
 
 
 class IncorporatorAgent(AgentBase):
@@ -55,7 +56,7 @@ class AlphaDiscoveryAgent(AgentBase):
 
         prompt = "Suggest one brief, plausible market inefficiency suitable for a demo."
         try:
-            summary = await llm_provider.chat(prompt, max_tokens=50)
+            summary = await llm_provider(prompt, max_tokens=50)
         except Exception as exc:  # pragma: no cover - LLM optional
             summary = f"demo opportunity (llm error: {exc})"
         await self.publish("alpha.discovery", {"alpha": summary})
