@@ -38,6 +38,7 @@ def banner() -> str:
     return (
         "\N{MILITARY MEDAL} \N{GREEK SMALL LETTER ALPHA}\N{HYPHEN-MINUS}AGI"
         " Insight \N{EYE}\N{SPARKLES} — Beyond Human Foresight"
+        " (Zero‑Data Official Demo)"
     )
 
 
