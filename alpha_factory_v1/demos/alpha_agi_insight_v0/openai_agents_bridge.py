@@ -24,6 +24,15 @@ DEFAULT_MODEL_NAME = os.getenv("OPENAI_MODEL", "gpt-4o")
 FALLBACK_MODE_PREFIX = "fallback_mode_active: "
 
 
+def _truthy(val: bool | str | None) -> bool:
+    """Return ``True`` when *val* represents an affirmative value."""
+    if isinstance(val, bool):
+        return val
+    if isinstance(val, str):
+        return val.strip().lower() in {"1", "true", "yes", "y"}
+    return False
+
+
 def banner() -> str:
     """Return the standard startup banner."""
     return (
@@ -94,7 +103,7 @@ if has_oai:
             exploration=exploration or 1.4,
             seed=seed,
             sectors=sector_list,
-            json_output=bool(json_output),
+            json_output=_truthy(json_output),
         )
         return result
 
@@ -182,7 +191,7 @@ else:
             exploration=exploration or 1.4,
             seed=seed,
             sectors=sector_list,
-            json_output=bool(json_output),
+            json_output=_truthy(json_output),
         )
         return f"{FALLBACK_MODE_PREFIX}{summary}"
 
@@ -225,12 +234,9 @@ else:
             seed=seed,
             model=model,
             sectors=sector_list,
-            json_output=bool(json_output),
+            json_output=_truthy(json_output),
         )
-        if json_output:
-            print(summary)
-        else:
-            print(summary)
+        print(summary)
 
 
 def main(argv: list[str] | None = None) -> None:
@@ -330,7 +336,7 @@ def main(argv: list[str] | None = None) -> None:
         args.sectors,
         args.exploration,
         args.seed,
-        json_output=args.json,
+        json_output=_truthy(args.json),
         adk_host=args.adk_host,
         adk_port=args.adk_port,
     )
