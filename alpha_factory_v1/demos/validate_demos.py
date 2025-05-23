@@ -1,6 +1,7 @@
+"""Utility to validate demo packages for basic production readiness."""
+
 import os
 import sys
-
 
 DEFAULT_DIR = os.path.dirname(__file__)
 
