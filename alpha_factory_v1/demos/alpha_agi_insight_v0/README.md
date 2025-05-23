@@ -242,6 +242,7 @@ generated in the log directory.
 - ``ALPHA_AGI_ADK_HOST`` – custom bind host for the ADK gateway.
 - ``ALPHA_AGI_ADK_PORT`` – custom bind port for the ADK gateway.
 - ``ALPHA_AGI_NO_BANNER`` – suppress the startup banner when set to ``true``.
+- ``ALPHA_AGI_SKIP_VERIFY`` – skip environment checks when set to ``true``.
 
 ### Graceful Offline Mode
 
