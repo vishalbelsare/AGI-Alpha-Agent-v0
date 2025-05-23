@@ -29,9 +29,10 @@ from typing import Any, Dict
 # Optional import – the file still works if the OpenAI Agents SDK is absent
 # (for instance when a user runs with no OPENAI_API_KEY and only local tools).
 # ───────────────────────────────────────────────────────────────────────────
-try:
+try:  # pragma: no cover - optional dependency
     # OpenAI Agents SDK ≥ 0.0.13
     from agents import function_tool, RunContextWrapper  # type: ignore
+    _HAVE_AGENTS = True
 except ModuleNotFoundError:  # pragma: no cover
     # Provide minimal fallbacks so the orchestrator can import the module.
     def function_tool(*_dargs, **_dkwargs):  # noqa: D401
@@ -43,6 +44,7 @@ except ModuleNotFoundError:  # pragma: no cover
         return _inner
 
     RunContextWrapper = Dict  # type: ignore
+    _HAVE_AGENTS = False
 
 # ───────────────────────────────────────────────────────────────────────────
 # Sandbox / resource limits
@@ -132,16 +134,7 @@ def _run_pytest(path: Path) -> Dict[str, Any]:
 # ───────────────────────────────────────────────────────────────────────────
 # Public tool – registered with the Agents SDK when available
 # ───────────────────────────────────────────────────────────────────────────
-@function_tool(
-    name_override="run_pytest",
-    description_override=(
-        "Run pytest on the specified directory or file under strict "
-        "resource limits (default: current repo). Returns JSON with "
-        "returncode, stdout, stderr, and timing."
-    ),
-    strict_mode=False,
-)
-def run_pytest(  # noqa: D401
+def run_pytest_impl(
     ctx: RunContextWrapper | Dict,  # SDK passes full RunContextWrapper
     path: str = ".",
 ) -> Dict[str, Any]:
@@ -184,5 +177,22 @@ def run_pytest(  # noqa: D401
     return json.loads(json.dumps(result, ensure_ascii=False))
 
 
+if _HAVE_AGENTS:
+    run_pytest_tool = function_tool(
+        name_override="run_pytest",
+        description_override=(
+            "Run pytest on the specified directory or file under strict "
+            "resource limits (default: current repo). Returns JSON with "
+            "returncode, stdout, stderr, and timing."
+        ),
+        strict_mode=False,
+    )(run_pytest_impl)
+else:  # pragma: no cover - offline fallback
+    run_pytest_tool = run_pytest_impl
+
+# Backwards-compatible public alias
+run_pytest = run_pytest_impl
+
+
 # Ensure a clean public namespace
-__all__ = ["run_pytest"]
+__all__ = ["run_pytest", "run_pytest_tool"]
