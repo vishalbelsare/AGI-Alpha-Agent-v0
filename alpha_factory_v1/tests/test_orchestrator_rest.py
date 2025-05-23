@@ -33,3 +33,43 @@ class BuildRestTest(unittest.TestCase):
         resp = client.post("/agent/foo/trigger")
         self.assertEqual(resp.status_code, 200)
         self.assertTrue(resp.json().get("queued"))
+
+
+class DummyAgent:
+    def __init__(self):
+        self.loaded = None
+
+    def load_weights(self, path):
+        self.loaded = path
+
+
+@unittest.skipIf(TestClient is None, "fastapi not installed")
+class UpdateModelTest(unittest.TestCase):
+    def _make_client(self):
+        runner = DummyRunner()
+        runner.inst = DummyAgent()
+        app = _build_rest({"foo": runner})
+        return TestClient(app), runner
+
+    def _zip_bytes(self, files):
+        import io, zipfile
+
+        buf = io.BytesIO()
+        with zipfile.ZipFile(buf, "w") as zf:
+            for name, data in files.items():
+                zf.writestr(name, data)
+        return buf.getvalue()
+
+    def test_update_model_safe(self):
+        client, runner = self._make_client()
+        data = self._zip_bytes({"w.bin": b"ok"})
+        res = client.post("/agent/foo/update_model", files={"file": ("f.zip", data)})
+        self.assertEqual(res.status_code, 200)
+        self.assertEqual(runner.inst.loaded is not None, True)
+
+    def test_update_model_path_traversal(self):
+        client, _runner = self._make_client()
+        data = self._zip_bytes({"../evil": b"bad"})
+        res = client.post("/agent/foo/update_model", files={"file": ("f.zip", data)})
+        self.assertEqual(res.status_code, 400)
+

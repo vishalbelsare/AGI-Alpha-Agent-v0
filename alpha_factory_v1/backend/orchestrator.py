@@ -116,6 +116,7 @@ SSL_DISABLE = ENV("INSECURE_DISABLE_TLS", "false").lower() == "true"
 KAFKA_BROKER = None if DEV_MODE else ENV("ALPHA_KAFKA_BROKER")
 CYCLE_DEFAULT = int(ENV("ALPHA_CYCLE_SECONDS", "60"))
 MAX_CYCLE_SEC = int(ENV("MAX_CYCLE_SEC", "30"))
+MODEL_MAX_BYTES = int(ENV("ALPHA_MODEL_MAX_BYTES", str(64 * 1024 * 1024)))
 ENABLED = {s.strip() for s in ENV("ALPHA_ENABLED_AGENTS", "").split(",") if s.strip()}
 
 logging.basicConfig(
@@ -344,8 +345,17 @@ def _build_rest(runners: Dict[str, AgentRunner]) -> Optional[FastAPI]:
         import tempfile, zipfile, io
 
         with tempfile.TemporaryDirectory() as td:
-            zf = zipfile.ZipFile(io.BytesIO(file))
-            zf.extractall(td)
+            with zipfile.ZipFile(io.BytesIO(file)) as zf:
+                base = Path(td).resolve()
+                total = 0
+                for info in zf.infolist():
+                    total += info.file_size
+                    if total > MODEL_MAX_BYTES:
+                        raise HTTPException(400, "Archive too large")
+                    dest = (base / info.filename).resolve()
+                    if not str(dest).startswith(str(base)):
+                        raise HTTPException(400, "Unsafe path in archive")
+                zf.extractall(td)
             inst.load_weights(td)  # type: ignore[attr-defined]
         return {"status": "ok"}
 
