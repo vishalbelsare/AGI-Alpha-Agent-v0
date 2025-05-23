@@ -41,9 +41,16 @@ alpha-agi-bhf --episodes 5
 When API keys are configured the program automatically uses the OpenAI Agents
 runtime. Otherwise it falls back to the local Meta‑Agentic Tree Search.
 
-For production use, the `alpha-agi-insight-final` command offers the same
-behaviour while verifying dependencies and enabling the optional Google ADK
-gateway when available.
+For production use, invoke the **official demo** which automatically
+checks the environment, selects the best runtime and optionally starts the
+Google ADK gateway:
+
+```bash
+alpha-agi-insight-final --episodes 5
+```
+
+This wrapper transparently falls back to the offline Meta‑Agentic Tree
+Search when API credentials are absent, ensuring the demo runs anywhere.
 
 ### 🎖️ α‑AGI Architect 👁️✨ — Foundational Operational Blueprint
 Empowering Meta‑Agentic visionaries with strategic infrastructure. At the core of α‑AGI Ascension is α‑AGI Architect — the foundational operational framework for scalable global deployment. Rooted in the groundbreaking “Multi‑Agent AI DAO” model, α‑AGI Architect delivers immediate, scalable, and adaptive infrastructure ensuring continuous strategic evolution.
