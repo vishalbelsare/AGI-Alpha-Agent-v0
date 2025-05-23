@@ -10,6 +10,9 @@ The instructions below apply to all contributors and automated agents.
 - After setup, validate with `python check_env.py --auto-install`.
 This installs any missing optional packages from the wheelhouse if provided.
 - Execute `pytest -q` and ensure the entire suite passes. If failures remain, document them in the PR description.
+- Run `./quickstart.sh --preflight` to verify your environment, then `./quickstart.sh` to launch the project. The
+  script creates the virtual environment and installs required dependencies automatically. See the
+  [5‑Minute Quick‑Start](README.md#6-5-minute-quick-start) section in the README for more details.
 
 ## Coding Style
 - Use **Python&nbsp;3.11** or newer and include type hints for public APIs.
