@@ -134,13 +134,16 @@ else:  # --------------------------- stub fall-backs --------------------------
 # ╰──────────────────────────────────────────────────────────────────────╯
 try:
     # Always present – shipped in backend/tools/
-    from .tools.local_pytest import run_pytest
+    from .tools.local_pytest import run_pytest, run_pytest_tool
 except Exception as exc:  # pragma: no cover
     LOGGER.error("local_pytest tool could not be imported: %s", exc)
     _exc_msg = str(exc)
 
     def run_pytest(*_, **__) -> str:  # type: ignore
         return f"[local_pytest unavailable: {_exc_msg}]"
+
+    def run_pytest_tool(*_, **__) -> str:  # type: ignore
+        return run_pytest(*_, **__)
 
 # ╭──────────────────────────────────────────────────────────────────────╮
 # │ 3 ▸ Model auto-selection helpers                                    │
@@ -190,7 +193,7 @@ def get_default_tools() -> List[Any]:
     base: List[Any] = [
         FileSearchTool(max_num_results=5),
         WebSearchTool(),
-        run_pytest,
+        run_pytest_tool,
     ]
 
     # Remote tools (ComputerTool runs in OpenAI's sandbox) need an API key.
