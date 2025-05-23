@@ -243,6 +243,11 @@ def main(argv: list[str] | None = None) -> None:
         help="Print the resolved sector list and exit",
     )
     parser.add_argument(
+        "--no-banner",
+        action="store_true",
+        help="Suppress the startup banner",
+    )
+    parser.add_argument(
         "--enable-adk",
         action="store_true",
         help="Enable the Google ADK gateway",
@@ -261,6 +266,9 @@ def main(argv: list[str] | None = None) -> None:
         help="Show package version and exit",
     )
     args = parser.parse_args(argv)
+
+    if not args.no_banner and os.getenv("ALPHA_AGI_NO_BANNER", "false").lower() not in {"1", "true", "yes"}:
+        print_banner()
 
     enable_adk = args.enable_adk or os.getenv("ALPHA_AGI_ENABLE_ADK") == "true"
     if args.adk_host is None:
