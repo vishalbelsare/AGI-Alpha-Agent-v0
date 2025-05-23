@@ -37,6 +37,8 @@ for modules, classes and functions.
   3. Run `pre-commit run --all-files` once to populate the cache.
   4. Run `pre-commit run --files <paths>` before committing.
     CI will reject commits that fail these checks.
+  - After setup, run `pre-commit run --all-files` once and
+    `pre-commit run --files <paths>` before every commit.
 
 ## Pull Requests
 - Keep commits focused and descriptive. Use meaningful commit messages.
