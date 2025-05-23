@@ -229,6 +229,8 @@ else:
         )
         if json_output:
             print(summary)
+        else:
+            print(summary)
 
 
 def main(argv: list[str] | None = None) -> None:
