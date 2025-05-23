@@ -18,6 +18,12 @@ optional ADK gateway when available. The companion
 ``official_demo_production.py`` script offers identical behaviour and is
 recommended when deploying the demo in production settings.
 
+Highlights:
+- Automatic offline fallback when no API key is detected.
+- Optional OpenAI Agents runtime for hosted execution.
+- Built-in Google ADK gateway support via `--enable-adk`.
+- Runs entirely with zero external data by default.
+
 ## Overview
 
 ```mermaid
