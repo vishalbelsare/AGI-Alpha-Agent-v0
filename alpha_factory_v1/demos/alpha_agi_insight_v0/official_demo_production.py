@@ -31,8 +31,7 @@ def _agents_available() -> bool:
     """Return ``True`` when the OpenAI Agents runtime can be used."""
     if os.getenv("ALPHA_AGI_OFFLINE"):
         return False
-    spec = importlib.util.find_spec("openai_agents")
-    return bool(spec and os.getenv("OPENAI_API_KEY"))
+    return openai_agents_bridge.has_oai
 
 
 def _run_offline(args: argparse.Namespace) -> None:
@@ -132,10 +131,7 @@ def main(argv: List[str] | None = None) -> None:
             args.adk_port = None
 
     if not args.no_banner:
-        print(
-            "\N{MILITARY MEDAL} \N{GREEK SMALL LETTER ALPHA}\N{HYPHEN-MINUS}AGI Insight "
-            "\N{EYE}\N{SPARKLES}  Beyond Human Foresight"
-        )
+        openai_agents_bridge.print_banner()
 
     if not args.skip_verify:
         insight_demo.verify_environment()
