@@ -169,10 +169,12 @@ class PingAgent(AgentBase):
 
         span_cm = (
             _OTEL.tracer.start_as_current_span("ping-agent.step")
-            if _OTEL.tracer else
-            nullcontext()
+            if _OTEL.tracer
+            else nullcontext()
         )
-        async with span_cm:  # type: ignore[var-annotated]
+        # ``start_as_current_span`` returns a synchronous context manager so we
+        # use a regular ``with`` block for compatibility.
+        with span_cm:  # type: ignore[var-annotated]
             now_iso = start_ts.isoformat(timespec="seconds")
             ctx: Mapping[str, Any] = {"agent": self.NAME}
 
