@@ -18,24 +18,17 @@ optional ADK gateway when available.
 ## Overview
 
 ```mermaid
-%% Meta-Agentic Tree Search Architecture
-%% © 2025 MontrealAI — Apache 2.0
-%%
-%% This diagram is intentionally kept within the subset of Mermaid 10.x
-%% syntax that GitHub renders correctly.  No HTML in labels, no inline
-%% style inside subgraphs, only hex colours.
-
+%% Meta‑Agentic Tree Search Architecture
 flowchart TD
-    %% ----- Nodes -----
-    A["Controller\n(Meta‑Agent)"]:::core
-    B["Knowledge Base\n(Program DB)"]:::db
-    C["Prompt / Task Sampler"]:::sampler
-    D["LLM Ensemble\n(Insight Gen)"]:::ensemble
-    E["Evaluator Pool\n(Sandbox + Scores)"]:::evaluator
+    %% Define nodes
+    A[Controller<br/>(Meta‑Agent Orchestrator)]
+    B[Knowledge Base<br/>(Program DB / Insight Archive)]
+    C[Prompt / Task Sampler<br/>(Curriculum Generator)]
+    D[LLM Ensemble<br/>(Insight Generators)]
+    E[Evaluator Pool<br/>(Sandbox & Scorers)]
 
-    %% ----- Subgraph ring for evolutionary loop -----
+    %% Evolutionary loop (logical grouping only)
     subgraph Evolutionary_Loop
-        direction TB
         A
         B
         C
@@ -43,28 +36,31 @@ flowchart TD
         E
     end
 
-    %% ----- Flows -----
-    A -- "store results" --> B
-    B -- "past metrics" --> A
+    %% Data flows
+    A -->|stores results| B
+    B -->|past programs / metrics| A
 
-    A -- "ctx‑rich prompt" --> C
-    C -- "prompt" --> A
+    A -->|request context‑rich prompt| C
+    C -->|prompt| A
 
-    A -- "program stubs" --> D
-    D -- "candidate insights" --> A
+    A -->|dispatch program stubs| D
+    D -->|candidate code / insights| A
 
-    A -- "submit programs" --> E
-    E -- "scores" --> A
+    A -->|submit programs| E
+    E -->|metrics & scores| A
 
-    %% ----- Classes -----
-    classDef core      fill:#E8D5F7,stroke:#6E40C9,color:#2C125D,font-weight:bold
-    classDef db        fill:#D8E9FF,stroke:#3A7BD5,color:#0B2E59
-    classDef sampler   fill:#D7F4D1,stroke:#3B9E3B,color:#0F2D0F
-    classDef ensemble  fill:#FFD9D9,stroke:#D14949,color:#5A0D0D
-    classDef evaluator fill:#FFF1CE,stroke:#D49500,color:#694A00
+    %% Styling
+    classDef core       fill:#e8d5f7,stroke:#6e40c9,color:#2c125d,font-weight:bold;
+    classDef db         fill:#d8e9ff,stroke:#3a7bd5,color:#0b2e59;
+    classDef sampler    fill:#d7f4d1,stroke:#3b9e3b,color:#0f2d0f;
+    classDef ensemble   fill:#ffd9d9,stroke:#d14949,color:#5a0d0d;
+    classDef evaluator  fill:#fff1ce,stroke:#d49500,color:#694a00;
 
-    %% ----- Ring styling -----
-    style Evolutionary_Loop fill:transparent,stroke:#1E90FF,stroke-width:2px,stroke-dasharray:4 2
+    class A core
+    class B db
+    class C sampler
+    class D ensemble
+    class E evaluator
 ```
 
 - **Zero Data Dependency**: runs entirely offline by default. The default
