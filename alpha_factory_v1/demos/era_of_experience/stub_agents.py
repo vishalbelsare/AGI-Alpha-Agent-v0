@@ -37,6 +37,13 @@ class ExperienceAgent(Agent):
     unit tests can run without an API key.
     """
 
+    def __init__(self, name: str | None = None, **kwargs: Any) -> None:  # type: ignore[override]
+        name = name or "experience-agent"
+        try:
+            super().__init__(name=name, **kwargs)
+        except TypeError:
+            super().__init__()
+
     async def act(self) -> Dict[str, Any]:  # type: ignore[override]
         return {"action": "noop"}
 

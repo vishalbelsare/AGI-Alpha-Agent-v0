@@ -69,8 +69,17 @@ _Prom: SimpleNamespace = SimpleNamespace(Counter=None, Gauge=None, Histogram=Non
 _OTEL: SimpleNamespace = SimpleNamespace(tracer=None)
 
 try:
-    from prometheus_client import Counter, Gauge, Histogram  # type: ignore
-    _Prom.Counter, _Prom.Gauge, _Prom.Histogram = Counter, Gauge, Histogram
+    from prometheus_client import Counter, Gauge, Histogram, REGISTRY  # type: ignore
+
+    def _get_metric(cls, name: str, desc: str):
+        if name in getattr(REGISTRY, "_names_to_collectors", {}):
+            return REGISTRY._names_to_collectors[name]
+        return cls(name, desc)
+
+    _Prom.Counter = Counter  # type: ignore[assignment]
+    _Prom.Gauge = Gauge
+    _Prom.Histogram = Histogram
+    _Prom.get_metric = _get_metric
 except ModuleNotFoundError:
     pass  # Metrics disabled – agent still functions.
 
@@ -131,20 +140,33 @@ class PingAgent(AgentBase):
     # ════════════════════════════════════════════════════════════════════════
     async def setup(self) -> None:
         """Initialise metrics and announce readiness."""
-        if _Prom.Counter and self._prom_ping_total is None:
-            self._prom_ping_total = _Prom.Counter(
-                "af_ping_total",
-                "Cumulative number of successful pings.",
-            )
-            self._prom_last_epoch = _Prom.Gauge(
-                "af_ping_last_epoch",
-                "Unix epoch of the most recent ping.",
-            )
-            self._prom_cycle_hist = _Prom.Histogram(
-                "af_ping_cycle_seconds",
-                "Time taken by ping step() execution.",
-                buckets=(0.05, 0.1, 0.25, 0.5, 1, 2, 5)
-            )
+        if self._prom_ping_total is None and _Prom.Counter:
+            if getattr(_Prom, "get_metric", None):
+                self._prom_ping_total = _Prom.get_metric(
+                    _Prom.Counter, "af_ping_total", "Cumulative number of successful pings."
+                )
+                self._prom_last_epoch = _Prom.get_metric(
+                    _Prom.Gauge, "af_ping_last_epoch", "Unix epoch of the most recent ping."
+                )
+                self._prom_cycle_hist = _Prom.get_metric(
+                    _Prom.Histogram,
+                    "af_ping_cycle_seconds",
+                    "Time taken by ping step() execution.",
+                )
+            else:
+                self._prom_ping_total = _Prom.Counter(
+                    "af_ping_total",
+                    "Cumulative number of successful pings.",
+                )
+                self._prom_last_epoch = _Prom.Gauge(
+                    "af_ping_last_epoch",
+                    "Unix epoch of the most recent ping.",
+                )
+                self._prom_cycle_hist = _Prom.Histogram(
+                    "af_ping_cycle_seconds",
+                    "Time taken by ping step() execution.",
+                    buckets=(0.05, 0.1, 0.25, 0.5, 1, 2, 5),
+                )
 
         _log.info(
             "PingAgent initialised – interval=%ss (Prometheus=%s OTEL=%s)",
