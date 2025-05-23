@@ -13,6 +13,9 @@ The instructions below apply to all contributors and automated agents.
   `WHEELHOUSE=/media/wheels python check_env.py --auto-install --wheelhouse /media/wheels`
 - After setup, validate with `python check_env.py --auto-install`.
   This installs any missing optional packages from the wheelhouse if provided.
+  - When `WHEELHOUSE` is set, run
+    `python check_env.py --auto-install --wheelhouse <path>` so optional packages
+    install correctly offline.
 - Execute `pytest -q` (or `python -m alpha_factory_v1.scripts.run_tests`) and ensure the entire suite passes. If failures remain, document them in the PR description.
 - Run `python alpha_factory_v1/scripts/preflight.py` to confirm the Python version and required tools are available.
 - Before the first launch, run `bash quickstart.sh --preflight` to check
