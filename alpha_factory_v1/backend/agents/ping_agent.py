@@ -131,14 +131,14 @@ class PingAgent(AgentBase):
     # ════════════════════════════════════════════════════════════════════════
     async def setup(self) -> None:
         """Initialise metrics and announce readiness."""
-        if _Prom.Counter:
+        if _Prom.Counter and self._prom_ping_total is None:
             self._prom_ping_total = _Prom.Counter(
                 "af_ping_total",
-                "Cumulative number of successful pings."
+                "Cumulative number of successful pings.",
             )
             self._prom_last_epoch = _Prom.Gauge(
                 "af_ping_last_epoch",
-                "Unix epoch of the most recent ping."
+                "Unix epoch of the most recent ping.",
             )
             self._prom_cycle_hist = _Prom.Histogram(
                 "af_ping_cycle_seconds",

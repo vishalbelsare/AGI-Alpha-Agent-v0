@@ -46,7 +46,7 @@ from typing import Any, Dict, List, Optional
 
 # ────────────────────────── soft-imports (all optional) ───────────────
 with contextlib.suppress(ModuleNotFoundError):
-    from fastapi import FastAPI, HTTPException
+    from fastapi import FastAPI, HTTPException, File
     from fastapi.responses import PlainTextResponse
     import uvicorn
 

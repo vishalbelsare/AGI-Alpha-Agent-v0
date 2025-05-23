@@ -172,7 +172,7 @@ def _load_embedder():
         if np is not None:
             vec = np.array(v[:dim], dtype="float32")
             vec /= np.linalg.norm(vec) or 1
-            return vec
+            return vec.tolist()
         vec = v[:dim]
         norm = math.sqrt(sum(x * x for x in vec)) or 1.0
         return [x / norm for x in vec]
@@ -253,13 +253,15 @@ class _VectorStore:
             self._meta: List[Tuple[str, str, str]] = []  # agent, content, ts
             self._mode = "faiss"
             logger.info("VectorStore: FAISS in-memory index ready.")
-        else:
+        elif os.getenv("VECTOR_STORE_USE_SQLITE", "true").lower() == "true":
             self._sql = sqlite3.connect(Path("vector_mem.db"))
             self._sql.execute(
                 "CREATE TABLE IF NOT EXISTS memories(hash TEXT PRIMARY KEY, agent TEXT, ts TEXT, vec BLOB, content TEXT)"
             )
             self._mode = "sqlite"
             logger.info("VectorStore: SQLite fallback ready.")
+        else:
+            logger.info("VectorStore: SQLite disabled → RAM mode")
 
     # ───── internal helpers ─────
     def _evict_if_needed(self, agent: str):
