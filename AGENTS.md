@@ -4,6 +4,7 @@ This repository contains the Alpha-Factory v1 package and demos.
 The instructions below apply to all contributors and automated agents.
 
 ## Development Environment
+- Create and activate a **Python&nbsp;3.11+** virtual environment before running the setup script.
 - Run `./codex/setup.sh` to install the project in editable mode along with minimal runtime dependencies.
 Set `WHEELHOUSE=/path/to/wheels` when offline.
 - After setup, validate with `python check_env.py --auto-install`.
