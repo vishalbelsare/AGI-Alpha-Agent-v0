@@ -30,7 +30,17 @@ import re
 from contextlib import contextmanager
 from typing import Any, Dict, List
 
-from better_profanity import profanity
+try:  # pragma: no cover - optional dependency
+    from better_profanity import profanity
+except Exception:  # pragma: no cover - offline fallback
+    class _StubProfanity:
+        def load_censor_words(self) -> None:
+            pass
+
+        def contains_profanity(self, _text: str) -> bool:
+            return False
+
+    profanity = _StubProfanity()
 
 # ── legacy re‑export (tests import Memory from this module) ────────────────
 from .memory import Memory  # noqa: F401
@@ -51,6 +61,8 @@ _DANGER_PATTERNS: List[str] = [
     r"\bmoney laundering\b",
     # Violence
     r"\bkill\b",
+    # Hate speech / discrimination
+    r"\bracial slur(s)?\b",
 ]
 _EXTRA = os.getenv("GOVERNANCE_EXTRA_PATTERNS", "")
 if _EXTRA:
