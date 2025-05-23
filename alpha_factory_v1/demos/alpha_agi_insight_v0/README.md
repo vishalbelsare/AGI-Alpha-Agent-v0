@@ -18,42 +18,48 @@ optional ADK gateway when available.
 ## Overview
 
 ```mermaid
-%% Meta‑Agentic Tree Search Architecture – α‑AGI Insight Demo
+%% α-AGI Insight — Meta-Agentic Tree Search Architecture (ZERO-DATA Demo)
 flowchart TD
-    %% Core meta‑agent
-    Controller[Controller<br/>(Meta‑Agent&nbsp;Orchestrator)]
+    %% ─────────────  Core components  ─────────────
+    Controller["<b>Controller</b><br/>(Meta-Agent<br/>Orchestrator)"]:::controller
+    DB["<b>Knowledge&nbsp;Base</b><br/>(Program&nbsp;DB / Insight Archive)"]:::db
+    Sampler["<b>Prompt&nbsp;/&nbsp;Task Sampler</b><br/>(Curriculum Generator)"]:::sampler
+    Ensemble["<b>LLM&nbsp;Ensemble</b><br/>(Insight Generators)"]:::ensemble
+    Evaluator["<b>Evaluator&nbsp;Pool</b><br/>(Sandbox &amp; Scorers)"]:::evaluator
 
-    %% Knowledge base
-    DB[Knowledge Base<br/>(Program DB / Insight Archive)]
+    %% ─────────────  Evolutionary loop (dashed ring)  ─────────────
+    subgraph EvolutionaryLoop
+        direction TB
+        Controller
+        DB
+        Sampler
+        Ensemble
+        Evaluator
+    end
+    class EvolutionaryLoop loopStyle
 
-    %% Prompt / Task sampler
-    Sampler[Prompt / Task Sampler<br/>(Curriculum Generator)]
+    %% ─────────────  Data-flow arrows  ─────────────
+    Controller -- "stores results" --> DB
+    DB         -- "past programs / metrics" --> Controller
 
-    %% LLM ensemble for candidate generation
-    Ensemble[LLM Ensemble<br/>(Insight Generators)]
+    Controller -- "request prompt" --> Sampler
+    Sampler    -- "context-rich prompt" --> Controller
 
-    %% Evaluator pool
-    Evaluator[Evaluator Pool<br/>(Sandbox & Scorers)]
+    Controller -- "dispatch program&nbsp;stubs" --> Ensemble
+    Ensemble   -- "candidate code / insights" --> Controller
 
-    %% Evolutionary loop – high‑level circular data flow
-    Controller --- DB
-    DB --- Sampler
-    Sampler --- Ensemble
-    Ensemble --- Evaluator
-    Evaluator --- Controller
+    Controller -- "submit programs" --> Evaluator
+    Evaluator  -- "metrics &amp; scores" --> Controller
 
-    %% Detailed data flows
-    Controller -- stores results --> DB
-    DB -- past programs + metrics --> Controller
+    %% ─────────────  Styling  ─────────────
+    classDef controller fill:#e9d8ff,stroke:#7844ca,color:#29065d,font-weight:bold
+    classDef db         fill:#d7e7ff,stroke:#3e7edb,color:#0a2e59
+    classDef sampler    fill:#d8f8d4,stroke:#3b9e3b,color:#0d2f0d
+    classDef ensemble   fill:#ffe1e1,stroke:#d45050,color:#5a0d0d
+    classDef evaluator  fill:#fff0d5,stroke:#d4a44c,color:#694a00
+    classDef loopStyle  stroke-dasharray:4 4,stroke-width:2,stroke:#14c4ff,fill:transparent
 
-    Controller -- request: context‑rich prompt --> Sampler
-    Sampler -- prompt --> Controller
-
-    Controller -- dispatch stubs --> Ensemble
-    Ensemble -- candidate insights --> Controller
-
-    Controller -- submit programs --> Evaluator
-    Evaluator -- metrics + scores --> Controller
+    linkStyle default stroke-width:1.5px
 ```
 
 - **Zero Data Dependency**: runs entirely offline by default. The default
