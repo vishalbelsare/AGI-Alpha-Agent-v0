@@ -135,10 +135,7 @@ def main(argv: List[str] | None = None) -> None:
             args.adk_port = None
 
     if not args.no_banner:
-        print(
-            "\N{MILITARY MEDAL} \N{GREEK SMALL LETTER ALPHA}\N{HYPHEN-MINUS}AGI Insight "
-            "\N{EYE}\N{SPARKLES} — Beyond Human Foresight"
-        )
+        openai_agents_bridge.print_banner()
 
     if not args.skip_verify:
         insight_demo.verify_environment()
