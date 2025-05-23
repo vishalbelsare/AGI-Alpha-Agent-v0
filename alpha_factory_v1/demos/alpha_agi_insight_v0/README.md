@@ -140,7 +140,9 @@ When optional dependencies such as ``openai`` or ``anthropic`` are not
 installed, the program automatically falls back to a simple offline rewriter so
 the demo remains functional anywhere.  Episode scores are printed to the console
 and optionally written to ``scores.csv`` when ``--log-dir`` is supplied.  The
-path to the log file is displayed after the run completes.
+path to the log file is displayed after the run completes. When ``matplotlib``
+is available a ``ranking.png`` chart summarizing the sector scores is also
+generated in the log directory.
 
 ### Environment Variables
 
