@@ -52,6 +52,18 @@ except ValueError:  # loaded stub with missing spec
 _has_key = bool(os.getenv("OPENAI_API_KEY"))
 has_oai = _spec is not None and _has_key
 
+
+def refresh_runtime_availability() -> bool:
+    """Recompute :data:`has_oai` after environment changes."""
+    global has_oai
+    try:
+        spec = importlib.util.find_spec("openai_agents")
+    except ValueError:  # pragma: no cover - loaded stub without spec
+        spec = None
+    have_key = bool(os.getenv("OPENAI_API_KEY"))
+    has_oai = spec is not None and have_key
+    return has_oai
+
 if has_oai:
     from openai_agents import Agent, AgentRuntime, Tool  # type: ignore
 
@@ -323,6 +335,7 @@ def main(argv: list[str] | None = None) -> None:
 __all__ = [
     "DEFAULT_MODEL_NAME",
     "has_oai",
+    "refresh_runtime_availability",
     "run_insight_search",
     "banner",
     "print_banner",

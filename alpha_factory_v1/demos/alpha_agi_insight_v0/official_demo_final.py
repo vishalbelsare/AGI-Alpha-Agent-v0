@@ -40,8 +40,7 @@ def _agents_available() -> bool:
 
     if os.getenv("ALPHA_AGI_OFFLINE"):
         return False
-
-    return openai_agents_bridge.has_oai
+    return openai_agents_bridge.refresh_runtime_availability()
 
 
 def _run_offline(args: argparse.Namespace) -> None:
