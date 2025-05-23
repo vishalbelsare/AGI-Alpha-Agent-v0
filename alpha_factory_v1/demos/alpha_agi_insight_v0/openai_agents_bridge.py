@@ -244,10 +244,10 @@ def main(argv: list[str] | None = None) -> None:
         description="OpenAI Agents bridge for the α‑AGI Insight demo"
     )
     parser.add_argument(
-        "--episodes", type=int, default=5, help="Search episodes when offline"
+        "--episodes", type=int, help="Search episodes when offline"
     )
     parser.add_argument(
-        "--target", type=int, default=3, help="Target sector index when offline"
+        "--target", type=int, help="Target sector index when offline"
     )
     parser.add_argument("--model", type=str, help="Model name override")
     parser.add_argument(
