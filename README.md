@@ -27,6 +27,18 @@ Strategic Edge:
 * Decentralized autonomy ensures superior agility and resilience.  
 * Strategically validated methodologies guarantee consistent economic leadership.
 
+### Running the Insight Demo
+
+The α‑AGI Insight demo ships with an offline‑friendly command line interface.
+After installation, launch the official demo via:
+
+```bash
+alpha-agi-beyond-foresight --episodes 5
+```
+
+When API keys are configured the program automatically uses the OpenAI Agents
+runtime. Otherwise it falls back to the local Meta‑Agentic Tree Search.
+
 ### 🎖️ α‑AGI Architect 👁️✨ — Foundational Operational Blueprint
 Empowering Meta‑Agentic visionaries with strategic infrastructure. At the core of α‑AGI Ascension is α‑AGI Architect — the foundational operational framework for scalable global deployment. Rooted in the groundbreaking “Multi‑Agent AI DAO” model, α‑AGI Architect delivers immediate, scalable, and adaptive infrastructure ensuring continuous strategic evolution.
 
