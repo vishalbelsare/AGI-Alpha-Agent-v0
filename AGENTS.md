@@ -42,6 +42,7 @@ for modules, classes and functions.
   Document any remaining test failures in the PR description.
 - Summarize your changes and test results in the PR body.
 - Title PRs using `[alpha_factory] <Title>`.
+- All contributions are licensed under Apache 2.0.
 
 ### PR Message Guidelines
 - Keep the subject line concise and under 72 characters.
