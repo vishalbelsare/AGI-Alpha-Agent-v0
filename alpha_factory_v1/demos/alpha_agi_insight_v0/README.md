@@ -120,6 +120,17 @@ alpha-agi-insight-api --port 8000
 Send a POST request with JSON payload ``{"episodes":5}`` to ``/insight`` to
 retrieve the ranking as structured data.
 
+### Streamlit Dashboard
+
+Launch an interactive web dashboard for exploring the demo:
+
+```bash
+alpha-agi-insight-dashboard
+```
+
+The dashboard lets you tweak parameters and immediately visualise the ranked
+sector scores in a browser.
+
 ### Quick Start Script
 
 Ensure the shell helper is executable by running ``chmod +x run_insight_demo.sh`` if needed.
