@@ -12,7 +12,7 @@ import subprocess
 import tempfile
 from pathlib import Path
 
-MIN_PY = (3, 9)
+MIN_PY = (3, 11)
 MAX_PY = (3, 13)
 MEM_DIR = Path(os.getenv("AF_MEMORY_DIR", f"{tempfile.gettempdir()}/alphafactory"))
 
