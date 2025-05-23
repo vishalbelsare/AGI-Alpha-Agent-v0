@@ -36,6 +36,7 @@ from __future__ import annotations
 # ───────────────────────── stdlib ──────────────────────────
 import asyncio, contextlib, dataclasses, functools, hashlib, json, logging
 import os, pathlib, sqlite3, time
+from collections import OrderedDict
 from types import GeneratorType
 from typing import Any, Dict, Generator, Iterable, List, Optional, Sequence
 
@@ -381,6 +382,19 @@ try:
 except ImportError:
     pass
 
+_ORDER_ENV = os.getenv("AF_LLM_PROVIDERS")
+if _ORDER_ENV:
+    requested = [n.strip() for n in _ORDER_ENV.split(",") if n.strip()]
+    ordered: OrderedDict[str, _Provider] = OrderedDict()
+    for name in requested:
+        if name in _PROVIDERS:
+            ordered[name] = _PROVIDERS[name]
+    for name, prov in _PROVIDERS.items():
+        if name not in ordered:
+            ordered[name] = prov
+    _PROVIDERS = ordered
+    _log.info("Provider order via AF_LLM_PROVIDERS: %s", ", ".join(_PROVIDERS))
+
 if not _PROVIDERS:
     _log.critical("‼️  No LLM back-end available – set OPENAI_API_KEY or install llama-cpp")
     raise RuntimeError("No LLM provider available")
@@ -399,9 +413,10 @@ class LLMProvider:
 
     Environment knobs
     -----------------
-    * ``AF_LLM_CACHE_TTL`` (secs) – disk-cache expiry (default 86400).  
-    * ``AF_RPM_LIMIT`` / ``AF_TPM_LIMIT`` – per-provider budgets.  
-    * ``AF_LOG_PROMPTS`` – if *truthy*, user prompts are logged verbatim.  
+    * ``AF_LLM_CACHE_TTL`` (secs) – disk-cache expiry (default 86400).
+    * ``AF_RPM_LIMIT`` / ``AF_TPM_LIMIT`` – per-provider budgets.
+    * ``AF_LOG_PROMPTS`` – if *truthy*, user prompts are logged verbatim.
+    * ``AF_LLM_PROVIDERS`` – comma-separated provider order override.
     """
 
     def __init__(self, *, temperature: float = 0.7, max_tokens: int = 512) -> None:
