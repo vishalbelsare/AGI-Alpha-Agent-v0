@@ -20,6 +20,11 @@ import random
 from pathlib import Path
 from typing import List, Optional
 
+try:  # optional dependency
+    import matplotlib.pyplot as plt
+except Exception:  # pragma: no cover - optional
+    plt = None
+
 from alpha_factory_v1.demos.meta_agentic_tree_search_v0.mats.tree import Node, Tree
 from alpha_factory_v1.demos.meta_agentic_tree_search_v0.mats.meta_rewrite import (
     meta_rewrite,
@@ -66,6 +71,33 @@ def load_config(path: Path) -> dict:
                 else:
                     cfg[key.strip()] = val
         return cfg
+
+
+def save_ranking_plot(ranking: List[tuple[str, float]], path: Path) -> None:
+    """Write a bar chart visualizing the ranking.
+
+    Parameters
+    ----------
+    ranking:
+        List of ``(sector, score)`` tuples sorted by descending score.
+    path:
+        Target image file path. ``.png`` extension is recommended.
+    """
+
+    if plt is None:  # pragma: no cover - optional
+        return
+    if not ranking:
+        return
+
+    sectors, scores = zip(*ranking)
+    fig, ax = plt.subplots()
+    ax.barh(sectors, scores, color="#1e3a8a")
+    ax.invert_yaxis()
+    ax.set_xlabel("Impact Score")
+    ax.set_title("AGI Disruption Ranking")
+    fig.tight_layout()
+    fig.savefig(path)
+    plt.close(fig)
 
 
 DEFAULT_SECTORS = [
@@ -202,6 +234,13 @@ def run(
             data = {"best": sector, "score": score, "ranking": ranking}
             summary_path.write_text(json.dumps(data, indent=2), encoding="utf-8")
             print(f"Summary written to {summary_path}")
+            try:
+                plot_path = log_path.with_name("ranking.png")
+                save_ranking_plot(ranking, plot_path)
+                if plot_path.exists():
+                    print(f"Ranking chart written to {plot_path}")
+            except Exception as exc:  # pragma: no cover - optional
+                print(f"Plotting failed: {exc}")
     result_data = {"best": sector, "score": score, "ranking": ranking}
     if json_output:
         return json.dumps(result_data)
