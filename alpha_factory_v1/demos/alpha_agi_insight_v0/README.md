@@ -22,6 +22,17 @@ optional ADK gateway when available. The companion
 ``official_demo_production.py`` script offers identical behaviour and is
 recommended when deploying the demo in production settings.
 
+### Zero‑Data Quickstart
+
+For a guaranteed offline run with no external dependencies, invoke the
+``alpha-agi-insight-offline`` entrypoint. This wrapper sets
+``ALPHA_AGI_OFFLINE=true`` before delegating to the production demo so the
+search loop never attempts network access:
+
+```bash
+alpha-agi-insight-offline --episodes 5
+```
+
 Highlights:
 - Automatic offline fallback when no API key is detected.
 - Optional OpenAI Agents runtime for hosted execution.
