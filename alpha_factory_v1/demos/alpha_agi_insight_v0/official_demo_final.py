@@ -121,6 +121,10 @@ def main(argv: List[str] | None = None) -> None:
     )
     args = parser.parse_args(argv)
 
+    no_banner_env = os.getenv("ALPHA_AGI_NO_BANNER")
+    if no_banner_env and not args.no_banner:
+        args.no_banner = no_banner_env.lower() == "true"
+
     enable_adk = args.enable_adk or os.getenv("ALPHA_AGI_ENABLE_ADK") == "true"
     if args.adk_host is None:
         args.adk_host = os.getenv("ALPHA_AGI_ADK_HOST")

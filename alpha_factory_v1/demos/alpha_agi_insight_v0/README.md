@@ -96,7 +96,7 @@ python official_demo_final.py --offline --episodes 2
 ```
 Use ``--enable-adk`` to expose the agent via the optional Google ADK gateway.
 Pass ``--list-sectors`` to display the resolved sector list without running the search.
-Use `--no-banner` to suppress the startup banner when embedding the demo in automated scripts. The same flag also works with ``alpha-agi-insight-production``.
+Use ``--no-banner`` or set ``ALPHA_AGI_NO_BANNER=true`` to suppress the startup banner when embedding the demo in automated scripts. The same flag also works with ``alpha-agi-insight-production``.
 ``--adk-host`` and ``--adk-port`` customise the gateway bind address.
 For production deployments launch ``official_demo_production.py`` or use the
 ``alpha-agi-insight-production`` entrypoint. This variant verifies the
@@ -158,6 +158,7 @@ path to the log file is displayed after the run completes.
 - ``ALPHA_AGI_ENABLE_ADK`` – enable the ADK gateway without ``--enable-adk``.
 - ``ALPHA_AGI_ADK_HOST`` – custom bind host for the ADK gateway.
 - ``ALPHA_AGI_ADK_PORT`` – custom bind port for the ADK gateway.
+- ``ALPHA_AGI_NO_BANNER`` – suppress the startup banner when set to ``true``.
 
 ### Graceful Offline Mode
 
