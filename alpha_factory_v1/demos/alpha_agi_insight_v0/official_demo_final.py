@@ -128,6 +128,10 @@ def main(argv: List[str] | None = None) -> None:
     )
     args = parser.parse_args(argv)
 
+    skip_verify_env = os.getenv("ALPHA_AGI_SKIP_VERIFY")
+    if skip_verify_env and not args.skip_verify:
+        args.skip_verify = skip_verify_env.lower() == "true"
+
     no_banner_env = os.getenv("ALPHA_AGI_NO_BANNER")
     if no_banner_env and not args.no_banner:
         args.no_banner = no_banner_env.lower() == "true"
