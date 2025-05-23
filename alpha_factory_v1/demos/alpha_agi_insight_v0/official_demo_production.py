@@ -40,10 +40,14 @@ def _run_offline(args: argparse.Namespace) -> None:
     sectors = insight_demo.parse_sectors(None, args.sectors)
     episodes = int(args.episodes or os.getenv("ALPHA_AGI_EPISODES", 0) or 5)
     exploration = float(
-        args.exploration if args.exploration is not None else os.getenv("ALPHA_AGI_EXPLORATION", 1.4)
+        args.exploration
+        if args.exploration is not None
+        else os.getenv("ALPHA_AGI_EXPLORATION", 1.4)
     )
     rewriter = args.rewriter or os.getenv("MATS_REWRITER")
-    target = int(args.target if args.target is not None else os.getenv("ALPHA_AGI_TARGET", 3))
+    target = int(
+        args.target if args.target is not None else os.getenv("ALPHA_AGI_TARGET", 3)
+    )
     seed_val = args.seed if args.seed is not None else os.getenv("ALPHA_AGI_SEED")
     seed = int(seed_val) if seed_val is not None else None
     model = args.model or os.getenv("OPENAI_MODEL")
@@ -62,21 +66,37 @@ def _run_offline(args: argparse.Namespace) -> None:
 
 def main(argv: List[str] | None = None) -> None:
     """Entry point for the production demo."""
-    parser = argparse.ArgumentParser(description="Launch the α‑AGI Insight production demo")
+    parser = argparse.ArgumentParser(
+        description="Launch the α‑AGI Insight production demo"
+    )
     parser.add_argument("--episodes", type=int, help="Search iterations")
     parser.add_argument("--target", type=int, help="Target sector index")
     parser.add_argument("--exploration", type=float, help="Exploration constant")
     parser.add_argument("--seed", type=int, help="Optional RNG seed")
     parser.add_argument("--model", type=str, help="Model override")
-    parser.add_argument("--rewriter", choices=["random", "openai", "anthropic"], help="Rewrite strategy")
-    parser.add_argument("--sectors", type=str, help="Comma-separated sectors or path to file")
+    parser.add_argument(
+        "--rewriter", choices=["random", "openai", "anthropic"], help="Rewrite strategy"
+    )
+    parser.add_argument(
+        "--sectors", type=str, help="Comma-separated sectors or path to file"
+    )
     parser.add_argument("--log-dir", type=str, help="Directory for episode metrics")
     parser.add_argument("--offline", action="store_true", help="Force offline mode")
-    parser.add_argument("--skip-verify", action="store_true", help="Skip environment check")
-    parser.add_argument("--enable-adk", action="store_true", help="Expose agent via the optional ADK gateway")
+    parser.add_argument(
+        "--skip-verify", action="store_true", help="Skip environment check"
+    )
+    parser.add_argument(
+        "--enable-adk",
+        action="store_true",
+        help="Expose agent via the optional ADK gateway",
+    )
     parser.add_argument("--adk-host", type=str, help="ADK bind host")
     parser.add_argument("--adk-port", type=int, help="ADK bind port")
-    parser.add_argument("--list-sectors", action="store_true", help="Show the resolved sector list and exit")
+    parser.add_argument(
+        "--list-sectors",
+        action="store_true",
+        help="Show the resolved sector list and exit",
+    )
     parser.add_argument(
         "--version",
         action="version",
@@ -89,6 +109,10 @@ def main(argv: List[str] | None = None) -> None:
         help="Suppress the startup banner",
     )
     args = parser.parse_args(argv)
+
+    no_banner_env = os.getenv("ALPHA_AGI_NO_BANNER")
+    if no_banner_env and not args.no_banner:
+        args.no_banner = no_banner_env.lower() == "true"
 
     enable_adk = args.enable_adk or os.getenv("ALPHA_AGI_ENABLE_ADK") == "true"
     if args.adk_host is None:
