@@ -39,8 +39,6 @@ import logging
 import os
 import random
 import re
-import subprocess
-import sys
 import tempfile
 from dataclasses import dataclass
 from datetime import datetime, timezone, timedelta
@@ -90,6 +88,11 @@ try:
     import adk  # type: ignore
 except ModuleNotFoundError:  # pragma: no cover
     adk = None  # type: ignore
+
+try:
+    import solcx  # type: ignore
+except ModuleNotFoundError:  # pragma: no cover
+    solcx = None  # type: ignore
 
 # ---------------------------------------------------------------------------
 # Alpha‑Factory local imports (never heavy)
