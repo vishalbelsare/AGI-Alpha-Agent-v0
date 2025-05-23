@@ -216,6 +216,8 @@ else:
             reasons.append("OPENAI_API_KEY not set")
         msg = " and ".join(reasons) or "offline mode"
         print(f"Running offline demo in {msg}…")
+        # Ensure submodules detect the offline environment
+        os.environ.setdefault("ALPHA_AGI_OFFLINE", "true")
         sector_list = parse_sectors(None, sectors)
         episodes = int(episodes or os.getenv("ALPHA_AGI_EPISODES", 0) or 5)
         exploration = float(exploration or os.getenv("ALPHA_AGI_EXPLORATION", 1.4))
