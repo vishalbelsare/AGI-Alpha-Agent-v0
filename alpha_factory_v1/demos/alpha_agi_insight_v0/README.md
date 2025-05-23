@@ -212,3 +212,4 @@ LLM prompts and replies using the
 [Model Context Protocol](https://www.anthropic.com/news/model-context-protocol).
 This best-effort persistence operates transparently and never blocks the
 search loop.
+For additional command details, run `alpha-agi-insight-production --help`.
