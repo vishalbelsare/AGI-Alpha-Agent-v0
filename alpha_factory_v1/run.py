@@ -16,7 +16,11 @@ def parse_args() -> argparse.Namespace:
     ap.add_argument("--metrics-port", type=int, help="Prometheus metrics port")
     ap.add_argument("--a2a-port", type=int, help="A2A gRPC port")
     ap.add_argument("--enabled", help="Comma separated list of enabled agents")
-    ap.add_argument("--loglevel", default="INFO", help="Log level")
+    ap.add_argument(
+        "--loglevel",
+        default=None,
+        help="Log level (defaults to $LOGLEVEL or INFO)",
+    )
     ap.add_argument("--version", action="store_true", help="Print version and exit")
     ap.add_argument(
         "--list-agents",

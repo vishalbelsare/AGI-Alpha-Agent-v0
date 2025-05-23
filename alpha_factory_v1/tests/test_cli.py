@@ -24,7 +24,7 @@ class CliParseTest(unittest.TestCase):
         self.assertIsNone(args.metrics_port)
         self.assertIsNone(args.a2a_port)
         self.assertIsNone(args.enabled)
-        self.assertEqual(args.loglevel, 'INFO')
+        self.assertIsNone(args.loglevel)
         self.assertFalse(args.list_agents)
 
     def test_apply_env(self):
