@@ -8,6 +8,7 @@ from .official_demo import main as official_demo
 from .official_demo_final import main as official_demo_final
 from .official_demo_production import main as official_demo_production
 from .beyond_human_foresight import main as beyond_human_foresight
+from .official_demo_zero_data import main as official_demo_zero_data
 from .api_server import main as api_server
 from .insight_dashboard import main as insight_dashboard
 
@@ -18,6 +19,7 @@ __all__ = [
     "official_demo",
     "official_demo_final",
     "official_demo_production",
+    "official_demo_zero_data",
     "beyond_human_foresight",
     "api_server",
     "insight_dashboard",

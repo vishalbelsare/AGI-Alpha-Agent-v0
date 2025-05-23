@@ -194,6 +194,13 @@ to the same production demo:
 ```bash
 alpha-agi-beyond-foresight --offline --episodes 2
 ```
+To force a fully offline run regardless of environment configuration, launch the
+``alpha-agi-insight-offline`` entrypoint which wraps the official demo and sets
+``ALPHA_AGI_OFFLINE=true`` automatically:
+
+```bash
+alpha-agi-insight-offline --episodes 3
+```
 The arguments mirror ``alpha-agi-insight-production``.
 Use ``--version`` to show the installed package version and exit.
 
