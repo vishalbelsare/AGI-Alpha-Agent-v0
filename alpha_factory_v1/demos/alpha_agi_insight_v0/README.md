@@ -18,34 +18,24 @@ optional ADK gateway when available.
 ## Overview
 
 ```mermaid
-%%---------------------------------------------------------
-%%  Meta-Agentic Tree Search Architecture
-%%  © 2025 MontrealAI — Released under Apache 2.0
-%%---------------------------------------------------------
+%% Meta-Agentic Tree Search Architecture
+%% © 2025 MontrealAI — Apache 2.0
+%%
+%% This diagram is intentionally kept within the subset of Mermaid 10.x
+%% syntax that GitHub renders correctly.  No HTML in labels, no inline
+%% style inside subgraphs, only hex colours.
+
 flowchart TD
-    %% Core meta-agent
-    A["<b>Controller</b><br/>(Meta-Agent Orchestrator)"]
-    A:::core
+    %% ----- Nodes -----
+    A["Controller\n(Meta‑Agent)"]:::core
+    B["Knowledge Base\n(Program DB)"]:::db
+    C["Prompt / Task Sampler"]:::sampler
+    D["LLM Ensemble\n(Insight Gen)"]:::ensemble
+    E["Evaluator Pool\n(Sandbox + Scores)"]:::evaluator
 
-    %% Knowledge base
-    B["<b>Knowledge&nbsp;Base</b><br/>(Program&nbsp;DB / Insight Archive)"]
-    B:::db
-
-    %% Prompt / Task sampler
-    C["<b>Prompt / Task Sampler</b><br/>(Curriculum Generator)"]
-    C:::sampler
-
-    %% LLM ensemble for candidate generation
-    D["<b>LLM Ensemble</b><br/>(Insight Generators)"]
-    D:::ensemble
-
-    %% Evaluator pool
-    E["<b>Evaluator Pool</b><br/>(Sandbox & Scorers)"]
-    E:::evaluator
-
-    %% Evolutionary loop (dashed cyan ring)
-    subgraph Evolutionary_Loop[""]
-        style Evolutionary_Loop fill:transparent,stroke-dodgerblue,stroke-width:2,stroke-dasharray:4 2
+    %% ----- Subgraph ring for evolutionary loop -----
+    subgraph Evolutionary_Loop
+        direction TB
         A
         B
         C
@@ -53,28 +43,28 @@ flowchart TD
         E
     end
 
-    %% Data flows
-    A -- "stores results" --> B
-    B -- "past programs/metrics" --> A
+    %% ----- Flows -----
+    A -- "store results" --> B
+    B -- "past metrics" --> A
 
-    A -- "request: context-rich prompt" --> C
+    A -- "ctx‑rich prompt" --> C
     C -- "prompt" --> A
 
-    A -- "dispatch\nprogram stubs" --> D
-    D -- "candidate code / insights" --> A
+    A -- "program stubs" --> D
+    D -- "candidate insights" --> A
 
-    A -- "submit\nprograms" --> E
-    E -- "metrics & scores" --> A
+    A -- "submit programs" --> E
+    E -- "scores" --> A
 
-    %% Styling -------------------------------------------
-    classDef core       fill:#e8d5f7,stroke:#6e40c9,color:#2c125d,font-weight:bold;
-    classDef db         fill:#d8e9ff,stroke:#3a7bd5,color:#0b2e59;
-    classDef sampler    fill:#d7f4d1,stroke:#3b9e3b,color:#0f2d0f;
-    classDef ensemble   fill:#ffd9d9,stroke:#d14949,color:#5a0d0d;
-    classDef evaluator  fill:#fff1ce,stroke:#d49500,color:#694a00;
+    %% ----- Classes -----
+    classDef core      fill:#E8D5F7,stroke:#6E40C9,color:#2C125D,font-weight:bold
+    classDef db        fill:#D8E9FF,stroke:#3A7BD5,color:#0B2E59
+    classDef sampler   fill:#D7F4D1,stroke:#3B9E3B,color:#0F2D0F
+    classDef ensemble  fill:#FFD9D9,stroke:#D14949,color:#5A0D0D
+    classDef evaluator fill:#FFF1CE,stroke:#D49500,color:#694A00
 
-    %% Edge styling
-    linkStyle default stroke-width:1.5px
+    %% ----- Ring styling -----
+    style Evolutionary_Loop fill:transparent,stroke:#1E90FF,stroke-width:2px,stroke-dasharray:4 2
 ```
 
 - **Zero Data Dependency**: runs entirely offline by default. The default
