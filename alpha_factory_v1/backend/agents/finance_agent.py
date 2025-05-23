@@ -48,6 +48,8 @@ with contextlib.suppress(ModuleNotFoundError):
 with contextlib.suppress(ModuleNotFoundError):
     import torch  # type: ignore
     from torch import nn  # type: ignore
+if "torch" not in globals():
+    torch = None  # type: ignore
 with contextlib.suppress(ModuleNotFoundError):
     import lightgbm as lgb  # type: ignore
 with contextlib.suppress(ModuleNotFoundError):
@@ -62,6 +64,10 @@ if "tool" not in globals():  # offline stub
 from backend.agent_base import AgentBase  # type: ignore
 from backend.agents import AgentMetadata, register_agent  # type: ignore
 from backend.orchestrator import _publish  # type: ignore
+from .. import risk
+from ..model_provider import ModelProvider
+from ..memory import Memory
+from ..governance import Governance
 
 # ────────────────────────── logger cfg ─────────────────────────
 _log = logging.getLogger("AlphaFactory.FinanceAgent")
@@ -273,11 +279,31 @@ class FinanceAgent(AgentBase):
     NAME = "finance"
     VERSION = "0.7.0"
 
-    def __init__(self, cfg: _FinCfg | None = None):
+    def __init__(
+        self,
+        cfg: _FinCfg | str | None = None,
+        model_provider: ModelProvider | None = None,
+        memory: Memory | None = None,
+        governance: Governance | None = None,
+    ):
+        """Create a new finance agent.
+
+        Legacy initialisation accepted ``ModelProvider``, ``Memory`` and
+        ``Governance`` instances. These parameters remain optional so older test
+        helpers continue to work without modification.
+        """
         # Avoid calling the legacy AgentBase.__init__ which expects multiple
         # positional arguments.  Other agents in this package skip the super
         # initializer entirely, so we follow the same convention.
-        self.cfg = cfg or _FinCfg()
+        if isinstance(cfg, str):
+            self.ens = cfg
+            self.cfg = _FinCfg()
+        else:
+            self.ens = None
+            self.cfg = cfg or _FinCfg()
+        self.model_provider = model_provider or ModelProvider()
+        self.memory = memory or Memory()
+        self.governance = governance or Governance(self.memory)
 
         # ── state ──
         self.portfolio = _Portfolio()
@@ -424,4 +450,11 @@ register_agent(
     )
 )
 
-__all__: list[str] = ["FinanceAgent", "metrics_asgi_app"]
+__all__: list[str] = [
+    "FinanceAgent",
+    "metrics_asgi_app",
+    "ModelProvider",
+    "Memory",
+    "Governance",
+    "risk",
+]
