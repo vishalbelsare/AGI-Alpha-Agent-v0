@@ -300,7 +300,8 @@ class _FaissStore:
             self._faiss_idx.add(vecs)
         else:  # pure Python / NumPy fallback
             if _HAS_NUMPY:
-                self._vecs.append(vecs.astype("float32", copy=False))
+                array = vecs.astype("float32", copy=False) if hasattr(vecs, "astype") else _np.asarray(vecs, dtype="float32")
+                self._vecs.append(array)
             else:
                 self._vecs.append([[float(x) for x in row] for row in vecs])
         backend = "faiss" if self._faiss_idx is not None else "numpy"
@@ -320,7 +321,8 @@ class _FaissStore:
         # ---- brute-force cosine ----
         if _HAS_NUMPY:
             mat = _np.vstack(self._vecs)  # type: ignore[arg-type]
-            sims = mat @ vec.T
+            vec_arr = vec if hasattr(vec, "T") else _np.asarray(vec, dtype="float32")
+            sims = mat @ vec_arr.T
             order = sims[:, 0].argsort()[::-1][:k]
             return [
                 (*self._meta[i], float(sims[i, 0])) for i in order
