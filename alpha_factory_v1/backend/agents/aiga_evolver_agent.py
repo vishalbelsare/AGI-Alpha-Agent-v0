@@ -1,4 +1,3 @@
-from __future__ import annotations
 """AIGA Evolver Agent – wraps the meta-evolution demo as a domain agent.
 
 This lightweight agent bridges :mod:`aiga_meta_evolution.meta_evolver`
@@ -7,7 +6,10 @@ runs via the shared message bus or OpenAI Agents bridge.  It gracefully
 no-ops when optional heavy dependencies (torch/numpy) are absent.
 """
 
+from __future__ import annotations
+
 import logging
+import asyncio
 
 from backend.agents import register, _agent_base
 from backend.orchestrator import _publish
