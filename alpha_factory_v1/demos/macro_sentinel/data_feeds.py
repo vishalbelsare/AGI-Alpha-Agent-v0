@@ -181,7 +181,7 @@ def _push_redis(evt: Dict[str, Any]):
 def _push_qdrant(evt: Dict[str, Any]):
     if not VEC_URL:
         return
-    import requests, hashlib, json as _j
+    import af_requests as requests, hashlib, json as _j
     vec = hashlib.sha256(evt["fed_speech"].encode()).digest()[:8]
     payload = {"points":[{"id":evt["timestamp"],"vector":list(vec),"payload":evt}]}
     requests.put(f"http://{VEC_URL}/collections/macro/points",

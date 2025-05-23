@@ -9,6 +9,7 @@ import unittest
 class RequestsImportTest(unittest.TestCase):
     def tearDown(self):
         sys.modules.pop("requests", None)
+        sys.modules.pop("af_requests", None)
 
     def test_fallback_when_package_missing(self):
         original = im.distribution
@@ -16,12 +17,16 @@ class RequestsImportTest(unittest.TestCase):
             raise im.PackageNotFoundError
         im.distribution = fake_distribution
         try:
-            mod = importlib.import_module("requests")
-            from alpha_factory_v1 import requests as shim
+            sys.modules.pop("af_requests", None)
+            sys.modules.pop("requests", None)
+            mod = importlib.import_module("af_requests")
+            from alpha_factory_v1 import af_requests as shim
             self.assertIs(mod.get, shim.get)
             self.assertIs(mod.post, shim.post)
+            self.assertIs(sys.modules.get("requests"), mod)
         finally:
             im.distribution = original
+            sys.modules.pop("af_requests", None)
             sys.modules.pop("requests", None)
 
     def test_load_real_package_when_available(self):
@@ -42,12 +47,13 @@ class RequestsImportTest(unittest.TestCase):
             im.distribution = fake_distribution
             sys.path.insert(0, tmpdir)
             try:
-                mod = importlib.import_module("requests")
+                mod = importlib.import_module("af_requests")
                 self.assertEqual(getattr(mod, "value", None), 42)
                 self.assertEqual(Path(mod.__file__).resolve(), init_file.resolve())
             finally:
                 sys.path.remove(tmpdir)
                 im.distribution = original
+                sys.modules.pop("af_requests", None)
                 sys.modules.pop("requests", None)
 
 

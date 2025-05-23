@@ -10,7 +10,7 @@ readme = "README.md"
 requires-python = ">=3.11,<3.13"
 
 [tool.setuptools]
-packages = ["alpha_factory_v1", "requests"]
+packages = ["alpha_factory_v1", "af_requests"]
 
 [project.scripts]
 alpha-factory = "alpha_factory_v1.run:run"

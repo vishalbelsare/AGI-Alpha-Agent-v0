@@ -22,7 +22,7 @@ if ROOT not in sys.path:
 try:
     import requests  # type: ignore
 except ModuleNotFoundError:  # pragma: no cover - offline shim
-    from alpha_factory_v1 import requests  # type: ignore
+    from alpha_factory_v1 import af_requests as requests  # type: ignore
 
 
 # ---------------------------------------------------------------------------

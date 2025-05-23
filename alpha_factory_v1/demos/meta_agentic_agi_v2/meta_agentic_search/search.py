@@ -110,7 +110,7 @@ class LLMClient:
                 self._anthropic = anthropic.Anthropic()
         elif self.provider == "openweights":
             if self._session is None:
-                import requests  # std but explicit
+                import af_requests as requests  # std but explicit
                 self._session = requests.Session()
         else:
             raise ValueError("unknown provider: " + self.provider)
@@ -142,7 +142,7 @@ class LLMClient:
             )
             return msg.content[0].text
         else:  # openweights – simple text-gen via TGI /v1/generate
-            import requests, uuid
+            import af_requests as requests, uuid
             req = {
                 "inputs": prompt,
                 "parameters": {

@@ -10,7 +10,7 @@ key is provided. Run after the demo server is up:
 """
 from __future__ import annotations
 
-import requests
+import af_requests as requests
 from openai_agents import Agent, AgentRuntime, Tool
 
 try:

@@ -75,7 +75,7 @@ class SelfHealer:
         body += "\nProposed Fix Diff:\n```diff\n" + (self.patch_diff[:300] or "") + "\n```\n"
         body += "\nPlease review the changes. If approved, this will close the failing issue."
         # Use GitHub API to create PR
-        import requests
+        import af_requests as requests
         url = f"https://api.github.com/repos/{repo_owner}/{repo_name}/pulls"
         headers = {"Authorization": f"Bearer {gh_token}"}
         json_data = {

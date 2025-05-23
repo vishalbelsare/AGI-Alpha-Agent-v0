@@ -12,7 +12,7 @@ import json
 import sys
 from typing import Any
 
-import requests
+import af_requests as requests
 
 PORT = int(os.getenv("PORT_API", "8000"))
 BASE = f"http://localhost:{PORT}"
