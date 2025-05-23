@@ -63,7 +63,7 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     )
     ap.add_argument(
         "--loglevel",
-        default="INFO",
+        default=None,
         help="Logging verbosity",
     )
     ap.add_argument(

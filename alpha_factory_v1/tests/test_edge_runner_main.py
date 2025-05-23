@@ -50,6 +50,34 @@ class EdgeRunnerMainInvokesRun(unittest.TestCase):
         self.assertEqual(os.environ["PGHOST"], "sqlite")
         run.assert_called_once_with()
 
+    @mock.patch("alpha_factory_v1.run.run")
+    @mock.patch("alpha_factory_v1.run.apply_env")
+    @mock.patch("alpha_factory_v1.run.parse_args")
+    @mock.patch("alpha_factory_v1.edge_runner.parse_args")
+    def test_main_uses_env_loglevel(self, edge_parse, run_parse, apply_env, run):
+        args = self._args()
+        args.loglevel = None
+        edge_parse.return_value = args
+        run_parse.return_value = argparse.Namespace()
+        os.environ.pop("PGHOST", None)
+
+        edge_runner.main()
+
+        run_parse.assert_called_once_with([
+            "--dev",
+            "--port",
+            "123",
+            "--metrics-port",
+            "456",
+            "--a2a-port",
+            "789",
+            "--enabled",
+            "A,B",
+            "--cycle",
+            "5",
+        ])
+        apply_env.assert_called_once_with(run_parse.return_value)
+
 
 if __name__ == "__main__":
     unittest.main()
