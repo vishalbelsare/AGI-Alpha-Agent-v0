@@ -4,7 +4,8 @@ This repository contains the Alpha-Factory v1 package and demos.
 The instructions below apply to all contributors and automated agents.
 
 ## Development Environment
-- Create and activate a **Python&nbsp;3.11.x** virtual environment before running the setup script.
+- Create and activate a Python 3.11 or 3.12 (**Python ≥3.11 and <3.13**) virtual environment before running the setup script.
+- The script `alpha_factory_v1/scripts/preflight.py` enforces this requirement.
 - Run `./codex/setup.sh` to install the project in editable mode along with minimal runtime dependencies.
 - When offline, run `WHEELHOUSE=/path/to/wheels ./codex/setup.sh`. Pass the same
   path to `check_env.py --wheelhouse` and set `AUTO_INSTALL_MISSING=1` to allow
@@ -29,7 +30,7 @@ The instructions below apply to all contributors and automated agents.
   for additional guidance.
 
 ## Coding Style
-- Use **Python&nbsp;3.11.x** and include type hints for public APIs.
+- Use Python 3.11 or 3.12 (**Python ≥3.11 and <3.13**) and include type hints for public APIs.
 - Indent with 4 spaces and keep lines under 120 characters.
 - Provide concise [Google style](https://google.github.io/styleguide/pyguide.html#381-docstrings) docstrings
 for modules, classes and functions.
