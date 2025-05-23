@@ -22,6 +22,11 @@ The instructions below apply to all contributors and automated agents.
   section in the README for more details.
 - On Windows or systems without Bash, run
   `python alpha_factory_v1/quickstart.py --preflight`.
+- Copy `alpha_factory_v1/.env.sample` to `.env` and add secrets such as
+  `OPENAI_API_KEY` and `ANTHROPIC_API_KEY`.
+- **Never commit** `.env` or other secrets. See
+  [`alpha_factory_v1/scripts/README.md`](alpha_factory_v1/scripts/README.md)
+  for additional guidance.
 
 ## Coding Style
 - Use **Python&nbsp;3.11.x** and include type hints for public APIs.
