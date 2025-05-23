@@ -34,3 +34,13 @@ alpha-agi-insight-dashboard = "alpha_factory_v1.demos.alpha_agi_insight_v0.insig
 
 [project.entry-points."alpha_factory.agents"]
 # custom agents can be registered here
+
+[tool.black]
+line-length = 120
+
+[tool.ruff]
+line-length = 120
+target-version = "py311"
+
+[tool.flake8]
+max-line-length = 120
