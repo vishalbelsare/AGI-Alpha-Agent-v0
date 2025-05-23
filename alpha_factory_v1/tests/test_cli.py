@@ -56,14 +56,14 @@ class CliParseTest(unittest.TestCase):
 
     def test_env_file(self):
         with tempfile.NamedTemporaryFile('w', delete=False) as fh:
-            fh.write('FOO=bar\nLOGLEVEL=warning')
+            fh.write('FOO="bar baz"\n#comment\nLOGLEVEL=warning')
             path = fh.name
         args = _parse_with(['--env-file', path, '--loglevel', 'error'])
         for key in ('FOO', 'LOGLEVEL'):
             os.environ.pop(key, None)
         af_run.apply_env(args)
         os.unlink(path)
-        self.assertEqual(os.environ['FOO'], 'bar')
+        self.assertEqual(os.environ['FOO'], 'bar baz')
         self.assertEqual(os.environ['LOGLEVEL'], 'ERROR')
 
 

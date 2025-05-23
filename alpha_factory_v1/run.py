@@ -3,8 +3,34 @@
 import os
 import argparse
 from pathlib import Path
+from typing import Mapping
+
 from .scripts.preflight import main as preflight_main
 from . import __version__
+
+
+def _load_env_file(path: str | os.PathLike[str]) -> Mapping[str, str]:
+    """Return key/value pairs from ``path``.
+
+    The parser first attempts to use :mod:`python_dotenv` if available for
+    robust parsing of quoted values and comments.  It falls back to a minimal
+    line‑based implementation otherwise.
+    """
+    try:  # pragma: no cover - optional dependency
+        from dotenv import dotenv_values
+
+        return {k: v for k, v in dotenv_values(path).items() if v is not None}
+    except Exception:  # noqa: BLE001 - any import/parsing error falls back
+        pass
+
+    data: dict[str, str] = {}
+    for line in Path(path).read_text().splitlines():
+        line = line.strip()
+        if not line or line.startswith("#") or "=" not in line:
+            continue
+        k, v = line.split("=", 1)
+        data[k.strip()] = v.strip().strip('"')
+    return data
 
 
 def parse_args() -> argparse.Namespace:
@@ -35,12 +61,8 @@ def apply_env(args: argparse.Namespace) -> None:
     if env_file is None and Path(".env").is_file():
         env_file = ".env"
     if env_file:
-        for line in Path(env_file).read_text().splitlines():
-            line = line.strip()
-            if not line or line.startswith("#") or "=" not in line:
-                continue
-            k, v = line.split("=", 1)
-            os.environ.setdefault(k.strip(), v.strip())
+        for k, v in _load_env_file(env_file).items():
+            os.environ.setdefault(k, v)
     if args.dev:
         os.environ["DEV_MODE"] = "true"
     if args.port is not None:
