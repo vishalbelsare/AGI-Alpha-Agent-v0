@@ -66,7 +66,7 @@ def _run_offline(args: argparse.Namespace) -> None:
     seed = int(seed_val) if seed_val is not None else None
     model = args.model or os.getenv("OPENAI_MODEL")
 
-    insight_demo.run(
+    result = insight_demo.run(
         episodes=episodes,
         exploration=exploration,
         rewriter=rewriter,
@@ -75,7 +75,10 @@ def _run_offline(args: argparse.Namespace) -> None:
         seed=seed,
         model=model,
         sectors=sectors,
+        json_output=args.json,
     )
+    if args.json:
+        print(result)
 
 
 def main(argv: List[str] | None = None) -> None:
@@ -107,6 +110,11 @@ def main(argv: List[str] | None = None) -> None:
         "--list-sectors",
         action="store_true",
         help="Display the resolved sector list and exit",
+    )
+    parser.add_argument(
+        "--json",
+        action="store_true",
+        help="Return JSON summary instead of text",
     )
     parser.add_argument(
         "--version",
