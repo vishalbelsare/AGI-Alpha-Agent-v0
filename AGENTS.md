@@ -31,7 +31,8 @@ for modules, classes and functions.
 - Install pre‑commit and set up the git hook:
   1. `pip install pre-commit`
   2. `pre-commit install`
-  3. Run `pre-commit run --files <paths>` before committing.
+  3. Run `pre-commit run --all-files` once to populate the cache.
+  4. Run `pre-commit run --files <paths>` before committing.
     CI will reject commits that fail these checks.
 
 ## Pull Requests
