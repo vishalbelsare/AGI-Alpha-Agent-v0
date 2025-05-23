@@ -11,11 +11,12 @@ normalises the return value to the closed interval [0, 1].  A value of
 from __future__ import annotations
 
 from typing import Any
+import math
 
 __all__ = ["reward"]
 
 def reward(state: Any, action: Any, result: Any) -> float:
-    """Compute a scalar reward in ``[0, 1]``.
+    """Example reward function normalising ``result['score']``.
 
     Parameters
     ----------
@@ -31,5 +32,11 @@ def reward(state: Any, action: Any, result: Any) -> float:
     float
         Normalised reward signal.
     """
-    # TODO: replace this example logic with your custom calculation
-    return 0.5
+    value = 0.0
+    if isinstance(result, dict) and "score" in result:
+        try:
+            value = float(result["score"])
+        except (TypeError, ValueError):
+            value = 0.0
+
+    return 1.0 / (1.0 + math.exp(-value))
