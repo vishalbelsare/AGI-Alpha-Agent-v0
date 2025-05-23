@@ -18,49 +18,42 @@ optional ADK gateway when available.
 ## Overview
 
 ```mermaid
-%% Meta‑Agentic Tree Search Architecture
+%% Meta‑Agentic Tree Search Architecture – α‑AGI Insight Demo
 flowchart TD
-    %% Define nodes
-    A[Controller<br/>(Meta‑Agent Orchestrator)]
-    B[Knowledge Base<br/>(Program DB / Insight Archive)]
-    C[Prompt / Task Sampler<br/>(Curriculum Generator)]
-    D[LLM Ensemble<br/>(Insight Generators)]
-    E[Evaluator Pool<br/>(Sandbox & Scorers)]
+    %% Core meta‑agent
+    Controller[Controller<br/>(Meta‑Agent&nbsp;Orchestrator)]
 
-    %% Evolutionary loop (logical grouping only)
-    subgraph Evolutionary_Loop
-        A
-        B
-        C
-        D
-        E
-    end
+    %% Knowledge base
+    DB[Knowledge Base<br/>(Program DB / Insight Archive)]
 
-    %% Data flows
-    A -->|stores results| B
-    B -->|past programs / metrics| A
+    %% Prompt / Task sampler
+    Sampler[Prompt / Task Sampler<br/>(Curriculum Generator)]
 
-    A -->|request context‑rich prompt| C
-    C -->|prompt| A
+    %% LLM ensemble for candidate generation
+    Ensemble[LLM Ensemble<br/>(Insight Generators)]
 
-    A -->|dispatch program stubs| D
-    D -->|candidate code / insights| A
+    %% Evaluator pool
+    Evaluator[Evaluator Pool<br/>(Sandbox & Scorers)]
 
-    A -->|submit programs| E
-    E -->|metrics & scores| A
+    %% Evolutionary loop – high‑level circular data flow
+    Controller --- DB
+    DB --- Sampler
+    Sampler --- Ensemble
+    Ensemble --- Evaluator
+    Evaluator --- Controller
 
-    %% Styling
-    classDef core       fill:#e8d5f7,stroke:#6e40c9,color:#2c125d,font-weight:bold;
-    classDef db         fill:#d8e9ff,stroke:#3a7bd5,color:#0b2e59;
-    classDef sampler    fill:#d7f4d1,stroke:#3b9e3b,color:#0f2d0f;
-    classDef ensemble   fill:#ffd9d9,stroke:#d14949,color:#5a0d0d;
-    classDef evaluator  fill:#fff1ce,stroke:#d49500,color:#694a00;
+    %% Detailed data flows
+    Controller -- stores results --> DB
+    DB -- past programs + metrics --> Controller
 
-    class A core
-    class B db
-    class C sampler
-    class D ensemble
-    class E evaluator
+    Controller -- request: context‑rich prompt --> Sampler
+    Sampler -- prompt --> Controller
+
+    Controller -- dispatch stubs --> Ensemble
+    Ensemble -- candidate insights --> Controller
+
+    Controller -- submit programs --> Evaluator
+    Evaluator -- metrics + scores --> Controller
 ```
 
 - **Zero Data Dependency**: runs entirely offline by default. The default
