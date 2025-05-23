@@ -256,7 +256,11 @@ class _VectorStore:
         elif os.getenv("VECTOR_STORE_USE_SQLITE", "false").lower() == "true":
             self._sql = sqlite3.connect(Path("vector_mem.db"))
             self._sql.execute(
-                "CREATE TABLE IF NOT EXISTS memories(hash TEXT PRIMARY KEY, agent TEXT, ts TEXT, vec BLOB, content TEXT)"
+                (
+                    "CREATE TABLE IF NOT EXISTS memories(" \
+                    "hash TEXT PRIMARY KEY, agent TEXT, ts TEXT, " \
+                    "vec BLOB, content TEXT)"
+                )
             )
             self._mode = "sqlite"
             logger.info("VectorStore: SQLite fallback ready.")
