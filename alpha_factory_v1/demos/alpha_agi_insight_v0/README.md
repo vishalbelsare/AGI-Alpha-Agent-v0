@@ -187,8 +187,9 @@ The bridge automatically falls back to offline mode when the optional
 packages or API keys are missing. Use ``--enable-adk`` to expose the agent via
 the optional Google ADK gateway when available. Use ``--list-sectors`` to view
 the resolved sector list without running the search. Pass ``--log-dir`` to store
-episode metrics in ``scores.csv``. Additional ``--exploration`` and ``--seed``
-arguments mirror the offline CLI options.
+episode metrics in ``scores.csv``. Use ``--no-banner`` or set ``ALPHA_AGI_NO_BANNER=true``
+to suppress the startup message in automated scripts. Additional ``--exploration``
+and ``--seed`` arguments mirror the offline CLI options.
 
 ### MCP Logging
 
