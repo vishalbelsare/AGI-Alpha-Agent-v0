@@ -24,6 +24,19 @@ DEFAULT_MODEL_NAME = os.getenv("OPENAI_MODEL", "gpt-4o")
 FALLBACK_MODE_PREFIX = "fallback_mode_active: "
 
 
+def banner() -> str:
+    """Return the standard startup banner."""
+    return (
+        "\N{MILITARY MEDAL} \N{GREEK SMALL LETTER ALPHA}\N{HYPHEN-MINUS}AGI"
+        " Insight \N{EYE}\N{SPARKLES} — Beyond Human Foresight"
+    )
+
+
+def print_banner() -> None:
+    """Display the default banner."""
+    print(banner())
+
+
 if __package__ is None:  # pragma: no cover - allow direct execution
     sys.path.append(str(Path(__file__).resolve().parents[3]))
     __package__ = "alpha_factory_v1.demos.alpha_agi_insight_v0"
@@ -289,6 +302,8 @@ __all__ = [
     "DEFAULT_MODEL_NAME",
     "has_oai",
     "run_insight_search",
+    "banner",
+    "print_banner",
     "main",
 ]
 
