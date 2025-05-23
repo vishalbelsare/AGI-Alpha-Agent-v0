@@ -20,6 +20,8 @@ import random
 from pathlib import Path
 from typing import List, Optional
 
+from ... import get_version
+
 try:  # optional dependency
     import matplotlib.pyplot as plt
 except Exception:  # pragma: no cover - optional
@@ -289,6 +291,12 @@ def main(argv: List[str] | None = None) -> None:
         "--verify-env",
         action="store_true",
         help="Check runtime dependencies before running",
+    )
+    parser.add_argument(
+        "--version",
+        action="version",
+        version=f"%(prog)s {get_version()}",
+        help="Show program version and exit",
     )
     args = parser.parse_args(argv)
     cfg = load_config(args.config)

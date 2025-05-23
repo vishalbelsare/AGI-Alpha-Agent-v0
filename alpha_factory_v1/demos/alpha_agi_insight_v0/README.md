@@ -172,6 +172,7 @@ Use ``--enable-adk`` to expose the agent via the optional Google ADK gateway.
 Pass ``--list-sectors`` to display the resolved sector list without running the search.
 Use ``--no-banner`` or set ``ALPHA_AGI_NO_BANNER=true`` to suppress the startup banner when embedding the demo in automated scripts. The same flag also works with ``alpha-agi-insight-production``.
 ``--adk-host`` and ``--adk-port`` customise the gateway bind address.
+Use ``--version`` to print the installed package version and exit.
 For production deployments launch ``official_demo_production.py`` or use the
 ``alpha-agi-insight-production`` entrypoint. This variant verifies the
 environment by default and automatically selects between the hosted runtime
