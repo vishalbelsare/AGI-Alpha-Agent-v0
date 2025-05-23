@@ -41,8 +41,7 @@ def _agents_available() -> bool:
     if os.getenv("ALPHA_AGI_OFFLINE"):
         return False
 
-    spec = importlib.util.find_spec("openai_agents")
-    return bool(spec and os.getenv("OPENAI_API_KEY"))
+    return openai_agents_bridge.has_oai
 
 
 def _run_offline(args: argparse.Namespace) -> None:
