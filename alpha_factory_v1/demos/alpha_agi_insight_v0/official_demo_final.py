@@ -167,6 +167,7 @@ def main(argv: List[str] | None = None) -> None:
             args.sectors,
             exploration=args.exploration,
             seed=args.seed,
+            json_output=args.json,
             adk_host=args.adk_host,
             adk_port=args.adk_port,
         )
