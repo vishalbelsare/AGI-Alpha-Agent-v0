@@ -44,11 +44,10 @@ import json
 import logging
 import os
 import re
-import textwrap
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Sequence, Tuple
+from typing import Any, Dict, List, Optional
 
 # ────────────────────────────────────────────────────────────────────────────
 # Soft‑optional deps (never crash at import)                                  
@@ -102,7 +101,6 @@ except ModuleNotFoundError:  # pragma: no cover
 # ────────────────────────────────────────────────────────────────────────────
 from backend.agent_base import AgentBase  # type: ignore
 from backend.agents import AgentMetadata, register_agent  # type: ignore
-from backend.orchestrator import _publish  # type: ignore
 
 logger = logging.getLogger(__name__)
 

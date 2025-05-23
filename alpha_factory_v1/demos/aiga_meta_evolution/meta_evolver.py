@@ -12,12 +12,19 @@
 """
 from __future__ import annotations
 
-import copy, dataclasses as dc, hashlib, json, logging, math, os, pathlib, random
+import copy
+import dataclasses as dc
+import hashlib
+import json
+import logging
+import math
+import os
+import pathlib
+import random
 import contextlib
-from concurrent.futures import ThreadPoolExecutor, ProcessPoolExecutor
+from concurrent.futures import ProcessPoolExecutor, ThreadPoolExecutor
 from datetime import datetime, timezone
 from functools import cached_property
-from importlib import import_module
 from typing import Callable, List, Tuple
 
 try:
@@ -216,7 +223,8 @@ class MetaEvolver:
             with torch.no_grad():
                 a = net(torch.tensor(obs, dtype=torch.float32, device=Device)).argmax().item()
             obs, rew, done, truncated, _ = env.step(a)
-            total += rew; bc.append(obs)
+            total += rew
+            bc.append(obs)
             if done or truncated:
                 break
         bc_vec = np.mean(bc, axis=0)
@@ -237,7 +245,8 @@ class MetaEvolver:
             with torch.no_grad():
                 a = net(torch.tensor(obs, dtype=torch.float32, device=Device)).argmax().item()
             obs, rew, done, truncated, _ = env.step(a)
-            total += rew; bc.append(obs)
+            total += rew
+            bc.append(obs)
             if done or truncated:
                 break
         bc_vec = np.mean(bc, axis=0)
@@ -293,10 +302,13 @@ class MetaEvolver:
             if scores[best_idx] > self._best_fitness:
                 self._best_fitness = scores[best_idx]
                 self.best_genome = self.population[best_idx]
-            avg = float(np.mean(scores)); self.history.append((self.gen, avg))
-            if _fitness_gauge: _fitness_gauge.set(avg)
+            avg = float(np.mean(scores))
+            self.history.append((self.gen, avg))
+            if _fitness_gauge:
+                _fitness_gauge.set(avg)
             LOG.info("gen=%d avg=%.3f best=%.2f", self.gen, avg, self._best_fitness)
-            if _A2A: _A2A.sendjson({"gen": self.gen, "avg": avg, "sha": self.population_sha()})
+            if _A2A:
+                _A2A.sendjson({"gen": self.gen, "avg": avg, "sha": self.population_sha()})
             elite_idx = sorted(range(self.pop_size), key=lambda i: scores[i], reverse=True)[:self.elitism]
             new_pop = [self.population[i] for i in elite_idx]
             while len(new_pop) < self.pop_size:
@@ -319,7 +331,8 @@ class MetaEvolver:
             "ts": datetime.now(timezone.utc).isoformat()
         }
         p = self.ckpt_dir / f"gen_{self.gen:04d}.json.tmp"
-        p.write_text(json.dumps(data)); p.replace(p.with_suffix(""))
+        p.write_text(json.dumps(data))
+        p.replace(p.with_suffix(""))
 
     def save(self) -> None:
         """Public wrapper for checkpoint persistence."""

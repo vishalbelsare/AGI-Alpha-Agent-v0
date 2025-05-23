@@ -23,6 +23,10 @@ import importlib
 import logging
 import sys
 import types
+from pathlib import Path
+from typing import List
+import json
+import secrets
 
 _LOG = logging.getLogger("alphafactory.startup")
 
@@ -74,11 +78,7 @@ _fin_mod = importlib.import_module(".agents.finance_agent", __name__)
 sys.modules.setdefault(__name__ + ".finance_agent", _fin_mod)
 sys.modules["backend.finance_agent"] = _fin_mod
 
-# ────────────────────────── standard library deps ─────────────────────────
-import json
-import secrets
-from pathlib import Path
-from typing import List
+
 
 # ──────────────────────── log & CSRF helpers (unchanged) ──────────────────
 LOG_DIR = Path("/tmp/alphafactory")

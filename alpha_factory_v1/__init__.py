@@ -12,7 +12,7 @@ import importlib
 from typing import Any
 
 try:  # attempt to read the installed package version
-    from importlib.metadata import PackageNotFoundError, version as _version
+    from importlib.metadata import version as _version
 
     __version__ = _version(__name__)
 except Exception:  # pragma: no cover - fallback when not installed
