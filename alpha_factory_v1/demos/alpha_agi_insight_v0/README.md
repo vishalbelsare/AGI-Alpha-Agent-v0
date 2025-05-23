@@ -7,11 +7,12 @@ transformed by Artificial General Intelligence. It runs a small
  list with ``--sectors`` to experiment with your own domains. When the argument
  points to a text file, each non-empty line is treated as a sector name.
 
-**Quick Start:** run ``alpha-agi-beyond-foresight --episodes 5`` to launch the
-final production demo with automatic environment selection. This command maps to
-``official_demo_final.py`` and transparently chooses between the hosted runtime
+**Quick Start:** run ``alpha-agi-insight --episodes 5`` or
+``alpha-agi-beyond-foresight --episodes 5`` to launch the final production demo
+with automatic environment selection. Both commands map to
+``official_demo_final.py`` and transparently choose between the hosted runtime
 and offline mode depending on available credentials.
-Alternatively run ``alpha-agi-insight-final`` for the same behaviour or
+You may also run ``alpha-agi-insight-final`` for the same behaviour or
 ``alpha-agi-insight-production`` to verify the environment and enable the
 optional ADK gateway when available. The companion
 ``official_demo_production.py`` script offers identical behaviour and is
