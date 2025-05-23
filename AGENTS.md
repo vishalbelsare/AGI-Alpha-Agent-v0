@@ -13,14 +13,14 @@ The instructions below apply to all contributors and automated agents.
 - After setup, validate with `python check_env.py --auto-install`.
   This installs any missing optional packages from the wheelhouse if provided.
 - Execute `pytest -q` (or `python -m alpha_factory_v1.scripts.run_tests`) and ensure the entire suite passes. If failures remain, document them in the PR description.
-- Run `python alpha_factory_v1/scripts/preflight.py` or
-  `./quickstart.sh --preflight` to verify Docker, git, and required
-  packages. After verification, run `./quickstart.sh` to launch the
-  project. The script creates the virtual environment and installs
-  required dependencies automatically. See the
-  [5‑Minute Quick‑Start](README.md#6-5-minute-quick-start) section in the
-  README for more details.
-- On Windows or systems without Bash, run `python alpha_factory_v1/quickstart.py`.
+- Before the first launch, run `bash quickstart.sh --preflight` to check
+  Docker availability, git, and required packages. After this
+  verification, run `./quickstart.sh` to launch the project. The script
+  creates the virtual environment and installs required dependencies
+  automatically. See the [5‑Minute Quick‑Start](README.md#6-5-minute-quick-start)
+  section in the README for more details.
+- On Windows or systems without Bash, run
+  `python alpha_factory_v1/quickstart.py --preflight`.
 
 ## Coding Style
 - Use **Python&nbsp;3.11** or newer and include type hints for public APIs.
