@@ -35,6 +35,8 @@ alpha-agi-insight-offline --episodes 5
 
 Highlights:
 - Automatic offline fallback when no API key is detected.
+- The environment variable ``ALPHA_AGI_OFFLINE`` is set automatically during
+  offline fallback so submodules consistently detect zero-data mode.
 - Optional OpenAI Agents runtime for hosted execution.
 - Built-in Google ADK gateway support via `--enable-adk`.
 - Runs entirely with zero external data by default.
