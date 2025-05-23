@@ -56,6 +56,13 @@ Highlights:
 - Optional OpenAI Agents runtime for hosted execution.
 - Built-in Google ADK gateway support via `--enable-adk`.
 - Runs entirely with zero external data by default.
+For programmatic access launch the companion FastAPI server:
+
+```bash
+alpha-agi-insight-api --port 8000
+```
+Send a POST request with a JSON payload like `{"episodes":5}` to `/insight` to
+retrieve the ranked sector list.
 
 ## Overview
 
