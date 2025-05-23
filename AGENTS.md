@@ -16,6 +16,8 @@ This installs any missing optional packages from the wheelhouse if provided.
 - Indent with 4 spaces and keep lines under 120 characters.
 - Provide concise [Google style](https://google.github.io/styleguide/pyguide.html#381-docstrings) docstrings
 for modules, classes and functions.
+- Format code with `black` (line length 120) and run `ruff` or `flake8` for linting, if available.
+- Ensure code is formatted before committing.
 
 ## Pull Requests
 - Keep commits focused and descriptive. Use meaningful commit messages.
