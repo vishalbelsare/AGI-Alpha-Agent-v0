@@ -123,8 +123,14 @@ def run(
     seed: Optional[int] = None,
     model: str | None = None,
     sectors: Optional[List[str]] = None,
+    json_output: bool = False,
 ) -> str:
-    """Run a short search predicting the target sector index."""
+    """Run a short search predicting the target sector index.
+
+    When ``json_output`` is ``True`` the returned value contains a JSON string
+    with keys ``best``, ``score`` and ``ranking``. Otherwise a plain text summary
+    is returned.
+    """
     if seed is not None:
         random.seed(seed)
 
@@ -167,8 +173,8 @@ def run(
     best = tree.best_leaf()
     sector = sectors[best.agents[0] % len(sectors)]
     score = best.reward / (best.visits or 1)
-    summary = f"Best sector: {sector} score: {score:.3f}"
-    print(summary)
+    summary_text = f"Best sector: {sector} score: {score:.3f}"
+    print(summary_text)
 
     sector_scores: dict[int, float] = {}
     stack = [tree.root]
@@ -195,7 +201,10 @@ def run(
             data = {"best": sector, "score": score, "ranking": ranking}
             summary_path.write_text(json.dumps(data, indent=2), encoding="utf-8")
             print(f"Summary written to {summary_path}")
-    return summary
+    result_data = {"best": sector, "score": score, "ranking": ranking}
+    if json_output:
+        return json.dumps(result_data)
+    return summary_text
 
 
 def main(argv: List[str] | None = None) -> None:
@@ -230,6 +239,11 @@ def main(argv: List[str] | None = None) -> None:
         "--list-sectors",
         action="store_true",
         help="Print the resolved sector list and exit",
+    )
+    parser.add_argument(
+        "--json",
+        action="store_true",
+        help="Return JSON summary instead of plain text",
     )
     parser.add_argument(
         "--verify-env",
@@ -272,7 +286,7 @@ def main(argv: List[str] | None = None) -> None:
             print(f"- {name}")
         return
 
-    run(
+    summary = run(
         episodes,
         exploration,
         rewriter,
@@ -281,7 +295,10 @@ def main(argv: List[str] | None = None) -> None:
         seed=seed,
         model=model,
         sectors=sectors,
+        json_output=args.json,
     )
+    if args.json:
+        print(summary)
 
 
 if __name__ == "__main__":  # pragma: no cover - CLI entry

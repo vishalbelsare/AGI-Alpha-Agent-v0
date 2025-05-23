@@ -65,6 +65,7 @@ if has_oai:
         log_dir: str | None = None,
         exploration: float | None = None,
         seed: int | None = None,
+        json_output: bool | None = None,
     ) -> str:
         """Execute the search loop and return the textual summary."""
         if model:
@@ -81,6 +82,7 @@ if has_oai:
             exploration=exploration or 1.4,
             seed=seed,
             sectors=sector_list,
+            json_output=bool(json_output),
         )
         return result
 
@@ -99,6 +101,7 @@ if has_oai:
                 log_dir=params.get("log_dir"),
                 exploration=float(params.get("exploration", 1.4)),
                 seed=params.get("seed"),
+                json_output=params.get("json", False),
             )
 
     def _run_runtime(
@@ -110,6 +113,7 @@ if has_oai:
         sectors: str | None = None,
         exploration: float | None = None,
         seed: int | None = None,
+        json_output: bool | None = None,
         *,
         adk_host: str | None = None,
         adk_port: int | None = None,
@@ -154,6 +158,7 @@ else:
         log_dir: str | None = None,
         exploration: float | None = None,
         seed: int | None = None,
+        json_output: bool | None = None,
     ) -> str:
         sector_list = parse_sectors(None, sectors)
         summary = run(
@@ -165,6 +170,7 @@ else:
             exploration=exploration or 1.4,
             seed=seed,
             sectors=sector_list,
+            json_output=bool(json_output),
         )
         return f"{FALLBACK_MODE_PREFIX}{summary}"
 
@@ -177,6 +183,7 @@ else:
         sectors: str | None = None,
         exploration: float | None = None,
         seed: int | None = None,
+        json_output: bool | None = None,
         *,
         adk_host: str | None = None,
         adk_port: int | None = None,
@@ -206,6 +213,7 @@ else:
             seed=seed,
             model=model,
             sectors=sector_list,
+            json_output=bool(json_output),
         )
 
 
@@ -260,6 +268,11 @@ def main(argv: list[str] | None = None) -> None:
         help="Skip runtime dependency checks",
     )
     parser.add_argument(
+        "--json",
+        action="store_true",
+        help="Return JSON summary when offline or via tool",
+    )
+    parser.add_argument(
         "--version",
         action="version",
         version=f"%(prog)s {get_version()}",
@@ -301,6 +314,7 @@ def main(argv: list[str] | None = None) -> None:
         args.sectors,
         args.exploration,
         args.seed,
+        json_output=args.json,
         adk_host=args.adk_host,
         adk_port=args.adk_port,
     )
