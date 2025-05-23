@@ -1,4 +1,4 @@
-# α‑AGI Insight 👁️✨ — Beyond Human Foresight — Official Demo
+# α‑AGI Insight 👁️✨ — Beyond Human Foresight — Official Demo (Zero Data)
 
 The **α‑AGI Insight** demo predicts which industry sector is most likely to be
 transformed by Artificial General Intelligence. It runs a small
@@ -12,6 +12,8 @@ transformed by Artificial General Intelligence. It runs a small
 with automatic environment selection. Both commands map to
 ``official_demo_final.py`` and transparently choose between the hosted runtime
 and offline mode depending on available credentials.
+The demo gracefully falls back to a zero-data offline search whenever API keys
+are absent.
 You may also run ``alpha-agi-insight-final`` for the same behaviour or
 ``alpha-agi-insight-production`` to verify the environment and enable the
 optional ADK gateway when available. The companion
