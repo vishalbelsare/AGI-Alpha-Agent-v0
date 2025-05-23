@@ -1,14 +1,16 @@
 #!/usr/bin/env python3
-"""Standalone launcher for the α‑AGI Insight demo.
+"""Entry point for the *Beyond Human Foresight* α‑AGI Insight demo.
 
-This helper automatically selects the best interface for the insight
-search. When the optional OpenAI Agents runtime is available and an API
-key is configured the agent is registered with the runtime. Otherwise the
-script falls back to the lightweight command line interface that runs the
-Meta‑Agentic Tree Search locally.  Runtime dependencies are verified when
-``--verify-env`` is supplied. The same launcher exposes the optional
-Google ADK gateway and gracefully degrades to a self‑contained CLI when
-any dependency is missing.
+This wrapper automatically chooses the most capable runtime for the
+Meta‑Agentic Tree Search. When the optional OpenAI Agents SDK is
+installed and an API key is configured the demo registers an agent with
+the hosted runtime.  In environments without these credentials it
+transparently falls back to the lightweight offline CLI so the search can
+run anywhere.  Runtime dependencies are verified when ``--verify-env`` is
+supplied and the optional Google ADK gateway is enabled when available.
+The behaviour mirrors ``alpha-agi-insight-final`` and provides the
+official, production‑ready experience for the demo regardless of network
+access.
 """
 from __future__ import annotations
 
