@@ -11,6 +11,9 @@ transformed by Artificial General Intelligence. It runs a small
 final production demo with automatic environment selection. This command maps to
 ``official_demo_final.py`` and transparently chooses between the hosted runtime
 and offline mode depending on available credentials.
+Alternatively run ``alpha-agi-insight-final`` for the same behaviour or
+``alpha-agi-insight-production`` to verify the environment and enable the
+optional ADK gateway when available.
 
 ## Overview
 
