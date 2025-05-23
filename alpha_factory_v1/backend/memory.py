@@ -9,10 +9,18 @@ instead of the system‑level  */var/alphafactory*  path that needs root.
 from __future__ import annotations
 
 import json
+import logging
 import os
 import tempfile
 from datetime import datetime
 from pathlib import Path
+
+_log = logging.getLogger("alpha_factory.memory")
+if not _log.handlers:
+    _hdl = logging.StreamHandler()
+    _hdl.setFormatter(logging.Formatter("%(asctime)s %(levelname)s %(message)s"))
+    _log.addHandler(_hdl)
+_log.setLevel(os.getenv("LOGLEVEL", "INFO"))
 
 
 class Memory:
@@ -41,11 +49,18 @@ class Memory:
         with self.file.open("a", encoding="utf‑8") as fh:
             fh.write(json.dumps(record, ensure_ascii=False) + "\n")
 
-    def read(self, limit: int = 100):
+    def read(self, limit: int = 100) -> list[dict]:
         """Return *limit* most‑recent records (newest‑last)."""
-        with self.file.open(encoding="utf‑8") as fh:
+        with self.file.open(encoding="utf-8") as fh:
             lines = fh.readlines()[-limit:]
-        return [json.loads(l) for l in lines]
+
+        records: list[dict] = []
+        for line in lines:
+            try:
+                records.append(json.loads(line))
+            except json.JSONDecodeError:
+                _log.warning("Skipping corrupt memory record: %s", line.strip())
+        return records
 
     # ------------------------------------------------------------------
     def query(self, limit: int = 100):
