@@ -1,4 +1,6 @@
 # α‑AGI Insight 👁️✨ — Beyond Human Foresight — Official Demo (Zero Data)
+[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/MontrealAI/AGI-Alpha-Agent-v0/blob/main/alpha_factory_v1/demos/alpha_agi_insight_v0/colab_alpha_agi_insight_demo.ipynb)
+
 
 The **α‑AGI Insight** demo predicts which industry sector is most likely to be
 transformed by Artificial General Intelligence. It runs a small
