@@ -5,7 +5,7 @@ import time
 import tempfile
 import shutil
 import socket
-import requests
+import af_requests as requests
 import pathlib
 try:
     import pytest

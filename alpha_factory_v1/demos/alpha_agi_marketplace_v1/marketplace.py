@@ -7,7 +7,7 @@ import json
 from pathlib import Path
 from typing import Any, Mapping
 
-from alpha_factory_v1 import requests
+from alpha_factory_v1 import af_requests as requests
 
 DEFAULT_HOST = "localhost"
 DEFAULT_PORT = 8000

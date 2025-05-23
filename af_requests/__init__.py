@@ -1,9 +1,10 @@
-"""Fallback shim for optional :mod:`requests` dependency.
+"""Compatibility wrapper for the optional :mod:`requests` dependency.
 
-This module provides a minimal replacement so that ``import requests`` works
-even when the real library is absent.  If the genuine ``requests`` package is
-installed it will be loaded transparently; otherwise we expose the lightweight
-implementation bundled in :mod:`alpha_factory_v1.requests`.
+The package exposes the real :mod:`requests` library when installed.
+If it is missing we fall back to the lightweight implementation in
+:mod:`alpha_factory_v1.af_requests`.  When the fallback is used the module is
+also registered as ``requests`` so imports expecting the standard library work
+transparently.
 """
 
 from __future__ import annotations
@@ -22,10 +23,12 @@ try:  # prefer the real installed package if present
         spec.loader.exec_module(real_mod)  # type: ignore[arg-type]
         sys.modules[__name__] = real_mod
         globals().update(real_mod.__dict__)
+        sys.modules.setdefault("requests", real_mod)
     else:  # fall back to the lightweight shim
         raise im.PackageNotFoundError
 except Exception:  # PackageNotFoundError or import failure
-    shim = importlib.import_module("alpha_factory_v1.requests")
+    shim = importlib.import_module("alpha_factory_v1.af_requests")
     sys.modules[__name__] = shim
     globals().update(shim.__dict__)
+    sys.modules.setdefault("requests", shim)
 

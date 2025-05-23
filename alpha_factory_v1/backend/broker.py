@@ -9,7 +9,7 @@ from dataclasses import asdict, dataclass, field
 from datetime import datetime
 from typing import Any, Dict
 
-import requests
+import af_requests as requests
 
 log = logging.getLogger(__name__)
 

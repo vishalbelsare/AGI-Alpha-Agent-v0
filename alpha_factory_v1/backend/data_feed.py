@@ -17,7 +17,7 @@ import random
 import time
 from typing import Optional
 
-import requests
+import af_requests as requests
 
 __all__ = ["last_price"]
 

@@ -22,7 +22,7 @@ from pathlib import Path
 try:
     import requests  # type: ignore
 except Exception:  # pragma: no cover - fallback shim
-    from requests import post  # type: ignore
+    from af_requests import post  # type: ignore
 else:
     from requests import post
 

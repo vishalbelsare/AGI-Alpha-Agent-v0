@@ -79,7 +79,7 @@ def _open_browser_when_ready(url: str, timeout: float = 5.0) -> None:
     URL will still be opened in the browser as a fallback.
     """
     def _wait_and_open() -> None:
-        import requests  # type: ignore
+        import af_requests as requests  # type: ignore
 
         deadline = time.monotonic() + timeout
         while time.monotonic() < deadline:

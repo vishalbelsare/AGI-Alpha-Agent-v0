@@ -3,7 +3,7 @@ import threading
 from http.server import BaseHTTPRequestHandler, HTTPServer
 import unittest
 
-from alpha_factory_v1 import requests
+from alpha_factory_v1 import af_requests as requests
 
 
 def start_server(status=200, body=b"ok"):
