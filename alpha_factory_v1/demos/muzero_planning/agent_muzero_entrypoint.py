@@ -23,7 +23,7 @@ except ModuleNotFoundError:  # pragma: no cover - fallback stub
 
 try:  # OpenAI Agents SDK is optional
     from openai_agents import Agent, AgentRuntime, Tool, OpenAIAgent
-except ModuleNotFoundError:  # pragma: no cover - provide graceful degrade
+except Exception:  # pragma: no cover - provide graceful degrade
 
     class OpenAIAgent:
         def __init__(self, *_, **__):
@@ -31,6 +31,12 @@ except ModuleNotFoundError:  # pragma: no cover - provide graceful degrade
 
         def __call__(self, *_: str) -> str:
             return "LLM commentary unavailable."
+
+    class Agent:  # type: ignore[misc]
+        name: str | None = None
+
+        async def policy(self, *_: object) -> object:
+            return None
 
     def Tool(*_, **__):  # type: ignore[misc]
         def wrapper(func):
@@ -49,12 +55,21 @@ except ModuleNotFoundError:  # pragma: no cover - provide graceful degrade
             pass
 
 
-import gradio as gr
+try:
+    import gradio as gr
+except ModuleNotFoundError:  # pragma: no cover - allow CLI help without gradio
+    class _MissingGradio:
+        def __getattr__(self, name: str):  # noqa: D401
+            raise ModuleNotFoundError(
+                'gradio is required for this feature. Install with: pip install gradio'
+            )
+
+    gr = _MissingGradio()  # type: ignore[misc]
 
 # ── Minimal MuZero utilities --------------------------------------------------
 # (full implementation lives in demo/minimuzero.py, imported here)
-from demo import minimuzero
-from demo.minimuzero import MiniMu
+from . import minimuzero
+from .minimuzero import MiniMu
 
 ENV_ID = os.getenv("MUZERO_ENV_ID", "CartPole-v1")  # default environment
 EPISODES = int(os.getenv("MUZERO_EPISODES", 3))
