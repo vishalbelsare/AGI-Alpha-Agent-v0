@@ -39,6 +39,10 @@ alpha-agi-beyond-foresight --episodes 5
 When API keys are configured the program automatically uses the OpenAI Agents
 runtime. Otherwise it falls back to the local Meta‑Agentic Tree Search.
 
+For production use, the `alpha-agi-insight-final` command offers the same
+behaviour while verifying dependencies and enabling the optional Google ADK
+gateway when available.
+
 ### 🎖️ α‑AGI Architect 👁️✨ — Foundational Operational Blueprint
 Empowering Meta‑Agentic visionaries with strategic infrastructure. At the core of α‑AGI Ascension is α‑AGI Architect — the foundational operational framework for scalable global deployment. Rooted in the groundbreaking “Multi‑Agent AI DAO” model, α‑AGI Architect delivers immediate, scalable, and adaptive infrastructure ensuring continuous strategic evolution.
 
