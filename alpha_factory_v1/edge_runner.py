@@ -16,11 +16,19 @@ from __future__ import annotations
 import argparse
 import os
 
+from typing import Callable
+
 from alpha_factory_v1 import run as af_run, __version__
 
 
-def _positive_int(name: str) -> callable:
-    """Return a parser for positive integers."""
+def _positive_int(name: str) -> Callable[[str], int]:
+    """Return a parser for positive integers.
+
+    Parameters
+    ----------
+    name:
+        Command line option name used in error messages.
+    """
 
     def parser(value: str) -> int:
         try:
