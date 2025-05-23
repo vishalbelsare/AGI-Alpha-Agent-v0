@@ -39,7 +39,6 @@ from __future__ import annotations
 # ───────────────────────── stdlib ░─────────────────────────
 import asyncio
 import contextlib
-import dataclasses
 import hashlib
 import json
 import logging
@@ -48,7 +47,7 @@ import os
 import sqlite3
 import threading
 import time
-from datetime import datetime, timezone, timedelta
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Dict, Iterable, List, Optional, Sequence, Tuple, Union
 
@@ -60,7 +59,8 @@ except ModuleNotFoundError:  # pragma: no cover - optional dep
 with contextlib.suppress(ModuleNotFoundError):
     from sentence_transformers import SentenceTransformer  # type: ignore
 with contextlib.suppress(ModuleNotFoundError):
-    import psycopg2, psycopg2.extras  # type: ignore
+    import psycopg2  # type: ignore
+    import psycopg2.extras  # type: ignore
 with contextlib.suppress(ModuleNotFoundError):
     import faiss  # type: ignore
 with contextlib.suppress(ModuleNotFoundError):
@@ -323,7 +323,7 @@ class _VectorStore:
                 self._evict_if_needed(agent)
                 self._apply_ttl_pg()
             elif self._mode == "faiss":
-                if h in (meta_h := {m[1] for m in self._meta}):
+                if h in {m[1] for m in self._meta}:
                     return
                 self._faiss.add(vec.reshape(1, -1))
                 self._vectors.append(vec)

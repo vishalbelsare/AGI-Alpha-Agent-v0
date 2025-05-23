@@ -37,7 +37,6 @@ $ python -m alpha_factory_v1.backend.memory_graph --verbose
 from __future__ import annotations
 
 # ───────────────────────── stdlib & typing ──────────────────────────
-import json
 import logging
 import os
 import pathlib
@@ -45,7 +44,7 @@ import random
 import threading
 import time
 from contextlib import contextmanager
-from typing import Any, Dict, Iterable, List, Optional, Sequence, Tuple
+from typing import Any, Dict, Iterable, List, Optional, Tuple
 
 # ─────────────────── optional third-party imports ───────────────────
 try:

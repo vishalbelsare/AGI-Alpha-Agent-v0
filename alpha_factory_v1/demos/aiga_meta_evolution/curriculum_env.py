@@ -19,14 +19,14 @@ Additions v2.0 (relative to v1.1)
 The environment remains lightweight (<350 LoC) and free of external deps.
 """
 from __future__ import annotations
-import json, zlib
+import json
+import zlib
 from dataclasses import dataclass, asdict
 from typing import Any, Tuple, Dict, List
 
 import numpy as np
 import gymnasium as gym
 from gymnasium import spaces
-from scipy.ndimage import binary_dilation  # allowed, in SciPy core
 
 Coord = Tuple[int, int]
 Grid  = np.ndarray
@@ -199,7 +199,8 @@ class CurriculumEnv(gym.Env):
             raise NotImplementedError
         lut = {0: " ", 1: "#"}
         board = ["".join(lut[c] for c in row) for row in self.grid]
-        ay, ax = self.agent; gy, gx = self.goal
+        ay, ax = self.agent
+        gy, gx = self.goal
         board[ay] = board[ay][:ax] + "A" + board[ay][ax + 1:]
         board[gy] = board[gy][:gx] + "G" + board[gy][gx + 1:]
         return "\n".join(board)
