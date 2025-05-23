@@ -660,6 +660,12 @@ Our **AGI ALPHA AGENT**, fuelled by the strictly‑utility **$AGIALPHA** token
 ## 14 · License
 
 This project is distributed under the [Apache 2.0](LICENSE) license.
+<a name="15-final-note"></a>
+## 15 · Final Note
+
+As reminded in the [Disclaimer](#disclaimer), this repository represents a conceptual
+research prototype. Please use it responsibly and ensure all usage and
+contributions align with the project's [Apache 2.0 license](LICENSE).
 ---
 
 *Made with ❤️ by the Alpha‑Factory Agentic Core Team — forging the tools that forge tomorrow.*
