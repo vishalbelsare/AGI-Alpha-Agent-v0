@@ -23,7 +23,7 @@ except ModuleNotFoundError:  # pragma: no cover - fallback stub
 
 try:  # OpenAI Agents SDK is optional
     from openai_agents import Agent, AgentRuntime, Tool, OpenAIAgent
-except ModuleNotFoundError:  # pragma: no cover - provide graceful degrade
+except Exception:  # pragma: no cover - provide graceful degrade
 
     class OpenAIAgent:
         def __init__(self, *_, **__):

@@ -25,5 +25,7 @@ try:  # prefer the real installed package if present
     else:  # fall back to the lightweight shim
         raise im.PackageNotFoundError
 except Exception:  # PackageNotFoundError or import failure
-    from alpha_factory_v1.requests import *  # noqa: F401,F403
+    shim = importlib.import_module("alpha_factory_v1.requests")
+    sys.modules[__name__] = shim
+    globals().update(shim.__dict__)
 

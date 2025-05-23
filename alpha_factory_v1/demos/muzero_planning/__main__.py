@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import argparse
 import os
-from .agent_muzero_entrypoint import launch_dashboard
 
 
 def main(argv: list[str] | None = None) -> None:
@@ -33,6 +32,12 @@ def main(argv: list[str] | None = None) -> None:
     os.environ["MUZERO_ENV_ID"] = args.env
     os.environ["MUZERO_EPISODES"] = str(args.episodes)
     os.environ["HOST_PORT"] = str(args.port)
+
+    try:
+        from .agent_muzero_entrypoint import launch_dashboard
+    except Exception as exc:  # pragma: no cover - optional deps missing
+        print(f"MuZero demo requires optional packages: {exc}")
+        return
 
     launch_dashboard()
 
