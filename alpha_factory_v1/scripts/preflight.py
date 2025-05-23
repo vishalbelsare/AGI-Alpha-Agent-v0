@@ -1,3 +1,10 @@
+"""Run environment checks before installing Alpha-Factory.
+
+This script verifies Python compatibility, command line tools, Docker
+availability and required Python packages. Execute it directly to confirm
+your system meets installation prerequisites.
+"""
+
 import os
 import shutil
 import sys
