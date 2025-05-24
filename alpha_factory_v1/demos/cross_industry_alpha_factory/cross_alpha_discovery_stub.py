@@ -52,11 +52,22 @@ def discover_alpha(
     ledger: Path | None = None,
     model: str = "gpt-4o-mini",
 ) -> List[Dict[str, str]]:
-    """Return ``num`` opportunities and log to *ledger*.
+    """Generate cross-industry opportunities and log them.
 
-    If :mod:`openai` is available and ``OPENAI_API_KEY`` is set, an LLM is used
-    to generate live ideas using *model* (defaults to ``gpt-4o-mini``).  When the
-    key or library is missing the built-in samples are randomly chosen.
+    Args:
+        num: Number of opportunities to return.
+        seed: Optional RNG seed for reproducible output.
+        ledger: Ledger file to write to. When ``None``, ``CROSS_ALPHA_LEDGER`` or
+            ``cross_alpha_log.json`` is used.
+        model: OpenAI model to query when available. ``main`` reads the default
+            from ``CROSS_ALPHA_MODEL``.
+
+    Environment variables:
+        CROSS_ALPHA_LEDGER: Default ledger path when ``ledger`` is ``None``.
+        CROSS_ALPHA_MODEL: Default model used by :func:`main`.
+
+    Returns:
+        A list of dictionaries with ``sector`` and ``opportunity`` keys.
     """
     if seed is not None:
         random.seed(seed)
@@ -86,6 +97,18 @@ def discover_alpha(
 
 
 def main(argv: List[str] | None = None) -> None:  # pragma: no cover - CLI wrapper
+    """Command-line entry point.
+
+    Args:
+        argv: Optional command-line arguments.
+
+    Environment variables:
+        CROSS_ALPHA_MODEL: Default model when ``--model`` is not supplied.
+        CROSS_ALPHA_LEDGER: Default ledger path when ``--ledger`` is absent.
+
+    Returns:
+        ``None``
+    """
     p = argparse.ArgumentParser(description=__doc__)
     p.add_argument("-n", "--num", type=int, default=1, help="number of opportunities to sample")
     p.add_argument("--list", action="store_true", help="list all sample opportunities and exit")
