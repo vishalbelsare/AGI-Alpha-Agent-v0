@@ -25,6 +25,7 @@ import sys
 import types
 from pathlib import Path
 from typing import List
+import tempfile
 import json
 import secrets
 
@@ -78,7 +79,7 @@ sys.modules["backend.finance_agent"] = _fin_mod
 
 
 # ──────────────────────── log & CSRF helpers (unchanged) ──────────────────
-LOG_DIR = Path("/tmp/alphafactory")
+LOG_DIR = Path(tempfile.gettempdir()) / "alphafactory"
 LOG_DIR.mkdir(parents=True, exist_ok=True)
 
 
