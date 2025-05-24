@@ -12,7 +12,6 @@ Google Agent Development Kit runtime, adding:
 
 from __future__ import annotations
 
-import importlib
 from typing import Any, Dict
 
 from backend.agents.manufacturing_agent import ManufacturingAgent
@@ -20,10 +19,12 @@ from backend.agents.biotech_agent import BiotechAgent
 from backend.governance import decision_span
 
 # ─── Optional ADK import (keeps ci green when adk not installed) ──────────
-_ADK_AVAILABLE = importlib.util.find_spec("adk") is not None
-if _ADK_AVAILABLE:
+try:
     from adk import Agent, task, JsonSchema
-else:  # stub fallbacks so type‑checkers stay quiet
+
+    _ADK_AVAILABLE = True
+except Exception:  # pragma: no cover - optional dependency
+    _ADK_AVAILABLE = False
 
     class Agent:  # pylint: disable=too-few-public-methods
         def __init__(self, name: str):
