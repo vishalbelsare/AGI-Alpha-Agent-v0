@@ -504,6 +504,12 @@ docker run --pull=always -p 8000:8000 ghcr.io/montrealai/alpha-factory:latest
 python alpha_factory_v1/demos/alpha_agi_business_3_v1/alpha_agi_business_3_v1.py --loglevel info
 ```
 
+### .env Setup & Security
+Before running the orchestrator, copy `alpha_factory_v1/.env.sample` to `.env` and
+replace all placeholder values with strong secrets. Configure passwords for services
+like Neo4j and Postgres and **never deploy with the defaults**. The orchestrator
+will fail to start if `NEO4J_PASSWORD` is missing.
+
 ### Finance Demo Quick‑Start
 
 Launch the finance alpha demo directly from your terminal:
