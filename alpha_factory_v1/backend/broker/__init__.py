@@ -1,4 +1,9 @@
 # backend/broker/__init__.py
+"""Broker selection factory.
+
+Chooses the broker via ``ALPHA_BROKER``; the simulated broker is used by default.
+"""
+
 import os
 
 _BROKER = os.getenv("ALPHA_BROKER", "sim").lower()
