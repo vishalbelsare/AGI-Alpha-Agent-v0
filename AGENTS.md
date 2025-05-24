@@ -34,6 +34,7 @@ The instructions below apply to all contributors and automated agents.
 - **Never commit** `.env` or other secrets. See
   [`alpha_factory_v1/scripts/README.md`](alpha_factory_v1/scripts/README.md)
   for additional guidance.
+- Verify `.env` is ignored by running `git status` (it should appear untracked). The repository's `.gitignore` already includes `.env`.
 
 ## Coding Style
 - Use Python 3.11 or 3.12 (**Python ≥3.11 and <3.13**) and include type hints for public APIs.
