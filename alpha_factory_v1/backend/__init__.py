@@ -80,11 +80,11 @@ sys.modules["backend.finance_agent"] = _fin_mod
 
 # ──────────────────────── log & CSRF helpers (unchanged) ──────────────────
 LOG_DIR = Path(tempfile.gettempdir()) / "alphafactory"
-LOG_DIR.mkdir(parents=True, exist_ok=True)
 
 
 def _read_logs(max_lines: int = 100) -> List[str]:
     """Return the tail of the most-recent log file (≤ *max_lines*)."""
+    LOG_DIR.mkdir(parents=True, exist_ok=True)
     log_files = sorted(LOG_DIR.glob("*.log"))
     if not log_files:
         return []
