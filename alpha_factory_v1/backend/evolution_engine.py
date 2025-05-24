@@ -64,11 +64,13 @@ from typing import Any, Callable, Dict, List, Optional, Sequence, Tuple, Union
 ################################################################################
 
 try:
-    import deap  # type: ignore
-    from deap import base, creator, tools  # pragma: no cover
-
-    _DEAP_AVAILABLE = True
-except ImportError:  # pragma: no cover
+    from importlib.util import find_spec
+    if find_spec("deap") is not None:
+        from deap import base, creator, tools  # pragma: no cover
+        _DEAP_AVAILABLE = True
+    else:
+        _DEAP_AVAILABLE = False
+except Exception:
     _DEAP_AVAILABLE = False
 
 # Type aliases
