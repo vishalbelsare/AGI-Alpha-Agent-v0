@@ -10,8 +10,10 @@ The instructions below apply to all contributors and automated agents.
 - [Pull Requests](#pull-requests)
 - [Troubleshooting](#troubleshooting)
 - [Code of Conduct](CODE_OF_CONDUCT.md)
+- [Security Policy](SECURITY.md)
 
 All contributors must follow the [Code of Conduct](CODE_OF_CONDUCT.md).
+Please report security vulnerabilities as described in our [Security Policy](SECURITY.md).
 ## Prerequisites
 - Python 3.11 or 3.12 (**Python ≥3.11 and <3.13**)
 - Docker and Docker Compose (Compose ≥2.5)
