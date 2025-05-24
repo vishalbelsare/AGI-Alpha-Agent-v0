@@ -151,7 +151,7 @@ def attach(app) -> None:  # noqa: D401
     router = APIRouter()
 
     @router.websocket("/ws/trace")
-    async def _trace_ws(ws: WebSocket):  # noqa: WPS430
+    async def _trace_ws(ws: WebSocket):
         """
         WebSocket stream with race‑free, CSRF‑checked loop.
 
