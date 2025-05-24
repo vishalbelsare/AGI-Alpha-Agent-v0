@@ -27,6 +27,10 @@ The instructions below apply to all contributors and automated agents.
   creates the virtual environment and installs required dependencies
   automatically. See the [5‑Minute Quick‑Start](README.md#6-5-minute-quick-start)
   section in the README for more details.
+- For a one-step build and launch, run
+  `alpha_factory_v1/scripts/install_alpha_factory_pro.sh --deploy`.
+  See [`alpha_factory_v1/scripts/README.md`](alpha_factory_v1/scripts/README.md)
+  for additional options.
 - On Windows or systems without Bash, run
   `python alpha_factory_v1/quickstart.py --preflight`.
 - Copy `alpha_factory_v1/.env.sample` to `.env` and add secrets such as
