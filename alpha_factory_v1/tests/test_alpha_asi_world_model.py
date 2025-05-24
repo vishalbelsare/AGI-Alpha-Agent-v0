@@ -1,19 +1,23 @@
 import unittest
 import time
 
+import pytest
+
+pytest.importorskip("fastapi", reason="fastapi is required for ASI world model tests")
+
 try:
-    from alpha_factory_v1.demos.alpha_asi_world_model import alpha_asi_world_model_demo as demo
+    from alpha_factory_v1.demos.alpha_asi_world_model import (
+        alpha_asi_world_model_demo as demo,
+    )
     from alpha_factory_v1.demos.alpha_asi_world_model import run_headless
+
     dependencies_available = True
 except Exception:
     demo = None
     run_headless = None
     dependencies_available = False
 
-try:
-    from fastapi.testclient import TestClient
-except ImportError:  # pragma: no cover - fastapi optional
-    TestClient = None
+from fastapi.testclient import TestClient
 
 
 class TestAlphaASIWorldModel(unittest.TestCase):
@@ -37,8 +41,8 @@ class TestAlphaASIWorldModel(unittest.TestCase):
         self.assertGreater(len(orch.learners[0].buffer), 0)
 
     def test_rest_endpoints(self):
-        if not dependencies_available or TestClient is None:
-            self.skipTest("fastapi or dependencies missing")
+        if not dependencies_available:
+            self.skipTest("demo dependencies missing")
         with TestClient(demo.app) as client:
             res = client.get("/agents")
             self.assertEqual(res.status_code, 200)
