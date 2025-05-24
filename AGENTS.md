@@ -77,3 +77,10 @@ for modules, classes and functions.
 - Optionally include a short body explaining the rationale.
 - Consider using a simplified Conventional Commits prefix such as
   `feat:`, `fix:` or `docs:` to ease changelog generation.
+
+### Troubleshooting
+- If the stack fails to start, verify Docker and Docker Compose are running.
+- Setup errors usually mean Python is older than 3.11. Upgrade to Python 3.11 or newer.
+- Missing optional packages can cause test failures; run `python check_env.py --auto-install`.
+
+For detailed troubleshooting steps, see [`alpha_factory_v1/scripts/README.md`](alpha_factory_v1/scripts/README.md).
