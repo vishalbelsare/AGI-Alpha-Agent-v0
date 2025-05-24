@@ -3,6 +3,9 @@ Tiny on‑disk trade‑ledger used by FinanceAgent.
 
 It now **streams each fill** to the live Trace‑graph WebSocket
 (`/ws/trace`) when FastAPI + `backend.trace_ws` are available.
+
+File locking relies on :mod:`fcntl` or :mod:`msvcrt`. If neither module is
+present, writes proceed without locking and a warning is emitted.
 """
 
 from __future__ import annotations
@@ -13,7 +16,10 @@ import os
 import time
 from pathlib import Path
 from dataclasses import asdict, dataclass
-from typing import Dict, List, Iterable
+from typing import Dict, Iterable
+import logging
+
+logger = logging.getLogger(__name__)
 
 try:  # optional OS specific locking modules
     import fcntl  # type: ignore
@@ -24,6 +30,8 @@ try:  # pragma: no cover - POSIX
     import msvcrt  # type: ignore
 except ModuleNotFoundError:
     msvcrt = None
+
+# When both modules are missing, locking is skipped entirely.
 
 # Directory is overridable for tests (they patch $ALPHA_DATA_DIR)
 DATA_DIR = Path(os.getenv("ALPHA_DATA_DIR", "/tmp/alphafactory"))
@@ -126,13 +134,21 @@ class Portfolio:
             self._append(fill)
 
     def _append(self, fill: Fill) -> None:
-        """Append‑only JSONL persistence with basic file locking."""
+        """Append‑only JSONL persistence with basic file locking.
+
+        If neither :mod:`fcntl` nor :mod:`msvcrt` is available, locking is
+        skipped and a warning is emitted.
+        """
         fh = self._db_path.open("a")
         try:
             if fcntl:
                 fcntl.flock(fh, fcntl.LOCK_EX)
             elif msvcrt:
                 msvcrt.locking(fh.fileno(), msvcrt.LK_LOCK, 1)
+            else:
+                logger.warning(
+                    "File locking unavailable; concurrent writes may corrupt the ledger"
+                )
             fh.write(fill.to_json() + "\n")
         finally:
             try:
