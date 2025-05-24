@@ -11,7 +11,8 @@ Unified Large-Language-Model facade for Alpha-Factory v1
 
 • Optional Model-Context-Protocol off-loading via MCP_ENDPOINT.
 
-• Streaming or blocking replies, plus provider-agnostic embeddings.
+• Streaming or blocking replies, plus provider-agnostic embeddings with
+  automatic SBERT/hashing fallback if OpenAI errors.
 
 Usage
 ~~~~~
@@ -91,19 +92,31 @@ def _note(model: str) -> None:
 @lru_cache(maxsize=128)
 def _sync_embed(text: str) -> List[float]:
     """
-    Synchronous embedding helper (cached).  
+    Synchronous embedding helper (cached).
     Delegates to the first provider that is both installed *and* keyed.
     """
+
+    def _local() -> List[float]:
+        from sentence_transformers import SentenceTransformer
+
+        _note("local-sbert")
+        model = SentenceTransformer("all-MiniLM-L6-v2")
+        return model.encode(text).tolist()  # type: ignore[return-value]
+
     if openai and _OPENAI_KEY:
         _note("text-embedding-3-small")
         openai.api_key = _OPENAI_KEY
-        res = openai.Embedding.create(
-            model="text-embedding-3-small",
-            input=text,
-            dimensions=1536,
-            timeout=_TIMEOUT,
-        )
-        return res["data"][0]["embedding"]  # type: ignore[index]
+        try:
+            res = openai.Embedding.create(
+                model="text-embedding-3-small",
+                input=text,
+                dimensions=1536,
+                timeout=_TIMEOUT,
+            )
+            return res["data"][0]["embedding"]  # type: ignore[index]
+        except (openai.OpenAIError, OSError) as exc:  # type: ignore[attr-defined]
+            _LOG.warning("OpenAI embedding failed: %s – using local fallback", exc)
+            return _local()
 
     if anthropic and _ANTHROPIC_KEY:
         _note("claude-embedding-1")
@@ -111,12 +124,7 @@ def _sync_embed(text: str) -> List[float]:
         res = client.embeddings.create(model="claude-embedding-1", input=text)
         return res.embedding  # type: ignore[attr-defined]
 
-    # -------- local fallback ------------------------------------------ #
-    from sentence_transformers import SentenceTransformer
-
-    _note("local-sbert")
-    model = SentenceTransformer("all-MiniLM-L6-v2")
-    return model.encode(text).tolist()  # type: ignore[return-value]
+    return _local()
 
 
 async def embed(text: str) -> List[float]:
@@ -216,8 +224,7 @@ async def _chat_anthropic(
 
     client = anthropic.AsyncAnthropic(api_key=_ANTHROPIC_KEY, timeout=_TIMEOUT)
 
-    system_prompt = "\n".join(m["content"] for m in messages if m["role"] == "system") \
-        or "You are a helpful assistant."
+    system_prompt = "\n".join(m["content"] for m in messages if m["role"] == "system") or "You are a helpful assistant."
     user_content = "\n".join(m["content"] for m in messages if m["role"] != "system")
 
     if not stream:
@@ -252,11 +259,7 @@ async def _chat_local(
 ) -> Union[str, AsyncGenerator[str, None]]:
     """Last-resort heuristic – keeps demos alive when no cloud key is present."""
     _note("local-sbert-heuristic")
-    answer = (
-        "⚠️ Offline mode heuristic reply:\n\n"
-        + messages[-1]["content"][:400]
-        + "\n\n[end of local answer]"
-    )
+    answer = "⚠️ Offline mode heuristic reply:\n\n" + messages[-1]["content"][:400] + "\n\n[end of local answer]"
 
     if not stream:
         return answer
