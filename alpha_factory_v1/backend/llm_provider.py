@@ -36,6 +36,8 @@ from typing import (
     Union,
 )
 
+from .mcp_bridge import store as _mcp_store_async
+
 __all__ = ["chat", "embed"]
 
 # Chat message type alias for clarity
@@ -54,8 +56,6 @@ try:
     import anthropic
 except ModuleNotFoundError:
     anthropic = None  # type: ignore[assignment]
-
-from .mcp_bridge import store as _mcp_store_async
 
 # --------------------------------------------------------------------- #
 #  Environment & logging                                                #
