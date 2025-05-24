@@ -36,6 +36,17 @@ from dataclasses import dataclass, field, asdict
 from importlib import import_module
 from uuid import uuid4
 
+# Tokens expire after this many seconds
+TOKEN_TTL = 300
+
+
+def prune_expired_tokens(buffer: dict[str, float]) -> None:
+    """Remove tokens older than ``TOKEN_TTL`` from *buffer*."""
+    now = time.time()
+    expired = [t for t, ts in buffer.items() if now - ts > TOKEN_TTL]
+    for t in expired:
+        buffer.pop(t, None)
+
 # --------------------------------------------------------------------- #
 # Zero‑copy JSON → bytes helper                                         #
 # --------------------------------------------------------------------- #
@@ -146,39 +157,41 @@ def attach(app) -> None:  # noqa: D401
     from fastapi.routing import APIRouter
 
     # Import the CSRF token buffer exposed by backend.__init__
-    _api_buffer: list[str] = import_module("backend")._api_buffer  # type: ignore[attr-defined]
+    _api_buffer: dict[str, float] = import_module("backend")._api_buffer  # type: ignore[attr-defined]
 
     router = APIRouter()
 
     @router.websocket("/ws/trace")
-    async def _trace_ws(ws: WebSocket):
+    async def _trace_ws(websocket: WebSocket):
         """
         WebSocket stream with race‑free, CSRF‑checked loop.
 
         A shielded gather prevents the rare disconnect race where the
-        client closes exactly between queue.put() and ws.send_bytes().
+        client closes exactly between queue.put() and websocket.send_bytes().
         """
         # -----------------------------------------------------------------
         # ▼ secure: require the very first frame to echo the CSRF token
         #    (token was fetched by the front‑end from /api/csrf)
         # -----------------------------------------------------------------
-        await ws.accept()
+        await websocket.accept()
         queue = await hub.subscribe()
 
         try:
             # first frame **must** be {"csrf": "<token>"}
-            init = await ws.receive_json()
+            init = await websocket.receive_json()
+            # prune expired tokens before validation
+            prune_expired_tokens(_api_buffer)
             if not (
                 isinstance(init, dict)
                 and "csrf" in init
                 and init["csrf"] in _api_buffer
             ):
-                await ws.close(code=4401)  # 4401 = “unauthorised”
+                await websocket.close(code=4401)  # 4401 = “unauthorised”
                 return
 
-            _api_buffer.remove(init["csrf"])  # single‑use token
+            _api_buffer.pop(init["csrf"], None)  # single‑use token
 
-            ping_task: asyncio.Task | None = asyncio.create_task(ws.receive_text())
+            ping_task: asyncio.Task | None = asyncio.create_task(websocket.receive_text())
             queue_task: asyncio.Task | None = asyncio.create_task(queue.get())
 
             while True:
@@ -190,7 +203,7 @@ def attach(app) -> None:  # noqa: D401
                 if queue_task in done:
                     payload = queue_task.result()
                     try:
-                        await ws.send_bytes(payload)
+                        await websocket.send_bytes(payload)
                     finally:
                         # immediately replace consumed task
                         queue_task = asyncio.create_task(queue.get())
@@ -199,7 +212,7 @@ def attach(app) -> None:  # noqa: D401
                     try:
                         _ = ping_task.result()  # ignore payload
                     finally:
-                        ping_task = asyncio.create_task(ws.receive_text())
+                        ping_task = asyncio.create_task(websocket.receive_text())
 
         except (WebSocketDisconnect, asyncio.CancelledError):
             pass
