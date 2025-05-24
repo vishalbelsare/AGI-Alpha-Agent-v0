@@ -14,6 +14,7 @@ import os
 import tempfile
 from datetime import datetime, timezone
 from pathlib import Path
+from typing import Any
 
 _log = logging.getLogger("alpha_factory.memory")
 if not _log.handlers:
@@ -26,7 +27,7 @@ _log.setLevel(os.getenv("LOGLEVEL", "INFO"))
 class Memory:
     """Append‑only JSONL store; just good enough for unit‑tests & demos."""
 
-    def __init__(self, dir: str | os.PathLike | None = None) -> None:
+    def __init__(self, dir: str | os.PathLike[str] | None = None) -> None:
         # Pick a safe, always‑writeable directory.
         if dir is None:
             dir = os.getenv("AF_MEMORY_DIR", Path(tempfile.gettempdir()) / "alphafactory")
@@ -38,12 +39,10 @@ class Memory:
             self.file.touch()
 
     # ------------------------------------------------------------------ I/O
-    def write(self, agent: str, kind: str, data) -> None:
+    def write(self, agent: str, kind: str, data: Any) -> None:
         """Append one structured record to disk."""
         record = {
-            "ts": datetime.now(timezone.utc)
-            .isoformat(timespec="seconds")
-            .replace("+00:00", "Z"),
+            "ts": datetime.now(timezone.utc).isoformat(timespec="seconds").replace("+00:00", "Z"),
             "agent": agent,
             "kind": kind,
             "data": data,
@@ -51,12 +50,12 @@ class Memory:
         with self.file.open("a", encoding="utf‑8") as fh:
             fh.write(json.dumps(record, ensure_ascii=False) + "\n")
 
-    def read(self, limit: int = 100) -> list[dict]:
+    def read(self, limit: int = 100) -> list[dict[str, Any]]:
         """Return *limit* most‑recent records (newest‑last)."""
         with self.file.open(encoding="utf-8") as fh:
             lines = fh.readlines()[-limit:]
 
-        records: list[dict] = []
+        records: list[dict[str, Any]] = []
         for line in lines:
             try:
                 records.append(json.loads(line))
@@ -65,7 +64,7 @@ class Memory:
         return records
 
     # ------------------------------------------------------------------
-    def query(self, limit: int = 100):
+    def query(self, limit: int = 100) -> list[dict[str, Any]]:
         """Alias of :meth:`read` for backward compatibility."""
         return self.read(limit)
 
@@ -76,4 +75,3 @@ class Memory:
 
 
 __all__ = ["Memory"]
-

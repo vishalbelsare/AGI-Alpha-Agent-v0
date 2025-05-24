@@ -1,6 +1,7 @@
 from __future__ import annotations
 
-from typing import Protocol
+from types import TracebackType
+from typing import Optional, Protocol, Type
 
 
 class TradeBrokerProtocol(Protocol):
@@ -21,10 +22,15 @@ class TradeBrokerProtocol(Protocol):
     async def get_cash(self) -> float:
         """Return the available cash balance in the account currency."""
 
-    async def __aenter__(self) -> "TradeBrokerProtocol":
-        ...
+    async def __aenter__(self) -> "TradeBrokerProtocol": ...
 
-    async def __aexit__(self, exc_type, exc, tb) -> None:
-        ...
+    async def __aexit__(
+        self,
+        exc_type: Optional[Type[BaseException]],
+        exc: Optional[BaseException],
+        tb: Optional[TracebackType],
+    ) -> None:
+        """Clean up broker resources."""
+
 
 __all__ = ["TradeBrokerProtocol"]

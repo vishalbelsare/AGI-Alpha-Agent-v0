@@ -62,12 +62,7 @@ class GridWorldEnv:  # noqa: D101
     #  Helpers                                                          #
     # ----------------------------------------------------------------- #
     def _find(self, ch: str) -> List[Tuple[int, int]]:
-        return [
-            (r, c)
-            for r, row in enumerate(self._grid)
-            for c, cell in enumerate(row)
-            if cell == ch
-        ]
+        return [(r, c) for r, row in enumerate(self._grid) for c, cell in enumerate(row) if cell == ch]
 
     def passable(self, r: int, c: int) -> bool:
         return 0 <= r < self.height and 0 <= c < self.width and self._grid[r][c] != "#"
@@ -79,7 +74,7 @@ class GridWorldEnv:  # noqa: D101
         self.pos = self.start
         return self.pos
 
-    def step(self, action: str):
+    def step(self, action: str) -> Tuple[Tuple[int, int], float, bool]:
         """Execute ``action`` and return ``(pos, reward, done)``."""
 
         if action not in _ACTIONS:
@@ -96,11 +91,7 @@ class GridWorldEnv:  # noqa: D101
     def legal_actions(self) -> List[str]:
         """Return currently available moves."""
 
-        return [
-            a
-            for a, (dr, dc) in _A2DIR.items()
-            if self.passable(self.pos[0] + dr, self.pos[1] + dc)
-        ]
+        return [a for a, (dr, dc) in _A2DIR.items() if self.passable(self.pos[0] + dr, self.pos[1] + dc)]
 
     # ----------------------------------------------------------------- #
     #  String representation                                            #
