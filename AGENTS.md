@@ -14,9 +14,9 @@ The instructions below apply to all contributors and automated agents.
 All contributors must follow the [Code of Conduct](CODE_OF_CONDUCT.md).
 ## Prerequisites
 - Python 3.11 or 3.12 (**Python ≥3.11 and <3.13**)
-- Docker and Docker Compose
+- Docker and Docker Compose (Compose ≥2.5)
 - Git
-- The script `alpha_factory_v1/scripts/preflight.py` validates these tools.
+- Run `python alpha_factory_v1/scripts/preflight.py` to validate these tools.
 
 ## Development Environment
 - Create and activate a Python 3.11 or 3.12 (**Python ≥3.11 and <3.13**) virtual
