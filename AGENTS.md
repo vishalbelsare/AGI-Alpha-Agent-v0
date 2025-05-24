@@ -7,10 +7,15 @@ The instructions below apply to all contributors and automated agents.
 - Create and activate a Python 3.11 or 3.12 (**Python ≥3.11 and <3.13**) virtual environment before running the setup script.
 - The script `alpha_factory_v1/scripts/preflight.py` enforces this requirement.
 - Run `./codex/setup.sh` to install the project in editable mode along with minimal runtime dependencies.
-- When offline, run `WHEELHOUSE=/path/to/wheels ./codex/setup.sh`. Pass the same
-  path to `check_env.py --wheelhouse` and set `AUTO_INSTALL_MISSING=1` to allow
-  automatic installation of missing packages. Example:
-  `WHEELHOUSE=/media/wheels python check_env.py --auto-install --wheelhouse /media/wheels`
+- When offline, set `WHEELHOUSE=/path/to/wheels` for both `./codex/setup.sh` and
+  `python check_env.py --auto-install` to install packages from the wheelhouse.
+  Use `AUTO_INSTALL_MISSING=1` with `check_env.py` to automatically install
+  missing packages. Example:
+  ```bash
+  WHEELHOUSE=/media/wheels ./codex/setup.sh
+  AUTO_INSTALL_MISSING=1 WHEELHOUSE=/media/wheels \
+    python check_env.py --auto-install
+  ```
 - After setup, validate with `python check_env.py --auto-install`.
   This installs any missing optional packages from the wheelhouse if provided.
   - When `WHEELHOUSE` is set, run
