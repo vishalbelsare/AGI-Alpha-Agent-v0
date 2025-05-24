@@ -12,6 +12,9 @@ requires-python = ">=3.11,<3.13"
 [tool.setuptools]
 packages = ["alpha_factory_v1", "af_requests"]
 
+[tool.setuptools.package-data]
+"alpha_factory_v1" = ["py.typed"]
+
 [project.scripts]
 alpha-factory = "alpha_factory_v1.run:run"
 governance-sim = "alpha_factory_v1.demos.solving_agi_governance.governance_sim:main"
