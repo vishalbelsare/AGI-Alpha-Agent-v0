@@ -1,4 +1,3 @@
-
 """
 a2a_client.py
 -------------
@@ -41,13 +40,14 @@ from typing import Any, AsyncGenerator, Literal, Type
 import asyncio
 
 _DEFAULT_SOCKET = os.getenv("SPIFFE_ENDPOINT_SOCKET", "/run/spire/sockets/agent.sock")
-_DEFAULT_WS_MAX_SIZE = int(os.getenv("A2A_WS_MAX_SIZE", str(2 ** 20)))
+_DEFAULT_WS_MAX_SIZE = int(os.getenv("A2A_WS_MAX_SIZE", str(2**20)))
 
 __all__ = ["A2AClient", "TaskRequest", "TaskResponse"]
 
 # --------------------------------------------------------------------------- #
-# Public dataclasses shared by all transports
+# Public dataclasses shared by all transports
 # --------------------------------------------------------------------------- #
+
 
 @dataclass(slots=True)
 class TaskRequest:
@@ -69,13 +69,14 @@ class TaskResponse:
 
 
 # --------------------------------------------------------------------------- #
-# Core client façade
+# Core client façade
 # --------------------------------------------------------------------------- #
+
 
 class A2AClient:
     """Unified façade that hides the underlying transport (gRPC / WebSocket)."""
 
-    def __init__(self, _impl) -> None:  # noqa: D401
+    def __init__(self, _impl) -> None:
         self._impl = _impl
 
     # Factory helpers -------------------------------------------------------
@@ -139,10 +140,10 @@ class A2AClient:
 
     # Async context‑manager sugar ------------------------------------------
 
-    async def __aenter__(self) -> "A2AClient":  # noqa: D401
+    async def __aenter__(self) -> "A2AClient":
         return self
 
-    async def __aexit__(                       # noqa: D401
+    async def __aexit__(
         self,
         exc_type: Type[BaseException] | None,
         exc: BaseException | None,
@@ -152,13 +153,14 @@ class A2AClient:
 
 
 # --------------------------------------------------------------------------- #
-# gRPC transport
+# gRPC transport
 # --------------------------------------------------------------------------- #
+
 
 class _GrpcTransport:
     """Lightweight gRPC transport with SPIFFE mTLS."""
 
-    def __init__(self, channel, stub_cls) -> None:  # noqa: D401
+    def __init__(self, channel, stub_cls) -> None:
         self._channel = channel
         self._stub = stub_cls(channel)
 
@@ -200,12 +202,14 @@ class _GrpcTransport:
             await channel.channel_ready()
         # Lazy import of auto‑generated stub
         from proto.alpha_factory.v1 import alpha_pb2_grpc as stubs  # type: ignore
+
         return cls(channel, stubs.RouterStub)
 
     # Public API ............................................................
 
     async def send(self, req: TaskRequest) -> TaskResponse:
         from proto.alpha_factory.v1 import alpha_pb2 as pb  # type: ignore
+
         msg = pb.TaskRequest(**asdict(req))
         reply = await self._stub.SendTask(msg)
         return TaskResponse(
@@ -217,6 +221,7 @@ class _GrpcTransport:
 
     async def stream(self, topic: str) -> AsyncGenerator[dict[str, Any], None]:
         from proto.alpha_factory.v1 import alpha_pb2 as pb  # type: ignore
+
         req = pb.EventStreamRequest(topic=topic)
         call = self._stub.EventStream(req)
         async for ev in call:
@@ -227,13 +232,14 @@ class _GrpcTransport:
 
 
 # --------------------------------------------------------------------------- #
-# WebSocket transport (fallback)
+# WebSocket transport (fallback)
 # --------------------------------------------------------------------------- #
+
 
 class _WsTransport:
     """Lightweight WebSocket‑client fallback with optional wss://mTLS."""
 
-    def __init__(self, ws) -> None:  # noqa: D401
+    def __init__(self, ws) -> None:
         self._ws = ws
 
     # Factory ...............................................................
@@ -250,7 +256,7 @@ class _WsTransport:
     ) -> "_WsTransport":
         """Return a connected WebSocket transport."""
         import websockets  # type: ignore
-        
+
         uri = f"wss://{host}{path}"
         ssl_ctx: ssl.SSLContext | bool
         if os.getenv("A2A_INSECURE") == "1":
@@ -286,9 +292,11 @@ class _WsTransport:
     async def close(self) -> None:
         await self._ws.close()
 
+
 # --------------------------------------------------------------------------- #
-# Helpers
+# Helpers
 # --------------------------------------------------------------------------- #
+
 
 def _spiffe_ssl_context(spiffe_id: str | None) -> ssl.SSLContext:
     """Return an `ssl.SSLContext` pre‑loaded with SPIFFE SVID + bundle."""
@@ -308,7 +316,7 @@ def _spiffe_ssl_context(spiffe_id: str | None) -> ssl.SSLContext:
         bundle_set.add(bundle=source.x509_bundle())
         ctx.verify_flags |= ssl.VERIFY_X509_TRUSTED_FIRST  # type: ignore[attr-defined]
 
-        def _verify(conn, x509, errnum, depth, ok):  # noqa: D401
+        def _verify(conn, x509, errnum, depth, ok):
             if not ok:
                 return ok
             peer_spiffe_id = SpiffeId.parse(cert_validator.extract_ids(x509)[0])

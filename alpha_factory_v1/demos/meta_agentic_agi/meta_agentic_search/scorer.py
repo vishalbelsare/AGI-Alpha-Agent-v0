@@ -61,7 +61,6 @@ import os
 import time
 import uuid
 from dataclasses import dataclass, field
-from functools import wraps
 from pathlib import Path
 from statistics import mean
 from typing import Any, Callable, Dict, Iterable, List, Mapping, Sequence
@@ -156,9 +155,7 @@ class OpenWeightsProvider(ModelProvider):
         try:
             import ollama  # type: ignore
         except ImportError as exc:  # pragma: no cover
-            raise RuntimeError(
-                "`pip install ollama` required for open‑weights provider"
-            ) from exc
+            raise RuntimeError("`pip install ollama` required for open‑weights provider") from exc
         self.client = ollama.Client(host=host)
 
     # ------------------------------------------------------------------
@@ -233,9 +230,9 @@ class LineageTracker:
 
     # ------------------------------------------------------------------
     def export(self, path: str | os.PathLike[str]) -> None:
-        try:
-            import pydot  # noqa: WPS433 optional heavy import
-        except ImportError:
+        import importlib.util
+
+        if importlib.util.find_spec("pydot") is None:
             raise RuntimeError("`pip install pydot` required for export")
         dot = nx.nx_pydot.to_pydot(self.graph)
         dot.write_svg(str(path))
@@ -254,9 +251,7 @@ class MultiObjectiveScorer:
         lineage: LineageTracker | None = None,
     ) -> None:
         self.provider = provider
-        self.objective_fns = {
-            name: _OBJECTIVE_REGISTRY[name] for name in (objectives or _OBJECTIVE_REGISTRY)
-        }
+        self.objective_fns = {name: _OBJECTIVE_REGISTRY[name] for name in (objectives or _OBJECTIVE_REGISTRY)}
         self.lineage = lineage or LineageTracker()
 
     # ------------------------------------------------------------------
@@ -379,4 +374,3 @@ def main(argv: Sequence[str] | None = None):  # noqa: D401
 
 if __name__ == "__main__":  # pragma: no cover
     main()
-

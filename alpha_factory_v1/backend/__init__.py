@@ -1,8 +1,8 @@
 """
 alpha_factory_v1/backend/__init__.py
 ────────────────────────────────────
-• ASGI entry-point with FastAPI (if available) or a zero-dep HTTP fallback.  
-• Small JSON API:  /api/logs · /api/csrf · /metrics   +   live /ws/trace.  
+• ASGI entry-point with FastAPI (if available) or a zero-dep HTTP fallback.
+• Small JSON API:  /api/logs · /api/csrf · /metrics   +   live /ws/trace.
 • NEW 2025-05-02:  Backwards-compatibility shim that maps the historic
   `openai_agents` namespace → the official `agents` package shipped with the
   **OpenAI Agents SDK** (installed via `pip install openai-agents`).
@@ -31,18 +31,16 @@ import secrets
 _LOG = logging.getLogger("alphafactory.startup")
 
 try:  # attempt to import the new canonical package name first
-    _agents_pkg = importlib.import_module("agents")          # provided by openai-agents ≥0.0.13
-except ModuleNotFoundError:                                  # SDK not installed
-    _LOG.warning(
-        "OpenAI Agents SDK not found - running in degraded mode. "
-        "Install with:  pip install openai-agents"
-    )
+    _agents_pkg = importlib.import_module("agents")  # provided by openai-agents ≥0.0.13
+except ModuleNotFoundError:  # SDK not installed
+    _LOG.warning("OpenAI Agents SDK not found - running in degraded mode. " "Install with:  pip install openai-agents")
     # Create a *minimal* stub so `import openai_agents` will not crash.
     shim = types.ModuleType("openai_agents")
 
-    class _MissingSDK:                                       # pylint: disable=too-few-public-methods
+    class _MissingSDK:  # pylint: disable=too-few-public-methods
         """Stub that raises helpful errors when the real SDK is absent."""
-        def __getattr__(self, item):                         # noqa: D401
+
+        def __getattr__(self, item):  # noqa: D401
             raise ModuleNotFoundError(
                 "The OpenAI Agents SDK is required for this operation. "
                 "Please install it with:  pip install openai-agents"
@@ -77,7 +75,6 @@ sys.modules["backend.agents"] = _agents_mod
 _fin_mod = importlib.import_module(".agents.finance_agent", __name__)
 sys.modules.setdefault(__name__ + ".finance_agent", _fin_mod)
 sys.modules["backend.finance_agent"] = _fin_mod
-
 
 
 # ──────────────────────── log & CSRF helpers (unchanged) ──────────────────
@@ -122,14 +119,16 @@ try:
 
     # .— /ws/trace ————————————————————————————————————————————————.
     try:
-        from .trace_ws import attach as _attach_trace_ws  # noqa: WPS433
-        _attach_trace_ws(fast_app)                        # registers /ws/trace
+        from .trace_ws import attach as _attach_trace_ws
+
+        _attach_trace_ws(fast_app)  # registers /ws/trace
     except Exception:  # pragma: no cover
         _LOG.debug("trace_ws not attached (optional component missing).")
 
     # .— /metrics (Prometheus) ————————————————————————————————————————.
     try:
-        from .agents.finance_agent import metrics_asgi_app  # noqa: WPS433
+        from .agents.finance_agent import metrics_asgi_app
+
         fast_app.mount("/metrics", metrics_asgi_app())
     except Exception:  # pragma: no cover
         _LOG.debug("Prometheus metrics endpoint not active.")
@@ -139,6 +138,7 @@ try:
 
 # ─────────────────────── zero-dependency HTTP fallback ────────────────────
 except ModuleNotFoundError:  # pragma: no cover
+
     async def app(scope, receive, send):  # type: ignore  # noqa: D401, N802
         """Tiny HTTP-only ASGI app used when FastAPI is not installed."""
         if scope["type"] != "http":  # only handle plain HTTP

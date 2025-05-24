@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 """
 backend.agents.biotech_agent
 ====================================================================
@@ -27,9 +25,9 @@ Core ideas
   action sequences over a 5-step horizon; reward = E[Δ-Confidence × VoI].
 
 ▸ **OpenAI Agents SDK tools**
-    • `ask_biotech`         – GPT-augmented Q&A with inline citations  
-    • `propose_experiment`  – design CRISPR, assay or in-silico study  
-    • `pathway_map`         – return interaction graph & evidence triples  
+    • `ask_biotech`         – GPT-augmented Q&A with inline citations
+    • `propose_experiment`  – design CRISPR, assay or in-silico study
+    • `pathway_map`         – return interaction graph & evidence triples
     • `alpha_dashboard`     – JSON summary of latest α opportunities
 
 ▸ **Governance & safety** – every outbound artefact is wrapped in an
@@ -46,6 +44,9 @@ All optional heavy deps (`rdflib`, `faiss`, `pandas`, `sentence_transformers`,
 NEVER raise at import time.
 
 --------------------------------------------------------------------"""
+
+from __future__ import annotations
+
 import asyncio
 import hashlib
 import json
@@ -274,24 +275,24 @@ class BiotechAgent(AgentBase):
 
     # ── OpenAI Agents SDK tools ──────────────────────────────────────────
     @tool(description="Ask a biotech-related question; returns answer with citations.")
-    def ask_biotech(self, query: str) -> str:  # noqa: D401
+    def ask_biotech(self, query: str) -> str:
         return asyncio.get_event_loop().run_until_complete(self._ask_async(query))
 
     @tool(description="Design an experiment. Arg JSON {objective:str, budget:str?}.")
-    def propose_experiment(self, obj_json: str) -> str:  # noqa: D401
+    def propose_experiment(self, obj_json: str) -> str:
         args = json.loads(obj_json or "{}")
         return asyncio.get_event_loop().run_until_complete(self._exp_async(args))
 
     @tool(description="Return pathway map for entity URI or gene symbol.")
-    def pathway_map(self, entity: str) -> str:  # noqa: D401
+    def pathway_map(self, entity: str) -> str:
         return asyncio.get_event_loop().run_until_complete(self._pathway_async(entity))
 
     @tool(description="Summarise latest alpha opportunities discovered by the agent.")
-    def alpha_dashboard(self) -> str:  # noqa: D401
+    def alpha_dashboard(self) -> str:
         return json.dumps(_wrap_mcp(self.NAME, self._latest_alpha[-50:]))
 
     # ── orchestrator cycle ───────────────────────────────────────────────
-    async def run_cycle(self):  # noqa: D401
+    async def run_cycle(self):
         # 1. ingest new PubMed abstracts (online)
         if httpx:
             await self._ingest_pubmed(self.cfg.pubmed_term)
@@ -310,7 +311,7 @@ class BiotechAgent(AgentBase):
         _publish("bt.heartbeat", {"ts": _now()})
         await asyncio.sleep(self.cfg.cycle_seconds)
 
-    async def step(self) -> None:  # noqa: D401
+    async def step(self) -> None:
         """Delegate step execution to :meth:`run_cycle`."""
         await self.run_cycle()
 
@@ -362,7 +363,7 @@ class BiotechAgent(AgentBase):
             "delta_stability": round(delta, 4),
         }
 
-    def optimise(self, sequence: str) -> Dict[str, Any]:  # noqa: D401
+    def optimise(self, sequence: str) -> Dict[str, Any]:
         loop = asyncio.get_event_loop()
         return loop.run_until_complete(self._optimise_async(sequence))
 
@@ -376,7 +377,7 @@ class BiotechAgent(AgentBase):
         try:
             async with httpx.AsyncClient(timeout=20) as c:
                 ids = (await c.get(search)).json()["esearchresult"]["idlist"]
-        except Exception as exc:  # noqa: BLE001
+        except Exception as exc:
             logger.warning("PubMed fetch failed: %s", exc)
             return
         if not ids:
@@ -399,12 +400,12 @@ class BiotechAgent(AgentBase):
                 )
 
     # ── ADK mesh ────────────────────────────────────────────────────────
-    async def _register_mesh(self):  # noqa: D401
+    async def _register_mesh(self):
         try:
             client = adk.Client()
             await client.register(node_type=self.NAME, metadata={"kg": str(self.cfg.kg_file)})
             logger.info("[BT] registered in ADK mesh id=%s", client.node_id)
-        except Exception as exc:  # noqa: BLE001
+        except Exception as exc:
             logger.warning("ADK registration failed: %s", exc)
 
 

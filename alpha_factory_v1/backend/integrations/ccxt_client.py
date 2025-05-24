@@ -18,7 +18,8 @@ _LOG = logging.getLogger("alpha_factory.ccxt")
 _LOG.addHandler(logging.NullHandler())
 
 try:
-    import ccxt.async_support as ccxt  # noqa: WPS433
+    import ccxt.async_support as ccxt  # optional heavy import
+
     _CCXT_OK = True
 except ModuleNotFoundError:
     ccxt = None  # type: ignore
@@ -37,9 +38,7 @@ class ExchangeStub:
         self._price[symbol] = p + random.uniform(-1, 1)
         return {"last": round(self._price[symbol], 2), "timestamp": int(time.time() * 1000)}
 
-    async def create_order(  # noqa: D401
-        self, symbol: str, side: str, amount: float
-    ) -> Dict[str, str]:
+    async def create_order(self, symbol: str, side: str, amount: float) -> Dict[str, str]:  # noqa: D401
         _LOG.info("Simulated order: %s %s %s", side, amount, symbol)
         return {"id": f"sim-{int(time.time()*1000)}", "status": "filled"}
 
@@ -55,12 +54,14 @@ def _build_ccxt_client() -> object:
         _LOG.warning("BINANCE_API_KEY/SECRET missing – offline price stub engaged")
         return ExchangeStub()
 
-    return ccxt.binanceusdm({
-        "apiKey": key,
-        "secret": secret,
-        "enableRateLimit": True,
-        "options": {"defaultType": "future"},  # testnet futures
-    })
+    return ccxt.binanceusdm(
+        {
+            "apiKey": key,
+            "secret": secret,
+            "enableRateLimit": True,
+            "options": {"defaultType": "future"},  # testnet futures
+        }
+    )
 
 
 # --------------------------------------------------------------------- #
