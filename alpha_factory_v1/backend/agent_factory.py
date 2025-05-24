@@ -1,4 +1,3 @@
-
 """
 backend/agent_factory.py
 ────────────────────────
@@ -52,7 +51,7 @@ SDK_AVAILABLE = False
 _AGENTS: ModuleType | None = None
 
 try:
-    _AGENTS = importlib.import_module("agents")  # noqa: WPS433
+    _AGENTS = importlib.import_module("agents")  # optional heavy import
 except ModuleNotFoundError:
     LOGGER.warning("OpenAI Agents SDK not found – running in *stub* mode.")
 else:
@@ -70,6 +69,7 @@ if SDK_AVAILABLE:  # pragma: no cover
         WebSearchTool,
     )
 else:  # --------------------------- stub fall-backs --------------------------
+
     class _StubTool:  # noqa: D401
         """Callable that only reports unavailability."""
 
@@ -145,6 +145,7 @@ except Exception as exc:  # pragma: no cover
     def run_pytest_tool(*_, **__) -> str:  # type: ignore
         return run_pytest(*_, **__)
 
+
 # ╭──────────────────────────────────────────────────────────────────────╮
 # │ 3 ▸ Model auto-selection helpers                                    │
 # ╰──────────────────────────────────────────────────────────────────────╯
@@ -209,6 +210,7 @@ def get_default_tools() -> List[Any]:
 
 DEFAULT_TOOLS: List[Any] = get_default_tools()
 
+
 # ╭──────────────────────────────────────────────────────────────────────╮
 # │ 5 ▸ Public factory helpers                                          │
 # ╰──────────────────────────────────────────────────────────────────────╯
@@ -257,7 +259,7 @@ def build_core_agent(
         "Creating agent • name=%s • model=%s • tools=%s",
         name,
         selected_model,
-        [getattr(t, 'name', str(t)) for t in toolset],
+        [getattr(t, "name", str(t)) for t in toolset],
     )
 
     return Agent(

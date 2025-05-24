@@ -10,7 +10,7 @@ class DummyModel:
     def __init__(self, resp: str):
         self.resp = resp
 
-    def complete(self, prompt: str) -> str:  # noqa: D401
+    def complete(self, prompt: str) -> str:
         return self.resp
 
 
@@ -19,12 +19,12 @@ class DummyAgent:
         self.name = name
         self.ran = False
 
-    async def run_cycle(self):  # noqa: D401
+    async def run_cycle(self):
         self.ran = True
 
 
 class DummyGov:
-    def vet_plans(self, agent, plans):  # noqa: D401
+    def vet_plans(self, agent, plans):
         return plans
 
 

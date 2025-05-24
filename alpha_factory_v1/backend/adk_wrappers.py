@@ -24,11 +24,17 @@ _ADK_AVAILABLE = importlib.util.find_spec("adk") is not None
 if _ADK_AVAILABLE:
     from adk import Agent, task, JsonSchema
 else:  # stub fallbacks so type‑checkers stay quiet
+
     class Agent:  # pylint: disable=too-few-public-methods
-        def __init__(self, name: str): self.name = name
-    def task(**_kwargs):  # noqa: D401
-        def _decorator(func): return func
+        def __init__(self, name: str):
+            self.name = name
+
+    def task(**_kwargs):
+        def _decorator(func):
+            return func
+
         return _decorator
+
     JsonSchema = dict  # type: ignore
 
 
@@ -45,29 +51,30 @@ class ManufacturingADK(Agent):
     @task(
         name="schedule_jobs",
         description="Return an optimal Gantt schedule for the given job list "
-                    "within the planning horizon (in hours).",
-        input_schema=JsonSchema({
-            "type": "object",
-            "properties": {
-                "jobs": {
-                    "type": "array",
-                    "items": {"type": "object"},
-                    "description": "Each job must include duration & constraints"
+        "within the planning horizon (in hours).",
+        input_schema=JsonSchema(
+            {
+                "type": "object",
+                "properties": {
+                    "jobs": {
+                        "type": "array",
+                        "items": {"type": "object"},
+                        "description": "Each job must include duration & constraints",
+                    },
+                    "horizon": {"type": "integer", "minimum": 1},
                 },
-                "horizon": {"type": "integer", "minimum": 1}
-            },
-            "required": ["jobs", "horizon"]
-        }),
-        output_schema=JsonSchema({
-            "type": "object",
-            "properties": {
-                "gantt": {"type": "object"},
-                "makespan": {"type": "number"}
-            },
-            "required": ["gantt", "makespan"]
-        }),
+                "required": ["jobs", "horizon"],
+            }
+        ),
+        output_schema=JsonSchema(
+            {
+                "type": "object",
+                "properties": {"gantt": {"type": "object"}, "makespan": {"type": "number"}},
+                "required": ["gantt", "makespan"],
+            }
+        ),
         retries=2,
-        timeout=30
+        timeout=30,
     )
     def schedule_jobs(self, *, jobs: list[dict[str, Any]], horizon: int) -> Dict[str, Any]:
         """Return an optimised schedule via :class:`ManufacturingAgent`."""
@@ -87,25 +94,23 @@ class BiotechADK(Agent):
 
     @task(
         name="protein_optimise",
-        description="Optimise a protein sequence for improved stability "
-                    "and expression.",
-        input_schema=JsonSchema({
-            "type": "object",
-            "properties": {
-                "sequence": {"type": "string", "minLength": 10}
-            },
-            "required": ["sequence"]
-        }),
-        output_schema=JsonSchema({
-            "type": "object",
-            "properties": {
-                "optimised_sequence": {"type": "string"},
-                "delta_stability": {"type": "number"}
-            },
-            "required": ["optimised_sequence", "delta_stability"]
-        }),
+        description="Optimise a protein sequence for improved stability " "and expression.",
+        input_schema=JsonSchema(
+            {
+                "type": "object",
+                "properties": {"sequence": {"type": "string", "minLength": 10}},
+                "required": ["sequence"],
+            }
+        ),
+        output_schema=JsonSchema(
+            {
+                "type": "object",
+                "properties": {"optimised_sequence": {"type": "string"}, "delta_stability": {"type": "number"}},
+                "required": ["optimised_sequence", "delta_stability"],
+            }
+        ),
         retries=1,
-        timeout=60
+        timeout=60,
     )
     def protein_optimise(self, *, sequence: str) -> Dict[str, Any]:
         """Optimise *sequence* via :class:`BiotechAgent`."""
@@ -130,6 +135,7 @@ def adk_registry() -> Dict[str, Agent]:
         "manufacturing": ManufacturingAgent(),
         "biotech": BiotechAgent(),
     }
+
 
 __all__ = [
     "ManufacturingADK",
