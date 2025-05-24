@@ -119,6 +119,7 @@ from alpha_factory_v1.backend.agents.finance import FinanceAgent
 rt = AgentRuntime(api_key=None)           # Works offline
 rt.register(FinanceAgent(ens="finance.demo.a.agent.agi.eth"))
 rt.serve()
+# The orchestrator shuts down the runtime automatically on exit
 ```
 
 ---

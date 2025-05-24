@@ -40,6 +40,7 @@ alpha-agi-bhf --episodes 5
 
 When API keys are configured the program automatically uses the OpenAI Agents
 runtime. Otherwise it falls back to the local Meta‑Agentic Tree Search.
+The orchestrator also cleans up the OpenAI runtime on exit to release resources.
 
 For production use, invoke the **official demo** which automatically
 checks the environment, selects the best runtime and optionally starts the

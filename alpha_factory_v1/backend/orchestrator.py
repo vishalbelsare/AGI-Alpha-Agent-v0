@@ -9,10 +9,11 @@ Alpha-Factory v1 👁️✨ — Control-Tower v3.0.0  (2025-05-02)
 ▸ Dual interface → FastAPI (REST/OpenAPI)  + gRPC (A2A-0.5) – served in-parallel  
 ▸ Kafka event/experience bus **or** seamless in-proc fallback (air-gapped dev)  
 ▸ Memory-Fabric bridge (vector + graph) exposed to agents & REST  
-▸ Prometheus /metrics, OpenTelemetry tracing, JSON logs, health-probes  
-▸ OpenAI Agents SDK + Google ADK soft-bridges (auto-activate when installed)  
-▸ Graceful-degradation: every heavy optional dep is a soft-import;  
-  the orchestrator never crashes because a library or external service is missing.  
+▸ Prometheus /metrics, OpenTelemetry tracing, JSON logs, health-probes
+▸ OpenAI Agents SDK + Google ADK soft-bridges (auto-activate when installed)
+▸ OpenAI runtime shuts down automatically on exit
+▸ Graceful-degradation: every heavy optional dep is a soft-import;
+  the orchestrator never crashes because a library or external service is missing.
 ▸ Dev/Edge mode (`--dev` flag *or* `DEV_MODE=true`) → in-memory stubs, no Kafka,
   no databases — demo runs on a Raspberry Pi zero-trust air-gap.
 
@@ -220,13 +221,31 @@ async def maybe_await(fn, *a, **kw):  # type: ignore
 # ─────────────── OpenAI Agents & Google ADK bridges ───────────────────
 class _OAI:
     _runtime: Optional[AgentRuntime] = None
+    _hooked: bool = False
 
     @classmethod
     def runtime(cls) -> Optional[AgentRuntime]:
         if cls._runtime is None and "AgentRuntime" in globals():
             cls._runtime = AgentRuntime()
             log.info("OpenAI Agents SDK detected → runtime initialised")
+            if not cls._hooked:
+                atexit.register(cls.close)
+                cls._hooked = True
         return cls._runtime
+
+    @classmethod
+    def close(cls) -> None:
+        rt = cls._runtime
+        if not rt:
+            return
+        fn = getattr(rt, "shutdown", None)
+        if not callable(fn):
+            fn = getattr(rt, "close", None)
+        if callable(fn):
+            try:
+                fn()
+            except Exception:  # noqa: BLE001
+                log.exception("OpenAI runtime shutdown failed")
 
 
 async def _adk_register() -> None:
