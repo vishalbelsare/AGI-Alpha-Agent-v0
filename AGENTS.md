@@ -84,6 +84,7 @@ Please report security vulnerabilities as described in our [Security Policy](SEC
   [`alpha_factory_v1/scripts/README.md`](alpha_factory_v1/scripts/README.md)
   for additional guidance.
 - Verify `.env` is ignored by running `git status` (it should appear untracked). The repository's `.gitignore` already includes `.env`.
+- Store secrets in environment variables or Docker secrets instead of code to keep them out of version control.
 - Set `AF_TRACING=true` to enable tracing (default) or `false` to disable it. See
   [`alpha_factory_v1/backend/tracer.py`](alpha_factory_v1/backend/tracer.py).
 
