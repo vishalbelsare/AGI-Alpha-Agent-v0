@@ -10,6 +10,8 @@ import logging
 import os
 from typing import Iterable, Tuple
 
+import networkx as nx
+
 _LOG = logging.getLogger("alpha_factory.graph")
 _LOG.addHandler(logging.NullHandler())
 
@@ -19,8 +21,6 @@ try:
     _NEO4J_OK = True
 except ModuleNotFoundError:
     _NEO4J_OK = False
-
-import networkx as nx
 
 _URI = os.getenv("NEO4J_URI", "bolt://localhost:7687")
 _USER = os.getenv("NEO4J_USER", "neo4j")
