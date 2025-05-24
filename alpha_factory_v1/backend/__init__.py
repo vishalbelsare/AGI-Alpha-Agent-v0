@@ -24,10 +24,11 @@ import logging
 import sys
 import types
 from pathlib import Path
-from typing import List
+from typing import List, Dict
 import tempfile
 import json
 import secrets
+import time
 
 _LOG = logging.getLogger("alphafactory.startup")
 
@@ -92,7 +93,8 @@ def _read_logs(max_lines: int = 100) -> List[str]:
 
 
 # Tiny in-memory buffer holding single-use CSRF tokens (shared with /ws/trace)
-_api_buffer: List[str] = []
+# Maps token -> timestamp
+_api_buffer: Dict[str, float] = {}
 
 # ───────────────────────────── FastAPI branch ─────────────────────────────
 try:
@@ -115,7 +117,7 @@ try:
     async def csrf_token() -> dict[str, str]:
         """Issue a one-time CSRF token for the /ws/trace handshake."""
         token = secrets.token_urlsafe(32)
-        _api_buffer.append(token)
+        _api_buffer[token] = time.time()
         return {"token": token}
 
     # .— /ws/trace ————————————————————————————————————————————————.
