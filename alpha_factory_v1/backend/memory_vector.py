@@ -32,10 +32,8 @@ import logging
 import os
 import queue
 import random
-import sqlite3
 import sys
 import time
-from pathlib import Path
 from typing import Iterable, List, Sequence, Tuple
 
 try:  # NumPy optional – provide pure Python fallback
