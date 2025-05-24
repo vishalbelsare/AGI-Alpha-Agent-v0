@@ -15,19 +15,26 @@ numeric flags to prevent invalid configuration from reaching the orchestrator.
 from __future__ import annotations
 
 import argparse
+import logging
 import os
 
 from typing import Callable
 
 from alpha_factory_v1 import run as af_run, __version__
 
+log = logging.getLogger(__name__)
+
 
 def _env_int(name: str, default: int) -> int:
     """Return ``int`` environment value or ``default`` if conversion fails."""
 
+    val = os.getenv(name)
+    if val is None:
+        return default
     try:
-        return int(os.getenv(name, default))
+        return int(val)
     except (TypeError, ValueError):
+        log.warning("Invalid %s=%r, using default %s", name, val, default)
         return default
 
 
@@ -61,7 +68,6 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         Optional argument vector. Defaults to ``sys.argv[1:]`` when ``None``.
     """
 
-    env = os.environ
     ap = argparse.ArgumentParser(description="Alpha-Factory Edge Runner")
     ap.add_argument(
         "--agents",
@@ -131,7 +137,7 @@ def main() -> None:
             print(name)
         return
 
-    cli = ["--dev", f"--port", str(args.port)]
+    cli = ["--dev", "--port", str(args.port)]
     if args.metrics_port:
         cli += ["--metrics-port", str(args.metrics_port)]
     if args.a2a_port:
