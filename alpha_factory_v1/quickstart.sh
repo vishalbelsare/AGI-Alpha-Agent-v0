@@ -4,6 +4,9 @@
 set -Eeuo pipefail
 trap 'echo -e "\n\u274c Error on line $LINENO" >&2' ERR
 
+# log pip output for troubleshooting
+PIP_LOG="pip-install.log"
+
 # always operate from repository root
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 cd "$SCRIPT_DIR/.."
@@ -16,6 +19,7 @@ Usage: $0 [--preflight] [--skip-preflight] [orchestrator args...]
 Bootstraps and launches Alpha-Factory in an isolated Python virtual environment.
   --preflight        Run environment checks and exit
   --skip-preflight   Skip automatic preflight checks before launching
+  Pip install output logs to $PIP_LOG and failures abort the script.
 Any other options are passed directly to the orchestrator.
 EOF
 }
@@ -54,10 +58,10 @@ VENV_DIR=".venv"
 if [ ! -d "$VENV_DIR" ]; then
   echo "→ Creating virtual environment"
   python3 -m venv "$VENV_DIR"
-  "$VENV_DIR/bin/pip" install -U pip >/dev/null
+  "$VENV_DIR/bin/pip" install -U pip >"$PIP_LOG" 2>&1 || { echo 'pip install failed'; exit 1; }
   REQ="alpha_factory_v1/requirements.lock"
   [ -f "$REQ" ] || REQ="alpha_factory_v1/requirements.txt"
-  "$VENV_DIR/bin/pip" install -r "$REQ" >/dev/null
+  "$VENV_DIR/bin/pip" install -r "$REQ" >>"$PIP_LOG" 2>&1 || { echo 'pip install failed'; exit 1; }
 fi
 
 source "$VENV_DIR/bin/activate"
