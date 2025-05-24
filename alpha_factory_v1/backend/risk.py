@@ -1,4 +1,5 @@
-import os, math
+import os
+import math
 
 MAX_PCT_CAPITAL = float(os.getenv("MAX_PCT_CAPITAL", "0.05"))  # 5 %
 ACCOUNT_EQUITY = float(os.getenv("ACCOUNT_EQUITY", "100000"))  # $100k demo
