@@ -361,6 +361,7 @@ import asyncio
 import socket
 import uuid
 import threading
+import ast
 from typing import List, Optional, Dict, Any
 from urllib.parse import urlparse
 
@@ -702,9 +703,36 @@ class ReasoningAgent:
         except Exception as e:
             return f"[Search error: {e}]"
 
+    def _eval_node(self, node: ast.AST) -> float:
+        """Recursively evaluate supported AST nodes."""
+        if isinstance(node, ast.BinOp):
+            left = self._eval_node(node.left)
+            right = self._eval_node(node.right)
+            if isinstance(node.op, ast.Add):
+                return left + right
+            if isinstance(node.op, ast.Sub):
+                return left - right
+            if isinstance(node.op, ast.Mult):
+                return left * right
+            if isinstance(node.op, ast.Div):
+                return left / right
+            if isinstance(node.op, ast.Pow):
+                return left ** right
+            raise ValueError("Unsupported operator")
+        if isinstance(node, ast.UnaryOp) and isinstance(node.op, ast.USub):
+            return -self._eval_node(node.operand)
+        if isinstance(node, ast.Constant) and isinstance(node.value, (int, float)):
+            return float(node.value)
+        raise ValueError("Unsupported expression")
+
+    def _safe_eval(self, expression: str) -> float:
+        """Evaluate an arithmetic expression using the AST parser."""
+        tree = ast.parse(expression, mode="eval")
+        return self._eval_node(tree.body)
+
     def tool_calculate(self, expression: str) -> str:
         try:
-            return str(eval(expression, {"__builtins__": {}}, {}))
+            return str(self._safe_eval(expression))
         except Exception as e:
             return f"[Calculation error: {e}]"
 
