@@ -41,6 +41,7 @@ import logging
 import os
 import pathlib
 import random
+import re
 import threading
 import time
 from contextlib import contextmanager
@@ -95,6 +96,7 @@ else:  # pragma: no cover
 # ─────────────────────────── global state ───────────────────────────
 _LOCK = threading.RLock()
 _JITTER = random.Random(42)
+_REL_RE = re.compile(r"^[A-Za-z0-9_]+$")
 
 
 # ═════════════════════════ helper utilities ════════════════════════
@@ -121,6 +123,13 @@ def _to_int(val: Any, default: int = 0) -> int:  # noqa: D401
         return int(val)
     except Exception:
         return default
+
+
+def _validate_rel(rel: str) -> str:
+    """Validate relationship name."""
+    if not _REL_RE.match(rel):
+        raise ValueError(f"Invalid relation name: {rel!r}")
+    return rel
 
 
 # ════════════════════════ GraphMemory class ════════════════════════
@@ -230,6 +239,7 @@ class GraphMemory:
           (e.g. ``{"delta_alpha": 42, "agent": "Finance"}``).
         """
         props = props or {}
+        rel = _validate_rel(rel)
         with _LOCK:
             self._upsert_node(src)
             self._upsert_node(dst)
@@ -259,7 +269,7 @@ class GraphMemory:
         All triples share ``default_props`` – handy for timestamping events.
         """
         default_props = default_props or {}
-        triples = list(triples)  # may be generator
+        triples = [(s, _validate_rel(r), d) for s, r, d in list(triples)]  # may be generator
         if not triples:
             return
         with _LOCK:
@@ -412,10 +422,7 @@ class GraphMemory:
 
     def _ensure_schema(self) -> None:
         with _neo_session(self._driver, self._db) as s:
-            s.run(
-                "CREATE CONSTRAINT IF NOT EXISTS "
-                "FOR (e:Entity) REQUIRE e.name IS UNIQUE"
-            )
+            s.run("CREATE CONSTRAINT IF NOT EXISTS " "FOR (e:Entity) REQUIRE e.name IS UNIQUE")
 
     def _refresh_gauges(self) -> None:
         n = _to_int(self.query("MATCH (n) RETURN count(n)")[0][0])
