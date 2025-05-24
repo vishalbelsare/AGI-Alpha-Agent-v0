@@ -5,22 +5,22 @@ alpha_factory_v1.backend.memory_vector
 🚀  *Vector Memory Fabric* – production-grade, fault-tolerant, self-contained
 ----------------------------------------------------------------------------
 
-Primary store   : **PostgreSQL + pgvector**        (durable, horizontally-scalable)  
-Secondary store : **FAISS in RAM**                 (ultra-fast, ephemeral)  
-Tertiary store  : **Pure-NumPy cosine search**     (zero-dependency fallback)  
+Primary store   : **PostgreSQL + pgvector**        (durable, horizontally-scalable)
+Secondary store : **FAISS in RAM**                 (ultra-fast, ephemeral)
+Tertiary store  : **Pure-NumPy cosine search**     (zero-dependency fallback)
 
 Embedding back-ends
 -------------------
-1. **OpenAI** `text-embedding-3-small` (1536 d) – if ``OPENAI_API_KEY`` is set.  
-2. **Sentence-Transformers** `all-MiniLM-L6-v2` (384 d) – local CPU model.  
+1. **OpenAI** `text-embedding-3-small` (1536 d) – if ``OPENAI_API_KEY`` is set.
+2. **Sentence-Transformers** `all-MiniLM-L6-v2` (384 d) – local CPU model.
 
 Design goals
 ------------
-* **Graceful degradation** – *never* crash at import-time; run anywhere.  
-* **Observability first** – Prometheus counters/gauges baked-in.  
-* **Thread/Fork safety** – one DB connection per PID via lazy pool.  
-* **CLI self-test** – ``python -m alpha_factory_v1.backend.memory_vector --demo``  
-* **Zero intra-project deps** – drop-in usable in any repo / unit tests.  
+* **Graceful degradation** – *never* crash at import-time; run anywhere.
+* **Observability first** – Prometheus counters/gauges baked-in.
+* **Thread/Fork safety** – one DB connection per PID via lazy pool.
+* **CLI self-test** – ``python -m alpha_factory_v1.backend.memory_vector --demo``
+* **Zero intra-project deps** – drop-in usable in any repo / unit tests.
 
 MIT License © 2025 Montreal AI
 """
@@ -40,6 +40,7 @@ from typing import Iterable, List, Sequence, Tuple
 
 try:  # NumPy optional – provide pure Python fallback
     import numpy as _np
+
     _HAS_NUMPY = True
 except ModuleNotFoundError:  # pragma: no cover - offline environments
     from math import sqrt
@@ -83,38 +84,40 @@ if not _LOG.handlers:
 _LOG.setLevel(os.getenv("LOGLEVEL", "INFO").upper())
 
 # ─────────────────── optional third-party deps ──────────────────
-try:                            # Embeddings – OpenAI first
+try:  # Embeddings – OpenAI first
     import openai  # type: ignore
 
     _HAS_OPENAI = bool(os.getenv("OPENAI_API_KEY"))
-except Exception:               # noqa: BLE001 pragma: no cover
+except Exception:  # noqa: BLE001 pragma: no cover
     _HAS_OPENAI = False
 
-try:                            # Local SBERT
+try:  # Local SBERT
     from sentence_transformers import SentenceTransformer  # type: ignore
-except ModuleNotFoundError:      # pragma: no cover
+except ModuleNotFoundError:  # pragma: no cover
     SentenceTransformer = None  # type: ignore
 
-try:                            # Postgres + pgvector
+try:  # Postgres + pgvector
     import psycopg2  # type: ignore
     import psycopg2.extras  # type: ignore
+
     _HAS_PG = True
-except ModuleNotFoundError:      # pragma: no cover
+except ModuleNotFoundError:  # pragma: no cover
     _HAS_PG = False
 
-try:                            # FAISS
+try:  # FAISS
     import faiss  # type: ignore
+
     _HAS_FAISS = True
-except ModuleNotFoundError:      # pragma: no cover
+except ModuleNotFoundError:  # pragma: no cover
     _HAS_FAISS = False
 
-try:                            # Prometheus metrics
+try:  # Prometheus metrics
     from prometheus_client import Counter, Gauge  # type: ignore
 
     _MET_ADD = Counter("af_mem_add_total", "Memories added", ["backend"])
     _MET_QRY = Counter("af_mem_query_total", "Vector queries", ["backend"])
     _MET_SZ = Gauge("af_mem_size", "Total memories stored", ["backend"])
-except ModuleNotFoundError:      # pragma: no cover
+except ModuleNotFoundError:  # pragma: no cover
 
     class _Noop:  # pylint: disable=too-few-public-methods
         def labels(self, *_a):  # noqa: D401
@@ -157,16 +160,11 @@ def _embed(texts: Sequence[str]):
             _LOG.exception("OpenAI embed failed – falling back to SBERT")
 
     if SentenceTransformer is None:
-        raise RuntimeError(
-            "No embedding backend available. Install "
-            "`sentence-transformers` or set OPENAI_API_KEY."
-        )
+        raise RuntimeError("No embedding backend available. Install " "`sentence-transformers` or set OPENAI_API_KEY.")
 
     global _SBERT  # pylint: disable=global-statement
     if _SBERT is None:
-        _SBERT = SentenceTransformer(
-            os.getenv("AF_SBER_MODEL", "all-MiniLM-L6-v2")
-        )
+        _SBERT = SentenceTransformer(os.getenv("AF_SBER_MODEL", "all-MiniLM-L6-v2"))
     vectors = _SBERT.encode(list(texts), normalize_embeddings=True)
     return _l2(_np.asarray(vectors, "float32"))
 
@@ -182,9 +180,7 @@ class _PgPool:
 
     def __init__(self, dsn: str):
         self._dsn, self._pid = dsn, os.getpid()
-        self._pool: queue.SimpleQueue[psycopg2.extensions.connection] = (
-            queue.SimpleQueue()
-        )
+        self._pool: queue.SimpleQueue[psycopg2.extensions.connection] = queue.SimpleQueue()
 
     def _new_conn(self):
         conn = psycopg2.connect(self._dsn)
@@ -231,13 +227,9 @@ class _PostgresStore:
                 )"""
             )
             cur.execute(
-                "CREATE INDEX IF NOT EXISTS mem_vec_idx "
-                "ON memories USING ivfflat(embedding vector_cosine_ops)"
+                "CREATE INDEX IF NOT EXISTS mem_vec_idx " "ON memories USING ivfflat(embedding vector_cosine_ops)"
             )
-            cur.execute(
-                "CREATE INDEX IF NOT EXISTS mem_agent_ts_idx "
-                "ON memories (agent, ts DESC)"
-            )
+            cur.execute("CREATE INDEX IF NOT EXISTS mem_agent_ts_idx " "ON memories (agent, ts DESC)")
         self._pool.put(conn)
 
     # ---------- CRUD ---------- #
@@ -247,8 +239,7 @@ class _PostgresStore:
         with conn, conn.cursor() as cur:
             psycopg2.extras.execute_batch(
                 cur,
-                "INSERT INTO memories(agent, embedding, content) "
-                "VALUES (%s, %s, %s)",
+                "INSERT INTO memories(agent, embedding, content) " "VALUES (%s, %s, %s)",
                 rows,
                 page_size=256,
             )
@@ -287,9 +278,7 @@ class _FaissStore:
 
     def __init__(self):
         self._dim = _emb_dim()
-        self._faiss_idx = (
-            faiss.IndexFlatIP(self._dim) if (_HAS_FAISS and _HAS_NUMPY) else None
-        )
+        self._faiss_idx = faiss.IndexFlatIP(self._dim) if (_HAS_FAISS and _HAS_NUMPY) else None
         self._meta: list[tuple[str, str]] = []  # (agent, text)
         self._vecs: list[list[list[float]] | _np.ndarray] = []  # fallback store
 
@@ -300,7 +289,11 @@ class _FaissStore:
             self._faiss_idx.add(vecs)
         else:  # pure Python / NumPy fallback
             if _HAS_NUMPY:
-                array = vecs.astype("float32", copy=False) if hasattr(vecs, "astype") else _np.asarray(vecs, dtype="float32")
+                array = (
+                    vecs.astype("float32", copy=False)
+                    if hasattr(vecs, "astype")
+                    else _np.asarray(vecs, dtype="float32")
+                )
                 self._vecs.append(array)
             else:
                 self._vecs.append([[float(x) for x in row] for row in vecs])
@@ -313,10 +306,8 @@ class _FaissStore:
             return []
         if self._faiss_idx is not None:
             k = min(k, self._faiss_idx.ntotal)  # type: ignore[attr-defined]
-            D, I = self._faiss_idx.search(vec, k)  # type: ignore[attr-defined]
-            return [
-                (*self._meta[idx], float(sim)) for idx, sim in zip(I[0], D[0])
-            ]
+            D, indices = self._faiss_idx.search(vec, k)  # type: ignore[attr-defined]
+            return [(*self._meta[idx], float(sim)) for idx, sim in zip(indices[0], D[0])]
 
         # ---- brute-force cosine ----
         if _HAS_NUMPY:
@@ -324,16 +315,12 @@ class _FaissStore:
             vec_arr = vec if hasattr(vec, "T") else _np.asarray(vec, dtype="float32")
             sims = mat @ vec_arr.T
             order = sims[:, 0].argsort()[::-1][:k]
-            return [
-                (*self._meta[i], float(sims[i, 0])) for i in order
-            ]
+            return [(*self._meta[i], float(sims[i, 0])) for i in order]
 
         mat = [row for block in self._vecs for row in block]
         scores = [sum(a * b for a, b in zip(row, vec[0])) for row in mat]
         order = sorted(range(len(scores)), key=lambda i: scores[i], reverse=True)[:k]
-        return [
-            (*self._meta[i], float(scores[i])) for i in order
-        ]
+        return [(*self._meta[i], float(scores[i])) for i in order]
 
     def __len__(self):
         if self._faiss_idx is not None:
@@ -353,18 +340,12 @@ class VectorMemory:
                 self._store: _PostgresStore | _FaissStore = _PostgresStore(dsn)
                 self.backend = "postgres"
             except Exception as exc:  # pragma: no cover
-                _LOG.warning(
-                    "Postgres unavailable (%s) – falling back to RAM store", exc
-                )
+                _LOG.warning("Postgres unavailable (%s) – falling back to RAM store", exc)
                 self._store = _FaissStore()
-                self.backend = (
-                    "faiss" if (_HAS_FAISS and _HAS_NUMPY) else "numpy"
-                )
+                self.backend = "faiss" if (_HAS_FAISS and _HAS_NUMPY) else "numpy"
         else:
             self._store = _FaissStore()
-            self.backend = (
-                "faiss" if (_HAS_FAISS and _HAS_NUMPY) else "numpy"
-            )
+            self.backend = "faiss" if (_HAS_FAISS and _HAS_NUMPY) else "numpy"
             _LOG.warning(
                 "VectorMemory running in *%s* mode (non-persistent)",
                 self.backend,
@@ -379,9 +360,7 @@ class VectorMemory:
         vecs = _embed(texts)
         self._store.add(agent, vecs, texts)
 
-    def search(
-        self, query: str, k: int = 5
-    ) -> List[Tuple[str, str, float]]:
+    def search(self, query: str, k: int = 5) -> List[Tuple[str, str, float]]:
         """Return *k* (agent, text, similarity) tuples."""
         _MET_QRY.labels(self.backend).inc()
         vec = _embed([query])
@@ -434,9 +413,7 @@ if __name__ == "__main__":
 
     ap = argparse.ArgumentParser("Vector Memory Fabric CLI")
     ap.add_argument("--dsn", help="PostgreSQL DSN (e.g. postgres://user:pwd@host/db)")
-    ap.add_argument(
-        "--demo", action="store_true", help="run offline self-test (no DSN needed)"
-    )
+    ap.add_argument("--demo", action="store_true", help="run offline self-test (no DSN needed)")
     args = ap.parse_args()
 
     if args.demo:
