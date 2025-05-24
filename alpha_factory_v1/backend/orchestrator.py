@@ -28,6 +28,7 @@ Run examples
     # container
     docker compose -f demos/docker-compose.cross_industry.yml up
 """
+
 from __future__ import annotations
 
 # ────────────────────────────── std-lib ───────────────────────────────
@@ -152,15 +153,9 @@ if "Histogram" in globals():
             return _REG._names_to_collectors[name]
         return cls(name, desc, labels) if labels else cls(name, desc)
 
-    MET_LAT = _get_metric(
-        Histogram, "af_agent_cycle_latency_ms", "Per-cycle latency", ["agent"]
-    )
-    MET_ERR = _get_metric(
-        Counter, "af_agent_cycle_errors_total", "Exceptions per agent", ["agent"]
-    )
-    MET_UP = _get_metric(
-        Gauge, "af_agent_up", "1 = agent alive according to HB", ["agent"]
-    )
+    MET_LAT = _get_metric(Histogram, "af_agent_cycle_latency_ms", "Per-cycle latency", ["agent"])
+    MET_ERR = _get_metric(Counter, "af_agent_cycle_errors_total", "Exceptions per agent", ["agent"])
+    MET_UP = _get_metric(Gauge, "af_agent_up", "1 = agent alive according to HB", ["agent"])
 else:
     MET_LAT = _noop()
     MET_ERR = _noop()
@@ -208,11 +203,7 @@ def utc_now() -> str:
 
 
 async def maybe_await(fn, *a, **kw):  # type: ignore
-    return (
-        await fn(*a, **kw)
-        if asyncio.iscoroutinefunction(fn)
-        else await asyncio.to_thread(fn, *a, **kw)
-    )
+    return await fn(*a, **kw) if asyncio.iscoroutinefunction(fn) else await asyncio.to_thread(fn, *a, **kw)
 
 
 # ─────────────── OpenAI Agents & Google ADK bridges ───────────────────
@@ -261,9 +252,7 @@ class AgentRunner:
             with contextlib.suppress(ModuleNotFoundError, ValueError):
                 from croniter import croniter  # type: ignore
 
-                self.next_ts = croniter(
-                    self.spec, datetime.fromtimestamp(now)
-                ).get_next(float)
+                self.next_ts = croniter(self.spec, datetime.fromtimestamp(now)).get_next(float)
                 return
         self.next_ts = now + self.period
 
@@ -276,16 +265,10 @@ class AgentRunner:
 
         async def _cycle() -> None:
             t0 = time.time()
-            span_cm = (
-                tracer.start_as_current_span(self.name)
-                if tracer
-                else contextlib.nullcontext()
-            )
+            span_cm = tracer.start_as_current_span(self.name) if tracer else contextlib.nullcontext()
             with span_cm:
                 try:
-                    await asyncio.wait_for(
-                        maybe_await(self.inst.run_cycle), timeout=MAX_CYCLE_SEC
-                    )
+                    await asyncio.wait_for(maybe_await(self.inst.run_cycle), timeout=MAX_CYCLE_SEC)
                 except asyncio.TimeoutError:
                     MET_ERR.labels(self.name).inc()
                     log.error(
@@ -342,19 +325,27 @@ def _build_rest(runners: Dict[str, AgentRunner]) -> Optional[FastAPI]:
         inst = runners[name].inst
         if not hasattr(inst, "load_weights"):
             raise HTTPException(501, "Agent does not support model updates")
-        import tempfile, zipfile, io
+        import io
+        import stat
+        import tempfile
+        import zipfile
 
         with tempfile.TemporaryDirectory() as td:
             with zipfile.ZipFile(io.BytesIO(file)) as zf:
                 base = Path(td).resolve()
                 total = 0
                 for info in zf.infolist():
+                    if stat.S_ISLNK(info.external_attr >> 16):
+                        raise HTTPException(400, "Symlinks not allowed")
+                    if info.is_dir():
+                        continue
                     total += info.file_size
                     if total > MODEL_MAX_BYTES:
                         raise HTTPException(400, "Archive too large")
                     dest = (base / info.filename).resolve()
                     if not str(dest).startswith(str(base)):
                         raise HTTPException(400, "Unsafe path in archive")
+                    # ensure ZipInfo attributes are accessed before extraction
                 zf.extractall(td)
             inst.load_weights(td)  # type: ignore[attr-defined]
         return {"status": "ok"}
@@ -402,13 +393,8 @@ async def _serve_grpc(runners: Dict[str, AgentRunner]) -> None:
                     runners[req.trigger.name].next_ts = 0
                     yield a2a_pb2.StreamReply(ack=a2a_pb2.Ack(id=req.id))
                 elif kind == "status":
-                    stats = [
-                        a2a_pb2.AgentStat(name=n, next_run=int(r.next_ts))
-                        for n, r in runners.items()
-                    ]
-                    yield a2a_pb2.StreamReply(
-                        status_reply=a2a_pb2.StatusReply(stats=stats)
-                    )
+                    stats = [a2a_pb2.AgentStat(name=n, next_run=int(r.next_ts)) for n, r in runners.items()]
+                    yield a2a_pb2.StreamReply(status_reply=a2a_pb2.StatusReply(stats=stats))
 
     creds = None
     if not SSL_DISABLE:
@@ -426,9 +412,7 @@ async def _serve_grpc(runners: Dict[str, AgentRunner]) -> None:
     _GRPC_SERVER = server
     asyncio.create_task(server.wait_for_termination())
     atexit.register(lambda: server.stop(0))
-    log.info(
-        "gRPC A2A server listening on %s (%s)", bind, "TLS" if creds else "plaintext"
-    )
+    log.info("gRPC A2A server listening on %s (%s)", bind, "TLS" if creds else "plaintext")
 
 
 # ─────────────────────── Heartbeat monitor ───────────────────────────
@@ -474,9 +458,7 @@ async def _main() -> None:
         await asyncio.sleep(0.25)
 
     # ─── Drain & exit cleanly ────────────────────────────────────────
-    await asyncio.gather(
-        *(r.task for r in runners.values() if r.task), return_exceptions=True
-    )
+    await asyncio.gather(*(r.task for r in runners.values() if r.task), return_exceptions=True)
     if _GRPC_SERVER:
         _GRPC_SERVER.stop(0)
     log.info("Orchestrator shutdown complete")

@@ -52,7 +52,8 @@ class UpdateModelTest(unittest.TestCase):
         return TestClient(app), runner
 
     def _zip_bytes(self, files):
-        import io, zipfile
+        import io
+        import zipfile
 
         buf = io.BytesIO()
         with zipfile.ZipFile(buf, "w") as zf:
@@ -73,3 +74,18 @@ class UpdateModelTest(unittest.TestCase):
         res = client.post("/agent/foo/update_model", files={"file": ("f.zip", data)})
         self.assertEqual(res.status_code, 400)
 
+    def test_update_model_symlink(self):
+        client, _runner = self._make_client()
+        import io
+        import zipfile
+        import stat
+
+        buf = io.BytesIO()
+        with zipfile.ZipFile(buf, "w") as zf:
+            zi = zipfile.ZipInfo("link")
+            zi.create_system = 3
+            zi.external_attr = (stat.S_IFLNK | 0o777) << 16
+            zf.writestr(zi, "target")
+        data = buf.getvalue()
+        res = client.post("/agent/foo/update_model", files={"file": ("f.zip", data)})
+        self.assertEqual(res.status_code, 400)
