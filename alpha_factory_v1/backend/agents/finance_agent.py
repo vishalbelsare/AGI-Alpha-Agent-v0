@@ -6,17 +6,17 @@ alpha_factory_v1.backend.agents.finance_agent
 
 Cross-asset autonomous trader with institutional-grade risk controls.
 
-▸ Live-mode  : Binance test-net  (requires BINANCE_API_KEY / BINANCE_API_SECRET)  
+▸ Live-mode  : Binance test-net  (requires BINANCE_API_KEY / BINANCE_API_SECRET)
 ▸ Sim-mode   : built-in stochastic exchange (zero external deps)
 
 Key features
 ------------
-✓ Hybrid multi-factor alpha engine (momentum, reversal, carry, volatility)  
-✓ MuZero-lite or heuristic execution planner (torch/lightgbm optional)  
-✓ Cornish-Fisher VaR · CVaR · MaxDD hard stops  
-✓ Prometheus & MCP telemetry (‘alpha_pnl_realised_usd’, …)  
-✓ OpenAI Agents SDK tools (`alpha_signals`, `portfolio_state`)  
-✓ Mesh-native registration (Google ADK)  
+✓ Hybrid multi-factor alpha engine (momentum, reversal, carry, volatility)
+✓ MuZero-lite or heuristic execution planner (torch/lightgbm optional)
+✓ Cornish-Fisher VaR · CVaR · MaxDD hard stops
+✓ Prometheus & MCP telemetry (‘alpha_pnl_realised_usd’, …)
+✓ OpenAI Agents SDK tools (`alpha_signals`, `portfolio_state`)
+✓ Mesh-native registration (Google ADK)
 ✓ **Graceful degradation** — never crashes if optional libraries are missing
 """
 from __future__ import annotations
@@ -57,8 +57,10 @@ with contextlib.suppress(ModuleNotFoundError):
 with contextlib.suppress(ModuleNotFoundError):
     from openai.agents import tool  # type: ignore
 if "tool" not in globals():  # offline stub
+
     def tool(fn=None, **_):  # type: ignore
         return (lambda f: f)(fn) if fn else lambda f: f
+
 
 # ─────────────────────── α-Factory imports ─────────────────────
 from backend.agent_base import AgentBase  # type: ignore
@@ -74,6 +76,7 @@ _log = logging.getLogger("AlphaFactory.FinanceAgent")
 _log.setLevel(logging.INFO)
 
 if "make_asgi_app" not in globals():  # pragma: no cover - optional dep missing
+
     def metrics_asgi_app():
         async def _unavailable(scope, receive, send):
             if scope.get("type") != "http":
@@ -81,19 +84,21 @@ if "make_asgi_app" not in globals():  # pragma: no cover - optional dep missing
             headers = [(b"content-type", b"text/plain")]
             await send({"type": "http.response.start", "status": 503, "headers": headers})
             await send({"type": "http.response.body", "body": b"prometheus unavailable"})
+
         return _unavailable
+
 else:  # pragma: no cover - executed when prometheus_client is installed
+
     def metrics_asgi_app():
         return make_asgi_app()
+
 
 # ═════════════════════════ configuration ═══════════════════════
 
 
 @dataclass
 class _FinCfg:
-    universe: Sequence[str] = tuple(
-        os.getenv("ALPHA_UNIVERSE", "BTCUSDT,ETHUSDT").split(",")
-    )
+    universe: Sequence[str] = tuple(os.getenv("ALPHA_UNIVERSE", "BTCUSDT,ETHUSDT").split(","))
     cycle_sec: int = int(os.getenv("FIN_CYCLE_SECONDS", 60))
     start_balance: float = float(os.getenv("FIN_START_BALANCE_USD", 10_000.0))
 
@@ -268,9 +273,7 @@ class _Planner:
                 continue
             side = "BUY" if delta > 0 else "SELL"
             est_px = prices[sym] * (1 + 0.0007 * random.uniform(0.5, 1.5))
-            orders.append(
-                {"sym": sym, "qty": round(abs(delta), 8), "side": side, "est_fill_px": est_px}
-            )
+            orders.append({"sym": sym, "qty": round(abs(delta), 8), "side": side, "est_fill_px": est_px})
         return orders
 
 
@@ -357,6 +360,10 @@ class FinanceAgent(AgentBase):
         """Single orchestrator cycle wrapper."""
         await self._cycle()
 
+    async def step(self) -> None:  # noqa: D401
+        """Delegate step execution to :meth:`run_cycle`."""
+        await self.run_cycle()
+
     # ─────────────────── internal cycle ─────────────────
     async def _cycle(self):
         # 1 · sample prices & extend history
@@ -369,11 +376,7 @@ class FinanceAgent(AgentBase):
 
         # 2 · update factors & portfolio risk
         self.factor.update(self.history)
-        flat_ret = [
-            _pct(a, b)
-            for s in self.cfg.universe
-            for a, b in zip(self.history[s][:-1], self.history[s][1:])
-        ]
+        flat_ret = [_pct(a, b) for s in self.cfg.universe for a, b in zip(self.history[s][:-1], self.history[s][1:])]
         risk = {
             "var": _cf_var(flat_ret) * self.portfolio.value(prices),
             "cvar": _cvar(flat_ret) * self.portfolio.value(prices),
@@ -413,9 +416,8 @@ class FinanceAgent(AgentBase):
             return self.history[sym][-1] if self.history[sym] else 100.0
 
     def _publish_state(self, prices: Dict[str, float], risk: Dict[str, float]):
-        cash_equiv = (
-            self.cfg.start_balance
-            - sum(qty * prices.get(sym, 0.0) for sym, qty in self.portfolio.book().items())
+        cash_equiv = self.cfg.start_balance - sum(
+            qty * prices.get(sym, 0.0) for sym, qty in self.portfolio.book().items()
         )
         pnl = cash_equiv + self.portfolio.value(prices) - self.cfg.start_balance
         self.pnl_g.set(pnl)

@@ -30,6 +30,7 @@ Key capabilities
 
 Copyright © 2025 Montreal.AI — Apache‑2.0 licence.
 """
+
 from __future__ import annotations
 
 import asyncio
@@ -88,6 +89,7 @@ except ModuleNotFoundError:  # pragma: no cover
     def tool(fn=None, **_):  # type: ignore
         return (lambda f: f)(fn) if fn else lambda f: f
 
+
 try:
     import adk  # type: ignore
 except ModuleNotFoundError:  # pragma: no cover
@@ -106,6 +108,7 @@ logger = logging.getLogger(__name__)
 # Utility helpers                                                           |
 # ==========================================================================
 
+
 def _now() -> str:
     return datetime.now(timezone.utc).isoformat()
 
@@ -118,9 +121,7 @@ def _env_int(name: str, default: int) -> int:
 
 
 def _digest(payload: Any) -> str:
-    return hashlib.sha256(
-        json.dumps(payload, separators=(",", ":"), sort_keys=True).encode()
-    ).hexdigest()
+    return hashlib.sha256(json.dumps(payload, separators=(",", ":"), sort_keys=True).encode()).hexdigest()
 
 
 def _wrap_mcp(agent: str, payload: Any) -> Dict[str, Any]:
@@ -138,6 +139,7 @@ def _wrap_mcp(agent: str, payload: Any) -> Dict[str, Any]:
 # ==========================================================================
 # Configuration                                                             |
 # ==========================================================================
+
 
 @dataclass
 class TMConfig:
@@ -165,6 +167,7 @@ class TMConfig:
 # Embedding + ANN index                                                    |
 # ==========================================================================
 
+
 class _Embedder:
     """Sentence‑BERT embedder with deterministic fallback."""
 
@@ -182,9 +185,7 @@ class _Embedder:
             return self.model.encode(texts).astype("float32")
         if np is None:
             return [[self._rng.random() for _ in range(self.dim)] for _ in texts]
-        return np.asarray(
-            [[self._rng.random() for _ in range(self.dim)] for _ in texts], dtype="float32"
-        )
+        return np.asarray([[self._rng.random() for _ in range(self.dim)] for _ in texts], dtype="float32")
 
 
 class _ANNIndex:
@@ -207,11 +208,7 @@ class _ANNIndex:
         if self.index is not None and np is not None:
             self.index.add(vecs)
         else:
-            self.vecs = (
-                vecs
-                if self.vecs is None
-                else np.vstack([self.vecs, vecs])  # type: ignore
-            )
+            self.vecs = vecs if self.vecs is None else np.vstack([self.vecs, vecs])  # type: ignore
         self.ids.extend(ids)
 
     def query(self, vec, topk=5):  # type: ignore
@@ -229,6 +226,7 @@ class _ANNIndex:
 # ==========================================================================
 # TalentMatchAgent                                                          |
 # ==========================================================================
+
 
 class TalentMatchAgent(AgentBase):
     """Expert‑level talent recommendation and DEI analytics agent."""
@@ -321,7 +319,7 @@ class TalentMatchAgent(AgentBase):
     #   OpenAI Agents SDK tools
     # -------------------------------------------------------------
 
-    @tool(description="Recommend top‑N candidates for JSON JD {\"jd\":str, \"topk\":int}")
+    @tool(description='Recommend top‑N candidates for JSON JD {"jd":str, "topk":int}')
     def recommend_candidates(self, jd_json: str) -> str:  # noqa: D401
         args = json.loads(jd_json)
         jd = args.get("jd", "")
@@ -329,7 +327,7 @@ class TalentMatchAgent(AgentBase):
         loop = asyncio.get_event_loop()
         return loop.run_until_complete(self._recommend_async(jd, topk))
 
-    @tool(description="Similarity & skill gap between JD and resume. Arg: JSON {\"jd\":str, \"resume\":str}")
+    @tool(description='Similarity & skill gap between JD and resume. Arg: JSON {"jd":str, "resume":str}')
     def score_match(self, args_json: str) -> str:  # noqa: D401
         args = json.loads(args_json)
         jd, resume = args.get("jd", ""), args.get("resume", "")
@@ -342,7 +340,7 @@ class TalentMatchAgent(AgentBase):
         loop = asyncio.get_event_loop()
         return loop.run_until_complete(self._dei_async(ids))
 
-    @tool(description="Simulate hire probability vs compensation. Arg: JSON {\"cid\":str, \"offer_usd\":float}")
+    @tool(description='Simulate hire probability vs compensation. Arg: JSON {"cid":str, "offer_usd":float}')
     def simulate_offer(self, args_json: str) -> str:  # noqa: D401
         args = json.loads(args_json)
         cid, offer = args.get("cid"), float(args.get("offer_usd", 0))
@@ -360,6 +358,10 @@ class TalentMatchAgent(AgentBase):
         _publish("tm.reco", json.loads(env))
         if self._producer:
             self._producer.send(self.cfg.tx_topic, env)
+
+    async def step(self) -> None:  # noqa: D401
+        """Delegate step execution to :meth:`run_cycle`."""
+        await self.run_cycle()
 
     # -------------------------------------------------------------
     #   Data ingest / experience loop
@@ -413,12 +415,14 @@ class TalentMatchAgent(AgentBase):
         for cid, sim in sims:
             meta = self._meta.get(cid, {})
             pat = meta.get("years_exp", 0) * sim  # crude PAT proxy
-            recs.append({
-                "candidate_id": cid,
-                "similarity": round(sim, 3),
-                "predicted_PAT": round(pat, 2),
-                "headline": meta.get("summary", "")[:120],
-            })
+            recs.append(
+                {
+                    "candidate_id": cid,
+                    "similarity": round(sim, 3),
+                    "predicted_PAT": round(pat, 2),
+                    "headline": meta.get("summary", "")[:120],
+                }
+            )
         return json.dumps(_wrap_mcp(self.NAME, recs))
 
     async def _score_async(self, jd: str, resume: str):
@@ -440,9 +444,7 @@ class TalentMatchAgent(AgentBase):
         gender_counts = defaultdict(int)
         for d in demo:
             gender_counts[d.get("gender", "U")] += 1
-        ratio = (
-            gender_counts["F"] + gender_counts["NB"]
-        ) / max(1, gender_counts["M"])
+        ratio = (gender_counts["F"] + gender_counts["NB"]) / max(1, gender_counts["M"])
         compliant = ratio >= self.cfg.min_diversity_ratio
         payload = {
             "gender_counts": dict(gender_counts),

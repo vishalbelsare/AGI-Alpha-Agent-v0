@@ -35,6 +35,7 @@ Key capabilities
 
 Author: Alpha‑Factory Core Team — April 2025
 """
+
 from __future__ import annotations
 
 import asyncio
@@ -79,6 +80,7 @@ except ModuleNotFoundError:  # pragma: no cover
     def tool(fn=None, **_):  # type: ignore
         return (lambda f: f)(fn) if fn else lambda f: f
 
+
 try:
     import adk  # type: ignore
 except ModuleNotFoundError:  # pragma: no cover
@@ -97,6 +99,7 @@ logger = logging.getLogger(__name__)
 # ---------------------------------------------------------------------------
 # Helper utilities -----------------------------------------------------------
 # ---------------------------------------------------------------------------
+
 
 def _env_int(key: str, default: int) -> int:
     try:
@@ -129,9 +132,11 @@ def _wrap_mcp(agent: str, payload: Any) -> Dict[str, Any]:
         "payload": payload,
     }
 
+
 # ---------------------------------------------------------------------------
 # Configuration -------------------------------------------------------------
 # ---------------------------------------------------------------------------
+
 
 @dataclass
 class MFConfig:
@@ -143,6 +148,7 @@ class MFConfig:
     openai_enabled: bool = bool(os.getenv("OPENAI_API_KEY"))
     adk_mesh: bool = bool(os.getenv("ADK_MESH"))
     energy_rate_co2: float = _env_float("MF_CO2_PER_KWH", 0.4)
+
 
 # ---------------------------------------------------------------------------
 # Prometheus metrics --------------------------------------------------------
@@ -156,6 +162,7 @@ if Gauge:
 # ---------------------------------------------------------------------------
 # Fallback greedy heuristic --------------------------------------------------
 # ---------------------------------------------------------------------------
+
 
 class _GreedyPlanner:  # pragma: no cover
     """Simple list‑scheduler when OR‑Tools is absent."""
@@ -176,9 +183,11 @@ class _GreedyPlanner:  # pragma: no cover
         horizon = max(op["end"] for op in gantt)
         return {"horizon": horizon, "ops": gantt}
 
+
 # ---------------------------------------------------------------------------
 # ManufacturingAgent --------------------------------------------------------
 # ---------------------------------------------------------------------------
+
 
 class ManufacturingAgent(AgentBase):
     """Hybrid CP‑SAT + RL manufacturing scheduler."""
@@ -214,13 +223,17 @@ class ManufacturingAgent(AgentBase):
     # OpenAI Agents SDK tools ------------------------------------------
     # ------------------------------------------------------------------
 
-    @tool(description="Optimise a production schedule. Arg JSON {\"jobs\": [...], \"due_dates\": [...], \"energy_rate\": {m: kwh_per_min}, \"maintenance\": [{\"machine\":str, \"start\":int, \"end\":int}]}")
+    @tool(
+        description='Optimise a production schedule. Arg JSON {"jobs": [...], "due_dates": [...], "energy_rate": {m: kwh_per_min}, "maintenance": [{"machine":str, "start":int, "end":int}]}'
+    )
     def build_schedule(self, req_json: str) -> str:  # noqa: D401
         req = json.loads(req_json)
         loop = asyncio.get_event_loop()
         return loop.run_until_complete(self._build_async(req))
 
-    @tool(description="Repair an existing schedule with new job set. Arg JSON {\"baseline\": {...}, \"jobs_add\": [...], \"due_dates\": [...]} ")
+    @tool(
+        description='Repair an existing schedule with new job set. Arg JSON {"baseline": {...}, "jobs_add": [...], "due_dates": [...]} '
+    )
     def reschedule_delta(self, req_json: str) -> str:  # noqa: D401
         req = json.loads(req_json)
         loop = asyncio.get_event_loop()
@@ -232,7 +245,7 @@ class ManufacturingAgent(AgentBase):
         payload = self._energy_calc(sched.get("ops", []), sched.get("energy_rate", {}))
         return json.dumps(_wrap_mcp(self.NAME, payload))
 
-    @tool(description="Monte‑Carlo what‑if. Arg JSON {\"jobs_base\": [...], \"nbr_samples\":int}")
+    @tool(description='Monte‑Carlo what‑if. Arg JSON {"jobs_base": [...], "nbr_samples":int}')
     def what_if(self, req_json: str) -> str:  # noqa: D401
         req = json.loads(req_json)
         loop = asyncio.get_event_loop()
@@ -260,6 +273,10 @@ class ManufacturingAgent(AgentBase):
         # Placeholder: demo heartbeat – real implementation would consume Kafka and call self._build_async
         _publish("mf.heartbeat", {"ts": _now()})
         await asyncio.sleep(self.cfg.cycle_seconds)
+
+    async def step(self) -> None:  # noqa: D401
+        """Delegate step execution to :meth:`run_cycle`."""
+        await self.run_cycle()
 
     # ------------------------------------------------------------------
     # Core scheduling ---------------------------------------------------
@@ -386,11 +403,7 @@ class ManufacturingAgent(AgentBase):
         results = []
         for _ in range(samples):
             perturbed = [
-                [
-                    {**op, "proc": int(op["proc"] * random.uniform(0.8, 1.2))}
-                    for op in job
-                ]
-                for job in base_jobs
+                [{**op, "proc": int(op["proc"] * random.uniform(0.8, 1.2))} for op in job] for job in base_jobs
             ]
             res = json.loads(await self._build_async({"jobs": perturbed}))
             results.append(res["payload"] if "payload" in res else res)
@@ -399,7 +412,9 @@ class ManufacturingAgent(AgentBase):
         payload = {
             "samples": samples,
             "makespan_mean": float(np.mean(mkspan) if np is not None else sum(mkspan) / samples),
-            "makespan_p95": float(np.percentile(mkspan, 95) if np is not None else sorted(mkspan)[int(0.95 * samples) - 1]),
+            "makespan_p95": float(
+                np.percentile(mkspan, 95) if np is not None else sorted(mkspan)[int(0.95 * samples) - 1]
+            ),
         }
         return json.dumps(_wrap_mcp(self.NAME, payload))
 
@@ -430,6 +445,7 @@ class ManufacturingAgent(AgentBase):
             logger.info("[MF] registered in ADK mesh id=%s", client.node_id)
         except Exception as exc:  # noqa: BLE001
             logger.warning("ADK registration failed: %s", exc)
+
 
 # ---------------------------------------------------------------------------
 # Registry hook -------------------------------------------------------------

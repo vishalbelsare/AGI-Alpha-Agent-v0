@@ -47,6 +47,7 @@ Security & compliance
 * MCP digest + SEC taxonomy tags for every outbound payload (SOX traceable).
 * Optional *mTLS* to Kafka broker; noop fallback when creds missing.
 """
+
 from __future__ import annotations
 
 import asyncio
@@ -97,7 +98,7 @@ except ModuleNotFoundError:  # pragma: no cover
     adk = None  # type: ignore
 
 # ────────────────────────────────────────────────────────────────────────────────
-# Alpha‑Factory locals (NO heavy deps)                                           
+# Alpha‑Factory locals (NO heavy deps)
 # ────────────────────────────────────────────────────────────────────────────────
 from backend.agent_base import AgentBase  # pylint: disable=import-error
 from backend.agents import AgentMetadata, register_agent
@@ -106,8 +107,9 @@ from backend.orchestrator import _publish  # re‑use event bus
 logger = logging.getLogger(__name__)
 
 # ────────────────────────────────────────────────────────────────────────────────
-# Config dataclass                                                                
+# Config dataclass
 # ────────────────────────────────────────────────────────────────────────────────
+
 
 def _env_int(name: str, default: int) -> int:
     try:
@@ -149,7 +151,7 @@ class CRConfig:
 
 
 # ────────────────────────────────────────────────────────────────────────────────
-# Minimal SURGE surrogate (identity stub)                                         
+# Minimal SURGE surrogate (identity stub)
 # ────────────────────────────────────────────────────────────────────────────────
 
 if torch is not None:
@@ -175,8 +177,9 @@ else:
 
 
 # ────────────────────────────────────────────────────────────────────────────────
-# Helper utilities                                                                 
+# Helper utilities
 # ────────────────────────────────────────────────────────────────────────────────
+
 
 def _now_iso() -> str:
     return datetime.now(timezone.utc).isoformat()
@@ -197,8 +200,9 @@ def _wrap_mcp(agent: str, payload: Any) -> Dict[str, Any]:
 
 
 # ────────────────────────────────────────────────────────────────────────────────
-# ClimateRiskAgent                                                                
+# ClimateRiskAgent
 # ────────────────────────────────────────────────────────────────────────────────
+
 
 class ClimateRiskAgent(AgentBase):
     """Physical‑risk α‑generator and adaptation planner."""
@@ -216,7 +220,7 @@ class ClimateRiskAgent(AgentBase):
     CYCLE_SECONDS = CRConfig().cycle_seconds
 
     # ────────────────────────────────────────────────────────────────
-    # Init                                                             
+    # Init
     # ────────────────────────────────────────────────────────────────
 
     def __init__(self, cfg: Optional[CRConfig] = None):
@@ -239,7 +243,7 @@ class ClimateRiskAgent(AgentBase):
             asyncio.create_task(self._register_mesh())
 
     # ────────────────────────────────────────────────────────────────
-    # OpenAI Agents SDK tools                                          
+    # OpenAI Agents SDK tools
     # ────────────────────────────────────────────────────────────────
 
     @tool(description="Dollar VaR for next 10 years under default SSP scenario.")
@@ -258,7 +262,7 @@ class ClimateRiskAgent(AgentBase):
         return loop.run_until_complete(self._compute_var(ssp))
 
     # ────────────────────────────────────────────────────────────────
-    # Orchestrator cycle                                               
+    # Orchestrator cycle
     # ────────────────────────────────────────────────────────────────
 
     async def run_cycle(self):  # noqa: D401
@@ -268,8 +272,12 @@ class ClimateRiskAgent(AgentBase):
         if self._producer:
             self._producer.send("climate.var", envelope)
 
+    async def step(self) -> None:  # noqa: D401
+        """Delegate step execution to :meth:`run_cycle`."""
+        await self.run_cycle()
+
     # ────────────────────────────────────────────────────────────────
-    # Data ingest                                                      
+    # Data ingest
     # ────────────────────────────────────────────────────────────────
 
     async def _ingest_feeds(self):
@@ -289,7 +297,7 @@ class ClimateRiskAgent(AgentBase):
             logger.warning("POWER API fetch failed: %s", exc)
 
     # ────────────────────────────────────────────────────────────────
-    # Risk estimation & planning                                       
+    # Risk estimation & planning
     # ────────────────────────────────────────────────────────────────
 
     async def _compute_var(self, ssp: str) -> str:
@@ -340,7 +348,7 @@ class ClimateRiskAgent(AgentBase):
         return json.dumps(_wrap_mcp(self.NAME, {"plan": actions}))
 
     # ────────────────────────────────────────────────────────────────
-    # ADK mesh heartbeat                                               
+    # ADK mesh heartbeat
     # ────────────────────────────────────────────────────────────────
 
     async def _register_mesh(self):  # noqa: D401
@@ -353,7 +361,7 @@ class ClimateRiskAgent(AgentBase):
 
 
 # ────────────────────────────────────────────────────────────────────────────────
-# Register with global agent registry                                            
+# Register with global agent registry
 # ────────────────────────────────────────────────────────────────────────────────
 
 register_agent(
@@ -368,4 +376,3 @@ register_agent(
 )
 
 __all__ = ["ClimateRiskAgent"]
-

@@ -1,4 +1,5 @@
 from __future__ import annotations
+
 """
 backend.agents.biotech_agent
 ====================================================================
@@ -59,78 +60,78 @@ from typing import Any, Dict, List, Optional, Tuple
 
 # ────────────────────────────── soft-optional deps ──────────────────────────
 try:
-    import rdflib                               # type: ignore
-    from rdflib.namespace import RDF, RDFS      # type: ignore
+    import rdflib  # type: ignore
+    from rdflib.namespace import RDF, RDFS  # type: ignore
 except ModuleNotFoundError:  # pragma: no cover
-    rdflib = RDF = RDFS = None                 # type: ignore
+    rdflib = RDF = RDFS = None  # type: ignore
 
 try:
-    import faiss                                # type: ignore
+    import faiss  # type: ignore
 except ModuleNotFoundError:  # pragma: no cover
-    faiss = None                                # type: ignore
+    faiss = None  # type: ignore
 
 try:
     from sentence_transformers import SentenceTransformer  # type: ignore
 except ModuleNotFoundError:  # pragma: no cover
-    SentenceTransformer = None                 # type: ignore
+    SentenceTransformer = None  # type: ignore
 
 try:
-    import numpy as np                          # type: ignore
+    import numpy as np  # type: ignore
 except ModuleNotFoundError:  # pragma: no cover
-    np = None                                   # type: ignore
+    np = None  # type: ignore
 
 try:
-    import pandas as pd                         # type: ignore
+    import pandas as pd  # type: ignore
 except ModuleNotFoundError:  # pragma: no cover
-    pd = None                                   # type: ignore
+    pd = None  # type: ignore
 
 try:
-    import openai                               # type: ignore
-    from openai.agents import tool              # type: ignore
+    import openai  # type: ignore
+    from openai.agents import tool  # type: ignore
 except ModuleNotFoundError:  # pragma: no cover
-    openai = None                               # type: ignore
+    openai = None  # type: ignore
 
     def tool(fn=None, **_):  # type: ignore
         return (lambda f: f)(fn) if fn else lambda f: f
 
-try:
-    from kafka import KafkaProducer             # type: ignore
-except ModuleNotFoundError:  # pragma: no cover
-    KafkaProducer = None                        # type: ignore
 
 try:
-    import httpx                                # type: ignore
+    from kafka import KafkaProducer  # type: ignore
 except ModuleNotFoundError:  # pragma: no cover
-    httpx = None                                # type: ignore
+    KafkaProducer = None  # type: ignore
 
 try:
-    import adk                                  # type: ignore
+    import httpx  # type: ignore
 except ModuleNotFoundError:  # pragma: no cover
-    adk = None                                  # type: ignore
+    httpx = None  # type: ignore
+
+try:
+    import adk  # type: ignore
+except ModuleNotFoundError:  # pragma: no cover
+    adk = None  # type: ignore
 
 # ───────────────────────────── Alpha-Factory locals ─────────────────────────
-from backend.agent_base import AgentBase                     # pylint: disable=import-error
+from backend.agents.base import AgentBase  # pylint: disable=import-error
 from backend.agents import AgentMetadata, register_agent
-from backend.orchestrator import _publish                    # pylint: disable=import-error
+from backend.orchestrator import _publish  # pylint: disable=import-error
 
 logger = logging.getLogger(__name__)
 
+
 # ─────────────────────────── helper / governance utils ──────────────────────
-def _env_int(key: str, default: int) -> int:        # robust ENV→int
+def _env_int(key: str, default: int) -> int:  # robust ENV→int
     try:
         return int(os.getenv(key, default))
     except ValueError:
         return default
 
 
-def _now() -> str:                                 # ISO-UTC
+def _now() -> str:  # ISO-UTC
     return datetime.now(timezone.utc).isoformat(timespec="seconds")
 
 
-def _digest(payload: Any) -> str:                  # deterministic SHA-256
-    return hashlib.sha256(
-        json.dumps(payload, separators=(",", ":"), sort_keys=True).encode()
-    ).hexdigest()
+def _digest(payload: Any) -> str:  # deterministic SHA-256
+    return hashlib.sha256(json.dumps(payload, separators=(",", ":"), sort_keys=True).encode()).hexdigest()
 
 
 def _wrap_mcp(agent: str, payload: Any) -> Dict[str, Any]:  # MCP envelope
@@ -142,10 +143,11 @@ def _wrap_mcp(agent: str, payload: Any) -> Dict[str, Any]:  # MCP envelope
         "payload": payload,
     }
 
+
 # ───────────────────────────────── CONFIG ────────────────────────────────────
 @dataclass
 class BTConfig:
-    cycle_seconds: int = _env_int("BT_CYCLE_SECONDS", 1800)              # 30 min
+    cycle_seconds: int = _env_int("BT_CYCLE_SECONDS", 1800)  # 30 min
     kg_file: Path = Path(os.getenv("BIOTECH_KG_FILE", "data/biotech_graph.ttl")).expanduser()
     embed_dim: int = _env_int("BT_EMBED_DIM", 384)
     kafka_broker: Optional[str] = os.getenv("ALPHA_KAFKA_BROKER")
@@ -153,6 +155,7 @@ class BTConfig:
     openai_enabled: bool = bool(os.getenv("OPENAI_API_KEY"))
     adk_mesh: bool = bool(os.getenv("ADK_MESH"))
     pubmed_term: str = os.getenv("BT_PUBMED_TERM", "oncogene")
+
 
 # ───────────────────────────── embedding / FAISS store ──────────────────────
 class _EmbedStore:
@@ -163,9 +166,9 @@ class _EmbedStore:
             raise RuntimeError("faiss is required for BiotechAgent.")
         self.cfg = cfg
         self._index: faiss.IndexFlatIP = faiss.IndexFlatIP(cfg.embed_dim)
-        self._docs: List[str] = []    # raw text
-        self._meta: List[str] = []    # URI or doc-id
-        self._embedder = None         # lazy initialised
+        self._docs: List[str] = []  # raw text
+        self._meta: List[str] = []  # URI or doc-id
+        self._embedder = None  # lazy initialised
 
     # ── private ──────────────────────────────────────────────────────────
     async def _ensure_embedder(self):
@@ -181,12 +184,10 @@ class _EmbedStore:
 
     async def _embed(self, batch: List[str]) -> "np.ndarray":
         await self._ensure_embedder()
-        if self._embedder == "openai":       # OpenAI API
-            resp = await openai.Embedding.acreate(
-                model="text-embedding-3-small", input=batch, encoding_format="float"
-            )
+        if self._embedder == "openai":  # OpenAI API
+            resp = await openai.Embedding.acreate(model="text-embedding-3-small", input=batch, encoding_format="float")
             vecs = np.array([d.embedding for d in resp["data"]], dtype="float32")  # type: ignore
-        else:                                # local SBERT
+        else:  # local SBERT
             loop = asyncio.get_event_loop()
             vecs = await loop.run_in_executor(None, self._embedder.encode, batch)  # type: ignore
             vecs = vecs.astype("float32")
@@ -205,11 +206,8 @@ class _EmbedStore:
             return []
         vec = await self._embed([query])
         scores, idx = self._index.search(vec, k)
-        return [
-            (self._docs[i], self._meta[i], float(scores[0][j]))
-            for j, i in enumerate(idx[0])
-            if i != -1
-        ]
+        return [(self._docs[i], self._meta[i], float(scores[0][j])) for j, i in enumerate(idx[0]) if i != -1]
+
 
 # ─────────────────────────────── Knowledge-Graph ────────────────────────────
 class _KG:
@@ -243,6 +241,7 @@ class _KG:
         res = self.g.query(q)
         return [{"predicate": str(p), "interactor": str(i)} for p, i in res]
 
+
 # ────────────────────────────── Biotech Agent ───────────────────────────────
 class BiotechAgent(AgentBase):
     NAME = "biotech"
@@ -275,24 +274,24 @@ class BiotechAgent(AgentBase):
 
     # ── OpenAI Agents SDK tools ──────────────────────────────────────────
     @tool(description="Ask a biotech-related question; returns answer with citations.")
-    def ask_biotech(self, query: str) -> str:                    # noqa: D401
+    def ask_biotech(self, query: str) -> str:  # noqa: D401
         return asyncio.get_event_loop().run_until_complete(self._ask_async(query))
 
     @tool(description="Design an experiment. Arg JSON {objective:str, budget:str?}.")
-    def propose_experiment(self, obj_json: str) -> str:          # noqa: D401
+    def propose_experiment(self, obj_json: str) -> str:  # noqa: D401
         args = json.loads(obj_json or "{}")
         return asyncio.get_event_loop().run_until_complete(self._exp_async(args))
 
     @tool(description="Return pathway map for entity URI or gene symbol.")
-    def pathway_map(self, entity: str) -> str:                   # noqa: D401
+    def pathway_map(self, entity: str) -> str:  # noqa: D401
         return asyncio.get_event_loop().run_until_complete(self._pathway_async(entity))
 
     @tool(description="Summarise latest alpha opportunities discovered by the agent.")
-    def alpha_dashboard(self) -> str:                            # noqa: D401
+    def alpha_dashboard(self) -> str:  # noqa: D401
         return json.dumps(_wrap_mcp(self.NAME, self._latest_alpha[-50:]))
 
     # ── orchestrator cycle ───────────────────────────────────────────────
-    async def run_cycle(self):                                   # noqa: D401
+    async def run_cycle(self):  # noqa: D401
         # 1. ingest new PubMed abstracts (online)
         if httpx:
             await self._ingest_pubmed(self.cfg.pubmed_term)
@@ -310,6 +309,10 @@ class BiotechAgent(AgentBase):
         # 3. emit heartbeat
         _publish("bt.heartbeat", {"ts": _now()})
         await asyncio.sleep(self.cfg.cycle_seconds)
+
+    async def step(self) -> None:  # noqa: D401
+        """Delegate step execution to :meth:`run_cycle`."""
+        await self.run_cycle()
 
     # ── async internals ──────────────────────────────────────────────────
     async def _ask_async(self, query: str):
@@ -380,10 +383,7 @@ class BiotechAgent(AgentBase):
             return
         titles: List[str] = []
         for pmid in ids:
-            sum_url = (
-                "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esummary.fcgi"
-                f"?db=pubmed&retmode=json&id={pmid}"
-            )
+            sum_url = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esummary.fcgi" f"?db=pubmed&retmode=json&id={pmid}"
             try:
                 async with httpx.AsyncClient(timeout=20) as c:
                     js = (await c.get(sum_url)).json()
@@ -399,13 +399,14 @@ class BiotechAgent(AgentBase):
                 )
 
     # ── ADK mesh ────────────────────────────────────────────────────────
-    async def _register_mesh(self):                                # noqa: D401
+    async def _register_mesh(self):  # noqa: D401
         try:
             client = adk.Client()
             await client.register(node_type=self.NAME, metadata={"kg": str(self.cfg.kg_file)})
             logger.info("[BT] registered in ADK mesh id=%s", client.node_id)
         except Exception as exc:  # noqa: BLE001
             logger.warning("ADK registration failed: %s", exc)
+
 
 # ───────────────────────────── registry hook ────────────────────────────────
 register_agent(

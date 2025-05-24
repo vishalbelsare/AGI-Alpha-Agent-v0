@@ -31,6 +31,7 @@ Optional dependencies (auto‑detected, safe to omit):
     rdkit, torch, torch_geometric, torch_scatter, torch_sparse,
     lightgbm, httpx, kafka‑python, openai, adk, selfies
 """
+
 from __future__ import annotations
 
 import asyncio
@@ -91,6 +92,7 @@ except ModuleNotFoundError:  # pragma: no cover
     def tool(fn=None, **_kw):  # type: ignore
         return (lambda f: f)(fn) if fn else lambda f: f
 
+
 try:
     import adk  # type: ignore
 except ModuleNotFoundError:  # pragma: no cover
@@ -113,6 +115,7 @@ logger = logging.getLogger(__name__)
 # ---------------------------------------------------------------------------
 # Environment & governance helpers -----------------------------------------
 # ---------------------------------------------------------------------------
+
 
 def _env_int(var: str, default: int) -> int:
     try:
@@ -145,8 +148,10 @@ DUAL_USE_SMARTS = [
 # Placeholder SELFIES alphabet and safety helpers (minimal example)
 SELFIES_ALPHABET = list("CNOPS")
 
+
 def _passes_filters(smi: str) -> bool:
     return PAINS_REGEX.search(smi) is None
+
 
 def _wrap_mcp(agent: str, payload: Any) -> Dict[str, Any]:
     return {
@@ -161,6 +166,7 @@ def _wrap_mcp(agent: str, payload: Any) -> Dict[str, Any]:
 # ---------------------------------------------------------------------------
 # Config dataclass ----------------------------------------------------------
 # ---------------------------------------------------------------------------
+
 
 @dataclass
 class DDConfig:
@@ -179,6 +185,7 @@ class DDConfig:
 # ---------------------------------------------------------------------------
 
 if nn is not None and tgnn is not None:
+
     class _GINSurrogate(nn.Module):
         """Minimal 2‑layer GIN for 4 property regression."""
 
@@ -193,7 +200,9 @@ if nn is not None and tgnn is not None:
             h = torch.relu(self.conv2(h, data.edge_index))
             h = torch.mean(h, dim=0)
             return self.head(h)
+
 else:
+
     class _GINSurrogate:  # pragma: no cover - dependency missing
         """Stub used when torch or torch_geometric are absent."""
 
@@ -276,6 +285,7 @@ class _PropertySurrogate:
 # Simple SELFIES‑based generator + MCTS planner -----------------------------
 # ---------------------------------------------------------------------------
 
+
 class _GenAction:
     def __init__(self, token: str):
         self.token = token
@@ -342,7 +352,7 @@ class _Planner:
 
     @staticmethod
     def _ucb(child: _MCTSNode, total: int, c_puct: float = 1.2) -> float:
-        return child.value + c_puct * child.prior * (total ** 0.5) / (1 + child.visit)
+        return child.value + c_puct * child.prior * (total**0.5) / (1 + child.visit)
 
     def _evaluate_state(self, selfies_state: str) -> float:
         if sf is not None and Chem is not None:
@@ -360,6 +370,7 @@ class _Planner:
 # ---------------------------------------------------------------------------
 # Agent implementation ------------------------------------------------------
 # ---------------------------------------------------------------------------
+
 
 class DrugDesignAgent(AgentBase):
     NAME = "drug_design"
@@ -400,9 +411,7 @@ class DrugDesignAgent(AgentBase):
         loop = asyncio.get_event_loop()
         return loop.run_until_complete(self._propose_async())
 
-    @tool(
-        description="Score a SMILES for potency & developability. Input: JSON \"{\"smi\": \"...\"}\" or raw SMILES."
-    )
+    @tool(description='Score a SMILES for potency & developability. Input: JSON "{"smi": "..."}" or raw SMILES.')
     def score_molecule(self, smi_json: str) -> str:  # noqa: D401
         try:
             smi = json.loads(smi_json).get("smi", smi_json)
@@ -420,6 +429,10 @@ class DrugDesignAgent(AgentBase):
         _publish("dd.lead", json.loads(env))
         if self._producer:
             self._producer.send(self.cfg.exp_topic, env)
+
+    async def step(self) -> None:  # noqa: D401
+        """Delegate step execution to :meth:`run_cycle`."""
+        await self.run_cycle()
 
     # ------------------------------------------------------------------
     # Internals

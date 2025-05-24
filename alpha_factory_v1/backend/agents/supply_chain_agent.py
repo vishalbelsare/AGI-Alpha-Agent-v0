@@ -26,6 +26,7 @@ record with SHA‑256 digests for SOX traceability.
 The implementation runs **offline‑first**: if cloud keys (OpenAI, Kafka, ADK)
 are absent it degrades gracefully to public datasets & in‑memory stubs.
 """
+
 from __future__ import annotations
 
 import asyncio
@@ -41,6 +42,7 @@ from typing import Any, Dict, List, Tuple
 try:
     import networkx as nx  # type: ignore
 except ModuleNotFoundError:  # pragma: no cover - optional dep
+
     class _FakeGraph:
         def __init__(self) -> None:
             self.nodes: dict = {}
@@ -109,17 +111,20 @@ logger = logging.getLogger(__name__)
 # ---------------------------------------------------------------------------
 _ENV = os.getenv
 
+
 def _efloat(var: str, default: float) -> float:
     try:
         return float(_ENV(var, str(default)))
     except (TypeError, ValueError):
         return default
 
+
 def _eint(var: str, default: int) -> int:
     try:
         return int(_ENV(var, str(default)))
     except (TypeError, ValueError):
         return default
+
 
 # ---------------------------------------------------------------------------
 # Agent configuration
@@ -134,9 +139,11 @@ class SupplyChainConfig:
     adk_mesh: bool = bool(_ENV("ADK_MESH"))
     kafka_topic: str = _ENV("SC_EXP_TOPIC", "exp.stream")
 
+
 # ---------------------------------------------------------------------------
 # Deterministic min‑cost flow MILP (fallback optimiser)
 # ---------------------------------------------------------------------------
+
 
 def _min_cost_flow(g: nx.DiGraph) -> Dict[str, Any]:
     if pulp is None:
@@ -145,8 +152,7 @@ def _min_cost_flow(g: nx.DiGraph) -> Dict[str, Any]:
 
     prob = pulp.LpProblem("sc_flow", pulp.LpMinimize)
     flows: Dict[Tuple[str, str], pulp.LpVariable] = {
-        (u, v): pulp.LpVariable(f"f_{u}_{v}", lowBound=0)
-        for u, v in g.edges
+        (u, v): pulp.LpVariable(f"f_{u}_{v}", lowBound=0) for u, v in g.edges
     }
     # Objective
     prob += pulp.lpSum(flows[e] * g.edges[e]["cost"] for e in flows)
@@ -162,6 +168,7 @@ def _min_cost_flow(g: nx.DiGraph) -> Dict[str, Any]:
         "flows": {f"{u}->{v}": flows[u, v].varValue for u, v in flows},
     }
 
+
 # ---------------------------------------------------------------------------
 # Tiny MuZero‑style world model stub (experience replay handled by orchestrator)
 # ---------------------------------------------------------------------------
@@ -174,6 +181,7 @@ class WorldModel:  # noqa: D101
 
     def suggest_action(self, state: Any) -> str:  # noqa: D401
         return "keep"  # uniform dummy policy
+
 
 # ---------------------------------------------------------------------------
 # Supply‑Chain Agent implementation
@@ -211,6 +219,10 @@ class SupplyChainAgent(AgentBase):  # noqa: D101
         await self._refresh_datasets()
         envelope = await self._plan_cycle()
         _publish("sc.recommend", json.loads(envelope))
+
+    async def step(self) -> None:  # noqa: D401
+        """Delegate step execution to :meth:`run_cycle`."""
+        await self.run_cycle()
 
     # ------------------------ data ingestion ------------------------- #
 
@@ -254,9 +266,7 @@ class SupplyChainAgent(AgentBase):  # noqa: D101
             return []
         flows = plan.get("flows", {})
         obj = plan.get("objective", 0)
-        recs: List[Dict[str, Any]] = [
-            {"route": r, "quantity": q, "marginal_cost": obj} for r, q in flows.items()
-        ]
+        recs: List[Dict[str, Any]] = [{"route": r, "quantity": q, "marginal_cost": obj} for r, q in flows.items()]
         # optional LLM enrichment
         if self.cfg.openai_enabled and openai and recs:
             prompt = (

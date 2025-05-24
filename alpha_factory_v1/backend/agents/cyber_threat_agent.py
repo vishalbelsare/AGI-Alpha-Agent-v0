@@ -39,6 +39,7 @@ Architectural highlights
 Optional dependencies (auto‑detected):
     httpx, feedparser, networkx, lightgbm, openai, adk, kafka, tldextract
 """
+
 from __future__ import annotations
 
 import asyncio
@@ -83,6 +84,7 @@ except ModuleNotFoundError:  # pragma: no cover
     def tool(fn=None, **_):  # type: ignore
         return (lambda f: f)(fn) if fn else lambda f: f
 
+
 try:
     import adk  # type: ignore
 except ModuleNotFoundError:  # pragma: no cover
@@ -106,17 +108,20 @@ logger = logging.getLogger(__name__)
 # Configuration structure
 # ---------------------------------------------------------------------------
 
+
 def _env_int(name: str, default: int) -> int:
     try:
         return int(os.getenv(name, default))
     except ValueError:
         return default
 
+
 def _env_float(name: str, default: float) -> float:
     try:
         return float(os.getenv(name, default))
     except ValueError:
         return default
+
 
 @dataclass
 class CTConfig:
@@ -138,9 +143,11 @@ class CTConfig:
     incident_topic: str = os.getenv("CT_INC_TOPIC", "ct.incident_stream")
     risk_target_usd: float = _env_float("CT_RISK_TARGET_USD", 5_000_000.0)
 
+
 # ---------------------------------------------------------------------------
 # Utility helpers
 # ---------------------------------------------------------------------------
+
 
 def _sha256(text: str) -> str:  # noqa: D401
     return hashlib.sha256(text.encode()).hexdigest()
@@ -153,6 +160,7 @@ def _utc_now() -> str:  # noqa: D401
 # ---------------------------------------------------------------------------
 # LightGBM surrogate (lazy‑initialised, can train incrementally)
 # ---------------------------------------------------------------------------
+
 
 class _GBMSurrogate:
     """Predicts exploit probability P(exploit|CVE, asset) within 30 days."""
@@ -180,9 +188,11 @@ class _GBMSurrogate:
                 keep_training_booster=True,
             )
 
+
 # ---------------------------------------------------------------------------
 # CyberThreatAgent
 # ---------------------------------------------------------------------------
+
 
 class CyberThreatAgent(AgentBase):
     """Agent that converts threat intel into actionable risk‑reduction alpha."""
@@ -225,7 +235,9 @@ class CyberThreatAgent(AgentBase):
         loop = asyncio.get_event_loop()
         return loop.run_until_complete(self._risk_snapshot())
 
-    @tool(description="Generate JSON patch/mitigation plan sequence ordered to maximise risk‑reduction under change‑window constraints.")
+    @tool(
+        description="Generate JSON patch/mitigation plan sequence ordered to maximise risk‑reduction under change‑window constraints."
+    )
     def patch_plan(self) -> str:  # noqa: D401
         loop = asyncio.get_event_loop()
         return loop.run_until_complete(self._plan_patches())
@@ -240,6 +252,10 @@ class CyberThreatAgent(AgentBase):
         _publish("ct.risk", json.loads(envelope))
         if self._producer:
             self._producer.send(self.cfg.exp_topic, envelope)
+
+    async def step(self) -> None:  # noqa: D401
+        """Delegate step execution to :meth:`run_cycle`."""
+        await self.run_cycle()
 
     # ------------------------------------------------------------------
     # Data ingestion
@@ -299,12 +315,14 @@ class CyberThreatAgent(AgentBase):
         cves = []
         for entry in feed.entries[:1000]:
             cvss = float(entry.get("cve_cvssv3_base_score", 0) or 0)
-            cves.append({
-                "id": entry.id,
-                "published": entry.published,
-                "cvss": cvss,
-                "summary": entry.summary,
-            })
+            cves.append(
+                {
+                    "id": entry.id,
+                    "published": entry.published,
+                    "cvss": cvss,
+                    "summary": entry.summary,
+                }
+            )
         return cves
 
     # ------------------------------------------------------------------
@@ -335,12 +353,14 @@ class CyberThreatAgent(AgentBase):
                 if self._gbm.model is not None:  # refined estimate
                     prob = self._gbm.predict([[cve["cvss"], crit]])[0]
                 usd = prob * crit * 1_000_000  # translate to USD risk
-                threats.append({
-                    "cve": cve["id"],
-                    "asset": asset,
-                    "risk_usd": round(usd, 2),
-                    "cvss": cve["cvss"],
-                })
+                threats.append(
+                    {
+                        "cve": cve["id"],
+                        "asset": asset,
+                        "risk_usd": round(usd, 2),
+                        "cvss": cve["cvss"],
+                    }
+                )
         threats.sort(key=lambda t: t["risk_usd"], reverse=True)
         return threats
 
@@ -389,6 +409,7 @@ class CyberThreatAgent(AgentBase):
             logger.info("[CT] registered in ADK mesh id=%s", client.node_id)
         except Exception as exc:  # noqa: BLE001
             logger.warning("ADK registration failed: %s", exc)
+
 
 # ---------------------------------------------------------------------------
 # One‑time registration with global registry
