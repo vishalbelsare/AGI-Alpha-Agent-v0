@@ -13,4 +13,7 @@ dist/
 
 # Logs
 *.log
+# Environment configuration files
+.env
+*.env
 
