@@ -13,6 +13,22 @@ import subprocess
 import tempfile
 from pathlib import Path
 
+try:
+    from packaging.version import Version
+except ModuleNotFoundError:  # pragma: no cover
+
+    def _version_lt(a: str, b: str) -> bool:
+        def _parse(v: str) -> tuple[int, ...]:
+            return tuple(int(p) for p in v.split(".") if p.isdigit())
+
+        return _parse(a) < _parse(b)
+
+else:
+
+    def _version_lt(a: str, b: str) -> bool:
+        return Version(a) < Version(b)
+
+
 MIN_PY = (3, 11)
 MAX_PY = (3, 13)
 MEM_DIR = Path(os.getenv("AF_MEMORY_DIR", f"{tempfile.gettempdir()}/alphafactory"))
@@ -109,6 +125,26 @@ def ensure_dir(path: Path) -> None:
         banner(f"Using {path}", "GREEN")
 
 
+def check_openai_agents_version(min_version: str = "0.0.14") -> bool:
+    """Verify ``openai_agents`` is new enough when installed."""
+    import importlib
+
+    spec = importlib.util.find_spec("openai_agents")
+    if spec is None:  # not installed
+        return True
+
+    mod = importlib.import_module("openai_agents")
+    version = getattr(mod, "__version__", "0")
+    if _version_lt(version, min_version):
+        banner(
+            f"openai_agents {version} detected; >={min_version} required",
+            "RED",
+        )
+        return False
+    banner(f"openai_agents {version} detected", "GREEN")
+    return True
+
+
 OPTIONAL_DEPS = {
     "openai": [
         "alpha_agi_business_v1",
@@ -135,8 +171,11 @@ def main() -> None:
 
     missing_optional: list[str] = []
     for pkg in OPTIONAL_DEPS:
-        if not check_pkg(pkg):
+        found = check_pkg(pkg)
+        if not found:
             missing_optional.append(pkg)
+        elif pkg == "openai_agents":
+            ok &= check_openai_agents_version()
 
     ensure_dir(MEM_DIR)
 
