@@ -134,3 +134,17 @@ for modules, classes and functions.
 - Missing optional packages can cause test failures; run `python check_env.py --auto-install`.
 
 For detailed troubleshooting steps, see [`alpha_factory_v1/scripts/README.md`](alpha_factory_v1/scripts/README.md).
+
+### Wheel Signing
+All agent wheels must be signed with the project's ED25519 key before they are
+loaded from `$AGENT_HOT_DIR`. Generate `<wheel>.whl.sig` with:
+
+```bash
+openssl dgst -sha512 -binary <wheel>.whl |
+  openssl pkeyutl -sign -inkey agent_signing.key |
+  base64 -w0 > <wheel>.whl.sig
+```
+
+Commit the signature file and add the base64 value to `_WHEEL_SIGS` in
+`alpha_factory_v1/backend/agents/__init__.py`. Wheels without a valid signature
+are ignored at runtime.

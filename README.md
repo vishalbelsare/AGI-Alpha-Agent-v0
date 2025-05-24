@@ -111,6 +111,8 @@ flowchart TD
 
 ---
 
+---
+
 ## Deploy Now
 Open‑source framework for immediate strategic action: **[github.com/MontrealAI/AGI-Alpha-Agent-v0](https://github.com/MontrealAI/AGI-Alpha-Agent-v0)**
 
@@ -579,6 +581,22 @@ git clone https://github.com/MontrealAI/AGI-Alpha-Agent-v0.git
 cd AGI-Alpha-Agent-v0/alpha_factory_v1/demos/cross_industry_alpha_factory
 ./deploy_alpha_factory_cross_industry_demo.sh
 ```
+
+---
+
+### 6.3 · Signing Agent Wheels 🔑
+Sign wheels dropped into `$AGENT_HOT_DIR` with the project ED25519 key.
+Generate `<wheel>.whl.sig` via:
+
+```bash
+openssl dgst -sha512 -binary <wheel>.whl |
+  openssl pkeyutl -sign -inkey agent_signing.key |
+  base64 -w0 > <wheel>.whl.sig
+```
+
+Add the base64 signature to `_WHEEL_SIGS` in
+`alpha_factory_v1/backend/agents/__init__.py`. Wheels failing verification are
+ignored.
 
 ---
 
