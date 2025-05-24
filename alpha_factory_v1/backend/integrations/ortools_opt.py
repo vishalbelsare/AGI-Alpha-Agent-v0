@@ -24,8 +24,8 @@ try:
     _ORTOOLS_OK = True
 except ModuleNotFoundError:  # stripped container or slim CPU build
     _ORTOOLS_OK = False
-    cp_model = None  # type: ignore
-    pywrapcp = None  # type: ignore
+    cp_model = None
+    pywrapcp = None
 
 
 # ===================================================================== #
@@ -129,13 +129,13 @@ def _solve_vrp_ortools(
     routing = pywrapcp.RoutingModel(manager)
 
     def distance_cb(from_i: int, to_i: int) -> int:
-        return distance_matrix[manager.IndexToNode(from_i)][manager.IndexToNode(to_i)]
+        return distance_matrix[int(manager.IndexToNode(from_i))][int(manager.IndexToNode(to_i))]
 
     transit_callback = routing.RegisterTransitCallback(distance_cb)
     routing.SetArcCostEvaluatorOfAllVehicles(transit_callback)
 
     def demand_cb(from_i: int) -> int:
-        return demands[manager.IndexToNode(from_i)]
+        return demands[int(manager.IndexToNode(from_i))]
 
     demand_callback = routing.RegisterUnaryTransitCallback(demand_cb)
     routing.AddDimensionWithVehicleCapacity(

@@ -23,8 +23,11 @@ def get_logger(name: str, level: str | int | None = None) -> logging.Logger:
             )
         )
         logger.addHandler(handler)
-    level_val = level or os.getenv("LOGLEVEL", "INFO")
-    logger.setLevel(level_val if isinstance(level_val, int) else level_val.upper())
+    level_val = level if level is not None else os.getenv("LOGLEVEL", "INFO")
+    if isinstance(level_val, int):
+        logger.setLevel(level_val)
+    else:
+        logger.setLevel(level_val.upper())
     return logger
 
 __all__ = ["get_logger"]
