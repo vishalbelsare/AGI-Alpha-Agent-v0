@@ -108,16 +108,27 @@ except ModuleNotFoundError:  # pragma: no cover
 
 # ────────────────────────── configuration ─────────────────────────────
 ENV = os.getenv
+
+
+def _env_int(name: str, default: int) -> int:
+    """Return ``int`` environment value or ``default`` if conversion fails."""
+
+    try:
+        return int(ENV(name, default))
+    except (TypeError, ValueError):
+        return default
+
+
 DEV_MODE = ENV("DEV_MODE", "false").lower() == "true" or "--dev" in sys.argv
 LOGLEVEL = ENV("LOGLEVEL", "INFO").upper()
-PORT = int(ENV("PORT", "8000"))
-METRICS_PORT = int(ENV("METRICS_PORT", "0"))
-A2A_PORT = int(ENV("A2A_PORT", "0"))
+PORT = _env_int("PORT", 8000)
+METRICS_PORT = _env_int("METRICS_PORT", 0)
+A2A_PORT = _env_int("A2A_PORT", 0)
 SSL_DISABLE = ENV("INSECURE_DISABLE_TLS", "false").lower() == "true"
 KAFKA_BROKER = None if DEV_MODE else ENV("ALPHA_KAFKA_BROKER")
-CYCLE_DEFAULT = int(ENV("ALPHA_CYCLE_SECONDS", "60"))
-MAX_CYCLE_SEC = int(ENV("MAX_CYCLE_SEC", "30"))
-MODEL_MAX_BYTES = int(ENV("ALPHA_MODEL_MAX_BYTES", str(64 * 1024 * 1024)))
+CYCLE_DEFAULT = _env_int("ALPHA_CYCLE_SECONDS", 60)
+MAX_CYCLE_SEC = _env_int("MAX_CYCLE_SEC", 30)
+MODEL_MAX_BYTES = _env_int("ALPHA_MODEL_MAX_BYTES", 64 * 1024 * 1024)
 ENABLED = {s.strip() for s in ENV("ALPHA_ENABLED_AGENTS", "").split(",") if s.strip()}
 
 if not logging.getLogger().handlers:
