@@ -18,6 +18,7 @@ Highlights
 • **No secrets in code** – all configuration via env-vars or pydantic settings
 • **Self-Provisioning** – creates tables, indices, constraints on first use
 • **One-command export** – `mem.export_all("snapshot.parquet")`
+• **Graceful shutdown** – `mem.close()` releases DB connections
 
 Environment variables (factory defaults in brackets)
 ─────────────────────────────────────────────────────
@@ -28,6 +29,7 @@ OPENAI_API_KEY (optional) – OpenAI embeddings used if present
 VECTOR_DIM[768]           – embedding dimension for pgvector & FAISS
 MEM_TTL_SECONDS[0]        – 0 = keep forever, else soft-delete after TTL
 MEM_MAX_PER_AGENT[100000] – per-agent quota (oldest evicted on overflow)
+VECTOR_SQLITE_PATH[vector_mem.db] – file path for SQLite fallback
 
 Python extras automatically used when available:
     numpy, sentence_transformers, psycopg2-binary, faiss-cpu, neo4j,
@@ -276,7 +278,8 @@ class _VectorStore:
             self._mode = "faiss"
             logger.info("VectorStore: FAISS in-memory index ready.")
         elif os.getenv("VECTOR_STORE_USE_SQLITE", "false").lower() == "true":
-            self._sql = sqlite3.connect(Path("vector_mem.db"))
+            path = Path(os.getenv("VECTOR_SQLITE_PATH", "vector_mem.db"))
+            self._sql = sqlite3.connect(path)
             self._sql.execute(
                 (
                     "CREATE TABLE IF NOT EXISTS memories("
@@ -455,6 +458,23 @@ class _VectorStore:
             except Exception as e:  # noqa: BLE001
                 logger.error("export_all failed: %s", e)
 
+    def close(self) -> None:
+        """Close any open database connections."""
+        if getattr(self, "_pg", None):
+            try:
+                self._pg.close()
+            except Exception as exc:  # pragma: no cover - defensive
+                logger.warning("VectorStore: Postgres close failed → %s", exc)
+            finally:
+                self._pg = None
+        if getattr(self, "_sql", None):
+            try:
+                self._sql.close()
+            except Exception as exc:  # pragma: no cover - defensive
+                logger.warning("VectorStore: SQLite close failed → %s", exc)
+            finally:
+                self._sql = None
+
 
 # ═════════════════════ GRAPH STORE ═══════════════════════════
 class _GraphStore:
@@ -559,6 +579,16 @@ class _GraphStore:
                 seen.add(n)
         return []
 
+    def close(self) -> None:
+        """Close any open database connections."""
+        if getattr(self, "_driver", None):
+            try:
+                self._driver.close()
+            except Exception as exc:  # pragma: no cover - defensive
+                logger.warning("GraphStore: driver close failed → %s", exc)
+            finally:
+                self._driver = None
+
 
 # ═════════════════════ FABRIC FACADE ═════════════════════════
 class MemoryFabric:
@@ -598,8 +628,19 @@ class MemoryFabric:
         async with self.graph._alock:
             return self.graph.find_path(s, e, max_len)
 
+    def close(self) -> None:
+        """Close vector and graph stores."""
+        self.vector.close()
+        self.graph.close()
+
 
 # ────────────────── global singleton ░────────────────────────
 mem = MemoryFabric()
 
-__all__ = ["mem", "MemoryFabric", "CFG"]
+
+def close() -> None:
+    """Close the module-level ``mem`` instance."""
+    mem.close()
+
+
+__all__ = ["mem", "close", "MemoryFabric", "CFG"]
