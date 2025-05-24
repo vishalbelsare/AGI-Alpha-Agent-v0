@@ -27,9 +27,13 @@ class ModelProviderStubTest(unittest.TestCase):
 
 class MemoryFabricFallbackTest(unittest.TestCase):
     def setUp(self):
-        self.fabric = memf.MemoryFabric()
+        self._cm = memf.MemoryFabric()
+        self.fabric = self._cm.__enter__()
         # Avoid metrics context when Prometheus is absent
         memf._MET_V_SRCH = None
+
+    def tearDown(self):
+        self._cm.__exit__(None, None, None)
 
     def test_vector_ram_mode(self):
         self.assertEqual(self.fabric.vector._mode, "ram")

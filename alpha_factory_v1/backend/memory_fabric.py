@@ -19,7 +19,8 @@ Highlights
 • **No secrets in code** – all configuration via env-vars or pydantic settings
 • **Self-Provisioning** – creates tables, indices, constraints on first use
 • **One-command export** – `mem.export_all("snapshot.parquet")`
-• **Graceful shutdown** – `mem.close()` releases DB connections
+• **Graceful shutdown** – use `with MemoryFabric()` or call `mem.close()` to
+  release DB connections
 
 Environment variables (factory defaults in brackets)
 ─────────────────────────────────────────────────────
@@ -52,7 +53,7 @@ import threading
 import time
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any, Dict, Iterable, List, Optional, Sequence, Tuple, Union
+from typing import Any, Dict, Iterable, List, Optional, Sequence, Tuple, Union, Final
 
 # ─────────────────────── dynamic soft-deps ░──────────────────
 try:
@@ -604,11 +605,23 @@ class _GraphStore:
 
 # ═════════════════════ FABRIC FACADE ═════════════════════════
 class MemoryFabric:
-    """Exposes .vector and .graph for sync + async contexts."""
+    """Expose ``.vector`` and ``.graph`` stores and support ``with`` usage."""
 
     def __init__(self):
         self.vector = _VectorStore()
         self.graph = _GraphStore()
+
+    # ─── context manager ───
+    def __enter__(self) -> "MemoryFabric":
+        return self
+
+    def __exit__(self, exc_type, exc, tb) -> bool:
+        try:
+            self.close()
+        except Exception as err:  # pragma: no cover - defensive
+            logger.warning("MemoryFabric: close failed → %s", err)
+            return exc_type is None
+        return False
 
     # ─── convenience sync wrappers ───
     def add_memory(self, agent: str, content: str):
@@ -655,4 +668,4 @@ def close() -> None:
     mem.close()
 
 
-__all__ = ["mem", "close", "MemoryFabric", "CFG"]
+__all__: Final[List[str]] = ["mem", "close", "MemoryFabric", "CFG"]
