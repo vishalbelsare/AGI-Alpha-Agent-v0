@@ -344,8 +344,9 @@ echo "LOGLEVEL=info" >> .env
 open http://localhost:8000/docs
 ```
 
-No GPU → falls back to GGML Llama‑3‑8B‑Q4.  
+No GPU → falls back to GGML Llama‑3‑8B‑Q4.
 No `OPENAI_API_KEY` → switches to local SBERT + heuristics.
+`OPENAI_TIMEOUT_SEC` sets the OpenAI API request timeout in seconds (default 30).
 
 ---
 

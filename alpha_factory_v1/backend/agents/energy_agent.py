@@ -126,6 +126,10 @@ class EnergyConfig:
     adk_mesh: bool = bool(os.getenv("ADK_MESH"))
 
 
+# Timeout (seconds) for OpenAI API requests
+OPENAI_TIMEOUT_SEC = int(os.getenv("OPENAI_TIMEOUT_SEC", "30"))
+
+
 # ---------------------------------------------------------------------------
 # Helpers ---------------------------------------------------------------------
 def _now_iso() -> str:
@@ -348,6 +352,7 @@ class EnergyAgent(AgentBase):
                     model="gpt-4o",
                     messages=[{"role": "user", "content": prompt}],
                     max_tokens=150,
+                    timeout=OPENAI_TIMEOUT_SEC,
                 )
                 hedge = json.loads(resp.choices[0].message.content)
             except Exception as exc:  # noqa: BLE001
