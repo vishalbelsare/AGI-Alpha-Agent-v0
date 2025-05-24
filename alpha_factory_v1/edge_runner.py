@@ -21,6 +21,15 @@ from typing import Callable
 from alpha_factory_v1 import run as af_run, __version__
 
 
+def _env_int(name: str, default: int) -> int:
+    """Return ``int`` environment value or ``default`` if conversion fails."""
+
+    try:
+        return int(os.getenv(name, default))
+    except (TypeError, ValueError):
+        return default
+
+
 def _positive_int(name: str) -> Callable[[str], int]:
     """Return a parser for positive integers.
 
@@ -60,13 +69,13 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     ap.add_argument(
         "--port",
         type=_positive_int("port"),
-        default=int(env.get("PORT", 8000)),
+        default=_env_int("PORT", 8000),
         help="REST API port",
     )
     ap.add_argument(
         "--cycle",
         type=_positive_int("cycle"),
-        default=int(env.get("CYCLE", 0)) or None,
+        default=_env_int("CYCLE", 0) or None,
         help="Override agent cycle seconds",
     )
     ap.add_argument(
@@ -77,13 +86,13 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     ap.add_argument(
         "--metrics-port",
         type=_positive_int("metrics-port"),
-        default=int(env.get("METRICS_PORT", 0)) or None,
+        default=_env_int("METRICS_PORT", 0) or None,
         help="Prometheus metrics port",
     )
     ap.add_argument(
         "--a2a-port",
         type=_positive_int("a2a-port"),
-        default=int(env.get("A2A_PORT", 0)) or None,
+        default=_env_int("A2A_PORT", 0) or None,
         help="gRPC A2A port",
     )
     ap.add_argument(

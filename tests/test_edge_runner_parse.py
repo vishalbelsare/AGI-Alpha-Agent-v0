@@ -32,6 +32,15 @@ class TestParseArgs(unittest.TestCase):
         self.assertEqual(args.metrics_port, 9000)
         self.assertEqual(args.a2a_port, 7000)
 
+    def test_invalid_env_fallback(self) -> None:
+        env = {"PORT": "foo", "CYCLE": "bar", "METRICS_PORT": "baz", "A2A_PORT": "qux"}
+        with patch.dict(os.environ, env, clear=True):
+            args = edge_runner.parse_args([])
+        self.assertEqual(args.port, 8000)
+        self.assertIsNone(args.cycle)
+        self.assertIsNone(args.metrics_port)
+        self.assertIsNone(args.a2a_port)
+
     def test_version_flag(self) -> None:
         result = subprocess.run(
             [sys.executable, "-m", "alpha_factory_v1.edge_runner", "--version"],
