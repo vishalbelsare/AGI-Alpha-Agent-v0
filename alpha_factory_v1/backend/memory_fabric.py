@@ -13,7 +13,8 @@ Highlights
 • **Graph Memory**    –  Neo4j ▸ NetworkX ▸ python-list fallback
 • **Sync & Async**    – one call signature, fabric switches under the hood
 • **Metrics & Tracing** – Prometheus + OpenTelemetry (graceful if libs absent)
-• **Graceful-Degrade** – never throws un-caught exceptions; always returns data
+• **Graceful-Degrade** – never throws un-caught exceptions; embeddings fall back
+  to SBERT or hashing and always return data
 • **Thread/Task safe** – re-entrant locks + asyncio.Lock for mixed usage
 • **No secrets in code** – all configuration via env-vars or pydantic settings
 • **Self-Provisioning** – creates tables, indices, constraints on first use
@@ -25,7 +26,7 @@ Environment variables (factory defaults in brackets)
 PGHOST / PGPORT[5432] / PGUSER / PGPASSWORD / PGDATABASE[memdb]
 PGVECTOR_INDEX_IVFFLAT_LISTS[100]  – performance tuning
 NEO4J_URI[bolt://localhost:7687] / NEO4J_USER[neo4j] / NEO4J_PASS[neo4j]
-OPENAI_API_KEY (optional) – OpenAI embeddings used if present
+OPENAI_API_KEY (optional) – OpenAI embeddings with SBERT/hashing fallback
 VECTOR_DIM[768]           – embedding dimension for pgvector & FAISS
 MEM_TTL_SECONDS[0]        – 0 = keep forever, else soft-delete after TTL
 MEM_MAX_PER_AGENT[100000] – per-agent quota (oldest evicted on overflow)
@@ -170,26 +171,7 @@ tracer = trace.get_tracer(__name__) if "trace" in globals() else None  # type: i
 
 
 def _load_embedder():
-    if "openai" in globals() and os.getenv("OPENAI_API_KEY"):
-        logger.info("MemoryFabric: using OpenAI embeddings.")
-        model = "text-embedding-3-small"
-
-        def _openai(text: str):
-            resp = openai.Embedding.create(model=model, input=text)  # type: ignore[attr-defined]
-            return resp["data"][0]["embedding"]
-
-        return _openai
-
-    if np is not None and "SentenceTransformer" in globals():
-        logger.info("MemoryFabric: using local SBERT embeddings.")
-        _model = SentenceTransformer("all-MiniLM-L6-v2")
-
-        def _sbert(text: str):
-            return _model.encode(text, normalize_embeddings=True)
-
-        return _sbert
-
-    logger.warning("MemoryFabric: no embedding backend → hashing fallback.")
+    """Return an embedding function with automatic fallback."""
 
     def _hash(text: str, dim: int = CFG.VECTOR_DIM):
         h = hashlib.sha256(text.encode()).digest()
@@ -203,7 +185,33 @@ def _load_embedder():
         norm = math.sqrt(sum(x * x for x in vec)) or 1.0
         return [x / norm for x in vec]
 
-    return _hash
+    _fallback = _hash
+    if np is not None and "SentenceTransformer" in globals():
+        logger.info("MemoryFabric: using local SBERT embeddings.")
+        _model = SentenceTransformer("all-MiniLM-L6-v2")
+
+        def _sbert(text: str):
+            return _model.encode(text, normalize_embeddings=True)
+
+        _fallback = _sbert
+    else:
+        logger.warning("MemoryFabric: no embedding backend → hashing fallback.")
+
+    if "openai" in globals() and os.getenv("OPENAI_API_KEY"):
+        logger.info("MemoryFabric: using OpenAI embeddings with local fallback.")
+        model = "text-embedding-3-small"
+
+        def _openai(text: str):
+            try:
+                resp = openai.Embedding.create(model=model, input=text)  # type: ignore[attr-defined]
+                return resp["data"][0]["embedding"]
+            except (openai.OpenAIError, OSError) as exc:  # type: ignore[attr-defined]
+                logger.warning("OpenAI embedding failed: %s – falling back to local embedder", exc)
+                return _fallback(text)
+
+        return _openai
+
+    return _fallback
 
 
 _EMBED = _load_embedder()
