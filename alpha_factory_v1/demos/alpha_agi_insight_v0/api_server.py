@@ -11,9 +11,17 @@ import argparse
 import json
 from typing import Optional
 
-from fastapi import FastAPI
-from pydantic import BaseModel
-import uvicorn
+try:  # soft-dependency
+    from fastapi import FastAPI
+    from pydantic import BaseModel
+    import uvicorn
+except ModuleNotFoundError as exc:  # pragma: no cover - dependency missing
+    FastAPI = None  # type: ignore
+    BaseModel = object  # type: ignore
+    uvicorn = None  # type: ignore
+    _IMPORT_ERROR = exc
+else:
+    _IMPORT_ERROR = None
 
 from .insight_demo import (
     DEFAULT_SECTORS,
@@ -22,55 +30,61 @@ from .insight_demo import (
     verify_environment,
 )
 
-app = FastAPI(title="α‑AGI Insight API")
+if FastAPI:
+    app = FastAPI(title="α‑AGI Insight API")
 
+    class InsightRequest(BaseModel):
+        """Request payload for the ``/insight`` endpoint."""
 
-class InsightRequest(BaseModel):
-    """Request payload for the ``/insight`` endpoint."""
+        episodes: int = 5
+        exploration: float = 1.4
+        rewriter: Optional[str] = None
+        target: int = 3
+        seed: Optional[int] = None
+        model: Optional[str] = None
+        sectors: Optional[str] = None
 
-    episodes: int = 5
-    exploration: float = 1.4
-    rewriter: Optional[str] = None
-    target: int = 3
-    seed: Optional[int] = None
-    model: Optional[str] = None
-    sectors: Optional[str] = None
+    @app.get("/healthz")
+    def health() -> dict[str, str]:
+        """Simple health probe used by tests and orchestrators."""
 
+        return {"status": "ok"}
 
-@app.get("/healthz")
-def health() -> dict[str, str]:
-    """Simple health probe used by tests and orchestrators."""
+    @app.post("/insight")
+    def insight(req: InsightRequest) -> dict:
+        """Run the search loop and return a JSON summary."""
 
-    return {"status": "ok"}
+        sector_list = parse_sectors(None, req.sectors)
+        summary = run(
+            episodes=req.episodes,
+            exploration=req.exploration,
+            rewriter=req.rewriter,
+            target=req.target,
+            seed=req.seed,
+            model=req.model,
+            sectors=sector_list,
+            json_output=True,
+        )
+        return json.loads(summary)
 
+    @app.get("/sectors")
+    def list_sectors() -> list[str]:
+        """Return the default sector list."""
 
-@app.post("/insight")
-def insight(req: InsightRequest) -> dict:
-    """Run the search loop and return a JSON summary."""
+        return list(DEFAULT_SECTORS)
 
-    sector_list = parse_sectors(None, req.sectors)
-    summary = run(
-        episodes=req.episodes,
-        exploration=req.exploration,
-        rewriter=req.rewriter,
-        target=req.target,
-        seed=req.seed,
-        model=req.model,
-        sectors=sector_list,
-        json_output=True,
-    )
-    return json.loads(summary)
+else:  # pragma: no cover - import stub
+    app = None
 
-
-@app.get("/sectors")
-def list_sectors() -> list[str]:
-    """Return the default sector list."""
-
-    return list(DEFAULT_SECTORS)
+    class InsightRequest:  # pragma: no cover - stub
+        ...
 
 
 def main(argv: list[str] | None = None) -> None:
     """Launch the API server."""
+
+    if FastAPI is None:
+        raise SystemExit("FastAPI is required to run the α‑AGI Insight API.") from _IMPORT_ERROR
 
     parser = argparse.ArgumentParser(description="Run the α‑AGI Insight API")
     parser.add_argument("--host", default="0.0.0.0", help="Bind host")
