@@ -39,5 +39,6 @@ This starts the orchestrator in development mode, using in-memory stubs for Kafk
 
 - Optional dependencies are soft-imported; missing libraries will disable related features without crashing the service.
 - The gRPC server starts automatically when `A2A_PORT` is set and shuts down cleanly on exit.
+- Numeric environment variables are parsed leniently; invalid values fall back to the defaults above.
 - See `../requirements.txt` for the full dependency list.
 
