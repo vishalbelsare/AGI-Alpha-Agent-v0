@@ -80,6 +80,30 @@ with contextlib.suppress(ModuleNotFoundError):
         from pydantic import Field, PositiveInt  # type: ignore
         from pydantic_settings import BaseSettings  # type: ignore
 
+if "BaseSettings" not in globals():  # pragma: no cover - fallback when missing
+
+    class BaseSettings:  # type: ignore
+        """Minimal stub mimicking pydantic BaseSettings."""
+
+        def __init__(self) -> None:  # noqa: D401 - simple stub
+            for name, default in self.__class__.__dict__.items():
+                if name.startswith("_") or name == "Config" or callable(default):
+                    continue
+                value = os.getenv(name, default)
+                if isinstance(default, bool):
+                    value = str(value).lower() in {"1", "true", "yes", "on"}
+                elif isinstance(default, int) and default is not None:
+                    try:
+                        value = int(value)
+                    except Exception:
+                        value = default
+                self.__dict__[name] = value
+
+    def Field(default: Any, **_: Any) -> Any:  # type: ignore
+        return default
+
+    PositiveInt = int  # type: ignore
+
 # ───────────────────────── logging ░──────────────────────────
 logger = logging.getLogger("AlphaFactory.MemoryFabric")
 if not logger.handlers:
@@ -229,9 +253,7 @@ class _VectorStore:
                            ts          TIMESTAMPTZ DEFAULT NOW()
                        );"""
                 )
-                cur.execute(
-                    "CREATE INDEX IF NOT EXISTS idx_mem_agent_ts ON memories(agent, ts DESC);"
-                )
+                cur.execute("CREATE INDEX IF NOT EXISTS idx_mem_agent_ts ON memories(agent, ts DESC);")
                 cur.execute(
                     f"""CREATE INDEX IF NOT EXISTS idx_mem_embedding
                         ON memories USING ivfflat (embedding vector_cosine_ops)
@@ -257,8 +279,8 @@ class _VectorStore:
             self._sql = sqlite3.connect(Path("vector_mem.db"))
             self._sql.execute(
                 (
-                    "CREATE TABLE IF NOT EXISTS memories(" \
-                    "hash TEXT PRIMARY KEY, agent TEXT, ts TEXT, " \
+                    "CREATE TABLE IF NOT EXISTS memories("
+                    "hash TEXT PRIMARY KEY, agent TEXT, ts TEXT, "
                     "vec BLOB, content TEXT)"
                 )
             )
@@ -280,9 +302,7 @@ class _VectorStore:
                     (agent, CFG.MEM_MAX_PER_AGENT),
                 )
         elif self._mode == "sqlite":
-            cur = self._sql.execute(
-                "SELECT hash FROM memories WHERE agent=? ORDER BY ts ASC", (agent,)
-            ).fetchall()
+            cur = self._sql.execute("SELECT hash FROM memories WHERE agent=? ORDER BY ts ASC", (agent,)).fetchall()
             if len(cur) > CFG.MEM_MAX_PER_AGENT:
                 to_del = cur[: len(cur) - CFG.MEM_MAX_PER_AGENT]
                 self._sql.executemany("DELETE FROM memories WHERE hash=?", to_del)
@@ -301,10 +321,7 @@ class _VectorStore:
         if CFG.MEM_TTL_SECONDS <= 0:
             return
         with self._pg, self._pg.cursor() as cur:
-            cur.execute(
-                "DELETE FROM memories WHERE ts < NOW() - INTERVAL '%s seconds'"
-                % CFG.MEM_TTL_SECONDS
-            )
+            cur.execute("DELETE FROM memories WHERE ts < NOW() - INTERVAL '%s seconds'" % CFG.MEM_TTL_SECONDS)
 
     # ───── public (sync) API ─────
     def add(self, agent: str, content: str):
@@ -360,8 +377,7 @@ class _VectorStore:
         if self._mode == "pg":
             with self._pg.cursor() as cur:
                 cur.execute(
-                    "SELECT content FROM memories WHERE agent=%s "
-                    "ORDER BY ts DESC LIMIT %s",
+                    "SELECT content FROM memories WHERE agent=%s " "ORDER BY ts DESC LIMIT %s",
                     (agent, limit),
                 )
                 return [r[0] for r in cur.fetchall()]
@@ -384,8 +400,7 @@ class _VectorStore:
             if self._mode == "pg":
                 with self._pg.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:  # type: ignore[arg-type]
                     cur.execute(
-                        "SELECT agent, content, ts, embedding <-> %s AS score "
-                        "FROM memories ORDER BY score LIMIT %s",
+                        "SELECT agent, content, ts, embedding <-> %s AS score " "FROM memories ORDER BY score LIMIT %s",
                         (list(map(float, qv)), k),
                     )
                     return cur.fetchall()
@@ -396,9 +411,7 @@ class _VectorStore:
                     if i == -1:
                         continue
                     a, c, ts = self._meta[i]
-                    out.append(
-                        {"agent": a, "content": c, "ts": ts, "score": float(score)}
-                    )
+                    out.append({"agent": a, "content": c, "ts": ts, "score": float(score)})
                 return out
             if self._mode == "sqlite":
                 cur = self._sql.execute("SELECT agent, vec, content, ts FROM memories")
@@ -406,15 +419,10 @@ class _VectorStore:
                 scored = []
                 for a, vb, c, ts in rows:
                     v = np.frombuffer(vb, dtype="float32")
-                    s = float(
-                        np.dot(v, qv) / (np.linalg.norm(v) * np.linalg.norm(qv) or 1)
-                    )
+                    s = float(np.dot(v, qv) / (np.linalg.norm(v) * np.linalg.norm(qv) or 1))
                     scored.append((s, a, c, ts))
                 scored.sort(reverse=True)
-                return [
-                    {"agent": a, "content": c, "ts": ts, "score": s}
-                    for s, a, c, ts in scored[:k]
-                ]
+                return [{"agent": a, "content": c, "ts": ts, "score": s} for s, a, c, ts in scored[:k]]
             return []
 
     # bulk search ----------------------------------------------
@@ -431,9 +439,7 @@ class _VectorStore:
                 cur.execute("SELECT agent, content, ts FROM memories")
                 rows = cur.fetchall()
         elif self._mode == "sqlite":
-            rows = self._sql.execute(
-                "SELECT agent, content, ts FROM memories"
-            ).fetchall()
+            rows = self._sql.execute("SELECT agent, content, ts FROM memories").fetchall()
         elif self._mode == "faiss":
             rows = [(a, c, ts) for a, c, ts in self._meta]
         if path.suffix == ".jsonl":
@@ -467,9 +473,7 @@ class _GraphStore:
         if "GraphDatabase" not in globals():
             return
         try:
-            self._driver = GraphDatabase.driver(
-                CFG.NEO4J_URI, auth=(CFG.NEO4J_USER, CFG.NEO4J_PASS)
-            )
+            self._driver = GraphDatabase.driver(CFG.NEO4J_URI, auth=(CFG.NEO4J_USER, CFG.NEO4J_PASS))
             with self._driver.session() as s:
                 s.run("RETURN 1").single()
             self._mode = "neo4j"
@@ -571,9 +575,7 @@ class MemoryFabric:
     def search(self, query: str, k: int = 5):
         return self.vector.search(query, k)
 
-    def add_relation(
-        self, a: str, rel: str, b: str, props: Optional[Dict[str, Any]] = None
-    ):
+    def add_relation(self, a: str, rel: str, b: str, props: Optional[Dict[str, Any]] = None):
         self.graph.add(a, rel, b, props)
 
     def find_path(self, s: str, e: str, max_len: int = 3):
@@ -588,9 +590,7 @@ class MemoryFabric:
         async with self.vector._alock:
             return self.vector.search(query, k)
 
-    async def aadd_relation(
-        self, a: str, rel: str, b: str, props: Optional[Dict[str, Any]] = None
-    ):
+    async def aadd_relation(self, a: str, rel: str, b: str, props: Optional[Dict[str, Any]] = None):
         async with self.graph._alock:
             self.graph.add(a, rel, b, props)
 
