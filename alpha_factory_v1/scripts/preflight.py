@@ -67,13 +67,22 @@ def check_docker_compose() -> bool:
         banner("docker compose missing", "RED")
         return False
     try:
-        subprocess.run(
+        result = subprocess.run(
             ["docker", "compose", "version"],
             check=True,
-            stdout=subprocess.DEVNULL,
-            stderr=subprocess.DEVNULL,
+            capture_output=True,
+            text=True,
         )
+        output = str(getattr(result, "stdout", "")).strip()
         banner("docker compose available", "GREEN")
+        import re
+
+        match = re.search(r"v?(\d+)\.(\d+)", output)
+        if match:
+            major = int(match.group(1))
+            minor = int(match.group(2))
+            if (major, minor) < (2, 5):
+                banner("docker compose >=2.5 recommended", "YELLOW")
         return True
     except Exception:  # noqa: BLE001
         banner("docker compose missing", "RED")
