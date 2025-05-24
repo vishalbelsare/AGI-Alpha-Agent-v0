@@ -49,6 +49,7 @@ The instructions below apply to all contributors and automated agents.
   `requirements-dev.txt` or ensure `check_env.py` reports no missing packages
   before running `pytest`.
 - Execute `pytest -q` (or `python -m alpha_factory_v1.scripts.run_tests`) and ensure the entire suite passes. If failures remain, document them in the PR description.
+- See [`alpha_factory_v1/tests/README.md`](alpha_factory_v1/tests/README.md) for test-specific environment variables. `AF_MEMORY_DIR` sets the temporary memory path while `PYTEST_CPU_SOFT_SEC`, `PYTEST_MEM_MB` and `PYTEST_NET_OFF` control CPU time, memory usage and network access. The optional sandboxed runner `python -m alpha_factory_v1.backend.tools.local_pytest` enforces these limits.
 - Run `python alpha_factory_v1/scripts/preflight.py` to confirm the Python version and required tools are available.
 - Before the first launch, run `bash quickstart.sh --preflight` to check
   Docker availability, git, and required packages. After this
