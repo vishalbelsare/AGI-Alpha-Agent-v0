@@ -44,6 +44,12 @@ class Tracer:
     """Capture and persist execution spans."""
 
     def __init__(self, memory: Any, *, enabled: bool | None = None) -> None:
+        """Create a tracer backed by ``memory``.
+
+        Args:
+            memory: Object exposing a ``write`` method used to persist spans.
+            enabled: Override the ``AF_TRACING`` environment variable if set.
+        """
         self.mem = memory
         if enabled is None:
             enabled = os.getenv("AF_TRACING", "true").lower() != "false"

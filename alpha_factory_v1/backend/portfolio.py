@@ -42,11 +42,13 @@ class Fill:
     side: str
 
     def to_json(self) -> str:
+        """Serialize the fill to a compact JSON string."""
         return json.dumps(asdict(self), separators=(",", ":"))
 
 
 class Portfolio:
     def __init__(self, db_path: Path = DB_PATH) -> None:
+        """Initialize the portfolio and load any persisted fills."""
         self._db_path = db_path
         self._positions: Dict[str, float] = {}
 
@@ -106,6 +108,7 @@ class Portfolio:
             self._db_path.write_text("")
 
     async def arecord_fill(self, symbol: str, qty: float, price: float, side: str) -> None:
+        """Async wrapper around :meth:`record_fill`."""
         loop = asyncio.get_running_loop()
         await loop.run_in_executor(None, self.record_fill, symbol, qty, price, side)
 
