@@ -11,7 +11,19 @@ The instructions below apply to all contributors and automated agents.
 - [Troubleshooting](#troubleshooting)
 
 ## Development Environment
-- Create and activate a Python 3.11 or 3.12 (**Python ≥3.11 and <3.13**) virtual environment before running the setup script.
+- Create and activate a Python 3.11 or 3.12 (**Python ≥3.11 and <3.13**) virtual
+  environment before running the setup script. On Linux or macOS:
+  ```bash
+  python3 -m venv .venv
+  source .venv/bin/activate
+  pip install -U pip
+  ```
+  On Windows PowerShell:
+  ```powershell
+  python -m venv .venv
+  .\.venv\Scripts\Activate.ps1
+  pip install -U pip
+  ```
 - The script `alpha_factory_v1/scripts/preflight.py` enforces this requirement.
 - Run `./codex/setup.sh` to install the project in editable mode along with minimal runtime dependencies.
 - When offline, set `WHEELHOUSE=/path/to/wheels` for both `./codex/setup.sh` and
