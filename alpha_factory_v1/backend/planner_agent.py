@@ -4,6 +4,8 @@ import random
 import re
 from typing import Any, Dict, List
 
+from .agent_base import AgentBase
+
 
 _JSON_RE = re.compile(r"\{.*?\}", re.DOTALL)
 
@@ -15,8 +17,6 @@ def _extract_json(text: str) -> Dict[str, Any]:
         raise ValueError("no JSON object found")
     return json.loads(match.group(0))
 
-
-from .agent_base import AgentBase
 
 
 class PlannerAgent(AgentBase):
