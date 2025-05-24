@@ -1,7 +1,7 @@
 import subprocess, sys
 
 
-def test_cli_help():
+def test_cli_help() -> None:
     result = subprocess.run([
         sys.executable,
         '-m', 'alpha_factory_v1.demos.muzero_planning',
