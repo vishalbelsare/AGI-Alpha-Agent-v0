@@ -35,6 +35,7 @@ Optional deps (lazy‑loaded):
     faiss, sentence_transformers, rank_bm25, openai, kafka, httpx,
     prometheus_client, adk
 """
+
 from __future__ import annotations
 
 import asyncio
@@ -50,7 +51,7 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional
 
 # ────────────────────────────────────────────────────────────────────────────
-# Soft‑optional deps (never crash at import)                                  
+# Soft‑optional deps (never crash at import)
 # ────────────────────────────────────────────────────────────────────────────
 try:
     import faiss  # type: ignore
@@ -76,6 +77,7 @@ except ModuleNotFoundError:  # pragma: no cover
     def tool(fn=None, **_):  # type: ignore
         return (lambda f: f)(fn) if fn else lambda f: f
 
+
 try:
     from kafka import KafkaProducer  # type: ignore
 except ModuleNotFoundError:  # pragma: no cover
@@ -97,7 +99,7 @@ except ModuleNotFoundError:  # pragma: no cover
     httpx = None  # type: ignore
 
 # ────────────────────────────────────────────────────────────────────────────
-# Alpha‑Factory internals                                                    
+# Alpha‑Factory internals
 # ────────────────────────────────────────────────────────────────────────────
 from backend.agent_base import AgentBase  # type: ignore
 from backend.agents import AgentMetadata, register_agent  # type: ignore
@@ -105,8 +107,9 @@ from backend.agents import AgentMetadata, register_agent  # type: ignore
 logger = logging.getLogger(__name__)
 
 # ────────────────────────────────────────────────────────────────────────────
-# Utility helpers                                                            
+# Utility helpers
 # ────────────────────────────────────────────────────────────────────────────
+
 
 def _now() -> str:
     return datetime.now(timezone.utc).isoformat()
@@ -139,8 +142,9 @@ def _chunks(text: str, max_len: int = 512) -> List[str]:
         out.append(" ".join(cur))
     return out
 
+
 # ────────────────────────────────────────────────────────────────────────────
-# Config dataclass                                                           
+# Config dataclass
 # ────────────────────────────────────────────────────────────────────────────
 @dataclass
 class PLConfig:
@@ -152,8 +156,9 @@ class PLConfig:
     openai_enabled: bool = bool(os.getenv("OPENAI_API_KEY"))
     adk_mesh: bool = bool(os.getenv("ADK_MESH"))
 
+
 # ────────────────────────────────────────────────────────────────────────────
-# Embedding + retrieval                                                     
+# Embedding + retrieval
 # ────────────────────────────────────────────────────────────────────────────
 class _Embedder:
     def __init__(self, cfg: PLConfig):
@@ -166,6 +171,7 @@ class _Embedder:
 
     async def encode(self, texts: List[str]):
         import numpy as np  # local import
+
         if self.use_openai:
             resp = await openai.Embedding.acreate(model="text-embedding-3-small", input=texts, encoding_format="float")
             vecs = np.asarray([d.embedding for d in resp["data"]], dtype="float32")
@@ -244,8 +250,9 @@ class _Retriever:
             for i, sc in ann_hits
         ]
 
+
 # ────────────────────────────────────────────────────────────────────────────
-# PolicyAgent class                                                         
+# PolicyAgent class
 # ────────────────────────────────────────────────────────────────────────────
 class PolicyAgent(AgentBase):
     NAME = "policy"
@@ -308,6 +315,10 @@ class PolicyAgent(AgentBase):
         # placeholder: could poll RSS feeds here
         await asyncio.sleep(self.CYCLE_SECONDS)
 
+    async def step(self) -> None:  # noqa: D401
+        """Delegate step execution to :meth:`run_cycle`."""
+        await self.run_cycle()
+
     # ── Internal helpers ────────────────────────────────────────────────
     async def _qa_async(self, query: str):
         hits = await self.retriever.search(query, 8)
@@ -359,8 +370,9 @@ class PolicyAgent(AgentBase):
         except Exception as exc:  # noqa: BLE001
             logger.warning("ADK registration failed: %s", exc)
 
+
 # ────────────────────────────────────────────────────────────────────────────
-# Registry hook                                                              
+# Registry hook
 # ────────────────────────────────────────────────────────────────────────────
 register_agent(
     AgentMetadata(

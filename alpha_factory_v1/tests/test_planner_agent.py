@@ -33,12 +33,17 @@ class PlannerAgentTest(unittest.TestCase):
         self.tmpdir = tempfile.TemporaryDirectory()
         self.memory = Memory(self.tmpdir.name)
         self.gov = DummyGov()
+        # Disable Prometheus metrics to avoid duplicate registry errors
+        import backend.agents.base as base
+
+        base.Counter = None
+        base.Gauge = None
 
     def tearDown(self):
         self.tmpdir.cleanup()
 
     def test_extract_json(self):
-        text = "noise {\"agent\": \"x\", \"reason\": \"ok\"} trailing"
+        text = 'noise {"agent": "x", "reason": "ok"} trailing'
         self.assertEqual(_extract_json(text)["agent"], "x")
 
     def test_fallback_logic(self):

@@ -15,6 +15,7 @@ def _extract_json(text: str) -> Dict[str, Any]:
         raise ValueError("no JSON object found")
     return json.loads(match.group(0))
 
+
 from .agent_base import AgentBase
 
 
@@ -27,8 +28,12 @@ class PlannerAgent(AgentBase):
     executed asynchronously via its :py:meth:`run_cycle` method.
     """
 
-    def __init__(self, *args, domain_agents, **kwargs):
-        super().__init__(*args, **kwargs)
+    def __init__(self, name: str, model: Any, memory: Any, gov: Any, *, domain_agents):
+        super().__init__()
+        self.name = name
+        self.model = model
+        self.memory = memory
+        self.gov = gov
         self.domain_agents = list(domain_agents)
         self.log = logging.getLogger("PlannerAgent")
 
@@ -77,3 +82,7 @@ class PlannerAgent(AgentBase):
         # Run the selected agent's cycle
         await target.run_cycle()
 
+    async def step(self) -> None:  # noqa: D401
+        """Plan and dispatch a single agent cycle."""
+        tasks = self.think(self.observe())
+        await self.act(tasks)

@@ -22,8 +22,8 @@ Key pillars
   battery + DR schedule; fallback MILP via PuLP ensures deterministic
   feasibility when the world-model is cold.
 * **SDK Tools** – three OpenAI Agents SDK tools:
-    • ``forecast_demand``   → 48 h demand / PV JSON frame  
-    • ``optimise_dispatch`` → 24 h dispatch & SOC schedule  
+    • ``forecast_demand``   → 48 h demand / PV JSON frame
+    • ``optimise_dispatch`` → 24 h dispatch & SOC schedule
     • ``hedge_strategy``    → forward-curve hedge in MWh & $/MWh
 * **Governance** – every payload wrapped in Model-Context-Protocol (MCP)
   envelope and SHA-256 digest for SOX / REMIT traceability.
@@ -37,6 +37,7 @@ Heavy deps (all optional, auto-detected)
 This file supersedes all previous drafts and preserves 100 % of the
 public API exposed by ``EnergyAgent``.
 """
+
 from __future__ import annotations
 
 import asyncio
@@ -89,6 +90,7 @@ except ModuleNotFoundError:  # pragma: no cover
     def tool(fn=None, **_kw):  # type: ignore
         return (lambda f: f)(fn) if fn else lambda f: f
 
+
 try:
     import adk  # type: ignore
 except ModuleNotFoundError:  # pragma: no cover
@@ -97,11 +99,12 @@ except ModuleNotFoundError:  # pragma: no cover
 # ---------------------------------------------------------------------------
 # Alpha-Factory core imports (lightweight, always available)
 # ---------------------------------------------------------------------------
-from backend.agent_base import AgentBase  # pylint: disable=import-error
+from backend.agents.base import AgentBase  # pylint: disable=import-error
 from backend.agents import AgentMetadata, register_agent
 from backend.orchestrator import _publish  # reuse event-bus helper
 
 logger = logging.getLogger(__name__)
+
 
 # ---------------------------------------------------------------------------
 # Configuration ----------------------------------------------------------------
@@ -121,6 +124,7 @@ class EnergyConfig:
     openai_enabled: bool = bool(os.getenv("OPENAI_API_KEY"))
     adk_mesh: bool = bool(os.getenv("ADK_MESH"))
 
+
 # ---------------------------------------------------------------------------
 # Helpers ---------------------------------------------------------------------
 def _now_iso() -> str:
@@ -139,6 +143,7 @@ def _mcp(agent: str, payload: Any) -> Dict[str, Any]:
         "digest": _sha(payload),
         "payload": payload,
     }
+
 
 # ---------------------------------------------------------------------------
 # Surrogate load / PV model ---------------------------------------------------
@@ -161,9 +166,12 @@ class _SurrogateModel:
         if self._model is not None:
             return self._model.predict(df)
         # naive baseline: yesterday + noise
-        return np.array(df["prev"] * (1 + np.random.uniform(-0.05, 0.05, len(df)))) if np is not None else [
-            row.get("prev", 1.0) for _, row in df.iterrows()
-        ]
+        return (
+            np.array(df["prev"] * (1 + np.random.uniform(-0.05, 0.05, len(df))))
+            if np is not None
+            else [row.get("prev", 1.0) for _, row in df.iterrows()]
+        )
+
 
 # ---------------------------------------------------------------------------
 # Deterministic battery + DR MILP optimiser ----------------------------------
@@ -177,9 +185,9 @@ def _battery_optim(prices: List[float], load: List[float]) -> Dict[str, Any]:
 
     T = len(prices)
     m = pulp.LpProblem("battery", pulp.LpMaximize)
-    chg = pulp.LpVariable.dicts("chg", list(range(T)), 0, 1)      # MW
+    chg = pulp.LpVariable.dicts("chg", list(range(T)), 0, 1)  # MW
     dis = pulp.LpVariable.dicts("dis", list(range(T)), 0, 1)
-    soc = pulp.LpVariable.dicts("soc", list(range(T)), 0, 5)      # MWh
+    soc = pulp.LpVariable.dicts("soc", list(range(T)), 0, 5)  # MWh
     # objective revenue
     m += pulp.lpSum((dis[t] - chg[t]) * prices[t] for t in range(T))
     # dynamics
@@ -197,6 +205,7 @@ def _battery_optim(prices: List[float], load: List[float]) -> Dict[str, Any]:
             for t in range(T)
         ]
     }
+
 
 # ---------------------------------------------------------------------------
 # EnergyAgent -----------------------------------------------------------------
@@ -252,14 +261,15 @@ class EnergyAgent(AgentBase):
         if self._producer:
             self._producer.send(self.cfg.price_topic, envelope)
 
+    async def step(self) -> None:  # noqa: D401
+        """Single orchestrator step delegating to :meth:`run_cycle`."""
+        await self.run_cycle()
+
     # ----------------------- Data ingestion ------------------------------ #
     async def _refresh_price_feed(self):
         if httpx is None:
             return
-        url = (
-            "https://api.eia.gov/v2/marketdata?"
-            "data=rtm_lmp&balancingAuthority=ERCOT&api_key=DEMO_KEY"
-        )
+        url = "https://api.eia.gov/v2/marketdata?" "data=rtm_lmp&balancingAuthority=ERCOT&api_key=DEMO_KEY"
         cache = self.cfg.data_root / "ercot_prices.json"
         try:
             async with httpx.AsyncClient(timeout=15) as client:
@@ -275,10 +285,7 @@ class EnergyAgent(AgentBase):
         ts = [now + timedelta(hours=i) for i in range(horizon)]
         # naive feature frame
         if pd is None:
-            load = [
-                500 + 150 * math.sin(2 * math.pi * t.hour / 24) + random.uniform(-25, 25)  # noqa: S311
-                for t in ts
-            ]
+            load = [500 + 150 * math.sin(2 * math.pi * t.hour / 24) + random.uniform(-25, 25) for t in ts]  # noqa: S311
             pv = [max(0, 300 * (1 - abs(t.hour - 12) / 12) + random.uniform(-20, 20)) for t in ts]  # noqa: S311
         else:
             df = pd.DataFrame(
@@ -292,10 +299,7 @@ class EnergyAgent(AgentBase):
             load = self._surrogate.predict(df)
             pv = np.maximum(0, 300 * (1 - np.abs(df["hour"] - 12) / 12)).tolist() if np is not None else [0] * horizon
 
-        forecast = [
-            {"ts": ts[i].isoformat(), "load_kw": float(load[i]), "pv_kw": float(pv[i])}
-            for i in range(horizon)
-        ]
+        forecast = [{"ts": ts[i].isoformat(), "load_kw": float(load[i]), "pv_kw": float(pv[i])} for i in range(horizon)]
         return json.dumps(_mcp(self.NAME, forecast))
 
     async def _dispatch(self) -> str:
@@ -336,6 +340,7 @@ class EnergyAgent(AgentBase):
             logger.info("[EN] registered in ADK mesh id=%s", client.node_id)
         except Exception as exc:  # noqa: BLE001
             logger.warning("ADK registration failed: %s", exc)
+
 
 # ---------------------------------------------------------------------------
 # Registry hook --------------------------------------------------------------

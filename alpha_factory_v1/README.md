@@ -391,7 +391,7 @@ so metrics are available out-of-the-box.
 <a name="10-extending-the-mesh"></a>
 ## 10 · Extending the Mesh 🔌
 ```python
-from backend.agent_base import AgentBase
+from backend.agents.base import AgentBase
 
 class MySuperAgent(AgentBase):
     NAME = "super"

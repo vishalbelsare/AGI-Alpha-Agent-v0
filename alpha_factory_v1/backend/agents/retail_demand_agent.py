@@ -29,6 +29,7 @@ compliance metadata.
 * **Zero mandatory cloud creds**   If Kafka, OpenAI or ADK are
 unavailable the agent silently falls back to local stubs.
 """
+
 from __future__ import annotations
 
 import asyncio
@@ -97,6 +98,7 @@ logger = logging.getLogger(__name__)
 # Configuration dataclass  ---------------------------------------------------
 # ---------------------------------------------------------------------------
 
+
 def _env_int(name: str, default: int) -> int:
     try:
         return int(os.getenv(name, default))
@@ -123,6 +125,7 @@ class RDConfig:
 # ---------------------------------------------------------------------------
 # Surrogate forecaster  ------------------------------------------------------
 # ---------------------------------------------------------------------------
+
 
 class _DemandSurrogate:
     """Probabilistic weekly demand forecaster (LightGBM quantile model)."""
@@ -163,6 +166,7 @@ class _DemandSurrogate:
 # Simple (s,Q) reorder policy  ----------------------------------------------
 # ---------------------------------------------------------------------------
 
+
 def _calc_reorder(df_fc: "pd.DataFrame", service_lvl: float) -> List[Dict[str, Any]]:  # noqa: D401
     if pd is None:
         return []
@@ -183,6 +187,7 @@ def _calc_reorder(df_fc: "pd.DataFrame", service_lvl: float) -> List[Dict[str, A
 # Governance helpers  --------------------------------------------------------
 # ---------------------------------------------------------------------------
 
+
 def _digest(payload: Any) -> str:
     return hashlib.sha256(json.dumps(payload, separators=(",", ":")).encode()).hexdigest()
 
@@ -200,6 +205,7 @@ def _wrap_mcp(agent: str, payload: Any) -> Dict[str, Any]:
 # ---------------------------------------------------------------------------
 # RetailDemandAgent  ---------------------------------------------------------
 # ---------------------------------------------------------------------------
+
 
 class RetailDemandAgent(AgentBase):
     """Alpha‑grade demand‑sensing & replenishment planner."""
@@ -258,6 +264,10 @@ class RetailDemandAgent(AgentBase):
         _publish("retail.reorder", json.loads(envelope))
         if self._producer:
             self._producer.send(self.cfg.tx_topic, envelope)
+
+    async def step(self) -> None:  # noqa: D401
+        """Delegate step execution to :meth:`run_cycle`."""
+        await self.run_cycle()
 
     # ------------------------------------------------------------------
     # Data ingestion & surrogate training

@@ -1,4 +1,4 @@
-'''backend.agents.smart_contract_agent
+"""backend.agents.smart_contract_agent
 ===================================================================
 Alpha‑Factory v1 👁️✨ — Multi‑Agent AGENTIC α‑AGI
 -------------------------------------------------------------------
@@ -29,7 +29,8 @@ High‑level overview
 -------------------------------------------------------------------
 DO NOT EDIT BELOW THIS LINE UNLESS THROUGH CANMORE.
 -------------------------------------------------------------------
-'''
+"""
+
 from __future__ import annotations
 
 import asyncio
@@ -84,6 +85,7 @@ except ModuleNotFoundError:  # pragma: no cover
     def tool(fn=None, **_):  # type: ignore
         return (lambda f: f)(fn) if fn else lambda f: f
 
+
 try:
     import adk  # type: ignore
 except ModuleNotFoundError:  # pragma: no cover
@@ -107,6 +109,7 @@ logger = logging.getLogger(__name__)
 # Configuration helpers
 # ---------------------------------------------------------------------------
 
+
 def _env_int(key: str, default: int) -> int:
     try:
         return int(os.getenv(key, default))
@@ -126,9 +129,7 @@ def _now() -> str:
 
 
 def _digest(obj: Any) -> str:
-    return hashlib.sha256(
-        json.dumps(obj, separators=(",", ":"), sort_keys=True).encode()
-    ).hexdigest()
+    return hashlib.sha256(json.dumps(obj, separators=(",", ":"), sort_keys=True).encode()).hexdigest()
 
 
 def _wrap_mcp(agent: str, payload: Any) -> Dict[str, Any]:
@@ -141,9 +142,11 @@ def _wrap_mcp(agent: str, payload: Any) -> Dict[str, Any]:
         "payload": payload,
     }
 
+
 # ---------------------------------------------------------------------------
 # Config dataclass
 # ---------------------------------------------------------------------------
+
 
 @dataclass(slots=True)
 class SCConfig:
@@ -157,9 +160,11 @@ class SCConfig:
     adk_mesh: bool = bool(os.getenv("ADK_MESH"))
     gas_cache_ttl: int = _env_int("SC_GAS_CACHE_TTL", 30)  # seconds
 
+
 # ---------------------------------------------------------------------------
 # LightGBM surrogate — quick VaR approximation if MythX/Slither are absent
 # ---------------------------------------------------------------------------
+
 
 class _VaRSurrogate:
     def __init__(self) -> None:
@@ -175,9 +180,11 @@ class _VaRSurrogate:
         # heuristic baseline
         return 0.05 + 0.01 * features.get("vuln_cnt", 1) + random.uniform(-0.01, 0.02)
 
+
 # ---------------------------------------------------------------------------
 # SmartContractAgent core
 # ---------------------------------------------------------------------------
+
 
 class SmartContractAgent(AgentBase):
     """Analyse, optimise and forecast smart‑contract performance & risk."""
@@ -202,9 +209,7 @@ class SmartContractAgent(AgentBase):
         self.cfg = cfg or SCConfig()
         self.cfg.data_root.mkdir(parents=True, exist_ok=True)
 
-        self._w3 = (
-            Web3(Web3.HTTPProvider(self.cfg.rpc_url)) if self.cfg.rpc_url and Web3 else None
-        )
+        self._w3 = Web3(Web3.HTTPProvider(self.cfg.rpc_url)) if self.cfg.rpc_url and Web3 else None
         self._surrogate = _VaRSurrogate()
         self._gas_cache: tuple[float, datetime] | None = None
 
@@ -226,7 +231,7 @@ class SmartContractAgent(AgentBase):
 
     @tool(
         description="Audit a Solidity contract for vulnerabilities, gas & economic risk."
-        " Provide either {\"source\": <solidity string>} or {\"address\": <0x..>}"
+        ' Provide either {"source": <solidity string>} or {"address": <0x..>}'
     )
     def audit_contract(self, contract_json: str) -> str:  # noqa: D401
         """Tool entry‑point — synchronous wrapper for async audit."""
@@ -236,9 +241,7 @@ class SmartContractAgent(AgentBase):
         loop = asyncio.get_event_loop()
         return loop.run_until_complete(self._audit_async(src, addr))
 
-    @tool(
-        description="Suggest gas‑saving refactors. Input: JSON {\"source\": str, \"budget_gwei\": int?}"
-    )
+    @tool(description='Suggest gas‑saving refactors. Input: JSON {"source": str, "budget_gwei": int?}')
     def optimize_contract(self, src_json: str) -> str:  # noqa: D401
         args = json.loads(src_json)
         src = args.get("source", "")
@@ -248,7 +251,7 @@ class SmartContractAgent(AgentBase):
 
     @tool(
         description="Forecast gas price (gwei) and ETH cost for calldata length over next 12 blocks."
-        " Input: JSON {\"bytes_len\": int}"
+        ' Input: JSON {"bytes_len": int}'
     )
     def gas_forecast(self, args_json: str) -> str:  # noqa: D401
         blen = int(json.loads(args_json).get("bytes_len", 0))
@@ -268,13 +271,15 @@ class SmartContractAgent(AgentBase):
             if self._producer:
                 self._producer.send(self.cfg.tx_topic, env)
 
+    async def step(self) -> None:  # noqa: D401
+        """Delegate step execution to :meth:`run_cycle`."""
+        await self.run_cycle()
+
     # ------------------------------------------------------------------
     # ★ Core routines ★
     # ------------------------------------------------------------------
 
-    async def _audit_async(
-        self, source: Optional[str] = None, address: Optional[str] = None
-    ) -> str:
+    async def _audit_async(self, source: Optional[str] = None, address: Optional[str] = None) -> str:
         if not source and not address:
             return json.dumps(_wrap_mcp(self.NAME, {"error": "no_input"}))
 
@@ -293,9 +298,7 @@ class SmartContractAgent(AgentBase):
                     sol_path.write_text(src)
                     sl = Slither(str(sol_path), solidity_version="0.8.25")  # type: ignore
                     vulns = [d["check"] for d in sl.run_detectors()]
-                    gas_usage = sum(
-                        f.gas_estimate for f in sl.contracts[0].functions  # type: ignore
-                    )
+                    gas_usage = sum(f.gas_estimate for f in sl.contracts[0].functions)  # type: ignore
             except Exception as exc:  # noqa: BLE001
                 logger.warning("Slither failed: %s", exc)
 
@@ -393,9 +396,7 @@ class SmartContractAgent(AgentBase):
 
     async def _get_gas_price(self) -> float:
         # memoize for TTL
-        if self._gas_cache and datetime.utcnow() - self._gas_cache[1] < timedelta(
-            seconds=self.cfg.gas_cache_ttl
-        ):
+        if self._gas_cache and datetime.utcnow() - self._gas_cache[1] < timedelta(seconds=self.cfg.gas_cache_ttl):
             return self._gas_cache[0]
         try:
             if self._w3 is not None:
@@ -425,6 +426,7 @@ class SmartContractAgent(AgentBase):
             logger.info("[SC] registered in ADK mesh id=%s", client.node_id)
         except Exception as exc:  # noqa: BLE001
             logger.warning("ADK registration failed: %s", exc)
+
 
 # ---------------------------------------------------------------------------
 # Helper utilities (free‑standing)
@@ -462,9 +464,8 @@ async def _run_mythril(src: str) -> List[str]:
 
 def _bootstrap_distribution(median: float, n: int = 12) -> List[float]:
     random.seed(int(median * 100))
-    return sorted(
-        max(1.0, random.gauss(median, median * 0.15)) for _ in range(n)
-    )
+    return sorted(max(1.0, random.gauss(median, median * 0.15)) for _ in range(n))
+
 
 # ---------------------------------------------------------------------------
 # Register agent in global registry
@@ -487,5 +488,7 @@ register_agent(
 if __name__ == "__main__":
     # `python smart_contract_agent.py` will run a minimal self‑audit.
     agent = SmartContractAgent()
-    sample_src = """pragma solidity ^0.8.25; contract Foo { function bar(uint a) external view returns(uint){return a+1;} }"""
+    sample_src = (
+        """pragma solidity ^0.8.25; contract Foo { function bar(uint a) external view returns(uint){return a+1;} }"""
+    )
     print(agent.audit_contract(json.dumps({"source": sample_src}))[:200])
