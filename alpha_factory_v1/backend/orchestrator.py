@@ -47,10 +47,22 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional
 
 # ────────────────────────── soft-imports (all optional) ───────────────
-with contextlib.suppress(ModuleNotFoundError):
-    from fastapi import FastAPI, HTTPException, File
+try:
+    from fastapi import FastAPI, HTTPException, File, Request
     from fastapi.responses import PlainTextResponse
     import uvicorn
+except ModuleNotFoundError:  # fallback mode
+    FastAPI = None  # type: ignore
+
+    class HTTPException(Exception):
+        ...
+
+    PlainTextResponse = object  # type: ignore
+
+    def File(*_a, **_kw):
+        ...
+
+    Request = object  # type: ignore
 
 with contextlib.suppress(ModuleNotFoundError):
     import grpc
@@ -323,7 +335,7 @@ class AgentRunner:
 
 # ─────────────────────────── REST API ─────────────────────────────────
 def _build_rest(runners: Dict[str, AgentRunner]) -> Optional[FastAPI]:
-    if "FastAPI" not in globals():
+    if FastAPI is None:
         return None
 
     app = FastAPI(
@@ -348,8 +360,12 @@ def _build_rest(runners: Dict[str, AgentRunner]) -> Optional[FastAPI]:
         runners[name].next_ts = 0  # run ASAP
         return {"queued": True}
 
+    upload_param = File(...) if FastAPI else None  # type: ignore
+
     @app.post("/agent/{name}/update_model")
-    async def _update_model(name: str, file: bytes = File(...)):
+    async def _update_model(request: Request, name: str, file: bytes = upload_param):
+        if FastAPI is None and file is None:
+            file = await request.body()
         if name not in runners:
             raise HTTPException(404, "Agent not found")
         inst = runners[name].inst
