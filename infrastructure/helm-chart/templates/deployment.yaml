@@ -1,0 +1,20 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: alpha-demo
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: alpha-demo
+  template:
+    metadata:
+      labels:
+        app: alpha-demo
+    spec:
+      containers:
+        - name: orchestrator
+          image: alpha-demo:latest
+          ports:
+            - containerPort: 8000
+            - containerPort: 3000
