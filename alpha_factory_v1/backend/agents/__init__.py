@@ -45,6 +45,7 @@ import inspect
 import json
 import logging
 import os
+import sys
 import pkgutil
 import queue
 import threading
@@ -333,8 +334,12 @@ def _discover_local():
         if is_pkg or not mod_name.endswith("_agent"):
             continue
         try:
-            meta = _inspect_module(importlib.import_module(prefix + mod_name))
-            if meta:
+            fqmn = prefix + mod_name
+            mod  = sys.modules.get(fqmn)
+            if mod is None:
+                mod = importlib.import_module(fqmn)
+            meta = _inspect_module(mod)
+            if meta and meta.name not in AGENT_REGISTRY:
                 _register(meta)
         except Exception:                        # noqa: BLE001
             logger.exception("Import error for %s", mod_name)
@@ -353,16 +358,18 @@ def _discover_entrypoints():
             continue
         AgentBase = _agent_base()
         if inspect.isclass(obj) and issubclass(obj, AgentBase):
-            _register(
-                AgentMetadata(
-                    name=getattr(obj, "NAME", ep.name),
-                    cls=obj,
-                    version=getattr(obj, "__version__", "0.1.0"),
-                    capabilities=list(getattr(obj, "CAPABILITIES", [])),
-                    compliance_tags=list(getattr(obj, "COMPLIANCE_TAGS", [])),
-                    requires_api_key=getattr(obj, "REQUIRES_API_KEY", False),
+            name = getattr(obj, "NAME", ep.name)
+            if name not in AGENT_REGISTRY:
+                _register(
+                    AgentMetadata(
+                        name=name,
+                        cls=obj,
+                        version=getattr(obj, "__version__", "0.1.0"),
+                        capabilities=list(getattr(obj, "CAPABILITIES", [])),
+                        compliance_tags=list(getattr(obj, "COMPLIANCE_TAGS", [])),
+                        requires_api_key=getattr(obj, "REQUIRES_API_KEY", False),
+                    )
                 )
-            )
 
 
 def _install_wheel(path: Path) -> Optional[ModuleType]:
@@ -384,7 +391,7 @@ def _discover_hot_dir():
             mod = _install_wheel(wheel)
             if mod:
                 meta = _inspect_module(mod)
-                if meta:
+                if meta and meta.name not in AGENT_REGISTRY:
                     _register(meta)
         except Exception:                          # noqa: BLE001
             logger.exception("Hot-dir load failed for %s", wheel.name)
