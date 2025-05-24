@@ -101,6 +101,8 @@ for modules, classes and functions.
   - After setup, run `pre-commit run --all-files` once right away to ensure
     formatting and lint checks succeed, then run `pre-commit run --files
     <paths>` before every commit.
+  - Re-run `pre-commit run --all-files` whenever dependencies or configuration
+    files change so the hook environment stays up to date.
 
 ## Pull Requests
 - Keep commits focused and descriptive. Use meaningful commit messages.
