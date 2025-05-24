@@ -15,6 +15,7 @@ _LOG.addHandler(logging.NullHandler())
 
 try:
     from neo4j import GraphDatabase  # type: ignore
+
     _NEO4J_OK = True
 except ModuleNotFoundError:
     _NEO4J_OK = False
@@ -23,7 +24,9 @@ import networkx as nx
 
 _URI = os.getenv("NEO4J_URI", "bolt://localhost:7687")
 _USER = os.getenv("NEO4J_USER", "neo4j")
-_PW = os.getenv("NEO4J_PASSWORD", "password")
+_PW = os.getenv("NEO4J_PASSWORD")
+if not _PW:
+    raise RuntimeError("Set the NEO4J_PASSWORD environment variable")
 
 
 class MemoryGraph:
@@ -52,11 +55,7 @@ class MemoryGraph:
     # ----------------------------------------------------------------- #
     def add_edge(self, src: str, dst: str, **attrs) -> None:  # noqa: D401
         if self._remote:
-            cypher = (
-                "MERGE (a:Node {name:$s}) "
-                "MERGE (b:Node {name:$d}) "
-                "MERGE (a)-[:MEMORY {attrs:$attrs}]->(b)"
-            )
+            cypher = "MERGE (a:Node {name:$s}) " "MERGE (b:Node {name:$d}) " "MERGE (a)-[:MEMORY {attrs:$attrs}]->(b)"
             with self._driver.session() as s:
                 s.run(cypher, s=src, d=dst, attrs=attrs)
         else:
@@ -64,10 +63,7 @@ class MemoryGraph:
 
     def neighbours(self, node: str) -> Iterable[Tuple[str, dict]]:
         if self._remote:
-            cypher = (
-                "MATCH (a:Node {name:$n})- [r] -> (b) "
-                "RETURN b.name as name, r as rel"
-            )
+            cypher = "MATCH (a:Node {name:$n})- [r] -> (b) " "RETURN b.name as name, r as rel"
             with self._driver.session() as s:
                 for record in s.run(cypher, n=node):
                     yield record["name"], dict(record["rel"])
