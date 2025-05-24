@@ -1,0 +1,4 @@
+# α‑AGI Insight demo dependencies
+-r ../../requirements.txt
+blake3>=0.3
+grpcio>=1.62
