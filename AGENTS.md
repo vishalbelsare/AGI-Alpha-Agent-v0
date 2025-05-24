@@ -92,17 +92,12 @@ for modules, classes and functions.
 - Install pre‑commit and set up the git hook:
   1. `pip install pre-commit`
   2. `pre-commit install`
-  3. Run `pre-commit run --all-files` right away to ensure formatting and lint
-     checks succeed and to populate the cache.
-  4. Run `pre-commit run --files <paths>` before committing.
-    CI will reject commits that fail these checks.
+  3. `pre-commit run --all-files` once after installation
+  4. `pre-commit run --files <paths>` before each commit
+  5. Re-run `pre-commit run --all-files` when dependencies or configs change.
+  - CI will reject commits that fail these checks.
   - The configuration runs `black`, `ruff`, `flake8` and `mypy` using
     `mypy.ini`.
-  - After setup, run `pre-commit run --all-files` once right away to ensure
-    formatting and lint checks succeed, then run `pre-commit run --files
-    <paths>` before every commit.
-  - Re-run `pre-commit run --all-files` whenever dependencies or configuration
-    files change so the hook environment stays up to date.
 
 ## Pull Requests
 - Keep commits focused and descriptive. Use meaningful commit messages.
