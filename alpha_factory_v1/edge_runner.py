@@ -11,6 +11,7 @@ The parser inspects common environment variables (``PORT``,
 configured via container or system settings.  Basic validation is performed on
 numeric flags to prevent invalid configuration from reaching the orchestrator.
 """
+
 from __future__ import annotations
 
 import argparse
@@ -66,10 +67,13 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         "--agents",
         help="Comma separated list of agents to enable",
     )
+    port_default = _env_int("PORT", 8000)
+    if port_default <= 0:
+        port_default = 8000
     ap.add_argument(
         "--port",
         type=_positive_int("port"),
-        default=_env_int("PORT", 8000),
+        default=port_default,
         help="REST API port",
     )
     ap.add_argument(
@@ -83,16 +87,22 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         default=None,
         help="Logging verbosity",
     )
+    metrics_default = _env_int("METRICS_PORT", 0)
+    if metrics_default <= 0:
+        metrics_default = 0
     ap.add_argument(
         "--metrics-port",
         type=_positive_int("metrics-port"),
-        default=_env_int("METRICS_PORT", 0) or None,
+        default=metrics_default or None,
         help="Prometheus metrics port",
     )
+    a2a_default = _env_int("A2A_PORT", 0)
+    if a2a_default <= 0:
+        a2a_default = 0
     ap.add_argument(
         "--a2a-port",
         type=_positive_int("a2a-port"),
-        default=_env_int("A2A_PORT", 0) or None,
+        default=a2a_default or None,
         help="gRPC A2A port",
     )
     ap.add_argument(
@@ -116,6 +126,7 @@ def main() -> None:
         return
     if args.list_agents:
         from .backend import agents
+
         for name in agents.list_agents():
             print(name)
         return

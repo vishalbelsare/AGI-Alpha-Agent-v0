@@ -35,6 +35,19 @@ class TestParseArgs(unittest.TestCase):
         self.assertEqual(args.a2a_port, 3333)
         self.assertEqual(args.cycle, 4)
 
+    def test_invalid_env_ports_default(self) -> None:
+        env = {"PORT": "0", "METRICS_PORT": "-1", "A2A_PORT": "0"}
+        with patch.dict(os.environ, env, clear=True):
+            args = edge_runner.parse_args([])
+        self.assertEqual(args.port, 8000)
+        self.assertIsNone(args.metrics_port)
+        self.assertIsNone(args.a2a_port)
+
+    def test_cli_invalid_port_error(self) -> None:
+        with patch.dict(os.environ, {}, clear=True):
+            with self.assertRaises(SystemExit):
+                edge_runner.parse_args(["--port", "0"])
+
 
 if __name__ == "__main__":  # pragma: no cover - manual execution
     unittest.main()
