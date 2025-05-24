@@ -2,12 +2,12 @@ import unittest
 import time
 from types import SimpleNamespace
 
-from alpha_factory_v1.backend.orchestrator import _build_rest
+import pytest
 
-try:
-    from fastapi.testclient import TestClient
-except ModuleNotFoundError:  # pragma: no cover - allow unittest fallback
-    TestClient = None  # type: ignore
+pytest.importorskip("fastapi", reason="fastapi is required for REST API tests")
+from fastapi.testclient import TestClient
+
+from alpha_factory_v1.backend.orchestrator import _build_rest
 
 
 class DummyRunner:
@@ -19,7 +19,6 @@ class DummyRunner:
         self.spec = None
 
 
-@unittest.skipIf(TestClient is None, "fastapi not installed")
 class BuildRestTest(unittest.TestCase):
     def test_basic_routes(self):
         runners = {"foo": DummyRunner()}
@@ -43,7 +42,6 @@ class DummyAgent:
         self.loaded = path
 
 
-@unittest.skipIf(TestClient is None, "fastapi not installed")
 class UpdateModelTest(unittest.TestCase):
     def _make_client(self):
         runner = DummyRunner()
