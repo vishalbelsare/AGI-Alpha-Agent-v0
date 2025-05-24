@@ -669,6 +669,7 @@ Our **AGI ALPHA AGENT**, fuelled by the strictly‑utility **$AGIALPHA** token
 
 This project is distributed under the [Apache 2.0](LICENSE) license.
 All community members are expected to follow our [Code of Conduct](CODE_OF_CONDUCT.md).
+Please report security issues via the process outlined in our [Security Policy](SECURITY.md).
 
 <a name="15-final-note"></a>
 ## 15 · Final Note
