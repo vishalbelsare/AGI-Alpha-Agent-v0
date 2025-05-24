@@ -1,9 +1,11 @@
 # diff_utils.py
-import re, subprocess
+import re
+import subprocess
 
 ALLOWED_PATHS = ["alpha_factory_v1", "src", "tests"]  # example allowed directories
 
-def parse_and_validate_diff(diff_text: str) -> str:
+
+def parse_and_validate_diff(diff_text: str) -> str | None:
     """Verify the LLM's output is a valid unified diff and meets safety criteria."""
     if not diff_text:
         return None
@@ -23,6 +25,7 @@ def parse_and_validate_diff(diff_text: str) -> str:
                     return None
     # (Additional checks: e.g., diff length, certain forbidden content can be added here.)
     return diff_text
+
 
 def apply_diff(diff_text: str, repo_dir: str) -> bool:
     """Apply the unified diff to the repo_dir. Returns True if applied successfully."""
