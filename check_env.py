@@ -34,6 +34,7 @@ OPTIONAL = [
     "google_adk",
 ]
 
+
 def main(argv: Optional[List[str]] = None) -> int:
     parser = argparse.ArgumentParser(description="Validate runtime dependencies")
     parser.add_argument(
@@ -72,15 +73,28 @@ def main(argv: Optional[List[str]] = None) -> int:
                 cmd += ["--no-index", "--find-links", wheelhouse]
             cmd += missing
             print("Attempting automatic install:", " ".join(cmd))
-            rc = subprocess.call(cmd)
-            if rc != 0:
-                print("Automatic install failed with code", rc)
+            try:
+                result = subprocess.run(cmd, capture_output=True, text=True, check=True)
+            except subprocess.CalledProcessError as exc:
+                stderr = exc.stderr or ""
+                print("Automatic install failed with code", exc.returncode)
+                if any(kw in stderr.lower() for kw in ["connection", "temporary failure", "network", "resolve"]):
+                    print(
+                        "Network failure detected. Re-run with '--wheelhouse <path>' or set WHEELHOUSE to install offline packages."
+                    )
+                return 1
             else:
+                if result.returncode != 0:
+                    print("Automatic install failed with code", result.returncode)
+                    return result.returncode
                 print("Install completed, verifying …")
                 missing = [p for p in missing if importlib.util.find_spec(p) is None]
                 missing_required = [p for p in missing if p not in OPTIONAL]
                 if missing_required:
-                    print("ERROR: The following packages are still missing after the installation attempt:", ", ".join(missing_required))
+                    print(
+                        "ERROR: The following packages are still missing after the installation attempt:",
+                        ", ".join(missing_required),
+                    )
                     return 1
         else:
             hint = "pip install " + " ".join(missing)
@@ -92,5 +106,6 @@ def main(argv: Optional[List[str]] = None) -> int:
         print("Environment OK")
     return 0
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     sys.exit(main())

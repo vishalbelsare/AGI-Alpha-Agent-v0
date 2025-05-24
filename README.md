@@ -476,6 +476,7 @@ git clone https://github.com/MontrealAI/AGI-Alpha-Agent-v0.git
 cd AGI-Alpha-Agent-v0
 ./quickstart.sh --preflight   # optional environment check
 python check_env.py --auto-install  # verify & auto-install deps
+# (If this fails with a network error, rerun with --wheelhouse <path>)
 ./quickstart.sh               # creates venv, installs deps, launches
 # Use `--wheelhouse /path/to/wheels` to install offline packages when
 # the host has no internet access. `WHEELHOUSE` should point to a
@@ -484,6 +485,7 @@ python check_env.py --auto-install  # verify & auto-install deps
 # installs any missing optional packages. Example offline setup:
 #   export WHEELHOUSE=/media/wheels
 #   python check_env.py --auto-install --wheelhouse $WHEELHOUSE
+# The script prints this hint automatically if auto-install fails due to network errors.
 # open the docs in your browser
 python -m webbrowser http://localhost:8000/docs
 # Alternatively, ``python alpha_factory_v1/quickstart.py`` provides the same
