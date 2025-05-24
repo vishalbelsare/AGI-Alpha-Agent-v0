@@ -1,6 +1,7 @@
 import unittest
-import importlib
 import asyncio
+import io
+import logging
 import os
 import sys
 import subprocess
@@ -263,6 +264,23 @@ class TestVersionOverride(unittest.TestCase):
 
         self.assertIs(AGENT_REGISTRY["dup"].cls, AgentV1)
         self.assertEqual(AGENT_REGISTRY["dup"].version, "1.0")
+
+
+class TestDiscoverLocalIdempotent(unittest.TestCase):
+    def test_no_duplicate_logs(self):
+        from alpha_factory_v1.backend import agents as agents_mod
+        logger = logging.getLogger("alpha_factory.agents")
+        stream = io.StringIO()
+        handler = logging.StreamHandler(stream)
+        logger.addHandler(handler)
+        agents_mod._discover_local()  # first call may log agents
+        stream.truncate(0)
+        stream.seek(0)
+        agents_mod._discover_local()  # second call should be quiet
+        logger.removeHandler(handler)
+        logs = stream.getvalue()
+        self.assertNotIn("Duplicate agent name", logs)
+        self.assertNotIn("\u2713 agent", logs)
 
 if __name__ == "__main__":
     unittest.main()
