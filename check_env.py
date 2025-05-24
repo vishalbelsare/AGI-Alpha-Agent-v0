@@ -24,6 +24,8 @@ REQUIRED = [
     "prometheus_client",
     "openai",
     "anthropic",
+    "fastapi",
+    "opentelemetry",
 ]
 
 # Optional integrations that may not be present in restricted environments.
