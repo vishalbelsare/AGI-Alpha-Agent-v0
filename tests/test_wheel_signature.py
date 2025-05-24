@@ -1,12 +1,21 @@
 import base64
 import unittest
 from pathlib import Path
-from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey
-from cryptography.hazmat.primitives import serialization
+
+try:
+    from cryptography.hazmat.primitives.asymmetric.ed25519 import (
+        Ed25519PrivateKey,
+    )
+    from cryptography.hazmat.primitives import serialization
+
+    HAVE_CRYPTO = True
+except Exception:  # pragma: no cover - optional dependency
+    HAVE_CRYPTO = False
 
 from alpha_factory_v1.backend import agents as agents_mod
 
 
+@unittest.skipUnless(HAVE_CRYPTO, "cryptography not installed")
 class TestWheelSignature(unittest.TestCase):
     def test_verify_wheel(self) -> None:
         priv = Ed25519PrivateKey.generate()
