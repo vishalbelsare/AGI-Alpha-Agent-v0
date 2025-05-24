@@ -75,6 +75,8 @@ The instructions below apply to all contributors and automated agents.
   [`alpha_factory_v1/scripts/README.md`](alpha_factory_v1/scripts/README.md)
   for additional guidance.
 - Verify `.env` is ignored by running `git status` (it should appear untracked). The repository's `.gitignore` already includes `.env`.
+- Set `AF_TRACING=true` to enable tracing (default) or `false` to disable it. See
+  [`alpha_factory_v1/backend/tracer.py`](alpha_factory_v1/backend/tracer.py).
 
 ## Coding Style
 - Use Python 3.11 or 3.12 (**Python ≥3.11 and <3.13**) and include type hints for public APIs.
