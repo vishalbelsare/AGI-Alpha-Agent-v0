@@ -77,7 +77,7 @@ Please report security vulnerabilities as described in our [Security Policy](SEC
 - On Windows or systems without Bash, run
   `python alpha_factory_v1/quickstart.py --preflight`.
 - Copy `alpha_factory_v1/.env.sample` to `.env` and add secrets such as
-  `OPENAI_API_KEY` and `ANTHROPIC_API_KEY`. Replace `NEO4J_PASSWORD=changeme`
+  `OPENAI_API_KEY` and `ANTHROPIC_API_KEY`. Replace `NEO4J_PASSWORD=REPLACE_ME`
   with a strong secret— the orchestrator fails to start if this variable is
   missing or left at the default.
 - **Never commit** `.env` or other secrets. See
