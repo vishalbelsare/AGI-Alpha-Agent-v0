@@ -511,9 +511,10 @@ python alpha_factory_v1/demos/alpha_agi_business_3_v1/alpha_agi_business_3_v1.py
 ### .env Setup & Security
 Before running the orchestrator, copy `alpha_factory_v1/.env.sample` to `.env` and
 replace all placeholder values with strong secrets. The sample sets
-`NEO4J_PASSWORD=REPLACE_ME` as a placeholder—configure passwords for services
-like Neo4j and Postgres and **never deploy with the defaults**. The orchestrator
-will refuse to start if `NEO4J_PASSWORD` remains `REPLACE_ME` or is missing.
+`NEO4J_PASSWORD=REPLACE_ME` as a placeholder—generate a random password for
+services like Neo4j and Postgres using `openssl rand -base64 18` or a similar
+tool and **never deploy with the defaults**. The orchestrator will refuse to
+start if `NEO4J_PASSWORD` remains `REPLACE_ME` or is missing.
 
 ### Finance Demo Quick‑Start
 

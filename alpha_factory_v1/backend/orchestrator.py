@@ -473,6 +473,14 @@ async def _hb_watch(runners: Dict[str, AgentRunner]) -> None:
 
 # ───────────────────────────── main() ────────────────────────────────
 async def _main() -> None:
+    # ─── Basic startup checks ───────────────────────────────────────
+    if os.getenv("NEO4J_PASSWORD") == "REPLACE_ME":
+        log.error(
+            "NEO4J_PASSWORD is set to the default 'REPLACE_ME'. "
+            "Edit .env or your Docker secrets to configure a strong password."
+        )
+        sys.exit(1)
+
     # ─── Discover/instantiate agents ─────────────────────────────────
     avail = list_agents()
     names = [n for n in avail if not ENABLED or n in ENABLED]
