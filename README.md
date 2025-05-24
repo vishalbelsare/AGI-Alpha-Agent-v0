@@ -463,6 +463,7 @@ Cells with \(Δ\mathcal F < 0\) glow 🔵 on Grafana; Ω‑Agents race to harves
 
 * Agents query `mem.search("supply shock beta>0.2")`  
 * Planner asks Neo4j: `MATCH (a)-[:CAUSES]->(b) WHERE b.delta_alpha > 5e6 RETURN path`
+* SQLite vector store fallback requires `numpy`
 
 ---
 
