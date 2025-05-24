@@ -530,6 +530,8 @@ Need a different pair or port? Use environment variables:
 No GPU → falls back to GGML Llama‑3‑8B‑Q4.
 No `OPENAI_API_KEY` → switches to local SBERT + heuristics.
 `AF_LLM_CACHE_SIZE` caps in-memory LLM cache entries (default 1024).
+`AF_PING_INTERVAL` sets the ping frequency in seconds (default 60, minimum 5).
+`AF_DISABLE_PING_AGENT=true` disables the built‑in ping agent.
 
 ---
 
