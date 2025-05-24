@@ -53,7 +53,7 @@ import threading
 import time
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any, Dict, Iterable, List, Optional, Sequence, Tuple, Union, Final
+from typing import Any, Callable, Dict, Iterable, List, Optional, Sequence, Tuple, Union, Final
 
 # ─────────────────────── dynamic soft-deps ░──────────────────
 try:
@@ -171,10 +171,11 @@ tracer = trace.get_tracer(__name__) if "trace" in globals() else None  # type: i
 # ──────────────────────── EMBEDDING back-end ░────────────────
 
 
-def _load_embedder():
+
+def _load_embedder() -> Callable[[str], Sequence[float]]:
     """Return an embedding function with automatic fallback."""
 
-    def _hash(text: str, dim: int = CFG.VECTOR_DIM):
+    def _hash(text: str, dim: int = CFG.VECTOR_DIM) -> Sequence[float]:
         h = hashlib.sha256(text.encode()).digest()
         v = [(1 if b & 1 else -1) * ((b >> 1) / 128.0) for b in h]
         v *= (dim + len(v) - 1) // len(v)
@@ -191,7 +192,7 @@ def _load_embedder():
         logger.info("MemoryFabric: using local SBERT embeddings.")
         _model = SentenceTransformer("all-MiniLM-L6-v2")
 
-        def _sbert(text: str):
+        def _sbert(text: str) -> Sequence[float]:
             return _model.encode(text, normalize_embeddings=True)
 
         _fallback = _sbert
@@ -202,7 +203,7 @@ def _load_embedder():
         logger.info("MemoryFabric: using OpenAI embeddings with local fallback.")
         model = "text-embedding-3-small"
 
-        def _openai(text: str):
+        def _openai(text: str) -> Sequence[float]:
             try:
                 resp = openai.Embedding.create(model=model, input=text)  # type: ignore[attr-defined]
                 return resp["data"][0]["embedding"]
@@ -218,7 +219,7 @@ def _load_embedder():
 _EMBED = _load_embedder()
 
 # ────────────────────────── util ░─────────────────────────────
-_NOW = lambda: datetime.now(timezone.utc)  # noqa: E731
+_NOW: Callable[[], datetime] = lambda: datetime.now(timezone.utc)  # noqa: E731
 
 
 def _hash_content(s: str) -> str:
@@ -230,17 +231,19 @@ class _VectorStore:
     """Implementation chain:  Postgres+pgvector ▸ FAISS ▸ SQLite ▸ RAM list."""
 
     # ───────── init ─────────
-    def __init__(self):
+    def __init__(self) -> None:
         self._lock = threading.RLock()
         self._alock = asyncio.Lock()
         self._mode = "ram"
         self._fail_until = 0.0
+        self._pg: Optional[psycopg2.extensions.connection] = None
+        self._sql: Optional[sqlite3.Connection] = None
         self._init_postgres()  # may set self._mode
         if self._mode == "ram":
             self._init_faiss_or_sqlite()
 
     # ───── Postgres / pgvector ─────
-    def _init_postgres(self):
+    def _init_postgres(self) -> None:
         if "psycopg2" not in globals() or not CFG.PGHOST:
             return
         dsn = {
@@ -276,7 +279,7 @@ class _VectorStore:
             logger.warning("VectorStore: Postgres unavailable → %s", e)
 
     # ───── FAISS / SQLite fallback ─────
-    def _init_faiss_or_sqlite(self):
+    def _init_faiss_or_sqlite(self) -> None:
         use_sqlite = os.getenv("VECTOR_STORE_USE_SQLITE", "false").lower() == "true"
         if np is None:
             if use_sqlite:
@@ -306,7 +309,7 @@ class _VectorStore:
             logger.info("VectorStore: SQLite disabled → RAM mode")
 
     # ───── internal helpers ─────
-    def _evict_if_needed(self, agent: str):
+    def _evict_if_needed(self, agent: str) -> None:
         if CFG.MEM_MAX_PER_AGENT <= 0:
             return
         if self._mode == "pg":
@@ -333,7 +336,7 @@ class _VectorStore:
                 if self._vectors:
                     self._faiss.add(np.vstack(self._vectors))
 
-    def _apply_ttl_pg(self):
+    def _apply_ttl_pg(self) -> None:
         if CFG.MEM_TTL_SECONDS <= 0:
             return
         with self._pg, self._pg.cursor() as cur:
@@ -343,7 +346,7 @@ class _VectorStore:
     def add(self, agent: str, content: str):
         """Insert one memory row idempotently (by SHA-1 hash)."""
         h = _hash_content(content)
-        vec = _EMBED(content)
+        vec: Any = _EMBED(content)
         if np is not None:
             vec = np.asarray(vec, dtype="float32")
         now = _NOW().isoformat()
@@ -410,7 +413,7 @@ class _VectorStore:
     # search (single query) ------------------------------------
     def search(self, query: str, k: int = 5) -> List[Dict[str, Any]]:
         with _MET_V_SRCH.time() if _MET_V_SRCH else contextlib.nullcontext():
-            qv = _EMBED(query)
+            qv: Any = _EMBED(query)
             if np is not None:
                 qv = np.asarray(qv, dtype="float32")
             if self._mode == "pg":
@@ -442,11 +445,11 @@ class _VectorStore:
             return []
 
     # bulk search ----------------------------------------------
-    def search_many(self, queries: Sequence[str], k: int = 5):
+    def search_many(self, queries: Sequence[str], k: int = 5) -> List[List[Dict[str, Any]]]:
         return [self.search(q, k) for q in queries]
 
     # export / import ------------------------------------------
-    def export_all(self, path: Union[str, Path]):
+    def export_all(self, path: Union[str, Path]) -> None:
         """Dump entire vector store to JSON-Lines or Parquet (ext inferred)."""
         path = Path(path)
         rows = []
@@ -493,7 +496,7 @@ class _VectorStore:
 class _GraphStore:
     """Neo4j ▸ NetworkX ▸ list  (same downgrade policy as vector store)"""
 
-    def __init__(self):
+    def __init__(self) -> None:
         self._lock = threading.RLock()
         self._alock = asyncio.Lock()
         self._mode = "list"
@@ -502,7 +505,7 @@ class _GraphStore:
         if self._mode == "list":
             self._init_networkx()
 
-    def _init_neo4j(self):
+    def _init_neo4j(self) -> None:
         if "GraphDatabase" not in globals():
             return
         try:
@@ -514,7 +517,7 @@ class _GraphStore:
         except Exception as e:  # noqa: BLE001
             logger.warning("GraphStore: Neo4j unavailable → %s", e)
 
-    def _init_networkx(self):
+    def _init_networkx(self) -> None:
         if "nx" in globals():
             self._g = nx.MultiDiGraph()  # type: ignore[attr-defined]
             self._mode = "nx"
@@ -524,7 +527,7 @@ class _GraphStore:
             logger.info("GraphStore: python-list ultimate fallback.")
 
     # add relation ---------------------------------------------
-    def add(self, a: str, rel: str, b: str, props: Optional[Dict[str, Any]] = None):
+    def add(self, a: str, rel: str, b: str, props: Optional[Dict[str, Any]] = None) -> None:
         props = props or {}
         props.setdefault("ts", _NOW().isoformat())
         try:
@@ -549,11 +552,13 @@ class _GraphStore:
             self._fail_until = time.time() + CFG.MEM_FAIL_GRACE_SEC
 
     # query ----------------------------------------------------
-    def query(self, cypher: str) -> List[Dict[str, Any]]:
+    def query(self, cypher: str, params: Optional[Dict[str, Any]] = None) -> List[Dict[str, Any]]:
         if self._mode == "neo4j":
             try:
                 with self._driver.session() as s:
-                    return [r.data() for r in s.run(cypher)]
+                    if params is None:
+                        return [r.data() for r in s.run(cypher)]
+                    return [r.data() for r in s.run(cypher, params)]
             except Exception as e:  # noqa: BLE001
                 logger.error("Neo4j query failed → %s", e)
         logger.warning("GraphStore.query: backend unavailable. returning [].")
