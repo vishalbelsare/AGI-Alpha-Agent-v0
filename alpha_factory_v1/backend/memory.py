@@ -12,7 +12,7 @@ import json
 import logging
 import os
 import tempfile
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 
 _log = logging.getLogger("alpha_factory.memory")
@@ -41,7 +41,9 @@ class Memory:
     def write(self, agent: str, kind: str, data) -> None:
         """Append one structured record to disk."""
         record = {
-            "ts": datetime.utcnow().isoformat(timespec="seconds") + "Z",
+            "ts": datetime.now(timezone.utc)
+            .isoformat(timespec="seconds")
+            .replace("+00:00", "Z"),
             "agent": agent,
             "kind": kind,
             "data": data,

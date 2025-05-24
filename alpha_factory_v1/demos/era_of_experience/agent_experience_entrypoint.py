@@ -102,7 +102,7 @@ async def experience_stream() -> AsyncIterator[Dict[str, Any]]:
 
     while True:
         uid += 1
-        now = dt.datetime.utcnow().isoformat()
+        now = dt.datetime.now(dt.timezone.utc).isoformat()
         if random.random() < .6:
             kind, payload = "health", {"activity": random.choice(health)}
         else:
