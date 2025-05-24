@@ -21,16 +21,21 @@ Usage
 """
 from __future__ import annotations
 
+import logging
+
 # ───────────────────── Standard Library ──────────────────────────────────────
-import asyncio
 import contextlib
 import json
 import os
-import random
 import time
 from dataclasses import asdict, dataclass
 from pathlib import Path
 from typing import Any, Callable, Dict, List, MutableMapping, Optional, Tuple
+
+from .logger import get_logger
+
+_LOG = get_logger("alpha_factory.world_model")
+_LOG.addHandler(logging.NullHandler())
 
 # ────────────────── Soft-Imports (all optional) ──────────────────────────────
 with contextlib.suppress(ModuleNotFoundError):
@@ -46,17 +51,17 @@ with contextlib.suppress(ModuleNotFoundError):
 
 # ─────────────────────── ENV Config ──────────────────────────────────────────
 ENV = os.getenv
-DEV_MODE           = ENV("DEV_MODE", "false").lower() == "true"
-GRID_SIZE          = int(ENV("WM_GRID_SIZE", "5"))
-MCTS_SIMS          = int(ENV("WM_MCTS_SIMULATIONS", "96"))
-MCTS_TIMEOUT_SEC   = int(ENV("WM_MCTS_TIMEOUT_SEC", "3"))
-LLM_MODEL          = ENV("WM_LLM_MODEL", "gpt-4o-mini")
-RISK_THRESHOLD     = float(ENV("WM_RISK_THRESHOLD", "-50"))
-RULES_JSON         = ENV("WM_SAFETY_RULES", "")
-PROM_ENABLED       = ENV("PROMETHEUS_DISABLE", "false").lower() != "true"
-LLAMA_MODEL_PATH   = ENV("LLAMA_MODEL_PATH", "models/llama-2-7b.gguf")
-KAFKA_BROKER       = ENV("ALPHA_KAFKA_BROKER")
-META_INTERVAL_SEC  = int(ENV("META_INTERVAL_SEC", "3600"))
+DEV_MODE = ENV("DEV_MODE", "false").lower() == "true"
+GRID_SIZE = int(ENV("WM_GRID_SIZE", "5"))
+MCTS_SIMS = int(ENV("WM_MCTS_SIMULATIONS", "96"))
+MCTS_TIMEOUT_SEC = int(ENV("WM_MCTS_TIMEOUT_SEC", "3"))
+LLM_MODEL = ENV("WM_LLM_MODEL", "gpt-4o-mini")
+RISK_THRESHOLD = float(ENV("WM_RISK_THRESHOLD", "-50"))
+RULES_JSON = ENV("WM_SAFETY_RULES", "")
+PROM_ENABLED = ENV("PROMETHEUS_DISABLE", "false").lower() != "true"
+LLAMA_MODEL_PATH = ENV("LLAMA_MODEL_PATH", "models/llama-2-7b.gguf")
+KAFKA_BROKER = ENV("ALPHA_KAFKA_BROKER")
+META_INTERVAL_SEC = int(ENV("META_INTERVAL_SEC", "3600"))
 
 _DEFAULT_RULES: Dict[str, Any] = {
     "max_position_frac": 0.25,
@@ -64,6 +69,7 @@ _DEFAULT_RULES: Dict[str, Any] = {
     "min_liquidity_usd": 1e5,
 }
 SAFETY_RULES: Dict[str, Any] = {**_DEFAULT_RULES, **json.loads(RULES_JSON or "{}")}
+
 
 # ═══════════════════ 1. Reference Grid-World ════════════════════════════════
 @dataclass(slots=True)
@@ -80,6 +86,7 @@ class GridState:
 
 class GridWorldEnv:
     """Deterministic 2-D grid with dense −1 time-penalty."""
+
     ACTIONS = {
         0: ("UP", (0, -1)),
         1: ("DOWN", (0, 1)),
@@ -105,9 +112,7 @@ class GridWorldEnv:
         grid[gy][gx] = 2
         return [p for row in grid for p in row]
 
-    def step(
-        self, action_id: int
-    ) -> Tuple[Dict[str, Any], float, bool, Dict[str, Any]]:
+    def step(self, action_id: int) -> Tuple[Dict[str, Any], float, bool, Dict[str, Any]]:
         if self.state.done:
             return self.state.to_dict(), 0.0, True, {}
         name, (dx, dy) = self.ACTIONS.get(action_id, ("NOP", (0, 0)))
@@ -144,9 +149,7 @@ class MuZeroPlanner:
         # initialise once; env injected per plan call
         self._mz = muzero.MuZero(config=str(cfg))  # type: ignore
 
-    def best_action(
-        self, sims: int = MCTS_SIMS, timeout: int = MCTS_TIMEOUT_SEC
-    ) -> Tuple[int, List[int]]:
+    def best_action(self, sims: int = MCTS_SIMS, timeout: int = MCTS_TIMEOUT_SEC) -> Tuple[int, List[int]]:
         if not self.available:
             return self._heuristic()
         return self._mz.plan(self._env, sims, timeout)  # type: ignore[attr-defined]
@@ -230,11 +233,9 @@ if PROM_ENABLED and "Gauge" in globals():
 else:
 
     class _Dummy(float):
-        def observe(self, *a: Any, **kw: Any) -> None:
-            ...
+        def observe(self, *a: Any, **kw: Any) -> None: ...
 
-        def set(self, *a: Any, **kw: Any) -> None:
-            ...
+        def set(self, *a: Any, **kw: Any) -> None: ...
 
     PLAN_LAT = RISK_SCR = _Dummy()
 
@@ -250,7 +251,7 @@ def _kafka_send(topic: str, msg: dict) -> None:
         _kafka.produce(topic, json.dumps(msg).encode())
         _kafka.poll(0)
     except Exception:  # noqa: BLE001
-        pass
+        _LOG.exception("Kafka emit failed (topic=%s)", topic)
 
 
 # ═══════════════════ 6. Environment registry ════════════════════════════════
