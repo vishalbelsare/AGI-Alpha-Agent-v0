@@ -1,0 +1,20 @@
+version: '3.9'
+services:
+  orchestrator:
+    build: .
+    image: alpha-demo:latest
+    ports:
+      - "8000:8000"
+  agents:
+    image: alpha-demo:latest
+    command: ["python", "-m", "alpha_factory_v1.demos.alpha_agi_insight_v0.official_demo_final"]
+    depends_on:
+      - orchestrator
+  web:
+    image: nginx:alpine
+    volumes:
+      - ../alpha_factory_v1/ui:/usr/share/nginx/html:ro
+    ports:
+      - "3000:80"
+    depends_on:
+      - orchestrator

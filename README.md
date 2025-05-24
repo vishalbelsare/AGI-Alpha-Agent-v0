@@ -610,6 +610,24 @@ Alpha‑Factory on air‑gapped or resource‑constrained devices. The script
 forwards to `alpha_factory_v1.edge_runner` and exposes additional flags
 like `--cycle`, `--loglevel` and `--version`.
 
+Build the demo containers locally:
+
+```bash
+cd infrastructure
+docker build -t alpha-demo .
+docker compose up
+```
+
+The Helm chart under `infrastructure/helm-chart` mirrors this Compose
+setup:
+
+```bash
+helm install alpha-demo ./infrastructure/helm-chart
+```
+
+Terraform scripts in `infrastructure/terraform` provide GCP and AWS
+examples (`main_gcp.tf`, `main_aws.tf`).
+
 | Target | Command | Notes |
 |--------|---------|-------|
 | **Docker Compose** | `docker compose up -d` | Kafka, Prometheus, Grafana |
