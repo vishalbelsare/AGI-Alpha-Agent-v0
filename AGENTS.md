@@ -3,6 +3,13 @@
 This repository contains the Alpha-Factory v1 package and demos.
 The instructions below apply to all contributors and automated agents.
 
+**Quick links**
+
+- [Development Environment](#development-environment)
+- [Coding Style](#coding-style)
+- [Pull Requests](#pull-requests)
+- [Troubleshooting](#troubleshooting)
+
 ## Development Environment
 - Create and activate a Python 3.11 or 3.12 (**Python ≥3.11 and <3.13**) virtual environment before running the setup script.
 - The script `alpha_factory_v1/scripts/preflight.py` enforces this requirement.
