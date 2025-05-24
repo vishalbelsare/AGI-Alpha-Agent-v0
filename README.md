@@ -142,7 +142,7 @@ git clone https://github.com/MontrealAI/AGI-Alpha-Agent-v0.git
 cd AGI-Alpha-Agent-v0
 # Requires Python 3.11–3.12 (<3.13)
 ./quickstart.sh
-open http://localhost:8000/docs 2>/dev/null || xdg-open http://localhost:8000/docs || start http://localhost:8000/docs
+python -m webbrowser http://localhost:8000/docs
 ```
 
 ## Disclaimer
@@ -483,7 +483,7 @@ python check_env.py --auto-install  # verify & auto-install deps
 #   export WHEELHOUSE=/media/wheels
 #   python check_env.py --auto-install --wheelhouse $WHEELHOUSE
 # open the docs in your browser
-open http://localhost:8000/docs 2>/dev/null || xdg-open http://localhost:8000/docs || start http://localhost:8000/docs
+python -m webbrowser http://localhost:8000/docs
 # Alternatively, ``python alpha_factory_v1/quickstart.py`` provides the same
 # workflow on Windows and other systems without Bash.
 
