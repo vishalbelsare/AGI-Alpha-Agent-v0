@@ -128,7 +128,10 @@ class Governance:
 # │ 2.  Decision telemetry & credential emission                           │
 # ╰────────────────────────────────────────────────────────────────────────╯
 # Optional‑import OpenTelemetry (keeps repo usable without it)
-_ot_trace_spec = importlib.util.find_spec("opentelemetry.trace")
+try:  # pragma: no cover - optional dependency
+    _ot_trace_spec = importlib.util.find_spec("opentelemetry.trace")
+except ModuleNotFoundError:  # pragma: no cover - missing package
+    _ot_trace_spec = None
 if _ot_trace_spec:
     from opentelemetry import trace as _trace  # type: ignore
     _tracer = _trace.get_tracer("alpha_factory")
