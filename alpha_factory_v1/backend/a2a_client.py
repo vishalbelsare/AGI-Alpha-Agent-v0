@@ -322,6 +322,11 @@ def _spiffe_ssl_context(spiffe_id: str | None) -> ssl.SSLContext:
             peer_spiffe_id = SpiffeId.parse(cert_validator.extract_ids(x509)[0])
             return peer_spiffe_id == SpiffeId.parse(spiffe_id)
 
-        ctx.verify_flags = ssl.VERIFY_PEER
-        ctx.set_verify(ssl.CERT_REQUIRED, _verify)  # type: ignore[attr-defined]
+        if hasattr(ctx, "set_verify"):
+            ctx.verify_flags = ssl.VERIFY_PEER
+            ctx.set_verify(ssl.CERT_REQUIRED, _verify)  # type: ignore[attr-defined]
+        else:
+            # Fallback to the default certificate checks when the SSLContext
+            # implementation does not support custom callbacks.
+            ctx.verify_mode = ssl.CERT_REQUIRED
     return ctx
