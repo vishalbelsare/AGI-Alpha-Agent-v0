@@ -120,12 +120,12 @@ MAX_CYCLE_SEC = int(ENV("MAX_CYCLE_SEC", "30"))
 MODEL_MAX_BYTES = int(ENV("ALPHA_MODEL_MAX_BYTES", str(64 * 1024 * 1024)))
 ENABLED = {s.strip() for s in ENV("ALPHA_ENABLED_AGENTS", "").split(",") if s.strip()}
 
-logging.basicConfig(
-    level=LOGLEVEL,
-    format="%(asctime)s.%(msecs)03d %(levelname)-8s | %(name)s | %(message)s",
-    datefmt="%Y-%m-%d %H:%M:%S",
-    force=True,
-)
+if not logging.getLogger().handlers:
+    logging.basicConfig(
+        level=LOGLEVEL,
+        format="%(asctime)s.%(msecs)03d %(levelname)-8s | %(name)s | %(message)s",
+        datefmt="%Y-%m-%d %H:%M:%S",
+    )
 log = logging.getLogger("alpha_factory.orchestrator")
 
 # OTEL tracer — noop if lib missing
