@@ -197,7 +197,7 @@ def _fanout(evt: Dict[str, Any]):
 async def stream_macro_events(live: bool = False) -> AsyncIterator[Dict[str, Any]]:
     idx = 0
     while True:
-        evt = {"timestamp": dt.datetime.utcnow().isoformat()}
+        evt = {"timestamp": dt.datetime.now(dt.timezone.utc).isoformat()}
         if live:
             speech = await _latest_fed_speech() or OFF_FED[idx]["text"]
             y10    = await _fred_latest(FRED_10Y)  or float(OFF_YIELD[idx]["10y"])

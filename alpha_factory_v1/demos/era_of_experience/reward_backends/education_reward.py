@@ -85,7 +85,7 @@ def reward(state: Any, action: Any, result: Any) -> float:
     if now is None:
         import datetime as _dt
 
-        now = _dt.datetime.utcnow()
+        now = _dt.datetime.now(_dt.timezone.utc)
 
     # ------------------------------------------------------------------------
     # 1) Detect if the *result* represents a bona‑fide learning activity
