@@ -29,12 +29,10 @@ def main(base_dir: str = DEFAULT_DIR, min_lines: int = 3, require_code_block: bo
                 with open(readme, "r", encoding="utf-8") as fh:
                     lines = fh.readlines()
                 if len(lines) < min_lines:
-                    failures.append(
-                        f"README.md in {entry} too short ({len(lines)} < {min_lines} lines)"
-                    )
-                if not any(l.strip().startswith("#") for l in lines):
+                    failures.append(f"README.md in {entry} too short ({len(lines)} < {min_lines} lines)")
+                if not any(line.strip().startswith("#") for line in lines):
                     failures.append(f"README.md in {entry} missing a Markdown heading")
-                if require_code_block and not any("```" in l for l in lines):
+                if require_code_block and not any("```" in line for line in lines):
                     failures.append(f"README.md in {entry} missing fenced code block")
             init_file = os.path.join(path, "__init__.py")
             if not os.path.isfile(init_file):
@@ -42,9 +40,7 @@ def main(base_dir: str = DEFAULT_DIR, min_lines: int = 3, require_code_block: bo
 
             # Ensure demo contains additional production assets
             visible_files = [
-                f
-                for f in os.listdir(path)
-                if not f.startswith(".") and f not in {"README.md", "__init__.py"}
+                f for f in os.listdir(path) if not f.startswith(".") and f not in {"README.md", "__init__.py"}
             ]
             if not visible_files:
                 failures.append(f"{entry} contains no demo code or assets")

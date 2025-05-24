@@ -109,9 +109,9 @@ def rsi(prices: Sequence[float], period: int = 14) -> float:
         avg_gain = float(np.mean(gains[:period]))
         avg_loss = float(np.mean(losses[:period]))
 
-        for g, l in zip(gains[period:], losses[period:]):
+        for g, loss_val in zip(gains[period:], losses[period:]):
             avg_gain = (avg_gain * (period - 1) + float(g)) / period
-            avg_loss = (avg_loss * (period - 1) + float(l)) / period
+            avg_loss = (avg_loss * (period - 1) + float(loss_val)) / period
     else:
         deltas = [prices[i + 1] - prices[i] for i in range(len(prices) - 1)]
         gains = [max(d, 0.0) for d in deltas]
@@ -120,9 +120,9 @@ def rsi(prices: Sequence[float], period: int = 14) -> float:
         avg_gain = sum(gains[:period]) / period
         avg_loss = sum(losses[:period]) / period
 
-        for g, l in zip(gains[period:], losses[period:]):
+        for g, loss_val in zip(gains[period:], losses[period:]):
             avg_gain = (avg_gain * (period - 1) + g) / period
-            avg_loss = (avg_loss * (period - 1) + l) / period
+            avg_loss = (avg_loss * (period - 1) + loss_val) / period
 
     if avg_loss == 0:
         return 100.0
@@ -150,7 +150,6 @@ def bollinger_bands(
         slice_ = [float(p) for p in prices[-window:]]
         mean = sum(slice_) / window
         variance = sum((p - mean) ** 2 for p in slice_) / (window - 1)
-        std = variance ** 0.5
+        std = variance**0.5
     band = num_std * std
     return (mean - band, mean + band)
-
