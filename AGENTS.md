@@ -10,6 +10,12 @@ The instructions below apply to all contributors and automated agents.
 - [Pull Requests](#pull-requests)
 - [Troubleshooting](#troubleshooting)
 
+## Prerequisites
+- Python 3.11 or 3.12 (**Python ≥3.11 and <3.13**)
+- Docker and Docker Compose
+- Git
+- The script `alpha_factory_v1/scripts/preflight.py` validates these tools.
+
 ## Development Environment
 - Create and activate a Python 3.11 or 3.12 (**Python ≥3.11 and <3.13**) virtual
   environment before running the setup script. On Linux or macOS:
