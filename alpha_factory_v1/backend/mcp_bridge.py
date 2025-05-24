@@ -21,7 +21,7 @@ from __future__ import annotations
 import asyncio
 import os
 import time
-from typing import Dict, List, TypedDict
+from typing import List, TypedDict
 
 try:
     import httpx  # type: ignore
