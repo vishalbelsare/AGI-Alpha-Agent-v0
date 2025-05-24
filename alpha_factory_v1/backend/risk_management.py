@@ -34,6 +34,7 @@ risk.enforce_limits()
 from __future__ import annotations
 
 import json
+import logging
 import math
 import os
 import time
@@ -60,6 +61,8 @@ _CACHE_DIR = Path(os.getenv("ALPHA_DATA_DIR", "/tmp/alphafactory")) / "risk"
 _CACHE_DIR.mkdir(parents=True, exist_ok=True)
 _EQ_CACHE = _CACHE_DIR / "equity_curve.json"
 
+_LOG = logging.getLogger("alpha_factory.risk")
+
 
 def _load_equity_cache() -> List[float]:
     if _EQ_CACHE.exists():
@@ -73,8 +76,11 @@ def _load_equity_cache() -> List[float]:
 def _save_equity_cache(curve: Sequence[float]) -> None:
     try:
         _EQ_CACHE.write_text(json.dumps(curve[-5000:]))  # keep ≤ ~5k pts
-    except Exception:  # pragma: no cover
-        pass
+    except Exception:  # pragma: no cover - best effort persistence
+        _LOG.debug(
+            "Equity cache write failed – continuing without persistence",
+            exc_info=True,
+        )
 
 
 # ---------------------------------------------------------------------------
