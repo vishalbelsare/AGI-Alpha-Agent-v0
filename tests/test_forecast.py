@@ -20,6 +20,17 @@ def test_simulate_years_length() -> None:
     assert [r.year for r in results] == [1, 2, 3]
 
 
+def test_baseline_growth_and_disruption() -> None:
+    sec = sector.Sector("x", energy=1.0, entropy=2.0, growth=0.1)
+    traj = forecast.forecast_disruptions([sec], 2, curve="linear", pop_size=2, generations=1)
+    first = traj[0].sectors[0]
+    second = traj[1].sectors[0]
+    assert first.energy == pytest.approx(1.1)
+    assert not first.disrupted
+    assert second.disrupted
+    assert second.energy > 1.1 * 1.1
+
+
 def test_gibbs_free_energy() -> None:
     logp = [math.log(0.7), math.log(0.3)]
     value = gibbs.free_energy(logp, temperature=1.0, task_cost=1.0)

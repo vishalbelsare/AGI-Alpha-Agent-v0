@@ -8,7 +8,6 @@ import secrets
 import importlib
 from typing import Any, Dict, List, TYPE_CHECKING, cast
 
-from ..utils import CFG
 
 if TYPE_CHECKING:  # pragma: no cover - typing only
     ForecastModule = Any
@@ -63,10 +62,16 @@ async def _background_run(sim_id: str, cfg: SimRequest) -> None:
     """
 
     secs = [sector.Sector(f"s{i:02d}") for i in range(cfg.pop_size)]
-    results = forecast.simulate_years(secs, cfg.horizon)
+    traj = forecast.forecast_disruptions(
+        secs,
+        cfg.horizon,
+        pop_size=cfg.pop_size,
+        generations=cfg.generations,
+    )
     logs: List[str] = []
-    for r in results:
-        logs.append(f"Year {r.year}: {len(r.affected)} affected")
+    for t in traj:
+        affected = [s for s in t.sectors if s.disrupted]
+        logs.append(f"Year {t.year}: {len(affected)} affected")
         _progress.setdefault(sim_id, []).append(logs[-1])
         await asyncio.sleep(0.05)
 
@@ -82,7 +87,7 @@ async def _background_run(sim_id: str, cfg: SimRequest) -> None:
         await asyncio.sleep(0.05)
 
     _simulations[sim_id] = {
-        "forecast": [{"year": r.year, "capability": r.capability} for r in results],
+        "forecast": [{"year": t.year, "capability": t.capability} for t in traj],
         "pareto": [ind.genome for ind in pop if ind.rank == 0],
         "logs": logs,
     }
