@@ -634,6 +634,7 @@ npm install
 npm run dev       # http://localhost:5173
 # build production assets
 npm run build
+# or pnpm build
 python -m http.server --directory dist 9000
 ```
 Alternatively run inside Docker:
