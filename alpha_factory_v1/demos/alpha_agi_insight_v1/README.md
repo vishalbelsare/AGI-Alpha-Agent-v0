@@ -411,8 +411,11 @@ The React dashboard streams year-by-year events via WebSocket and renders:
 | `AGI_INSIGHT_BROADCAST` | Enable blockchain broadcasting | `1` |
 | `AGI_INSIGHT_SOLANA_URL` | Solana RPC endpoint | `https://api.testnet.solana.com` |
 | `AGI_INSIGHT_SOLANA_WALLET` | Wallet private key (hex) | _unset_ |
+| `AGI_INSIGHT_SOLANA_WALLET_FILE` | Path to wallet key file | _unset_ |
 
-Create `.env` or pass via `docker -e`.
+Create `.env` or pass via `docker -e`. Store wallet keys outside of `.env` and
+use `AGI_INSIGHT_SOLANA_WALLET_FILE` to reference the file containing the
+hex-encoded private key.
 
 ---
 

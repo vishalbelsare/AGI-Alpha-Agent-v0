@@ -63,8 +63,11 @@ class Settings:
     bus_cert: str | None = os.getenv("AGI_INSIGHT_BUS_CERT")
     bus_key: str | None = os.getenv("AGI_INSIGHT_BUS_KEY")
     broadcast: bool = os.getenv("AGI_INSIGHT_BROADCAST", "1") == "1"
-    solana_rpc_url: str = os.getenv("AGI_INSIGHT_SOLANA_URL", "https://api.testnet.solana.com")
+    solana_rpc_url: str = os.getenv(
+        "AGI_INSIGHT_SOLANA_URL", "https://api.testnet.solana.com"
+    )
     solana_wallet: str | None = os.getenv("AGI_INSIGHT_SOLANA_WALLET")
+    solana_wallet_file: str | None = os.getenv("AGI_INSIGHT_SOLANA_WALLET_FILE")
 
     def __post_init__(self) -> None:
         if not self.openai_api_key:
@@ -72,6 +75,13 @@ class Settings:
             self.offline = True
         if self.offline:
             self.broadcast = False
+        if not self.solana_wallet and self.solana_wallet_file:
+            try:
+                self.solana_wallet = (
+                    Path(self.solana_wallet_file).read_text(encoding="utf-8").strip()
+                )
+            except Exception as exc:  # pragma: no cover - optional
+                _log.warning("Failed to load wallet file %s: %s", self.solana_wallet_file, exc)
 
 
 CFG = Settings()
