@@ -296,6 +296,10 @@ pnpm build          # outputs to src/interface/web_client/dist/
 The built dashboard lives under `src/interface/web_client/dist/` and is copied
 into the demo container.
 
+The React client exposes an input form for **horizon**, **population size** and
+**generations**. It listens to `/ws/progress` events and updates Plotly charts in
+real-time as the simulation runs.
+
 ```bash
 # build and launch containers
 docker compose build
