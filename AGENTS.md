@@ -144,6 +144,9 @@ template).
 | `K8S_CPU_LIMIT` | Kubernetes CPU limit | `500m` |
 | `K8S_MEM_LIMIT` | Kubernetes memory limit | `1Gi` |
 | `TZ` | Time zone | `America/Toronto` |
+| `AF_LLM_CACHE_SIZE` | Maximum in-memory LLM cache entries | `1024` |
+| `AF_PING_INTERVAL` | Ping frequency in seconds (min 5) | `60` |
+| `AF_DISABLE_PING_AGENT` | Set to `true` to disable the ping agent | _(none)_ |
 
 ## Coding Style
 - Use Python 3.11 or 3.12 (**Python ≥3.11 and <3.13**) and include type hints for public APIs.
