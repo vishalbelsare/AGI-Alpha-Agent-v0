@@ -209,6 +209,14 @@ for modules, classes and functions.
 - Follow the [pull request template](.github/pull_request_template.md) and fill in
   all sections to confirm linting, type checks and tests pass.
 
+### Starting the CI Pipeline
+You can manually trigger the CI run from the GitHub UI:
+
+1. Navigate to "Actions → 🚀 CI — Insight Demo".
+2. Click "Run workflow," type `RUN`, and confirm.
+
+The pipeline validates linting, type checks, tests and the Docker build.
+
 ### PR Message Guidelines
 - Keep the subject line concise and under 72 characters.
 - Optionally include a short body explaining the rationale.
