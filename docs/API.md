@@ -4,13 +4,13 @@ This page documents the REST endpoints provided by the demo API server and the a
 
 ## REST endpoints
 
-The API is implemented with FastAPI in `src/interface/api_server.py`. Three routes
-are available. The orchestrator boots in the background when the server starts and
-is gracefully shut down on exit:
+The API is implemented with FastAPI in `src/interface/api_server.py`. Three
+routes are available. The orchestrator boots in the background when the server
+starts and is gracefully shut down on exit:
 
 - `POST /simulate` – start a new simulation.
 - `GET /results/{sim_id}` – fetch final forecast data.
-- `WS  /ws/{sim_id}` – stream progress logs while the simulation runs.
+- `WS  /ws/progress` – stream progress logs while the simulation runs.
 
 All endpoints require a bearer token. Set `API_TOKEN` in `.env` and include
 `Authorization: Bearer <token>` with each request.
@@ -100,26 +100,26 @@ The response contains the generated simulation identifier:
 
 **GET `/results/{sim_id}`**
 
-Return the final forecast and Pareto front for an earlier run.
+Return the final forecast for an earlier run. The returned list contains one
+object per simulated year with the capability value reached by the model.
 
 Example response:
 
 ```json
 {
-  "forecast": [{"year": 1, "capability": 0.1}],
-  "pareto": [[0.0, 0.0], [0.5, 0.2]],
-  "logs": ["Year 1: 0 affected"]
+  "id": "<sim_id>",
+  "forecast": [{"year": 1, "capability": 0.1}]
 }
 ```
 
-**WebSocket `/ws/{sim_id}`**
+**WebSocket `/ws/progress`**
 
 Streams progress messages during a running simulation. Messages are plain text lines
 such as `"Year 1: 0 affected"` or `"Generation 2"`. Close the socket once all
 messages have been received.
 
 ```bash
-wscat -c "ws://localhost:8000/ws/<sim_id>" \
+wscat -c "ws://localhost:8000/ws/progress" \
   -H "Authorization: Bearer $API_TOKEN"
 ```
 
