@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 """FastAPI wrapper to expose the demo over HTTP."""
 
 from __future__ import annotations

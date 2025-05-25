@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 """Simple A2A messaging bus with optional gRPC front-end."""
 
 from __future__ import annotations

@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 """Interactive dashboard for the α‑AGI Insight demo."""
 
 from __future__ import annotations
