@@ -74,3 +74,7 @@ noaa-sdk==0.1.21
 # ─────────── Local model fallbacks (no API-key mode) ───────────────────
 llama-cpp-python>=0.2.37    # GGML Llama-3-8B-Q4 CPU inference
 ctransformers==0.2.27
+
+# ─────────── Web UI & visualisation ───────────────────────────────────
+streamlit>=1.35
+plotly>=5.21
