@@ -1,8 +1,9 @@
 """NSGA-II style evolutionary optimiser."""
+
 from __future__ import annotations
 
 import random
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from typing import Callable, List, Tuple
 
 
@@ -96,3 +97,58 @@ def nsga2_step(pop: Population, fn: Callable[[List[float]], Tuple[float, float]]
             if len(new_pop) < mu:
                 new_pop.append(ind)
     return new_pop
+
+
+def run_evolution(
+    fn: Callable[[List[float]], Tuple[float, float]],
+    genome_length: int,
+    *,
+    population_size: int = 20,
+    mutation_rate: float = 0.1,
+    generations: int = 10,
+    seed: int | None = None,
+) -> Population:
+    """Execute a complete NSGA-II evolutionary run.
+
+    Args:
+        fn: Function evaluating an individual's genome.
+        genome_length: Number of float genes per individual.
+        population_size: Number of individuals preserved each generation.
+        mutation_rate: Probability of mutating a gene during crossover.
+        generations: Number of NSGA-II steps to perform.
+        seed: Optional random seed for deterministic behaviour.
+
+    Returns:
+        The final population after ``generations`` steps.
+    """
+
+    rng = random.Random(seed)
+    pop = [Individual([rng.uniform(-1, 1) for _ in range(genome_length)]) for _ in range(population_size)]
+
+    def _step(population: Population) -> Population:
+        evaluate(population, fn)
+        offspring: Population = []
+        while len(offspring) < population_size:
+            a, b = rng.sample(population, 2)
+            cut = rng.randint(1, genome_length - 1)
+            child_genome = a.genome[:cut] + b.genome[cut:]
+            if rng.random() < mutation_rate:
+                idx = rng.randrange(genome_length)
+                child_genome[idx] += rng.uniform(-1, 1)
+            offspring.append(Individual(child_genome))
+        evaluate(offspring, fn)
+        union = population + offspring
+        fronts = _non_dominated_sort(union)
+        new_pop: Population = []
+        for front in fronts:
+            _crowding(front)
+            front.sort(key=lambda x: (-x.rank, -x.crowd))
+            for ind in front:
+                if len(new_pop) < population_size:
+                    new_pop.append(ind)
+        return new_pop
+
+    for _ in range(generations):
+        pop = _step(pop)
+
+    return pop
