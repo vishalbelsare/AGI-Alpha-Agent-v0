@@ -214,6 +214,7 @@ pre-commit run --files <paths>   # before each commit
   including setting `PYTHONPATH` or installing in editable mode.
 - Summarize your changes and test results in the PR body.
 - Title PRs using `[alpha_factory] <Title>`.
+- Refer to [docs/CHANGELOG.md](docs/CHANGELOG.md) for release notes.
 - All contributions are licensed under Apache 2.0 by default.
 - Some files retain existing MIT license headers; keep whatever license a file
   already declares when editing it.
