@@ -14,10 +14,12 @@ packages = [
     "alpha_factory_v1",
     "alpha_factory_v1.demos.alpha_agi_insight_v1",
     "af_requests",
+    "src",
 ]
 
 [tool.setuptools.package-data]
 "alpha_factory_v1" = ["py.typed"]
+"src.interface.web_client" = ["dist/**"]
 
 [project.scripts]
 alpha-factory = "alpha_factory_v1.run:run"
