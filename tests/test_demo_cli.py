@@ -1,3 +1,4 @@
+import os
 from unittest.mock import patch
 from click.testing import CliRunner
 from alpha_factory_v1.demos.alpha_agi_insight_v1.src.interface import cli
@@ -22,6 +23,25 @@ def test_simulate_without_flag_does_not_start() -> None:
             )
         assert res.exit_code == 0
         aio.run.assert_not_called()
+
+
+def test_simulate_sets_llama_path() -> None:
+    runner = CliRunner()
+    with patch.object(cli, "asyncio"):
+        with patch.object(cli.orchestrator, "Orchestrator"):
+            result = runner.invoke(
+                cli.main,
+                [
+                    "simulate",
+                    "--horizon",
+                    "1",
+                    "--offline",
+                    "--llama-model-path",
+                    "weights.bin",
+                ],
+            )
+    assert result.exit_code == 0
+    assert os.environ.get("LLAMA_MODEL_PATH") == "weights.bin"
 
 
 def test_show_results_table(tmp_path) -> None:

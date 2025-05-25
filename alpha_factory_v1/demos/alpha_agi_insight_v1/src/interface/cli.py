@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import asyncio
 import json
+import os
 import random
 import time
 from pathlib import Path
@@ -72,6 +73,7 @@ def main() -> None:
 @click.option("--seed", type=int, help="Random seed")
 @click.option("--offline", is_flag=True, help="Force offline mode")
 @click.option("--no-broadcast", is_flag=True, help="Disable blockchain broadcasting")
+@click.option("--llama-model-path", type=click.Path(), help="Path to local Llama model")
 @click.option("--pop-size", default=6, show_default=True, type=int, help="MATS population size")
 @click.option("--generations", default=3, show_default=True, type=int, help="Evolution steps")
 @click.option("--export", type=click.Choice(["json", "csv"]), help="Export results format")
@@ -88,10 +90,14 @@ def simulate(
     verbose: bool,
     start_orchestrator: bool,
     no_broadcast: bool,
+    llama_model_path: str | None,
 ) -> None:
     """Run the forecast simulation and start the orchestrator."""
     if seed is not None:
         random.seed(seed)
+
+    if llama_model_path is not None:
+        os.environ["LLAMA_MODEL_PATH"] = str(llama_model_path)
 
     settings = config.CFG
     if offline:

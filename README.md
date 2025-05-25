@@ -72,7 +72,14 @@ curl -L -o ~/.cache/llama/TinyLlama-1.1B-Chat-v1.0.Q4_K_M.gguf \
 
 Set ``LLAMA_MODEL_PATH`` to the downloaded file and ensure
 ``llama-cpp-python`` or ``ctransformers`` is installed. When offline mode is
-enabled the agents automatically use the local model for inference.
+enabled the agents automatically use the local model for inference. You can
+also provide the path directly when running ``simulate``:
+
+```bash
+python -m alpha_factory_v1.demos.alpha_agi_insight_v1.src.interface.cli simulate \
+  --offline --llama-model-path ~/.cache/llama/TinyLlama-1.1B-Chat-v1.0.Q4_K_M.gguf
+```
+
 Set ``AGI_INSIGHT_OFFLINE=1`` in your `.env` to force this behaviour even when
 API keys are present.
 
