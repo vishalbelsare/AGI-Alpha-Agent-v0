@@ -61,6 +61,19 @@ alpha-agi-insight-offline --episodes 5
 
 This wrapper sets ALPHA_AGI_OFFLINE=true before delegating to the production demo so the search loop never attempts network access.
 
+To run completely offline with a local Llama model set ``AGI_INSIGHT_OFFLINE=1``
+and download a compatible ``.gguf`` weight. For example:
+
+```bash
+mkdir -p ~/.cache/llama
+curl -L -o ~/.cache/llama/TinyLlama-1.1B-Chat-v1.0.Q4_K_M.gguf \
+  https://huggingface.co/TheBloke/TinyLlama-1.1B-Chat-GGUF/resolve/main/TinyLlama-1.1B-Chat-v1.0.Q4_K_M.gguf
+```
+
+Set ``LLAMA_MODEL_PATH`` to the downloaded file and ensure
+``llama-cpp-python`` or ``ctransformers`` is installed. When offline mode is
+enabled the agents automatically use the local model for inference.
+
 
 ### 🎖️ α‑AGI Architect 👁️✨ — Foundational Operational Blueprint
 Empowering Meta‑Agentic visionaries with strategic infrastructure. At the core of α‑AGI Ascension is α‑AGI Architect — the foundational operational framework for scalable global deployment. Rooted in the groundbreaking “Multi‑Agent AI DAO” model, α‑AGI Architect delivers immediate, scalable, and adaptive infrastructure ensuring continuous strategic evolution.
