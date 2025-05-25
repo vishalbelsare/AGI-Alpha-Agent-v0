@@ -6,9 +6,11 @@ import argparse
 import asyncio
 import contextlib
 import importlib
+import json
 import os
 import secrets
 import time
+from pathlib import Path
 from typing import Any, List, TYPE_CHECKING, cast, Set
 
 
@@ -67,10 +69,8 @@ if app is not None:
             self.counters: dict[str, tuple[int, float]] = {}
             self.lock = asyncio.Lock()
 
-        async def dispatch(
-            self, request: Request, call_next: RequestResponseEndpoint
-        ) -> Response:
-            ip = request.client.host
+        async def dispatch(self, request: Request, call_next: RequestResponseEndpoint) -> Response:
+            ip = request.client.host if request.client else "unknown"
             now = time.time()
             async with self.lock:
                 count, start = self.counters.get(ip, (0, now))
@@ -99,6 +99,7 @@ if app is not None:
         orch_mod = importlib.import_module("alpha_factory_v1.demos.alpha_agi_insight_v1.src.orchestrator")
         _orch = orch_mod.Orchestrator()
         app_f.state.orch_task = asyncio.create_task(_orch.run_forever())
+        _load_results()
 
     @app.on_event("shutdown")
     async def _stop() -> None:
@@ -111,8 +112,27 @@ if app is not None:
         _orch = None
 
 
-_simulations: dict[str, list[ForecastTrajectoryPoint]] = {}
+_simulations: dict[str, ResultsResponse] = {}
 _progress_ws: Set[Any] = set()
+_results_dir = Path(
+    os.getenv("SIM_RESULTS_DIR", os.path.join(os.getenv("ALPHA_DATA_DIR", "/tmp/alphafactory"), "simulations"))
+)
+_results_dir.mkdir(parents=True, exist_ok=True)
+
+
+def _load_results() -> None:
+    for f in _results_dir.glob("*.json"):
+        try:
+            data = json.loads(f.read_text())
+            res = ResultsResponse(**data)
+        except Exception:
+            continue
+        _simulations[res.id] = res
+
+
+def _save_result(result: ResultsResponse) -> None:
+    path = _results_dir / f"{result.id}.json"
+    path.write_text(result.json())
 
 
 class SimRequest(BaseModel):
@@ -121,6 +141,32 @@ class SimRequest(BaseModel):
     horizon: int = 5
     pop_size: int = 6
     generations: int = 3
+
+
+class ForecastPoint(BaseModel):
+    """Single year forecast entry."""
+
+    year: int
+    capability: float
+
+
+class SimStartResponse(BaseModel):
+    """Identifier returned when launching a simulation."""
+
+    id: str
+
+
+class ResultsResponse(BaseModel):
+    """Stored simulation outcome."""
+
+    id: str
+    forecast: list[ForecastPoint]
+
+
+class RunsResponse(BaseModel):
+    """List of available run identifiers."""
+
+    ids: list[str]
 
 
 async def _background_run(sim_id: str, cfg: SimRequest) -> None:
@@ -135,7 +181,7 @@ async def _background_run(sim_id: str, cfg: SimRequest) -> None:
     """
 
     secs = [sector.Sector(f"s{i:02d}") for i in range(cfg.pop_size)]
-    results: list[ForecastTrajectoryPoint] = []
+    traj: list[ForecastTrajectoryPoint] = []
     for year in range(1, cfg.horizon + 1):
         t = year / cfg.horizon
         cap = forecast.capability_growth(t)
@@ -147,20 +193,25 @@ async def _background_run(sim_id: str, cfg: SimRequest) -> None:
                     sec.energy += forecast._innovation_gain(cfg.pop_size, cfg.generations)
         snapshot = [sector.Sector(s.name, s.energy, s.entropy, s.growth, s.disrupted) for s in secs]
         point = forecast.TrajectoryPoint(year, cap, snapshot)
-        results.append(point)
+        traj.append(point)
         for ws in list(_progress_ws):
             try:
                 await ws.send_json({"id": sim_id, "year": year, "capability": cap})
             except Exception:
                 _progress_ws.discard(ws)
         await asyncio.sleep(0)
-    _simulations[sim_id] = results
+    result = ResultsResponse(
+        id=sim_id,
+        forecast=[ForecastPoint(year=p.year, capability=p.capability) for p in traj],
+    )
+    _simulations[sim_id] = result
+    _save_result(result)
 
 
 if app is not None:
 
-    @app.post("/simulate")
-    async def simulate(req: SimRequest, _: None = Depends(verify_token)) -> dict[str, str]:
+    @app.post("/simulate", response_model=SimStartResponse)
+    async def simulate(req: SimRequest, _: None = Depends(verify_token)) -> SimStartResponse:
         """Start a simulation and return its identifier.
 
         Args:
@@ -171,16 +222,20 @@ if app is not None:
         """
         sim_id = secrets.token_hex(8)
         asyncio.create_task(_background_run(sim_id, req))
-        return {"id": sim_id}
+        return SimStartResponse(id=sim_id)
 
-    @app.get("/results/{sim_id}")
-    async def get_results(sim_id: str, _: None = Depends(verify_token)) -> dict[str, Any]:
+    @app.get("/results/{sim_id}", response_model=ResultsResponse)
+    async def get_results(sim_id: str, _: None = Depends(verify_token)) -> ResultsResponse:
         """Return final forecast data for ``sim_id`` if available."""
-        traj = _simulations.get(sim_id)
-        if traj is None:
+        result = _simulations.get(sim_id)
+        if result is None:
             raise HTTPException(status_code=404)
-        data = [{"year": t.year, "capability": t.capability} for t in traj]
-        return {"id": sim_id, "forecast": data}
+        return result
+
+    @app.get("/runs", response_model=RunsResponse)
+    async def list_runs(_: None = Depends(verify_token)) -> RunsResponse:
+        """Return identifiers for all stored runs."""
+        return RunsResponse(ids=list(_simulations.keys()))
 
     @app.websocket("/ws/progress")
     async def ws_progress(websocket: WebSocket) -> None:
