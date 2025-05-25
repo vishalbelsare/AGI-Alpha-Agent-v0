@@ -573,6 +573,11 @@ Install the optional test dependencies with:
 pip install -r requirements-dev.txt
 ```
 
+Install the project in editable mode so tests resolve imports:
+```bash
+pip install -e .
+```
+
 <a name="62-marketplace-demo-example"></a>
 ### 6.2 · Marketplace Demo Example 🛒
 A minimal snippet queues the sample job once the orchestrator is running:
