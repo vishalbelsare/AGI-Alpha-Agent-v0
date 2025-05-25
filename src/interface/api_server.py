@@ -6,7 +6,9 @@ import argparse
 import asyncio
 import contextlib
 import importlib
+import os
 import secrets
+import time
 from typing import Any, List, TYPE_CHECKING, cast, Set
 
 
@@ -32,7 +34,10 @@ sector = importlib.import_module("alpha_factory_v1.demos.alpha_agi_insight_v1.sr
 
 _IMPORT_ERROR: Exception | None
 try:
-    from fastapi import FastAPI, HTTPException, WebSocket
+    from fastapi import FastAPI, HTTPException, WebSocket, Request, Depends
+    from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+    from starlette.middleware.base import BaseHTTPMiddleware, RequestResponseEndpoint
+    from starlette.responses import Response
     from pydantic import BaseModel
     import uvicorn
 except Exception as exc:  # pragma: no cover - optional
@@ -48,7 +53,44 @@ else:
 app: FastAPI | None = FastAPI(title="AGI Simulation API") if FastAPI is not None else None
 
 if app is not None:
+    API_TOKEN = os.getenv("API_TOKEN")
+    if not API_TOKEN:
+        raise RuntimeError("API_TOKEN environment variable must be set")
+
+    security = HTTPBearer()
+
+    class SimpleRateLimiter(BaseHTTPMiddleware):
+        def __init__(self, app: FastAPI, limit: int = 60, window: int = 60) -> None:
+            super().__init__(app)
+            self.limit = int(os.getenv("API_RATE_LIMIT", str(limit)))
+            self.window = window
+            self.counters: dict[str, tuple[int, float]] = {}
+            self.lock = asyncio.Lock()
+
+        async def dispatch(
+            self, request: Request, call_next: RequestResponseEndpoint
+        ) -> Response:
+            ip = request.client.host
+            now = time.time()
+            async with self.lock:
+                count, start = self.counters.get(ip, (0, now))
+                if now - start > self.window:
+                    count = 0
+                    start = now
+                count += 1
+                self.counters[ip] = (count, start)
+                if count > self.limit:
+                    return Response("Too Many Requests", status_code=429)
+            return await call_next(request)
+
+    async def verify_token(
+        credentials: HTTPAuthorizationCredentials = Depends(security),
+    ) -> None:
+        if credentials.credentials != API_TOKEN:
+            raise HTTPException(status_code=403, detail="Invalid token")
+
     app_f: FastAPI = app
+    app_f.add_middleware(SimpleRateLimiter)
     _orch: Any | None = None
 
     @app.on_event("startup")
@@ -118,7 +160,7 @@ async def _background_run(sim_id: str, cfg: SimRequest) -> None:
 if app is not None:
 
     @app.post("/simulate")
-    async def simulate(req: SimRequest) -> dict[str, str]:
+    async def simulate(req: SimRequest, _: None = Depends(verify_token)) -> dict[str, str]:
         """Start a simulation and return its identifier.
 
         Args:
@@ -132,7 +174,7 @@ if app is not None:
         return {"id": sim_id}
 
     @app.get("/results/{sim_id}")
-    async def get_results(sim_id: str) -> dict[str, Any]:
+    async def get_results(sim_id: str, _: None = Depends(verify_token)) -> dict[str, Any]:
         """Return final forecast data for ``sim_id`` if available."""
         traj = _simulations.get(sim_id)
         if traj is None:
@@ -142,6 +184,10 @@ if app is not None:
 
     @app.websocket("/ws/progress")
     async def ws_progress(websocket: WebSocket) -> None:
+        auth = websocket.headers.get("authorization")
+        if not auth or not auth.startswith("Bearer ") or auth.split(" ", 1)[1] != API_TOKEN:
+            await websocket.close(code=1008)
+            return
         """Stream year-by-year progress updates to the client."""
         await websocket.accept()
         _progress_ws.add(websocket)

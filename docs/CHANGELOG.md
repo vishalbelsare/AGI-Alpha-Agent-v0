@@ -8,6 +8,7 @@ All notable changes to this project are documented in this file.
 - Updated API usage examples and expanded design notes.
 - Added Google style docstrings to public modules.
 - Linked documentation from the README for easier navigation.
+- API server now enforces bearer token auth and simple rate limiting.
 
 ## [1.0.1] - 2025-05-25
 - Packaged the React web client and served static assets from the API server.

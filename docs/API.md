@@ -12,6 +12,9 @@ is gracefully shut down on exit:
 - `GET /results/{sim_id}` – fetch final forecast data.
 - `WS  /ws/{sim_id}` – stream progress logs while the simulation runs.
 
+All endpoints require a bearer token. Set `API_TOKEN` in `.env` and include
+`Authorization: Bearer <token>` with each request.
+
 Start the server with:
 
 ```bash
