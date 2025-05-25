@@ -103,124 +103,142 @@ flowchart TD
   class OfflineMode,LocalLLM offline;
 ```
 
-```mermaid
-%% α‑AGI Insight — Beyond Human Foresight
-%% System‑level & Repository Structure overview
-%% Place this block inside README.md for live rendering.
+# 🎖️ α‑AGI Insight 👁️✨ — Beyond Human Foresight — Official Demo  
+## Production‑grade System & Repository Blueprint (Mermaid)
 
-%% ------------------------------------------------------------------
-%% 1. High‑Level Architecture
-%% ------------------------------------------------------------------
-graph TD
-    %% Core orchestration
-    Orchestrator["🧠 Macro‑Sentinel<br/>Orchestrator"]:::core
-    
-    %% Secure message backbone
-    Bus["🔗 Secure Pub/Sub<br/>A2A Bus"]:::bus
-    
-    Orchestrator <-->|register/heartbeat| Bus
-    
-    %% Primary agent cluster
-    subgraph "Agent Swarm"
-        direction LR
-        Planning["🗺️ Planning<br/>Agent"]:::agent
-        Research["🔎 Research<br/>Agent"]:::agent
-        Strategy["🎯 Strategy<br/>Agent"]:::agent
-        Market["📈 MarketAnalysis<br/>Agent"]:::agent
-        CodeGen["💻 CodeGen<br/>Agent"]:::agent
-        Safety["🛡️ Safety Guardian"]:::safety
-        Memory["📚 Memory Store"]:::memory
+Below are **two complementary Mermaid diagrams** that can be embedded directly in
+`alpha_factory_v1/demos/alpha_agi_insight_v1/README.md`.
+
+1. **High‑level runtime architecture** – shows how users, interfaces, the
+   Orchestrator, specialised agents, the secure A2A bus, the zero‑data MATS
+   simulation engine and the audit‑ledger fit together in production.
+2. **Repository layout** – a living map of the code‑base so contributors and
+   auditors can instantly understand where every responsibility lives.
+
+---
+
+```mermaid
+%% =====================================================================
+%%  1️⃣  RUNTIME ARCHITECTURE – α‑AGI Insight (Zero‑Data Edition)
+%% =====================================================================
+flowchart TD
+    subgraph C[🟢 Client Tier]
+        User([User<br/>(decision‑maker)])
+        CLI[[`alpha-insight` CLI]]
+        WebUI[[Web&nbsp;UI<br/>(Streamlit / React)]]
+        User -- "commands / scripts" --> CLI
+        User -- "interactive flows" --> WebUI
     end
-    
-    Bus --"A2A envelopes"--> Planning
-    Bus --> Research
-    Bus --> Strategy
-    Bus --> Market
-    Bus --> CodeGen
-    Bus --> Safety
-    Bus --> Memory
-    
-    %% Simulation engine (invoked by agents)
-    SimEngine["⚙️ MATS + Thermo‑Forecast Engine"]:::engine
-    CodeGen -->|invoke| SimEngine
-    Planning --> SimEngine
-    Research --> SimEngine
-    Strategy --> SimEngine
-    
-    %% Interfaces
-    subgraph "User Interfaces"
-        CLI["💻 Hybrid CLI"]:::ui
-        WebUI["🌐 Web Dashboard<br/>(Streamlit / FastAPI + React)"]:::ui
+
+    subgraph O[🔵 Orchestration Core]
+        Orchestrator[[Macro‑Sentinel<br/>(Orchestrator)]]
+        A2A[[Secure A2A&nbsp;Bus<br/>(gRPC + TLS)]]
     end
-    
-    CLI -->|gRPC / local call| Orchestrator
-    WebUI -->|REST / WebSocket| Orchestrator
-    
-    %% External connectors
-    Plugins["🔌 Plugin Gateway<br/>(MCP Tools)"]:::plugin
-    SimEngine <-->|tool calls| Plugins
-    
-    %% Data & Audit
-    Ledger["🗄️ Append‑only Audit Ledger<br/>(SQLite + Merkle Roots)"]:::data
-    Memory --> Ledger
-    Safety --> Ledger
+
+    subgraph AG[🟣 Specialised α‑AGI Agents]
+        Planning[PlanningAgent]
+        Research[ResearchAgent]
+        Strategy[StrategyAgent]
+        Market[MarketAnalysisAgent]
+        CodeGen[CodeGenAgent]
+        Safety[SafetyGuardian]
+        Memory[MemoryAgent]
+    end
+
+    subgraph SIM[🟠 Zero‑Data Simulation]
+        Engine[[MATS + Thermo‑Forecast Engine]]
+    end
+
+    subgraph ST[🟡 Persistence & Audit]
+        Ledger[(Append‑only Audit Ledger<br/>+ Merkle roots)]
+        KStore[(Shared Knowledge Store)]
+    end
+
+    subgraph DEPLOY[⚙️  Deployment Fabric]
+        Docker[(Docker / K8s&nbsp;Pods)]
+        Helm[(Helm Charts)]
+        TF[(Terraform IaC)]
+    end
+
+    %% --- Interface paths ---
+    CLI --> Orchestrator
+    WebUI --> Orchestrator
+
+    %% --- Orchestrator <-> agents ---
+    Orchestrator -- "register / heartbeat" --> A2A
+    A2A <---> Planning & Research & Strategy & Market & CodeGen & Safety & Memory
+
+    %% --- Simulation calls ---
+    Orchestrator -- "spawn run / collect results" --> Engine
+    Planning & Research & Strategy & Market & CodeGen --> Engine
+    Engine -- "trajectories / KPIs" --> Orchestrator
+    Engine -- "sector curves" --> WebUI
+
+    %% --- Persistence ---
     Orchestrator --> Ledger
-    
-    %% Style definitions
-    classDef core fill:#ffd9b3,stroke:#333,stroke-width:1.5px;
-    classDef agent fill:#d0e6ff,stroke:#1b4f9c,stroke-width:1.5px;
-    classDef safety fill:#ffcccc,stroke:#b22222,stroke-width:1.5px;
-    classDef memory fill:#e6ffe6,stroke:#2e8b57,stroke-width:1.5px;
-    classDef engine fill:#f0f0f0,stroke:#555,stroke-width:1.5px;
-    classDef bus fill:#e0d7ff,stroke:#5d3fd3,stroke-width:1.5px,stroke-dasharray: 5 5;
-    classDef ui fill:#fff2b2,stroke:#c38f00,stroke-width:1.5px;
-    classDef plugin fill:#f7e6ff,stroke:#663399,stroke-width:1.5px;
-    classDef data fill:#cccccc,stroke:#333,stroke-width:1.5px;
-    
-%% ------------------------------------------------------------------
-%% 2. Repository Structure (simplified)
-%% ------------------------------------------------------------------
-    
-    classDiagram
-        class alpha_agi_insight_v1 {
-            +README.md
-            +requirements.txt
-            +infrastructure/
-            +docs/
-            +tests/
-            +src/
-        }
-        alpha_agi_insight_v1 --> src
-        src --> orchestrator.py
-        src --> utils
-        src --> simulation
-        src --> interface
-        src --> agents
-        
-        class agents {
-            +base_agent.py
-            +planning_agent.py
-            +research_agent.py
-            +strategy_agent.py
-            +market_agent.py
-            +codegen_agent.py
-            +safety_agent.py
-            +memory_agent.py
-        }
-        class simulation {
-            +mats.py
-            +forecast.py
-            +sector.py
-        }
-        class interface {
-            +cli.py
-            +web_app.py
-            +api_server.py
-            +web_client/
-        }
-        class utils {
-            +messaging.py
-            +config.py
-            +logging.py
-        }
+    Planning & Research & Strategy & Market & CodeGen --> Ledger
+    Safety --> Ledger
+    Memory --- KStore
+    Engine --> KStore
+
+    %% --- Deployment mapping ---
+    Docker --> Orchestrator & A2A & Engine & Planning & Research & Strategy & Market & CodeGen & Safety & Memory & WebUI
+    Helm --> Docker
+    TF --> Docker
 ```
+
+---
+
+```mermaid
+%% =====================================================================
+%% 2️⃣  MONOREPO STRUCTURE – alpha_agi_insight_v1
+%% =====================================================================
+flowchart TD
+    R[alpha_agi_insight_v1]:::root
+    R --> READM[README.md]
+    R --> REQ[requirements.txt]
+
+    subgraph SRCDIR["src/"]:::dir
+        SRCDIR --> ORCH[orchestrator.py]
+        SRCDIR --> AGENTS[agents/]:::dir
+        SRCDIR --> SIMS[simulation/]:::dir
+        SRCDIR --> INTF[interface/]:::dir
+        SRCDIR --> UTIL[utils/]:::dir
+    end
+    R --> SRCDIR
+
+    %% agents subtree
+    AGENTS --> BASE[base_agent.py]
+    AGENTS --> PLA[planning_agent.py]
+    AGENTS --> RES[research_agent.py]
+    AGENTS --> STR[strategy_agent.py]
+    AGENTS --> MAR[market_agent.py]
+    AGENTS --> CG[codegen_agent.py]
+    AGENTS --> SAF[safety_agent.py]
+    AGENTS --> MEM[memory_agent.py]
+
+    %% simulation subtree
+    SIMS --> MATS[mats.py]
+    SIMS --> FORE[forecast.py]
+    SIMS --> SECT[sector.py]
+
+    %% interface subtree
+    INTF --> CLI[cli.py]
+    INTF --> WAPP[web_app.py]
+    INTF --> API[api_server.py]
+    INTF --> WEBCL[web_client/]:::dir
+
+    %% utils subtree
+    UTIL --> MSG[messaging.py]
+    UTIL --> CFG[config.py]
+    UTIL --> LOG[logging.py]
+
+    %% top‑level peers
+    R --> TESTS[tests/]:::dir
+    R --> INFRA[infrastructure/]:::dir
+    R --> DOCS[docs/]:::dir
+
+    classDef dir fill:#e6f7ff,stroke:#0284c7,stroke-width:1px;
+    classDef root fill:#fffbe6,stroke:#d97706,stroke-width:2px;
+```
+
