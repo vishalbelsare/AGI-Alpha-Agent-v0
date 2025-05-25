@@ -624,12 +624,25 @@ cd AGI-Alpha-Agent-v0/alpha_factory_v1/demos/cross_industry_alpha_factory
 
 ### 6.3 · Signing Agent Wheels 🔑
 Sign wheels dropped into `$AGENT_HOT_DIR` with the project ED25519 key.
+You need **OpenSSL** to create and verify signatures. Install it with
+`brew install openssl` on macOS or from the
+[OpenSSL Windows binaries](https://slproweb.com/products/Win32OpenSSL.html).
 Generate `<wheel>.whl.sig` via:
 
 ```bash
 openssl dgst -sha512 -binary <wheel>.whl |
   openssl pkeyutl -sign -inkey agent_signing.key |
   base64 -w0 > <wheel>.whl.sig
+```
+
+Keep `<wheel>.whl.sig` next to the wheel in `$AGENT_HOT_DIR`.
+
+Verify the signature (PowerShell example):
+
+```powershell
+Get-Content <wheel>.whl -Encoding Byte |
+  openssl dgst -sha512 -binary |
+  openssl pkeyutl -verify -pubin -inkey $env:AGENT_WHEEL_PUBKEY -sigfile <wheel>.whl.sig
 ```
 
 Add the base64 signature to `_WHEEL_SIGS` in
