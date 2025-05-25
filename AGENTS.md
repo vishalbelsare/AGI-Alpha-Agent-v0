@@ -93,10 +93,18 @@ Please report security vulnerabilities as described in our [Security Policy](SEC
 - **Never commit** `.env` or other secrets. See
   [`alpha_factory_v1/scripts/README.md`](alpha_factory_v1/scripts/README.md)
   for additional guidance.
-- Verify `.env` is ignored by running `git status` (it should appear untracked). The repository's `.gitignore` already includes `.env`.
-- Store secrets in environment variables or Docker secrets instead of code to keep them out of version control.
-- Set `AF_TRACING=true` to enable tracing (default) or `false` to disable it. See
-  [`alpha_factory_v1/backend/tracer.py`](alpha_factory_v1/backend/tracer.py).
+ - Verify `.env` is ignored by running `git status` (it should appear untracked). The repository's `.gitignore` already includes `.env`.
+
+### Key Environment Variables
+ - Store secrets in environment variables or Docker secrets instead of code to keep them out of version control.
+ - Set `AF_TRACING=true` to enable tracing (default) or `false` to disable it. See
+   [`alpha_factory_v1/backend/tracer.py`](alpha_factory_v1/backend/tracer.py).
+ - `AF_MEMORY_DIR` – working memory directory for tests and runtime.
+ - `AGENT_WHEEL_PUBKEY` – base64 ED25519 key that verifies agent wheel signatures.
+ - `OPENAI_API_KEY` and `ANTHROPIC_API_KEY` – provider credentials for LLM APIs.
+ - `NEO4J_PASSWORD` – database password required by the orchestrator.
+ - Additional tokens such as `MISTRAL_API_KEY` or `TOGETHER_API_KEY` may be needed.
+ - See [`alpha_factory_v1/.env.sample`](alpha_factory_v1/.env.sample) for the complete template.
 
 ## Coding Style
 - Use Python 3.11 or 3.12 (**Python ≥3.11 and <3.13**) and include type hints for public APIs.
