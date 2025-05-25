@@ -84,6 +84,8 @@ Python must report 3.11 or 3.12 and Docker Compose must be at least 2.5.
 - When running tests directly from the repository without installation, set `PYTHONPATH`
   as described in [`tests/README.md`](tests/README.md): `export PYTHONPATH=$(pwd)`.
 - For coverage metrics, run `pytest --cov` and aim for at least **80%** coverage.
+- Tests marked with `@pytest.mark.e2e` are end-to-end. Skip them with
+  `pytest -m 'not e2e'`.
 - Test environment variables (see [`alpha_factory_v1/tests/README.md`](alpha_factory_v1/tests/README.md) for details):
   - `AF_MEMORY_DIR` – temporary memory path.
   - `PYTEST_CPU_SOFT_SEC` – CPU time limit.
