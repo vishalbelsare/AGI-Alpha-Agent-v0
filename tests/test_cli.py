@@ -6,8 +6,12 @@ from alpha_factory_v1.demos.alpha_agi_insight_v1.src.interface import cli
 def test_agents_status_lists_names() -> None:
     with patch.object(cli.orchestrator, "Orchestrator") as orch_cls:
         orch = orch_cls.return_value
-        orch.agents = [type("A", (), {})()]
-        orch.agents[0].__class__.__name__ = "AgentX"
+        runner = type(
+            "Runner",
+            (),
+            {"agent": type("Agent", (), {"name": "AgentX"})()},
+        )()
+        orch.runners = {"AgentX": runner}
         result = CliRunner().invoke(cli.main, ["agents-status"])
         assert "AgentX" in result.output
 
