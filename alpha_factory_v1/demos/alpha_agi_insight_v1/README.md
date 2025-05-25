@@ -293,6 +293,9 @@ The React dashboard streams year-by-year events via WebSocket and renders:
 * **MATS Pareto front** evolution,
 * real-time **agent logs**.
 
+For the REST and WebSocket endpoints see
+[docs/API.md](docs/API.md).
+
 ---
 
 ## 6 Configuration
