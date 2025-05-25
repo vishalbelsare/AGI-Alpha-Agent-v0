@@ -1,7 +1,7 @@
 import sys
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[3]))
+sys.path.insert(0, str(Path(__file__).resolve().parents[4]))
 
 from click.testing import CliRunner
 
@@ -18,7 +18,7 @@ def test_simulate_offline(tmp_path: Path) -> None:
     runner = CliRunner()
     from unittest.mock import patch
 
-    with patch.object(cli.config.CFG, "ledger_path", str(led_path)):
+    with patch.object(cli.config.CFG, "ledger_path", str(led_path)):  # type: ignore[attr-defined]
         result = runner.invoke(cli.main, ["simulate", "--horizon", "2", "--offline"])
     assert result.exit_code == 0
     assert "year" in result.output
@@ -33,7 +33,7 @@ def test_show_results_json(tmp_path: Path) -> None:
     runner = CliRunner()
     from unittest.mock import patch
 
-    with patch.object(cli.config.CFG, "ledger_path", str(led_path)):
+    with patch.object(cli.config.CFG, "ledger_path", str(led_path)):  # type: ignore[attr-defined]
         result = runner.invoke(
             cli.main,
             ["show-results", "--limit", "1", "--export", "json"],

@@ -1,11 +1,10 @@
 import sys
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[3]))
+sys.path.insert(0, str(Path(__file__).resolve().parents[4]))
 
 import asyncio
 import pathlib
-import unittest
 from unittest import mock
 from typing import List
 
@@ -112,9 +111,11 @@ def test_strategy_agent_api_uses_oai_ctx(tmp_path: pathlib.Path) -> None:
             return "done"
 
     agent.oai_ctx = Ctx()
+    assert agent.oai_ctx is not None
     env = messaging.Envelope("a", "b", {"research": 1}, 0.0)
 
     async def _run() -> None:
+        assert agent.oai_ctx is not None
         with mock.patch.object(agent.oai_ctx, "run", wraps=agent.oai_ctx.run) as m:
             await agent.handle(env)
             assert m.called
