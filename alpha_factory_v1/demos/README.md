@@ -5,6 +5,12 @@
 
 ---
 
+> **Disclaimer**
+> This interactive demo is a conceptual research prototype and **not** a
+> production‑ready AGI. See the repository’s
+> [Apache 2.0 license](../../LICENSE) and
+> [security policy](../../SECURITY.md) for details.
+
 ## 🗺️ Navigator
 | Section | Why read it? |
 |---------|--------------|
