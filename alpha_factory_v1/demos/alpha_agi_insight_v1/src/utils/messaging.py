@@ -49,7 +49,10 @@ class A2ABus:
             try:
                 res = h(env)
                 if asyncio.iscoroutine(res):
-                    asyncio.create_task(res)
+                    try:
+                        asyncio.get_running_loop().create_task(res)
+                    except RuntimeError:  # pragma: no cover - sync context
+                        asyncio.run(res)
             except Exception:  # noqa: BLE001
                 pass
 

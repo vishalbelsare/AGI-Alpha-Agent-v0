@@ -1,4 +1,5 @@
 """Configuration helpers for the α‑AGI Insight demo."""
+
 from __future__ import annotations
 
 import logging
@@ -61,11 +62,16 @@ class Settings:
     bus_token: str | None = os.getenv("AGI_INSIGHT_BUS_TOKEN")
     bus_cert: str | None = os.getenv("AGI_INSIGHT_BUS_CERT")
     bus_key: str | None = os.getenv("AGI_INSIGHT_BUS_KEY")
+    broadcast: bool = os.getenv("AGI_INSIGHT_BROADCAST", "1") == "1"
+    solana_rpc_url: str = os.getenv("AGI_INSIGHT_SOLANA_URL", "https://api.testnet.solana.com")
+    solana_wallet: str | None = os.getenv("AGI_INSIGHT_SOLANA_WALLET")
 
     def __post_init__(self) -> None:
         if not self.openai_api_key:
             _log.warning("OPENAI_API_KEY missing – offline mode enabled")
             self.offline = True
+        if self.offline:
+            self.broadcast = False
 
 
 CFG = Settings()
