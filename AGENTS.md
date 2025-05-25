@@ -237,37 +237,31 @@ For detailed troubleshooting steps, see [`alpha_factory_v1/scripts/README.md`](a
 
 ### Wheel Signing
 All agent wheels must be signed with the project's ED25519 key before they are
-loaded from `$AGENT_HOT_DIR`. **OpenSSL** is required to sign and verify wheels.
-Install it with `brew install openssl` on macOS or grab the
+loaded from `$AGENT_HOT_DIR`. **OpenSSL** must be installed to sign and verify
+wheels. Install it with `brew install openssl` on macOS or grab the
 [OpenSSL Windows binaries](https://slproweb.com/products/Win32OpenSSL.html).
 
-Generate the signing key once and capture the base64 public key:
+1. **Generate the key** and capture the base64 public key:
+   ```bash
+   openssl genpkey -algorithm ed25519 -out agent_signing.key
+   openssl pkey -in agent_signing.key -pubout -outform DER | base64 -w0
+   ```
+   Store `agent_signing.key` **outside** the repository and never commit it.
 
-```bash
-openssl genpkey -algorithm ed25519 -out agent_signing.key
-openssl pkey -in agent_signing.key -pubout -outform DER | base64 -w0
-```
+2. **Store the public key** in the `AGENT_WHEEL_PUBKEY` environment variable so
+   `alpha_factory_v1/backend/agents/__init__.py` can verify signatures.
 
-Store `agent_signing.key` **outside** the repository and never commit it. The
-root `.gitignore` now ignores `*.key` so automated agents and human
-contributors avoid including the private key in pull requests.
+3. **Sign `<wheel>.whl` to create `<wheel>.whl.sig`:**
+   ```bash
+   openssl dgst -sha512 -binary <wheel>.whl |
+     openssl pkeyutl -sign -inkey agent_signing.key |
+     base64 -w0 > <wheel>.whl.sig
+   ```
+   Keep `<wheel>.whl.sig` next to the wheel inside `$AGENT_HOT_DIR`.
 
-Store the public key in the `AGENT_WHEEL_PUBKEY` environment variable so
-`alpha_factory_v1/backend/agents/__init__.py` can verify signatures.
-
-Generate `<wheel>.whl.sig` with:
-
-```bash
-openssl dgst -sha512 -binary <wheel>.whl |
-  openssl pkeyutl -sign -inkey agent_signing.key |
-  base64 -w0 > <wheel>.whl.sig
-```
-
-Keep `<wheel>.whl.sig` next to the wheel inside `$AGENT_HOT_DIR`.
-
-Commit the signature file and add the base64 value to `_WHEEL_SIGS` in
-`alpha_factory_v1/backend/agents/__init__.py`. Wheels without a valid signature
-are ignored at runtime.
+4. **Add the signature** file to the repository and include the base64 value in
+   `_WHEEL_SIGS` within `alpha_factory_v1/backend/agents/__init__.py`. Wheels
+   without a valid signature are ignored at runtime.
 
 ### Verify the wheel
 Verify that `<wheel>.whl.sig` matches the wheel:
