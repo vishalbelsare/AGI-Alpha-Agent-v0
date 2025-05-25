@@ -1,10 +1,12 @@
 """Logging utilities for tamper-evident message tracking."""
+
 from __future__ import annotations
 
 import asyncio
 import json
 import logging
 import sqlite3
+from dataclasses import asdict
 from pathlib import Path
 from typing import Iterable, List, cast
 
@@ -77,7 +79,7 @@ class Ledger:
     def log(self, env: messaging.Envelope) -> None:
         """Hash ``env`` and append to the ledger."""
 
-        data = json.dumps(env.__dict__, sort_keys=True).encode()
+        data = json.dumps(asdict(env), sort_keys=True).encode()
         digest = blake3(data).hexdigest()
         with self.conn:
             self.conn.execute(
@@ -98,9 +100,7 @@ class Ledger:
         try:
             client = AsyncClient("https://api.testnet.solana.com")
             memo_prog = PublicKey("MemoSq4gqABAXKb96qnH8TysNcWxMyWCqXgDLGmfcHr")
-            tx = Transaction().add(
-                TransactionInstruction(program_id=memo_prog, data=root.encode(), keys=[])
-            )
+            tx = Transaction().add(TransactionInstruction(program_id=memo_prog, data=root.encode(), keys=[]))
             await client.send_transaction(tx)
             _log.info("Broadcasted Merkle root %s", root)
         except Exception as exc:  # pragma: no cover - network errors
