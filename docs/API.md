@@ -4,8 +4,8 @@ This page documents the REST endpoints provided by the demo API server and the a
 
 ## REST endpoints
 
-The API is implemented with FastAPI in `src/interface/api_server.py`.  Three routes
-are available.  The orchestrator boots in the background when the server starts and
+The API is implemented with FastAPI in `src/interface/api_server.py`. Three routes
+are available. The orchestrator boots in the background when the server starts and
 is gracefully shut down on exit:
 
 - `POST /simulate` – start a new simulation.
@@ -21,6 +21,22 @@ Start the server with:
 python -m src.interface.api_server --host 0.0.0.0 --port 8000
 ```
 
+Once the server is running you can trigger a forecast using `curl`:
+
+```bash
+curl -X POST http://localhost:8000/simulate \
+  -H "Authorization: Bearer $API_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{"horizon": 5, "pop_size": 6, "generations": 3}'
+```
+
+Retrieve the results when the run finishes:
+
+```bash
+curl -H "Authorization: Bearer $API_TOKEN" \
+  http://localhost:8000/results/<sim_id>
+```
+
 ## Command line interface
 
 The CLI lives in `alpha_factory_v1/demos/alpha_agi_insight_v1/src/interface/cli.py`. It groups several commands under one entry point:
@@ -29,11 +45,24 @@ The CLI lives in `alpha_factory_v1/demos/alpha_agi_insight_v1/src/interface/cli.
 python cli.py [COMMAND] [OPTIONS]
 ```
 
+Display all available commands and options:
+
+```bash
+python cli.py --help
+```
+
 For example, to run a three‑generation simulation with six agents for a
 five‑year horizon:
 
 ```bash
 python cli.py simulate --horizon 5 --pop-size 6 --generations 3
+```
+
+The orchestrator starts automatically and persists a ledger under `./ledger/`.
+Use the `show-results` command to display the latest forecast:
+
+```bash
+python cli.py show-results
 ```
 
 Available commands are:
@@ -88,5 +117,10 @@ Example response:
 Streams progress messages during a running simulation. Messages are plain text lines
 such as `"Year 1: 0 affected"` or `"Generation 2"`. Close the socket once all
 messages have been received.
+
+```bash
+wscat -c "ws://localhost:8000/ws/<sim_id>" \
+  -H "Authorization: Bearer $API_TOKEN"
+```
 
 The server honours environment variables defined in `.env` such as `PORT` (HTTP port), `OPENAI_API_KEY` and `RUN_MODE`. When `RUN_MODE=web`, a small frontend served at `/` consumes these endpoints via JavaScript.

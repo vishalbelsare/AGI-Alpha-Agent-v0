@@ -3,12 +3,15 @@
 All notable changes to this project are documented in this file.
 
 ## [Unreleased]
-- Added design overview and API documentation.
-- Initial changelog created.
-- Updated API usage examples and expanded design notes.
-- Added Google style docstrings to public modules.
-- Linked documentation from the README for easier navigation.
-- API server now enforces bearer token auth and simple rate limiting.
+### Added
+- Detailed design overview for the α‑AGI Insight demo under `alpha_factory_v1/demos/alpha_agi_insight_v1/docs`.
+- Expanded API documentation with `curl` and WebSocket examples.
+- Additional CLI notes and help command reference.
+
+## [1.0.2] - 2025-06-30
+- Documented REST API and CLI usage with example commands.
+- Added architecture diagrams and algorithm explanations for MATS and forecasting.
+- Maintained versioned changelog for project history.
 
 ## [1.0.1] - 2025-05-25
 - Packaged the React web client and served static assets from the API server.
