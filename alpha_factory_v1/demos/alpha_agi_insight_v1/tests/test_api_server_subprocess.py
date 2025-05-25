@@ -9,7 +9,7 @@ from pathlib import Path
 import pytest
 
 # Ensure repository root is on the Python path for subprocess execution
-REPO_ROOT = Path(__file__).resolve().parents[3]
+REPO_ROOT = Path(__file__).resolve().parents[4]
 os.environ.setdefault("PYTHONPATH", str(REPO_ROOT))
 os.environ.setdefault("API_TOKEN", "test-token")
 os.environ.setdefault("API_RATE_LIMIT", "1000")
