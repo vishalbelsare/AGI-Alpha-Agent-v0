@@ -1,0 +1,26 @@
+name: tests
+
+on:
+  push:
+    branches: ["*"]
+  pull_request:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+      - name: Install dependencies
+        run: |
+          pip install -U pip
+          pip install -r requirements.txt -r requirements-dev.txt
+          pip install .
+      - name: Lint and type check
+        run: pre-commit run --all-files
+      - name: Test
+        run: |
+          python check_env.py --auto-install
+          pytest -q

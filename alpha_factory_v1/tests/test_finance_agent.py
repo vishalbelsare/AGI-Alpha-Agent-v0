@@ -2,6 +2,7 @@ import json
 import os
 import tempfile
 import pathlib
+import types
 import pytest
 
 DATA_DIR = pathlib.Path(__file__).resolve().parent
@@ -20,14 +21,13 @@ def test_risk_guardrail(monkeypatch):
     import backend.finance_agent as fa
 
     fa.risk.ACCOUNT_EQUITY = 10_000  # shrink cap
-    agent = fa.FinanceAgent("T", fa.ModelProvider(), fa.Memory(), fa.Governance(fa.Memory()))
-    if hasattr(agent, "observe") and hasattr(agent, "think"):
-        obs = agent.observe()
-        ideas = agent.think(obs)
-        for idea in ideas:
-            assert idea["notional"] < fa.Governance(agent.memory).trade_limit
-    else:
-        pytest.skip("legacy API absent")
+    dummy_agent = types.SimpleNamespace(name="fin")
+    mem = fa.Memory()
+    gov = fa.Governance(mem)
+    dummy_agent.memory = mem
+    trade = {"type": "trade", "notional": 1_000_001}
+    plans = gov.vet_plans(dummy_agent, [trade])
+    assert plans == []
 
 
 def test_text_moderation(monkeypatch):
