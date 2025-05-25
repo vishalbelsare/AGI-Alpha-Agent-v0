@@ -622,6 +622,8 @@ streamlit run src/interface/web_app.py
 # React client
 cd src/interface/web_client
 npm install
+npm run dev       # http://localhost:5173
+# build production assets
 npm run build
 python -m http.server --directory dist 9000
 ```

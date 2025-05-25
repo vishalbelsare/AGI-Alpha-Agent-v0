@@ -7,7 +7,7 @@ import asyncio
 import contextlib
 import importlib
 import secrets
-from typing import Any, List, TYPE_CHECKING, cast
+from typing import Any, List, TYPE_CHECKING, cast, Set
 
 
 if TYPE_CHECKING:  # pragma: no cover - typing only
@@ -32,13 +32,14 @@ sector = importlib.import_module("alpha_factory_v1.demos.alpha_agi_insight_v1.sr
 
 _IMPORT_ERROR: Exception | None
 try:
-    from fastapi import FastAPI, HTTPException
+    from fastapi import FastAPI, HTTPException, WebSocket
     from pydantic import BaseModel
     import uvicorn
 except Exception as exc:  # pragma: no cover - optional
     FastAPI = None  # type: ignore
     HTTPException = None  # type: ignore
     BaseModel = object  # type: ignore
+    WebSocket = Any  # type: ignore
     uvicorn = None  # type: ignore
     _IMPORT_ERROR = exc
 else:
@@ -69,6 +70,7 @@ if app is not None:
 
 
 _simulations: dict[str, list[ForecastTrajectoryPoint]] = {}
+_progress_ws: Set[Any] = set()
 
 
 class SimRequest(BaseModel):
@@ -91,13 +93,26 @@ async def _background_run(sim_id: str, cfg: SimRequest) -> None:
     """
 
     secs = [sector.Sector(f"s{i:02d}") for i in range(cfg.pop_size)]
-    traj = forecast.forecast_disruptions(
-        secs,
-        cfg.horizon,
-        pop_size=cfg.pop_size,
-        generations=cfg.generations,
-    )
-    _simulations[sim_id] = traj
+    results: list[ForecastTrajectoryPoint] = []
+    for year in range(1, cfg.horizon + 1):
+        t = year / cfg.horizon
+        cap = forecast.capability_growth(t)
+        for sec in secs:
+            if not sec.disrupted:
+                sec.energy *= 1.0 + sec.growth
+                if forecast.thermodynamic_trigger(sec, cap):
+                    sec.disrupted = True
+                    sec.energy += forecast._innovation_gain(cfg.pop_size, cfg.generations)
+        snapshot = [sector.Sector(s.name, s.energy, s.entropy, s.growth, s.disrupted) for s in secs]
+        point = forecast.TrajectoryPoint(year, cap, snapshot)
+        results.append(point)
+        for ws in list(_progress_ws):
+            try:
+                await ws.send_json({"id": sim_id, "year": year, "capability": cap})
+            except Exception:
+                _progress_ws.discard(ws)
+        await asyncio.sleep(0)
+    _simulations[sim_id] = results
 
 
 if app is not None:
@@ -124,6 +139,19 @@ if app is not None:
             raise HTTPException(status_code=404)
         data = [{"year": t.year, "capability": t.capability} for t in traj]
         return {"id": sim_id, "forecast": data}
+
+    @app.websocket("/ws/progress")
+    async def ws_progress(websocket: WebSocket) -> None:
+        """Stream year-by-year progress updates to the client."""
+        await websocket.accept()
+        _progress_ws.add(websocket)
+        try:
+            while True:
+                await websocket.receive_text()
+        except Exception:
+            pass
+        finally:
+            _progress_ws.discard(websocket)
 
 
 def main(argv: List[str] | None = None) -> None:
