@@ -43,6 +43,125 @@ executives, and researchers can explore “what-if” scenarios in minutes.
 > When the key is absent, the system automatically switches to a local
 > open-weights model and offline toolset.
 
+**α‑AGI Insight — Architectural Overview**
+
+```mermaid
+%% Diagram 1: High‑level system architecture
+flowchart TD
+    subgraph User_Interfaces
+        CLI["Command‑Line Interface (Click)"]
+        WebUI["Web UI (Streamlit / React+FastAPI)"]
+    end
+
+    subgraph Core_Services
+        Orchestrator["Macro‑Sentinel Orchestrator"]
+        Bus["Secure A2A Message Bus\n(gRPC + TLS)"]
+        Ledger["Append‑Only Audit Ledger\n(SQLite + Merkle ➜ Blockchain)"]
+    end
+
+    subgraph Agents_Cluster
+        Planning[PlanningAgent]
+        Research[ResearchAgent]
+        Strategy[StrategyAgent]
+        Market[MarketAnalysisAgent]
+        CodeGen[CodeGenAgent]
+        Safety[SafetyGuardianAgent]
+        Memory[MemoryAgent / KV Store]
+    end
+
+    subgraph Simulation_Engine
+        MATS["Zero‑Data Meta‑Agentic Tree Search\n(NSGA‑II)"]
+        Forecast["Thermodynamic Disruption Forecaster"]
+    end
+
+    subgraph External_Services
+        OpenAISDK["OpenAI Agents SDK"]
+        GoogleADK["Google ADK"]
+        MCP["Anthropic MCP"]
+        LocalLLM["Local LLM\n(Fallback, Llama‑3)"]
+    end
+
+    CLI -- REST/CLI --> Orchestrator
+    WebUI -- WebSocket/REST --> Orchestrator
+    Orchestrator -- pub/sub --> Bus
+    Bus <-- heartbeat --> Agents_Cluster
+    Orchestrator -- audit --> Ledger
+
+    Agents_Cluster -->|tool calls| Simulation_Engine
+    MATS --> Forecast
+    Forecast --> Orchestrator
+
+    CodeGen -- sandbox_exec --> Orchestrator
+    Safety -. monitors .- Agents_Cluster
+    Memory -. query .- Agents_Cluster
+
+    Orchestrator -->|API| OpenAISDK
+    Orchestrator --> GoogleADK
+    Orchestrator --> MCP
+    Orchestrator --> LocalLLM
+```
+
+```mermaid
+%% Diagram 2: Repository layout
+graph TD
+    A0[alpha_agi_insight_v0/] --- A1[README.md]
+    A0 --- A2[requirements.txt]
+    A0 --- SRC[src/]
+    A0 --- TEST[tests/]
+    A0 --- INFRA[infrastructure/]
+    A0 --- DOCS[docs/]
+
+    subgraph src/
+        Orc[orchestrator.py]
+        subgraph agents/
+            BA[base_agent.py]
+            PA[planning_agent.py]
+            RA[research_agent.py]
+            SA[strategy_agent.py]
+            MA[market_agent.py]
+            CG[codegen_agent.py]
+            SG[safety_agent.py]
+            MEM[memory_agent.py]
+        end
+        subgraph simulation/
+            MATS_SIM[mats.py]
+            FC[forecast.py]
+            SEC[sector.py]
+        end
+        subgraph interface/
+            CLI_FILE[cli.py]
+            WEB[web_app.py]
+            API[api_server.py]
+            CLIENT[web_client/]
+        end
+        subgraph utils/
+            MSG[messaging.py]
+            CFG[config.py]
+            LOG[logging.py]
+        end
+    end
+
+    subgraph tests/
+        TM[test_mats.py]
+        TF[test_forecast.py]
+        TA[test_agents.py]
+        TCL[test_cli.py]
+    end
+
+    subgraph infrastructure/
+        DF[Dockerfile]
+        DC[docker-compose.yml]
+        HELM[helm-chart/]
+        TF_FOLDER[terraform/]
+    end
+
+    subgraph docs/
+        DES[DESIGN.md]
+        API_DOC[API.md]
+        CHG[CHANGELOG.md]
+    end
+```
+
 ---
 
 ## 2 Quick-start
