@@ -9,9 +9,9 @@ venv/
 # Distribution / packaging
 *.egg-info/
 node_modules/
-src/interface/web_client/dist/
 build/
 dist/
+!src/interface/web_client/dist/
 
 # Logs
 *.log

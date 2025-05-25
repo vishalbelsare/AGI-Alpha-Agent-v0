@@ -671,7 +671,9 @@ npm --prefix src/interface/web_client run build
 docker compose build
 docker compose up
 ```
-Open <http://localhost:9000> in your browser.
+Open <http://localhost:8501> in your browser. When `RUN_MODE=web`, the container
+serves the static files from `src/interface/web_client/dist` using `python -m
+http.server`.
 
 If Streamlit isn't installed or you're running on a headless server, use:
 ```bash
