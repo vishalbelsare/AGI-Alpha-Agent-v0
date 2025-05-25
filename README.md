@@ -177,6 +177,8 @@ of a real general intelligence. Use at your own risk.
   [alpha_factory_v1/demos/alpha_agi_insight_v1/docs/DESIGN.md](alpha_factory_v1/demos/alpha_agi_insight_v1/docs/DESIGN.md).
 
 ---
+## Contributing
+See [AGENTS.md](AGENTS.md) for the full contributor guide.
 
 ## 📜 Table of Contents
 0. [Design Philosophy](#0-design-philosophy)  
