@@ -149,3 +149,13 @@ openssl dgst -sha512 -binary <wheel>.whl |
 Commit the signature file and add the base64 value to `_WHEEL_SIGS` in
 `alpha_factory_v1/backend/agents/__init__.py`. Wheels without a valid signature
 are ignored at runtime.
+
+### Verify the wheel
+Verify that `<wheel>.whl.sig` matches the wheel:
+
+```bash
+openssl dgst -sha512 -binary <wheel>.whl |
+  openssl pkeyutl -verify -pubin -inkey "$AGENT_WHEEL_PUBKEY" -sigfile <wheel>.whl.sig
+```
+
+The orchestrator validates signatures against `_WHEEL_PUBKEY` in `alpha_factory_v1/backend/agents/__init__.py`.
