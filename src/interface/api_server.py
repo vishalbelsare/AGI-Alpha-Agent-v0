@@ -39,6 +39,7 @@ try:
     from fastapi import FastAPI, HTTPException, WebSocket, Request, Depends
     from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
     from starlette.middleware.base import BaseHTTPMiddleware, RequestResponseEndpoint
+    from fastapi.middleware.cors import CORSMiddleware
     from starlette.responses import Response
     from pydantic import BaseModel
     import uvicorn
@@ -91,6 +92,14 @@ if app is not None:
 
     app_f: FastAPI = app
     app_f.add_middleware(SimpleRateLimiter)
+    origins = [o.strip() for o in os.getenv("API_CORS_ORIGINS", "*").split(",") if o.strip()]
+    app_f.add_middleware(
+        CORSMiddleware,
+        allow_origins=origins,
+        allow_credentials=True,
+        allow_methods=["*"],
+        allow_headers=["*"],
+    )
     _orch: Any | None = None
 
     @app.on_event("startup")
