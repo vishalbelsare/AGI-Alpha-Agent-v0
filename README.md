@@ -649,6 +649,7 @@ cp .env.sample .env
 cd infrastructure
 docker build -t alpha-demo .
 docker compose up -d
+# Dashboard available at <http://localhost:8501>
 ```
 
 The Helm chart under `infrastructure/helm-chart` mirrors this Compose
@@ -656,11 +657,14 @@ setup:
 
 ```bash
 helm upgrade --install alpha-demo ./infrastructure/helm-chart \
-  --values ./infrastructure/helm-chart/values.yaml
+  --values ./infrastructure/helm-chart/values.yaml \
+  --set env.RUN_MODE=web
+# → browse to <http://localhost:8501>
 ```
 
 Terraform scripts in `infrastructure/terraform` provide GCP and AWS
-examples. Initialise and apply with:
+examples. Update the placeholder image and networking variables,
+then initialise and apply:
 
 ```bash
 cd infrastructure/terraform
@@ -670,9 +674,9 @@ terraform apply
 
 | Target | Command | Notes |
 |--------|---------|-------|
-| **Docker Compose** | `docker compose up -d` | Kafka, Prometheus, Grafana |
-| **Helm (K8s)** | `helm install af helm/alpha-factory` | SPIFFE, HPA |
-| **AWS Fargate** | `./infra/deploy_fargate.sh` | SQS shim for Kafka |
+| **Docker Compose** | `docker compose up -d` | Web UI on `localhost:8501` |
+| **Helm (K8s)** | `helm install af helm/alpha-factory` | `--set env.RUN_MODE=web` |
+| **AWS Fargate** | `./infra/deploy_fargate.sh` | set `container_image` & `subnets` |
 | **IoT Edge** | `python edge_runner.py --agents manufacturing,energy` | Jetson Nano |
 
 ---

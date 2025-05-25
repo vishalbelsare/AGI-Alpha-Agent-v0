@@ -4,6 +4,8 @@ variable "openai_api_key" { default = "" }
 variable "agi_insight_offline" { default = "0" }
 variable "agi_insight_bus_port" { default = 6006 }
 variable "agi_insight_ledger_path" { default = "./ledger/audit.db" }
+variable "container_image" { default = "alpha-demo:latest" }
+variable "vpc_connector" { default = "" }
 
 provider "google" { project = var.project }
 
@@ -14,7 +16,7 @@ resource "google_cloud_run_service" "af" {
   template {
     spec {
       containers {
-        image = "alpha-demo:latest"
+        image = var.container_image
         env = [
           {
             name  = "OPENAI_API_KEY"
@@ -39,6 +41,12 @@ resource "google_cloud_run_service" "af" {
         ]
         ports { container_port = 8000 }
         ports { container_port = 6006 }
+      }
+      dynamic "vpc_access" {
+        for_each = var.vpc_connector == "" ? [] : [var.vpc_connector]
+        content {
+          connector = vpc_access.value
+        }
       }
     }
   }

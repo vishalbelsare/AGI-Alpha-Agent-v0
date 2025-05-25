@@ -28,5 +28,5 @@ spec:
               value: {{ .Values.env.AGI_INSIGHT_LEDGER_PATH | quote }}
           ports:
             - containerPort: 8000
-            - containerPort: 3000
+            - containerPort: 8501
             - containerPort: 6006

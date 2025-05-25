@@ -9,5 +9,5 @@ env:
 service:
   type: ClusterIP
   port: 8000
-  uiPort: 3000
+  uiPort: 8501
   busPort: 6006

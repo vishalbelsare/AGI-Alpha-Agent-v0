@@ -20,6 +20,6 @@ RUN chmod +x /usr/local/bin/entrypoint.sh
 USER afuser
 
 ENV PYTHONUNBUFFERED=1
-EXPOSE 8000 3000 6006
+EXPOSE 8000 8501 6006
 ENTRYPOINT ["entrypoint.sh"]
-CMD ["cli"]
+CMD ["web"]
