@@ -191,6 +191,7 @@ for modules, classes and functions.
     CI enforces these checks.
   - The configuration runs `black`, `ruff`, `flake8` and `mypy` using
     `mypy.ini`.
+  - Hooks are configured in `.pre-commit-config.yaml` at the repository root.
 
 ## Pull Requests
 - Keep commits focused and descriptive. Use meaningful commit messages.
