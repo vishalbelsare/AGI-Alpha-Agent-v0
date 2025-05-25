@@ -157,6 +157,7 @@ Further technical details are documented separately:
 - The overall architecture, agent roles and algorithms are explained in [docs/DESIGN.md](docs/DESIGN.md).
 - REST and WebSocket endpoints are listed in [docs/API.md](docs/API.md).
 - Release notes are maintained in [docs/CHANGELOG.md](docs/CHANGELOG.md).
+- A demo specific overview can be found in [alpha_factory_v1/demos/alpha_agi_insight_v1/docs/DESIGN.md](alpha_factory_v1/demos/alpha_agi_insight_v1/docs/DESIGN.md).
 
 ---
 
