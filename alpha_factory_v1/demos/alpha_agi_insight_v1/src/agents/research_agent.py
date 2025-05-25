@@ -19,8 +19,8 @@ class ResearchAgent(BaseAgent):
     async def run_cycle(self) -> None:
         """Periodic sweep using a tiny evolutionary loop."""
         secs = [sector.Sector(f"s{i}") for i in range(3)]
-        results = forecast.simulate_years(secs, 1)
-        await self.emit("strategy", {"research": results[0].capability})
+        traj = forecast.forecast_disruptions(secs, 1)
+        await self.emit("strategy", {"research": traj[0].capability})
 
     async def handle(self, env: messaging.Envelope) -> None:
         """Process planning requests and emit research results."""

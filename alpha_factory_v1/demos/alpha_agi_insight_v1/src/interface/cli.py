@@ -49,7 +49,14 @@ def simulate(
 
     orch = orchestrator.Orchestrator(settings)
     secs = [sector.Sector(f"s{i:02d}") for i in range(pop_size)]
-    results = forecast.simulate_years(secs, horizon)
+    trajectory = forecast.forecast_disruptions(
+        secs,
+        horizon,
+        curve=curve,
+        pop_size=pop_size,
+        generations=generations,
+    )
+    results = [forecast.ForecastPoint(t.year, t.capability, [s for s in t.sectors if s.disrupted]) for t in trajectory]
 
     if export == "json":
         data = [

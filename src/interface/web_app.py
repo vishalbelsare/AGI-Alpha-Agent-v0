@@ -12,8 +12,6 @@ except Exception:  # pragma: no cover - optional
 import importlib
 from typing import Any, TYPE_CHECKING
 
-from ..utils import CFG
-
 if TYPE_CHECKING:  # pragma: no cover - typing only
     ForecastModule = Any
     SectorModule = Any
@@ -50,11 +48,12 @@ def _run_simulation(horizon: int, pop_size: int, generations: int) -> None:
     pareto_area = st.empty()
     log_box = st.empty()
 
-    results = forecast.simulate_years(secs, horizon)
-    for res in results:
-        capability_chart.add_rows({"capability": [res.capability]})
-        sector_chart.add_rows({"affected": [len(res.affected)]})
-        st.session_state.logs.append(f"Year {res.year}: {len(res.affected)} affected")
+    traj = forecast.forecast_disruptions(secs, horizon, generations=generations, pop_size=pop_size)
+    for t in traj:
+        affected = [s for s in t.sectors if s.disrupted]
+        capability_chart.add_rows({"capability": [t.capability]})
+        sector_chart.add_rows({"affected": [len(affected)]})
+        st.session_state.logs.append(f"Year {t.year}: {len(affected)} affected")
         log_box.text("\n".join(st.session_state.logs[-20:]))
         time.sleep(0.1)
 
