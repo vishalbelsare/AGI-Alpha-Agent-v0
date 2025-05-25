@@ -1,32 +1,24 @@
 import asyncio
-import importlib
-import sys
-import types
+from typing import Any, cast
+
 import pytest
 from httpx import AsyncClient, ASGITransport
 
 fastapi = pytest.importorskip("fastapi")
 httpx = pytest.importorskip("httpx")
 
-class DummyOrch:
-    async def run_forever(self) -> None:
-        await asyncio.Event().wait()
 
-async def make_client(monkeypatch: pytest.MonkeyPatch):
+async def make_client() -> tuple[AsyncClient, Any]:
     from src.interface import api_server
 
-    dummy_mod = types.ModuleType(
-        "alpha_factory_v1.demos.alpha_agi_insight_v1.src.orchestrator"
-    )
-    dummy_mod.Orchestrator = lambda: DummyOrch()
-    monkeypatch.setitem(sys.modules, dummy_mod.__name__, dummy_mod)
-    await api_server.app.router.startup()
-    client = AsyncClient(base_url="http://test", transport=ASGITransport(app=api_server.app))
+    transport = ASGITransport(app=cast(Any, api_server.app))
+    client = AsyncClient(base_url="http://test", transport=transport)
     return client, api_server
 
-def test_simulate_flow(monkeypatch: pytest.MonkeyPatch) -> None:
+
+def test_simulate_flow() -> None:
     async def run() -> None:
-        client, api_server = await make_client(monkeypatch)
+        client, api_server = await make_client()
         async with client:
             r = await client.post("/simulate", json={"horizon": 1, "pop_size": 2, "generations": 1})
             assert r.status_code == 200
@@ -39,6 +31,8 @@ def test_simulate_flow(monkeypatch: pytest.MonkeyPatch) -> None:
             assert r.status_code == 200
             data = r.json()
             assert "forecast" in data
-        await api_server.app.router.shutdown()
+
+            r2 = await client.get("/results/does-not-exist")
+            assert r2.status_code == 404
 
     asyncio.run(run())
