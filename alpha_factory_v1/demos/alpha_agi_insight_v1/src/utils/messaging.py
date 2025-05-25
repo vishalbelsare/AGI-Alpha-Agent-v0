@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import asyncio
 import json
+import logging
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Awaitable, Callable, Dict, List, Optional
@@ -26,6 +27,8 @@ try:  # pragma: no cover - optional broker
 except ModuleNotFoundError:  # pragma: no cover - broker optional
     AIOKafkaProducer = None
 
+
+logger = logging.getLogger(__name__)
 
 @dataclass(slots=True)
 class Envelope:
@@ -60,7 +63,12 @@ class A2ABus:
                     except RuntimeError:  # pragma: no cover - sync context
                         asyncio.run(res)
             except Exception:  # noqa: BLE001
-                pass
+                logger.exception(
+                    "handler error %s -> %s on %s",
+                    env.sender,
+                    env.recipient,
+                    topic,
+                )
 
     async def _handle_rpc(self, request: bytes, context: Any) -> bytes:
         data = json.loads(request.decode())
