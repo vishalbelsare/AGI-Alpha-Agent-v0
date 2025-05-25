@@ -1,6 +1,9 @@
 # Simplified AWS Fargate deployment
 variable "region" { default = "us-east-1" }
 variable "openai_api_key" { default = "" }
+variable "agi_insight_offline" { default = "0" }
+variable "agi_insight_bus_port" { default = 6006 }
+variable "agi_insight_ledger_path" { default = "./ledger/audit.db" }
 
 provider "aws" { region = var.region }
 
@@ -22,9 +25,15 @@ resource "aws_ecs_task_definition" "af" {
       essential = true
       environment = [
         { name = "OPENAI_API_KEY", value = var.openai_api_key },
-        { name = "RUN_MODE", value = "api" }
+        { name = "RUN_MODE", value = "api" },
+        { name = "AGI_INSIGHT_OFFLINE", value = var.agi_insight_offline },
+        { name = "AGI_INSIGHT_BUS_PORT", value = tostring(var.agi_insight_bus_port) },
+        { name = "AGI_INSIGHT_LEDGER_PATH", value = var.agi_insight_ledger_path }
       ]
-      portMappings = [{ containerPort = 8000 }]
+      portMappings = [
+        { containerPort = 8000 },
+        { containerPort = 6006 }
+      ]
     }
   ])
 }
