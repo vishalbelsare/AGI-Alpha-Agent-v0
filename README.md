@@ -73,6 +73,8 @@ curl -L -o ~/.cache/llama/TinyLlama-1.1B-Chat-v1.0.Q4_K_M.gguf \
 Set ``LLAMA_MODEL_PATH`` to the downloaded file and ensure
 ``llama-cpp-python`` or ``ctransformers`` is installed. When offline mode is
 enabled the agents automatically use the local model for inference.
+Set ``AGI_INSIGHT_OFFLINE=1`` in your `.env` to force this behaviour even when
+API keys are present.
 
 
 ### 🎖️ α‑AGI Architect 👁️✨ — Foundational Operational Blueprint
@@ -549,6 +551,18 @@ incoming requests. Clients must send `Authorization: Bearer <token>`. Use
 Avoid storing private keys directly in `.env`. Instead set
 `AGI_INSIGHT_SOLANA_WALLET_FILE` to a file containing your hex-encoded wallet
 key and keep that file readable only by the orchestrator.
+
+#### Supported Environment Variables
+
+| Variable | Default | Purpose |
+|----------|---------|---------|
+| `OPENAI_API_KEY` | _(empty)_ | API key for hosted models. Offline mode is used when empty. |
+| `NEO4J_PASSWORD` | `REPLACE_ME` | Database password required by the orchestrator. |
+| `RUN_MODE` | `api` | Launch mode for Compose or Helm (`api`, `cli`, `web`). |
+| `PORT` | `8000` | REST API port. |
+| `AGI_INSIGHT_OFFLINE` | `0` | Set to `1` to force local inference models. |
+| `AGI_INSIGHT_BUS_PORT` | `6006` | gRPC bus port used by the demo. |
+| `AGI_INSIGHT_LEDGER_PATH` | `./ledger/audit.db` | Path to the local audit ledger. |
 
 ### Finance Demo Quick‑Start
 
