@@ -2,7 +2,9 @@
 FROM python:3.11-slim
 
 # Install build tools for optional native extensions
-RUN apt-get update && apt-get install -y --no-install-recommends build-essential \
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential nodejs npm \
+    && npm install -g pnpm \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
@@ -13,7 +15,9 @@ RUN pip install --no-cache-dir -r /tmp/requirements.txt && rm /tmp/requirements.
 
 # Copy the project source
 COPY . /app
-COPY src/interface/web_client/dist /app/src/interface/web_client/dist
+RUN pnpm --dir src/interface/web_client install \
+    && pnpm --dir src/interface/web_client run build \
+    && rm -rf src/interface/web_client/node_modules
 
 # Add non-root user and entrypoint
 RUN adduser --disabled-password --gecos '' afuser && chown -R afuser /app
