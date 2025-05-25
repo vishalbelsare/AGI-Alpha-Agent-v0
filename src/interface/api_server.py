@@ -8,6 +8,8 @@ import secrets
 import importlib
 from typing import Any, Dict, List, TYPE_CHECKING, cast
 
+from ..utils import CFG
+
 if TYPE_CHECKING:  # pragma: no cover - typing only
     ForecastModule = Any
     SectorModule = Any

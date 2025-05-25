@@ -12,6 +12,8 @@ except Exception:  # pragma: no cover - optional
 import importlib
 from typing import Any, TYPE_CHECKING
 
+from ..utils import CFG
+
 if TYPE_CHECKING:  # pragma: no cover - typing only
     ForecastModule = Any
     SectorModule = Any
