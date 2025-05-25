@@ -323,10 +323,12 @@ For the REST and WebSocket endpoints see
 | `AGI_INSIGHT_SOLANA_URL` | Solana RPC endpoint | `https://api.testnet.solana.com` |
 | `AGI_INSIGHT_SOLANA_WALLET` | Wallet private key (hex) | _unset_ |
 | `AGI_INSIGHT_SOLANA_WALLET_FILE` | Path to wallet key file | _unset_ |
+| `SIM_RESULTS_DIR` | Folder for simulation JSON results | `$ALPHA_DATA_DIR/simulations` |
 
 Create `.env` or pass via `docker -e`. Store wallet keys outside of `.env` and
 use `AGI_INSIGHT_SOLANA_WALLET_FILE` to reference the file containing the
 hex-encoded private key.
+The API server stores simulation results as JSON files under `SIM_RESULTS_DIR`.
 
 ---
 
