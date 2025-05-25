@@ -1,5 +1,7 @@
 import asyncio
 import pathlib
+import unittest
+from unittest import mock
 from typing import List
 
 from alpha_factory_v1.demos.alpha_agi_insight_v1.src.agents import (
@@ -11,7 +13,7 @@ from alpha_factory_v1.demos.alpha_agi_insight_v1.src.agents import (
     safety_agent,
     memory_agent,
 )
-from alpha_factory_v1.demos.alpha_agi_insight_v1.src.utils import config, messaging
+from alpha_factory_v1.demos.alpha_agi_insight_v1.src.utils import config, messaging, local_llm
 from alpha_factory_v1.demos.alpha_agi_insight_v1.src.utils.logging import Ledger
 
 
@@ -72,5 +74,44 @@ def test_agent_pipeline(tmp_path: pathlib.Path) -> None:
         await mem_agent.handle(memory_msgs[0])
         assert mem_agent.records, "memory agent did not store payload"
         ledger.close()
+
+    asyncio.run(_run())
+
+
+def test_planning_agent_offline_uses_local_model(tmp_path: pathlib.Path) -> None:
+    settings = config.Settings()
+    settings.offline = True
+    settings.ledger_path = str(tmp_path / "led.db")
+    bus = messaging.A2ABus(settings)
+    ledger = Ledger(settings.ledger_path)
+    agent = planning_agent.PlanningAgent(bus, ledger)
+
+    async def _run() -> None:
+        with mock.patch.object(local_llm, "chat", return_value="ok") as m:
+            await agent.run_cycle()
+            assert m.called
+
+    asyncio.run(_run())
+
+
+def test_strategy_agent_api_uses_oai_ctx(tmp_path: pathlib.Path) -> None:
+    settings = config.Settings(openai_api_key="k")
+    settings.offline = False
+    settings.ledger_path = str(tmp_path / "led.db")
+    bus = messaging.A2ABus(settings)
+    ledger = Ledger(settings.ledger_path)
+    agent = strategy_agent.StrategyAgent(bus, ledger)
+
+    class Ctx:
+        async def run(self, prompt: str) -> str:  # pragma: no cover - async stub
+            return "done"
+
+    agent.oai_ctx = Ctx()
+    env = messaging.Envelope("a", "b", {"research": 1}, 0.0)
+
+    async def _run() -> None:
+        with mock.patch.object(agent.oai_ctx, "run", wraps=agent.oai_ctx.run) as m:
+            await agent.handle(env)
+            assert m.called
 
     asyncio.run(_run())

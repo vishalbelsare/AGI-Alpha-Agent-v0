@@ -8,7 +8,7 @@ from ..utils import messaging
 from ..utils.logging import Ledger
 
 
-class StrategyAgent(BaseAgent):
+class StrategyAgent(BaseAgent):  # type: ignore[misc]
     """Turn research output into actionable strategy."""
 
     def __init__(self, bus: messaging.A2ABus, ledger: "Ledger") -> None:
@@ -22,7 +22,14 @@ class StrategyAgent(BaseAgent):
         """Compose a strategy from research results."""
         val = env.payload.get("research")
         strat = {"action": f"monitor {val}"}
-        if self.oai_ctx and not self.bus.settings.offline:
+        if self.bus.settings.offline:
+            try:
+                from ..utils import local_llm
+
+                strat["action"] = local_llm.chat(str(val))
+            except Exception:  # pragma: no cover - model optional
+                pass
+        elif self.oai_ctx:
             try:  # pragma: no cover
                 strat["action"] = await self.oai_ctx.run(prompt=str(val))
             except Exception:
