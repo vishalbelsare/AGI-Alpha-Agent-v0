@@ -36,3 +36,20 @@ def test_gibbs_free_energy() -> None:
     value = gibbs.free_energy(logp, temperature=1.0, task_cost=1.0)
     entropy = -sum(p * math.log(p) for p in [0.7, 0.3])
     assert value == pytest.approx(1.0 - entropy)
+
+
+def test_forecast_disruptions_trigger_and_gain(monkeypatch) -> None:
+    monkeypatch.setattr(forecast, "_innovation_gain", lambda *_: 0.5)
+    sec = sector.Sector("x", energy=1.0, entropy=2.0, growth=0.0)
+    traj = forecast.forecast_disruptions([sec], 1, curve="linear", pop_size=2, generations=1)
+    pt = traj[0].sectors[0]
+    assert pt.disrupted
+    assert pt.energy == pytest.approx(1.0 + 0.5)
+
+
+def test_forecast_disruptions_multiple_sectors() -> None:
+    a = sector.Sector("a", energy=1.0, entropy=0.1)
+    b = sector.Sector("b", energy=1.0, entropy=2.0)
+    traj = forecast.forecast_disruptions([a, b], 1, curve="linear", pop_size=2, generations=1)
+    assert not traj[0].sectors[0].disrupted
+    assert traj[0].sectors[1].disrupted

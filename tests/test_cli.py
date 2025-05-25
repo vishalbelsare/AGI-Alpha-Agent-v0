@@ -97,3 +97,55 @@ def test_simulate_export_csv() -> None:
             )
     assert res.exit_code == 0
     assert "year,capability,affected" in res.output
+
+
+def test_show_results_export_csv(tmp_path) -> None:
+    ledger = tmp_path / "audit.db"
+    ledger.touch()
+    with patch.object(cli.config.CFG, "ledger_path", ledger):
+        with patch.object(cli.logging, "Ledger") as led_cls:
+            led = led_cls.return_value
+            led.tail.return_value = [{"ts": 1.0, "sender": "a", "recipient": "b", "payload": {"x": 1}}]
+            res = CliRunner().invoke(cli.main, ["show-results", "--export", "csv"])
+            assert "ts,sender,recipient,payload" in res.output
+
+
+def test_simulate_export_json() -> None:
+    runner = CliRunner()
+    with patch.object(cli, "asyncio"):
+        with patch.object(cli.orchestrator, "Orchestrator"):
+            res = runner.invoke(
+                cli.main,
+                [
+                    "simulate",
+                    "--horizon",
+                    "1",
+                    "--offline",
+                    "--pop-size",
+                    "1",
+                    "--generations",
+                    "1",
+                    "--export",
+                    "json",
+                ],
+            )
+    assert res.exit_code == 0
+    assert res.output.startswith("[")
+
+
+def test_replay_existing(tmp_path) -> None:
+    path = tmp_path / "led.db"
+    path.touch()
+    with patch.object(cli.config.CFG, "ledger_path", path):
+        with (
+            patch.object(cli.logging, "Ledger") as led_cls,
+            patch.object(
+                cli.time,
+                "sleep",
+                return_value=None,
+            ),
+        ):
+            led = led_cls.return_value
+            led.tail.return_value = [{"ts": 0.0, "sender": "a", "recipient": "b", "payload": {"x": 1}}]
+            out = CliRunner().invoke(cli.main, ["replay"])
+            assert "a -> b" in out.output

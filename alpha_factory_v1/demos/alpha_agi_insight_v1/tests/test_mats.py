@@ -1,8 +1,4 @@
-import pytest
-pytestmark = pytest.mark.skip("demo")
-
-if False:  # type: ignore
-    from alpha_factory_v1.demos.alpha_agi_insight_v1.src.simulation import mats
+from alpha_factory_v1.demos.alpha_agi_insight_v1.src.simulation import mats
 
 
 def test_nsga2_step_runs() -> None:

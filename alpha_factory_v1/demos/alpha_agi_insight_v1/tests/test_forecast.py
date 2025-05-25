@@ -1,8 +1,4 @@
-import pytest
-pytestmark = pytest.mark.skip("demo")
-
-if False:  # type: ignore
-    from alpha_factory_v1.demos.alpha_agi_insight_v1.src.simulation import forecast, sector
+from alpha_factory_v1.demos.alpha_agi_insight_v1.src.simulation import forecast, sector
 
 
 def test_simulate_years() -> None:
