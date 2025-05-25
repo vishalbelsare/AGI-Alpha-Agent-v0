@@ -3,9 +3,14 @@ import json
 import os
 import tempfile
 import unittest
+from unittest import mock
 
 from alpha_factory_v1.demos.alpha_agi_insight_v1.src import orchestrator
-from alpha_factory_v1.demos.alpha_agi_insight_v1.src.utils import config, messaging
+from alpha_factory_v1.demos.alpha_agi_insight_v1.src.utils import (
+    config,
+    messaging,
+    logging as insight_logging,
+)
 
 
 class TestInsightOrchestrator(unittest.TestCase):
@@ -64,12 +69,57 @@ class TestMessaging(unittest.TestCase):
 
 
 class TestLedger(unittest.TestCase):
-    def test_merkle_task(self) -> None:
+    def test_merkle_root_and_broadcast(self) -> None:
         tmp = tempfile.TemporaryDirectory()
-        led = orchestrator.Ledger(os.path.join(tmp.name, "l.db"))
-        env = messaging.Envelope("a", "b", {}, 0.0)
-        led.log(env)
-        asyncio.run(led.broadcast_merkle_root())
+        led = orchestrator.Ledger(
+            os.path.join(tmp.name, "l.db"),
+            rpc_url="http://rpc.test",
+            broadcast=True,
+        )
+        env1 = messaging.Envelope("a", "b", {"v": 1}, 0.0)
+        env2 = messaging.Envelope("b", "c", {"v": 2}, 0.0)
+        led.log(env1)
+        led.log(env2)
+        root = led.compute_merkle_root()
+
+        captured: dict[str, str] = {}
+
+        class DummyClient:
+            def __init__(self, url: str) -> None:
+                captured["url"] = url
+
+            async def send_transaction(self, tx: object, *args: object) -> None:
+                captured["root"] = tx.instructions[0].data.decode()
+
+            async def close(self) -> None:
+                pass
+
+        class DummyTx:
+            def __init__(self) -> None:
+                self.instructions = []
+
+            def add(self, instr: object) -> "DummyTx":
+                self.instructions.append(instr)
+                return self
+
+        class DummyInstr:
+            def __init__(self, program_id: object, data: bytes, keys: list[object]):
+                self.data = data
+
+        class DummyPk:
+            def __init__(self, val: str) -> None:
+                pass
+
+        with (
+            mock.patch.object(insight_logging, "AsyncClient", DummyClient, create=True),
+            mock.patch.object(insight_logging, "Transaction", DummyTx, create=True),
+            mock.patch.object(insight_logging, "TransactionInstruction", DummyInstr, create=True),
+            mock.patch.object(insight_logging, "PublicKey", DummyPk, create=True),
+        ):
+            asyncio.run(led.broadcast_merkle_root())
+
+        self.assertEqual(captured["url"], "http://rpc.test")
+        self.assertEqual(captured["root"], root)
         led.start_merkle_task(0.1)
         asyncio.run(asyncio.sleep(0.2))
         asyncio.run(led.stop_merkle_task())

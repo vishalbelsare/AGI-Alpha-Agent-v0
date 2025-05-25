@@ -40,6 +40,7 @@ def main() -> None:
 @click.option("--curve", default="logistic", show_default=True, help="Capability growth curve")
 @click.option("--seed", type=int, help="Random seed")
 @click.option("--offline", is_flag=True, help="Force offline mode")
+@click.option("--no-broadcast", is_flag=True, help="Disable blockchain broadcasting")
 @click.option("--pop-size", default=6, show_default=True, type=int, help="MATS population size")
 @click.option("--generations", default=3, show_default=True, type=int, help="Evolution steps")
 @click.option("--export", type=click.Choice(["json", "csv"]), help="Export results format")
@@ -55,6 +56,7 @@ def simulate(
     export: str | None,
     verbose: bool,
     start_orchestrator: bool,
+    no_broadcast: bool,
 ) -> None:
     """Run the forecast simulation and start the orchestrator."""
     if seed is not None:
@@ -63,6 +65,8 @@ def simulate(
     settings = config.CFG
     if offline:
         settings.offline = True
+    if no_broadcast:
+        settings.broadcast = False
 
     orch = orchestrator.Orchestrator(settings)
     secs = [sector.Sector(f"s{i:02d}") for i in range(pop_size)]

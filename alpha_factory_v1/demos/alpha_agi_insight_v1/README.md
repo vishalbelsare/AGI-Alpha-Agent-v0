@@ -149,6 +149,9 @@ The React dashboard streams year-by-year events via WebSocket and renders:
 | `AGI_INSIGHT_OFFLINE` | Force offline mode | `0` |
 | `AGI_INSIGHT_BUS_PORT` | gRPC bus port | `6006` |
 | `AGI_INSIGHT_LEDGER_PATH` | Audit DB path | `./ledger/audit.db` |
+| `AGI_INSIGHT_BROADCAST` | Enable blockchain broadcasting | `1` |
+| `AGI_INSIGHT_SOLANA_URL` | Solana RPC endpoint | `https://api.testnet.solana.com` |
+| `AGI_INSIGHT_SOLANA_WALLET` | Wallet private key (hex) | _unset_ |
 
 Create `.env` or pass via `docker -e`.
 

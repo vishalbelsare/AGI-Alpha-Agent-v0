@@ -61,7 +61,12 @@ class Orchestrator:
         self.settings = settings or config.CFG
         logging.setup()
         self.bus = messaging.A2ABus(self.settings)
-        self.ledger = Ledger(self.settings.ledger_path)
+        self.ledger = Ledger(
+            self.settings.ledger_path,
+            rpc_url=self.settings.solana_rpc_url,
+            wallet=self.settings.solana_wallet,
+            broadcast=self.settings.broadcast,
+        )
         self.ledger.start_merkle_task(3600)
         self.runners: Dict[str, AgentRunner] = {}
         self.bus.subscribe("orch", self._on_orch)

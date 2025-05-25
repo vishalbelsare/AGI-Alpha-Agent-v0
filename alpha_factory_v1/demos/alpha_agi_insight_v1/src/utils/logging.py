@@ -60,9 +60,15 @@ def _merkle_root(hashes: Iterable[str]) -> str:
 
 
 class Ledger:
-    """Append-only SQLite ledger with periodic Merkle root broadcast."""
+    """Append-only SQLite ledger with optional Merkle root broadcasting."""
 
-    def __init__(self, path: str) -> None:
+    def __init__(
+        self,
+        path: str,
+        rpc_url: str | None = None,
+        wallet: str | None = None,
+        broadcast: bool = True,
+    ) -> None:
         self.path = Path(path)
         self.path.parent.mkdir(parents=True, exist_ok=True)
         self.conn = sqlite3.connect(str(self.path))
@@ -80,6 +86,9 @@ class Ledger:
         )
         self.conn.commit()
         self._task: asyncio.Task[None] | None = None
+        self.rpc_url = rpc_url
+        self.wallet = wallet
+        self.broadcast = broadcast
 
     def log(self, env: messaging.Envelope) -> None:
         """Hash ``env`` and append to the ledger."""
@@ -116,14 +125,25 @@ class Ledger:
 
     async def broadcast_merkle_root(self) -> None:
         root = self.compute_merkle_root()
-        if AsyncClient is None:
+        if AsyncClient is None or not self.broadcast:
             _log.info("Merkle root %s", root)
             return
         try:
-            client = AsyncClient("https://api.testnet.solana.com")
+            client = AsyncClient(self.rpc_url or "https://api.testnet.solana.com")
             memo_prog = PublicKey("MemoSq4gqABAXKb96qnH8TysNcWxMyWCqXgDLGmfcHr")
             tx = Transaction().add(TransactionInstruction(program_id=memo_prog, data=root.encode(), keys=[]))
-            await client.send_transaction(tx)
+            signer = None
+            if self.wallet:
+                try:  # pragma: no cover - optional dependency
+                    from solana.keypair import Keypair
+
+                    signer = Keypair.from_secret_key(bytes.fromhex(self.wallet))
+                except Exception as exc:  # noqa: BLE001 - invalid key
+                    _log.warning("Invalid wallet key: %s", exc)
+            if signer:
+                await client.send_transaction(tx, signer)
+            else:
+                await client.send_transaction(tx)
             _log.info("Broadcasted Merkle root %s", root)
         except Exception as exc:  # pragma: no cover - network errors
             _log.warning("Failed to broadcast Merkle root: %s", exc)
@@ -140,7 +160,12 @@ class Ledger:
 
     def start_merkle_task(self, interval: int = 3600) -> None:
         if self._task is None:
-            self._task = asyncio.create_task(self._loop(interval))
+            try:
+                loop = asyncio.get_running_loop()
+            except RuntimeError:  # pragma: no cover - no loop in sync context
+                _log.warning("Merkle task requires a running event loop")
+                return
+            self._task = loop.create_task(self._loop(interval))
 
     async def stop_merkle_task(self) -> None:
         if self._task:
