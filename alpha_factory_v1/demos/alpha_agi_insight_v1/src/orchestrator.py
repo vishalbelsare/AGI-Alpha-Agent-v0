@@ -40,7 +40,7 @@ class Orchestrator:
     """Bootstraps agents and routes envelopes."""
 
     def __init__(self, settings: config.Settings | None = None) -> None:
-        self.settings = settings or config.Settings()
+        self.settings = settings or config.CFG
         logging.setup()
         self.bus = messaging.A2ABus(self.settings)
         self.ledger = Ledger(self.settings.ledger_path)

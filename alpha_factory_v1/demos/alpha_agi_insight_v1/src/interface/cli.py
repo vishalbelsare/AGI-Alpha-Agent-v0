@@ -43,7 +43,7 @@ def simulate(
     if seed is not None:
         random.seed(seed)
 
-    settings = config.Settings()
+    settings = config.CFG
     if offline:
         settings.offline = True
 
@@ -82,7 +82,7 @@ def simulate(
 @main.command("show-results")
 def show_results() -> None:
     """Display the last ledger entries."""
-    path = Path(config.Settings().ledger_path)
+    path = Path(config.CFG.ledger_path)
     if not path.exists():
         click.echo("No results found")
         return
@@ -101,7 +101,7 @@ def agents_status() -> None:
 @main.command()
 def replay() -> None:
     """Replay ledger entries with small delay."""
-    path = Path(config.Settings().ledger_path)
+    path = Path(config.CFG.ledger_path)
     if not path.exists():
         click.echo("No ledger to replay")
         return

@@ -13,15 +13,13 @@ def test_agents_status_lists_names() -> None:
 
 
 def test_show_results_missing(tmp_path) -> None:
-    with patch.object(cli.config, "Settings") as settings:
-        settings.return_value.ledger_path = tmp_path / "ledger.txt"
+    with patch.object(cli.config.CFG, "ledger_path", tmp_path / "ledger.txt"):
         out = CliRunner().invoke(cli.main, ["show-results"])
         assert "No results" in out.output
 
 
 def test_replay_missing(tmp_path) -> None:
-    with patch.object(cli.config, "Settings") as settings:
-        settings.return_value.ledger_path = tmp_path / "led.txt"
+    with patch.object(cli.config.CFG, "ledger_path", tmp_path / "led.txt"):
         out = CliRunner().invoke(cli.main, ["replay"])
         assert "No ledger" in out.output
 
