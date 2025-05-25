@@ -222,8 +222,8 @@ pre-commit run --files <paths>   # before each commit
   ```
   # SPDX-License-Identifier: Apache-2.0
   ```
-- Use the issue templates under `.github/ISSUE_TEMPLATE` for bug reports and feature requests.
-- Follow the [pull request template](.github/pull_request_template.md) and fill in
+- Issue reports should follow the templates under [`.github/ISSUE_TEMPLATE/`](.github/ISSUE_TEMPLATE/).
+- Pull requests should follow [`pull_request_template.md`](.github/pull_request_template.md). Fill out
   all sections to confirm linting, type checks and tests pass.
 - Ensure `pre-commit` passes locally; the CI pipeline runs the same hooks and will fail if they do not.
 
