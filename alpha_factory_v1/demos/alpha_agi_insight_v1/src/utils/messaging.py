@@ -11,7 +11,7 @@ from .config import Settings
 try:
     import grpc
 except ModuleNotFoundError:  # pragma: no cover - optional
-    grpc = None  # type: ignore
+    grpc = None
 
 
 @dataclass(slots=True)
@@ -42,7 +42,7 @@ class A2ABus:
             except Exception:  # noqa: BLE001
                 pass
 
-    async def _handle_rpc(self, request: bytes, context) -> bytes:  # type: ignore[override]
+    async def _handle_rpc(self, request: bytes, context: Any) -> bytes:
         env = Envelope(**json.loads(request.decode()))
         self.publish(env.recipient, env)
         return b"ok"
