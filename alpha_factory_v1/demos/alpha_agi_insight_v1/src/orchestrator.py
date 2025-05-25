@@ -2,15 +2,7 @@
 from __future__ import annotations
 
 import asyncio
-import json
-import time
-from pathlib import Path
 from typing import List
-
-try:
-    from blake3 import blake3
-except ModuleNotFoundError:  # pragma: no cover - optional
-    from hashlib import sha256 as blake3  # type: ignore
 
 from .agents import (
     planning_agent,
@@ -22,18 +14,9 @@ from .agents import (
     memory_agent,
 )
 from .utils import config, messaging, logging
+from .utils.logging import Ledger
 
 
-class Ledger:
-    def __init__(self, path: str) -> None:
-        self.path = Path(path)
-        self.path.parent.mkdir(parents=True, exist_ok=True)
-
-    def log(self, env: messaging.Envelope) -> None:
-        data = json.dumps(env.__dict__, sort_keys=True).encode()
-        digest = blake3(data).hexdigest()
-        with self.path.open("a", encoding="utf-8") as fh:
-            fh.write(json.dumps({"hash": digest, **env.__dict__}) + "\n")
 
 
 class Orchestrator:
@@ -44,9 +27,10 @@ class Orchestrator:
         logging.setup()
         self.bus = messaging.A2ABus(self.settings)
         self.ledger = Ledger(self.settings.ledger_path)
+        self.ledger.start_merkle_task()
         self.agents = self._init_agents()
 
-    def _init_agents(self) -> List[messaging.Envelope]:  # type: ignore[override]
+    def _init_agents(self) -> List[messaging.Envelope]:
         agents = [
             planning_agent.PlanningAgent(self.bus, self.ledger),
             research_agent.ResearchAgent(self.bus, self.ledger),
@@ -67,6 +51,8 @@ class Orchestrator:
                 await asyncio.sleep(0.5)
         finally:
             await self.bus.stop()
+            await self.ledger.stop_merkle_task()
+            self.ledger.close()
 
 
 async def _main() -> None:  # pragma: no cover - CLI helper

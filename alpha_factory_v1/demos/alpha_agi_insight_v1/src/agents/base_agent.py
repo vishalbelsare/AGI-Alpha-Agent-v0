@@ -7,15 +7,15 @@ from typing import Any, TYPE_CHECKING
 from ..utils import messaging
 
 if TYPE_CHECKING:  # pragma: no cover - type hint only
-    from ..orchestrator import Ledger
+    from ..utils.logging import Ledger
 
 try:
-    from openai.agents import AgentContext  # type: ignore
+    from openai.agents import AgentContext
 except Exception:  # pragma: no cover - optional
     AgentContext = object
 
 try:
-    import adk  # type: ignore
+    import adk
 except Exception:  # pragma: no cover - optional
     adk = None
 
