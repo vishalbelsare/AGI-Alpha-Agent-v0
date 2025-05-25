@@ -19,3 +19,6 @@ dist/
 .env
 *.env
 
+# Key files
+*.key
+

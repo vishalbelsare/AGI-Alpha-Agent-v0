@@ -177,6 +177,10 @@ openssl genpkey -algorithm ed25519 -out agent_signing.key
 openssl pkey -in agent_signing.key -pubout -outform DER | base64 -w0
 ```
 
+Store `agent_signing.key` **outside** the repository and never commit it. The
+root `.gitignore` now ignores `*.key` so automated agents and human
+contributors avoid including the private key in pull requests.
+
 Store the public key in the `AGENT_WHEEL_PUBKEY` environment variable so
 `alpha_factory_v1/backend/agents/__init__.py` can verify signatures.
 
