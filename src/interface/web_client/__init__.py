@@ -1,1 +1,5 @@
-"""Built React front-end for the AGI demo."""
+"""React front-end for the demo.
+
+The production build lives in the ``dist`` directory and can be served by any
+static file server or bundled into the Docker image.
+"""
