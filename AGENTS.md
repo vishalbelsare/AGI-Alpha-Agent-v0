@@ -21,6 +21,15 @@ Please report security vulnerabilities as described in our [Security Policy](SEC
 - Git
 - Run `python alpha_factory_v1/scripts/preflight.py` to validate these tools.
 
+Confirm installed versions:
+```bash
+python --version
+docker --version
+docker compose version
+git --version
+```
+Python must report 3.11 or 3.12 and Docker Compose must be at least 2.5.
+
 ## Development Environment
 - Create and activate a Python 3.11 or 3.12 (**Python ≥3.11 and <3.13**) virtual
   environment before running the setup script. On Linux or macOS:
