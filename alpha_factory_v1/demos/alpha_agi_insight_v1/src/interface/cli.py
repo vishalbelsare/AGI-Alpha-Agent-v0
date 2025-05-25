@@ -1,5 +1,10 @@
 # SPDX-License-Identifier: Apache-2.0
-"""Command line interface for the α‑AGI Insight demo."""
+"""Command line utilities wrapping the Insight components.
+
+Provides commands to run forecast simulations, inspect ledger entries and
+launch the orchestrator. ``click`` is used for argument parsing and the
+console output optionally leverages ``rich`` for nicer tables.
+"""
 
 from __future__ import annotations
 

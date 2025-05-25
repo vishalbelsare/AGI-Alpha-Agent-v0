@@ -1,5 +1,10 @@
 # SPDX-License-Identifier: Apache-2.0
-"""Market analysis agent."""
+"""Agent that translates strategy actions into market analysis.
+
+The market agent periodically emits neutral market data and updates its
+analysis when receiving new strategy information. Generated insights are
+passed to the :class:`CodeGenAgent`.
+"""
 
 from __future__ import annotations
 

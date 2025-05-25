@@ -1,5 +1,10 @@
 # SPDX-License-Identifier: Apache-2.0
-"""Strategy agent."""
+"""Agent composing high level strategy from research results.
+
+The agent consumes ``research`` messages and generates a short action plan
+for the market agent. It can optionally leverage a local or remote LLM during
+:meth:`handle`.
+"""
 
 from __future__ import annotations
 

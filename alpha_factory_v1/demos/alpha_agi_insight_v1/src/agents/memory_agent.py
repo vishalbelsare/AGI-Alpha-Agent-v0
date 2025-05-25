@@ -1,5 +1,10 @@
 # SPDX-License-Identifier: Apache-2.0
-"""Memory agent."""
+"""Simple in-memory storage for agent artefacts.
+
+The ``MemoryAgent`` collects payloads from other agents and exposes them via
+its :pyattr:`records` attribute. The :meth:`run_cycle` hook reports the number
+of stored items back to the orchestrator.
+"""
 
 from __future__ import annotations
 

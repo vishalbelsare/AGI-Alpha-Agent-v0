@@ -1,5 +1,11 @@
 # SPDX-License-Identifier: Apache-2.0
-"""Shared base class for insight agents."""
+"""Base class shared by all Insight demo agents.
+
+The class wires each agent into the :class:`~..utils.messaging.A2ABus` and
+provides helper methods for sending and receiving envelopes. Subclasses
+implement :meth:`handle` to process messages and :meth:`run_cycle` for
+periodic behaviour.
+"""
 from __future__ import annotations
 
 import time
@@ -22,7 +28,7 @@ except Exception:  # pragma: no cover - optional
 
 
 class BaseAgent:
-    """Abstract agent."""
+    """Abstract agent type used by specialised agents."""
 
     name: str
 

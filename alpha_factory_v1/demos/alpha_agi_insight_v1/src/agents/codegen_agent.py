@@ -1,5 +1,10 @@
 # SPDX-License-Identifier: Apache-2.0
-"""Code generation agent."""
+"""Agent producing small code samples from market data.
+
+The ``CodeGenAgent`` consumes analysis messages and replies with a candidate
+code snippet. When available, an OpenAI agent context or local model is used
+to generate the snippet; otherwise a stub is returned via :meth:`handle`.
+"""
 
 from __future__ import annotations
 

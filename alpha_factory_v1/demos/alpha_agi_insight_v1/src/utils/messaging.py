@@ -1,5 +1,10 @@
 # SPDX-License-Identifier: Apache-2.0
-"""Simple A2A messaging bus with optional gRPC front-end."""
+"""Lightweight pub/sub bus used by the agents.
+
+Envelopes are published to in-memory subscribers and optionally forwarded via
+gRPC or Kafka. Use :class:`A2ABus` to subscribe handlers and to start the
+optional transport servers.
+"""
 
 from __future__ import annotations
 

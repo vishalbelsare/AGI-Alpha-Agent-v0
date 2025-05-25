@@ -1,5 +1,10 @@
 # SPDX-License-Identifier: Apache-2.0
-"""Configuration helpers for the α‑AGI Insight demo."""
+"""Environment driven settings used by the agents and interfaces.
+
+The :class:`Settings` dataclass gathers options from ``.env`` files and
+environment variables. ``CFG`` is the default instance consumed throughout
+the demo.
+"""
 
 from __future__ import annotations
 

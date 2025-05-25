@@ -1,5 +1,10 @@
 # SPDX-License-Identifier: Apache-2.0
-"""Minimal Streamlit interface for disruption forecasts."""
+"""Tiny Streamlit app visualising forecast results.
+
+The module provides ``main`` which launches a dashboard or prints results in
+text mode. It demonstrates how forecast data can be visualised without any
+backend services.
+"""
 
 from __future__ import annotations
 

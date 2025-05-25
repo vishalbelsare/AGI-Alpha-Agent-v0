@@ -1,5 +1,10 @@
 # SPDX-License-Identifier: Apache-2.0
-"""Interactive dashboard for the α‑AGI Insight demo."""
+"""Full Streamlit dashboard visualising simulation output.
+
+This interface allows interactive control of the forecast parameters and
+renders charts using Plotly. It can fall back to text output when
+Streamlit is unavailable.
+"""
 
 from __future__ import annotations
 
