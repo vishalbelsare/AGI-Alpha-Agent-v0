@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 """Shared base class for insight agents."""
 from __future__ import annotations
 

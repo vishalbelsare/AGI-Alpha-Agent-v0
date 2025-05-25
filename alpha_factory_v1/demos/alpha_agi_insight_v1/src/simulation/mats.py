@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 """NSGA-II style evolutionary optimiser."""
 
 from __future__ import annotations
