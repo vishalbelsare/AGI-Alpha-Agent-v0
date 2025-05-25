@@ -3,7 +3,7 @@ kind: Deployment
 metadata:
   name: alpha-demo
 spec:
-  replicas: 1
+  replicas: {{ .Values.replicaCount }}
   selector:
     matchLabels:
       app: alpha-demo
@@ -14,7 +14,12 @@ spec:
     spec:
       containers:
         - name: orchestrator
-          image: alpha-demo:latest
+          image: {{ .Values.image }}
+          env:
+            - name: OPENAI_API_KEY
+              value: {{ .Values.env.OPENAI_API_KEY | quote }}
+            - name: RUN_MODE
+              value: {{ .Values.env.RUN_MODE | quote }}
           ports:
             - containerPort: 8000
             - containerPort: 3000

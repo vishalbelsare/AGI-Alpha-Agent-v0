@@ -39,3 +39,25 @@ Available commands are:
 - `replay` – replay ledger entries with a small delay for analysis.
 
 The CLI is also installed as the `alpha-agi-bhf` entry point for convenience.
+
+### Endpoint Details
+
+**POST `/simulate`**
+
+Start a new simulation run. The JSON body accepts:
+
+- `horizon` – forecast horizon in years.
+- `pop_size` – number of individuals per generation.
+- `generations` – number of evolutionary steps.
+
+Returns a JSON object containing the simulation `id`.
+
+**GET `/results/{sim_id}`**
+
+Retrieve the final forecast and Pareto front for a previously launched simulation.
+
+**WebSocket `/ws/{sim_id}`**
+
+Provides a live feed of progress messages during a running simulation. Clients should close the socket once the final `done` message is received.
+
+The server honours environment variables defined in `.env` such as `PORT` (HTTP port), `OPENAI_API_KEY` and `RUN_MODE`. When `RUN_MODE=web`, a small frontend served at `/` consumes these endpoints via JavaScript.

@@ -1,0 +1,9 @@
+image: alpha-demo:latest
+replicaCount: 1
+env:
+  OPENAI_API_KEY: ""
+  RUN_MODE: api
+service:
+  type: ClusterIP
+  port: 8000
+  uiPort: 3000
