@@ -50,6 +50,8 @@ Please report security vulnerabilities as described in our [Security Policy](SEC
    WHEELHOUSE=/media/wheels AUTO_INSTALL_MISSING=1 \
      python check_env.py --auto-install
    ```
+   - Run `pip check` to verify package integrity. If problems occur, rerun `python check_env.py --auto-install --wheelhouse <path>` to reinstall.
+
    See [`alpha_factory_v1/scripts/README.md`](alpha_factory_v1/scripts/README.md)
    for additional offline tips.
 - After setup, validate with `python check_env.py --auto-install`.
