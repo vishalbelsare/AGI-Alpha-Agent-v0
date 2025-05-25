@@ -2,7 +2,7 @@ import asyncio
 from typing import Any, cast
 
 import pytest
-from httpx import AsyncClient, ASGITransport
+from httpx import ASGITransport, AsyncClient
 
 fastapi = pytest.importorskip("fastapi")
 httpx = pytest.importorskip("httpx")
@@ -23,13 +23,19 @@ def test_simulate_flow() -> None:
             r = await client.post("/simulate", json={"horizon": 1, "pop_size": 2, "generations": 1})
             assert r.status_code == 200
             sim_id = r.json()["id"]
-            for _ in range(50):
-                if sim_id in api_server._simulations:
+            assert isinstance(sim_id, str) and sim_id
+
+            for _ in range(100):
+                r = await client.get(f"/results/{sim_id}")
+                if r.status_code == 200:
+                    data = r.json()
                     break
                 await asyncio.sleep(0.05)
-            r = await client.get(f"/results/{sim_id}")
+            else:
+                raise AssertionError("Timed out waiting for results")
+
             assert r.status_code == 200
-            data = r.json()
+            assert isinstance(data, dict)
             assert "forecast" in data
 
             r2 = await client.get("/results/does-not-exist")
