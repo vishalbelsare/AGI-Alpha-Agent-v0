@@ -34,6 +34,7 @@ def _load_env_file(path: str | os.PathLike[str]) -> Mapping[str, str]:
 
 
 def parse_args() -> argparse.Namespace:
+    """Return command line arguments for the launcher."""
     ap = argparse.ArgumentParser(description="Alpha-Factory launcher")
     ap.add_argument("--dev", action="store_true", help="Enable dev mode")
     ap.add_argument("--env-file", help="Load environment variables from file")
@@ -57,6 +58,14 @@ def parse_args() -> argparse.Namespace:
 
 
 def apply_env(args: argparse.Namespace) -> None:
+    """Apply command line options to ``os.environ``.
+
+    Args:
+        args: Parsed command line arguments.
+
+    Returns:
+        None
+    """
     env_file = args.env_file
     if env_file is None and Path(".env").is_file():
         env_file = ".env"
@@ -78,12 +87,14 @@ def apply_env(args: argparse.Namespace) -> None:
 
 
 def run() -> None:
+    """Entry point used by the ``alpha-factory`` console script."""
     args = parse_args()
     if args.version:
         print(__version__)
         return
     if args.list_agents:
         from .backend.agents import list_agents
+
         for name in list_agents():
             print(name)
         return
@@ -92,6 +103,7 @@ def run() -> None:
         return
     apply_env(args)
     from .backend.orchestrator import Orchestrator
+
     Orchestrator().run_forever()
 
 

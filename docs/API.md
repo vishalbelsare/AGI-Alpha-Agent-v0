@@ -24,6 +24,13 @@ The CLI lives in `alpha_factory_v1/demos/alpha_agi_insight_v1/src/interface/cli.
 python cli.py [COMMAND] [OPTIONS]
 ```
 
+For example, to run a three‑generation simulation with six agents for a
+five‑year horizon:
+
+```bash
+python cli.py simulate --horizon 5 --pop-size 6 --generations 3
+```
+
 Available commands are:
 
 - `simulate` – run a forecast and launch the orchestrator. Key options include `--horizon`, `--curve`, `--pop-size` and `--generations`.

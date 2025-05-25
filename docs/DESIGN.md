@@ -6,6 +6,13 @@ This document outlines the architecture of the Alpha Factory demo included in th
 
 The system is composed of a lightweight orchestrator that coordinates a small swarm of agents. Each agent is a micro service with a specific responsibility. The orchestrator exposes both a command line interface and a minimal REST API so the demo can run headless or with a web front end. All communication is performed through simple envelope objects exchanged on an in-memory message bus.
 
+### Orchestrator
+
+The orchestrator manages message routing between agents and persists every
+interaction in a ledger. This ledger can be replayed to analyse decision steps or
+to visualise the overall run. Agents are invoked sequentially in short cycles so
+the system remains deterministic and easy to debug.
+
 The simulation core consists of two modules:
 
 - `forecast.py` implements a basic capability forecast and a thermodynamic disruption trigger.

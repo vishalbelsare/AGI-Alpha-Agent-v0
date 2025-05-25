@@ -1,4 +1,5 @@
 """FastAPI server exposing simulation endpoints."""
+
 from __future__ import annotations
 
 import argparse
@@ -16,15 +17,9 @@ else:
     SectorModule = Any
     MatsModule = Any
 
-forecast = importlib.import_module(
-    "alpha_factory_v1.demos.alpha_agi_insight_v1.src.simulation.forecast"
-)
-sector = importlib.import_module(
-    "alpha_factory_v1.demos.alpha_agi_insight_v1.src.simulation.sector"
-)
-mats = importlib.import_module(
-    "alpha_factory_v1.demos.alpha_agi_insight_v1.src.simulation.mats"
-)
+forecast = importlib.import_module("alpha_factory_v1.demos.alpha_agi_insight_v1.src.simulation.forecast")
+sector = importlib.import_module("alpha_factory_v1.demos.alpha_agi_insight_v1.src.simulation.sector")
+mats = importlib.import_module("alpha_factory_v1.demos.alpha_agi_insight_v1.src.simulation.mats")
 
 _IMPORT_ERROR: Exception | None
 try:
@@ -55,6 +50,16 @@ class SimRequest(BaseModel):
 
 
 async def _background_run(sim_id: str, cfg: SimRequest) -> None:
+    """Execute one simulation in the background.
+
+    Args:
+        sim_id: Unique identifier for the run.
+        cfg: Parameters controlling the forecast and MATS loop.
+
+    Returns:
+        None
+    """
+
     secs = [sector.Sector(f"s{i:02d}") for i in range(cfg.pop_size)]
     results = forecast.simulate_years(secs, cfg.horizon)
     logs: List[str] = []
@@ -85,16 +90,26 @@ if app is not None:
 
     @app.post("/simulate")
     async def simulate(req: SimRequest) -> dict[str, str]:
+        """Start a simulation and return its identifier.
+
+        Args:
+            req: Simulation request parameters.
+
+        Returns:
+            A mapping containing the ``id`` of the background run.
+        """
         sim_id = secrets.token_hex(8)
         asyncio.create_task(_background_run(sim_id, req))
         return {"id": sim_id}
 
     @app.get("/results/{sim_id}")
     async def get_results(sim_id: str) -> Dict[str, Any]:
+        """Return final data for ``sim_id`` if available."""
         return _simulations.get(sim_id, {})
 
     @app.websocket("/ws/{sim_id}")
     async def ws_progress(ws: WebSocket, sim_id: str) -> None:
+        """Stream progress logs over a websocket connection."""
         await ws.accept()
         idx = 0
         try:
@@ -111,7 +126,14 @@ if app is not None:
 
 
 def main(argv: List[str] | None = None) -> None:
-    """CLI entry to launch the API server."""
+    """CLI entry to launch the API server.
+
+    Args:
+        argv: Optional list of command line arguments.
+
+    Returns:
+        None
+    """
     if FastAPI is None:
         raise SystemExit("FastAPI is required to run the API server") from _IMPORT_ERROR
 
