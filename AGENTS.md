@@ -98,15 +98,49 @@ Please report security vulnerabilities as described in our [Security Policy](SEC
  - Verify `.env` is ignored by running `git status` (it should appear untracked). The repository's `.gitignore` already includes `.env`.
 
 ### Key Environment Variables
- - Store secrets in environment variables or Docker secrets instead of code to keep them out of version control.
- - Set `AF_TRACING=true` to enable tracing (default) or `false` to disable it. See
-   [`alpha_factory_v1/backend/tracer.py`](alpha_factory_v1/backend/tracer.py).
- - `AF_MEMORY_DIR` – working memory directory for tests and runtime.
- - `AGENT_WHEEL_PUBKEY` – base64 ED25519 key that verifies agent wheel signatures.
- - `OPENAI_API_KEY` and `ANTHROPIC_API_KEY` – provider credentials for LLM APIs.
- - `NEO4J_PASSWORD` – database password required by the orchestrator.
- - Additional tokens such as `MISTRAL_API_KEY` or `TOGETHER_API_KEY` may be needed.
- - See [`alpha_factory_v1/.env.sample`](alpha_factory_v1/.env.sample) for the complete template.
+Store secrets in environment variables or Docker secrets instead of code to keep
+them out of version control. The table below highlights the most common settings
+(see [`alpha_factory_v1/.env.sample`](alpha_factory_v1/.env.sample) for the full
+template).
+
+| Variable | Purpose | Default/Example |
+|----------|---------|-----------------|
+| `AF_TRACING` | Enable or disable tracing | `true` |
+| `AF_MEMORY_DIR` | Working memory directory for tests and runtime | `/tmp/alphafactory` |
+| `AGENT_WHEEL_PUBKEY` | Base64 ED25519 key verifying agent wheel signatures | _(none)_ |
+| `OPENAI_API_KEY` | OpenAI credential (blank uses local Ollama Φ‑2) | _(empty)_ |
+| `OPENAI_ORG_ID` | OpenAI organization ID | _(none)_ |
+| `ANTHROPIC_API_KEY` | Anthropic credential | _(none)_ |
+| `MISTRAL_API_KEY` | Mistral credential | _(none)_ |
+| `TOGETHER_API_KEY` | Together credential | _(none)_ |
+| `GOOGLE_API_KEY` | Optional speech/vision credential | _(none)_ |
+| `POLYGON_API_KEY` | Polygon market data API | _(none)_ |
+| `ALPACA_KEY_ID` | Alpaca trading API key | _(none)_ |
+| `ALPACA_SECRET_KEY` | Alpaca trading API secret | _(none)_ |
+| `BINANCE_API_KEY` | Binance trading API key | _(none)_ |
+| `BINANCE_API_SECRET` | Binance trading API secret | _(none)_ |
+| `IBKR_CLIENT_ID` | Interactive Brokers client ID | _(none)_ |
+| `IBKR_CLIENT_SECRET` | Interactive Brokers client secret | _(none)_ |
+| `FRED_API_KEY` | FRED economic data key | _(none)_ |
+| `NEWSAPI_KEY` | News API key | _(none)_ |
+| `NEO4J_URI` | Neo4j database URI | `bolt://neo4j:7687` |
+| `NEO4J_USER` | Neo4j username | `neo4j` |
+| `NEO4J_PASSWORD` | Database password required by the orchestrator | `REPLACE_ME` |
+| `LLM_PROVIDER` | LLM provider to use | `openai` |
+| `MODEL_NAME` | Default model name | `gpt-4-turbo` |
+| `PORT` | REST API port | `8000` |
+| `PROM_PORT` | Prometheus exporter port | `9090` |
+| `TRACE_WS_PORT` | Trace graph WebSocket port | `8088` |
+| `LOGLEVEL` | Logging level | `INFO` |
+| `API_TOKEN` | Bearer token for the demo API | `REPLACE_ME_TOKEN` |
+| `API_RATE_LIMIT` | Requests per minute per IP | `60` |
+| `ALPHA_KAFKA_BROKER` | Kafka broker address | _(none)_ |
+| `ALPHA_DATA_DIR` | Base data directory | `/data` |
+| `OTEL_EXPORTER_OTLP_ENDPOINT` | OTLP export endpoint | `http://tempo:4317` |
+| `VC_SIGNING_KEY_PATH` | Path to signing key | `/run/secrets/ed25519_private.key` |
+| `K8S_CPU_LIMIT` | Kubernetes CPU limit | `500m` |
+| `K8S_MEM_LIMIT` | Kubernetes memory limit | `1Gi` |
+| `TZ` | Time zone | `America/Toronto` |
 
 ## Coding Style
 - Use Python 3.11 or 3.12 (**Python ≥3.11 and <3.13**) and include type hints for public APIs.
