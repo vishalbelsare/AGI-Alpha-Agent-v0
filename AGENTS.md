@@ -142,6 +142,9 @@ for modules, classes and functions.
 - Title PRs using `[alpha_factory] <Title>`.
 - All contributions are licensed under Apache 2.0.
 - Add an Apache 2.0 header to new source files.
+  ```
+  # SPDX-License-Identifier: Apache-2.0
+  ```
 - Use the issue templates under `.github/ISSUE_TEMPLATE` for bug reports and feature requests.
 - Follow the [pull request template](.github/pull_request_template.md) and fill in
   all sections to confirm linting, type checks and tests pass.
