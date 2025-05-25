@@ -35,7 +35,7 @@ CLI usage (stand-alone smoke-test)
 
 Copyright & License
 -------------------
-© 2025 Montreal AI — MIT-licensed, like the rest of Alpha-Factory v1.
+© 2025 Montreal AI — Apache 2.0 licensed, like the rest of Alpha-Factory v1.
 """
 
 from __future__ import annotations

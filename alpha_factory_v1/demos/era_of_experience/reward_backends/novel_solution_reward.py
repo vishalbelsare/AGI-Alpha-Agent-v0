@@ -37,7 +37,7 @@ Returns
 -------
 float ∈ [0.0, 1.0]
 
-© 2025 Montreal.AI   – MIT License
+© 2025 Montreal.AI   – Apache-2.0 License
 """
 
 from __future__ import annotations

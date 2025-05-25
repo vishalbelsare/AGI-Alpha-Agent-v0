@@ -2,7 +2,7 @@
   MuZero Planning Demo
   Alpha‑Factory v1 👁️✨ — Multi‑Agent **AGENTIC α‑AGI**
   Out‑learn · Out‑think · Out‑strategise · Out‑execute
-  © 2025 MONTREAL.AI   MIT License
+  © 2025 MONTREAL.AI   Apache‑2.0 License
 -->
 
 # 🌟 **Mastery Without a Rule‑Book** — watch MuZero think in real time

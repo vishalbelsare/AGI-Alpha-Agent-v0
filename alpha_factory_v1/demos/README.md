@@ -125,5 +125,5 @@ Special salute to **[Vincent Boucher](https://www.linkedin.com/in/montrealai/)*
 
 ---
 
-© 2025 MONTREAL.AI — MIT License
+© 2025 MONTREAL.AI — Apache‑2.0 License
 

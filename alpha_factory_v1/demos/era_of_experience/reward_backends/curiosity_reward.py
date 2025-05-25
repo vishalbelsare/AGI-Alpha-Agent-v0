@@ -26,7 +26,7 @@ Implementation details
 
 • Zero third‑party dependencies – standard library only.
 
-© 2025 Montreal.AI   MIT License
+© 2025 Montreal.AI   Apache-2.0 License
 """
 
 from __future__ import annotations

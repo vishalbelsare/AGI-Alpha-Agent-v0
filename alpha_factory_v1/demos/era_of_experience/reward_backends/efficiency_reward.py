@@ -51,7 +51,7 @@ defaults, tuned for the AGI‑Alpha demo infra, kick in.
 ▸ Explicit `__all__` aids IDEs / static analysers.
 ▸ Lint‑clean (ruff) & typed – good citizens inside larger codebases.
 
-© 2025 Montreal.AI – MIT License
+© 2025 Montreal.AI – Apache-2.0 License
 """
 
 from __future__ import annotations

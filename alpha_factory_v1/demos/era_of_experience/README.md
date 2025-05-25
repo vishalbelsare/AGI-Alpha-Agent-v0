@@ -2,7 +2,7 @@
 Era‑of‑Experience Demo
 Alpha‑Factory v1 👁️✨ — Multi‑Agent AGENTIC α‑AGI
 Out‑learn · Out‑think · Out‑strategise · Out‑execute
-© 2025 MONTREAL.AI   MIT License
+© 2025 MONTREAL.AI   Apache‑2.0 License
 -->
 
 <h1 align="center">🌌 Era of Experience — Your lifelong‑RL playground</h1>
@@ -248,6 +248,6 @@ packages like `pytest` and `openai-agents` are available.
 
 ## 📜 License
 
-MIT. By using this repo you agree to cite **Montreal.AI Alpha‑Factory** if you build on top.
+Apache 2.0. By using this repo you agree to cite **Montreal.AI Alpha‑Factory** if you build on top.
 
 > **Alpha‑Factory** — forging intelligence that *out‑learns, out‑thinks, out‑executes*.

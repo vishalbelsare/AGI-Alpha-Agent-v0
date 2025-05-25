@@ -4,7 +4,7 @@ Alpha‑Factory v1 👁️✨ — Multi‑Agent AGENTIC α‑AGI
 -------------------------------------------------------------------
 Supply‑Chain Domain‑Agent  🌐🚚 — production‑grade implementation
 ===================================================================
-Copyright (c) 2025 Montreal.AI — MIT‑licensed
+Copyright (c) 2025 Montreal.AI — Apache‑2.0 licensed
 
 This module implements **SupplyChainAgent**, an antifragile, cross‑industry
 optimizer that continuously mines global logistics signals to surface *alpha*
