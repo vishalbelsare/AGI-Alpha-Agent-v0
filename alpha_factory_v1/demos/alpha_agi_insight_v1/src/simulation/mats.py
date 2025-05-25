@@ -26,11 +26,15 @@ Population = List[Individual]
 
 
 def evaluate(pop: Population, fn: Callable[[List[float]], Tuple[float, float]]) -> None:
+    """Assign fitness scores using ``fn``."""
+
     for ind in pop:
         ind.fitness = fn(ind.genome)
 
 
 def _crowding(pop: Population) -> None:
+    """Compute the crowding distance for a Pareto front."""
+
     if not pop or pop[0].fitness is None:
         return
     m = len(pop[0].fitness)
@@ -55,6 +59,8 @@ def _crowding(pop: Population) -> None:
 
 
 def _non_dominated_sort(pop: Population) -> List[Population]:
+    """Group ``pop`` into Pareto fronts."""
+
     fronts: List[Population] = []
     S: dict[int, list[Individual]] = {id(ind): [] for ind in pop}
     n: dict[int, int] = {id(ind): 0 for ind in pop}
@@ -92,16 +98,26 @@ def _non_dominated_sort(pop: Population) -> List[Population]:
     return fronts
 
 
-def nsga2_step(pop: Population, fn: Callable[[List[float]], Tuple[float, float]], mu: int = 20) -> Population:
+def _evolve_step(
+    pop: Population,
+    fn: Callable[[List[float]], Tuple[float, float]],
+    *,
+    rng: random.Random,
+    mutation_rate: float,
+) -> Population:
+    """Return the next generation from ``pop`` using NSGA‑II."""
+
     evaluate(pop, fn)
+    mu = len(pop)
+    genome_length = len(pop[0].genome)
     offspring: Population = []
     while len(offspring) < mu:
-        a, b = random.sample(pop, 2)
-        cut = random.randint(1, len(a.genome) - 1)
+        a, b = rng.sample(pop, 2)
+        cut = rng.randint(1, genome_length - 1)
         child_genome = a.genome[:cut] + b.genome[cut:]
-        if random.random() < 0.1:
-            idx = random.randrange(len(child_genome))
-            child_genome[idx] += random.uniform(-1, 1)
+        if rng.random() < mutation_rate:
+            idx = rng.randrange(genome_length)
+            child_genome[idx] += rng.uniform(-1, 1)
         offspring.append(Individual(child_genome))
     evaluate(offspring, fn)
     union = pop + offspring
@@ -125,7 +141,7 @@ def run_evolution(
     generations: int = 10,
     seed: int | None = None,
 ) -> Population:
-    """Execute a complete NSGA-II evolutionary run.
+    """Run an NSGA-II optimisation.
 
     Args:
         fn: Function evaluating an individual's genome.
@@ -142,30 +158,7 @@ def run_evolution(
     rng = random.Random(seed)
     pop = [Individual([rng.uniform(-1, 1) for _ in range(genome_length)]) for _ in range(population_size)]
 
-    def _step(population: Population) -> Population:
-        evaluate(population, fn)
-        offspring: Population = []
-        while len(offspring) < population_size:
-            a, b = rng.sample(population, 2)
-            cut = rng.randint(1, genome_length - 1)
-            child_genome = a.genome[:cut] + b.genome[cut:]
-            if rng.random() < mutation_rate:
-                idx = rng.randrange(genome_length)
-                child_genome[idx] += rng.uniform(-1, 1)
-            offspring.append(Individual(child_genome))
-        evaluate(offspring, fn)
-        union = population + offspring
-        fronts = _non_dominated_sort(union)
-        new_pop: Population = []
-        for front in fronts:
-            _crowding(front)
-            front.sort(key=lambda x: (-x.rank, -x.crowd))
-            for ind in front:
-                if len(new_pop) < population_size:
-                    new_pop.append(ind)
-        return new_pop
-
     for _ in range(generations):
-        pop = _step(pop)
+        pop = _evolve_step(pop, fn, rng=rng, mutation_rate=mutation_rate)
 
     return pop

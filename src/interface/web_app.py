@@ -111,22 +111,21 @@ def _run_simulation(horizon: int, curve: str, pop_size: int, generations: int) -
         progress.progress(step / total_steps)
         time.sleep(0.1)
 
-    pop = [mats.Individual([0.0, 0.0]) for _ in range(pop_size)]
-
     def eval_fn(genome: list[float]) -> tuple[float, float]:
         x, y = genome
         return x**2, y**2
 
-    for g in range(generations):
-        step += 1
-        pop = mats.nsga2_step(pop, eval_fn, mu=pop_size)
-        df_pareto = pareto_df(pop)
-        fig_p = px.scatter(df_pareto, x="x", y="y", color="rank")
-        pareto_placeholder.plotly_chart(fig_p, use_container_width=True)
-        st.session_state.logs.append(f"Generation {g + 1}")
-        log_box.text("\n".join(st.session_state.logs[-20:]))
-        progress.progress(step / total_steps)
-        time.sleep(0.1)
+    pop = mats.run_evolution(
+        eval_fn,
+        2,
+        population_size=pop_size,
+        generations=generations,
+    )
+    step = total_steps
+    progress.progress(1.0)
+    df_pareto = pareto_df(pop)
+    fig_p = px.scatter(df_pareto, x="x", y="y", color="rank")
+    pareto_placeholder.plotly_chart(fig_p, use_container_width=True)
 
     st.download_button(
         "Download results (JSON)",
