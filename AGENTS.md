@@ -163,10 +163,9 @@ for modules, classes and functions.
   2. `pre-commit install`
   3. `pre-commit run --all-files` once after installation
   4. `pre-commit run --files <paths>` before each commit
-  5. Re-run `pre-commit run --all-files` when dependencies or configs change.
-  - If `requirements.txt`, `requirements-dev.txt`, `.pre-commit-config.yaml`, `pyproject.toml`, `mypy.ini`, or other lint configs change, run 
-    `pre-commit run --all-files` before committing.
-  - CI will reject commits that fail these checks.
+  - Re-run `pre-commit run --all-files` whenever `requirements.txt`, `requirements-dev.txt`,
+    `.pre-commit-config.yaml`, `pyproject.toml`, `mypy.ini`, or other lint configs change.
+    CI enforces these checks.
   - The configuration runs `black`, `ruff`, `flake8` and `mypy` using
     `mypy.ini`.
 
