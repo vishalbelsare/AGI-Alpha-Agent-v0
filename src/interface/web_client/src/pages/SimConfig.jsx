@@ -6,11 +6,15 @@ export default function SimConfig() {
   const [gen, setGen] = useState(3);
 
   async function run() {
-    await fetch('/simulate', {
+    const res = await fetch('/simulate', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ horizon, pop_size: pop, generations: gen })
     });
+    if (res.ok) {
+      const data = await res.json();
+      localStorage.setItem('simId', data.id);
+    }
   }
 
   return (

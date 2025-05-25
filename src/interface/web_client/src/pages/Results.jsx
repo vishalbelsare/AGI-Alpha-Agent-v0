@@ -6,7 +6,9 @@ export default function Results() {
 
   useEffect(() => {
     async function load() {
-      const res = await fetch('/results/latest');
+      const simId = localStorage.getItem('simId');
+      if (!simId) return;
+      const res = await fetch(`/results/${simId}`);
       if (res.ok) setData(await res.json());
     }
     load();
