@@ -3,18 +3,29 @@ services:
   orchestrator:
     build: .
     image: alpha-demo:latest
+    env_file:
+      - ../.env
+    environment:
+      RUN_MODE: api
     ports:
-      - "8000:8000"
+      - "${PORT:-8000}:8000"
+
   agents:
     image: alpha-demo:latest
-    command: ["python", "-m", "alpha_factory_v1.demos.alpha_agi_insight_v0.official_demo_final"]
+    env_file:
+      - ../.env
+    environment:
+      RUN_MODE: cli
     depends_on:
       - orchestrator
+
   web:
-    image: nginx:alpine
-    volumes:
-      - ../alpha_factory_v1/ui:/usr/share/nginx/html:ro
+    image: alpha-demo:latest
+    env_file:
+      - ../.env
+    environment:
+      RUN_MODE: web
     ports:
-      - "3000:80"
+      - "3000:3000"
     depends_on:
       - orchestrator

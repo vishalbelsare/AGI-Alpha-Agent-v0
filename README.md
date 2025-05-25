@@ -629,20 +629,28 @@ like `--cycle`, `--loglevel` and `--version`.
 Build the demo containers locally:
 
 ```bash
+cp .env.sample .env
 cd infrastructure
 docker build -t alpha-demo .
-docker compose up
+docker compose up -d
 ```
 
 The Helm chart under `infrastructure/helm-chart` mirrors this Compose
 setup:
 
 ```bash
-helm install alpha-demo ./infrastructure/helm-chart
+helm upgrade --install alpha-demo ./infrastructure/helm-chart \
+  --values ./infrastructure/helm-chart/values.yaml
 ```
 
 Terraform scripts in `infrastructure/terraform` provide GCP and AWS
-examples (`main_gcp.tf`, `main_aws.tf`).
+examples. Initialise and apply with:
+
+```bash
+cd infrastructure/terraform
+terraform init
+terraform apply
+```
 
 | Target | Command | Notes |
 |--------|---------|-------|

@@ -44,3 +44,15 @@ The helper function `run_evolution` initialises the population and executes the
 NSGA‑II loop for a configurable number of generations. The population size,
 mutation rate and generation count can be adjusted and a random ``seed`` enables
 deterministic runs which is useful for testing and reproducibility.
+
+## Data flow
+
+Messages traverse the orchestrator in discrete cycles. Each cycle begins with the PlanningAgent emitting a high level goal. Subsequent agents enrich this envelope with research, strategy and market data before the CodeGenAgent proposes executable actions. The SafetyGuardianAgent performs a final policy check and, if approved, the MemoryAgent records the action to the ledger. This deterministic loop makes it easy to trace how a decision emerged from the collective agent swarm.
+
+## Interfaces
+
+The system exposes both a command line interface and a REST/WS API. The CLI is suitable for quick local experiments and supports subcommands for running simulations, replaying ledger events and inspecting agent status. The API server wraps the same orchestrator in a FastAPI application. Clients start a simulation via `POST /simulate`, fetch results with `GET /results/{id}` and stream logs through `WS /ws/{id}`. A lightweight web dashboard consumes these endpoints to visualise progress.
+
+## Deployment model
+
+The repository includes container and infrastructure templates for Docker Compose, Helm and Terraform. Each mode deploys the orchestrator together with optional agents and the web UI. Environment variables configured in `.env` control credentials, ports and runtime options. When running in Kubernetes, the Helm chart maps these variables to pod environment settings. The Terraform examples show how to provision equivalent services on AWS Fargate or Google Cloud Run.
