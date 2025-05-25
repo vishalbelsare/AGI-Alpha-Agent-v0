@@ -1,1 +1,1 @@
-# Demo package
+"""Assets for the Ω‑Lattice business demonstration."""
