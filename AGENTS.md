@@ -144,7 +144,7 @@ for modules, classes and functions.
 
 ### Troubleshooting
 - If the stack fails to start, verify Docker and Docker Compose are running.
-- Setup errors usually mean Python is older than 3.11. Upgrade to Python 3.11 or newer.
+- Setup errors usually mean Python is older than 3.11. Use Python 3.11 or 3.12 (>=3.11,<3.13).
 - Missing optional packages can cause test failures; run `python check_env.py --auto-install`.
 
 For detailed troubleshooting steps, see [`alpha_factory_v1/scripts/README.md`](alpha_factory_v1/scripts/README.md).
