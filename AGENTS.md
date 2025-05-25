@@ -113,6 +113,8 @@ Follow these steps when installing without internet access:
   for additional guidance.
 - Verify `.env` is ignored by running `git status` (it should appear untracked).
   The repository's `.gitignore` already includes `.env`.
+- Run `python tools/check_env_table.py` to ensure the table below matches
+  `alpha_factory_v1/.env.sample`.
 
 Before running `pytest` or `quickstart.sh`, copy `.env.sample` to `.env`,
 fill in the required secrets and change `NEO4J_PASSWORD` from the sample value.
