@@ -17,7 +17,7 @@ COPY src/interface/web_client/dist /app/src/interface/web_client/dist
 
 # Add non-root user and entrypoint
 RUN adduser --disabled-password --gecos '' afuser && chown -R afuser /app
-COPY infrastructure/docker-entrypoint.sh /usr/local/bin/entrypoint.sh
+COPY alpha_factory_v1/demos/alpha_agi_insight_v1/infrastructure/docker-entrypoint.sh /usr/local/bin/entrypoint.sh
 RUN chmod +x /usr/local/bin/entrypoint.sh
 USER afuser
 
