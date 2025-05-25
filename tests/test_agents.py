@@ -1,6 +1,7 @@
 import asyncio
 from queue import Queue
 from unittest.mock import patch
+import contextlib
 
 import json
 import socket
@@ -22,6 +23,7 @@ except Exception:  # pragma: no cover - optional
 
 from alpha_factory_v1.backend import agents
 from alpha_factory_v1.backend.agents.base import AgentBase
+from alpha_factory_v1.demos.alpha_agi_insight_v1.src.agents.base_agent import BaseAgent
 
 class DummyHB(AgentBase):
     NAME = "dummy_hb"
@@ -144,3 +146,67 @@ def test_grpc_bus_tls_bad_token(tmp_path: Path) -> None:
             await bus.stop()
 
     asyncio.run(run())
+
+
+class FreezeAgent(BaseAgent):
+    """Agent whose run_cycle blocks."""
+
+    NAME = "freeze"
+    CYCLE_SECONDS = 0.1
+
+    def __init__(self, bus, ledger) -> None:  # type: ignore[override]
+        super().__init__("freeze", bus, ledger)
+
+    async def run_cycle(self) -> None:
+        await asyncio.sleep(999)
+
+    async def handle(self, _env) -> None:  # pragma: no cover - test helper
+        pass
+
+
+def test_monitor_restart_and_ledger_log(monkeypatch) -> None:
+    from alpha_factory_v1.demos.alpha_agi_insight_v1.src import orchestrator
+    from alpha_factory_v1.demos.alpha_agi_insight_v1.src.utils import config
+
+    events: list[str] = []
+
+    class DummyLedger:
+        def __init__(self, *_a, **_kw) -> None:
+            pass
+
+        def log(self, env) -> None:  # type: ignore[override]
+            events.append(env.payload.get("event"))
+
+        def start_merkle_task(self, *_a, **_kw) -> None:
+            pass
+
+        async def stop_merkle_task(self) -> None:
+            pass
+
+        def close(self) -> None:
+            pass
+
+    settings = config.Settings(bus_port=0)
+
+    monkeypatch.setattr(orchestrator, "Ledger", DummyLedger)
+    monkeypatch.setattr(orchestrator.Orchestrator, "_init_agents", lambda self: [FreezeAgent(self.bus, self.ledger)])
+
+    orch = orchestrator.Orchestrator(settings)
+    runner = orch.runners["freeze"]
+
+    async def run() -> None:
+        await orch.bus.start()
+        runner.start(orch.bus, orch.ledger)
+        monitor = asyncio.create_task(orch._monitor())
+        await asyncio.sleep(3)
+        monitor.cancel()
+        with contextlib.suppress(asyncio.CancelledError):
+            await monitor
+        if runner.task:
+            runner.task.cancel()
+            with contextlib.suppress(asyncio.CancelledError):
+                await runner.task
+        await orch.bus.stop()
+
+    asyncio.run(run())
+    assert "restart" in events

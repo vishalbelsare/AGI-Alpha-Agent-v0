@@ -106,6 +106,16 @@ class Orchestrator:
         self.ledger.log(env)
         self.bus.publish("system", env)
 
+    def _record_restart(self, runner: AgentRunner) -> None:
+        env = messaging.Envelope(
+            "orch",
+            "system",
+            {"event": "restart", "agent": runner.agent.name},
+            time.time(),
+        )
+        self.ledger.log(env)
+        self.bus.publish("system", env)
+
     async def _on_orch(self, env: messaging.Envelope) -> None:
         if env.payload.get("heartbeat") and env.sender in self.runners:
             self.runners[env.sender].last_beat = env.ts
@@ -117,9 +127,11 @@ class Orchestrator:
             for r in list(self.runners.values()):
                 if r.task and r.task.done():
                     await r.restart(self.bus, self.ledger)
+                    self._record_restart(r)
                 elif now - r.last_beat > r.period * 5:
                     logging._log.warning("%s unresponsive – restarting", r.agent.name)
                     await r.restart(self.bus, self.ledger)
+                    self._record_restart(r)
 
     async def run_forever(self) -> None:
         await self.bus.start()
