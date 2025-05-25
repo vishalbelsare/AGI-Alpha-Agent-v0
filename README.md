@@ -157,6 +157,8 @@ Built atop **OpenAI Agents SDK**, **Google ADK**, **A2A protocol**, and Ant
 ```bash
 git clone https://github.com/MontrealAI/AGI-Alpha-Agent-v0.git
 cd AGI-Alpha-Agent-v0
+python3 -m venv .venv
+source .venv/bin/activate
 # Install runtime dependencies
 pip install -r requirements.txt
 # Requires Python 3.11–3.12 (<3.13)
