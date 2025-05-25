@@ -128,10 +128,20 @@ def simulate(
     else:
         _format_results(results)
 
-    if start_orchestrator and verbose and console is not None:
-        console.log("Starting orchestrator … press Ctrl+C to stop")
-
-    if start_orchestrator:
+    if not start_orchestrator:
+        ledger = getattr(orch, "ledger", None)
+        if ledger is not None:
+            task = getattr(ledger, "_task", None)
+            if isinstance(getattr(asyncio, "Task", None), type) and isinstance(task, asyncio.Task):
+                try:
+                    asyncio.run(ledger.stop_merkle_task())
+                except Exception:  # pragma: no cover - best effort cleanup
+                    pass
+            if hasattr(ledger, "close"):
+                ledger.close()
+    else:
+        if start_orchestrator and verbose and console is not None:
+            console.log("Starting orchestrator … press Ctrl+C to stop")
         try:
             asyncio.run(orch.run_forever())
         except KeyboardInterrupt:  # pragma: no cover - interactive
