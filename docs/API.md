@@ -4,7 +4,8 @@ This page documents the REST endpoints provided by the demo API server and the a
 
 ## REST endpoints
 
-The API is implemented with FastAPI in `src/interface/api_server.py` and exposes three routes when running:
+The API is implemented with FastAPI in `src/interface/api_server.py` and exposes three routes when running.
+The orchestrator boots in the background when the server starts and is gracefully shut down on exit:
 
 - `POST /simulate` – start a new simulation. The payload accepts the forecast horizon, population size and number of evolutionary generations. A unique simulation ID is returned immediately.
 - `GET /results/{sim_id}` – retrieve the final forecast data and Pareto front once the simulation finishes.

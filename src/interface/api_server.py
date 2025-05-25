@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import argparse
 import asyncio
+import contextlib
 import secrets
 import importlib
 from typing import Any, Dict, List, TYPE_CHECKING, cast
@@ -37,6 +38,28 @@ else:
     _IMPORT_ERROR = None
 
 app: FastAPI | None = FastAPI(title="AGI Simulation API") if FastAPI is not None else None
+
+if app is not None:
+    _orch: Any | None = None
+
+    @app.on_event("startup")
+    async def _start() -> None:
+        global _orch
+        orch_mod = importlib.import_module(
+            "alpha_factory_v1.demos.alpha_agi_insight_v1.src.orchestrator"
+        )
+        _orch = orch_mod.Orchestrator()
+        app.state.orch_task = asyncio.create_task(_orch.run_forever())  # type: ignore[attr-defined]
+
+    @app.on_event("shutdown")
+    async def _stop() -> None:
+        global _orch
+        task = getattr(app.state, "orch_task", None)
+        if task:
+            task.cancel()
+            with contextlib.suppress(asyncio.CancelledError):
+                await task
+        _orch = None
 
 _simulations: Dict[str, Dict[str, Any]] = {}
 _progress: Dict[str, List[str]] = {}
