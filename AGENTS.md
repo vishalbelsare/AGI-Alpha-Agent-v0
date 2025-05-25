@@ -120,6 +120,10 @@ template).
 | `AF_TRACING` | Enable or disable tracing | `true` |
 | `AF_MEMORY_DIR` | Working memory directory for tests and runtime | `/tmp/alphafactory` |
 | `AGENT_WHEEL_PUBKEY` | Base64 ED25519 key verifying agent wheel signatures | _(none)_ |
+| `AGENT_ERR_THRESHOLD` | Consecutive errors before quarantine | `3` |
+| `AGENT_HOT_DIR` | Directory for hot-loaded agent wheels | `~/.alpha_agents` |
+| `AGENT_HEARTBEAT_SEC` | Heartbeat interval in seconds | `10` |
+| `AGENT_RESCAN_SEC` | Interval between wheel scans | `60` |
 | `OPENAI_API_KEY` | OpenAI credential (blank uses local Ollama Φ‑2) | _(empty)_ |
 | `OPENAI_ORG_ID` | OpenAI organization ID | _(none)_ |
 | `ANTHROPIC_API_KEY` | Anthropic credential | _(none)_ |
@@ -143,6 +147,8 @@ template).
 | `PORT` | REST API port | `8000` |
 | `PROM_PORT` | Prometheus exporter port | `9090` |
 | `TRACE_WS_PORT` | Trace graph WebSocket port | `8088` |
+| `AGENTS_RUNTIME_PORT` | OpenAI Agents runtime port | `5001` |
+| `BUSINESS_HOST` | Base orchestrator URL for bridges | `http://localhost:8000` |
 | `LOGLEVEL` | Logging level | `INFO` |
 | `API_TOKEN` | Bearer token for the demo API | `REPLACE_ME_TOKEN` |
 | `API_RATE_LIMIT` | Requests per minute per IP | `60` |
