@@ -47,32 +47,31 @@ Python must report 3.11 or 3.12 and Docker Compose must be at least 2.5.
 - The script `alpha_factory_v1/scripts/preflight.py` enforces this requirement.
 - From the repository root, run `./codex/setup.sh` to install the project in editable mode
   with minimal runtime dependencies. This ensures all relative paths resolve correctly.
-- When offline, build a local wheelhouse using **the same Python version** as your
-  virtual environment (Python 3.11 or 3.12). Create a directory and build wheels
-  for **both** requirement files:
+### Offline Setup
+
+Follow these steps when installing without internet access:
+
+- Build wheels using the same Python version as your virtual environment:
   ```bash
   mkdir -p /media/wheels
   pip wheel -r requirements.txt -w /media/wheels
   pip wheel -r requirements-dev.txt -w /media/wheels
   ```
-  Set `WHEELHOUSE=/media/wheels` and `AUTO_INSTALL_MISSING=1` so
-  `./codex/setup.sh` and `python check_env.py --auto-install --wheelhouse /media/wheels`
-  install from the wheelhouse. Example:
+
+- Install from the wheelhouse:
   ```bash
   WHEELHOUSE=/media/wheels AUTO_INSTALL_MISSING=1 ./codex/setup.sh
-  WHEELHOUSE=/media/wheels AUTO_INSTALL_MISSING=1 \
-    python check_env.py --auto-install --wheelhouse /media/wheels
+  WHEELHOUSE=/media/wheels AUTO_INSTALL_MISSING=1 python check_env.py --auto-install --wheelhouse /media/wheels
   ```
-  - Run `pip check` to verify package integrity. If problems occur, rerun
-    `python check_env.py --auto-install --wheelhouse /media/wheels` to reinstall.
 
-   See [`alpha_factory_v1/scripts/README.md`](alpha_factory_v1/scripts/README.md)
-   for additional offline tips.
-- After setup, validate with `python check_env.py --auto-install`.
-  This installs any missing optional packages from the wheelhouse if provided.
-  - When `WHEELHOUSE` is set, run
-    `python check_env.py --auto-install --wheelhouse <path>` so optional packages
-    install correctly offline.
+- Verify package integrity:
+  ```bash
+  pip check
+  python check_env.py --auto-install --wheelhouse /media/wheels
+  ```
+
+- See [`alpha_factory_v1/scripts/README.md`](alpha_factory_v1/scripts/README.md) for additional offline tips.
+- After setup, validate with `python check_env.py --auto-install`. When `WHEELHOUSE` is set, run `python check_env.py --auto-install --wheelhouse <path>` so optional packages install correctly offline.
 - The unit tests rely on `fastapi` and `opentelemetry-api`. Install them via
   `requirements-dev.txt` or ensure `check_env.py` reports no missing packages
   before running `pytest`.
