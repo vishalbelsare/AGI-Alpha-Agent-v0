@@ -57,6 +57,10 @@ class Settings:
     offline: bool = os.getenv("AGI_INSIGHT_OFFLINE", "0") == "1"
     bus_port: int = _env_int("AGI_INSIGHT_BUS_PORT", 6006)
     ledger_path: str = os.getenv("AGI_INSIGHT_LEDGER_PATH", "./ledger/audit.db")
+    broker_url: str | None = os.getenv("AGI_INSIGHT_BROKER_URL")
+    bus_token: str | None = os.getenv("AGI_INSIGHT_BUS_TOKEN")
+    bus_cert: str | None = os.getenv("AGI_INSIGHT_BUS_CERT")
+    bus_key: str | None = os.getenv("AGI_INSIGHT_BUS_KEY")
 
     def __post_init__(self) -> None:
         if not self.openai_api_key:
