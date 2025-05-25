@@ -110,12 +110,12 @@ except ModuleNotFoundError:  # pragma: no cover
     _HAS_FAISS = False
 
 try:  # Prometheus metrics
-    from prometheus_client import Counter, Gauge  # type: ignore
+    from backend.agents import Counter, Gauge  # type: ignore
 
     _MET_ADD = Counter("af_mem_add_total", "Memories added", ["backend"])
     _MET_QRY = Counter("af_mem_query_total", "Vector queries", ["backend"])
     _MET_SZ = Gauge("af_mem_size", "Total memories stored", ["backend"])
-except ModuleNotFoundError:  # pragma: no cover
+except Exception:  # pragma: no cover
 
     class _Noop:  # pylint: disable=too-few-public-methods
         def labels(self, *_a):  # noqa: D401

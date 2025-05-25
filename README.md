@@ -611,7 +611,10 @@ Launch the local web interface:
 uvicorn src.interface.api_server:app --reload
 streamlit run src/interface/web_app.py
 # React client
-python -m http.server --directory src/interface/web_client 9000
+cd src/interface/web_client
+npm install
+npm run build
+python -m http.server --directory dist 9000
 ```
 Alternatively run inside Docker:
 ```bash

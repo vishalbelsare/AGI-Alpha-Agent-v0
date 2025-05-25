@@ -62,8 +62,8 @@ except ModuleNotFoundError:  # pragma: no cover
     np = None  # type: ignore
 
 try:
-    from prometheus_client import Gauge  # type: ignore
-except ModuleNotFoundError:  # pragma: no cover
+    from backend.agents import Gauge  # type: ignore
+except Exception:  # pragma: no cover
     Gauge = None  # type: ignore
 
 try:

@@ -54,8 +54,8 @@ from typing import Any, List, Mapping, MutableMapping, Optional
 # ░░░ 2. Optional, best-effort 3rd-party imports ░░░
 # ───────────────────────────────────────────────────────────────────────────────
 try:  # -- Prometheus metrics
-    from prometheus_client import Counter, Gauge
-except ModuleNotFoundError:  # pragma: no cover
+    from backend.agents import Counter, Gauge  # type: ignore
+except Exception:  # pragma: no cover
     Counter = Gauge = None  # type: ignore
 
 try:  # -- Kafka producer for heart-beats
@@ -101,7 +101,7 @@ def _prom_metrics(agent_name: str):
     if Counter is None:
         return None, None, None
 
-    if _RUN_COUNTER is None:
+    if _RUN_COUNTER is None or type(_RUN_COUNTER) is not Counter:
         _RUN_COUNTER = Counter("af_agent_runs_total", "Total step() calls", ["agent"])
         _ERR_COUNTER = Counter("af_agent_errors_total", "Unhandled exceptions", ["agent"])
         _LAT_GAUGE = Gauge("af_agent_latency_seconds", "Step latency", ["agent"])
