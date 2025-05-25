@@ -3,7 +3,11 @@ replicaCount: 1
 env:
   OPENAI_API_KEY: ""
   RUN_MODE: api
+  AGI_INSIGHT_OFFLINE: "0"
+  AGI_INSIGHT_BUS_PORT: "6006"
+  AGI_INSIGHT_LEDGER_PATH: "./ledger/audit.db"
 service:
   type: ClusterIP
   port: 8000
   uiPort: 3000
+  busPort: 6006

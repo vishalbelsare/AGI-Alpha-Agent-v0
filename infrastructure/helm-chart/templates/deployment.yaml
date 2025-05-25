@@ -20,6 +20,13 @@ spec:
               value: {{ .Values.env.OPENAI_API_KEY | quote }}
             - name: RUN_MODE
               value: {{ .Values.env.RUN_MODE | quote }}
+            - name: AGI_INSIGHT_OFFLINE
+              value: {{ .Values.env.AGI_INSIGHT_OFFLINE | quote }}
+            - name: AGI_INSIGHT_BUS_PORT
+              value: {{ .Values.env.AGI_INSIGHT_BUS_PORT | quote }}
+            - name: AGI_INSIGHT_LEDGER_PATH
+              value: {{ .Values.env.AGI_INSIGHT_LEDGER_PATH | quote }}
           ports:
             - containerPort: 8000
             - containerPort: 3000
+            - containerPort: 6006
