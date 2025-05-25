@@ -1,16 +1,21 @@
-"""Streamlit dashboard for AGI simulations."""
+"""Interactive Streamlit dashboard for running AGI simulations.
+
+The UI exposes simple controls for the forecast horizon, population size and
+number of generations. During execution the page renders live charts of the
+forecast capability timeline, number of disrupted sectors, the current Pareto
+front and a scrolling log view.
+"""
 
 from __future__ import annotations
 
+import importlib
 import time
+from typing import Any, TYPE_CHECKING
 
-try:
+try:  # pragma: no cover - optional dependency
     import streamlit as st
 except Exception:  # pragma: no cover - optional
     st = None
-
-import importlib
-from typing import Any, TYPE_CHECKING
 
 if TYPE_CHECKING:  # pragma: no cover - typing only
     ForecastModule = Any
@@ -27,28 +32,24 @@ mats = importlib.import_module("alpha_factory_v1.demos.alpha_agi_insight_v1.src.
 
 
 def _run_simulation(horizon: int, pop_size: int, generations: int) -> None:
-    """Execute the simulation and update charts live.
-
-    Args:
-        horizon: Number of years to forecast.
-        pop_size: Size of the MATS population.
-        generations: Number of evolutionary steps.
-
-    Returns:
-        None
-    """
-    if st is None:
+    """Execute the simulation and update charts live."""
+    if st is None:  # pragma: no cover - fallback
         print("Streamlit not installed")
         return
 
     st.session_state.logs = []
     secs = [sector.Sector(f"s{i:02d}") for i in range(pop_size)]
     capability_chart = st.line_chart()
-    sector_chart = st.bar_chart()
+    sector_chart = st.line_chart()
     pareto_area = st.empty()
     log_box = st.empty()
 
-    traj = forecast.forecast_disruptions(secs, horizon, generations=generations, pop_size=pop_size)
+    traj = forecast.forecast_disruptions(
+        secs,
+        horizon,
+        generations=generations,
+        pop_size=pop_size,
+    )
     for t in traj:
         affected = [s for s in t.sectors if s.disrupted]
         capability_chart.add_rows({"capability": [t.capability]})
@@ -71,12 +72,8 @@ def _run_simulation(horizon: int, pop_size: int, generations: int) -> None:
 
 
 def main() -> None:  # pragma: no cover - entry point
-    """Streamlit entry point.
-
-    Returns:
-        None
-    """
-    if st is None:
+    """Launch the Streamlit app."""
+    if st is None:  # pragma: no cover - fallback
         print("Streamlit not installed")
         return
 
@@ -88,5 +85,5 @@ def main() -> None:  # pragma: no cover - entry point
         _run_simulation(horizon, pop_size, generations)
 
 
-if __name__ == "__main__":
+if __name__ == "__main__":  # pragma: no cover - script entry
     main()
