@@ -347,7 +347,12 @@ All containers are x86-64/arm64 multi-arch and GPU-aware (CUDA 12).
 
 ## 8 Testing
 
+Running the suite directly from the repository root requires Python to locate
+the `alpha_factory_v1` package. Either install the project or export
+`PYTHONPATH=$(pwd)` before invoking `pytest`:
+
 ```bash
+export PYTHONPATH=$(pwd)  # if running from the repo root without installation
 pytest -q          # unit + integration suite
 pytest -m e2e      # full 5-year forecast smoke-test
 ```
