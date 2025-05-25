@@ -39,3 +39,8 @@ Each agent implements short cycles of work which the orchestrator invokes sequen
 MATS (Meta-Agentic Tree Search) is an NSGA-II style evolutionary loop that evolves a population of candidate solutions in two objective dimensions. Each individual has a numeric genome and is evaluated by a custom fitness function. Non-dominated sorting and crowding distance ensure that the search explores the trade‑off surface effectively. The resulting Pareto front highlights the best compromises discovered so far.
 
 The demo uses MATS with a toy function `(x^2, y^2)` but the optimiser can be repurposed for arbitrary metrics. Results are visualised either in the Streamlit dashboard or through the REST API.
+
+The helper function `run_evolution` initialises the population and executes the
+NSGA‑II loop for a configurable number of generations. The population size,
+mutation rate and generation count can be adjusted and a random ``seed`` enables
+deterministic runs which is useful for testing and reproducibility.

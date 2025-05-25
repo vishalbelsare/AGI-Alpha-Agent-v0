@@ -8,10 +8,22 @@ def test_nsga2_step_evolves_population() -> None:
 
     def fn(genome):
         x, y = genome
-        return x ** 2, y ** 2
+        return x**2, y**2
 
     new = mats.nsga2_step(pop, fn, mu=4)
     assert len(new) == 4
     assert all(ind.fitness is not None for ind in new)
     genomes = {tuple(ind.genome) for ind in new}
     assert len(genomes) >= 1
+
+
+def test_run_evolution_reproducible_and_progress() -> None:
+    def fn(genome: list[float]) -> tuple[float, float]:
+        x, y = genome
+        return x**2, y**2
+
+    pop1 = mats.run_evolution(fn, 2, population_size=4, generations=3, mutation_rate=0.5, seed=123)
+    pop2 = mats.run_evolution(fn, 2, population_size=4, generations=3, mutation_rate=0.5, seed=123)
+
+    assert [ind.genome for ind in pop1] == [ind.genome for ind in pop2]
+    assert any(any(g != 0 for g in ind.genome) for ind in pop1)
