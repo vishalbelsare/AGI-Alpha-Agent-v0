@@ -11,12 +11,21 @@ from typing import Any, Iterable, List
 
 import click
 
+try:
+    from rich.console import Console
+    from rich.table import Table
+except Exception:  # pragma: no cover - optional
+    Console = None  # type: ignore
+    Table = None  # type: ignore
+
 from .. import orchestrator
 from ..simulation import forecast, sector
 from ..utils import config, logging
 
+console = Console() if Console else None
 
-def _pretty_table(headers: Iterable[str], rows: Iterable[Iterable[Any]]) -> str:
+
+def _plain_table(headers: Iterable[str], rows: Iterable[Iterable[Any]]) -> str:
     cols = [list(map(str, col)) for col in zip(*([headers] + list(rows)))]
     widths = [max(len(item) for item in col) for col in cols]
     line = "-+-".join("-" * w for w in widths)
@@ -25,9 +34,21 @@ def _pretty_table(headers: Iterable[str], rows: Iterable[Iterable[Any]]) -> str:
     return "\n".join([header, line, *data_lines])
 
 
-def _format_results(res: List[forecast.ForecastPoint]) -> str:
+def _rich_table(headers: Iterable[str], rows: Iterable[Iterable[Any]]) -> None:
+    if console and Table:
+        table = Table(show_header=True, header_style="bold cyan")
+        for h in headers:
+            table.add_column(str(h))
+        for row in rows:
+            table.add_row(*[str(v) for v in row])
+        console.print(table)
+    else:
+        click.echo(_plain_table(headers, rows))
+
+
+def _format_results(res: List[forecast.ForecastPoint]) -> None:
     rows = [(r.year, f"{r.capability:.2f}", ",".join(s.name for s in r.affected)) for r in res]
-    return _pretty_table(["year", "capability", "affected"], rows)
+    _rich_table(["year", "capability", "affected"], rows)
 
 
 @click.group()
@@ -95,10 +116,10 @@ def simulate(
             lines.append(f"{r.year},{r.capability},{'|'.join(s.name for s in r.affected)}")
         click.echo("\n".join(lines))
     else:
-        click.echo(_format_results(results))
+        _format_results(results)
 
     if start_orchestrator and verbose:
-        click.echo("Starting orchestrator … press Ctrl+C to stop")
+        console.log("Starting orchestrator … press Ctrl+C to stop")
 
     if start_orchestrator:
         try:
@@ -109,7 +130,8 @@ def simulate(
 
 @main.command("show-results")
 @click.option("--limit", default=10, show_default=True, type=int, help="Entries to display")
-def show_results(limit: int) -> None:
+@click.option("--export", type=click.Choice(["json", "csv"]), help="Export results format")
+def show_results(limit: int, export: str | None) -> None:
     """Display the last ledger entries."""
     path = Path(config.CFG.ledger_path)
     if not path.exists():
@@ -121,15 +143,44 @@ def show_results(limit: int) -> None:
         click.echo("No results found")
         return
     data = [(f"{r['ts']:.2f}", r["sender"], r["recipient"], json.dumps(r["payload"])) for r in rows]
-    click.echo(_pretty_table(["ts", "sender", "recipient", "payload"], data))
+    if export == "json":
+        items = [
+            {
+                "ts": r[0],
+                "sender": r[1],
+                "recipient": r[2],
+                "payload": json.loads(r[3]),
+            }
+            for r in data
+        ]
+        click.echo(json.dumps(items))
+    elif export == "csv":
+        lines = ["ts,sender,recipient,payload"]
+        for r in data:
+            lines.append(f"{r[0]},{r[1]},{r[2]},{r[3].replace(',', ';')}")
+        click.echo("\n".join(lines))
+    else:
+        _rich_table(["ts", "sender", "recipient", "payload"], data)
 
 
 @main.command("agents-status")
-def agents_status() -> None:
+@click.option("--watch", is_flag=True, help="Continuously monitor agents")
+def agents_status(watch: bool) -> None:
     """List registered agents."""
     orch = orchestrator.Orchestrator()
-    for runner in orch.runners.values():
-        click.echo(runner.agent.name)
+
+    def render() -> None:
+        data = [(r.agent.name,) for r in orch.runners.values()]
+        _rich_table(["agent"], data)
+
+    try:
+        while True:
+            render()
+            if not watch:
+                break
+            time.sleep(2)
+    except KeyboardInterrupt:  # pragma: no cover - interactive
+        pass
 
 
 @main.command()
