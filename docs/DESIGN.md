@@ -69,3 +69,11 @@ The system exposes both a command line interface and a REST/WS API. The CLI is s
 ## Deployment model
 
 The repository includes container and infrastructure templates for Docker Compose, Helm and Terraform. Each mode deploys the orchestrator together with optional agents and the web UI. Environment variables configured in `.env` control credentials, ports and runtime options. When running in Kubernetes, the Helm chart maps these variables to pod environment settings. The Terraform examples show how to provision equivalent services on AWS Fargate or Google Cloud Run.
+
+## Security considerations
+
+The demo runs with minimal privileges and avoids hard-coded secrets. All credentials are loaded from `.env` or the host environment. Tests disable network access via `PYTEST_NET_OFF=true` to ensure deterministic behaviour.
+
+Agent wheels in `alpha_factory_v1/backend/agents` must be signed with an ED25519 key. The public key is provided in `AGENT_WHEEL_PUBKEY` and each wheel includes a `.whl.sig` file. Unsigned wheels are ignored at runtime.
+
+When exposing the API server, use TLS termination and restrict access behind a proxy. The default configuration binds to localhost only.
