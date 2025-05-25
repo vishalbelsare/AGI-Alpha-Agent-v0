@@ -75,7 +75,7 @@ class A2ABus:
         token = data.pop("token", None)
         if self.settings.bus_token and token != self.settings.bus_token:
             if grpc:
-                context.abort(grpc.StatusCode.PERMISSION_DENIED, "unauthenticated")
+                await context.abort(grpc.StatusCode.PERMISSION_DENIED, "unauthenticated")
             return b"denied"
         env = Envelope(**data)
         self.publish(env.recipient, env)
@@ -88,6 +88,8 @@ class A2ABus:
 
         if not self.settings.bus_port or grpc is None:
             return
+        if not (self.settings.bus_cert and self.settings.bus_key):
+            raise RuntimeError("AGI_INSIGHT_BUS_CERT and AGI_INSIGHT_BUS_KEY are required")
         server = grpc.aio.server()
         method = grpc.unary_unary_rpc_method_handler(
             self._handle_rpc,
@@ -96,15 +98,10 @@ class A2ABus:
         )
         service = grpc.method_handlers_generic_handler("bus.Bus", {"Send": method})
         server.add_generic_rpc_handlers((service,))
-        creds = None
-        if self.settings.bus_cert and self.settings.bus_key:
-            key = Path(self.settings.bus_key).read_bytes()
-            crt = Path(self.settings.bus_cert).read_bytes()
-            creds = grpc.ssl_server_credentials(((key, crt),))
-        if creds:
-            server.add_secure_port(f"[::]:{self.settings.bus_port}", creds)
-        else:
-            server.add_insecure_port(f"[::]:{self.settings.bus_port}")
+        key = Path(self.settings.bus_key).read_bytes()
+        crt = Path(self.settings.bus_cert).read_bytes()
+        creds = grpc.ssl_server_credentials(((key, crt),))
+        server.add_secure_port(f"[::]:{self.settings.bus_port}", creds)
         await server.start()
         self._server = server
 

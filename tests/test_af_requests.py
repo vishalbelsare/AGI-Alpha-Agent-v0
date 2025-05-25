@@ -12,6 +12,8 @@ import pytest
 def test_fallback_to_internal_shim() -> None:
     """``af_requests`` should expose the internal lightweight implementation when
     the real ``requests`` package is missing."""
+    if importlib.util.find_spec("requests") is not None:
+        pytest.skip("real requests installed")
     sys.modules.pop("requests", None)
     sys.modules.pop("af_requests", None)
 
