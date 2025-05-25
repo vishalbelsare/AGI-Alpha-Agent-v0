@@ -1,3 +1,4 @@
+import os
 from unittest.mock import patch
 from click.testing import CliRunner
 from alpha_factory_v1.demos.alpha_agi_insight_v1.src.interface import cli
@@ -70,10 +71,13 @@ def test_simulate_runs() -> None:
                     "--generations",
                     "1",
                     "--start-orchestrator",
+                    "--llama-model-path",
+                    "model.gguf",
                 ],
             )
-        assert res.exit_code == 0
+            assert res.exit_code == 0
         aio.run.assert_called_once()
+        assert os.environ.get("LLAMA_MODEL_PATH") == "model.gguf"
 
 
 def test_simulate_export_csv() -> None:
