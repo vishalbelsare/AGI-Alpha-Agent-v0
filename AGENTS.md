@@ -36,20 +36,22 @@ Please report security vulnerabilities as described in our [Security Policy](SEC
   ```
 - The script `alpha_factory_v1/scripts/preflight.py` enforces this requirement.
 - Run `./codex/setup.sh` to install the project in editable mode along with minimal runtime dependencies.
-- When offline, first build a local wheelhouse containing all requirements:
-  ```bash
-  mkdir /media/wheels
-  pip wheel -r requirements.txt -r requirements-dev.txt -w /media/wheels
-  ```
-  Set `WHEELHOUSE=/media/wheels` for both `./codex/setup.sh` and
-  `python check_env.py --auto-install` so they use the same wheelhouse.
-  Always include `AUTO_INSTALL_MISSING=1` when running `check_env.py` offline.
-  Example:
-  ```bash
-  WHEELHOUSE=/media/wheels ./codex/setup.sh
-  AUTO_INSTALL_MISSING=1 WHEELHOUSE=/media/wheels \
-    python check_env.py --auto-install
-  ```
+ - When offline, build a local wheelhouse for **both** `requirements.txt` and
+   `requirements-dev.txt`:
+   ```bash
+   mkdir /media/wheels
+   pip wheel -r requirements.txt -r requirements-dev.txt -w /media/wheels
+   ```
+   Set `WHEELHOUSE=/media/wheels` and `AUTO_INSTALL_MISSING=1` when running
+   `./codex/setup.sh` and `python check_env.py --auto-install` so they install
+   from the wheelhouse. Example:
+   ```bash
+   WHEELHOUSE=/media/wheels AUTO_INSTALL_MISSING=1 ./codex/setup.sh
+   WHEELHOUSE=/media/wheels AUTO_INSTALL_MISSING=1 \
+     python check_env.py --auto-install
+   ```
+   See [`alpha_factory_v1/scripts/README.md`](alpha_factory_v1/scripts/README.md)
+   for additional offline tips.
 - After setup, validate with `python check_env.py --auto-install`.
   This installs any missing optional packages from the wheelhouse if provided.
   - When `WHEELHOUSE` is set, run
