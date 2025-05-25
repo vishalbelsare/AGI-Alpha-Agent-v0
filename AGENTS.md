@@ -3,7 +3,7 @@
 This repository contains the Alpha-Factory v1 package and demos.
 The instructions below apply to all contributors and automated agents.
 
-**Quick links**
+## Table of Contents
 
 - [Development Environment](#development-environment)
 - [Coding Style](#coding-style)
