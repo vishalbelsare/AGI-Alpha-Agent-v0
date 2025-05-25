@@ -103,142 +103,176 @@ flowchart TD
   class OfflineMode,LocalLLM offline;
 ```
 
+
 # 🎖️ α‑AGI Insight 👁️✨ — Beyond Human Foresight — Official Demo  
-## Production‑grade System & Repository Blueprint (Mermaid)
-
-Below are **two complementary Mermaid diagrams** that can be embedded directly in
-`alpha_factory_v1/demos/alpha_agi_insight_v1/README.md`.
-
-1. **High‑level runtime architecture** – shows how users, interfaces, the
-   Orchestrator, specialised agents, the secure A2A bus, the zero‑data MATS
-   simulation engine and the audit‑ledger fit together in production.
-2. **Repository layout** – a living map of the code‑base so contributors and
-   auditors can instantly understand where every responsibility lives.
+### Production‑Grade System – Mermaid Specification
+> **Note:** Copy‑paste the following Mermaid blocks into your README.md (or any Mermaid‑enabled renderer) to obtain interactive architecture, repository, and DevOps diagrams.
 
 ---
 
+## 1. End‑to‑End System Architecture
 ```mermaid
-%% =====================================================================
-%%  1️⃣  RUNTIME ARCHITECTURE – α‑AGI Insight (Zero‑Data Edition)
-%% =====================================================================
-flowchart TD
-    subgraph C[🟢 Client Tier]
-        User([User<br/>(decision‑maker)])
-        CLI[[`alpha-insight` CLI]]
-        WebUI[[Web&nbsp;UI<br/>(Streamlit / React)]]
-        User -- "commands / scripts" --> CLI
-        User -- "interactive flows" --> WebUI
+%% α‑AGI Insight – High‑Level Architecture
+graph TD
+    %% ===== User Interfaces =====
+    subgraph UI[User Interfaces]
+        CLI["CLI (Click)"]
+        WebUI["Web UI (Streamlit / React+FastAPI)"]
     end
 
-    subgraph O[🔵 Orchestration Core]
-        Orchestrator[[Macro‑Sentinel<br/>(Orchestrator)]]
-        A2A[[Secure A2A&nbsp;Bus<br/>(gRPC + TLS)]]
+    %% ===== Orchestrator & Bus =====
+    subgraph ORCH[Macro‑Sentinel Orchestrator]
+        Orchestrator["Orchestrator<br/>(Agent Registry • Heartbeats • Scheduling)"]
+        A2ABus[["Secure A2A Message Bus<br/>(gRPC pub/sub, TLS)"]]
+        Ledger["Audit Ledger<br/>(SQLite + Merkle Roots)"]
     end
 
-    subgraph AG[🟣 Specialised α‑AGI Agents]
-        Planning[PlanningAgent]
-        Research[ResearchAgent]
-        Strategy[StrategyAgent]
-        Market[MarketAnalysisAgent]
-        CodeGen[CodeGenAgent]
-        Safety[SafetyGuardian]
-        Memory[MemoryAgent]
+    %% ===== Core Engine =====
+    subgraph CORE[Zero‑Data Simulation Engine]
+        MATS["MATS Engine<br/>(NSGA‑II Evolutionary Search)"]
+        Forecast["Disruption Forecaster<br/>(Thermodynamic Trigger)"]
+        Memory["Shared Memory Store"]
     end
 
-    subgraph SIM[🟠 Zero‑Data Simulation]
-        Engine[[MATS + Thermo‑Forecast Engine]]
+    %% ===== Agents =====
+    subgraph AGENTS[α‑AGI Agents]
+        Planning["Planning Agent"]
+        Research["Research Agent"]
+        Strategy["Strategy Agent"]
+        Market["Market Analysis Agent"]
+        CodeGen["CodeGen Agent"]
+        Safety["Safety Guardian Agent"]
     end
 
-    subgraph ST[🟡 Persistence & Audit]
-        Ledger[(Append‑only Audit Ledger<br/>+ Merkle roots)]
-        KStore[(Shared Knowledge Store)]
+    %% ===== Tool Layer =====
+    subgraph TOOLS[Tooling & Plugins]
+        MCP["Model Context Protocol Adapter"]
+        Plugins["Safe Plugins<br/>(Data • Viz • Persistence)"]
     end
 
-    subgraph DEPLOY[⚙️  Deployment Fabric]
-        Docker[(Docker / K8s&nbsp;Pods)]
-        Helm[(Helm Charts)]
-        TF[(Terraform IaC)]
-    end
+    %% ===== Data / Chain =====
+    Blockchain["Public Blockchain<br/>(Solana Testnet)"]
 
-    %% --- Interface paths ---
-    CLI --> Orchestrator
-    WebUI --> Orchestrator
+    %% --- Data Flow ---
+    CLI-->|REST / gRPC|Orchestrator
+    WebUI-->|REST / WebSocket|Orchestrator
 
-    %% --- Orchestrator <-> agents ---
-    Orchestrator -- "register / heartbeat" --> A2A
-    A2A <---> Planning & Research & Strategy & Market & CodeGen & Safety & Memory
+    Orchestrator-->|pub/sub|A2ABus
+    A2ABus-->|broadcast|Planning
+    A2ABus-->|broadcast|Research
+    A2ABus-->|broadcast|Strategy
+    A2ABus-->|broadcast|Market
+    A2ABus-->|broadcast|CodeGen
+    A2ABus-->|monitor|Safety
 
-    %% --- Simulation calls ---
-    Orchestrator -- "spawn run / collect results" --> Engine
-    Planning & Research & Strategy & Market & CodeGen --> Engine
-    Engine -- "trajectories / KPIs" --> Orchestrator
-    Engine -- "sector curves" --> WebUI
+    Safety-->|policy actions|Orchestrator
 
-    %% --- Persistence ---
-    Orchestrator --> Ledger
-    Planning & Research & Strategy & Market & CodeGen --> Ledger
-    Safety --> Ledger
-    Memory --- KStore
-    Engine --> KStore
+    %% Agents tool calls
+    Planning-->|call|MCP
+    Research-->|call|MCP
+    Strategy-->|call|MCP
+    CodeGen-->|call|MCP
+    MCP-->|executes|Plugins
 
-    %% --- Deployment mapping ---
-    Docker --> Orchestrator & A2A & Engine & Planning & Research & Strategy & Market & CodeGen & Safety & Memory & WebUI
-    Helm --> Docker
-    TF --> Docker
+    %% Core Engine links
+    Orchestrator-->|invoke|MATS
+    MATS-->|elite pool|Forecast
+    Forecast-->|writes|Memory
+    Agents-->|query/update|Memory
+
+    Orchestrator-->|log hashes|Ledger
+    Ledger-->|checkpoint|Blockchain
+
+    %% Result channels
+    Forecast-->|stream results|WebUI
+    Forecast-->|print summary|CLI
 ```
 
 ---
 
+## 2. Repository Layout
 ```mermaid
-%% =====================================================================
-%% 2️⃣  MONOREPO STRUCTURE – alpha_agi_insight_v1
-%% =====================================================================
-flowchart TD
-    R[alpha_agi_insight_v1]:::root
-    R --> READM[README.md]
-    R --> REQ[requirements.txt]
+%% Logical Repository Tree (folders collapsed for brevity)
+graph LR
+    R[alpha_agi_insight_v0/]---README[README.md]
+    R---REQ[requirements.txt]
 
-    subgraph SRCDIR["src/"]:::dir
-        SRCDIR --> ORCH[orchestrator.py]
-        SRCDIR --> AGENTS[agents/]:::dir
-        SRCDIR --> SIMS[simulation/]:::dir
-        SRCDIR --> INTF[interface/]:::dir
-        SRCDIR --> UTIL[utils/]:::dir
+    subgraph SRC[/src]
+        SRC_ORCH[orchestrator.py]
+        SRC_AGENTS[/agents]
+        SRC_SIM[/simulation]
+        SRC_INT[/interface]
+        SRC_UTIL[/utils]
     end
-    R --> SRCDIR
+    R---SRC
 
-    %% agents subtree
-    AGENTS --> BASE[base_agent.py]
-    AGENTS --> PLA[planning_agent.py]
-    AGENTS --> RES[research_agent.py]
-    AGENTS --> STR[strategy_agent.py]
-    AGENTS --> MAR[market_agent.py]
-    AGENTS --> CG[codegen_agent.py]
-    AGENTS --> SAF[safety_agent.py]
-    AGENTS --> MEM[memory_agent.py]
+    subgraph AGENTS_TREE
+        SRC_AGENTS_BASE[base_agent.py]
+        SRC_AGENTS_PLAN[planning_agent.py]
+        SRC_AGENTS_RES[research_agent.py]
+        SRC_AGENTS_STR[strategy_agent.py]
+        SRC_AGENTS_MAR[market_agent.py]
+        SRC_AGENTS_CODE[codegen_agent.py]
+        SRC_AGENTS_SAFE[safety_agent.py]
+        SRC_AGENTS_MEM[memory_agent.py]
+    end
+    SRC_AGENTS---AGENTS_TREE
 
-    %% simulation subtree
-    SIMS --> MATS[mats.py]
-    SIMS --> FORE[forecast.py]
-    SIMS --> SECT[sector.py]
+    subgraph SIM_TREE
+        SRC_SIM_MATS[mats.py]
+        SRC_SIM_FORE[forecast.py]
+        SRC_SIM_SECT[sector.py]
+    end
+    SRC_SIM---SIM_TREE
 
-    %% interface subtree
-    INTF --> CLI[cli.py]
-    INTF --> WAPP[web_app.py]
-    INTF --> API[api_server.py]
-    INTF --> WEBCL[web_client/]:::dir
+    subgraph INT_TREE
+        SRC_INT_CLI[cli.py]
+        SRC_INT_WEB[web_app.py]
+        SRC_INT_API[api_server.py]
+        SRC_INT_REACT[/web_client]
+    end
+    SRC_INT---INT_TREE
 
-    %% utils subtree
-    UTIL --> MSG[messaging.py]
-    UTIL --> CFG[config.py]
-    UTIL --> LOG[logging.py]
+    subgraph UTIL_TREE
+        SRC_UTIL_MSG[messaging.py]
+        SRC_UTIL_CFG[config.py]
+        SRC_UTIL_LOG[logging.py]
+    end
+    SRC_UTIL---UTIL_TREE
 
-    %% top‑level peers
-    R --> TESTS[tests/]:::dir
-    R --> INFRA[infrastructure/]:::dir
-    R --> DOCS[docs/]:::dir
-
-    classDef dir fill:#e6f7ff,stroke:#0284c7,stroke-width:1px;
-    classDef root fill:#fffbe6,stroke:#d97706,stroke-width:2px;
+    R---TESTS[/tests]
+    R---INFRA[/infrastructure]
+    R---DOCS[/docs]
 ```
 
+---
+
+## 3. CI/CD & Deployment Pipeline
+```mermaid
+flowchart LR
+    Dev[Developer Push]-->CI[GitHub Actions / CI]
+    CI-->|Unit & Integration Tests|TestPass{All Tests Pass?}
+    TestPass-->|Yes|Build[Docker Multi‑Arch Build]
+    TestPass-->|No|Fail[Fail Pipeline]
+
+    Build-->Scan[Security Scan (Snyk/Trivy)]
+    Scan-->|Pass|PushReg[Push Image to Registry]
+
+    PushReg-->|Tag Release|HelmChart[Helm Package Update]
+    HelmChart-->CD[ArgoCD / Flux]
+
+    CD-->|Deploy|K8s[Kubernetes Cluster<br/>(Prod / Staging)]
+    K8s-->|Health Checks|Monitor[Prometheus / Grafana]
+    Monitor-->|Alerts|Ops[Ops Team]
+
+    K8s-->|Rolling Update Success|Users[End Users]
+```
+
+---
+
+## 4. Legend
+- **Solid arrows**: primary data/control flow  
+- **Dashed arrows**: monitoring / logging / audit paths  
+- **Rounded rectangles**: active services or agents  
+- **Parallelograms**: data stores or ledgers  
+- **Cylinders**: external persistent storage / blockchain  
