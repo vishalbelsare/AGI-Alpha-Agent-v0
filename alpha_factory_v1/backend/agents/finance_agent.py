@@ -41,8 +41,9 @@ with contextlib.suppress(ModuleNotFoundError):
     from scipy.stats import skew, kurtosis  # type: ignore
 with contextlib.suppress(ModuleNotFoundError):
     from scipy.special import erfcinv  # type: ignore
-with contextlib.suppress(ModuleNotFoundError):
-    from prometheus_client import Gauge, make_asgi_app  # type: ignore
+with contextlib.suppress(Exception):
+    from backend.agents import Gauge  # type: ignore
+    from prometheus_client import make_asgi_app  # type: ignore
 with contextlib.suppress(ModuleNotFoundError):
     from binance import Client as _BnClient  # type: ignore
 with contextlib.suppress(ModuleNotFoundError):

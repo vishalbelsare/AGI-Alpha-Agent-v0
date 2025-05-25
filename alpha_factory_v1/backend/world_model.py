@@ -44,8 +44,8 @@ with contextlib.suppress(ModuleNotFoundError):
     import openai  # OpenAI SDK
 with contextlib.suppress(ModuleNotFoundError):
     from llama_cpp import Llama
-with contextlib.suppress(ModuleNotFoundError):
-    from prometheus_client import Gauge
+with contextlib.suppress(Exception):
+    from backend.agents import Gauge  # type: ignore
 with contextlib.suppress(ModuleNotFoundError):
     from confluent_kafka import Producer
 
