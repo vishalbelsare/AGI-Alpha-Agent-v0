@@ -217,8 +217,11 @@ pip install -U pip
 pip install -r requirements.txt     # ~2 min
 
 # ❸ Fire up the all-in-one live demo
-python src/interface/cli.py simulate --horizon 10
+python -m alpha_factory_v1.demos.alpha_agi_insight_v1.src.interface.cli simulate --horizon 10
 ```
+
+Launch the CLI using the `-m` flag or after installing the package so Python
+can resolve module paths correctly.
 
 ### Container in one line
 
@@ -250,16 +253,16 @@ docker run -it --rm -p 8501:8501   -e OPENAI_API_KEY=$OPENAI_API_KEY   ghcr.io/m
 
 ```bash
 # Run ten-year forecast with default parameters
-python src/interface/cli.py simulate --horizon 10
+python -m alpha_factory_v1.demos.alpha_agi_insight_v1.src.interface.cli simulate --horizon 10
 
 # Use a custom AGI growth curve (logistic) and fixed random seed
-python src/interface/cli.py simulate --curve logistic --seed 42
+python -m alpha_factory_v1.demos.alpha_agi_insight_v1.src.interface.cli simulate --curve logistic --seed 42
 
 # Display last run in pretty table form
-python src/interface/cli.py show-results
+python -m alpha_factory_v1.demos.alpha_agi_insight_v1.src.interface.cli show-results
 
 # Monitor agent health in a live session
-python src/interface/cli.py agents-status --watch
+python -m alpha_factory_v1.demos.alpha_agi_insight_v1.src.interface.cli agents-status --watch
 ```
 
 Helpful flags: `--offline` (force local models), `--pop-size`, `--generations`,
