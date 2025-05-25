@@ -117,7 +117,7 @@ Python must report 3.11 or 3.12 and Docker Compose must be at least 2.5.
 Store secrets in environment variables or Docker secrets instead of code to keep
 them out of version control. The table below highlights the most common settings
 (see [`alpha_factory_v1/.env.sample`](alpha_factory_v1/.env.sample) for the full
-template).
+template). The sample file now lists every variable with its default value.
 
 | Variable | Purpose | Default/Example |
 |----------|---------|-----------------|
@@ -152,7 +152,7 @@ template).
 | `PROM_PORT` | Prometheus exporter port | `9090` |
 | `TRACE_WS_PORT` | Trace graph WebSocket port | `8088` |
 | `AGENTS_RUNTIME_PORT` | OpenAI Agents runtime port | `5001` |
-| `BUSINESS_HOST` | Base orchestrator URL for bridges | `http://localhost:8000` |
+| `BUSINESS_HOST` | Base orchestrator URL for bridges | `"http://localhost:8000"` |
 | `LOGLEVEL` | Logging level | `INFO` |
 | `API_TOKEN` | Bearer token for the demo API | `REPLACE_ME_TOKEN` |
 | `API_RATE_LIMIT` | Requests per minute per IP | `60` |
