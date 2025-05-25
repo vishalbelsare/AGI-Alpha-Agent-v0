@@ -527,6 +527,9 @@ replace all placeholder values with strong secrets. The sample sets
 services like Neo4j and Postgres using `openssl rand -base64 18` or a similar
 tool and **never deploy with the defaults**. The orchestrator will refuse to
 start if `NEO4J_PASSWORD` remains `REPLACE_ME` or is missing.
+Set `API_TOKEN` to a strong secret so that the REST API can authenticate
+incoming requests. Clients must send `Authorization: Bearer <token>`. Use
+`API_RATE_LIMIT` to limit requests per minute per IP (default `60`).
 Avoid storing private keys directly in `.env`. Instead set
 `AGI_INSIGHT_SOLANA_WALLET_FILE` to a file containing your hex-encoded wallet
 key and keep that file readable only by the orchestrator.
