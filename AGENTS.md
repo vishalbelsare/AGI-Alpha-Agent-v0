@@ -11,6 +11,7 @@ The instructions below apply to all contributors and automated agents.
 - [Troubleshooting](#troubleshooting)
 - [Code of Conduct](CODE_OF_CONDUCT.md)
 - [Security Policy](SECURITY.md)
+- [Wheel Signing](#wheel-signing)
 
 All contributors must follow the [Code of Conduct](CODE_OF_CONDUCT.md).
 Please report security vulnerabilities as described in our [Security Policy](SECURITY.md).
