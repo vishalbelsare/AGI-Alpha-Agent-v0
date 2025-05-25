@@ -12,9 +12,9 @@ from pathlib import Path
 from typing import Iterable, List, cast
 
 try:  # optional dependency for colorized output
-    import coloredlogs  # type: ignore
+    import coloredlogs
 except Exception:  # pragma: no cover - optional
-    coloredlogs = None  # type: ignore
+    coloredlogs = None
 
 from . import messaging
 
@@ -72,7 +72,7 @@ class Ledger:
     ) -> None:
         self.path = Path(path)
         self.path.parent.mkdir(parents=True, exist_ok=True)
-        self.conn = sqlite3.connect(str(self.path))
+        self.conn: sqlite3.Connection | None = sqlite3.connect(str(self.path))
         self.conn.execute(
             """
             CREATE TABLE IF NOT EXISTS messages (
@@ -94,6 +94,7 @@ class Ledger:
     def log(self, env: messaging.Envelope) -> None:
         """Hash ``env`` and append to the ledger."""
 
+        assert self.conn is not None
         data = json.dumps(asdict(env), sort_keys=True).encode()
         digest = blake3(data).hexdigest()
         with self.conn:
@@ -103,6 +104,7 @@ class Ledger:
             )
 
     def compute_merkle_root(self) -> str:
+        assert self.conn is not None
         cur = self.conn.execute("SELECT hash FROM messages ORDER BY id")
         hashes = [row[0] for row in cur.fetchall()]
         return _merkle_root(hashes)
@@ -110,6 +112,7 @@ class Ledger:
     def tail(self, count: int = 10) -> List[dict[str, object]]:
         """Return the last ``count`` ledger entries."""
 
+        assert self.conn is not None
         cur = self.conn.execute(
             "SELECT ts, sender, recipient, payload FROM messages ORDER BY id DESC LIMIT ?",
             (count,),
@@ -180,4 +183,4 @@ class Ledger:
     def close(self) -> None:
         if self.conn:
             self.conn.close()
-            self.conn = None  # type: ignore[assignment]
+            self.conn = None

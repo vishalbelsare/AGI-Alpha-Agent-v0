@@ -31,30 +31,40 @@ def _crowding(pop: Population) -> None:
     for ind in pop:
         ind.crowd = 0.0
     for i in range(m):
-        pop.sort(key=lambda x: x.fitness[i])  # type: ignore[index]
+        pop.sort(key=lambda x: (x.fitness or (0.0, 0.0))[i])
+        first_fit = pop[0].fitness
+        last_fit = pop[-1].fitness
+        assert first_fit is not None and last_fit is not None
         pop[0].crowd = pop[-1].crowd = float("inf")
-        fmin = pop[0].fitness[i]
-        fmax = pop[-1].fitness[i]
+        fmin = first_fit[i]
+        fmax = last_fit[i]
         span = fmax - fmin or 1.0
         for j in range(1, len(pop) - 1):
-            prev_f = pop[j - 1].fitness[i]
-            next_f = pop[j + 1].fitness[i]
+            prev_fit = pop[j - 1].fitness
+            next_fit = pop[j + 1].fitness
+            assert prev_fit is not None and next_fit is not None
+            prev_f = prev_fit[i]
+            next_f = next_fit[i]
             pop[j].crowd += (next_f - prev_f) / span
 
 
 def _non_dominated_sort(pop: Population) -> List[Population]:
     fronts: List[Population] = []
-    S = {id(ind): [] for ind in pop}
-    n = {id(ind): 0 for ind in pop}
+    S: dict[int, list[Individual]] = {id(ind): [] for ind in pop}
+    n: dict[int, int] = {id(ind): 0 for ind in pop}
+    for ind in pop:
+        assert ind.fitness is not None
     for p in pop:
         for q in pop:
             if p is q:
                 continue
-            if all(pf <= qf for pf, qf in zip(p.fitness, q.fitness)):  # type: ignore[arg-type]
-                if any(pf < qf for pf, qf in zip(p.fitness, q.fitness)):  # type: ignore[arg-type]
+            assert q.fitness is not None
+            assert p.fitness is not None
+            if all(pf <= qf for pf, qf in zip(p.fitness, q.fitness)):
+                if any(pf < qf for pf, qf in zip(p.fitness, q.fitness)):
                     S[id(p)].append(q)
-            elif all(qf <= pf for pf, qf in zip(p.fitness, q.fitness)):  # type: ignore[arg-type]
-                if any(qf < pf for pf, qf in zip(p.fitness, q.fitness)):  # type: ignore[arg-type]
+            elif all(qf <= pf for pf, qf in zip(p.fitness, q.fitness)):
+                if any(qf < pf for pf, qf in zip(p.fitness, q.fitness)):
                     n[id(p)] += 1
         if n[id(p)] == 0:
             p.rank = 0

@@ -8,7 +8,7 @@ from ..utils import messaging
 from ..utils.logging import Ledger
 
 
-class StrategyAgent(BaseAgent):  # type: ignore[misc]
+class StrategyAgent(BaseAgent):
     """Turn research output into actionable strategy."""
 
     def __init__(self, bus: messaging.A2ABus, ledger: "Ledger") -> None:

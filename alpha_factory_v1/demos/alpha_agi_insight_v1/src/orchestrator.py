@@ -6,7 +6,7 @@ from __future__ import annotations
 import asyncio
 import time
 import contextlib
-from typing import Dict, List
+from typing import Callable, Dict, List
 
 from .agents import (
     planning_agent,
@@ -19,17 +19,19 @@ from .agents import (
 )
 from .utils import config, messaging, logging
 from .utils.logging import Ledger
+from .agents.base_agent import BaseAgent
 
 
 class AgentRunner:
     """Wrapper supervising a single agent."""
 
-    def __init__(self, agent: object) -> None:
-        self.agent = agent
+    def __init__(self, agent: BaseAgent) -> None:
+        self.cls: Callable[[messaging.A2ABus, Ledger], BaseAgent] = type(agent)
+        self.agent: BaseAgent = agent
         self.period = getattr(agent, "CYCLE_SECONDS", 1.0)
         self.capabilities = getattr(agent, "CAPABILITIES", [])
         self.last_beat = time.time()
-        self.task: asyncio.Task | None = None
+        self.task: asyncio.Task[None] | None = None
 
     async def loop(self, bus: messaging.A2ABus, ledger: Ledger) -> None:
         while True:
@@ -51,7 +53,7 @@ class AgentRunner:
             self.task.cancel()
             with contextlib.suppress(asyncio.CancelledError):
                 await self.task
-        self.agent = self.agent.__class__(bus, ledger)
+        self.agent = self.cls(bus, ledger)
         self.start(bus, ledger)
 
 
@@ -74,9 +76,9 @@ class Orchestrator:
             runner = AgentRunner(agent)
             self.runners[agent.name] = runner
             self._register(runner)
-        self._monitor_task: asyncio.Task | None = None
+        self._monitor_task: asyncio.Task[None] | None = None
 
-    def _init_agents(self) -> List[object]:
+    def _init_agents(self) -> List[BaseAgent]:
         agents = [
             planning_agent.PlanningAgent(self.bus, self.ledger),
             research_agent.ResearchAgent(self.bus, self.ledger),
