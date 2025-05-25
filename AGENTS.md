@@ -184,13 +184,17 @@ for modules, classes and functions.
 - Run `mypy --config-file mypy.ini .` (or `pyright`) with a **strict** configuration. The
   `mypy.ini` configuration file is located at the repository root.
 - Install pre‑commit and set up the git hook:
-  1. `pip install pre-commit`
-  2. `pre-commit install`
-  3. `pre-commit run --all-files` once after installation
-  4. `pre-commit run --files <paths>` before each commit
+
+```bash
+pip install pre-commit
+pre-commit install
+pre-commit run --all-files   # run once after installation
+pre-commit run --files <paths>   # before each commit
+```
+
   - Re-run `pre-commit run --all-files` whenever `requirements.txt`, `requirements-dev.txt`,
     `.pre-commit-config.yaml`, `pyproject.toml`, `mypy.ini`, or other lint configs change.
-    CI enforces these checks.
+    **CI enforces these checks.**
   - The configuration runs `black`, `ruff`, `flake8` and `mypy` using
     `mypy.ini`.
   - Hooks are configured in `.pre-commit-config.yaml` at the repository root.
@@ -216,6 +220,7 @@ for modules, classes and functions.
 - Use the issue templates under `.github/ISSUE_TEMPLATE` for bug reports and feature requests.
 - Follow the [pull request template](.github/pull_request_template.md) and fill in
   all sections to confirm linting, type checks and tests pass.
+- Ensure `pre-commit` passes locally; the CI pipeline runs the same hooks and will fail if they do not.
 
 ### Starting the CI Pipeline
 You can manually trigger the CI run from the GitHub UI:
