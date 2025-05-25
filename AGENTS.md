@@ -37,21 +37,24 @@ Please report security vulnerabilities as described in our [Security Policy](SEC
   ```
 - The script `alpha_factory_v1/scripts/preflight.py` enforces this requirement.
 - From the repository root, run `./codex/setup.sh` to install the project in editable mode along with minimal runtime dependencies. This ensures all relative paths resolve correctly.
- - When offline, build a local wheelhouse for **both** `requirements.txt` and
-   `requirements-dev.txt`:
-   ```bash
-   mkdir /media/wheels
-   pip wheel -r requirements.txt -r requirements-dev.txt -w /media/wheels
-   ```
-   Set `WHEELHOUSE=/media/wheels` and `AUTO_INSTALL_MISSING=1` when running
-   `./codex/setup.sh` and `python check_env.py --auto-install` so they install
-   from the wheelhouse. Example:
-   ```bash
-   WHEELHOUSE=/media/wheels AUTO_INSTALL_MISSING=1 ./codex/setup.sh
-   WHEELHOUSE=/media/wheels AUTO_INSTALL_MISSING=1 \
-     python check_env.py --auto-install
-   ```
-   - Run `pip check` to verify package integrity. If problems occur, rerun `python check_env.py --auto-install --wheelhouse <path>` to reinstall.
+- When offline, build a local wheelhouse using **the same Python version** as your
+  virtual environment (Python 3.11 or 3.12). Create a directory and build wheels
+  for **both** requirement files:
+  ```bash
+  mkdir -p /media/wheels
+  pip wheel -r requirements.txt -w /media/wheels
+  pip wheel -r requirements-dev.txt -w /media/wheels
+  ```
+  Set `WHEELHOUSE=/media/wheels` and `AUTO_INSTALL_MISSING=1` so
+  `./codex/setup.sh` and `python check_env.py --auto-install --wheelhouse /media/wheels`
+  install from the wheelhouse. Example:
+  ```bash
+  WHEELHOUSE=/media/wheels AUTO_INSTALL_MISSING=1 ./codex/setup.sh
+  WHEELHOUSE=/media/wheels AUTO_INSTALL_MISSING=1 \
+    python check_env.py --auto-install --wheelhouse /media/wheels
+  ```
+  - Run `pip check` to verify package integrity. If problems occur, rerun
+    `python check_env.py --auto-install --wheelhouse /media/wheels` to reinstall.
 
    See [`alpha_factory_v1/scripts/README.md`](alpha_factory_v1/scripts/README.md)
    for additional offline tips.
