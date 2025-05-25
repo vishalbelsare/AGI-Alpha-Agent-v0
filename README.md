@@ -601,6 +601,22 @@ Add the base64 signature to `_WHEEL_SIGS` in
 `alpha_factory_v1/backend/agents/__init__.py`. Wheels failing verification are
 ignored.
 
+### 6.4 · Web Dashboard Quick-Start 📊
+Launch the local web interface:
+```bash
+uvicorn src.interface.api_server:app --reload
+streamlit run src/interface/web_app.py
+# React client
+python -m http.server --directory src/interface/web_client 9000
+```
+Alternatively run inside Docker:
+```bash
+docker compose build
+docker compose up
+```
+Open <http://localhost:9000> in your browser.
+
+
 ---
 
 <a name="7-deployment-recipes"></a>
