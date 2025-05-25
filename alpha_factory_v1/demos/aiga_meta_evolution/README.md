@@ -2,7 +2,7 @@
  AI‑GA Meta‑Evolution Demo
  Alpha‑Factory v1 👁️✨ — Multi‑Agent **AGENTIC α‑AGI**
  Out‑learn · Out‑think · Out‑strategise · Out‑evolve
- © 2025 MONTREAL.AI   MIT License
+ © 2025 MONTREAL.AI   Apache‑2.0 License
  -------------------------------------------------------------------------------
  Exhaustive README: quick‑start, deep‑dive, SOC‑2 rails, CI/CD, K8s,
  observability, SBOM notice. Rendered as GitHub‑flavoured Markdown.
@@ -306,7 +306,7 @@ spec:
 
 ## ⚖️ License & credits
 
-*Source & assets* © 2025 Montreal.AI, released under the **MIT License**. 
+*Source & assets* © 2025 Montreal.AI, released under the **Apache‑2.0 License**.
 Huge thanks to:
 
 * **Jeff Clune** – visionary behind AI‑GAs 

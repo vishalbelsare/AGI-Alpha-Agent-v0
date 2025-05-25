@@ -45,7 +45,7 @@ Public API (required by reward_backends framework)
 --------------------------------------------------
     reward(state, action, result) -> float
 
-© 2025 Montreal.AI – MIT License
+© 2025 Montreal.AI – Apache-2.0 License
 """
 
 from __future__ import annotations

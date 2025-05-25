@@ -141,8 +141,11 @@ for modules, classes and functions.
   Document any remaining test failures in the PR description.
 - Summarize your changes and test results in the PR body.
 - Title PRs using `[alpha_factory] <Title>`.
-- All contributions are licensed under Apache 2.0.
-- Add an Apache 2.0 header to new source files.
+- All contributions are licensed under Apache 2.0 by default.
+- Some files retain existing MIT license headers; keep whatever license a file
+  already declares when editing it.
+- Add an Apache 2.0 header to new source files unless another license is
+  explicitly stated.
   ```
   # SPDX-License-Identifier: Apache-2.0
   ```

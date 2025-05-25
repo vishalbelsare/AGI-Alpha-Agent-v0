@@ -2,7 +2,7 @@
   Self‑Healing Repo Demo
   Alpha‑Factory v1 👁️✨ — Multi‑Agent **AGENTIC α‑AGI**
   Out‑learn · Out‑think · Out‑debug · Out‑ship
-  © 2025 MONTREAL.AI   MIT License
+  © 2025 MONTREAL.AI   Apache‑2.0 License
 -->
 
 # 🔧 **Self‑Healing Repo** — when CI fails, agents patch

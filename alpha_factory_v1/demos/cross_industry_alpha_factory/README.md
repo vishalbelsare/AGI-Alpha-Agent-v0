@@ -172,4 +172,4 @@ Community PRs welcome!
 ### References
 Clune 2019 · Sutton & Silver 2024 · MuZero 2020 
 
-© 2025 MONTREAL.AI — MIT License
+© 2025 MONTREAL.AI — Apache‑2.0 License

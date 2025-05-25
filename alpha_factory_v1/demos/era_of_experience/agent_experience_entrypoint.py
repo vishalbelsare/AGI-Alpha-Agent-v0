@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # alpha_factory_v1/demos/era_of_experience/agent_experience_entrypoint.py
-# © 2025 MONTREAL.AI – MIT License
+# © 2025 MONTREAL.AI – Apache-2.0 License
 """
 Era-of-Experience Agent 👁️✨
 ────────────────────────────

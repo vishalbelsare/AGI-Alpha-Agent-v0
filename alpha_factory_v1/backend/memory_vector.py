@@ -22,7 +22,7 @@ Design goals
 * **CLI self-test** – ``python -m alpha_factory_v1.backend.memory_vector --demo``
 * **Zero intra-project deps** – drop-in usable in any repo / unit tests.
 
-MIT License © 2025 Montreal AI
+Apache 2.0 License © 2025 Montreal AI
 """
 
 from __future__ import annotations
