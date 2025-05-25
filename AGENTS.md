@@ -47,6 +47,7 @@ Python must report 3.11 or 3.12 and Docker Compose must be at least 2.5.
 - The script `alpha_factory_v1/scripts/preflight.py` enforces this requirement.
 - From the repository root, run `./codex/setup.sh` to install the project in editable mode
   with minimal runtime dependencies. This ensures all relative paths resolve correctly.
+- After installation, run `pre-commit run --all-files` once to verify formatting and hooks.
 ### Offline Setup
 
 Follow these steps when installing without internet access:
