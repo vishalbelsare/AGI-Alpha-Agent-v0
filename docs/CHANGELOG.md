@@ -18,6 +18,11 @@ All notable changes to this project are documented in this file.
 - Added asynchronous API tests and new CLI flags.
 - Improved container orchestration scripts and default Docker compose files.
 
+## [1.0.0] - 2025-05-15
+- Initial release with an offline-friendly CLI and REST API for running simulations.
+- Included a minimal web interface served when `RUN_MODE=web`.
+- Shipped Meta-Agentic Tree Search and forecasting modules with Docker deployment scripts.
+
 ## [0.2.0] - 2024-06-01
 - Expanded design document with data flow, interface and deployment notes.
 - Documented API endpoints in greater detail.
