@@ -642,6 +642,12 @@ docker compose up
 ```
 Open <http://localhost:9000> in your browser.
 
+If Streamlit isn't installed or you're running on a headless server, use:
+```bash
+python src/interface/minimal_ui.py --text
+```
+to display the forecast results directly in the console.
+
 
 ---
 
