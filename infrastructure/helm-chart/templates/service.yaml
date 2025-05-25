@@ -12,7 +12,7 @@ spec:
       targetPort: 8000
     - name: ui
       port: {{ .Values.service.uiPort }}
-      targetPort: 3000
+      targetPort: 8501
     - name: bus
       port: {{ .Values.service.busPort }}
       targetPort: 6006

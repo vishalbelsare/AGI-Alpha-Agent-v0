@@ -4,6 +4,11 @@ variable "openai_api_key" { default = "" }
 variable "agi_insight_offline" { default = "0" }
 variable "agi_insight_bus_port" { default = 6006 }
 variable "agi_insight_ledger_path" { default = "./ledger/audit.db" }
+variable "container_image" { default = "alpha-demo:latest" }
+variable "subnets" {
+  type    = list(string)
+  default = ["subnet-12345"]
+}
 
 provider "aws" { region = var.region }
 
@@ -21,7 +26,7 @@ resource "aws_ecs_task_definition" "af" {
   container_definitions = jsonencode([
     {
       name      = "orchestrator"
-      image     = "alpha-demo:latest"
+      image     = var.container_image
       essential = true
       environment = [
         { name = "OPENAI_API_KEY", value = var.openai_api_key },
@@ -45,7 +50,7 @@ resource "aws_ecs_service" "af" {
   desired_count   = 1
   launch_type     = "FARGATE"
   network_configuration {
-    subnets         = ["subnet-12345"]
+    subnets         = var.subnets
     assign_public_ip = true
   }
 }
