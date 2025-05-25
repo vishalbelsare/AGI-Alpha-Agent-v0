@@ -10,6 +10,11 @@ from dataclasses import asdict
 from pathlib import Path
 from typing import Iterable, List, cast
 
+try:  # optional dependency for colorized output
+    import coloredlogs  # type: ignore
+except Exception:  # pragma: no cover - optional
+    coloredlogs = None  # type: ignore
+
 from . import messaging
 
 try:  # optional dependency
@@ -32,11 +37,11 @@ def setup(level: str = "INFO") -> None:
     """Initialise the root logger if not configured."""
 
     if not logging.getLogger().handlers:
-        logging.basicConfig(
-            level=level,
-            format="%(asctime)s %(levelname)s %(name)s | %(message)s",
-            datefmt="%Y-%m-%d %H:%M:%S",
-        )
+        fmt = "%(asctime)s %(levelname)s %(name)s | %(message)s"
+        if coloredlogs is not None:
+            coloredlogs.install(level=level, fmt=fmt, datefmt="%Y-%m-%d %H:%M:%S")
+        else:
+            logging.basicConfig(level=level, format=fmt, datefmt="%Y-%m-%d %H:%M:%S")
 
 
 def _merkle_root(hashes: Iterable[str]) -> str:
@@ -91,6 +96,23 @@ class Ledger:
         cur = self.conn.execute("SELECT hash FROM messages ORDER BY id")
         hashes = [row[0] for row in cur.fetchall()]
         return _merkle_root(hashes)
+
+    def tail(self, count: int = 10) -> List[dict[str, object]]:
+        """Return the last ``count`` ledger entries."""
+
+        cur = self.conn.execute(
+            "SELECT ts, sender, recipient, payload FROM messages ORDER BY id DESC LIMIT ?",
+            (count,),
+        )
+        rows = cur.fetchall()
+        result: List[dict[str, object]] = []
+        for ts, sender, recipient, payload in reversed(rows):
+            try:
+                data = json.loads(payload)
+            except Exception:
+                data = payload
+            result.append({"ts": ts, "sender": sender, "recipient": recipient, "payload": data})
+        return result
 
     async def broadcast_merkle_root(self) -> None:
         root = self.compute_merkle_root()
