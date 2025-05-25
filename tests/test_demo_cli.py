@@ -44,3 +44,7 @@ def test_agents_status_lists_all_agents(tmp_path) -> None:
             result = CliRunner().invoke(cli.main, ["agents-status"])
     for name in orch.runners.keys():
         assert name in result.output
+
+
+def test_plain_table_handles_no_rows() -> None:
+    assert cli._plain_table(["h1", "h2"], []) == "h1 | h2"

@@ -26,7 +26,11 @@ console = Console() if Console else None
 
 
 def _plain_table(headers: Iterable[str], rows: Iterable[Iterable[Any]]) -> str:
-    cols = [list(map(str, col)) for col in zip(*([headers] + list(rows)))]
+    rows = list(rows)
+    if not rows:
+        return " | ".join(map(str, headers))
+
+    cols = [list(map(str, col)) for col in zip(*([headers] + rows))]
     widths = [max(len(item) for item in col) for col in cols]
     line = "-+-".join("-" * w for w in widths)
     header = " | ".join(h.ljust(widths[i]) for i, h in enumerate(headers))
