@@ -45,7 +45,8 @@ Python must report 3.11 or 3.12 and Docker Compose must be at least 2.5.
   pip install -U pip
   ```
 - The script `alpha_factory_v1/scripts/preflight.py` enforces this requirement.
-- From the repository root, run `./codex/setup.sh` to install the project in editable mode along with minimal runtime dependencies. This ensures all relative paths resolve correctly.
+- From the repository root, run `./codex/setup.sh` to install the project in editable mode
+  with minimal runtime dependencies. This ensures all relative paths resolve correctly.
 - When offline, build a local wheelhouse using **the same Python version** as your
   virtual environment (Python 3.11 or 3.12). Create a directory and build wheels
   for **both** requirement files:
@@ -78,8 +79,10 @@ Python must report 3.11 or 3.12 and Docker Compose must be at least 2.5.
 - If the project is installed without `./codex/setup.sh`, run
   `pip install -r requirements-dev.txt` to obtain `fastapi` and
   `opentelemetry-api`.
-- Execute `pytest -q` (or `python -m alpha_factory_v1.scripts.run_tests`) and ensure the entire suite passes. If failures remain, document them in the PR description.
-- When running tests directly from the repository without installation, set `PYTHONPATH` as described in [`tests/README.md`](tests/README.md): `export PYTHONPATH=$(pwd)`.
+- Execute `pytest -q` (or `python -m alpha_factory_v1.scripts.run_tests`) and ensure the entire suite passes.
+  If failures remain, document them in the PR description.
+- When running tests directly from the repository without installation, set `PYTHONPATH`
+  as described in [`tests/README.md`](tests/README.md): `export PYTHONPATH=$(pwd)`.
 - For coverage metrics, run `pytest --cov` and aim for at least **80%** coverage.
 - Test environment variables (see [`alpha_factory_v1/tests/README.md`](alpha_factory_v1/tests/README.md) for details):
   - `AF_MEMORY_DIR` – temporary memory path.
@@ -107,7 +110,8 @@ Python must report 3.11 or 3.12 and Docker Compose must be at least 2.5.
 - **Never commit** `.env` or other secrets. See
   [`alpha_factory_v1/scripts/README.md`](alpha_factory_v1/scripts/README.md)
   for additional guidance.
- - Verify `.env` is ignored by running `git status` (it should appear untracked). The repository's `.gitignore` already includes `.env`.
+- Verify `.env` is ignored by running `git status` (it should appear untracked).
+  The repository's `.gitignore` already includes `.env`.
 
 ### Key Environment Variables
 Store secrets in environment variables or Docker secrets instead of code to keep
