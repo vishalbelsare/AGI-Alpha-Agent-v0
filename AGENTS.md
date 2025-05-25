@@ -132,7 +132,8 @@ for modules, classes and functions.
 - Title PRs using `[alpha_factory] <Title>`.
 - All contributions are licensed under Apache 2.0.
 - Use the issue templates under `.github/ISSUE_TEMPLATE` for bug reports and feature requests.
-- Follow the pull request template to confirm linting, type checks and tests pass.
+- Follow the [pull request template](.github/pull_request_template.md) and fill in
+  all sections to confirm linting, type checks and tests pass.
 
 ### PR Message Guidelines
 - Keep the subject line concise and under 72 characters.
