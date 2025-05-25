@@ -128,6 +128,7 @@ template). The sample file now lists every variable with its default value.
 | `AGENT_HOT_DIR` | Directory for hot-loaded agent wheels | `~/.alpha_agents` |
 | `AGENT_HEARTBEAT_SEC` | Heartbeat interval in seconds | `10` |
 | `AGENT_RESCAN_SEC` | Interval between wheel scans | `60` |
+| `DISABLED_AGENTS` | Comma-separated list disables specific agents | _(none)_ |
 | `OPENAI_API_KEY` | OpenAI credential (blank uses local Ollama Φ‑2) | _(empty)_ |
 | `OPENAI_ORG_ID` | OpenAI organization ID | _(none)_ |
 | `ANTHROPIC_API_KEY` | Anthropic credential | _(none)_ |
