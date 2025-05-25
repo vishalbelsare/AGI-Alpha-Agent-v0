@@ -114,6 +114,12 @@ Follow these steps when installing without internet access:
 - Verify `.env` is ignored by running `git status` (it should appear untracked).
   The repository's `.gitignore` already includes `.env`.
 
+Before running `pytest` or `quickstart.sh`, copy `.env.sample` to `.env`,
+fill in the required secrets and change `NEO4J_PASSWORD` from the sample value.
+Load the environment variables with `set -a; source .env; set +a` (use the
+PowerShell equivalent on Windows) so they are available to the tests and
+scripts.
+
 ### Key Environment Variables
 Store secrets in environment variables or Docker secrets instead of code to keep
 them out of version control. The table below highlights the most common settings
