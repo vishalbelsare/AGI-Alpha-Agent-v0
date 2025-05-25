@@ -152,6 +152,12 @@ python -m webbrowser http://localhost:8000/docs
 ## Disclaimer
 This repository is a conceptual research prototype. References to "AGI" and "superintelligence" describe aspirational goals and do not indicate the presence of a real general intelligence. Use at your own risk.
 
+Further technical details are documented separately:
+
+- The overall architecture, agent roles and algorithms are explained in [docs/DESIGN.md](docs/DESIGN.md).
+- REST and WebSocket endpoints are listed in [docs/API.md](docs/API.md).
+- Release notes are maintained in [docs/CHANGELOG.md](docs/CHANGELOG.md).
+
 ---
 
 ## 📜 Table of Contents
