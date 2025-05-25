@@ -53,3 +53,33 @@ def test_forecast_disruptions_multiple_sectors() -> None:
     traj = forecast.forecast_disruptions([a, b], 1, curve="linear", pop_size=2, generations=1)
     assert not traj[0].sectors[0].disrupted
     assert traj[0].sectors[1].disrupted
+
+
+def test_capability_growth_curves() -> None:
+    """Capability growth curves should map time into [0,1]."""
+    t = 0.5
+    linear = forecast.capability_growth(t, curve="linear")
+    logistic = forecast.capability_growth(t, curve="logistic")
+    exponential = forecast.capability_growth(t, curve="exponential")
+    assert linear == pytest.approx(forecast.linear_curve(t))
+    assert logistic == pytest.approx(forecast.logistic_curve(10 * t))
+    assert exponential == pytest.approx(forecast.exponential_curve(t))
+    assert logistic > linear > exponential
+    assert 0.0 <= exponential <= 1.0
+    assert 0.0 <= linear <= 1.0
+    assert 0.0 <= logistic <= 1.0
+
+
+def test_thermodynamic_trigger_edges() -> None:
+    sec = sector.Sector("x", energy=1.0, entropy=2.0)
+    assert not forecast.thermodynamic_trigger(sec, 0.5)
+    assert forecast.thermodynamic_trigger(sec, 0.50001)
+    sec2 = sector.Sector("y", energy=0.0, entropy=1.0)
+    assert not forecast.thermodynamic_trigger(sec2, 0.0)
+    assert forecast.thermodynamic_trigger(sec2, 0.1)
+
+
+def test_innovation_gain_positive() -> None:
+    gain = forecast._innovation_gain(pop_size=2, generations=1)
+    assert gain > 0.0
+    assert gain < 0.1
