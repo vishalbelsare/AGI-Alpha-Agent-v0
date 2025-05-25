@@ -4,12 +4,13 @@ This page documents the REST endpoints provided by the demo API server and the a
 
 ## REST endpoints
 
-The API is implemented with FastAPI in `src/interface/api_server.py` and exposes three routes when running.
-The orchestrator boots in the background when the server starts and is gracefully shut down on exit:
+The API is implemented with FastAPI in `src/interface/api_server.py`.  Three routes
+are available.  The orchestrator boots in the background when the server starts and
+is gracefully shut down on exit:
 
-- `POST /simulate` – start a new simulation. The payload accepts the forecast horizon, population size and number of evolutionary generations. A unique simulation ID is returned immediately.
-- `GET /results/{sim_id}` – retrieve the final forecast data and Pareto front once the simulation finishes.
-- `WS  /ws/{sim_id}` – a websocket that streams progress logs while the simulation runs.
+- `POST /simulate` – start a new simulation.
+- `GET /results/{sim_id}` – fetch final forecast data.
+- `WS  /ws/{sim_id}` – stream progress logs while the simulation runs.
 
 Start the server with:
 
@@ -45,20 +46,44 @@ The CLI is also installed as the `alpha-agi-bhf` entry point for convenience.
 
 **POST `/simulate`**
 
-Start a new simulation run. The JSON body accepts:
+Start a new simulation. Send a JSON payload with the following fields:
 
-- `horizon` – forecast horizon in years.
-- `pop_size` – number of individuals per generation.
-- `generations` – number of evolutionary steps.
+- `horizon` – forecast horizon in years
+- `pop_size` – number of individuals per generation
+- `generations` – number of evolutionary steps
 
-Returns a JSON object containing the simulation `id`.
+```json
+{
+  "horizon": 5,
+  "pop_size": 6,
+  "generations": 3
+}
+```
+
+The response contains the generated simulation identifier:
+
+```json
+{"id": "<sim_id>"}
+```
 
 **GET `/results/{sim_id}`**
 
-Retrieve the final forecast and Pareto front for a previously launched simulation.
+Return the final forecast and Pareto front for an earlier run.
+
+Example response:
+
+```json
+{
+  "forecast": [{"year": 1, "capability": 0.1}],
+  "pareto": [[0.0, 0.0], [0.5, 0.2]],
+  "logs": ["Year 1: 0 affected"]
+}
+```
 
 **WebSocket `/ws/{sim_id}`**
 
-Provides a live feed of progress messages during a running simulation. Clients should close the socket once the final `done` message is received.
+Streams progress messages during a running simulation. Messages are plain text lines
+such as `"Year 1: 0 affected"` or `"Generation 2"`. Close the socket once all
+messages have been received.
 
 The server honours environment variables defined in `.env` such as `PORT` (HTTP port), `OPENAI_API_KEY` and `RUN_MODE`. When `RUN_MODE=web`, a small frontend served at `/` consumes these endpoints via JavaScript.

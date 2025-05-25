@@ -4,7 +4,19 @@ This document outlines the architecture of the Alpha Factory demo included in th
 
 ## Architecture
 
-The system is composed of a lightweight orchestrator that coordinates a small swarm of agents. Each agent is a micro service with a specific responsibility. The orchestrator exposes both a command line interface and a minimal REST API so the demo can run headless or with a web front end. All communication is performed through simple envelope objects exchanged on an in-memory message bus.
+The demo consists of a lightweight orchestrator and a handful of specialised agents.  All
+components communicate through a simple in-memory message bus using envelope objects.
+The orchestrator exposes both a command line interface and a small REST API so the
+simulation can run headless or with a web frontend.
+
+### Simulation engine
+
+Two tiny modules implement the core of the simulation:
+
+- `forecast.py` – generates a capability forecast and triggers thermodynamic disruption.
+- `mats.py` – performs a zero‑data evolutionary search to refine potential innovations.
+
+Both modules are intentionally concise and easy to extend.
 
 ### Orchestrator
 
@@ -13,12 +25,13 @@ interaction in a ledger. This ledger can be replayed to analyse decision steps o
 to visualise the overall run. Agents are invoked sequentially in short cycles so
 the system remains deterministic and easy to debug.
 
-The simulation core consists of two modules:
 
-- `forecast.py` implements a basic capability forecast and a thermodynamic disruption trigger.
-- `mats.py` implements zero-data evolutionary search used to refine candidate innovations.
+### Message bus
 
-Both modules are intentionally small so they can be inspected and extended easily.
+Messages are dispatched in short deterministic cycles.  Agents read an envelope,
+mutate its contents and pass it back to the orchestrator which then forwards it
+to the next participant.  Each interaction is stored in a ledger so that runs
+can be replayed or inspected later.
 
 ## Agent roles
 
