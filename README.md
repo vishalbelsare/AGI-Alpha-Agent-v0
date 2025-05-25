@@ -142,6 +142,8 @@ Built atop **OpenAI Agents SDK**, **Google ADK**, **A2A protocol**, and Ant
 ```bash
 git clone https://github.com/MontrealAI/AGI-Alpha-Agent-v0.git
 cd AGI-Alpha-Agent-v0
+# Install runtime dependencies
+pip install -r requirements.txt
 # Requires Python 3.11–3.12 (<3.13)
 ./quickstart.sh
 python -m webbrowser http://localhost:8000/docs
@@ -476,6 +478,8 @@ git clone https://github.com/MontrealAI/AGI-Alpha-Agent-v0.git
 cd AGI-Alpha-Agent-v0
 ./quickstart.sh --preflight   # optional environment check
 python check_env.py --auto-install  # verify & auto-install deps
+# Install runtime dependencies
+pip install -r requirements.txt
 # (If this fails with a network error, rerun with --wheelhouse <path>)
 ./quickstart.sh               # creates venv, installs deps, launches
 # Use `--wheelhouse /path/to/wheels` to install offline packages when
