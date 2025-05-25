@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# SPDX-License-Identifier: Apache-2.0
 # Alpha-Factory Insight demo entrypoint
 set -Eeuo pipefail
 
