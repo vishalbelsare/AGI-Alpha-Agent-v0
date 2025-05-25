@@ -127,7 +127,7 @@ executives, and researchers can explore “what-if” scenarios in minutes.
 
 ```mermaid
 graph TD
-  ROOT["alpha_agi_insight_v0/"]
+  ROOT["alpha_agi_insight_v1/"]
   subgraph Root
     ROOT_README["README.md"]
     REQ["requirements.txt"]
