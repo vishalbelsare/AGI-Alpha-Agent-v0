@@ -175,6 +175,8 @@ for modules, classes and functions.
 - Remove stray build artifacts with `git clean -fd` if needed.
 - Run `python check_env.py --auto-install` and `pytest -q` before committing. \
   Document any remaining test failures in the PR description.
+- See [tests/README.md](tests/README.md) for details on running the suite locally,
+  including setting `PYTHONPATH` or installing in editable mode.
 - Summarize your changes and test results in the PR body.
 - Title PRs using `[alpha_factory] <Title>`.
 - All contributions are licensed under Apache 2.0 by default.
