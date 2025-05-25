@@ -281,9 +281,22 @@ streamlit run src/interface/web_app.py
 ```bash
 # backend
 uvicorn src/interface/api_server:app --reload --port 8000
-# frontend (if you want to rebuild)
+# frontend
 cd src/interface/web_client
-pnpm install && pnpm dev
+pnpm install
+pnpm dev            # http://localhost:5173
+# build production assets
+pnpm build          # outputs to src/interface/web_client/dist/
+# or use `npm install && npm run build`
+```
+
+The built dashboard lives under `src/interface/web_client/dist/` and is copied
+into the demo container.
+
+```bash
+# build and launch containers
+docker compose build
+docker compose up
 ```
 
 The React dashboard streams year-by-year events via WebSocket and renders:
