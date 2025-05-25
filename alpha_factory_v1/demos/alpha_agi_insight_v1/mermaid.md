@@ -316,3 +316,163 @@ graph TD
     end
 ```
 
+%% 🎖️ α‑AGI Insight 👁️✨ — Beyond Human Foresight — Official Demo (ZERO‑DATA)
+%% Production‑grade Mermaid specification for README.md
+
+### System Architecture
+
+```mermaid
+flowchart TD
+  %% ---------- Interface Layer ----------
+  subgraph Interfaces
+    CLI["CLI<br/><i>click/argparse</i>"]
+    WEB["Web UI<br/><i>Streamlit / FastAPI + React</i>"]
+  end
+
+  %% ---------- Core Services ----------
+  subgraph Core["Core Services"]
+    ORCH["Macro‑Sentinel<br/>Orchestrator"]
+    BUS["Secure A2A Bus<br/><i>gRPC Pub/Sub</i>"]
+    LEDGER["Audit Ledger<br/><i>SQLite + Merkle</i>"]
+    MATS["MATS Engine<br/><i>NSGA‑II Evo‑Search</i>"]
+    FORECAST["Thermo‑Forecast<br/><i>Free‑Energy Model</i>"]
+  end
+
+  %% ---------- Agents ----------
+  subgraph Agents
+    PLAN["Planning Agent"]
+    RESEARCH["Research Agent"]
+    STRAT["Strategy Agent"]
+    MARKET["Market Analysis Agent"]
+    CODE["CodeGen Agent"]
+    SAFE["Safety Guardian"]
+    MEMORY["Memory Store"]
+  end
+
+  %% ---------- Providers & Runtime ----------
+  subgraph Providers
+    OPENAI["OpenAI Agents SDK"]
+    ADK["Google ADK"]
+    MCP["Anthropic MCP"]
+  end
+  SANDBOX["Isolated Runtime<br/><i>Docker / Firejail</i>"]
+  CHAIN["Public Blockchain<br/><i>Checkpoint (Solana testnet)</i>"]
+
+  %% ---------- Edges ----------
+  CLI -->|commands| ORCH
+  WEB -->|REST / WS| ORCH
+
+  ORCH <--> BUS
+  BUS <-->|A2A envelopes| PLAN
+  BUS <-->|A2A envelopes| RESEARCH
+  BUS <-->|A2A envelopes| STRAT
+  BUS <-->|A2A envelopes| MARKET
+  BUS <-->|A2A envelopes| CODE
+  BUS <-->|A2A envelopes| SAFE
+  BUS <-->|A2A envelopes| MEMORY
+
+  SAFE -. monitors .-> BUS
+
+  PLAN & RESEARCH & STRAT & MARKET & CODE -->|invoke| MATS
+  PLAN & RESEARCH & STRAT & MARKET & CODE -->|invoke| FORECAST
+  MATS --> FORECAST
+
+  CODE --> SANDBOX
+
+  ORCH -. writes .-> LEDGER
+  LEDGER --> CHAIN
+
+  ORCH <--> OPENAI
+  ORCH <--> ADK
+  ORCH <--> MCP
+
+  MEMORY --- Agents
+
+  %% ---------- Styling ----------
+  classDef iface fill:#d3f9d8,stroke:#34a853,stroke-width:1px;
+  classDef core fill:#e5e5ff,stroke:#6b6bff,stroke-width:1px;
+  classDef agents fill:#fef9e7,stroke:#f39c12,stroke-width:1px;
+  classDef provider fill:#f5e0ff,stroke:#8e44ad,stroke-width:1px;
+  class Interfaces iface
+  class Core core
+  class Agents agents
+  class Providers provider
+```
+
+### Repository Layout
+
+```mermaid
+graph TD
+  ROOT["alpha_agi_insight_v0/"]
+  subgraph Root
+    ROOT_README["README.md"]
+    REQ["requirements.txt"]
+    SRC["src/"]
+    TEST["tests/"]
+    INFRA["infrastructure/"]
+    DOCS["docs/"]
+  end
+
+  %% src subtree
+  subgraph Source["src/"]
+    ORCH_PY["orchestrator.py"]
+    UTILS["utils/"]
+    AGENTS_DIR["agents/"]
+    SIM["simulation/"]
+    IFACE["interface/"]
+  end
+  SRC -->|contains| Source
+
+  %% utils subtree
+  UTILS_CFG["config.py"]
+  UTILS_MSG["messaging.py"]
+  UTILS_LOG["logging.py"]
+  UTILS --> UTILS_CFG & UTILS_MSG & UTILS_LOG
+
+  %% agents subtree
+  AG_BASE["base_agent.py"]
+  AG_PLAN["planning_agent.py"]
+  AG_RES["research_agent.py"]
+  AG_STRAT["strategy_agent.py"]
+  AG_MARK["market_agent.py"]
+  AG_CODE["codegen_agent.py"]
+  AG_SAFE["safety_agent.py"]
+  AG_MEM["memory_agent.py"]
+  AGENTS_DIR --> AG_BASE & AG_PLAN & AG_RES & AG_STRAT & AG_MARK & AG_CODE & AG_SAFE & AG_MEM
+
+  %% simulation subtree
+  SIM_MATS["mats.py"]
+  SIM_FC["forecast.py"]
+  SIM_SEC["sector.py"]
+  SIM --> SIM_MATS & SIM_FC & SIM_SEC
+
+  %% interface subtree
+  IF_CLI["cli.py"]
+  IF_WEB["web_app.py"]
+  IF_API["api_server.py"]
+  IF_REACT["web_client/"]
+  IFACE --> IF_CLI & IF_WEB & IF_API & IF_REACT
+
+  %% tests subtree
+  TEST_MATS["test_mats.py"]
+  TEST_FC["test_forecast.py"]
+  TEST_AG["test_agents.py"]
+  TEST_CLI["test_cli.py"]
+  TEST --> TEST_MATS & TEST_FC & TEST_AG & TEST_CLI
+
+  %% infrastructure subtree
+  INF_DOCK["Dockerfile"]
+  INF_COMPOSE["docker-compose.yml"]
+  INF_HELM["helm-chart/"]
+  INF_TF["terraform/"]
+  INFRA --> INF_DOCK & INF_COMPOSE & INF_HELM & INF_TF
+
+  %% docs subtree
+  DOC_DESIGN["DESIGN.md"]
+  DOC_API["API.md"]
+  DOC_CHANGE["CHANGELOG.md"]
+  DOCS --> DOC_DESIGN & DOC_API & DOC_CHANGE
+```
+
+> **Download** this file to embed the diagrams directly in your README.
+
