@@ -1,5 +1,9 @@
 # SPDX-License-Identifier: Apache-2.0
-"""Tiny offline LLM interface."""
+"""Very small wrapper around optional local language models.
+
+The :func:`chat` helper loads a model on demand using either ``llama-cpp`` or
+``ctransformers``. If neither is present an echo implementation is used.
+"""
 from __future__ import annotations
 
 import os

@@ -1,5 +1,10 @@
 # SPDX-License-Identifier: Apache-2.0
-"""Research agent."""
+"""Agent that converts a plan into research data.
+
+During each cycle the agent runs a tiny evolutionary loop to estimate
+capability growth. Results are forwarded to the strategy agent via
+:meth:`run_cycle` and :meth:`handle` processes incoming planning messages.
+"""
 
 from __future__ import annotations
 

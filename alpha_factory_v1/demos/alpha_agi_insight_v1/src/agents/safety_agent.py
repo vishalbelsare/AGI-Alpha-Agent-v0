@@ -1,5 +1,10 @@
 # SPDX-License-Identifier: Apache-2.0
-"""Safety guardian agent."""
+"""Agent performing lightweight safety checks.
+
+The safety agent inspects generated code for obvious issues before data is
+persisted by the :class:`MemoryAgent`. Only minimal pattern checks are
+implemented for demonstration purposes.
+"""
 
 from __future__ import annotations
 

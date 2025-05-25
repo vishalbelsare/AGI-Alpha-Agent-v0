@@ -1,5 +1,10 @@
 # SPDX-License-Identifier: Apache-2.0
-"""Logging utilities for tamper-evident message tracking."""
+"""Structured logging and Merkle root broadcasting.
+
+The :class:`Ledger` class appends envelopes to a SQLite database and can
+periodically broadcast the Merkle root to Solana. ``setup`` configures
+standard logging with optional colorization.
+"""
 
 from __future__ import annotations
 

@@ -1,5 +1,11 @@
 # SPDX-License-Identifier: Apache-2.0
-"""NSGA-II style evolutionary optimiser."""
+"""Minimal multi-objective evolutionary algorithm.
+
+This module implements a tiny subset of the NSGA‑II algorithm. The
+``Individual`` dataclass stores genomes and fitness, while
+``run_evolution`` executes several generations of crossover and mutation.
+It is intentionally lightweight and not a full-featured implementation.
+"""
 
 from __future__ import annotations
 

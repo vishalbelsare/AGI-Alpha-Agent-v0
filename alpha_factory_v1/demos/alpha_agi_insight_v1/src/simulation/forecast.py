@@ -1,5 +1,11 @@
 # SPDX-License-Identifier: Apache-2.0
-"""Thermodynamic trigger forecasting."""
+"""Utility functions for projecting sector disruption.
+
+This module implements a very small toy model using a logistic capability
+curve and a thermodynamic trigger based on free energy. The helpers
+``forecast_disruptions`` and ``simulate_years`` drive the demo's forecast
+visualisations.
+"""
 
 from __future__ import annotations
 

@@ -1,5 +1,11 @@
 # SPDX-License-Identifier: Apache-2.0
-"""Minimal orchestrator for the α‑AGI Insight demo."""
+"""Central process coordinating all Insight demo agents.
+
+The orchestrator instantiates each agent, relays messages via the
+:class:`~..utils.messaging.A2ABus` and restarts agents when they become
+unresponsive. :meth:`run_forever` starts the event loop and periodic
+health checks.
+"""
 
 from __future__ import annotations
 

@@ -1,5 +1,10 @@
 # SPDX-License-Identifier: Apache-2.0
-"""Planning agent."""
+"""Agent responsible for proposing research steps.
+
+The planning agent periodically formulates a short plan which guides the
+other agents. It demonstrates integration with both local and remote LLMs
+inside :meth:`run_cycle`.
+"""
 
 from __future__ import annotations
 

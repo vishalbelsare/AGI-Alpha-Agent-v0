@@ -1,5 +1,10 @@
 # SPDX-License-Identifier: Apache-2.0
-"""FastAPI wrapper to expose the demo over HTTP."""
+"""FastAPI server exposing simulation endpoints.
+
+The API allows remote control of the orchestrator and serves progress
+updates over websockets. It is intentionally lean and suitable for local
+testing.
+"""
 
 from __future__ import annotations
 
