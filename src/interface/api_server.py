@@ -34,7 +34,6 @@ else:
 forecast = importlib.import_module("alpha_factory_v1.demos.alpha_agi_insight_v1.src.simulation.forecast")
 sector = importlib.import_module("alpha_factory_v1.demos.alpha_agi_insight_v1.src.simulation.sector")
 
-_IMPORT_ERROR: Exception | None
 try:
     from fastapi import FastAPI, HTTPException, WebSocket, Request, Depends
     from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
@@ -43,15 +42,15 @@ try:
     from starlette.responses import Response
     from pydantic import BaseModel
     import uvicorn
-except Exception as exc:  # pragma: no cover - optional
+except Exception:  # pragma: no cover - optional
     FastAPI = None  # type: ignore
     HTTPException = None  # type: ignore
     BaseModel = object  # type: ignore
     WebSocket = Any  # type: ignore
     uvicorn = None  # type: ignore
-    _IMPORT_ERROR = exc
-else:
-    _IMPORT_ERROR = None
+
+if FastAPI is None:
+    raise RuntimeError("FastAPI is required")
 
 app: FastAPI | None = FastAPI(title="AGI Simulation API") if FastAPI is not None else None
 
@@ -274,7 +273,7 @@ def main(argv: List[str] | None = None) -> None:
         None
     """
     if FastAPI is None:
-        raise SystemExit("FastAPI is required to run the API server") from _IMPORT_ERROR
+        raise SystemExit("FastAPI is required to run the API server")
 
     parser = argparse.ArgumentParser(description="Run the AGI simulation API server")
     parser.add_argument("--host", default="0.0.0.0", help="Bind host")
