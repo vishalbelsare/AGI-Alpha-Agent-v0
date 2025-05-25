@@ -35,7 +35,7 @@ Please report security vulnerabilities as described in our [Security Policy](SEC
   pip install -U pip
   ```
 - The script `alpha_factory_v1/scripts/preflight.py` enforces this requirement.
-- Run `./codex/setup.sh` to install the project in editable mode along with minimal runtime dependencies.
+- From the repository root, run `./codex/setup.sh` to install the project in editable mode along with minimal runtime dependencies. This ensures all relative paths resolve correctly.
  - When offline, build a local wheelhouse for **both** `requirements.txt` and
    `requirements-dev.txt`:
    ```bash
