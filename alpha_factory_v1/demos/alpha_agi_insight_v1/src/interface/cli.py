@@ -128,8 +128,8 @@ def show_results(limit: int) -> None:
 def agents_status() -> None:
     """List registered agents."""
     orch = orchestrator.Orchestrator()
-    for agent in orch.agents:
-        click.echo(agent.__class__.__name__)
+    for runner in orch.runners.values():
+        click.echo(runner.agent.name)
 
 
 @main.command()

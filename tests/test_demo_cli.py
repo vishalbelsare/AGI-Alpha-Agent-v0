@@ -34,3 +34,13 @@ def test_show_results_table(tmp_path) -> None:
             res = CliRunner().invoke(cli.main, ["show-results"])
             assert "sender" in res.output
             assert "a" in res.output
+
+
+def test_agents_status_lists_all_agents(tmp_path) -> None:
+    path = tmp_path / "audit.db"
+    with patch.object(cli.config.CFG, "ledger_path", str(path)):
+        orch = cli.orchestrator.Orchestrator()
+        with patch.object(cli.orchestrator, "Orchestrator", return_value=orch):
+            result = CliRunner().invoke(cli.main, ["agents-status"])
+    for name in orch.runners.keys():
+        assert name in result.output
