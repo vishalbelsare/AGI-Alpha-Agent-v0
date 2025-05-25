@@ -16,8 +16,8 @@ try:
     from rich.console import Console
     from rich.table import Table
 except Exception:  # pragma: no cover - optional
-    Console = None  # type: ignore
-    Table = None  # type: ignore
+    Console = None
+    Table = None
 
 from .. import orchestrator
 from ..simulation import forecast, sector
@@ -123,7 +123,7 @@ def simulate(
     else:
         _format_results(results)
 
-    if start_orchestrator and verbose:
+    if start_orchestrator and verbose and console is not None:
         console.log("Starting orchestrator … press Ctrl+C to stop")
 
     if start_orchestrator:

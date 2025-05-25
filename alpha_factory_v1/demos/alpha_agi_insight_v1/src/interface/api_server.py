@@ -3,26 +3,33 @@
 
 from __future__ import annotations
 
+import typing as t
+
 try:
-    from fastapi import FastAPI
+    import fastapi
+except Exception:  # pragma: no cover - optional
+    fastapi = t.cast(t.Any, None)
+
+try:
     import uvicorn
 except Exception:  # pragma: no cover - optional
-    FastAPI = None  # type: ignore
-    uvicorn = None  # type: ignore
+    uvicorn = t.cast(t.Any, None)
+
+FastAPI = fastapi.FastAPI if fastapi is not None else None
 
 import asyncio
 
 from .. import orchestrator
 import argparse
 
-app = FastAPI(title="α‑AGI Insight") if FastAPI else None
+app = FastAPI(title="α‑AGI Insight") if FastAPI is not None else None
 
-if app:
+if app is not None:
     orch = orchestrator.Orchestrator()
 
     @app.on_event("startup")
     async def _start() -> None:
-        app.state.task = asyncio.create_task(orch.run_forever())  # type: ignore[attr-defined]
+        app.state.task = asyncio.create_task(orch.run_forever())
 
     @app.on_event("shutdown")
     async def _stop() -> None:
