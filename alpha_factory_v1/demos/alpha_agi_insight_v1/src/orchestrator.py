@@ -67,7 +67,6 @@ class Orchestrator:
             wallet=self.settings.solana_wallet,
             broadcast=self.settings.broadcast,
         )
-        self.ledger.start_merkle_task(3600)
         self.runners: Dict[str, AgentRunner] = {}
         self.bus.subscribe("orch", self._on_orch)
         for agent in self._init_agents():
@@ -115,6 +114,7 @@ class Orchestrator:
 
     async def run_forever(self) -> None:
         await self.bus.start()
+        self.ledger.start_merkle_task(3600)
         for r in self.runners.values():
             r.start(self.bus, self.ledger)
         self._monitor_task = asyncio.create_task(self._monitor())
