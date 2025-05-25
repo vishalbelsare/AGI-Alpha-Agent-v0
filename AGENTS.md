@@ -67,6 +67,7 @@ Please report security vulnerabilities as described in our [Security Policy](SEC
   `pip install -r requirements-dev.txt` to obtain `fastapi` and
   `opentelemetry-api`.
 - Execute `pytest -q` (or `python -m alpha_factory_v1.scripts.run_tests`) and ensure the entire suite passes. If failures remain, document them in the PR description.
+- When running tests directly from the repository without installation, set `PYTHONPATH` as described in [`tests/README.md`](tests/README.md): `export PYTHONPATH=$(pwd)`.
 - For coverage metrics, run `pytest --cov` and aim for at least **80%** coverage.
 - Test environment variables (see [`alpha_factory_v1/tests/README.md`](alpha_factory_v1/tests/README.md) for details):
   - `AF_MEMORY_DIR` – temporary memory path.
