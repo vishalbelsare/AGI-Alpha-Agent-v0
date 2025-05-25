@@ -232,7 +232,9 @@ For detailed troubleshooting steps, see [`alpha_factory_v1/scripts/README.md`](a
 
 ### Wheel Signing
 All agent wheels must be signed with the project's ED25519 key before they are
-loaded from `$AGENT_HOT_DIR`.
+loaded from `$AGENT_HOT_DIR`. **OpenSSL** is required to sign and verify wheels.
+Install it with `brew install openssl` on macOS or grab the
+[OpenSSL Windows binaries](https://slproweb.com/products/Win32OpenSSL.html).
 
 Generate the signing key once and capture the base64 public key:
 
@@ -256,6 +258,8 @@ openssl dgst -sha512 -binary <wheel>.whl |
   base64 -w0 > <wheel>.whl.sig
 ```
 
+Keep `<wheel>.whl.sig` next to the wheel inside `$AGENT_HOT_DIR`.
+
 Commit the signature file and add the base64 value to `_WHEEL_SIGS` in
 `alpha_factory_v1/backend/agents/__init__.py`. Wheels without a valid signature
 are ignored at runtime.
@@ -266,6 +270,14 @@ Verify that `<wheel>.whl.sig` matches the wheel:
 ```bash
 openssl dgst -sha512 -binary <wheel>.whl |
   openssl pkeyutl -verify -pubin -inkey "$AGENT_WHEEL_PUBKEY" -sigfile <wheel>.whl.sig
+```
+
+On Windows PowerShell:
+
+```powershell
+Get-Content <wheel>.whl -Encoding Byte |
+  openssl dgst -sha512 -binary |
+  openssl pkeyutl -verify -pubin -inkey $env:AGENT_WHEEL_PUBKEY -sigfile <wheel>.whl.sig
 ```
 
 The orchestrator validates signatures against `_WHEEL_PUBKEY` in `alpha_factory_v1/backend/agents/__init__.py`.
