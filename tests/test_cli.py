@@ -29,6 +29,19 @@ def test_simulate_runs() -> None:
     with patch.object(cli, "asyncio") as aio:
         aio.run.return_value = None
         with patch.object(cli.orchestrator, "Orchestrator"):
-            res = runner.invoke(cli.main, ["simulate", "--horizon", "1", "--offline", "--pop-size", "1", "--generations", "1"])
+            res = runner.invoke(
+                cli.main,
+                [
+                    "simulate",
+                    "--horizon",
+                    "1",
+                    "--offline",
+                    "--pop-size",
+                    "1",
+                    "--generations",
+                    "1",
+                    "--start-orchestrator",
+                ],
+            )
         assert res.exit_code == 0
         aio.run.assert_called_once()
