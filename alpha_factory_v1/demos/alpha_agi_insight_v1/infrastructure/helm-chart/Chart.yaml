@@ -1,0 +1,6 @@
+apiVersion: v2
+name: alpha-insight
+description: Helm chart for the α-AGI Insight demo
+version: 0.1.0
+appVersion: "v1"
+type: application
