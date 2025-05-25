@@ -190,89 +190,129 @@ graph TD
 
 ---
 
-## 2. Repository Layout
-```mermaid
-%% Logical Repository Tree (folders collapsed for brevity)
-graph LR
-    R[alpha_agi_insight_v0/]---README[README.md]
-    R---REQ[requirements.txt]
-
-    subgraph SRC[/src]
-        SRC_ORCH[orchestrator.py]
-        SRC_AGENTS[/agents]
-        SRC_SIM[/simulation]
-        SRC_INT[/interface]
-        SRC_UTIL[/utils]
-    end
-    R---SRC
-
-    subgraph AGENTS_TREE
-        SRC_AGENTS_BASE[base_agent.py]
-        SRC_AGENTS_PLAN[planning_agent.py]
-        SRC_AGENTS_RES[research_agent.py]
-        SRC_AGENTS_STR[strategy_agent.py]
-        SRC_AGENTS_MAR[market_agent.py]
-        SRC_AGENTS_CODE[codegen_agent.py]
-        SRC_AGENTS_SAFE[safety_agent.py]
-        SRC_AGENTS_MEM[memory_agent.py]
-    end
-    SRC_AGENTS---AGENTS_TREE
-
-    subgraph SIM_TREE
-        SRC_SIM_MATS[mats.py]
-        SRC_SIM_FORE[forecast.py]
-        SRC_SIM_SECT[sector.py]
-    end
-    SRC_SIM---SIM_TREE
-
-    subgraph INT_TREE
-        SRC_INT_CLI[cli.py]
-        SRC_INT_WEB[web_app.py]
-        SRC_INT_API[api_server.py]
-        SRC_INT_REACT[/web_client]
-    end
-    SRC_INT---INT_TREE
-
-    subgraph UTIL_TREE
-        SRC_UTIL_MSG[messaging.py]
-        SRC_UTIL_CFG[config.py]
-        SRC_UTIL_LOG[logging.py]
-    end
-    SRC_UTIL---UTIL_TREE
-
-    R---TESTS[/tests]
-    R---INFRA[/infrastructure]
-    R---DOCS[/docs]
-```
-
----
-
-## 3. CI/CD & Deployment Pipeline
-```mermaid
-flowchart LR
-    Dev[Developer Push]-->CI[GitHub Actions / CI]
-    CI-->|Unit & Integration Tests|TestPass{All Tests Pass?}
-    TestPass-->|Yes|Build[Docker Multi‑Arch Build]
-    TestPass-->|No|Fail[Fail Pipeline]
-
-    Build-->Scan[Security Scan (Snyk/Trivy)]
-    Scan-->|Pass|PushReg[Push Image to Registry]
-
-    PushReg-->|Tag Release|HelmChart[Helm Package Update]
-    HelmChart-->CD[ArgoCD / Flux]
-
-    CD-->|Deploy|K8s[Kubernetes Cluster<br/>(Prod / Staging)]
-    K8s-->|Health Checks|Monitor[Prometheus / Grafana]
-    Monitor-->|Alerts|Ops[Ops Team]
-
-    K8s-->|Rolling Update Success|Users[End Users]
-```
-
----
-
 ## 4. Legend
 - **Solid arrows**: primary data/control flow  
 - **Dashed arrows**: monitoring / logging / audit paths  
 - **Rounded rectangles**: active services or agents  
 - **Parallelograms**: data stores or ledgers  
-- **Cylinders**: external persistent storage / blockchain  
+- **Cylinders**: external persistent storage / blockchain
+
+# α‑AGI Insight — Architectural Overview (Mermaid diagrams)
+
+```mermaid
+%% Diagram 1: High‑level system architecture
+flowchart TD
+    subgraph User_Interfaces
+        CLI["Command‑Line Interface (Click)"]
+        WebUI["Web UI (Streamlit / React+FastAPI)"]
+    end
+
+    subgraph Core_Services
+        Orchestrator["Macro‑Sentinel Orchestrator"]
+        Bus["Secure A2A Message Bus\n(gRPC + TLS)"]
+        Ledger["Append‑Only Audit Ledger\n(SQLite + Merkle ➜ Blockchain)"]
+    end
+
+    subgraph Agents_Cluster
+        Planning[PlanningAgent]
+        Research[ResearchAgent]
+        Strategy[StrategyAgent]
+        Market[MarketAnalysisAgent]
+        CodeGen[CodeGenAgent]
+        Safety[SafetyGuardianAgent]
+        Memory[MemoryAgent / KV Store]
+    end
+
+    subgraph Simulation_Engine
+        MATS["Zero‑Data Meta‑Agentic Tree Search\n(NSGA‑II)"]
+        Forecast["Thermodynamic Disruption Forecaster"]
+    end
+
+    subgraph External_Services
+        OpenAISDK["OpenAI Agents SDK"]
+        GoogleADK["Google ADK"]
+        MCP["Anthropic MCP"]
+        LocalLLM["Local LLM\n(Fallback, Llama‑3)"]
+    end
+
+    CLI -- REST/CLI --> Orchestrator
+    WebUI -- WebSocket/REST --> Orchestrator
+    Orchestrator -- pub/sub --> Bus
+    Bus <-- heartbeat --> Agents_Cluster
+    Orchestrator -- audit --> Ledger
+
+    Agents_Cluster -->|tool calls| Simulation_Engine
+    MATS --> Forecast
+    Forecast --> Orchestrator
+
+    CodeGen -- sandbox_exec --> Orchestrator
+    Safety -. monitors .- Agents_Cluster
+    Memory -. query .- Agents_Cluster
+
+    Orchestrator -->|API| OpenAISDK
+    Orchestrator --> GoogleADK
+    Orchestrator --> MCP
+    Orchestrator --> LocalLLM
+```
+
+```mermaid
+%% Diagram 2: Repository layout
+graph TD
+    A0[alpha_agi_insight_v0/] --- A1[README.md]
+    A0 --- A2[requirements.txt]
+    A0 --- SRC[src/]
+    A0 --- TEST[tests/]
+    A0 --- INFRA[infrastructure/]
+    A0 --- DOCS[docs/]
+
+    subgraph src/
+        Orc[orchestrator.py]
+        subgraph agents/
+            BA[base_agent.py]
+            PA[planning_agent.py]
+            RA[research_agent.py]
+            SA[strategy_agent.py]
+            MA[market_agent.py]
+            CG[codegen_agent.py]
+            SG[safety_agent.py]
+            MEM[memory_agent.py]
+        end
+        subgraph simulation/
+            MATS_SIM[mats.py]
+            FC[forecast.py]
+            SEC[sector.py]
+        end
+        subgraph interface/
+            CLI_FILE[cli.py]
+            WEB[web_app.py]
+            API[api_server.py]
+            CLIENT[web_client/]
+        end
+        subgraph utils/
+            MSG[messaging.py]
+            CFG[config.py]
+            LOG[logging.py]
+        end
+    end
+
+    subgraph tests/
+        TM[test_mats.py]
+        TF[test_forecast.py]
+        TA[test_agents.py]
+        TCL[test_cli.py]
+    end
+
+    subgraph infrastructure/
+        DF[Dockerfile]
+        DC[docker-compose.yml]
+        HELM[helm-chart/]
+        TF_FOLDER[terraform/]
+    end
+
+    subgraph docs/
+        DES[DESIGN.md]
+        API_DOC[API.md]
+        CHG[CHANGELOG.md]
+    end
+```
+
