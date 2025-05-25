@@ -1,4 +1,5 @@
 """Streamlit dashboard for AGI simulations."""
+
 from __future__ import annotations
 
 import time
@@ -20,19 +21,22 @@ else:
     SectorModule = Any
     MatsModule = Any
 
-forecast = importlib.import_module(
-    "alpha_factory_v1.demos.alpha_agi_insight_v1.src.simulation.forecast"
-)
-sector = importlib.import_module(
-    "alpha_factory_v1.demos.alpha_agi_insight_v1.src.simulation.sector"
-)
-mats = importlib.import_module(
-    "alpha_factory_v1.demos.alpha_agi_insight_v1.src.simulation.mats"
-)
+forecast = importlib.import_module("alpha_factory_v1.demos.alpha_agi_insight_v1.src.simulation.forecast")
+sector = importlib.import_module("alpha_factory_v1.demos.alpha_agi_insight_v1.src.simulation.sector")
+mats = importlib.import_module("alpha_factory_v1.demos.alpha_agi_insight_v1.src.simulation.mats")
 
 
 def _run_simulation(horizon: int, pop_size: int, generations: int) -> None:
-    """Execute the simulation and update charts live."""
+    """Execute the simulation and update charts live.
+
+    Args:
+        horizon: Number of years to forecast.
+        pop_size: Size of the MATS population.
+        generations: Number of evolutionary steps.
+
+    Returns:
+        None
+    """
     if st is None:
         print("Streamlit not installed")
         return
@@ -66,7 +70,11 @@ def _run_simulation(horizon: int, pop_size: int, generations: int) -> None:
 
 
 def main() -> None:  # pragma: no cover - entry point
-    """Streamlit entry point."""
+    """Streamlit entry point.
+
+    Returns:
+        None
+    """
     if st is None:
         print("Streamlit not installed")
         return
