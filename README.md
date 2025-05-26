@@ -59,29 +59,59 @@ For a guaranteed offline run without external dependencies, use:
 alpha-agi-insight-offline --episodes 5
 ```
 
-This wrapper sets ALPHA_AGI_OFFLINE=true before delegating to the production demo so the search loop never attempts network access.
+This wrapper sets ``ALPHA_AGI_OFFLINE=true`` before delegating to the production
+demo so the search loop never attempts network access.
 
-To run completely offline with a local Llama model set ``AGI_INSIGHT_OFFLINE=1``
-and download a compatible ``.gguf`` weight. For example:
+<a name="63-offline-mode"></a>
+### Offline Mode
 
-```bash
-mkdir -p ~/.cache/llama
-curl -L -o ~/.cache/llama/TinyLlama-1.1B-Chat-v1.0.Q4_K_M.gguf \
-  https://huggingface.co/TheBloke/TinyLlama-1.1B-Chat-GGUF/resolve/main/TinyLlama-1.1B-Chat-v1.0.Q4_K_M.gguf
-```
+Follow these steps when working without internet access.
 
-Set ``LLAMA_MODEL_PATH`` to the downloaded file and ensure
-``llama-cpp-python`` or ``ctransformers`` is installed. When offline mode is
-enabled the agents automatically use the local model for inference. You can
-also provide the path directly when running ``simulate``:
+1. **Build a wheelhouse** on a machine with connectivity:
+   ```bash
+   mkdir -p /media/wheels
+   pip wheel -r requirements.txt -w /media/wheels
+   pip wheel -r requirements-dev.txt -w /media/wheels
+   ```
+
+2. **Install from the wheelhouse** and verify packages:
+   ```bash
+   WHEELHOUSE=/media/wheels AUTO_INSTALL_MISSING=1 ./codex/setup.sh
+   WHEELHOUSE=/media/wheels AUTO_INSTALL_MISSING=1 \
+     python check_env.py --auto-install --wheelhouse /media/wheels
+   pip check
+   ```
+
+3. **Download a `.gguf` weight** and set ``LLAMA_MODEL_PATH``:
+   ```bash
+   mkdir -p ~/.cache/llama
+   curl -L -o ~/.cache/llama/TinyLlama-1.1B-Chat-v1.0.Q4_K_M.gguf \
+     https://huggingface.co/TheBloke/TinyLlama-1.1B-Chat-GGUF/resolve/main/TinyLlama-1.1B-Chat-v1.0.Q4_K_M.gguf
+   export LLAMA_MODEL_PATH=~/.cache/llama/TinyLlama-1.1B-Chat-v1.0.Q4_K_M.gguf
+   ```
+
+4. **Enable offline inference** by setting ``AGI_INSIGHT_OFFLINE=1`` in
+   ``.env`` or the environment.
+
+Example:
 
 ```bash
 python -m alpha_factory_v1.demos.alpha_agi_insight_v1.src.interface.cli simulate \
-  --offline --llama-model-path ~/.cache/llama/TinyLlama-1.1B-Chat-v1.0.Q4_K_M.gguf
+  --offline --llama-model-path "$LLAMA_MODEL_PATH"
 ```
 
-Set ``AGI_INSIGHT_OFFLINE=1`` in your `.env` to force this behaviour even when
-API keys are present.
+Produces output similar to:
+
+```
+OPENAI_API_KEY missing – offline mode enabled
+year | capability | affected
+-----+------------+---------
+1    | 0.88       |
+2    | 0.98       |
+3    | 1.00       |
+4    | 1.00       |
+5    | 1.00       |
+```
 
 
 ### 🎖️ α‑AGI Architect 👁️✨ — Foundational Operational Blueprint
@@ -204,6 +234,7 @@ See [AGENTS.md](AGENTS.md) for the full contributor guide.
 6. [5‑Minute Quick‑Start 🚀](#6-5-minute-quick-start)
 6.1. [Running Tests 🧪](#61-running-tests)
 6.2. [Marketplace Demo Example 🛒](#62-marketplace-demo-example)
+6.3. [Offline Mode](#63-offline-mode)
 7. [Deployment Recipes 🍳](#7-deployment-recipes)
 8. [Governance & Compliance ⚖️](#8-governance--compliance)  
 9. [Observability 🔭](#9-observability)  
