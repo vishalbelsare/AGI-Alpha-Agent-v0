@@ -290,7 +290,7 @@ pnpm install
 pnpm dev            # http://localhost:5173
 # build production assets
 pnpm build          # outputs to src/interface/web_client/dist/
-# or run `make build_web_v1` from the repo root
+# or run `make build_web` from the repo root
 # or use `npm install && npm run build`
 ```
 
