@@ -333,7 +333,7 @@ For the REST and WebSocket endpoints see
 | `SIM_RESULTS_DIR` | Folder for simulation JSON results | `$ALPHA_DATA_DIR/simulations` |
 | `API_TOKEN` | Bearer token required by the REST API | `REPLACE_ME_TOKEN` |
 
-Create `.env` or pass via `docker -e`. Store wallet keys outside of `.env` and
+Copy `.env.example` to `.env` (or pass via `docker -e`). Store wallet keys outside of `.env` and
 use `AGI_INSIGHT_SOLANA_WALLET_FILE` to reference the file containing the
 hex-encoded private key.
 The API server stores simulation results as JSON files under `SIM_RESULTS_DIR`.
