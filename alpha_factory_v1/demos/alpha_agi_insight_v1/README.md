@@ -331,6 +331,7 @@ For the REST and WebSocket endpoints see
 | `AGI_INSIGHT_SOLANA_WALLET` | Wallet private key (hex) | _unset_ |
 | `AGI_INSIGHT_SOLANA_WALLET_FILE` | Path to wallet key file | _unset_ |
 | `SIM_RESULTS_DIR` | Folder for simulation JSON results | `$ALPHA_DATA_DIR/simulations` |
+| `API_TOKEN` | Bearer token required by the REST API | `REPLACE_ME_TOKEN` |
 
 Create `.env` or pass via `docker -e`. Store wallet keys outside of `.env` and
 use `AGI_INSIGHT_SOLANA_WALLET_FILE` to reference the file containing the
