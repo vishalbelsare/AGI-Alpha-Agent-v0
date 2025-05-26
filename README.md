@@ -730,15 +730,13 @@ cd src/interface/web_client
 npm install
 npm run dev       # http://localhost:5173
 # build production assets
-npm run build
-# or pnpm build
+pnpm build
 python -m http.server --directory dist 9000
 ```
 Alternatively run inside Docker:
 ```bash
 # build the web client first so `dist/` exists
-npm --prefix src/interface/web_client install
-npm --prefix src/interface/web_client run build
+make build_web
 docker compose build
 docker compose up
 ```
