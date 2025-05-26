@@ -1,5 +1,7 @@
 import os
 import time
+import asyncio
+from pathlib import Path
 
 import pytest
 
@@ -54,3 +56,33 @@ def test_api_endpoints() -> None:
     assert isinstance(runs_data, dict)
     assert "ids" in runs_data and isinstance(runs_data["ids"], list)
     assert sim_id in runs_data["ids"]
+
+
+def test_background_run_direct(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    """Call the internal worker directly and verify progress and output."""
+
+    monkeypatch.setenv("SIM_RESULTS_DIR", str(tmp_path))
+
+    import importlib
+
+    from src.interface import api_server as api
+
+    api = importlib.reload(api)
+
+    messages: list[dict[str, object]] = []
+
+    class DummyWS:
+        async def send_json(self, data: dict[str, object]) -> None:
+            messages.append(data)
+
+    ws = DummyWS()
+    api._progress_ws.add(ws)
+
+    sim_id = "unit-test"
+    cfg = api.SimRequest(horizon=1, pop_size=2, generations=1)
+    asyncio.run(api._background_run(sim_id, cfg))
+
+    api._progress_ws.discard(ws)
+
+    assert (tmp_path / f"{sim_id}.json").exists()
+    assert messages and messages[0]["id"] == sim_id
