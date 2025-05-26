@@ -62,8 +62,14 @@ def thermodynamic_trigger(sector: Sector, capability: float) -> bool:
     return free_energy(sector, capability) < 0
 
 
-def _innovation_gain(pop_size: int = 6, generations: int = 1) -> float:
-    """Return a small gain from a short MATS run."""
+def _innovation_gain(pop_size: int = 6, generations: int = 1, *, seed: int | None = None) -> float:
+    """Return a small gain from a short MATS run.
+
+    Args:
+        pop_size: Number of individuals in the MATS population.
+        generations: Number of evolution steps.
+        seed: Optional RNG seed for deterministic output.
+    """
 
     def fn(genome: list[float]) -> tuple[float, float, float]:
         x, y = genome
@@ -77,7 +83,7 @@ def _innovation_gain(pop_size: int = 6, generations: int = 1) -> float:
         2,
         population_size=pop_size,
         generations=generations,
-        seed=42,
+        seed=seed,
     )
     m = len(pop[0].fitness or ())
     best = min(pop, key=lambda ind: sum(ind.fitness or (0.0,) * m))
@@ -91,6 +97,7 @@ def forecast_disruptions(
     *,
     pop_size: int = 6,
     generations: int = 1,
+    seed: int | None = None,
 ) -> List[TrajectoryPoint]:
     """Simulate sector trajectories and disruption events."""
 
@@ -105,7 +112,7 @@ def forecast_disruptions(
                 sec.energy *= 1.0 + sec.growth
                 if thermodynamic_trigger(sec, cap):
                     sec.disrupted = True
-                    sec.energy += _innovation_gain(pop_size, generations)
+                    sec.energy += _innovation_gain(pop_size, generations, seed=seed)
                     affected.append(sec)
         snapshot = [Sector(s.name, s.energy, s.entropy, s.growth, s.disrupted) for s in secs]
         results.append(TrajectoryPoint(year, cap, snapshot))

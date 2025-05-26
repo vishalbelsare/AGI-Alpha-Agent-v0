@@ -39,7 +39,7 @@ def test_gibbs_free_energy() -> None:
 
 
 def test_forecast_disruptions_trigger_and_gain(monkeypatch) -> None:
-    monkeypatch.setattr(forecast, "_innovation_gain", lambda *_: 0.5)
+    monkeypatch.setattr(forecast, "_innovation_gain", lambda *_, **__: 0.5)
     sec = sector.Sector("x", energy=1.0, entropy=2.0, growth=0.0)
     traj = forecast.forecast_disruptions([sec], 1, curve="linear", pop_size=2, generations=1)
     pt = traj[0].sectors[0]
@@ -83,3 +83,19 @@ def test_innovation_gain_positive() -> None:
     gain = forecast._innovation_gain(pop_size=2, generations=1)
     assert gain > 0.0
     assert gain < 0.1
+
+
+def test_innovation_gain_seed_deterministic() -> None:
+    gain1 = forecast._innovation_gain(pop_size=2, generations=1, seed=123)
+    gain2 = forecast._innovation_gain(pop_size=2, generations=1, seed=123)
+    assert gain1 == gain2
+
+
+def test_forecast_disruptions_seed_deterministic() -> None:
+    sec1 = sector.Sector("x", energy=1.0, entropy=2.0, growth=0.1)
+    sec2 = sector.Sector("x", energy=1.0, entropy=2.0, growth=0.1)
+    traj1 = forecast.forecast_disruptions([sec1], 2, curve="linear", pop_size=2, generations=1, seed=123)
+    traj2 = forecast.forecast_disruptions([sec2], 2, curve="linear", pop_size=2, generations=1, seed=123)
+    result1 = [ (p.year, p.sectors[0].energy, p.sectors[0].disrupted) for p in traj1 ]
+    result2 = [ (p.year, p.sectors[0].energy, p.sectors[0].disrupted) for p in traj2 ]
+    assert result1 == result2

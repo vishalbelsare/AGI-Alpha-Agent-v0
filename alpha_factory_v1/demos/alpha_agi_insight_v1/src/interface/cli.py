@@ -139,6 +139,7 @@ def simulate(
         curve=curve,
         pop_size=pop_size,
         generations=generations,
+        seed=seed,
     )
     results = [forecast.ForecastPoint(t.year, t.capability, [s for s in t.sectors if s.disrupted]) for t in trajectory]
 
