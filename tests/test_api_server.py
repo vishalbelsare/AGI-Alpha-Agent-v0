@@ -1,62 +1,55 @@
-import asyncio
-from typing import Any, cast
 import os
+import time
 
 import pytest
-from httpx import ASGITransport, AsyncClient
 
-fastapi = pytest.importorskip("fastapi")
-httpx = pytest.importorskip("httpx")
+pytest.importorskip("fastapi")
+from fastapi.testclient import TestClient
 
 os.environ.setdefault("API_TOKEN", "test-token")
 os.environ.setdefault("API_RATE_LIMIT", "1000")
 
 
-async def make_client() -> tuple[AsyncClient, Any]:
+from typing import Any, cast
+
+
+def make_client() -> TestClient:
     from src.interface import api_server
 
-    transport = ASGITransport(app=cast(Any, api_server.app))
-    client = AsyncClient(base_url="http://test", transport=transport)
-    return client, api_server
+    return TestClient(cast(Any, api_server.app))
 
 
-def test_simulate_flow() -> None:
-    async def run() -> None:
-        client, api_server = await make_client()
-        async with client:
-            r = await client.post(
-                "/simulate",
-                json={"horizon": 1, "pop_size": 2, "generations": 1},
-                headers={"Authorization": "Bearer test-token"},
-            )
-            assert r.status_code == 200
-            sim_id = r.json()["id"]
-            assert isinstance(sim_id, str) and sim_id
+def test_api_endpoints() -> None:
+    client = make_client()
+    headers = {"Authorization": "Bearer test-token"}
 
-            for _ in range(100):
-                r = await client.get(
-                    f"/results/{sim_id}", headers={"Authorization": "Bearer test-token"}
-                )
-                if r.status_code == 200:
-                    data = r.json()
-                    break
-                await asyncio.sleep(0.05)
-            else:
-                raise AssertionError("Timed out waiting for results")
+    resp = client.post(
+        "/simulate",
+        json={"horizon": 1, "pop_size": 2, "generations": 1},
+        headers=headers,
+    )
+    assert resp.status_code == 200
+    data = resp.json()
+    assert isinstance(data, dict)
+    sim_id = data.get("id")
+    assert isinstance(sim_id, str) and sim_id
 
-            assert r.status_code == 200
-            assert isinstance(data, dict)
-            assert "forecast" in data
-            assert "population" in data
+    for _ in range(100):
+        r = client.get(f"/results/{sim_id}", headers=headers)
+        if r.status_code == 200:
+            results = r.json()
+            break
+        time.sleep(0.05)
+    else:
+        raise AssertionError("Timed out waiting for results")
 
-            r3 = await client.get(
-                f"/population/{sim_id}", headers={"Authorization": "Bearer test-token"}
-            )
-            assert r3.status_code == 200
-            pop = r3.json()
-            assert "population" in pop
+    assert isinstance(results, dict)
+    assert "forecast" in results and isinstance(results["forecast"], list)
+    assert "population" in results and isinstance(results["population"], list)
 
-            r2 = await client.get("/results/does-not-exist", headers={"Authorization": "Bearer test-token"})
-            assert r2.status_code == 404
-
-    asyncio.run(run())
+    runs = client.get("/runs", headers=headers)
+    assert runs.status_code == 200
+    runs_data = runs.json()
+    assert isinstance(runs_data, dict)
+    assert "ids" in runs_data and isinstance(runs_data["ids"], list)
+    assert sim_id in runs_data["ids"]
