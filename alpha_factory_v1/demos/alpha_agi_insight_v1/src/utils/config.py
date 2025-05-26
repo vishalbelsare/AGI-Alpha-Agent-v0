@@ -68,6 +68,7 @@ class Settings:
     bus_token: str | None = os.getenv("AGI_INSIGHT_BUS_TOKEN")
     bus_cert: str | None = os.getenv("AGI_INSIGHT_BUS_CERT")
     bus_key: str | None = os.getenv("AGI_INSIGHT_BUS_KEY")
+    allow_insecure: bool = os.getenv("AGI_INSIGHT_ALLOW_INSECURE", "0") == "1"
     broadcast: bool = os.getenv("AGI_INSIGHT_BROADCAST", "1") == "1"
     solana_rpc_url: str = os.getenv("AGI_INSIGHT_SOLANA_URL", "https://api.testnet.solana.com")
     solana_wallet: str | None = os.getenv("AGI_INSIGHT_SOLANA_WALLET")
