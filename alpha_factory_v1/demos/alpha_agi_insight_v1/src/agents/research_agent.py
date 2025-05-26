@@ -26,6 +26,16 @@ class ResearchAgent(BaseAgent):
         """Periodic sweep using a tiny evolutionary loop."""
         secs = [sector.Sector(f"s{i}") for i in range(3)]
         traj = forecast.forecast_disruptions(secs, 1)
+        if self.adk:
+            try:  # pragma: no cover - optional
+                self.adk.heartbeat()
+            except Exception:
+                pass
+        if self.mcp:
+            try:  # pragma: no cover - optional
+                self.mcp.heartbeat()
+            except Exception:
+                pass
         await self.emit("strategy", {"research": traj[0].capability})
 
     async def handle(self, env: messaging.Envelope) -> None:

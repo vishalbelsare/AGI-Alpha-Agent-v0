@@ -12,6 +12,8 @@ import time
 from typing import Any, TYPE_CHECKING
 
 from ..utils import messaging
+from .adk_adapter import ADKAdapter
+from .mcp_adapter import MCPAdapter
 
 if TYPE_CHECKING:  # pragma: no cover - type hint only
     from ..utils.logging import Ledger
@@ -21,10 +23,6 @@ try:
 except Exception:  # pragma: no cover - optional
     AgentContext = object
 
-try:
-    import adk
-except Exception:  # pragma: no cover - optional
-    adk = None
 
 
 class BaseAgent:
@@ -37,7 +35,8 @@ class BaseAgent:
         self.bus = bus
         self.ledger = ledger
         self.oai_ctx = AgentContext() if isinstance(AgentContext, type) else None
-        self.adk_client = adk.Client() if adk else None
+        self.adk = ADKAdapter() if ADKAdapter.is_available() else None
+        self.mcp = MCPAdapter() if MCPAdapter.is_available() else None
         self.bus.subscribe(name, self._on_envelope)
 
     async def _on_envelope(self, env: messaging.Envelope) -> None:

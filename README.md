@@ -168,10 +168,13 @@ python3 -m venv .venv
 source .venv/bin/activate
 # Install runtime dependencies
 pip install -r requirements.txt
+# Optional ADK/MCP integration
+pip install google-adk mcp
 # Requires Python 3.11–3.12 (<3.13)
 ./quickstart.sh
 python -m webbrowser http://localhost:8000/docs
 ```
+The adapters initialise automatically when these optional packages are present.
 
 ## Disclaimer
 This repository is a conceptual research prototype. References to "AGI" and
