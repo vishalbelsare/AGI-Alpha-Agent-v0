@@ -19,10 +19,11 @@ if TYPE_CHECKING:  # pragma: no cover - type hint only
     from ..utils.logging import Ledger
 
 try:
-    from openai.agents import AgentContext
-except Exception:  # pragma: no cover - optional
-    AgentContext = object
+    from openai.agents import AgentContext as _AgentContext
 
+    AgentContext: type | None = _AgentContext
+except Exception:  # pragma: no cover - optional
+    AgentContext = None
 
 
 class BaseAgent:
@@ -34,7 +35,7 @@ class BaseAgent:
         self.name = name
         self.bus = bus
         self.ledger = ledger
-        self.oai_ctx = AgentContext() if isinstance(AgentContext, type) else None
+        self.oai_ctx = AgentContext() if AgentContext is not None else None
         self.adk = ADKAdapter() if ADKAdapter.is_available() else None
         self.mcp = MCPAdapter() if MCPAdapter.is_available() else None
         self.bus.subscribe(name, self._on_envelope)
