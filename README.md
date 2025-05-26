@@ -93,12 +93,16 @@ Follow these steps when working without internet access.
 4. **Enable offline inference** by setting ``AGI_INSIGHT_OFFLINE=1`` in
    ``.env`` or the environment.
 
+   Sample sector definitions live in
+   ``alpha_factory_v1/demos/alpha_agi_insight_v1/docs/sectors.sample.json``.
+   Pass this file with ``--sectors-file`` to forecast specific industries.
+
 Example (using ``--sectors-file`` to customise the simulation):
 
 ```bash
 python -m alpha_factory_v1.demos.alpha_agi_insight_v1.src.interface.cli simulate \
   --curve linear --offline --llama-model-path "$LLAMA_MODEL_PATH" \
-  --sectors-file sectors.json
+  --sectors-file alpha_factory_v1/demos/alpha_agi_insight_v1/docs/sectors.sample.json
 ```
 
 Produces output similar to:
