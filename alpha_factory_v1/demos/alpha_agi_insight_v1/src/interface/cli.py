@@ -74,6 +74,7 @@ def main() -> None:
 @click.option("--offline", is_flag=True, help="Force offline mode")
 @click.option("--no-broadcast", is_flag=True, help="Disable blockchain broadcasting")
 @click.option("--llama-model-path", type=click.Path(), help="Path to local Llama model")
+@click.option("--sectors", default=6, show_default=True, type=int, help="Number of sectors")
 @click.option("--pop-size", default=6, show_default=True, type=int, help="MATS population size")
 @click.option("--generations", default=3, show_default=True, type=int, help="Evolution steps")
 @click.option("--export", type=click.Choice(["json", "csv"]), help="Export results format")
@@ -84,6 +85,7 @@ def simulate(
     curve: str,
     seed: int | None,
     offline: bool,
+    sectors: int,
     pop_size: int,
     generations: int,
     export: str | None,
@@ -106,7 +108,7 @@ def simulate(
         settings.broadcast = False
 
     orch = orchestrator.Orchestrator(settings)
-    secs = [sector.Sector(f"s{i:02d}") for i in range(pop_size)]
+    secs = [sector.Sector(f"s{i:02d}") for i in range(sectors)]
     trajectory = forecast.forecast_disruptions(
         secs,
         horizon,
