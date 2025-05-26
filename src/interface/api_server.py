@@ -33,6 +33,7 @@ else:
 
 forecast = importlib.import_module("alpha_factory_v1.demos.alpha_agi_insight_v1.src.simulation.forecast")
 sector = importlib.import_module("alpha_factory_v1.demos.alpha_agi_insight_v1.src.simulation.sector")
+mats = importlib.import_module("alpha_factory_v1.demos.alpha_agi_insight_v1.src.simulation.mats")
 
 try:
     from fastapi import FastAPI, HTTPException, WebSocket, Request, Depends
@@ -158,6 +159,15 @@ class ForecastPoint(BaseModel):
     capability: float
 
 
+class PopulationMember(BaseModel):
+    """Single entry in the final population."""
+
+    effectiveness: float
+    risk: float
+    complexity: float
+    rank: int
+
+
 class SimStartResponse(BaseModel):
     """Identifier returned when launching a simulation."""
 
@@ -169,12 +179,20 @@ class ResultsResponse(BaseModel):
 
     id: str
     forecast: list[ForecastPoint]
+    population: list[PopulationMember] = []
 
 
 class RunsResponse(BaseModel):
     """List of available run identifiers."""
 
     ids: list[str]
+
+
+class PopulationResponse(BaseModel):
+    """Return value for ``/population``."""
+
+    id: str
+    population: list[PopulationMember]
 
 
 async def _background_run(sim_id: str, cfg: SimRequest) -> None:
@@ -208,9 +226,32 @@ async def _background_run(sim_id: str, cfg: SimRequest) -> None:
             except Exception:
                 _progress_ws.discard(ws)
         await asyncio.sleep(0)
+
+    def eval_fn(genome: list[float]) -> tuple[float, float, float]:
+        x, y = genome
+        return x**2, y**2, (x + y) ** 2
+
+    pop = mats.run_evolution(
+        eval_fn,
+        2,
+        population_size=cfg.pop_size,
+        generations=cfg.generations,
+    )
+
+    pop_data = [
+        PopulationMember(
+            effectiveness=ind.fitness[0],
+            risk=ind.fitness[1],
+            complexity=ind.fitness[2],
+            rank=ind.rank,
+        )
+        for ind in pop
+    ]
+
     result = ResultsResponse(
         id=sim_id,
         forecast=[ForecastPoint(year=p.year, capability=p.capability) for p in traj],
+        population=pop_data,
     )
     _simulations[sim_id] = result
     _save_result(result)
@@ -239,6 +280,14 @@ if app is not None:
         if result is None:
             raise HTTPException(status_code=404)
         return result
+
+    @app.get("/population/{sim_id}", response_model=PopulationResponse)
+    async def get_population(sim_id: str, _: None = Depends(verify_token)) -> PopulationResponse:
+        """Return the final population for ``sim_id`` if available."""
+        result = _simulations.get(sim_id)
+        if result is None:
+            raise HTTPException(status_code=404)
+        return PopulationResponse(id=sim_id, population=result.population)
 
     @app.get("/runs", response_model=RunsResponse)
     async def list_runs(_: None = Depends(verify_token)) -> RunsResponse:

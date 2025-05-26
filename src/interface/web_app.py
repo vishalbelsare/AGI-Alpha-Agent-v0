@@ -60,6 +60,19 @@ def pareto_df(pop: list[Any]) -> pd.DataFrame:
     )
 
 
+def population_df(pop: list[Any]) -> pd.DataFrame:
+    """Return a DataFrame for effectiveness vs. risk vs. complexity."""
+
+    return pd.DataFrame(
+        {
+            "effectiveness": [p.fitness[0] for p in pop],
+            "risk": [p.fitness[1] for p in pop],
+            "complexity": [p.fitness[2] for p in pop],
+            "rank": [p.rank for p in pop],
+        }
+    )
+
+
 def _run_simulation(horizon: int, curve: str, pop_size: int, generations: int) -> None:
     """Execute the simulation and update charts live."""
     if st is None:  # pragma: no cover - fallback
@@ -70,6 +83,7 @@ def _run_simulation(horizon: int, curve: str, pop_size: int, generations: int) -
     secs = [sector.Sector(f"s{i:02d}") for i in range(pop_size)]
     timeline_placeholder = st.empty()
     pareto_placeholder = st.empty()
+    scatter_placeholder = st.empty()
     log_box = st.empty()
     progress = st.progress(0.0)
 
@@ -111,9 +125,12 @@ def _run_simulation(horizon: int, curve: str, pop_size: int, generations: int) -
         progress.progress(step / total_steps)
         time.sleep(0.1)
 
-    def eval_fn(genome: list[float]) -> tuple[float, float]:
+    def eval_fn(genome: list[float]) -> tuple[float, float, float]:
         x, y = genome
-        return x**2, y**2
+        effectiveness = x**2
+        risk = y**2
+        complexity = (x + y) ** 2
+        return effectiveness, risk, complexity
 
     pop = mats.run_evolution(
         eval_fn,
@@ -127,12 +144,23 @@ def _run_simulation(horizon: int, curve: str, pop_size: int, generations: int) -
     fig_p = px.scatter(df_pareto, x="x", y="y", color="rank")
     pareto_placeholder.plotly_chart(fig_p, use_container_width=True)
 
+    df_pop = population_df(pop)
+    fig_pop = px.scatter_3d(
+        df_pop,
+        x="effectiveness",
+        y="risk",
+        z="complexity",
+        color="rank",
+    )
+    scatter_placeholder.plotly_chart(fig_pop, use_container_width=True)
+
     st.download_button(
         "Download results (JSON)",
         json.dumps(
             {
                 "timeline": timeline_rows,
                 "pareto": df_pareto.to_dict(orient="records"),
+                "population": df_pop.to_dict(orient="records"),
             }
         ).encode(),
         file_name="results.json",

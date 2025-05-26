@@ -712,6 +712,9 @@ Open <http://localhost:8501> in your browser. When `RUN_MODE=web`, the container
 serves the static files from `src/interface/web_client/dist` using `python -m
 http.server`.
 
+The dashboard now plots a 3‑D scatter chart of effectiveness vs. risk vs.
+complexity from the final population.
+
 If Streamlit isn't installed or you're running on a headless server, use:
 ```bash
 python src/interface/minimal_ui.py --text
