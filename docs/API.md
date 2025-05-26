@@ -4,12 +4,14 @@ This page documents the REST endpoints provided by the demo API server and the a
 
 ## REST endpoints
 
-The API is implemented with FastAPI in `src/interface/api_server.py`. Three
-routes are available. The orchestrator boots in the background when the server
-starts and is gracefully shut down on exit:
+The API is implemented with FastAPI in `src/interface/api_server.py`. The
+orchestrator boots in the background when the server starts and is gracefully
+shut down on exit. Available endpoints are:
 
 - `POST /simulate` – start a new simulation.
+- `GET /results` – most recent simulation data.
 - `GET /results/{sim_id}` – fetch final forecast data.
+- `GET /population/{sim_id}` – retrieve only the population list.
 - `WS  /ws/progress` – stream progress logs while the simulation runs.
 
 ## Authentication
@@ -110,6 +112,19 @@ The response contains the generated simulation identifier:
 
 ```json
 {"id": "<sim_id>"}
+```
+
+**GET `/results`**
+
+Return the most recent simulation results. The payload matches
+``GET /results/{sim_id}``.
+
+```json
+{
+  "id": "<sim_id>",
+  "forecast": [{"year": 1, "capability": 0.1}],
+  "population": [{"effectiveness": 0.5, "risk": 0.2, "complexity": 0.3, "rank": 0}]
+}
 ```
 
 **GET `/results/{sim_id}`**

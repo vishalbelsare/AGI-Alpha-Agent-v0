@@ -322,8 +322,15 @@ The React dashboard streams year-by-year events via WebSocket and renders:
 * **MATS Pareto front** evolution,
 * real-time **agent logs**.
 
-For the REST and WebSocket endpoints see
-[docs/API.md](docs/API.md).
+Typical REST endpoints:
+
+- `POST /simulate` – launch a new run.
+- `GET /results` – latest completed run.
+- `GET /results/{id}` – specific run data.
+- `GET /population/{id}` – MATS population only.
+- `WS  /ws/progress` – live progress updates.
+
+For details see [docs/API.md](docs/API.md).
 
 ---
 

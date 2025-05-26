@@ -123,6 +123,7 @@ if app is not None:
 
 _simulations: dict[str, ResultsResponse] = {}
 _progress_ws: Set[Any] = set()
+_latest_id: str | None = None
 _results_dir = Path(
     os.getenv("SIM_RESULTS_DIR", os.path.join(os.getenv("ALPHA_DATA_DIR", "/tmp/alphafactory"), "simulations"))
 )
@@ -130,6 +131,8 @@ _results_dir.mkdir(parents=True, exist_ok=True)
 
 
 def _load_results() -> None:
+    latest_time = 0.0
+    latest_id: str | None = None
     for f in _results_dir.glob("*.json"):
         try:
             data = json.loads(f.read_text())
@@ -137,11 +140,19 @@ def _load_results() -> None:
         except Exception:
             continue
         _simulations[res.id] = res
+        mtime = f.stat().st_mtime
+        if mtime > latest_time:
+            latest_time = mtime
+            latest_id = res.id
+    global _latest_id
+    _latest_id = latest_id
 
 
 def _save_result(result: ResultsResponse) -> None:
     path = _results_dir / f"{result.id}.json"
     path.write_text(result.json())
+    global _latest_id
+    _latest_id = result.id
 
 
 class SectorSpec(BaseModel):
@@ -190,7 +201,7 @@ class ResultsResponse(BaseModel):
 
     id: str
     forecast: list[ForecastPoint]
-    population: list[PopulationMember] = []
+    population: list[PopulationMember] | None = None
 
 
 class RunsResponse(BaseModel):
@@ -269,6 +280,8 @@ async def _background_run(sim_id: str, cfg: SimRequest) -> None:
     )
     _simulations[sim_id] = result
     _save_result(result)
+    global _latest_id
+    _latest_id = sim_id
 
 
 if app is not None:
@@ -291,6 +304,16 @@ if app is not None:
     async def get_results(sim_id: str, _: None = Depends(verify_token)) -> ResultsResponse:
         """Return final forecast data for ``sim_id`` if available."""
         result = _simulations.get(sim_id)
+        if result is None:
+            raise HTTPException(status_code=404)
+        return result
+
+    @app.get("/results", response_model=ResultsResponse)
+    async def get_latest(_: None = Depends(verify_token)) -> ResultsResponse:
+        """Return the most recently completed simulation."""
+        if _latest_id is None:
+            raise HTTPException(status_code=404)
+        result = _simulations.get(_latest_id)
         if result is None:
             raise HTTPException(status_code=404)
         return result
