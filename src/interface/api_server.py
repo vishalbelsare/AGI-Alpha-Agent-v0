@@ -144,6 +144,15 @@ def _save_result(result: ResultsResponse) -> None:
     path.write_text(result.json())
 
 
+class SectorSpec(BaseModel):
+    """Sector configuration for simulation."""
+
+    name: str
+    energy: float = 1.0
+    entropy: float = 1.0
+    growth: float = 0.05
+
+
 class SimRequest(BaseModel):
     """Payload for the ``/simulate`` endpoint."""
 
@@ -151,6 +160,7 @@ class SimRequest(BaseModel):
     pop_size: int = 6
     generations: int = 3
     curve: str = "logistic"
+    sectors: list[SectorSpec] | None = None
 
 
 class ForecastPoint(BaseModel):
@@ -207,7 +217,10 @@ async def _background_run(sim_id: str, cfg: SimRequest) -> None:
         None
     """
 
-    secs = [sector.Sector(f"s{i:02d}") for i in range(cfg.pop_size)]
+    if cfg.sectors:
+        secs = [sector.Sector(s.name, s.energy, s.entropy, s.growth) for s in cfg.sectors]
+    else:
+        secs = [sector.Sector(f"s{i:02d}") for i in range(cfg.pop_size)]
     traj: list[ForecastTrajectoryPoint] = []
     for year in range(1, cfg.horizon + 1):
         t = year / cfg.horizon

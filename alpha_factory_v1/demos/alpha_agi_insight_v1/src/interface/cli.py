@@ -74,6 +74,7 @@ def main() -> None:
 @click.option("--offline", is_flag=True, help="Force offline mode")
 @click.option("--no-broadcast", is_flag=True, help="Disable blockchain broadcasting")
 @click.option("--llama-model-path", type=click.Path(), help="Path to local Llama model")
+@click.option("--sectors-file", type=click.Path(exists=True), help="JSON file with sector definitions")
 @click.option("--sectors", default=6, show_default=True, type=int, help="Number of sectors")
 @click.option("--pop-size", default=6, show_default=True, type=int, help="MATS population size")
 @click.option("--generations", default=3, show_default=True, type=int, help="Evolution steps")
@@ -85,6 +86,7 @@ def simulate(
     curve: str,
     seed: int | None,
     offline: bool,
+    sectors_file: str | None,
     sectors: int,
     pop_size: int,
     generations: int,
@@ -101,6 +103,7 @@ def simulate(
         curve: Name of the capability growth curve.
         seed: Random seed for deterministic output.
         offline: Force offline mode.
+        sectors_file: JSON file with sector definitions.
         sectors: Number of sectors to simulate.
         pop_size: MATS population size.
         generations: Number of evolution steps.
@@ -126,7 +129,10 @@ def simulate(
         settings.broadcast = False
 
     orch = orchestrator.Orchestrator(settings)
-    secs = [sector.Sector(f"s{i:02d}") for i in range(sectors)]
+    if sectors_file:
+        secs = sector.load_sectors(sectors_file)
+    else:
+        secs = [sector.Sector(f"s{i:02d}") for i in range(sectors)]
     trajectory = forecast.forecast_disruptions(
         secs,
         horizon,

@@ -93,11 +93,12 @@ Follow these steps when working without internet access.
 4. **Enable offline inference** by setting ``AGI_INSIGHT_OFFLINE=1`` in
    ``.env`` or the environment.
 
-Example:
+Example (using ``--sectors-file`` to customise the simulation):
 
 ```bash
 python -m alpha_factory_v1.demos.alpha_agi_insight_v1.src.interface.cli simulate \
-  --curve linear --offline --llama-model-path "$LLAMA_MODEL_PATH"
+  --curve linear --offline --llama-model-path "$LLAMA_MODEL_PATH" \
+  --sectors-file sectors.json
 ```
 
 Produces output similar to:
