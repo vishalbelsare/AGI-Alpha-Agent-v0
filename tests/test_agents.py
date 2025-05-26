@@ -25,12 +25,14 @@ from alpha_factory_v1.backend import agents
 from alpha_factory_v1.backend.agents.base import AgentBase
 from alpha_factory_v1.demos.alpha_agi_insight_v1.src.agents.base_agent import BaseAgent
 
+
 class DummyHB(AgentBase):
     NAME = "dummy_hb"
     CAPABILITIES = ["x"]
 
     async def step(self) -> None:
         return None
+
 
 def test_agent_registration_and_heartbeat() -> None:
     meta = agents.AgentMetadata(
@@ -244,3 +246,33 @@ def test_research_agent_adapters_invoked(monkeypatch) -> None:
         asyncio.run(agent.run_cycle())
         adk_hb.assert_called_once()
         mcp_hb.assert_called_once()
+
+
+def test_codegen_agent_sandbox_blocks_import(monkeypatch) -> None:
+    from alpha_factory_v1.demos.alpha_agi_insight_v1.src.utils import config, messaging
+    from alpha_factory_v1.demos.alpha_agi_insight_v1.src.agents import codegen_agent
+
+    class DummyLedger:
+        def __init__(self, *_a, **_kw) -> None:
+            self.records: list[messaging.Envelope] = []
+
+        def log(self, env) -> None:  # type: ignore[override]
+            self.records.append(env)
+
+        def start_merkle_task(self, *_a, **_kw) -> None:
+            pass
+
+        async def stop_merkle_task(self) -> None:
+            pass
+
+        def close(self) -> None:
+            pass
+
+    settings = config.Settings(bus_port=0, openai_api_key="k")
+    bus = messaging.A2ABus(settings)
+    ledger = DummyLedger()
+    agent = codegen_agent.CodeGenAgent(bus, ledger)
+
+    agent.execute_in_sandbox("import os\nprint('hi')")
+    errs = [r.payload.get("stderr", "") for r in ledger.records if "stderr" in r.payload]
+    assert errs and "ImportError" in errs[-1]
