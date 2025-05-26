@@ -82,6 +82,11 @@ class A2ABus:
         return b"ok"
 
     async def start(self) -> None:
+        logger.info(
+            "Starting A2ABus (port=%s broker=%s)",
+            self.settings.bus_port,
+            self.settings.broker_url or "disabled",
+        )
         if self.settings.broker_url and AIOKafkaProducer:
             self._producer = AIOKafkaProducer(bootstrap_servers=self.settings.broker_url)
             await self._producer.start()
@@ -106,6 +111,11 @@ class A2ABus:
         self._server = server
 
     async def stop(self) -> None:
+        logger.info(
+            "Stopping A2ABus (port=%s broker=%s)",
+            self.settings.bus_port,
+            self.settings.broker_url or "disabled",
+        )
         if self._server:
             await self._server.stop(0)
             self._server = None
