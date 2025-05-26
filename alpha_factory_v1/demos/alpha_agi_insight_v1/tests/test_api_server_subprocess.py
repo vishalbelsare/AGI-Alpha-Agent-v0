@@ -118,7 +118,8 @@ def test_simulation_endpoints() -> None:
             r = httpx.get(f"{url}/results/{sim_id}", headers=headers)
             if r.status_code == 200:
                 data = r.json()
-                break
+                if data.get("population") is not None:
+                    break
             time.sleep(0.05)
         else:
             raise AssertionError("Timed out waiting for results")
@@ -126,6 +127,20 @@ def test_simulation_endpoints() -> None:
         th.join(timeout=5)
         assert progress
         assert "forecast" in data
+        assert isinstance(data.get("population"), list)
+
+        r_latest = httpx.get(url + "/results", headers=headers)
+        assert r_latest.status_code == 200
+        latest = r_latest.json()
+        assert latest["id"] == sim_id
+        assert latest.get("population") == data["population"]
+
+        r_pop = httpx.get(f"{url}/population/{sim_id}", headers=headers)
+        assert r_pop.status_code == 200
+        pop_data = r_pop.json()
+        assert pop_data["id"] == sim_id
+        assert pop_data["population"] == data["population"]
+
         r_runs = httpx.get(url + "/runs", headers=headers)
         assert r_runs.status_code == 200
         assert sim_id in r_runs.json().get("ids", [])
