@@ -65,13 +65,23 @@ def thermodynamic_trigger(sector: Sector, capability: float) -> bool:
 def _innovation_gain(pop_size: int = 6, generations: int = 1) -> float:
     """Return a small gain from a short MATS run."""
 
-    def fn(genome: list[float]) -> tuple[float, float]:
+    def fn(genome: list[float]) -> tuple[float, float, float]:
         x, y = genome
-        return x**2, y**2
+        effectiveness = x**2
+        negative_evar = y**2
+        complexity = (x + y) ** 2
+        return effectiveness, negative_evar, complexity
 
-    pop = mats.run_evolution(fn, 2, population_size=pop_size, generations=generations, seed=42)
-    best = min(pop, key=lambda ind: sum(ind.fitness or (0.0, 0.0)))
-    return 0.1 / (1.0 + sum(best.fitness or (0.0, 0.0)))
+    pop = mats.run_evolution(
+        fn,
+        2,
+        population_size=pop_size,
+        generations=generations,
+        seed=42,
+    )
+    m = len(pop[0].fitness or ())
+    best = min(pop, key=lambda ind: sum(ind.fitness or (0.0,) * m))
+    return 0.1 / (1.0 + sum(best.fitness or (0.0,) * m))
 
 
 def forecast_disruptions(
