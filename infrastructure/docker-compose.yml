@@ -2,11 +2,11 @@ version: '3.9'
 services:
   orchestrator:
     build:
-      context: ..
-      dockerfile: infrastructure/Dockerfile
-    image: alpha-demo:latest
+      context: ..                        # project root as build context
+      dockerfile: infrastructure/Dockerfile # container recipe
+    image: alpha-demo:latest             # demo image tag
     env_file:
-      - ../.env
+      - ../.env                          # default environment variables
     environment:
       RUN_MODE: api                           # container start mode
       OPENAI_API_KEY: ${OPENAI_API_KEY:-}     # hosted model credential
@@ -14,14 +14,14 @@ services:
       AGI_INSIGHT_BUS_PORT: ${AGI_INSIGHT_BUS_PORT:-6006} # gRPC event bus port
       AGI_INSIGHT_LEDGER_PATH: ${AGI_INSIGHT_LEDGER_PATH:-./ledger/audit.db} # audit ledger path
     ports:
-      - "${PORT:-8000}:8000"                 # REST API port
-      - "${AGI_INSIGHT_BUS_PORT:-6006}:6006" # gRPC bus port
-    restart: unless-stopped
+      - "${PORT:-8000}:8000"                 # host:container REST API port
+      - "${AGI_INSIGHT_BUS_PORT:-6006}:6006" # host:container gRPC bus
+    restart: unless-stopped              # restart policy
 
   agents:
-    image: alpha-demo:latest
+    image: alpha-demo:latest             # reuse the demo image
     env_file:
-      - ../.env
+      - ../.env                          # default environment variables
     environment:
       RUN_MODE: cli                           # entrypoint for agent workers
       OPENAI_API_KEY: ${OPENAI_API_KEY:-}     # hosted model credential
@@ -29,17 +29,17 @@ services:
       AGI_INSIGHT_BUS_PORT: ${AGI_INSIGHT_BUS_PORT:-6006} # gRPC event bus port
       AGI_INSIGHT_LEDGER_PATH: ${AGI_INSIGHT_LEDGER_PATH:-./ledger/audit.db} # audit ledger path
     depends_on:
-      - orchestrator
+      - orchestrator                     # wait for orchestrator
 
   web:
-    image: alpha-demo:latest
+    image: alpha-demo:latest             # reuse the demo image
     env_file:
-      - ../.env
+      - ../.env                          # default environment variables
     environment:
       RUN_MODE: web                           # start the Streamlit dashboard
       OPENAI_API_KEY: ${OPENAI_API_KEY:-}     # hosted model credential
       AGI_INSIGHT_OFFLINE: ${AGI_INSIGHT_OFFLINE:-0} # set 1 for local models
     ports:
-      - "8501:8501"                           # dashboard port
+      - "8501:8501"                           # host:container dashboard port
     depends_on:
-      - orchestrator
+      - orchestrator                     # wait for orchestrator
