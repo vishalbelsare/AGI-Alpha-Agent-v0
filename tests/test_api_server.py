@@ -47,6 +47,14 @@ def test_simulate_flow() -> None:
             assert r.status_code == 200
             assert isinstance(data, dict)
             assert "forecast" in data
+            assert "population" in data
+
+            r3 = await client.get(
+                f"/population/{sim_id}", headers={"Authorization": "Bearer test-token"}
+            )
+            assert r3.status_code == 200
+            pop = r3.json()
+            assert "population" in pop
 
             r2 = await client.get("/results/does-not-exist", headers={"Authorization": "Bearer test-token"})
             assert r2.status_code == 404

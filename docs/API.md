@@ -120,9 +120,14 @@ Example response:
 ```json
 {
   "id": "<sim_id>",
-  "forecast": [{"year": 1, "capability": 0.1}]
+  "forecast": [{"year": 1, "capability": 0.1}],
+  "population": [
+    {"effectiveness": 0.5, "risk": 0.2, "complexity": 0.3, "rank": 0}
+  ]
 }
 ```
+
+**GET `/population/{sim_id}`** – returns only the ``population`` array if required.
 
 **WebSocket `/ws/progress`**
 

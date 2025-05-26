@@ -20,3 +20,13 @@ def test_pareto_df() -> None:
     df = web_app.pareto_df(pop)
     assert set(df.columns) == {"x", "y", "rank"}
     assert len(df) == 2
+
+
+def test_population_df() -> None:
+    pop = [mats.Individual([0.0, 0.0]), mats.Individual([1.0, 1.0])]
+    for i, ind in enumerate(pop):
+        ind.fitness = (i * 1.0, i * 2.0, i * 3.0)
+        ind.rank = i
+    df = web_app.population_df(pop)
+    assert set(df.columns) == {"effectiveness", "risk", "complexity", "rank"}
+    assert len(df) == 2
