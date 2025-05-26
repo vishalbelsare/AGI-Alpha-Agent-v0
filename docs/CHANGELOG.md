@@ -9,8 +9,9 @@ All notable changes to this project are documented in this file.
 - Additional CLI notes and help command reference.
 
 ## [1.0.2] - 2025-06-30
-- Documented REST API and CLI usage with example commands.
-- Added architecture diagrams and algorithm explanations for MATS and forecasting.
+- Documented CLI and FastAPI usage with example commands.
+- Added agent architecture diagrams and algorithm explanations for MATS and forecasting.
+- Provided a Streamlit dashboard for interactive demos.
 - Maintained versioned changelog for project history.
 
 ## [1.0.1] - 2025-05-25
