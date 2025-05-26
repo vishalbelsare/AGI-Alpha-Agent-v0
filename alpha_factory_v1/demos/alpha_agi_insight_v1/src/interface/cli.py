@@ -94,24 +94,24 @@ def simulate(
     no_broadcast: bool,
     llama_model_path: str | None,
 ) -> None:
-    """Run the forecast simulation and optionally start the orchestrator.
+    """Run a forecast simulation.
 
     Args:
         horizon: Forecast horizon in years.
-        curve: Capability growth curve name.
+        curve: Name of the capability growth curve.
         seed: Random seed for deterministic output.
         offline: Force offline mode.
         sectors: Number of sectors to simulate.
         pop_size: MATS population size.
         generations: Number of evolution steps.
-        export: Optional format to export results.
+        export: Format to export results.
         verbose: Enable verbose output.
-        start_orchestrator: Launch orchestrator after simulation.
-        no_broadcast: Disable blockchain broadcasting.
+        start_orchestrator: Launch orchestrator after the run.
+        no_broadcast: Disable ledger broadcasting.
         llama_model_path: Path to a local Llama model.
 
     Returns:
-        ``None``
+        None
     """
     if seed is not None:
         random.seed(seed)
@@ -178,14 +178,14 @@ def simulate(
 @click.option("--limit", default=10, show_default=True, type=int, help="Entries to display")
 @click.option("--export", type=click.Choice(["json", "csv"]), help="Export results format")
 def show_results(limit: int, export: str | None) -> None:
-    """Display recent ledger entries.
+    """Show recent ledger entries.
 
     Args:
-        limit: Number of entries to show.
-        export: Output format when exporting results.
+        limit: Number of entries to display.
+        export: Format to export results.
 
     Returns:
-        ``None``
+        None
     """
     path = Path(config.CFG.ledger_path)
     if not path.exists():
@@ -220,13 +220,13 @@ def show_results(limit: int, export: str | None) -> None:
 @main.command("agents-status")
 @click.option("--watch", is_flag=True, help="Continuously monitor agents")
 def agents_status(watch: bool) -> None:
-    """List registered agents and optionally watch for updates.
+    """Display registered agents.
 
     Args:
         watch: Continuously monitor agent status changes.
 
     Returns:
-        ``None``
+        None
     """
     orch = orchestrator.Orchestrator()
 
@@ -246,10 +246,10 @@ def agents_status(watch: bool) -> None:
 
 @main.command()
 def replay() -> None:
-    """Replay ledger entries with a small delay between events.
+    """Replay ledger events with a short delay.
 
     Returns:
-        ``None``
+        None
     """
     path = Path(config.CFG.ledger_path)
     if not path.exists():
