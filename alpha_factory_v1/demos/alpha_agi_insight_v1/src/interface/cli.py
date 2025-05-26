@@ -244,6 +244,19 @@ def agents_status(watch: bool) -> None:
         pass
 
 
+@main.command(name="orchestrator")
+@click.option("--verbose", is_flag=True, help="Verbose output")
+def run_orchestrator(verbose: bool) -> None:
+    """Run the orchestrator until interrupted."""
+    orch = orchestrator.Orchestrator()
+    if verbose and console is not None:
+        console.log("Starting orchestrator … press Ctrl+C to stop")
+    try:
+        asyncio.run(orch.run_forever())
+    except KeyboardInterrupt:  # pragma: no cover - interactive
+        pass
+
+
 @main.command()
 def replay() -> None:
     """Replay ledger events with a short delay.
