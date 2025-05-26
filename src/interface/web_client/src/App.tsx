@@ -21,11 +21,12 @@ interface ResultsResponse {
 export default function App() {
   const [data, setData] = useState<ForecastPoint[]>([]);
   const [population, setPopulation] = useState<PopulationMember[]>([]);
+  const API_BASE = (import.meta.env.VITE_API_BASE_URL ?? '').replace(/\/$/, '');
 
   useEffect(() => {
     async function load() {
       try {
-        const res = await fetch('/results');
+        const res = await fetch(`${API_BASE}/results`);
         if (res.ok) {
           const body: ResultsResponse = await res.json();
           setData(body.forecast);
