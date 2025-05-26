@@ -44,6 +44,7 @@ def test_api_endpoints() -> None:
         raise AssertionError("Timed out waiting for results")
 
     assert isinstance(results, dict)
+    assert results.get("id") == sim_id
     assert "forecast" in results and isinstance(results["forecast"], list)
     assert "population" in results and isinstance(results["population"], list)
 
