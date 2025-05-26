@@ -39,7 +39,7 @@ Once the server is running you can trigger a forecast using `curl`:
 curl -X POST http://localhost:8000/simulate \
   -H "Authorization: Bearer $API_TOKEN" \
   -H "Content-Type: application/json" \
-  -d '{"horizon": 5, "pop_size": 6, "generations": 3}'
+  -d '{"horizon": 5, "pop_size": 6, "generations": 3, "curve": "linear"}'
 ```
 
 Retrieve the results when the run finishes:
@@ -95,12 +95,14 @@ Start a new simulation. Send a JSON payload with the following fields:
 - `horizon` – forecast horizon in years
 - `pop_size` – number of individuals per generation
 - `generations` – number of evolutionary steps
+- `curve` – capability growth curve (`logistic`, `linear`, `exponential`)
 
 ```json
 {
   "horizon": 5,
   "pop_size": 6,
-  "generations": 3
+  "generations": 3,
+  "curve": "logistic"
 }
 ```
 

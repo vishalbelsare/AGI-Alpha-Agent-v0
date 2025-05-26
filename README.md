@@ -97,7 +97,7 @@ Example:
 
 ```bash
 python -m alpha_factory_v1.demos.alpha_agi_insight_v1.src.interface.cli simulate \
-  --offline --llama-model-path "$LLAMA_MODEL_PATH"
+  --curve linear --offline --llama-model-path "$LLAMA_MODEL_PATH"
 ```
 
 Produces output similar to:
