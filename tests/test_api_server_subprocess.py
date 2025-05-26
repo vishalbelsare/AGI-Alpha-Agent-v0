@@ -16,7 +16,7 @@ os.environ.setdefault("API_RATE_LIMIT", "1000")
 def _free_port() -> int:
     with socket.socket() as s:
         s.bind(("127.0.0.1", 0))
-        return s.getsockname()[1]
+        return int(s.getsockname()[1])
 
 
 def test_simulate_curve_subprocess() -> None:
@@ -55,9 +55,16 @@ def test_simulate_curve_subprocess() -> None:
         for _ in range(400):
             r = httpx.get(f"{url}/results/{sim_id}", headers=headers)
             if r.status_code == 200:
+                results = r.json()
                 break
             time.sleep(0.05)
         assert r.status_code == 200
+
+        r_pop = httpx.get(f"{url}/population/{sim_id}", headers=headers)
+        assert r_pop.status_code == 200
+        pop = r_pop.json()
+        assert pop["id"] == sim_id
+        assert pop["population"] == results["population"]
     finally:
         proc.terminate()
         proc.wait(timeout=5)
