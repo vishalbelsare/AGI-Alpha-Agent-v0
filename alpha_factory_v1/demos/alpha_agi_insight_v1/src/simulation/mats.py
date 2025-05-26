@@ -17,7 +17,7 @@ from typing import Callable, List, Tuple
 @dataclass(slots=True)
 class Individual:
     genome: List[float]
-    fitness: Tuple[float, float] | None = None
+    fitness: Tuple[float, ...] | None = None
     crowd: float = 0.0
     rank: int = 0
 
@@ -25,7 +25,7 @@ class Individual:
 Population = List[Individual]
 
 
-def evaluate(pop: Population, fn: Callable[[List[float]], Tuple[float, float]]) -> None:
+def evaluate(pop: Population, fn: Callable[[List[float]], Tuple[float, ...]]) -> None:
     """Assign fitness scores using ``fn``."""
 
     for ind in pop:
@@ -41,7 +41,7 @@ def _crowding(pop: Population) -> None:
     for ind in pop:
         ind.crowd = 0.0
     for i in range(m):
-        pop.sort(key=lambda x: (x.fitness or (0.0, 0.0))[i])
+        pop.sort(key=lambda x: (x.fitness or (0.0,) * m)[i])
         first_fit = pop[0].fitness
         last_fit = pop[-1].fitness
         assert first_fit is not None and last_fit is not None
@@ -100,7 +100,7 @@ def _non_dominated_sort(pop: Population) -> List[Population]:
 
 def _evolve_step(
     pop: Population,
-    fn: Callable[[List[float]], Tuple[float, float]],
+    fn: Callable[[List[float]], Tuple[float, ...]],
     *,
     rng: random.Random,
     mutation_rate: float,
@@ -133,7 +133,7 @@ def _evolve_step(
 
 
 def run_evolution(
-    fn: Callable[[List[float]], Tuple[float, float]],
+    fn: Callable[[List[float]], Tuple[float, ...]],
     genome_length: int,
     *,
     population_size: int = 20,

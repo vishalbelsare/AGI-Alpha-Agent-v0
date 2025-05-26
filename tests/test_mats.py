@@ -33,3 +33,13 @@ def test_run_evolution_different_seeds() -> None:
     pop2 = mats.run_evolution(fn, 2, population_size=3, generations=1, seed=2)
 
     assert [ind.genome for ind in pop1] != [ind.genome for ind in pop2]
+
+
+def test_run_evolution_three_objectives() -> None:
+    def fn(genome: list[float]) -> tuple[float, float, float]:
+        x, y = genome
+        return x**2, y**2, (x + y) ** 2
+
+    pop = mats.run_evolution(fn, 2, population_size=4, generations=2, seed=42)
+
+    assert all(len(ind.fitness or ()) == 3 for ind in pop)
