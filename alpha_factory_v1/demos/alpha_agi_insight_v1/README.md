@@ -335,6 +335,11 @@ For the REST and WebSocket endpoints see
 | `AGI_INSIGHT_OFFLINE` | Force offline mode | `0` |
 | `LLAMA_MODEL_PATH` | Path to local .gguf weights | `~/.cache/llama/TinyLlama-1.1B-Chat-v1.0.Q4_K_M.gguf` |
 | `AGI_INSIGHT_BUS_PORT` | gRPC bus port | `6006` |
+| `AGI_INSIGHT_BUS_CERT` | TLS certificate path | _unset_ |
+| `AGI_INSIGHT_BUS_KEY` | TLS private key path | _unset_ |
+| `AGI_INSIGHT_BUS_TOKEN` | Shared token for the gRPC bus | _unset_ |
+| `AGI_INSIGHT_BROKER_URL` | Kafka broker URL for mirroring | _unset_ |
+| `AGI_INSIGHT_ALLOW_INSECURE` | Allow non‑TLS bus (`1` to enable) | `0` |
 | `AGI_INSIGHT_LEDGER_PATH` | Audit DB path | `./ledger/audit.db` |
 | `AGI_INSIGHT_BROADCAST` | Enable blockchain broadcasting | `1` |
 | `AGI_INSIGHT_SOLANA_URL` | Solana RPC endpoint | `https://api.testnet.solana.com` |
@@ -342,6 +347,11 @@ For the REST and WebSocket endpoints see
 | `AGI_INSIGHT_SOLANA_WALLET_FILE` | Path to wallet key file | _unset_ |
 | `SIM_RESULTS_DIR` | Folder for simulation JSON results | `$ALPHA_DATA_DIR/simulations` |
 | `API_TOKEN` | Bearer token required by the REST API | `REPLACE_ME_TOKEN` |
+
+To secure the gRPC bus provide `AGI_INSIGHT_BUS_CERT`,
+`AGI_INSIGHT_BUS_KEY` and `AGI_INSIGHT_BUS_TOKEN`. When these are omitted set
+`AGI_INSIGHT_ALLOW_INSECURE=1` to run without TLS. See
+[docs/bus_tls.md](docs/bus_tls.md) for detailed setup.
 
 Before running the demo, copy `.env.sample` to `.env` (or pass variables via `docker -e`). Store wallet keys outside of `.env` and
 use `AGI_INSIGHT_SOLANA_WALLET_FILE` to reference the file containing the
