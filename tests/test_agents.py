@@ -276,3 +276,32 @@ def test_codegen_agent_sandbox_blocks_import(monkeypatch) -> None:
     agent.execute_in_sandbox("import os\nprint('hi')")
     errs = [r.payload.get("stderr", "") for r in ledger.records if "stderr" in r.payload]
     assert errs and "ImportError" in errs[-1]
+
+
+def test_planning_agent_no_openai_sdk() -> None:
+    """Agent should run even when openai.agents is missing."""
+    from alpha_factory_v1.demos.alpha_agi_insight_v1.src.utils import config, messaging
+    from alpha_factory_v1.demos.alpha_agi_insight_v1.src.agents import planning_agent
+
+    class DummyLedger:
+        def __init__(self, *_a, **_kw) -> None:
+            pass
+
+        def log(self, _env) -> None:  # type: ignore[override]
+            pass
+
+        def start_merkle_task(self, *_a, **_kw) -> None:
+            pass
+
+        async def stop_merkle_task(self) -> None:
+            pass
+
+        def close(self) -> None:
+            pass
+
+    settings = config.Settings(bus_port=0, openai_api_key="k")
+    bus = messaging.A2ABus(settings)
+    agent = planning_agent.PlanningAgent(bus, DummyLedger())
+
+    assert agent.oai_ctx is None
+    asyncio.run(agent.run_cycle())
