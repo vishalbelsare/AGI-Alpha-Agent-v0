@@ -149,6 +149,7 @@ if app is not None:
         horizon: int = 5
         pop_size: int = 6
         generations: int = 3
+        curve: str = "logistic"
 
     class ForecastPoint(BaseModel):
         """Single year forecast entry."""
@@ -177,7 +178,7 @@ if app is not None:
         traj: list[ForecastTrajectoryPoint] = []
         for year in range(1, cfg.horizon + 1):
             t = year / cfg.horizon
-            cap = forecast.capability_growth(t)
+            cap = forecast.capability_growth(t, cfg.curve)
             for sec in secs:
                 if not sec.disrupted:
                     sec.energy *= 1.0 + sec.growth
