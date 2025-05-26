@@ -30,6 +30,7 @@ except ModuleNotFoundError:  # pragma: no cover - broker optional
 
 logger = logging.getLogger(__name__)
 
+
 @dataclass(slots=True)
 class Envelope:
     sender: str
@@ -83,7 +84,7 @@ class A2ABus:
 
     async def start(self) -> None:
         logger.info(
-            "Starting A2ABus (port=%s broker=%s)",
+            "A2ABus.start() called: port=%s broker=%s",
             self.settings.bus_port,
             self.settings.broker_url or "disabled",
         )
@@ -112,7 +113,7 @@ class A2ABus:
 
     async def stop(self) -> None:
         logger.info(
-            "Stopping A2ABus (port=%s broker=%s)",
+            "A2ABus.stop() called: port=%s broker=%s",
             self.settings.bus_port,
             self.settings.broker_url or "disabled",
         )
