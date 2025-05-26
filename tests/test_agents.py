@@ -210,3 +210,37 @@ def test_monitor_restart_and_ledger_log(monkeypatch) -> None:
 
     asyncio.run(run())
     assert "restart" in events
+
+
+def test_research_agent_adapters_invoked(monkeypatch) -> None:
+    from alpha_factory_v1.demos.alpha_agi_insight_v1.src.utils import config, messaging
+    from alpha_factory_v1.demos.alpha_agi_insight_v1.src.agents import research_agent
+
+    class DummyLedger:
+        def __init__(self, *_a, **_kw) -> None:
+            pass
+
+        def log(self, _env) -> None:  # type: ignore[override]
+            pass
+
+        def start_merkle_task(self, *_a, **_kw) -> None:
+            pass
+
+        async def stop_merkle_task(self) -> None:
+            pass
+
+        def close(self) -> None:
+            pass
+
+    settings = config.Settings(bus_port=0)
+    bus = messaging.A2ABus(settings)
+    agent = research_agent.ResearchAgent(bus, DummyLedger())
+
+    adk_mock = type("A", (), {"heartbeat": lambda self: None})()
+    mcp_mock = type("M", (), {"heartbeat": lambda self: None})()
+    monkeypatch.setattr(agent, "adk", adk_mock, raising=False)
+    monkeypatch.setattr(agent, "mcp", mcp_mock, raising=False)
+    with patch.object(adk_mock, "heartbeat") as adk_hb, patch.object(mcp_mock, "heartbeat") as mcp_hb:
+        asyncio.run(agent.run_cycle())
+        adk_hb.assert_called_once()
+        mcp_hb.assert_called_once()
