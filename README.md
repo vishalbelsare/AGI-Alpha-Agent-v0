@@ -184,6 +184,8 @@ of a real general intelligence. Use at your own risk.
 - Release notes are maintained in [docs/CHANGELOG.md](docs/CHANGELOG.md).
 - A demo specific overview can be found in
   [alpha_factory_v1/demos/alpha_agi_insight_v1/docs/DESIGN.md](alpha_factory_v1/demos/alpha_agi_insight_v1/docs/DESIGN.md).
+- TLS setup for the agent bus is documented in
+  [alpha_factory_v1/demos/alpha_agi_insight_v1/docs/bus_tls.md](alpha_factory_v1/demos/alpha_agi_insight_v1/docs/bus_tls.md).
 
 ---
 ## Contributing
@@ -562,6 +564,10 @@ incoming requests. Clients must send `Authorization: Bearer <token>`. Use
 Avoid storing private keys directly in `.env`. Instead set
 `AGI_INSIGHT_SOLANA_WALLET_FILE` to a file containing your hex-encoded wallet
 key and keep that file readable only by the orchestrator.
+To enable secure gRPC transport set `AGI_INSIGHT_BUS_CERT`,
+`AGI_INSIGHT_BUS_KEY` and `AGI_INSIGHT_BUS_TOKEN`.
+See [bus_tls.md](alpha_factory_v1/demos/alpha_agi_insight_v1/docs/bus_tls.md)
+for instructions and example volume mounts.
 
 #### Supported Environment Variables
 
@@ -574,6 +580,9 @@ key and keep that file readable only by the orchestrator.
 | `AGI_INSIGHT_OFFLINE` | `0` | Set to `1` to force local inference models. |
 | `AGI_INSIGHT_BUS_PORT` | `6006` | gRPC bus port used by the demo. |
 | `AGI_INSIGHT_LEDGER_PATH` | `./ledger/audit.db` | Path to the local audit ledger. |
+| `AGI_INSIGHT_BUS_CERT` | _(empty)_ | Path to the gRPC bus certificate. |
+| `AGI_INSIGHT_BUS_KEY` | _(empty)_ | Private key matching `AGI_INSIGHT_BUS_CERT`. |
+| `AGI_INSIGHT_BUS_TOKEN` | _(empty)_ | Shared secret for bus authentication. |
 
 ### Finance Demo Quick‑Start
 
