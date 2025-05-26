@@ -4,7 +4,9 @@ The Insight demo uses a gRPC message bus for communication between agents. When 
 
 ## Generating a Self-Signed Certificate
 
-Use `openssl` to create a private key and certificate valid for one year:
+Use `openssl` to create a private key and certificate valid for one year. Run
+`infrastructure/gen_bus_certs.sh` to execute these commands automatically and
+print the environment variables, or run them manually:
 
 ```bash
 mkdir -p certs
