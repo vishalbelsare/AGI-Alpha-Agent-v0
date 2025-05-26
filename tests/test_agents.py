@@ -305,3 +305,48 @@ def test_planning_agent_no_openai_sdk() -> None:
 
     assert agent.oai_ctx is None
     asyncio.run(agent.run_cycle())
+
+
+def test_base_agent_no_openai_sdk(monkeypatch) -> None:
+    """BaseAgent should fall back when ``openai.agents`` is unavailable."""
+    import builtins
+    import importlib
+    import sys
+
+    from alpha_factory_v1.demos.alpha_agi_insight_v1.src.utils import config, messaging
+
+    orig_import = builtins.__import__
+
+    def fake_import(name, globals=None, locals=None, fromlist=(), level=0):
+        if name == "openai.agents":
+            raise ModuleNotFoundError
+        return orig_import(name, globals, locals, fromlist, level)
+
+    monkeypatch.setattr(builtins, "__import__", fake_import)
+    if (
+        "alpha_factory_v1.demos.alpha_agi_insight_v1.src.agents.base_agent"
+        in sys.modules
+    ):
+        del sys.modules[
+            "alpha_factory_v1.demos.alpha_agi_insight_v1.src.agents.base_agent"
+        ]
+    base_agent = importlib.import_module(
+        "alpha_factory_v1.demos.alpha_agi_insight_v1.src.agents.base_agent"
+    )
+
+    class DummyLedger:
+        def log(self, _env) -> None:  # type: ignore[override]
+            pass
+
+        def start_merkle_task(self, *_a, **_kw) -> None:
+            pass
+
+        async def stop_merkle_task(self) -> None:
+            pass
+
+        def close(self) -> None:
+            pass
+
+    bus = messaging.A2ABus(config.Settings(bus_port=0))
+    agent = base_agent.BaseAgent("base", bus, DummyLedger())
+    assert agent.oai_ctx is None
