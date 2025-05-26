@@ -619,9 +619,10 @@ for instructions and example volume mounts.
 | `AGI_INSIGHT_BUS_TOKEN` | _(empty)_ | Shared secret for bus authentication. |
 | `API_TOKEN` | `REPLACE_ME_TOKEN` | Bearer token required by the REST API. |
 
-The values above mirror `.env.sample`. When using Docker Compose, you can
-override them in `infrastructure/docker-compose.yml` to change ports or file
-paths.
+The values above mirror `.env.sample`. When running the stack with Docker
+Compose, adjust the environment section of
+`infrastructure/docker-compose.yml` to override any variable—such as the gRPC
+bus port or ledger path.
 
 ### Finance Demo Quick‑Start
 
