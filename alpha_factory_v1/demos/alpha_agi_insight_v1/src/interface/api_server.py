@@ -42,6 +42,9 @@ forecast = importlib.import_module(
 sector = importlib.import_module(
     "alpha_factory_v1.demos.alpha_agi_insight_v1.src.simulation.sector"
 )
+mats = importlib.import_module(
+    "alpha_factory_v1.demos.alpha_agi_insight_v1.src.simulation.mats"
+)
 
 _IMPORT_ERROR: Exception | None
 try:
@@ -125,12 +128,15 @@ if app is not None:
 
     _simulations: dict[str, ResultsResponse] = {}
     _progress_ws: Set[Any] = set()
+    _latest_id: str | None = None
     _results_dir = Path(
         os.getenv("SIM_RESULTS_DIR", os.path.join(os.getenv("ALPHA_DATA_DIR", "/tmp/alphafactory"), "simulations"))
     )
     _results_dir.mkdir(parents=True, exist_ok=True)
 
     def _load_results() -> None:
+        latest_time = 0.0
+        latest_id: str | None = None
         for f in _results_dir.glob("*.json"):
             try:
                 data = json.loads(f.read_text())
@@ -138,10 +144,18 @@ if app is not None:
             except Exception:
                 continue
             _simulations[res.id] = res
+            mtime = f.stat().st_mtime
+            if mtime > latest_time:
+                latest_time = mtime
+                latest_id = res.id
+        global _latest_id
+        _latest_id = latest_id
 
     def _save_result(result: ResultsResponse) -> None:
         path = _results_dir / f"{result.id}.json"
         path.write_text(result.json())
+        global _latest_id
+        _latest_id = result.id
 
     class SimRequest(BaseModel):
         """Payload for the ``/simulate`` endpoint."""
@@ -157,6 +171,14 @@ if app is not None:
         year: int
         capability: float
 
+    class PopulationMember(BaseModel):
+        """Single entry in the final population."""
+
+        effectiveness: float
+        risk: float
+        complexity: float
+        rank: int
+
     class SimStartResponse(BaseModel):
         """Identifier returned when launching a simulation."""
 
@@ -167,11 +189,18 @@ if app is not None:
 
         id: str
         forecast: list[ForecastPoint]
+        population: list[PopulationMember] | None = None
 
     class RunsResponse(BaseModel):
         """List of available run identifiers."""
 
         ids: list[str]
+
+    class PopulationResponse(BaseModel):
+        """Return value for ``/population``."""
+
+        id: str
+        population: list[PopulationMember]
 
     async def _background_run(sim_id: str, cfg: SimRequest) -> None:
         secs = [sector.Sector(f"s{i:02d}") for i in range(cfg.pop_size)]
@@ -194,12 +223,36 @@ if app is not None:
                 except Exception:
                     _progress_ws.discard(ws)
             await asyncio.sleep(0)
+        def eval_fn(genome: list[float]) -> tuple[float, float, float]:
+            x, y = genome
+            return x**2, y**2, (x + y) ** 2
+
+        pop = mats.run_evolution(
+            eval_fn,
+            2,
+            population_size=cfg.pop_size,
+            generations=cfg.generations,
+        )
+
+        pop_data = [
+            PopulationMember(
+                effectiveness=ind.fitness[0],
+                risk=ind.fitness[1],
+                complexity=ind.fitness[2],
+                rank=ind.rank,
+            )
+            for ind in pop
+        ]
+
         result = ResultsResponse(
             id=sim_id,
             forecast=[ForecastPoint(year=p.year, capability=p.capability) for p in traj],
+            population=pop_data,
         )
         _simulations[sim_id] = result
         _save_result(result)
+        global _latest_id
+        _latest_id = sim_id
 
     _load_results()
 
@@ -215,6 +268,22 @@ if app is not None:
         if result is None:
             raise HTTPException(status_code=404)
         return result
+
+    @app.get("/results", response_model=ResultsResponse)
+    async def get_latest(_: None = Depends(verify_token)) -> ResultsResponse:
+        if _latest_id is None:
+            raise HTTPException(status_code=404)
+        result = _simulations.get(_latest_id)
+        if result is None:
+            raise HTTPException(status_code=404)
+        return result
+
+    @app.get("/population/{sim_id}", response_model=PopulationResponse)
+    async def get_population(sim_id: str, _: None = Depends(verify_token)) -> PopulationResponse:
+        result = _simulations.get(sim_id)
+        if result is None:
+            raise HTTPException(status_code=404)
+        return PopulationResponse(id=sim_id, population=result.population or [])
 
     @app.get("/runs", response_model=RunsResponse)
     async def list_runs(_: None = Depends(verify_token)) -> RunsResponse:

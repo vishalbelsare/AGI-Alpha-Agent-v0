@@ -60,6 +60,10 @@ def test_simulate_curve_subprocess() -> None:
             time.sleep(0.05)
         assert r.status_code == 200
 
+        r_latest = httpx.get(f"{url}/results", headers=headers)
+        assert r_latest.status_code == 200
+        assert r_latest.json()["id"] == sim_id
+
         r_pop = httpx.get(f"{url}/population/{sim_id}", headers=headers)
         assert r_pop.status_code == 200
         pop = r_pop.json()
