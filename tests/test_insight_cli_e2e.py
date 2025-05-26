@@ -20,6 +20,8 @@ def test_insight_cli_full_simulation(tmp_path: Path) -> None:
         "simulate",
         "--horizon",
         "1",
+        "--sectors",
+        "1",
         "--pop-size",
         "1",
         "--generations",

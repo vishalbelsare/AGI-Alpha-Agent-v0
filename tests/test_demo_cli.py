@@ -15,6 +15,8 @@ def test_simulate_without_flag_does_not_start() -> None:
                     "--horizon",
                     "1",
                     "--offline",
+                    "--sectors",
+                    "1",
                     "--pop-size",
                     "1",
                     "--generations",

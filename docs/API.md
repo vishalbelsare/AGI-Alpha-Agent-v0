@@ -63,11 +63,11 @@ Display all available commands and options:
 python cli.py --help
 ```
 
-For example, to run a three‑generation simulation with six agents for a
-five‑year horizon:
+For example, to run a three‑generation simulation with six sectors and a
+population size of six for a five‑year horizon:
 
 ```bash
-python cli.py simulate --horizon 5 --pop-size 6 --generations 3
+python cli.py simulate --horizon 5 --sectors 6 --pop-size 6 --generations 3
 ```
 
 The orchestrator starts automatically and persists a ledger under `./ledger/`.
@@ -79,7 +79,7 @@ python cli.py show-results
 
 Available commands are:
 
-- `simulate` – run a forecast and launch the orchestrator. Key options include `--horizon`, `--curve`, `--pop-size` and `--generations`.
+- `simulate` – run a forecast and launch the orchestrator. Key options include `--horizon`, `--curve`, `--sectors`, `--pop-size` and `--generations`.
 - `show-results` – display the latest ledger entries recorded by the orchestrator.
 - `agents-status` – list currently registered agents.
 - `replay` – replay ledger entries with a small delay for analysis.
