@@ -599,7 +599,8 @@ Avoid storing private keys directly in `.env`. Instead set
 `AGI_INSIGHT_SOLANA_WALLET_FILE` to a file containing your hex-encoded wallet
 key and keep that file readable only by the orchestrator.
 To enable secure gRPC transport set `AGI_INSIGHT_BUS_CERT`,
-`AGI_INSIGHT_BUS_KEY` and `AGI_INSIGHT_BUS_TOKEN`.
+`AGI_INSIGHT_BUS_KEY` and `AGI_INSIGHT_BUS_TOKEN`. If these values are
+omitted and `AGI_INSIGHT_ALLOW_INSECURE=1`, the bus starts without TLS.
 See [bus_tls.md](alpha_factory_v1/demos/alpha_agi_insight_v1/docs/bus_tls.md)
 for instructions and example volume mounts.
 
@@ -617,6 +618,7 @@ for instructions and example volume mounts.
 | `AGI_INSIGHT_BUS_CERT` | _(empty)_ | Path to the gRPC bus certificate. |
 | `AGI_INSIGHT_BUS_KEY` | _(empty)_ | Private key matching `AGI_INSIGHT_BUS_CERT`. |
 | `AGI_INSIGHT_BUS_TOKEN` | _(empty)_ | Shared secret for bus authentication. |
+| `AGI_INSIGHT_ALLOW_INSECURE` | `0` | Set to `1` to run the bus without TLS when no certificate is provided. |
 | `API_TOKEN` | `REPLACE_ME_TOKEN` | Bearer token required by the REST API. |
 
 The values above mirror `.env.sample`. When running the stack with Docker
