@@ -70,3 +70,12 @@ def test_agents_status_lists_all_agents(tmp_path) -> None:
 
 def test_plain_table_handles_no_rows() -> None:
     assert cli._plain_table(["h1", "h2"], []) == "h1 | h2"
+
+
+def test_orchestrator_command_runs() -> None:
+    runner = CliRunner()
+    with patch.object(cli, "asyncio") as aio:
+        with patch.object(cli.orchestrator, "Orchestrator"):
+            res = runner.invoke(cli.main, ["orchestrator"])
+            assert res.exit_code == 0
+        aio.run.assert_called_once()

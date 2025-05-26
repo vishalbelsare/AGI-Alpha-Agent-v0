@@ -16,5 +16,5 @@ def test_bus_logs_start_stop(caplog: pytest.LogCaptureFixture) -> None:
         asyncio.run(bus.start())
         asyncio.run(bus.stop())
     messages = [r.message for r in caplog.records]
-    assert any("Starting A2ABus" in m and "1234" in m and "kafka:9092" in m for m in messages)
-    assert any("Stopping A2ABus" in m for m in messages)
+    assert any("A2ABus.start()" in m and "1234" in m and "kafka:9092" in m for m in messages)
+    assert any("A2ABus.stop()" in m for m in messages)
