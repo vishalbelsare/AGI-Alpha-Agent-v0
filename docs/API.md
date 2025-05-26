@@ -12,11 +12,20 @@ starts and is gracefully shut down on exit:
 - `GET /results/{sim_id}` – fetch final forecast data.
 - `WS  /ws/progress` – stream progress logs while the simulation runs.
 
-### Authentication
+## Authentication
 
-All requests must include an `Authorization: Bearer $API_TOKEN` header. Set
-`API_TOKEN` inside your `.env` file or pass `-e API_TOKEN=yourtoken` when
-launching the Docker image.
+All requests must include an `Authorization: Bearer $API_TOKEN` header so the
+server can verify the caller. Define `API_TOKEN` in your `.env` file:
+
+```bash
+API_TOKEN=mysecret
+```
+
+or pass the variable when launching Docker:
+
+```bash
+docker run -e API_TOKEN=mysecret <image>
+```
 
 Start the server with:
 
