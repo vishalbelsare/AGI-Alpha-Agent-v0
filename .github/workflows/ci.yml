@@ -84,6 +84,15 @@ jobs:
     environment: ci-on-demand
     steps:
       - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Install pnpm
+        run: npm install -g pnpm
+      - name: Build web client
+        run: |
+          make build_web
+          test -f src/interface/web_client/dist/index.html
       - name: Build image
         run: |
           docker build -t $DOCKER_IMAGE:ci \
