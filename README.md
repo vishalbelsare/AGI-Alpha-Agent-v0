@@ -619,6 +619,10 @@ for instructions and example volume mounts.
 | `AGI_INSIGHT_BUS_TOKEN` | _(empty)_ | Shared secret for bus authentication. |
 | `API_TOKEN` | `REPLACE_ME_TOKEN` | Bearer token required by the REST API. |
 
+The values above mirror `.env.sample`. When using Docker Compose, you can
+override them in `infrastructure/docker-compose.yml` to change ports or file
+paths.
+
 ### Finance Demo Quick‑Start
 
 Launch the finance alpha demo directly from your terminal:

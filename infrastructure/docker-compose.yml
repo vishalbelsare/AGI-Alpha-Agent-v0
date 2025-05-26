@@ -8,14 +8,14 @@ services:
     env_file:
       - ../.env
     environment:
-      RUN_MODE: api
-      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
-      AGI_INSIGHT_OFFLINE: ${AGI_INSIGHT_OFFLINE:-0}
-      AGI_INSIGHT_BUS_PORT: ${AGI_INSIGHT_BUS_PORT:-6006}
-      AGI_INSIGHT_LEDGER_PATH: ${AGI_INSIGHT_LEDGER_PATH:-./ledger/audit.db}
+      RUN_MODE: api                           # container start mode
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}     # hosted model credential
+      AGI_INSIGHT_OFFLINE: ${AGI_INSIGHT_OFFLINE:-0} # set 1 for local models
+      AGI_INSIGHT_BUS_PORT: ${AGI_INSIGHT_BUS_PORT:-6006} # gRPC event bus port
+      AGI_INSIGHT_LEDGER_PATH: ${AGI_INSIGHT_LEDGER_PATH:-./ledger/audit.db} # audit ledger path
     ports:
-      - "${PORT:-8000}:8000"
-      - "${AGI_INSIGHT_BUS_PORT:-6006}:6006"
+      - "${PORT:-8000}:8000"                 # REST API port
+      - "${AGI_INSIGHT_BUS_PORT:-6006}:6006" # gRPC bus port
     restart: unless-stopped
 
   agents:
@@ -23,11 +23,11 @@ services:
     env_file:
       - ../.env
     environment:
-      RUN_MODE: cli
-      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
-      AGI_INSIGHT_OFFLINE: ${AGI_INSIGHT_OFFLINE:-0}
-      AGI_INSIGHT_BUS_PORT: ${AGI_INSIGHT_BUS_PORT:-6006}
-      AGI_INSIGHT_LEDGER_PATH: ${AGI_INSIGHT_LEDGER_PATH:-./ledger/audit.db}
+      RUN_MODE: cli                           # entrypoint for agent workers
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}     # hosted model credential
+      AGI_INSIGHT_OFFLINE: ${AGI_INSIGHT_OFFLINE:-0} # set 1 for local models
+      AGI_INSIGHT_BUS_PORT: ${AGI_INSIGHT_BUS_PORT:-6006} # gRPC event bus port
+      AGI_INSIGHT_LEDGER_PATH: ${AGI_INSIGHT_LEDGER_PATH:-./ledger/audit.db} # audit ledger path
     depends_on:
       - orchestrator
 
@@ -36,10 +36,10 @@ services:
     env_file:
       - ../.env
     environment:
-      RUN_MODE: web
-      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
-      AGI_INSIGHT_OFFLINE: ${AGI_INSIGHT_OFFLINE:-0}
+      RUN_MODE: web                           # start the Streamlit dashboard
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}     # hosted model credential
+      AGI_INSIGHT_OFFLINE: ${AGI_INSIGHT_OFFLINE:-0} # set 1 for local models
     ports:
-      - "8501:8501"
+      - "8501:8501"                           # dashboard port
     depends_on:
       - orchestrator
