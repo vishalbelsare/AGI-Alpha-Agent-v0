@@ -12,8 +12,11 @@ starts and is gracefully shut down on exit:
 - `GET /results/{sim_id}` – fetch final forecast data.
 - `WS  /ws/progress` – stream progress logs while the simulation runs.
 
-All endpoints require a bearer token. Set `API_TOKEN` in `.env` and include
-`Authorization: Bearer <token>` with each request.
+### Authentication
+
+All requests must include an `Authorization: Bearer $API_TOKEN` header. Set
+`API_TOKEN` inside your `.env` file or pass `-e API_TOKEN=yourtoken` when
+launching the Docker image.
 
 Start the server with:
 

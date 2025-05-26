@@ -583,6 +583,7 @@ for instructions and example volume mounts.
 | `AGI_INSIGHT_BUS_CERT` | _(empty)_ | Path to the gRPC bus certificate. |
 | `AGI_INSIGHT_BUS_KEY` | _(empty)_ | Private key matching `AGI_INSIGHT_BUS_CERT`. |
 | `AGI_INSIGHT_BUS_TOKEN` | _(empty)_ | Shared secret for bus authentication. |
+| `API_TOKEN` | `REPLACE_ME_TOKEN` | Bearer token required by the REST API. |
 
 ### Finance Demo Quick‑Start
 
