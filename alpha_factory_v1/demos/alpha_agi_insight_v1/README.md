@@ -330,6 +330,29 @@ Typical REST endpoints:
 - `GET /population/{id}` – MATS population only.
 - `WS  /ws/progress` – live progress updates.
 
+### 5.3 Rebuilding the React dashboard
+
+Install [Node.js](https://nodejs.org/) **≥ 20** and
+[pnpm](https://pnpm.io/installation) if you want to rebuild the front‑end.
+From the repository root run:
+
+```bash
+cd src/interface/web_client
+pnpm install && pnpm build
+```
+
+If the API runs on a different host, set `VITE_API_BASE_URL` when building:
+
+```bash
+VITE_API_BASE_URL=http://api.example.com pnpm build
+```
+
+Launch the container stack afterwards or serve `dist/` with any static server,
+e.g. `python -m http.server --directory dist 8080`.
+
+For advanced options see
+[src/interface/web_client/README.md](../../../src/interface/web_client/README.md).
+
 For details see [docs/API.md](docs/API.md).
 
 ---
