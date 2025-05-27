@@ -130,7 +130,7 @@ graph TD
   ROOT["alpha_agi_insight_v1/"]
   subgraph Root
     ROOT_README["README.md"]
-    REQ["requirements.txt"]
+    REQ["requirements.lock"]
     SRC["src/"]
     TEST["tests/"]
     INFRA["infrastructure/"]
@@ -214,7 +214,7 @@ cd AGI-Alpha-Agent-v0/alpha_factory_v1/demos/alpha_agi_insight_v1
 # ❷ Create virtual-env & install deps
 python -m venv .venv && source .venv/bin/activate
 pip install -U pip
-pip install -r requirements.txt     # ~2 min
+pip install -r requirements.lock    # ~2 min
 
 # ❸ Fire up the all-in-one live demo
 python -m alpha_factory_v1.demos.alpha_agi_insight_v1.src.interface.cli simulate --horizon 10
@@ -455,7 +455,7 @@ push; only green builds are released to GHCR.
 ```text
 alpha_agi_insight_v1/
 ├─ README.md                 # ← you are here
-├─ requirements.txt
+├─ requirements.lock
 ├─ src/
 │  ├─ orchestrator.py
 │  ├─ agents/

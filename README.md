@@ -70,7 +70,7 @@ Follow these steps when working without internet access.
 1. **Build a wheelhouse** on a machine with connectivity:
    ```bash
    mkdir -p /media/wheels
-   pip wheel -r requirements.txt -w /media/wheels
+   pip wheel -r requirements.lock -w /media/wheels
    pip wheel -r requirements-dev.txt -w /media/wheels
    ```
 
@@ -202,7 +202,7 @@ cd AGI-Alpha-Agent-v0
 python3 -m venv .venv
 source .venv/bin/activate
 # Install runtime dependencies
-pip install -r requirements.txt
+pip install -r requirements.lock
 # Optional ADK/MCP integration
 pip install google-adk mcp
 # Requires Python 3.11–3.12 (<3.13)
@@ -555,7 +555,7 @@ cd AGI-Alpha-Agent-v0
 ./quickstart.sh --preflight   # optional environment check
 python check_env.py --auto-install  # verify & auto-install deps
 # Install runtime dependencies
-pip install -r requirements.txt
+pip install -r requirements.lock
 # (If this fails with a network error, rerun with --wheelhouse <path>)
 ./quickstart.sh               # creates venv, installs deps, launches
 # Use `--wheelhouse /path/to/wheels` to install offline packages when
