@@ -45,7 +45,21 @@ def test_show_results_export_json(tmp_path) -> None:
             led = led_cls.return_value
             led.tail.return_value = [{"ts": 1.0, "sender": "a", "recipient": "b", "payload": {"x": 1}}]
             res = CliRunner().invoke(cli.main, ["show-results", "--export", "json"])
-            assert res.output.startswith("[")
+        assert res.output.startswith("[")
+
+
+def test_show_memory_missing(tmp_path) -> None:
+    with patch.object(cli.config.CFG, "memory_path", str(tmp_path / "mem.log")):
+        res = CliRunner().invoke(cli.main, ["show-memory"])
+        assert "No memory" in res.output
+
+
+def test_show_memory_export_json(tmp_path) -> None:
+    mem = tmp_path / "mem.log"
+    mem.write_text('{"x":1}\n', encoding="utf-8")
+    with patch.object(cli.config.CFG, "memory_path", str(mem)):
+        res = CliRunner().invoke(cli.main, ["show-memory", "--export", "json"])
+        assert res.output.startswith("[")
 
 
 def test_replay_missing(tmp_path) -> None:

@@ -224,6 +224,42 @@ def show_results(limit: int, export: str | None) -> None:
         _rich_table(["ts", "sender", "recipient", "payload"], data)
 
 
+@main.command("show-memory")
+@click.option("--limit", default=10, show_default=True, type=int, help="Entries to display")
+@click.option("--export", type=click.Choice(["json", "csv"]), help="Export results format")
+def show_memory(limit: int, export: str | None) -> None:
+    """Display stored memory entries."""
+    path = config.CFG.memory_path
+    if not path:
+        click.echo("Memory persistence not enabled")
+        return
+    mem_file = Path(path)
+    if not mem_file.exists():
+        click.echo("No memory entries")
+        return
+    entries = []
+    for line in mem_file.read_text(encoding="utf-8").splitlines():
+        if not line:
+            continue
+        try:
+            entries.append(json.loads(line))
+        except Exception:  # noqa: BLE001 - ignore bad records
+            entries.append({"raw": line})
+    if not entries:
+        click.echo("No memory entries")
+        return
+    entries = entries[-limit:]
+    if export == "json":
+        click.echo(json.dumps(entries))
+    elif export == "csv":
+        lines = ["payload"]
+        for e in entries:
+            lines.append(json.dumps(e).replace(",", ";"))
+        click.echo("\n".join(lines))
+    else:
+        _rich_table(["payload"], [(json.dumps(e),) for e in entries])
+
+
 @main.command("agents-status")
 @click.option("--watch", is_flag=True, help="Continuously monitor agents")
 def agents_status(watch: bool) -> None:
