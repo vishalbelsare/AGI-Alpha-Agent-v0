@@ -1,4 +1,9 @@
 version: '3.9'
+
+x-healthcheck: &default_healthcheck
+  interval: 30s
+  timeout: 5s
+  retries: 3
 services:
   orchestrator:
     build:
@@ -17,6 +22,9 @@ services:
       - "${PORT:-8000}:8000"                 # host:container REST API port
       - "${AGI_INSIGHT_BUS_PORT:-6006}:6006" # host:container gRPC bus
     restart: unless-stopped              # restart policy
+    healthcheck:
+      <<: *default_healthcheck
+      test: ["CMD", "curl", "-sf", "http://localhost:8000/runs"]
 
   agents:
     image: alpha-demo:latest             # reuse the demo image
@@ -44,3 +52,6 @@ services:
       - "8501:8501"                           # host:container dashboard port
     depends_on:
       - orchestrator                     # wait for orchestrator
+    healthcheck:
+      <<: *default_healthcheck
+      test: ["CMD", "curl", "-sf", "http://localhost:8501/"]

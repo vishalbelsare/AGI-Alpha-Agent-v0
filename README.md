@@ -759,6 +759,12 @@ serves the static files from `src/interface/web_client/dist` using `python -m
 http.server`. The FastAPI demo also mounts this folder at `/` when present so the
 dashboard is reachable without additional tooling.
 
+Once running, Docker Compose marks the services **healthy** when:
+
+- `http://localhost:8000/runs` responds with `{"ids": []}` (or listed run IDs) for the
+  orchestrator container.
+- `http://localhost:8501/` returns status `200` for the web container.
+
 The dashboard now plots a 3‑D scatter chart of effectiveness vs. risk vs.
 complexity from the final population.
 
