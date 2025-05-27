@@ -1,4 +1,6 @@
 import os
+import csv
+from io import StringIO
 from unittest.mock import patch
 from click.testing import CliRunner
 from alpha_factory_v1.demos.alpha_agi_insight_v1.src.interface import cli
@@ -126,7 +128,10 @@ def test_simulate_export_csv() -> None:
                 ],
             )
     assert res.exit_code == 0
-    assert "year,capability,affected" in res.output
+    reader = csv.reader(StringIO(res.output))
+    rows = list(reader)
+    assert rows[0] == ["year", "capability", "affected"]
+    assert len(rows) > 1
 
 
 def test_show_results_export_csv(tmp_path) -> None:
