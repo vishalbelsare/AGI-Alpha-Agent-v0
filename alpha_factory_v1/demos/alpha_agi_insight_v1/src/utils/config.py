@@ -90,6 +90,7 @@ class Settings(BaseSettings):
     bus_token: Optional[str] = Field(default=None, alias="AGI_INSIGHT_BUS_TOKEN")
     bus_cert: Optional[str] = Field(default=None, alias="AGI_INSIGHT_BUS_CERT")
     bus_key: Optional[str] = Field(default=None, alias="AGI_INSIGHT_BUS_KEY")
+    alert_webhook_url: Optional[str] = Field(default=None, alias="ALERT_WEBHOOK_URL")
     allow_insecure: bool = Field(default=False, alias="AGI_INSIGHT_ALLOW_INSECURE")
     broadcast: bool = Field(default=True, alias="AGI_INSIGHT_BROADCAST")
     solana_rpc_url: str = Field(default="https://api.testnet.solana.com", alias="AGI_INSIGHT_SOLANA_URL")
@@ -127,6 +128,7 @@ class Settings(BaseSettings):
             if any(s in k.lower() for s in ("token", "key", "password")) and data[k]:
                 data[k] = "***"
         return f"Settings({data})"
+
 
 _prefetch_vault()
 
