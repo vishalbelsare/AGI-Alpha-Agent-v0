@@ -11,6 +11,7 @@ All notable changes to this project are documented in this file.
 - Configurable secret backend for HashiCorp Vault and cloud managers via `AGI_INSIGHT_SECRET_BACKEND`.
 - Optional JSON console logging and DuckDB ledger support.
 - Aggregated forecast endpoint `/insight` and OpenAPI schema exposure.
+- Baseline load test metrics: p95 latency below 180 ms with 20 VUs.
 
 ## [1.0.2] - 2025-06-30
 - Documented CLI and FastAPI usage with example commands.
