@@ -1,4 +1,4 @@
-.PHONY: build_web demo-setup demo-run
+.PHONY: build_web demo-setup demo-run compose-up
 build_web:
     pnpm --dir src/interface/web_client install
     pnpm --dir src/interface/web_client run build
@@ -13,5 +13,10 @@ demo-run:
     else \
         .venv/bin/python -m alpha_factory_v1.demos.alpha_agi_insight_v0 --episodes 5; \
     fi
+
+compose-up:
+    docker compose -f docker-compose.yml up --build &
+    sleep 2
+    python -m webbrowser http://localhost:8080 >/dev/null 2>&1
 
 
