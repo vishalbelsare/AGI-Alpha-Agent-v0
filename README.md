@@ -93,6 +93,11 @@ Follow these steps when working without internet access.
 4. **Enable offline inference** by setting ``AGI_INSIGHT_OFFLINE=1`` in
    ``.env`` or the environment.
 
+5. **Disable broadcasting** to avoid network calls:
+   ```bash
+   export AGI_INSIGHT_BROADCAST=0
+   ```
+
    Sample sector definitions live in
    ``alpha_factory_v1/demos/alpha_agi_insight_v1/docs/sectors.sample.json``.
    Pass this file with ``--sectors-file`` to forecast specific industries.
@@ -100,9 +105,10 @@ Follow these steps when working without internet access.
 Example (using ``--sectors-file`` to customise the simulation):
 
 ```bash
+AGI_INSIGHT_OFFLINE=1 AGI_INSIGHT_BROADCAST=0 \
 python -m alpha_factory_v1.demos.alpha_agi_insight_v1.src.interface.cli simulate \
-  --curve linear --offline --llama-model-path "$LLAMA_MODEL_PATH" \
-  --sectors-file alpha_factory_v1/demos/alpha_agi_insight_v1/docs/sectors.sample.json
+  --curve linear --llama-model-path "$LLAMA_MODEL_PATH" \
+  --offline --sectors-file alpha_factory_v1/demos/alpha_agi_insight_v1/docs/sectors.sample.json
 ```
 
 Produces output similar to:
@@ -240,6 +246,14 @@ See [AGENTS.md](AGENTS.md) for the full contributor guide.
 6.1. [Running Tests 🧪](#61-running-tests)
 6.2. [Marketplace Demo Example 🛒](#62-marketplace-demo-example)
 6.3. [Offline Mode](#63-offline-mode)
+    - Set `LLAMA_MODEL_PATH` to the downloaded `.gguf` weight
+    - `AGI_INSIGHT_BROADCAST=0` disables blockchain broadcasting
+    - Example:
+      ```bash
+      AGI_INSIGHT_OFFLINE=1 AGI_INSIGHT_BROADCAST=0 
+        python -m alpha_factory_v1.demos.alpha_agi_insight_v1.src.interface.cli 
+        simulate --offline --llama-model-path "$LLAMA_MODEL_PATH"
+      ```
 7. [Deployment Recipes 🍳](#7-deployment-recipes)
 7.1. [Deploying securely 🚀](#71-deploying-securely)
 8. [Governance & Compliance ⚖️](#8-governance--compliance)  
