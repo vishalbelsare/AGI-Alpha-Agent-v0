@@ -1,4 +1,4 @@
-.PHONY: build_web demo-setup demo-run compose-up
+.PHONY: build_web demo-setup demo-run compose-up loadtest
 build_web:
     pnpm --dir src/interface/web_client install
     pnpm --dir src/interface/web_client run build
@@ -18,5 +18,14 @@ compose-up:
     docker compose -f docker-compose.yml up --build &
     sleep 2
     python -m webbrowser http://localhost:8080 >/dev/null 2>&1
+
+loadtest:
+    k6 run --summary-export=tools/loadtest/summary.json tools/loadtest/insight.js
+    @python - <<'PY'
+import json
+with open('tools/loadtest/summary.json') as f:
+    data=json.load(f)
+print(f"p95 latency: {data['metrics']['http_req_duration']['p(95)']} ms")
+PY
 
 
