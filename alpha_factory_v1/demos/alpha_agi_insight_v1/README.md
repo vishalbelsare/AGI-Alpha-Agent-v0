@@ -292,6 +292,8 @@ streamlit run src/interface/web_app.py
 ```bash
 # backend
 uvicorn src/interface/api_server:app --reload --port 8000
+# or via the CLI
+python -m alpha_factory_v1.demos.alpha_agi_insight_v1 api-server
 # frontend
 cd src/interface/web_client
 pnpm install

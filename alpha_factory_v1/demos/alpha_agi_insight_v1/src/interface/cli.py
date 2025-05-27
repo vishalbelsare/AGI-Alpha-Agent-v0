@@ -308,6 +308,30 @@ def run_orchestrator(verbose: bool) -> None:
         pass
 
 
+@main.command(name="api-server")
+@click.option("--host", default="0.0.0.0", show_default=True, help="Bind host")
+@click.option(
+    "--port",
+    type=int,
+    default=8000,
+    show_default=True,
+    help="Bind port",
+)
+def api_server_cmd(host: str, port: int) -> None:
+    """Launch the FastAPI backend server."""
+
+    try:
+        import uvicorn
+    except Exception as exc:  # pragma: no cover - optional
+        raise click.ClickException("uvicorn is required to run the API server") from exc
+
+    uvicorn.run(
+        "alpha_factory_v1.demos.alpha_agi_insight_v1.src.interface.api_server:app",
+        host=host,
+        port=port,
+    )
+
+
 @main.command()
 def replay() -> None:
     """Replay ledger events with a short delay.
