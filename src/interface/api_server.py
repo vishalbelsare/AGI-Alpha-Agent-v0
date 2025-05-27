@@ -36,11 +36,11 @@ sector = importlib.import_module("alpha_factory_v1.demos.alpha_agi_insight_v1.sr
 mats = importlib.import_module("alpha_factory_v1.demos.alpha_agi_insight_v1.src.simulation.mats")
 
 try:
-    from fastapi import FastAPI, HTTPException, WebSocket, Request, Depends
+    from fastapi import FastAPI, HTTPException, WebSocket, Request, Depends, APIRouter
     from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
     from starlette.middleware.base import BaseHTTPMiddleware, RequestResponseEndpoint
     from fastapi.middleware.cors import CORSMiddleware
-    from starlette.responses import Response, FileResponse
+    from starlette.responses import Response, FileResponse, PlainTextResponse
     from fastapi.staticfiles import StaticFiles
     from pydantic import BaseModel
     import uvicorn
@@ -50,6 +50,14 @@ except Exception:  # pragma: no cover - optional
     BaseModel = object  # type: ignore
     WebSocket = Any  # type: ignore
     uvicorn = None  # type: ignore
+
+with contextlib.suppress(ModuleNotFoundError):
+    from prometheus_client import (
+        Counter,
+        Histogram,
+        CONTENT_TYPE_LATEST,
+        generate_latest,
+    )
 
 if FastAPI is None:
     raise RuntimeError("FastAPI is required")
@@ -62,6 +70,39 @@ if app is not None:
         raise RuntimeError("API_TOKEN environment variable must be set")
 
     security = HTTPBearer()
+
+    def _noop(*_a: Any, **_kw: Any) -> Any:
+        class _N:
+            def labels(self, *_a: Any, **_kw: Any) -> "_N":
+                return self
+
+            def observe(self, *_a: Any) -> None: ...
+
+            def inc(self, *_a: Any) -> None: ...
+
+        return _N()
+
+    if "Histogram" in globals():
+        from prometheus_client import REGISTRY as _REG
+
+        def _get_metric(cls: Any, name: str, desc: str, labels: list[str]) -> Any:
+            if name in getattr(_REG, "_names_to_collectors", {}):
+                return _REG._names_to_collectors[name]
+            return cls(name, desc, labels)
+
+        REQ_COUNT = _get_metric(Counter, "api_requests_total", "HTTP requests", ["method", "endpoint", "status"])
+        REQ_LAT = _get_metric(Histogram, "api_request_duration_seconds", "Request latency", ["method", "endpoint"])
+    else:  # pragma: no cover - prometheus not installed
+        REQ_COUNT = _noop()
+        REQ_LAT = _noop()
+
+    metrics_router = APIRouter()
+
+    @metrics_router.get("/metrics", response_class=PlainTextResponse)
+    async def _metrics() -> Response:
+        if "generate_latest" not in globals():
+            raise HTTPException(status_code=503, detail="prometheus_client not installed")
+        return PlainTextResponse(generate_latest(), media_type=CONTENT_TYPE_LATEST)
 
     class SimpleRateLimiter(BaseHTTPMiddleware):
         def __init__(self, app: FastAPI, limit: int = 60, window: int = 60) -> None:
@@ -85,6 +126,15 @@ if app is not None:
                     return Response("Too Many Requests", status_code=429)
             return await call_next(request)
 
+    class MetricsMiddleware(BaseHTTPMiddleware):
+        async def dispatch(self, request: Request, call_next: RequestResponseEndpoint) -> Response:
+            start = time.perf_counter()
+            response = await call_next(request)
+            duration = time.perf_counter() - start
+            REQ_COUNT.labels(request.method, request.url.path, str(response.status_code)).inc()
+            REQ_LAT.labels(request.method, request.url.path).observe(duration)
+            return response
+
     async def verify_token(
         credentials: HTTPAuthorizationCredentials = Depends(security),
     ) -> None:
@@ -93,6 +143,7 @@ if app is not None:
 
     app_f: FastAPI = app
     app_f.add_middleware(SimpleRateLimiter)
+    app_f.add_middleware(MetricsMiddleware)
     origins = [o.strip() for o in os.getenv("API_CORS_ORIGINS", "*").split(",") if o.strip()]
     app_f.add_middleware(
         CORSMiddleware,
@@ -101,6 +152,7 @@ if app is not None:
         allow_methods=["*"],
         allow_headers=["*"],
     )
+    app_f.include_router(metrics_router)
     _orch: Any | None = None
 
     @app.on_event("startup")
@@ -344,7 +396,7 @@ if app is not None:
         result = _simulations.get(sim_id)
         if result is None:
             raise HTTPException(status_code=404)
-        return PopulationResponse(id=sim_id, population=result.population)
+        return PopulationResponse(id=sim_id, population=result.population or [])
 
     @app.get("/runs", response_model=RunsResponse)
     async def list_runs(_: None = Depends(verify_token)) -> RunsResponse:
@@ -356,11 +408,7 @@ if app is not None:
         """Return aggregated forecast data across runs."""
 
         ids = req.ids or list(_simulations.keys())
-        forecasts = [
-            _simulations[i].forecast
-            for i in ids
-            if i in _simulations
-        ]
+        forecasts = [_simulations[i].forecast for i in ids if i in _simulations]
         if not forecasts:
             raise HTTPException(status_code=404)
 
@@ -368,10 +416,7 @@ if app is not None:
         for fc in forecasts:
             for point in fc:
                 year_map.setdefault(point.year, []).append(point.capability)
-        agg = [
-            InsightPoint(year=year, capability=sum(vals) / len(vals))
-            for year, vals in sorted(year_map.items())
-        ]
+        agg = [InsightPoint(year=year, capability=sum(vals) / len(vals)) for year, vals in sorted(year_map.items())]
         return InsightResponse(forecast=agg)
 
     @app.websocket("/ws/progress")
