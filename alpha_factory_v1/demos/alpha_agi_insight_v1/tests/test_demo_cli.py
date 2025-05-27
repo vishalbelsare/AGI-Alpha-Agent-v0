@@ -40,3 +40,32 @@ def test_show_results_json(tmp_path: Path) -> None:
         )
     assert result.exit_code == 0
     assert result.output.strip().startswith("[")
+
+
+def test_show_memory_lists_entries(tmp_path: Path) -> None:
+    mem_path = tmp_path / "mem.log"
+    mem_path.write_text('{"foo": "bar"}\n', encoding="utf-8")
+    runner = CliRunner()
+    from unittest.mock import patch
+
+    with patch.object(cli.config.CFG, "memory_path", str(mem_path)):  # type: ignore[attr-defined]
+        result = runner.invoke(cli.main, ["show-memory"])
+    assert result.exit_code == 0
+    assert "foo" in result.output
+
+
+def test_agents_status_outputs_names() -> None:
+    runner = CliRunner()
+    from unittest.mock import patch
+
+    with patch.object(cli.orchestrator, "Orchestrator") as orch_cls:  # type: ignore[attr-defined]
+        orch = orch_cls.return_value
+        runner_obj = type(
+            "Runner",
+            (),
+            {"agent": type("Agent", (), {"name": "AgentZ"})()},
+        )()
+        orch.runners = {"AgentZ": runner_obj}
+        result = runner.invoke(cli.main, ["agents-status"])
+    assert result.exit_code == 0
+    assert "AgentZ" in result.output
