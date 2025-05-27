@@ -9,9 +9,9 @@ demo-setup:
 demo-run:
     @RUN_MODE=${RUN_MODE:-cli}; \
     if [ "$$RUN_MODE" = "web" ]; then \
-        .venv/bin/python -m streamlit run alpha_factory_v1/demos/alpha_agi_insight_v0/insight_dashboard.py; \
+        .venv/bin/python -m streamlit run alpha_factory_v1/demos/alpha_agi_insight_v1/src/interface/web_app.py; \
     else \
-        .venv/bin/python -m alpha_factory_v1.demos.alpha_agi_insight_v0 --episodes 5; \
+        .venv/bin/python -m alpha_factory_v1.demos.alpha_agi_insight_v1 --episodes 5; \
     fi
 
 compose-up:
