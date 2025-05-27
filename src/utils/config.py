@@ -116,20 +116,20 @@ def get_secret(name: str, default: Optional[str] = None) -> Optional[str]:
 
 def _prefetch_vault() -> None:
     """Populate environment secrets from HashiCorp Vault if configured."""
-    if "VAULT_TOKEN" in os.environ and "VAULT_ADDR" in os.environ:
+    if "VAULT_ADDR" in os.environ:
         try:  # pragma: no cover - optional dependency
             import importlib
 
             hvac = importlib.import_module("hvac")
 
             addr = os.environ["VAULT_ADDR"]
-            token = os.environ["VAULT_TOKEN"]
+            token = os.getenv("VAULT_TOKEN")
             secret_path = os.getenv("OPENAI_API_KEY_PATH", "OPENAI_API_KEY")
             client = hvac.Client(url=addr, token=token)
             data = client.secrets.kv.read_secret_version(path=secret_path)
             value = data["data"]["data"].get("OPENAI_API_KEY")
             if value:
-                os.environ.setdefault("OPENAI_API_KEY", value)
+                os.environ["OPENAI_API_KEY"] = value
         except Exception as exc:  # noqa: BLE001
             _log.warning("Vault lookup failed: %s", exc)
 
