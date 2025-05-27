@@ -371,6 +371,7 @@ For details see [docs/API.md](docs/API.md).
 | `AGI_INSIGHT_BROKER_URL` | Kafka broker URL for mirroring | _unset_ |
 | `AGI_INSIGHT_ALLOW_INSECURE` | Allow non‑TLS bus (`1` to enable) | `0` |
 | `AGI_INSIGHT_LEDGER_PATH` | Audit DB path | `./ledger/audit.db` |
+| `AGI_INSIGHT_MEMORY_PATH` | Path used by `MemoryAgent` for persistent storage | _unset_ |
 | `AGI_INSIGHT_BROADCAST` | Enable blockchain broadcasting | `1` |
 | `AGI_INSIGHT_SOLANA_URL` | Solana RPC endpoint | `https://api.testnet.solana.com` |
 | `AGI_INSIGHT_SOLANA_WALLET` | Wallet private key (hex) | _unset_ |
@@ -386,6 +387,7 @@ To secure the gRPC bus provide `AGI_INSIGHT_BUS_CERT`,
 Before running the demo, copy `.env.sample` to `.env` (or pass variables via `docker -e`). Store wallet keys outside of `.env` and
 use `AGI_INSIGHT_SOLANA_WALLET_FILE` to reference the file containing the
 hex-encoded private key.
+When `AGI_INSIGHT_MEMORY_PATH` is not set the MemoryAgent keeps records only in memory.
 The API server stores simulation results as JSON files under `SIM_RESULTS_DIR`.
 
 ---
