@@ -8,3 +8,7 @@ response within **7 days**. We request that you do not publicly disclose the iss
 until we have addressed it.
 
 Thank you for helping keep this project safe.
+
+## CI security workflow
+
+The GitHub Actions workflow [`security.yml`](.github/workflows/security.yml) builds and signs the container image. It generates CycloneDX SBOM files for the Python and Node packages, scans the final image with Trivy and fails if any high or critical vulnerabilities are found. After a successful scan the image is signed with `cosign` and an SLSA provenance file is attached to the GitHub Release along with the SBOMs.

@@ -1,0 +1,87 @@
+name: "🔒 Container Security"
+
+on:
+  workflow_dispatch:
+  release:
+    types: [created]
+
+env:
+  DOCKER_IMAGE: alpha-factory
+
+permissions:
+  contents: write
+  packages: write
+  id-token: write
+
+jobs:
+  sbom-scan-sign:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: pip
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install SBOM tools
+        run: |
+          python -m pip install --upgrade pip cyclonedx-bom
+          npm install -g @cyclonedx/bom
+
+      - name: Build Docker image
+        run: |
+          docker build -t ghcr.io/${{ github.repository_owner }}/$DOCKER_IMAGE:${{ github.sha }} -f Dockerfile .
+
+      - name: Generate Python SBOM
+        run: cyclonedx-py -r requirements.lock -o sbom-python.json
+
+      - name: Generate Node SBOM
+        run: cyclonedx-bom -o sbom-node.json src/interface/web_client
+
+      - name: Scan image with Trivy
+        uses: aquasecurity/trivy-action@v0.20.0
+        with:
+          image-ref: ghcr.io/${{ github.repository_owner }}/$DOCKER_IMAGE:${{ github.sha }}
+          format: table
+          exit-code: 1
+          severity: CRITICAL,HIGH
+
+      - name: Login to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Push image
+        run: docker push ghcr.io/${{ github.repository_owner }}/$DOCKER_IMAGE:${{ github.sha }}
+
+      - name: Install cosign
+        uses: sigstore/cosign-installer@v3
+        with:
+          cosign-release: 'v2.2.4'
+
+      - name: Sign container
+        env:
+          COSIGN_EXPERIMENTAL: "1"
+        run: cosign sign --yes ghcr.io/${{ github.repository_owner }}/$DOCKER_IMAGE:${{ github.sha }}
+
+      - name: Generate provenance
+        env:
+          COSIGN_EXPERIMENTAL: "1"
+        run: |
+          cosign generate --type slsaprovenance ghcr.io/${{ github.repository_owner }}/$DOCKER_IMAGE:${{ github.sha }} > provenance.json
+          cosign attest --yes --predicate provenance.json --type slsaprovenance ghcr.io/${{ github.repository_owner }}/$DOCKER_IMAGE:${{ github.sha }}
+
+      - name: Upload artifacts to release
+        if: github.event_name == 'release'
+        uses: softprops/action-gh-release@v1
+        with:
+          files: |
+            sbom-python.json
+            sbom-node.json
+            provenance.json
