@@ -62,9 +62,21 @@ def test_bus_secure(tmp_path: Path) -> None:
                 }
                 await stub(json.dumps(payload).encode())
             await asyncio.sleep(0.05)
+
+            # second connection with invalid token should be rejected
+            async with grpc.aio.secure_channel(f"localhost:{port}", creds) as ch:
+                stub = ch.unary_unary("/bus.Bus/Send")
+                payload["token"] = "bad"
+                try:
+                    resp = await stub(json.dumps(payload).encode())
+                except grpc.aio.AioRpcError as exc:
+                    assert exc.code() == grpc.StatusCode.PERMISSION_DENIED
+                else:
+                    assert resp == b"denied"
+            await asyncio.sleep(0.05)
         finally:
             await bus.stop()
             shutil.rmtree(tmp_path / "certs", ignore_errors=True)
 
     asyncio.run(run())
-    assert received and received[0].payload["v"] == 1
+    assert len(received) == 1 and received[0].payload["v"] == 1
