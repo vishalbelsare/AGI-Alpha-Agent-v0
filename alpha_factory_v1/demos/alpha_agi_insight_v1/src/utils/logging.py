@@ -6,9 +6,9 @@ default) and can periodically broadcast the Merkle root to Solana.
 ``setup`` configures console logging, optionally emitting JSON lines.
 """
 
-__all__ = ["Ledger", "setup", "logging"]
-
 from __future__ import annotations
+
+__all__ = ["Ledger", "setup", "logging"]
 
 import asyncio
 import json
