@@ -70,13 +70,14 @@ class Orchestrator:
 
     def __init__(self, settings: config.Settings | None = None) -> None:
         self.settings = settings or config.CFG
-        insight_logging.setup()
+        insight_logging.setup(json_logs=self.settings.json_logs)
         self.bus = messaging.A2ABus(self.settings)
         self.ledger = Ledger(
             self.settings.ledger_path,
             rpc_url=self.settings.solana_rpc_url,
             wallet=self.settings.solana_wallet,
             broadcast=self.settings.broadcast,
+            db=self.settings.db_type,
         )
         self.runners: Dict[str, AgentRunner] = {}
         self.bus.subscribe("orch", self._on_orch)

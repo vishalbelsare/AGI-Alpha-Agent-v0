@@ -389,6 +389,8 @@ local development or customization. See the
 | `AGI_INSIGHT_ALLOW_INSECURE` | Allow non‑TLS bus (`1` to enable) | `0` |
 | `AGI_INSIGHT_LEDGER_PATH` | Audit DB path | `./ledger/audit.db` |
 | `AGI_INSIGHT_MEMORY_PATH` | Path used by `MemoryAgent` for persistent storage | _unset_ |
+| `AGI_INSIGHT_JSON_LOGS` | Emit JSON formatted console logs (`1` to enable) | `0` |
+| `AGI_INSIGHT_DB` | Ledger backend (`sqlite` or `duckdb`) | `sqlite` |
 | `AGI_INSIGHT_BROADCAST` | Enable blockchain broadcasting | `1` |
 | `AGI_INSIGHT_SOLANA_URL` | Solana RPC endpoint | `https://api.testnet.solana.com` |
 | `AGI_INSIGHT_SOLANA_WALLET` | Wallet private key (hex) | _unset_ |

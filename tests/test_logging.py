@@ -45,3 +45,15 @@ def test_broadcast_merkle_root_logs_root_when_disabled(
 
     assert not dummy.called
     assert any(f"Merkle root {root}" in r.getMessage() for r in caplog.records)
+
+
+def test_json_console_formatting(capsys: pytest.CaptureFixture[str]) -> None:
+    logging.getLogger().handlers.clear()
+    insight_logging.setup(json_logs=True)
+    log = logging.getLogger("jtest")
+    log.info("hello")
+    captured = capsys.readouterr()
+    out = (captured.err or captured.out).strip()
+    data = json.loads(out)
+    assert data["msg"] == "hello"
+    assert data["lvl"] == "INFO"
