@@ -5,16 +5,16 @@ from pathlib import Path
 
 import pytest
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[4]))
-
-pd = pytest.importorskip("pandas")
-
 from alpha_factory_v1.demos.alpha_agi_insight_v1.src.interface.web_app import (
     _simulate,
     _timeline_df,
     _disruption_df,
 )
 from alpha_factory_v1.demos.alpha_agi_insight_v1.src.simulation import forecast
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[4]))
+
+pd = pytest.importorskip("pandas")
 
 
 def test_simulate_returns_trajectory() -> None:
