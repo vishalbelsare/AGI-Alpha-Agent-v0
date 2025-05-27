@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import json
 import os
+import shutil
 import subprocess
 import sys
 import tempfile
@@ -93,13 +94,21 @@ class CodeGenAgent(BaseAgent):
         helper_path = helper.name
         helper.close()
 
+        firejail = shutil.which("firejail")
+        cmd = [sys.executable, helper_path, code_path]
+        if firejail:
+            cmd = [firejail, "--quiet", "--net=none", "--private", *cmd]
+            pre_fn = None
+        else:
+            pre_fn = _apply_limits if os.name == "posix" else None
+
         try:
             proc = subprocess.run(
-                [sys.executable, helper_path, code_path],
+                cmd,
                 text=True,
                 capture_output=True,
                 timeout=3,
-                preexec_fn=_apply_limits if os.name == "posix" else None,
+                preexec_fn=pre_fn,
             )
             try:
                 data = json.loads(proc.stdout or "{}")
