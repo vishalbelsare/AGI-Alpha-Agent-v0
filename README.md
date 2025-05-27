@@ -621,6 +621,10 @@ for instructions and example volume mounts.
 | `AGI_INSIGHT_OFFLINE` | `0` | Set to `1` to force local inference models. |
 | `AGI_INSIGHT_BUS_PORT` | `6006` | gRPC bus port used by the demo. |
 | `AGI_INSIGHT_LEDGER_PATH` | `./ledger/audit.db` | Path to the local audit ledger. |
+| `AGI_INSIGHT_SECRET_BACKEND` | _(empty)_ | Set to `vault`, `aws` or `gcp` to load secrets from an external manager. |
+| `VAULT_ADDR`/`VAULT_TOKEN` | _(empty)_ | Connection details for HashiCorp Vault when using the `vault` backend. |
+| `AWS_REGION`/`OPENAI_API_KEY_SECRET_ID` | _(empty)_ | AWS Secrets Manager region and secret ID when using the `aws` backend. |
+| `GCP_PROJECT_ID`/`OPENAI_API_KEY_SECRET_ID` | _(empty)_ | GCP project and secret name when using the `gcp` backend. |
 | `AGI_INSIGHT_BUS_CERT` | _(empty)_ | Path to the gRPC bus certificate. |
 | `AGI_INSIGHT_BUS_KEY` | _(empty)_ | Private key matching `AGI_INSIGHT_BUS_CERT`. |
 | `AGI_INSIGHT_BUS_TOKEN` | _(empty)_ | Shared secret for bus authentication. |

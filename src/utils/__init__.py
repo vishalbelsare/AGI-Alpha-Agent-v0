@@ -1,5 +1,5 @@
 """Shared utilities and configuration."""
 
-from .config import CFG
+from .config import CFG, get_secret
 
-__all__ = ["CFG"]
+__all__ = ["CFG", "get_secret"]
