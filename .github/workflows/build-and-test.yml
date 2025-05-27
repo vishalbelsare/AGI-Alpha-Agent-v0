@@ -1,0 +1,48 @@
+name: "🐳 Build & Test"
+
+on:
+  workflow_dispatch:
+
+env:
+  PYTHON_VERSION_MATRIX: "3.11,3.12"
+  DOCKER_IMAGE: alpha-factory
+
+jobs:
+  build-test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: [${{ env.PYTHON_VERSION_MATRIX }}]
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Build Docker image
+        run: |
+          docker build -t ghcr.io/${{ github.repository_owner }}/$DOCKER_IMAGE:${{ github.sha }} -f Dockerfile .
+
+      - name: Run pytest inside container
+        run: |
+          docker run --rm ghcr.io/${{ github.repository_owner }}/$DOCKER_IMAGE:${{ github.sha }} pytest -q
+
+      - name: Login to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Push image
+        run: |
+          docker push ghcr.io/${{ github.repository_owner }}/$DOCKER_IMAGE:${{ github.sha }}
+
+      - name: Install cosign
+        uses: sigstore/cosign-installer@v3
+        with:
+          cosign-release: 'v2.2.4'
+
+      - name: Sign image
+        env:
+          COSIGN_EXPERIMENTAL: "1"
+        run: |
+          cosign sign --yes ghcr.io/${{ github.repository_owner }}/$DOCKER_IMAGE:${{ github.sha }}
