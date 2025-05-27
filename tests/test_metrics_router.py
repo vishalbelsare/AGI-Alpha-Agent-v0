@@ -23,3 +23,4 @@ def test_metrics_endpoint() -> None:
     resp = client.get("/metrics")
     assert resp.status_code == 200
     assert "api_requests_total" in resp.text
+    assert "api_request_duration_seconds" in resp.text

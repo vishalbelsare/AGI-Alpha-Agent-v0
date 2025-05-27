@@ -40,7 +40,7 @@ try:
     from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
     from starlette.middleware.base import BaseHTTPMiddleware, RequestResponseEndpoint
     from fastapi.middleware.cors import CORSMiddleware
-    from starlette.responses import Response, FileResponse, PlainTextResponse
+    from starlette.responses import Response, PlainTextResponse
     from fastapi.staticfiles import StaticFiles
     from pydantic import BaseModel
     import uvicorn
@@ -51,13 +51,15 @@ except Exception:  # pragma: no cover - optional
     WebSocket = Any  # type: ignore
     uvicorn = None  # type: ignore
 
-with contextlib.suppress(ModuleNotFoundError):
+try:
+    import prometheus_client
     from prometheus_client import (
         Counter,
         Histogram,
-        CONTENT_TYPE_LATEST,
         generate_latest,
     )
+except ModuleNotFoundError:  # pragma: no cover - optional
+    prometheus_client = None  # type: ignore
 
 if FastAPI is None:
     raise RuntimeError("FastAPI is required")
@@ -82,7 +84,7 @@ if app is not None:
 
         return _N()
 
-    if "Histogram" in globals():
+    if prometheus_client is not None:
         from prometheus_client import REGISTRY as _REG
 
         def _get_metric(cls: Any, name: str, desc: str, labels: list[str]) -> Any:
@@ -100,9 +102,9 @@ if app is not None:
 
     @metrics_router.get("/metrics", response_class=PlainTextResponse)
     async def _metrics() -> Response:
-        if "generate_latest" not in globals():
+        if prometheus_client is None:
             raise HTTPException(status_code=503, detail="prometheus_client not installed")
-        return PlainTextResponse(generate_latest(), media_type=CONTENT_TYPE_LATEST)
+        return PlainTextResponse(generate_latest(), media_type="text/plain; version=0.0.4")
 
     class SimpleRateLimiter(BaseHTTPMiddleware):
         def __init__(self, app: FastAPI, limit: int = 60, window: int = 60) -> None:
@@ -363,43 +365,80 @@ if app is not None:
 
     @app.post("/simulate", response_model=SimStartResponse)
     async def simulate(req: SimRequest, _: None = Depends(verify_token)) -> SimStartResponse:
-        """Start a simulation and return its identifier.
+        """Start a simulation and return its identifier."""
 
-        Args:
-            req: Simulation request parameters.
-
-        Returns:
-            A mapping containing the ``id`` of the background run.
-        """
-        sim_id = secrets.token_hex(8)
-        asyncio.create_task(_background_run(sim_id, req))
-        return SimStartResponse(id=sim_id)
+        start = time.perf_counter()
+        status = "200"
+        try:
+            sim_id = secrets.token_hex(8)
+            asyncio.create_task(_background_run(sim_id, req))
+            return SimStartResponse(id=sim_id)
+        except HTTPException as exc:
+            status = str(exc.status_code)
+            raise
+        finally:
+            REQ_COUNT.labels("POST", "/simulate", status).inc()
+            REQ_LAT.labels("POST", "/simulate").observe(time.perf_counter() - start)
 
     @app.get("/results/{sim_id}", response_model=ResultsResponse)
     async def get_results(sim_id: str, _: None = Depends(verify_token)) -> ResultsResponse:
         """Return final forecast data for ``sim_id`` if available."""
-        result = _simulations.get(sim_id)
-        if result is None:
-            raise HTTPException(status_code=404)
-        return result
+
+        start = time.perf_counter()
+        status = "200"
+        try:
+            result = _simulations.get(sim_id)
+            if result is None:
+                status = "404"
+                raise HTTPException(status_code=404)
+            return result
+        except HTTPException as exc:
+            status = str(exc.status_code)
+            raise
+        finally:
+            REQ_COUNT.labels("GET", "/results/{sim_id}", status).inc()
+            REQ_LAT.labels("GET", "/results/{sim_id}").observe(time.perf_counter() - start)
 
     @app.get("/results", response_model=ResultsResponse)
     async def get_latest(_: None = Depends(verify_token)) -> ResultsResponse:
         """Return the most recently completed simulation."""
-        if _latest_id is None:
-            raise HTTPException(status_code=404)
-        result = _simulations.get(_latest_id)
-        if result is None:
-            raise HTTPException(status_code=404)
-        return result
+
+        start = time.perf_counter()
+        status = "200"
+        try:
+            if _latest_id is None:
+                status = "404"
+                raise HTTPException(status_code=404)
+            result = _simulations.get(_latest_id)
+            if result is None:
+                status = "404"
+                raise HTTPException(status_code=404)
+            return result
+        except HTTPException as exc:
+            status = str(exc.status_code)
+            raise
+        finally:
+            REQ_COUNT.labels("GET", "/results", status).inc()
+            REQ_LAT.labels("GET", "/results").observe(time.perf_counter() - start)
 
     @app.get("/population/{sim_id}", response_model=PopulationResponse)
     async def get_population(sim_id: str, _: None = Depends(verify_token)) -> PopulationResponse:
         """Return the final population for ``sim_id`` if available."""
-        result = _simulations.get(sim_id)
-        if result is None:
-            raise HTTPException(status_code=404)
-        return PopulationResponse(id=sim_id, population=result.population or [])
+
+        start = time.perf_counter()
+        status = "200"
+        try:
+            result = _simulations.get(sim_id)
+            if result is None:
+                status = "404"
+                raise HTTPException(status_code=404)
+            return PopulationResponse(id=sim_id, population=result.population or [])
+        except HTTPException as exc:
+            status = str(exc.status_code)
+            raise
+        finally:
+            REQ_COUNT.labels("GET", "/population/{sim_id}", status).inc()
+            REQ_LAT.labels("GET", "/population/{sim_id}").observe(time.perf_counter() - start)
 
     @app.get("/runs", response_model=RunsResponse)
     async def list_runs(_: None = Depends(verify_token)) -> RunsResponse:

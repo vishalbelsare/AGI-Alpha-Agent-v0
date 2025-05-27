@@ -15,6 +15,7 @@ shut down on exit. Available endpoints are:
 - `POST /insight` – aggregate existing forecasts.
 - `WS  /ws/progress` – stream progress logs while the simulation runs.
 - `GET /openapi.json` – FastAPI auto-generated schema.
+- `GET /metrics` – Prometheus metrics for monitoring.
 
 ## Authentication
 
@@ -189,3 +190,9 @@ The server honours environment variables defined in `.env` such as `PORT` (HTTP 
 Sandbox CPU and memory limits can be set via `SANDBOX_CPU_SEC` and `SANDBOX_MEM_MB`.
 The OpenAPI specification can be fetched from `/openapi.json` when the server is
 running.
+
+### Metrics
+
+Prometheus scrapes `/metrics` on the same port as the API. The endpoint exposes
+counters and histograms such as `api_requests_total` and
+`api_request_duration_seconds`.
