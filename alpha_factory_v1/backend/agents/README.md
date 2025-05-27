@@ -209,7 +209,7 @@ graph TD
 ```bash
 git clone https://github.com/MontrealAI/AGI-Alpha-Agent-v0.git
 cd AGI-Alpha-Agent-v0/alpha_factory_v1
-pip install -r requirements.txt          # full‑fat install
+pip install -r requirements.lock         # full‑fat install
 python -m backend.orchestrator
 ```
 
