@@ -23,6 +23,11 @@ USER afuser
 ENV PYTHONUNBUFFERED=1
 ARG VITE_API_BASE_URL=/
 ENV VITE_API_BASE_URL=${VITE_API_BASE_URL}
+
+# verify the API server is responsive
+HEALTHCHECK --interval=30s --timeout=10s --retries=3 CMD \
+  curl -fsS http://localhost:8000/runs || exit 1
+
 EXPOSE 8000 8501 6006
 ENTRYPOINT ["entrypoint.sh"]
 CMD ["web"]
