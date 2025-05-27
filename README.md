@@ -657,6 +657,7 @@ The values above mirror `.env.sample`. When running the stack with Docker
 Compose, adjust the environment section of
 `infrastructure/docker-compose.yml` to override any variable—such as the gRPC
 bus port or ledger path. Sandbox limits are described in [docs/sandbox.md](docs/sandbox.md).
+When the `firejail` binary is present, CodeGen snippets run inside `firejail --net=none --private` for stronger isolation.
 
 ### Finance Demo Quick‑Start
 
