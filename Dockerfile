@@ -1,0 +1,26 @@
+FROM python:3.11-slim
+
+# install build tools and pnpm for the React UI
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential nodejs npm \
+    && npm install -g pnpm \
+    && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /app
+
+# install Python dependencies
+COPY alpha_factory_v1/demos/alpha_agi_insight_v1/requirements.lock /tmp/requirements.lock
+RUN pip install --no-cache-dir -r /tmp/requirements.lock && rm /tmp/requirements.lock
+
+# copy minimal package files for the Insight demo
+RUN mkdir -p alpha_factory_v1/demos
+COPY alpha_factory_v1/__init__.py alpha_factory_v1/__init__.py
+COPY alpha_factory_v1/demos/__init__.py alpha_factory_v1/demos/__init__.py
+COPY alpha_factory_v1/demos/alpha_agi_insight_v1 alpha_factory_v1/demos/alpha_agi_insight_v1
+
+# build the React front-end
+RUN pnpm --dir alpha_factory_v1/demos/alpha_agi_insight_v1/src/interface/web_client install \
+    && pnpm --dir alpha_factory_v1/demos/alpha_agi_insight_v1/src/interface/web_client run build \
+    && rm -rf alpha_factory_v1/demos/alpha_agi_insight_v1/src/interface/web_client/node_modules
+
+CMD ["uvicorn", "alpha_factory_v1.demos.alpha_agi_insight_v1.src.interface.api_server:app", "--host", "0.0.0.0", "--port", "8000"]
