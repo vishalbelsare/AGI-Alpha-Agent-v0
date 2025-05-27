@@ -15,13 +15,13 @@ RUN pip install --no-cache-dir -r /tmp/requirements.txt && rm /tmp/requirements.
 
 # Copy the project source
 COPY . /app
-RUN pnpm --dir src/interface/web_client install \
-    && pnpm --dir src/interface/web_client run build \
-    && rm -rf src/interface/web_client/node_modules
+RUN pnpm --dir alpha_factory_v1/demos/alpha_agi_insight_v1/src/interface/web_client install \
+    && pnpm --dir alpha_factory_v1/demos/alpha_agi_insight_v1/src/interface/web_client run build \
+    && rm -rf alpha_factory_v1/demos/alpha_agi_insight_v1/src/interface/web_client/node_modules
 
 # copy built assets
-COPY src/interface/web_client/dist/ \
-    /app/src/interface/web_client/dist/
+COPY alpha_factory_v1/demos/alpha_agi_insight_v1/src/interface/web_client/dist/ \
+    /app/alpha_factory_v1/demos/alpha_agi_insight_v1/src/interface/web_client/dist/
 
 # Add non-root user and entrypoint
 RUN adduser --disabled-password --gecos '' afuser && chown -R afuser /app

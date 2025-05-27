@@ -295,7 +295,7 @@ uvicorn src/interface/api_server:app --reload --port 8000
 # or via the CLI
 python -m alpha_factory_v1.demos.alpha_agi_insight_v1 api-server
 # frontend
-cd src/interface/web_client
+cd alpha_factory_v1/demos/alpha_agi_insight_v1/src/interface/web_client
 pnpm install
 pnpm dev            # http://localhost:5173
 # build production assets
@@ -304,7 +304,7 @@ pnpm build          # outputs to src/interface/web_client/dist/
 # or use `npm install && npm run build`
 ```
 
-The built dashboard lives under `src/interface/web_client/dist/` and is copied
+The built dashboard lives under `alpha_factory_v1/demos/alpha_agi_insight_v1/src/interface/web_client/dist/` and is copied
 into the demo container.
 
 The React client exposes an input form for **horizon**, **population size** and
@@ -339,7 +339,7 @@ Install [Node.js](https://nodejs.org/) **≥ 20** and
 From the repository root run:
 
 ```bash
-cd src/interface/web_client
+cd alpha_factory_v1/demos/alpha_agi_insight_v1/src/interface/web_client
 pnpm install && pnpm build
 ```
 
@@ -353,7 +353,7 @@ Launch the container stack afterwards or serve `dist/` with any static server,
 e.g. `python -m http.server --directory dist 8080`.
 
 For advanced options see
-[src/interface/web_client/README.md](../../../src/interface/web_client/README.md).
+[src/interface/web_client/README.md](src/interface/web_client/README.md).
 
 For details see [docs/API.md](docs/API.md).
 
