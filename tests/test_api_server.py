@@ -86,3 +86,9 @@ def test_background_run_direct(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) 
 
     assert (tmp_path / f"{sim_id}.json").exists()
     assert messages and messages[0]["id"] == sim_id
+
+def test_root_serves_spa() -> None:
+    client = make_client()
+    r = client.get("/")
+    assert r.status_code == 200
+    assert "<div id=\"root\">" in r.text
