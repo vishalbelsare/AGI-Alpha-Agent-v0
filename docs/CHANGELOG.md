@@ -9,6 +9,7 @@ All notable changes to this project are documented in this file.
 - Additional CLI notes and help command reference.
 - Documented `AGI_INSIGHT_MEMORY_PATH` for persistent storage configuration.
 - Optional JSON console logging and DuckDB ledger support.
+- Aggregated forecast endpoint `/insight` and OpenAPI schema exposure.
 
 ## [1.0.2] - 2025-06-30
 - Documented CLI and FastAPI usage with example commands.

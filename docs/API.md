@@ -12,7 +12,9 @@ shut down on exit. Available endpoints are:
 - `GET /results` – most recent simulation data.
 - `GET /results/{sim_id}` – fetch final forecast data.
 - `GET /population/{sim_id}` – retrieve only the population list.
+- `POST /insight` – aggregate existing forecasts.
 - `WS  /ws/progress` – stream progress logs while the simulation runs.
+- `GET /openapi.json` – FastAPI auto-generated schema.
 
 ## Authentication
 
@@ -146,6 +148,28 @@ Example response:
 
 **GET `/population/{sim_id}`** – returns only the ``population`` array if required.
 
+**POST `/insight`**
+
+Compute aggregated forecast data across stored runs. Optionally pass a JSON
+payload with a list of run identifiers under ``ids``. When omitted, all
+available runs are included.
+
+Example request body:
+
+```json
+{
+  "ids": ["abc123", "def789"]
+}
+```
+
+The response contains the average capability value per year:
+
+```json
+{
+  "forecast": [{"year": 1, "capability": 0.5}]
+}
+```
+
 **WebSocket `/ws/progress`**
 
 Streams progress messages during a running simulation. Messages are plain text lines
@@ -158,3 +182,5 @@ wscat -c "ws://localhost:8000/ws/progress" \
 ```
 
 The server honours environment variables defined in `.env` such as `PORT` (HTTP port) and `OPENAI_API_KEY`. When a prebuilt React dashboard exists under `src/interface/web_client/dist`, it is automatically served at the root path (`/`). CORS headers are configured via `API_CORS_ORIGINS` (default `"*"`).
+The OpenAPI specification can be fetched from `/openapi.json` when the server is
+running.
