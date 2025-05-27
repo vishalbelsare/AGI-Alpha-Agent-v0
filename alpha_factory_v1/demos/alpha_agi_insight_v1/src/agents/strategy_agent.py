@@ -31,7 +31,7 @@ class StrategyAgent(BaseAgent):
             try:
                 from ..utils import local_llm
 
-                strat["action"] = local_llm.chat(str(val))
+                strat["action"] = local_llm.chat(str(val), self.bus.settings)
             except Exception:  # pragma: no cover - model optional
                 pass
         elif self.oai_ctx:

@@ -10,6 +10,9 @@ import logging
 import os
 from typing import Any, Callable, cast
 
+from . import config
+from .config import Settings
+
 try:  # pragma: no cover - optional dependency
     from llama_cpp import Llama
 except Exception:  # pragma: no cover - llama-cpp optional
@@ -23,26 +26,25 @@ except Exception:  # pragma: no cover - ctransformers optional
 _log = logging.getLogger(__name__)
 
 _MODEL: Any | None = None
-_CALL: Callable[[str], str] | None = None
+_CALL: Callable[[str, Settings], str] | None = None
 
 
-def _load_model() -> None:
+def _load_model(cfg: Settings | None = None) -> None:
     """Load a local model if available, otherwise use an echo stub."""
     global _MODEL, _CALL
-    model_path = os.getenv(
-        "LLAMA_MODEL_PATH",
-        os.path.expanduser("~/.cache/llama/TinyLlama-1.1B-Chat-v1.0.Q4_K_M.gguf"),
-    )
+    cfg = cfg or config.CFG
+    model_path = os.getenv("LLAMA_MODEL_PATH", cfg.model_name)
+    n_ctx = int(os.getenv("LLAMA_N_CTX", str(cfg.context_window)))
 
-    def _wrap(fn: Callable[[str], str]) -> Callable[[str], str]:
+    def _wrap(fn: Callable[[str, Settings], str]) -> Callable[[str, Settings], str]:
         return fn
 
     if Llama is not None:
         try:
-            _MODEL = Llama(model_path=model_path, n_ctx=int(os.getenv("LLAMA_N_CTX", "2048")))
+            _MODEL = Llama(model_path=model_path, n_ctx=n_ctx)
 
-            def call_llama(prompt: str) -> str:
-                out = cast(Any, _MODEL)(prompt)
+            def call_llama(prompt: str, s: Settings) -> str:
+                out = cast(Any, _MODEL)(prompt, temperature=s.temperature)
                 return cast(str, out["choices"][0]["text"]).strip()
 
             _CALL = _wrap(call_llama)
@@ -54,8 +56,8 @@ def _load_model() -> None:
         try:
             _MODEL = AutoModelForCausalLM.from_pretrained(model_path, model_type="llama")
 
-            def call_ctrans(prompt: str) -> str:
-                return cast(str, cast(Any, _MODEL)(prompt))
+            def call_ctrans(prompt: str, s: Settings) -> str:
+                return cast(str, cast(Any, _MODEL)(prompt, temperature=s.temperature))
 
             _CALL = _wrap(call_ctrans)
             return
@@ -63,18 +65,19 @@ def _load_model() -> None:
             _log.warning("Failed to load ctransformers model: %s", exc)
             _MODEL = None
 
-    def call_stub(prompt: str) -> str:
+    def call_stub(prompt: str, s: Settings) -> str:
         return f"[offline] {prompt}"
 
     _CALL = _wrap(call_stub)
 
 
-def chat(prompt: str) -> str:
+def chat(prompt: str, cfg: Settings | None = None) -> str:
     """Return a completion using the local model or a simple echo."""
+    cfg = cfg or config.CFG
     if _CALL is None:
-        _load_model()
+        _load_model(cfg)
     assert _CALL is not None
     try:
-        return _CALL(prompt)
+        return _CALL(prompt, cfg)
     except Exception:  # pragma: no cover - runtime error
         return f"[offline] {prompt}"

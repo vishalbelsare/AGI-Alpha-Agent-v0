@@ -26,7 +26,7 @@ class PlanningAgent(BaseAgent):
             try:
                 from ..utils import local_llm
 
-                plan = local_llm.chat("plan research task")
+                plan = local_llm.chat("plan research task", self.bus.settings)
             except Exception:  # pragma: no cover - model optional
                 plan = "collect baseline metrics"
         elif self.oai_ctx:

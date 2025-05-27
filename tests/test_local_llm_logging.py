@@ -11,6 +11,6 @@ def test_load_model_warning(monkeypatch, caplog):
     monkeypatch.setattr(local_llm, "Llama", mock.Mock(side_effect=RuntimeError("boom")))
     monkeypatch.setattr(local_llm, "AutoModelForCausalLM", None)
 
-    local_llm._load_model()
+    local_llm._load_model(local_llm.config.CFG)
 
     assert any("boom" in r.message for r in caplog.records)
