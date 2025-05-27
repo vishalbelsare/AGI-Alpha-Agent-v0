@@ -11,14 +11,17 @@ pnpm dev        # start the development server
 pnpm build      # build production assets in `dist/`
 ```
 
-Set `VITE_API_BASE_URL` to change the API path prefix at build time:
+Set `VITE_API_BASE_URL` to change the API path prefix and `VITE_API_TOKEN` to
+embed the API bearer token at build time:
 
 ```bash
-# prepend '/api' to all requests
-VITE_API_BASE_URL=/api pnpm build
+# prepend '/api' to all requests and embed a token
+VITE_API_BASE_URL=/api VITE_API_TOKEN=test-token pnpm build
 ```
 
-The app expects the FastAPI server on `http://localhost:8000` by default. After running `pnpm build`, open `dist/index.html` or copy the `dist/` folder into your container image.
+The app expects the FastAPI server on `http://localhost:8000` by default. After
+running `pnpm build`, open `dist/index.html`, run `pnpm preview` or copy the
+`dist/` folder into your container image.
 
 When building the Docker image from the project root, ensure `pnpm --dir src/interface/web_client run build` completes so that `src/interface/web_client/dist/` exists. The `infrastructure/Dockerfile` copies this directory automatically.
 
