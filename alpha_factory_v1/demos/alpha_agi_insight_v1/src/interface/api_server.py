@@ -36,22 +36,16 @@ else:
     MatsModule = Any
     ForecastTrajectoryPoint = Any  # type: ignore[assignment]
 
-forecast = importlib.import_module(
-    "alpha_factory_v1.demos.alpha_agi_insight_v1.src.simulation.forecast"
-)
-sector = importlib.import_module(
-    "alpha_factory_v1.demos.alpha_agi_insight_v1.src.simulation.sector"
-)
-mats = importlib.import_module(
-    "alpha_factory_v1.demos.alpha_agi_insight_v1.src.simulation.mats"
-)
+forecast = importlib.import_module("alpha_factory_v1.demos.alpha_agi_insight_v1.src.simulation.forecast")
+sector = importlib.import_module("alpha_factory_v1.demos.alpha_agi_insight_v1.src.simulation.sector")
+mats = importlib.import_module("alpha_factory_v1.demos.alpha_agi_insight_v1.src.simulation.mats")
 
 _IMPORT_ERROR: Exception | None
 try:
     from fastapi import FastAPI, HTTPException, WebSocket, Request, Depends
     from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
     from starlette.middleware.base import BaseHTTPMiddleware, RequestResponseEndpoint
-    from starlette.responses import Response
+    from starlette.responses import Response, PlainTextResponse
     from fastapi.staticfiles import StaticFiles
     from fastapi.middleware.cors import CORSMiddleware
     from pydantic import BaseModel
@@ -75,9 +69,7 @@ if app is not None:
     @app.on_event("startup")
     async def _start() -> None:
         global _orch
-        orch_mod = importlib.import_module(
-            "alpha_factory_v1.demos.alpha_agi_insight_v1.src.orchestrator"
-        )
+        orch_mod = importlib.import_module("alpha_factory_v1.demos.alpha_agi_insight_v1.src.orchestrator")
         _orch = orch_mod.Orchestrator()
         app_f.state.task = asyncio.create_task(_orch.run_forever())
         _load_results()
@@ -135,7 +127,6 @@ if app is not None:
         allow_methods=["*"],
         allow_headers=["*"],
     )
-
 
     _simulations: dict[str, ResultsResponse] = {}
     _progress_ws: Set[Any] = set()
@@ -234,6 +225,7 @@ if app is not None:
                 except Exception:
                     _progress_ws.discard(ws)
             await asyncio.sleep(0)
+
         def eval_fn(genome: list[float]) -> tuple[float, float, float]:
             x, y = genome
             return x**2, y**2, (x + y) ** 2
@@ -266,6 +258,21 @@ if app is not None:
         _latest_id = sim_id
 
     _load_results()
+
+    @app.get("/healthz", response_class=PlainTextResponse, include_in_schema=False)
+    async def healthz() -> str:
+        """Simple liveness probe."""
+
+        return "ok"
+
+    @app.get("/readiness", response_class=PlainTextResponse, include_in_schema=False)
+    async def readiness() -> str:
+        """Check orchestrator background task."""
+
+        task = getattr(app_f.state, "task", None)
+        if task and not task.done():
+            return "ready"
+        raise HTTPException(status_code=503, detail="orchestrator not running")
 
     @app.post("/simulate", response_model=SimStartResponse)
     async def simulate(req: SimRequest, _: None = Depends(verify_token)) -> SimStartResponse:
