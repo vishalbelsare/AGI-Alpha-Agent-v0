@@ -40,6 +40,10 @@ python alpha_factory_v1/quickstart.py
 
 # Or via Docker (no install)
 docker run --pull=always -p 7860:7860 ghcr.io/montrealai/alpha-factory-demos:latest
+
+# With Make
+make demo-setup
+make demo-run        # RUN_MODE=web for dashboard
 ```
 Opens **http://localhost:7860** with a Gradio portal to every demo. Works on macOS, Linux, WSL 2 and Colab.
 
