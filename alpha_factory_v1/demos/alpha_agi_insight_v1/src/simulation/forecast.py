@@ -34,6 +34,17 @@ class TrajectoryPoint:
 
 
 def logistic_curve(t: float, k: float = 1.0, x0: float = 0.0) -> float:
+    """Return a logistic curve value for ``t``.
+
+    Args:
+        t: Normalised time value.
+        k: Growth rate controlling the steepness.
+        x0: Midpoint shift.
+
+    Returns:
+        Value in the ``[0, 1]`` range.
+    """
+
     return 1.0 / (1.0 + math.exp(-k * (t - x0)))
 
 
@@ -41,17 +52,37 @@ def linear_curve(t: float) -> float:
     return max(0.0, min(1.0, t))
 
 
-def exponential_curve(t: float, k: float = 3.0) -> float:
+def exponential_curve(t: float, k: float = 3.0, x0: float = 0.0) -> float:
+    """Return an exponential curve value for ``t``.
+
+    Args:
+        t: Normalised time value.
+        k: Exponential growth factor.
+        x0: Time shift applied before scaling.
+
+    Returns:
+        Value in the ``[0, 1]`` range.
+    """
+
     scale = math.exp(k) - 1.0
-    return min(1.0, (math.exp(k * t) - 1.0) / scale)
+    val = (math.exp(k * (t - x0)) - 1.0) / scale
+    return max(0.0, min(1.0, val))
 
 
-def capability_growth(t: float, curve: str = "logistic") -> float:
+def capability_growth(
+    t: float,
+    curve: str = "logistic",
+    *,
+    k: float | None = None,
+    x0: float | None = None,
+) -> float:
+    """Dispatch to the configured growth curve."""
+
     if curve == "linear":
         return linear_curve(t)
     if curve == "exponential":
-        return exponential_curve(t)
-    return logistic_curve(10.0 * t)
+        return exponential_curve(t, k=k or 3.0, x0=x0 or 0.0)
+    return logistic_curve(t, k=k or 10.0, x0=x0 or 0.0)
 
 
 def free_energy(sector: Sector, capability: float) -> float:
@@ -95,6 +126,8 @@ def forecast_disruptions(
     horizon: int,
     curve: str = "logistic",
     *,
+    k: float | None = None,
+    x0: float | None = None,
     pop_size: int = 6,
     generations: int = 1,
     seed: int | None = None,
@@ -105,7 +138,7 @@ def forecast_disruptions(
     results: List[TrajectoryPoint] = []
     for year in range(1, horizon + 1):
         t = year / horizon
-        cap = capability_growth(t, curve)
+        cap = capability_growth(t, curve, k=k, x0=x0)
         affected: List[Sector] = []
         for sec in secs:
             if not sec.disrupted:

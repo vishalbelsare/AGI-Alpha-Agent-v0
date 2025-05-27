@@ -224,6 +224,8 @@ class SimRequest(BaseModel):
     pop_size: int = 6
     generations: int = 3
     curve: str = "logistic"
+    k: float | None = None
+    x0: float | None = None
     sectors: list[SectorSpec] | None = None
 
 
@@ -307,7 +309,7 @@ async def _background_run(sim_id: str, cfg: SimRequest) -> None:
     traj: list[ForecastTrajectoryPoint] = []
     for year in range(1, cfg.horizon + 1):
         t = year / cfg.horizon
-        cap = forecast.capability_growth(t, cfg.curve)
+        cap = forecast.capability_growth(t, cfg.curve, k=cfg.k, x0=cfg.x0)
         for sec in secs:
             if not sec.disrupted:
                 sec.energy *= 1.0 + sec.growth

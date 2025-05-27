@@ -107,7 +107,7 @@ Example (using ``--sectors-file`` to customise the simulation):
 ```bash
 AGI_INSIGHT_OFFLINE=1 AGI_INSIGHT_BROADCAST=0 \
 python -m alpha_factory_v1.demos.alpha_agi_insight_v1.src.interface.cli simulate \
-  --curve linear --llama-model-path "$LLAMA_MODEL_PATH" \
+  --curve linear --k 8 --x0 0.0 --llama-model-path "$LLAMA_MODEL_PATH" \
   --offline --sectors-file alpha_factory_v1/demos/alpha_agi_insight_v1/docs/sectors.sample.json
 ```
 

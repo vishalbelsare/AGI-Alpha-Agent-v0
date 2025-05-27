@@ -108,7 +108,7 @@ def test_simulation_endpoints() -> None:
 
         r = httpx.post(
             url + "/simulate",
-            json={"horizon": 1, "pop_size": 2, "generations": 1},
+            json={"horizon": 1, "pop_size": 2, "generations": 1, "k": 5.0, "x0": 0.0},
             headers=headers,
         )
         assert r.status_code == 200

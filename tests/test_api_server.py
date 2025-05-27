@@ -27,7 +27,7 @@ def test_api_endpoints() -> None:
 
     resp = client.post(
         "/simulate",
-        json={"horizon": 1, "pop_size": 2, "generations": 1},
+        json={"horizon": 1, "pop_size": 2, "generations": 1, "k": 5.0, "x0": 0.0},
         headers=headers,
     )
     assert resp.status_code == 200
@@ -79,7 +79,7 @@ def test_background_run_direct(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) 
     api._progress_ws.add(ws)
 
     sim_id = "unit-test"
-    cfg = api.SimRequest(horizon=1, pop_size=2, generations=1)
+    cfg = api.SimRequest(horizon=1, pop_size=2, generations=1, k=5.0, x0=0.0)
     asyncio.run(api._background_run(sim_id, cfg))
 
     api._progress_ws.discard(ws)

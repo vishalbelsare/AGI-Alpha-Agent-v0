@@ -83,7 +83,7 @@ python cli.py show-results
 
 Available commands are:
 
-- `simulate` – run a forecast and launch the orchestrator. Key options include `--horizon`, `--curve`, `--sectors`, `--pop-size` and `--generations`.
+- `simulate` – run a forecast and launch the orchestrator. Key options include `--horizon`, `--curve`, `--k`, `--x0`, `--sectors`, `--pop-size` and `--generations`.
 - `show-results` – display the latest ledger entries recorded by the orchestrator.
 - `agents-status` – list currently registered agents.
 - `replay` – replay ledger entries with a small delay for analysis.
@@ -100,13 +100,17 @@ Start a new simulation. Send a JSON payload with the following fields:
 - `pop_size` – number of individuals per generation
 - `generations` – number of evolutionary steps
 - `curve` – capability growth curve (`logistic`, `linear`, `exponential`)
+- `k` – optional growth curve steepness
+- `x0` – optional growth curve midpoint
 
 ```json
 {
   "horizon": 5,
   "pop_size": 6,
   "generations": 3,
-  "curve": "logistic"
+  "curve": "logistic",
+  "k": 10.0,
+  "x0": 0.0
 }
 ```
 

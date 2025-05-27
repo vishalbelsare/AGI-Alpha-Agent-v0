@@ -70,6 +70,8 @@ def main() -> None:
 @main.command()
 @click.option("--horizon", default=5, show_default=True, type=int, help="Forecast horizon in years")
 @click.option("--curve", default="logistic", show_default=True, help="Capability growth curve")
+@click.option("--k", type=float, help="Curve steepness parameter")
+@click.option("--x0", type=float, help="Curve midpoint shift")
 @click.option("--seed", type=int, help="Random seed")
 @click.option("--offline", is_flag=True, help="Force offline mode")
 @click.option("--no-broadcast", is_flag=True, help="Disable blockchain broadcasting")
@@ -101,6 +103,8 @@ def simulate(
     model_name: str | None,
     temperature: float | None,
     context_window: int | None,
+    k: float | None,
+    x0: float | None,
 ) -> None:
     """Run a forecast simulation.
 
@@ -121,6 +125,8 @@ def simulate(
         model_name: Model identifier for LLM calls.
         temperature: Sampling temperature for completions.
         context_window: Prompt context window size.
+        k: Optional growth curve steepness.
+        x0: Optional growth curve midpoint shift.
 
     Returns:
         None
@@ -152,6 +158,8 @@ def simulate(
         secs,
         horizon,
         curve=curve,
+        k=k,
+        x0=x0,
         pop_size=pop_size,
         generations=generations,
         seed=seed,
