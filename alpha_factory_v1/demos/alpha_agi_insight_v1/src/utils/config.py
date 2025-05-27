@@ -10,9 +10,11 @@ from __future__ import annotations
 
 import logging
 import os
-from dataclasses import dataclass
 from pathlib import Path
-from typing import Dict
+from typing import Any, Dict, Optional
+
+from pydantic import Field
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 _log = logging.getLogger(__name__)
@@ -56,31 +58,58 @@ def _env_int(name: str, default: int) -> int:
         return default
 
 
-@dataclass(slots=True)
-class Settings:
+def _prefetch_vault() -> None:
+    """Populate environment secrets from HashiCorp Vault if configured."""
+    if "VAULT_ADDR" in os.environ:
+        try:  # pragma: no cover - optional dependency
+            import importlib
+
+            hvac = importlib.import_module("hvac")
+
+            addr = os.environ["VAULT_ADDR"]
+            token = os.getenv("VAULT_TOKEN")
+            secret_path = os.getenv("OPENAI_API_KEY_PATH", "OPENAI_API_KEY")
+            client = hvac.Client(url=addr, token=token)
+            data = client.secrets.kv.read_secret_version(path=secret_path)
+            value = data["data"]["data"].get("OPENAI_API_KEY")
+            if value:
+                os.environ["OPENAI_API_KEY"] = value
+        except Exception as exc:  # noqa: BLE001
+            _log.warning("Vault lookup failed: %s", exc)
+
+
+class Settings(BaseSettings):
     """Environment-driven configuration."""
 
-    openai_api_key: str | None = os.getenv("OPENAI_API_KEY")
-    offline: bool = os.getenv("AGI_INSIGHT_OFFLINE", "0") == "1"
-    bus_port: int = _env_int("AGI_INSIGHT_BUS_PORT", 6006)
-    ledger_path: str = os.getenv("AGI_INSIGHT_LEDGER_PATH", "./ledger/audit.db")
-    memory_path: str | None = os.getenv("AGI_INSIGHT_MEMORY_PATH")
-    broker_url: str | None = os.getenv("AGI_INSIGHT_BROKER_URL")
-    bus_token: str | None = os.getenv("AGI_INSIGHT_BUS_TOKEN")
-    bus_cert: str | None = os.getenv("AGI_INSIGHT_BUS_CERT")
-    bus_key: str | None = os.getenv("AGI_INSIGHT_BUS_KEY")
-    allow_insecure: bool = os.getenv("AGI_INSIGHT_ALLOW_INSECURE", "0") == "1"
-    broadcast: bool = os.getenv("AGI_INSIGHT_BROADCAST", "1") == "1"
-    solana_rpc_url: str = os.getenv("AGI_INSIGHT_SOLANA_URL", "https://api.testnet.solana.com")
-    solana_wallet: str | None = os.getenv("AGI_INSIGHT_SOLANA_WALLET")
-    solana_wallet_file: str | None = os.getenv("AGI_INSIGHT_SOLANA_WALLET_FILE")
-    model_name: str = os.getenv("AGI_MODEL_NAME", "gpt-4o-mini")
-    temperature: float = float(os.getenv("AGI_TEMPERATURE", "0.2"))
-    context_window: int = _env_int("AGI_CONTEXT_WINDOW", 8192)
-    json_logs: bool = os.getenv("AGI_INSIGHT_JSON_LOGS", "0") == "1"
-    db_type: str = os.getenv("AGI_INSIGHT_DB", "sqlite")
+    openai_api_key: Optional[str] = Field(default=None, alias="OPENAI_API_KEY")
+    offline: bool = Field(default=False, alias="AGI_INSIGHT_OFFLINE")
+    bus_port: int = Field(default=6006, alias="AGI_INSIGHT_BUS_PORT")
+    ledger_path: str = Field(default="./ledger/audit.db", alias="AGI_INSIGHT_LEDGER_PATH")
+    memory_path: Optional[str] = Field(default=None, alias="AGI_INSIGHT_MEMORY_PATH")
+    broker_url: Optional[str] = Field(default=None, alias="AGI_INSIGHT_BROKER_URL")
+    bus_token: Optional[str] = Field(default=None, alias="AGI_INSIGHT_BUS_TOKEN")
+    bus_cert: Optional[str] = Field(default=None, alias="AGI_INSIGHT_BUS_CERT")
+    bus_key: Optional[str] = Field(default=None, alias="AGI_INSIGHT_BUS_KEY")
+    allow_insecure: bool = Field(default=False, alias="AGI_INSIGHT_ALLOW_INSECURE")
+    broadcast: bool = Field(default=True, alias="AGI_INSIGHT_BROADCAST")
+    solana_rpc_url: str = Field(default="https://api.testnet.solana.com", alias="AGI_INSIGHT_SOLANA_URL")
+    solana_wallet: Optional[str] = Field(default=None, alias="AGI_INSIGHT_SOLANA_WALLET")
+    solana_wallet_file: Optional[str] = Field(default=None, alias="AGI_INSIGHT_SOLANA_WALLET_FILE")
+    model_name: str = Field(default="gpt-4o-mini", alias="AGI_MODEL_NAME")
+    temperature: float = Field(default=0.2, alias="AGI_TEMPERATURE")
+    context_window: int = Field(default=8192, alias="AGI_CONTEXT_WINDOW")
+    json_logs: bool = Field(default=False, alias="AGI_INSIGHT_JSON_LOGS")
+    db_type: str = Field(default="sqlite", alias="AGI_INSIGHT_DB")
 
-    def __post_init__(self) -> None:
+    model_config: SettingsConfigDict = {
+        "env_file": ".env",
+        "extra": "ignore",
+        "populate_by_name": True,
+        "env_prefix": "",
+    }
+
+    def __init__(self, **data: Any) -> None:  # pragma: no cover - exercised in tests
+        super().__init__(**data)
         if not self.openai_api_key:
             _log.warning("OPENAI_API_KEY missing – offline mode enabled")
             self.offline = True
@@ -92,5 +121,13 @@ class Settings:
             except Exception as exc:  # pragma: no cover - optional
                 _log.warning("Failed to load wallet file %s: %s", self.solana_wallet_file, exc)
 
+    def __repr__(self) -> str:  # pragma: no cover - trivial
+        data = self.model_dump()
+        for k in tuple(data):
+            if any(s in k.lower() for s in ("token", "key", "password")) and data[k]:
+                data[k] = "***"
+        return f"Settings({data})"
+
+_prefetch_vault()
 
 CFG = Settings()
