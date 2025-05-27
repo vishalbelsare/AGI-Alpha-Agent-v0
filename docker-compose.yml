@@ -20,7 +20,12 @@ services:
       - "8000:8000"
       - "8080:8080"
     healthcheck:
-      test: ["CMD-SHELL", "curl -sf http://localhost:8000/healthz && curl -sf http://localhost:8000/readiness"]
+      test: ["CMD", "curl", "-f", "http://localhost:8000/healthz"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+    readiness:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/readiness"]
       interval: 30s
       timeout: 5s
       retries: 3
