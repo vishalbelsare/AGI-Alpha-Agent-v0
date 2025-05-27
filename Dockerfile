@@ -2,7 +2,7 @@ FROM python:3.11-slim
 
 # install build tools and pnpm for the React UI
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    build-essential nodejs npm \
+    build-essential nodejs npm postgresql-client \
     && npm install -g pnpm \
     && rm -rf /var/lib/apt/lists/*
 

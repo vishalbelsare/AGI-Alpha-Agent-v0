@@ -11,6 +11,7 @@ from __future__ import annotations
 __all__ = ["Ledger", "setup", "logging"]
 
 import asyncio
+import contextlib
 import json
 import logging
 import sqlite3
@@ -45,6 +46,9 @@ try:  # optional dependency
     import duckdb
 except Exception:  # pragma: no cover - optional
     duckdb = None
+
+with contextlib.suppress(ModuleNotFoundError):
+    import psycopg2  # type: ignore
 
 _log = logging.getLogger(__name__)
 
@@ -120,6 +124,44 @@ class Ledger:
                 )
                 """
             )
+        elif db_type == "postgres":
+            if "psycopg2" not in globals():
+                _log.warning("AGI_INSIGHT_DB=postgres but psycopg2 not installed – falling back to sqlite")
+                self.conn = sqlite3.connect(str(self.path))
+                self.conn.execute(
+                    """
+                    CREATE TABLE IF NOT EXISTS messages (
+                        id INTEGER PRIMARY KEY AUTOINCREMENT,
+                        ts REAL,
+                        sender TEXT,
+                        recipient TEXT,
+                        payload TEXT,
+                        hash TEXT
+                    )
+                    """
+                )
+            else:
+                params = {
+                    "host": os.getenv("PGHOST"),
+                    "port": os.getenv("PGPORT", "5432"),
+                    "user": os.getenv("PGUSER"),
+                    "password": os.getenv("PGPASSWORD"),
+                    "dbname": os.getenv("PGDATABASE", "insight"),
+                }
+                self.conn = psycopg2.connect(**{k: v for k, v in params.items() if v is not None})
+                with self.conn, self.conn.cursor() as cur:
+                    cur.execute(
+                        """
+                        CREATE TABLE IF NOT EXISTS messages (
+                            id BIGSERIAL PRIMARY KEY,
+                            ts DOUBLE PRECISION,
+                            sender TEXT,
+                            recipient TEXT,
+                            payload TEXT,
+                            hash TEXT
+                        )
+                        """
+                    )
         else:
             if db_type == "duckdb" and duckdb is None:
                 _log.warning("AGI_INSIGHT_DB=duckdb but duckdb not installed – falling back to sqlite")
@@ -148,27 +190,47 @@ class Ledger:
             assert self.conn is not None
             data = json.dumps(asdict(env), sort_keys=True).encode()
             digest = blake3(data).hexdigest()
-            with self.conn:
-                self.conn.execute(
-                    "INSERT INTO messages (ts, sender, recipient, payload, hash) VALUES (?, ?, ?, ?, ?)",
-                    (env.ts, env.sender, env.recipient, json.dumps(env.payload), digest),
-                )
+            if self.db_type == "postgres":
+                with self.conn, self.conn.cursor() as cur:
+                    cur.execute(
+                        "INSERT INTO messages (ts, sender, recipient, payload, hash) VALUES (%s, %s, %s, %s, %s)",
+                        (env.ts, env.sender, env.recipient, json.dumps(env.payload), digest),
+                    )
+            else:
+                with self.conn:
+                    self.conn.execute(
+                        "INSERT INTO messages (ts, sender, recipient, payload, hash) VALUES (?, ?, ?, ?, ?)",
+                        (env.ts, env.sender, env.recipient, json.dumps(env.payload), digest),
+                    )
 
     def compute_merkle_root(self) -> str:
         assert self.conn is not None
-        cur = self.conn.execute("SELECT hash FROM messages ORDER BY id")
-        hashes = [row[0] for row in cur.fetchall()]
+        if self.db_type == "postgres":
+            with self.conn.cursor() as cur:
+                cur.execute("SELECT hash FROM messages ORDER BY id")
+                hashes = [row[0] for row in cur.fetchall()]
+        else:
+            cur = self.conn.execute("SELECT hash FROM messages ORDER BY id")
+            hashes = [row[0] for row in cur.fetchall()]
         return _merkle_root(hashes)
 
     def tail(self, count: int = 10) -> List[dict[str, object]]:
         """Return the last ``count`` ledger entries."""
 
         assert self.conn is not None
-        cur = self.conn.execute(
-            "SELECT ts, sender, recipient, payload FROM messages ORDER BY id DESC LIMIT ?",
-            (count,),
-        )
-        rows = cur.fetchall()
+        if self.db_type == "postgres":
+            with self.conn.cursor() as cur:
+                cur.execute(
+                    "SELECT ts, sender, recipient, payload FROM messages ORDER BY id DESC LIMIT %s",
+                    (count,),
+                )
+                rows = cur.fetchall()
+        else:
+            cur = self.conn.execute(
+                "SELECT ts, sender, recipient, payload FROM messages ORDER BY id DESC LIMIT ?",
+                (count,),
+            )
+            rows = cur.fetchall()
         result: List[dict[str, object]] = []
         for ts, sender, recipient, payload in reversed(rows):
             try:
