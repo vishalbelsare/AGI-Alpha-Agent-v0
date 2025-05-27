@@ -403,6 +403,17 @@ To secure the gRPC bus provide `AGI_INSIGHT_BUS_CERT`,
 `AGI_INSIGHT_ALLOW_INSECURE=1` to run without TLS. See
 [docs/bus_tls.md](docs/bus_tls.md) for detailed setup.
 
+### 6.1 Securing the A2A bus
+
+Run `infrastructure/gen_bus_certs.sh` to create `certs/bus.crt` and
+`certs/bus.key`. The script prints the environment variables
+`AGI_INSIGHT_BUS_CERT`, `AGI_INSIGHT_BUS_KEY` and
+`AGI_INSIGHT_BUS_TOKEN`.
+
+Set these variables before starting the orchestrator. When provided,
+`docker-compose.yml` automatically mounts the `certs` directory so the
+containers can reference `/certs/bus.crt` and `/certs/bus.key`.
+
 Before running the demo, copy `.env.sample` to `.env` (or pass variables via `docker -e`). Store wallet keys outside of `.env` and
 use `AGI_INSIGHT_SOLANA_WALLET_FILE` to reference the file containing the
 hex-encoded private key.
