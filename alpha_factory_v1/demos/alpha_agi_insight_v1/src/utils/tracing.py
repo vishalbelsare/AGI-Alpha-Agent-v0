@@ -4,24 +4,31 @@ from __future__ import annotations
 
 import os
 from contextlib import nullcontext
+from typing import Any, ContextManager, cast
+
+metrics: Any | None
+trace: Any | None
 
 try:  # optional dependency
-    from opentelemetry import metrics, trace
+    from opentelemetry import metrics as otel_metrics, trace as otel_trace
     from opentelemetry.sdk.resources import Resource
     from opentelemetry.sdk.metrics import MeterProvider
     from opentelemetry.sdk.metrics.export import (
         ConsoleMetricExporter,
-        OTLPMetricExporter,
         PeriodicExportingMetricReader,
     )
+    from opentelemetry.sdk.metrics.export import OTLPMetricExporter  # type: ignore[attr-defined]
     from opentelemetry.sdk.trace import TracerProvider
     from opentelemetry.sdk.trace.export import (
         BatchSpanProcessor,
         ConsoleSpanExporter,
-        OTLPSpanExporter,
     )
+    from opentelemetry.sdk.trace.export import OTLPSpanExporter  # type: ignore[attr-defined]
+    metrics = otel_metrics
+    trace = otel_trace
 except Exception:  # pragma: no cover - missing SDK
-    metrics = trace = None  # type: ignore
+    metrics = None
+    trace = None
 
 __all__ = ["tracer", "meter", "span", "configure"]
 
@@ -32,7 +39,7 @@ meter = None
 def configure() -> None:
     """Initialise tracing and metrics if the SDK is installed."""
     global tracer, meter
-    if trace is None:
+    if trace is None or metrics is None:
         return
 
     endpoint = os.getenv("OTEL_EXPORTER_OTLP_ENDPOINT")
@@ -57,10 +64,10 @@ def configure() -> None:
     meter = metrics.get_meter("alpha_insight")
 
 
-def span(name: str):
+def span(name: str) -> ContextManager[Any]:
     """Return a context manager for ``name``."""
     if tracer:
-        return tracer.start_as_current_span(name)
+        return cast(ContextManager[Any], tracer.start_as_current_span(name))
     return nullcontext()
 
 
