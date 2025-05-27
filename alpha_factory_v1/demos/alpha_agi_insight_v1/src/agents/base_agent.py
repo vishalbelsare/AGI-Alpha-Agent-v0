@@ -54,7 +54,8 @@ class BaseAgent:
             self.oai_ctx = None
         self.adk = ADKAdapter() if ADKAdapter.is_available() else None
         self.mcp = MCPAdapter() if MCPAdapter.is_available() else None
-        self.bus.subscribe(name, self._on_envelope)
+        self._handler = self._on_envelope
+        self.bus.subscribe(name, self._handler)
 
     async def _on_envelope(self, env: messaging.Envelope) -> None:
         await self.handle(env)
@@ -63,6 +64,10 @@ class BaseAgent:
         env = messaging.Envelope(self.name, recipient, payload, time.time())
         self.ledger.log(env)
         self.bus.publish(recipient, env)
+
+    def close(self) -> None:
+        """Unsubscribe the agent from the bus."""
+        self.bus.unsubscribe(self.name, self._handler)
 
     async def handle(self, env: messaging.Envelope) -> None:  # pragma: no cover - interface
         raise NotImplementedError

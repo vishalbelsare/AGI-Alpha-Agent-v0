@@ -63,6 +63,12 @@ class AgentRunner:
             self.task.cancel()
             with contextlib.suppress(asyncio.CancelledError):
                 await self.task
+        try:
+            close = getattr(self.agent, "close")
+        except AttributeError:
+            pass
+        else:
+            close()
         self.agent = self.cls(bus, ledger)
         self.start(bus, ledger)
 

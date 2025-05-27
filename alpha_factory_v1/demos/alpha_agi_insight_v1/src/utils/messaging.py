@@ -13,6 +13,7 @@ import json
 import logging
 from dataclasses import dataclass
 from pathlib import Path
+import contextlib
 from typing import Any, Awaitable, Callable, Dict, List, Optional
 
 from .config import Settings
@@ -51,6 +52,16 @@ class A2ABus:
 
     def subscribe(self, topic: str, handler: Callable[[Envelope], Awaitable[None] | None]) -> None:
         self._subs.setdefault(topic, []).append(handler)
+
+    def unsubscribe(self, topic: str, handler: Callable[[Envelope], Awaitable[None] | None]) -> None:
+        """Remove a previously subscribed handler."""
+        handlers = self._subs.get(topic)
+        if not handlers:
+            return
+        with contextlib.suppress(ValueError):
+            handlers.remove(handler)
+        if not handlers:
+            self._subs.pop(topic, None)
 
     def publish(self, topic: str, env: Envelope) -> None:
         with span("bus.publish"):
