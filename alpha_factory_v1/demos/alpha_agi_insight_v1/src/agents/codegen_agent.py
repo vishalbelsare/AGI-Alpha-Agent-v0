@@ -19,6 +19,7 @@ import time
 from .base_agent import BaseAgent
 from ..utils import messaging
 from ..utils.logging import Ledger
+from ..utils.retry import with_retry
 
 
 class CodeGenAgent(BaseAgent):
@@ -37,7 +38,7 @@ class CodeGenAgent(BaseAgent):
         code = "print('alpha')"
         if self.oai_ctx and not self.bus.settings.offline:
             try:  # pragma: no cover
-                code = await self.oai_ctx.run(prompt=str(analysis))
+                code = await with_retry(self.oai_ctx.run)(prompt=str(analysis))
             except Exception:
                 pass
         self.execute_in_sandbox(code)

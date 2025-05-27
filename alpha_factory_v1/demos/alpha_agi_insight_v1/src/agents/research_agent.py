@@ -14,6 +14,7 @@ from .base_agent import BaseAgent
 from ..simulation import forecast, sector
 from ..utils import messaging
 from ..utils.logging import Ledger
+from ..utils.retry import with_retry
 
 
 class ResearchAgent(BaseAgent):
@@ -44,7 +45,7 @@ class ResearchAgent(BaseAgent):
         cap = random.random()
         if self.oai_ctx and not self.bus.settings.offline:
             try:  # pragma: no cover
-                cap = float(await self.oai_ctx.run(prompt=str(plan)))
+                cap = float(await with_retry(self.oai_ctx.run)(prompt=str(plan)))
             except Exception:
                 pass
         await self.emit("strategy", {"research": cap})

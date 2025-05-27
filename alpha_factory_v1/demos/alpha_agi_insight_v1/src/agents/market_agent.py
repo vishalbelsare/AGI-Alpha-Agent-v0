@@ -11,6 +11,7 @@ from __future__ import annotations
 from .base_agent import BaseAgent
 from ..utils import messaging
 from ..utils.logging import Ledger
+from ..utils.retry import with_retry
 
 
 class MarketAgent(BaseAgent):
@@ -29,7 +30,7 @@ class MarketAgent(BaseAgent):
         analysis = f"impact of {strategy}"
         if self.oai_ctx and not self.bus.settings.offline:
             try:  # pragma: no cover
-                analysis = await self.oai_ctx.run(prompt=str(strategy))
+                analysis = await with_retry(self.oai_ctx.run)(prompt=str(strategy))
             except Exception:
                 pass
         await self.emit("codegen", {"analysis": analysis})

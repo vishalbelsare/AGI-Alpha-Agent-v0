@@ -11,6 +11,7 @@ from __future__ import annotations
 from .base_agent import BaseAgent
 from ..utils import messaging
 from ..utils.logging import Ledger
+from ..utils.retry import with_retry
 
 
 class StrategyAgent(BaseAgent):
@@ -31,12 +32,12 @@ class StrategyAgent(BaseAgent):
             try:
                 from ..utils import local_llm
 
-                strat["action"] = local_llm.chat(str(val), self.bus.settings)
+                strat["action"] = with_retry(local_llm.chat)(str(val), self.bus.settings)
             except Exception:  # pragma: no cover - model optional
                 pass
         elif self.oai_ctx:
             try:  # pragma: no cover
-                strat["action"] = await self.oai_ctx.run(prompt=str(val))
+                strat["action"] = await with_retry(self.oai_ctx.run)(prompt=str(val))
             except Exception:
                 pass
         await self.emit("market", {"strategy": strat})
