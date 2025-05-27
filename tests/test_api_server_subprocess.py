@@ -128,3 +128,20 @@ def test_rate_limit_exceeded() -> None:
     finally:
         proc.terminate()
         proc.wait(timeout=5)
+
+
+def test_results_requires_auth_cors() -> None:
+    port = _free_port()
+    env = os.environ.copy()
+    env["API_CORS_ORIGINS"] = "http://example.com"
+    proc = _start_server(port, env)
+    url = f"http://127.0.0.1:{port}"
+    headers = {"Authorization": "Bearer test-token"}
+    try:
+        _wait_running(url, headers)
+        r = httpx.get(f"{url}/results", headers={"Origin": "http://example.com"})
+        assert r.status_code == 403
+        assert r.headers.get("access-control-allow-origin") == "http://example.com"
+    finally:
+        proc.terminate()
+        proc.wait(timeout=5)
