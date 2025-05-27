@@ -62,6 +62,7 @@ RUN apt-get update && \
         libopenblas0 \
         libomp5 \
         libstdc++6 \
+        postgresql-client \
         patch \
         curl ca-certificates && \
     rm -rf /var/lib/apt/lists/*
