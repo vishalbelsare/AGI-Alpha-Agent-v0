@@ -241,6 +241,7 @@ See [AGENTS.md](AGENTS.md) for the full contributor guide.
 6.2. [Marketplace Demo Example 🛒](#62-marketplace-demo-example)
 6.3. [Offline Mode](#63-offline-mode)
 7. [Deployment Recipes 🍳](#7-deployment-recipes)
+7.1. [Deploying securely 🚀](#71-deploying-securely)
 8. [Governance & Compliance ⚖️](#8-governance--compliance)  
 9. [Observability 🔭](#9-observability)  
 10. [Extending the Mesh 🔌](#10-extending-the-mesh)  
@@ -824,6 +825,10 @@ terraform apply
 | **Helm (K8s)** | `helm install af helm/alpha-factory` | `--set env.RUN_MODE=web` |
 | **AWS Fargate** | `./infra/deploy_fargate.sh` | set `container_image` & `subnets` |
 | **IoT Edge** | `python edge_runner.py --agents manufacturing,energy` | Jetson Nano |
+<a name="71-deploying-securely"></a>
+### 🚀 Deploying securely
+See [docs/deployment_security.md](docs/deployment_security.md) for TLS setup, API tokens and Vault usage. Mount secrets via Docker or Kubernetes and never commit them.
+
 
 ---
 
