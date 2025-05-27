@@ -182,5 +182,6 @@ wscat -c "ws://localhost:8000/ws/progress" \
 ```
 
 The server honours environment variables defined in `.env` such as `PORT` (HTTP port) and `OPENAI_API_KEY`. When a prebuilt React dashboard exists under `src/interface/web_client/dist`, it is automatically served at the root path (`/`). CORS headers are configured via `API_CORS_ORIGINS` (default `"*"`).
+Sandbox CPU and memory limits can be set via `SANDBOX_CPU_SEC` and `SANDBOX_MEM_MB`.
 The OpenAPI specification can be fetched from `/openapi.json` when the server is
 running.
