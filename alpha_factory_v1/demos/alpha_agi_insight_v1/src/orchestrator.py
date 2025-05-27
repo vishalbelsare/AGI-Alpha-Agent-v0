@@ -12,6 +12,7 @@ from __future__ import annotations
 import asyncio
 import time
 import contextlib
+import os
 from typing import Callable, Dict, List
 
 from .agents import (
@@ -28,6 +29,8 @@ from .utils import alerts
 from .utils.logging import Ledger
 from .agents.base_agent import BaseAgent
 
+ERR_THRESHOLD = int(os.getenv("AGENT_ERR_THRESHOLD", "3"))
+
 log = insight_logging.logging.getLogger(__name__)
 
 
@@ -41,6 +44,7 @@ class AgentRunner:
         self.capabilities = getattr(agent, "CAPABILITIES", [])
         self.last_beat = time.time()
         self.task: asyncio.Task[None] | None = None
+        self.error_count = 0
 
     async def loop(self, bus: messaging.A2ABus, ledger: Ledger) -> None:
         while True:
@@ -49,10 +53,18 @@ class AgentRunner:
             except Exception as exc:  # noqa: BLE001
                 log.warning("%s failed: %s", self.agent.name, exc)
                 alerts.send_alert(f"{self.agent.name} failed: {exc}")
-            env = messaging.Envelope(self.agent.name, "orch", {"heartbeat": True}, time.time())
-            ledger.log(env)
-            bus.publish("orch", env)
-            self.last_beat = env.ts
+                self.error_count += 1
+            else:
+                self.error_count = 0
+                env = messaging.Envelope(
+                    self.agent.name,
+                    "orch",
+                    {"heartbeat": True},
+                    time.time(),
+                )
+                ledger.log(env)
+                bus.publish("orch", env)
+                self.last_beat = env.ts
             await asyncio.sleep(self.period)
 
     def start(self, bus: messaging.A2ABus, ledger: Ledger) -> None:
@@ -70,6 +82,7 @@ class AgentRunner:
         else:
             close()
         self.agent = self.cls(bus, ledger)
+        self.error_count = 0
         self.start(bus, ledger)
 
 
@@ -141,6 +154,10 @@ class Orchestrator:
             now = time.time()
             for r in list(self.runners.values()):
                 if r.task and r.task.done():
+                    await r.restart(self.bus, self.ledger)
+                    self._record_restart(r)
+                elif r.error_count >= ERR_THRESHOLD:
+                    log.warning("%s exceeded error threshold – restarting", r.agent.name)
                     await r.restart(self.bus, self.ledger)
                     self._record_restart(r)
                 elif now - r.last_beat > r.period * 5:
