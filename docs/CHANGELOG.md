@@ -16,6 +16,11 @@ All notable changes to this project are documented in this file.
 - Aggregated forecast endpoint `/insight` and OpenAPI schema exposure.
 - Baseline load test metrics: p95 latency below 180 ms with 20 VUs.
 
+## [v1.0] - 2025-07-01
+- CLI commands `simulate`, `show-results`, `agents-status` and `replay` for running and inspecting forecasts.
+- Web dashboard served when `RUN_MODE=web` or via `streamlit run src/interface/web_app.py`.
+- Security features include API token authentication, optional TLS for the gRPC bus and REST API, ED25519-signed agent wheels and HashiCorp Vault integration for secrets.
+
 ## [1.0.2] - 2025-06-30
 - Documented CLI and FastAPI usage with example commands.
 - Added agent architecture diagrams and algorithm explanations for MATS and forecasting.

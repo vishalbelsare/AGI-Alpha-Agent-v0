@@ -226,6 +226,7 @@ of a real general intelligence. Use at your own risk.
 - [docs/DESIGN.md](docs/DESIGN.md) — architecture overview and agent roles.
 - [docs/API.md](docs/API.md) — REST API and CLI endpoints.
 - Release notes are maintained in [docs/CHANGELOG.md](docs/CHANGELOG.md).
+- The [v1.0 entry](docs/CHANGELOG.md#v10---2025-07-01) lists the CLI, web UI and security features.
 - A demo specific overview can be found in
   [alpha_factory_v1/demos/alpha_agi_insight_v1/docs/DESIGN.md](alpha_factory_v1/demos/alpha_agi_insight_v1/docs/DESIGN.md).
 - TLS setup for the agent bus is documented in
