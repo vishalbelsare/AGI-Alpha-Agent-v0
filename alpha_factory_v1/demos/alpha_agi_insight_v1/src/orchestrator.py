@@ -23,9 +23,11 @@ from .agents import (
     safety_agent,
     memory_agent,
 )
-from .utils import config, messaging, logging
+from .utils import config, messaging, logging as insight_logging
 from .utils.logging import Ledger
 from .agents.base_agent import BaseAgent
+
+log = insight_logging.logging.getLogger(__name__)
 
 
 class AgentRunner:
@@ -44,7 +46,7 @@ class AgentRunner:
             try:
                 await self.agent.run_cycle()
             except Exception as exc:  # noqa: BLE001
-                logging._log.warning("%s failed: %s", self.agent.name, exc)
+                log.warning("%s failed: %s", self.agent.name, exc)
             env = messaging.Envelope(self.agent.name, "orch", {"heartbeat": True}, time.time())
             ledger.log(env)
             bus.publish("orch", env)
@@ -68,7 +70,7 @@ class Orchestrator:
 
     def __init__(self, settings: config.Settings | None = None) -> None:
         self.settings = settings or config.CFG
-        logging.setup()
+        insight_logging.setup()
         self.bus = messaging.A2ABus(self.settings)
         self.ledger = Ledger(
             self.settings.ledger_path,
@@ -129,7 +131,7 @@ class Orchestrator:
                     await r.restart(self.bus, self.ledger)
                     self._record_restart(r)
                 elif now - r.last_beat > r.period * 5:
-                    logging._log.warning("%s unresponsive – restarting", r.agent.name)
+                    log.warning("%s unresponsive – restarting", r.agent.name)
                     await r.restart(self.bus, self.ledger)
                     self._record_restart(r)
 

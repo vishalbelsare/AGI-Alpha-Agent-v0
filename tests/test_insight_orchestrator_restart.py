@@ -8,7 +8,7 @@ import contextlib
 from alpha_factory_v1.demos.alpha_agi_insight_v1.src import orchestrator
 from alpha_factory_v1.demos.alpha_agi_insight_v1.src.utils import config
 from alpha_factory_v1.demos.alpha_agi_insight_v1.src.utils.messaging import A2ABus, Envelope
-from alpha_factory_v1.demos.alpha_agi_insight_v1.src.utils.logging import Ledger, _log
+from alpha_factory_v1.demos.alpha_agi_insight_v1.src.utils.logging import Ledger
 from alpha_factory_v1.demos.alpha_agi_insight_v1.src.agents.base_agent import BaseAgent
 
 
@@ -59,7 +59,7 @@ class TestInsightOrchestratorRestart(unittest.TestCase):
             orch.ledger.close()
             return active
 
-        with mock.patch.object(_log, "warning") as warn:
+        with mock.patch.object(orchestrator.log, "warning") as warn:
             active = asyncio.run(run())
             warn.assert_any_call("%s unresponsive – restarting", "freeze")
         self.assertTrue(active)
