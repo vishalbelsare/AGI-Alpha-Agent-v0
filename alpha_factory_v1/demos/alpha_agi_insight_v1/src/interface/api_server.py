@@ -316,7 +316,8 @@ if app is not None:
         finally:
             _progress_ws.discard(websocket)
 
-    web_dist = Path(__file__).resolve().parents[5] / "src" / "interface" / "web_client" / "dist"
+    # Serve the minimal React dashboard bundled with this demo
+    web_dist = Path(__file__).resolve().parent / "web_client" / "dist"
     if web_dist.is_dir():
         app.mount("/", StaticFiles(directory=str(web_dist), html=True), name="static")
 
