@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 
 async function refresh(){
   const tbody=document.querySelector('#tbl tbody');
