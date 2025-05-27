@@ -47,7 +47,13 @@ def test_simulate_curve_subprocess() -> None:
             raise AssertionError("server did not start")
         r = httpx.post(
             f"{url}/simulate",
-            json={"horizon": 1, "pop_size": 2, "generations": 1, "curve": "linear"},
+            json={
+                "horizon": 1,
+                "num_sectors": 2,
+                "pop_size": 2,
+                "generations": 1,
+                "curve": "linear",
+            },
             headers=headers,
         )
         assert r.status_code == 200

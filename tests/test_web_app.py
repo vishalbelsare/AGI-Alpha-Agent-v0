@@ -30,3 +30,11 @@ def test_population_df() -> None:
     df = web_app.population_df(pop)
     assert set(df.columns) == {"effectiveness", "risk", "complexity", "rank"}
     assert len(df) == 2
+
+
+def test_run_simulation_smoke(capsys: pytest.CaptureFixture[str]) -> None:
+    """Ensure _run_simulation accepts the new num_sectors argument."""
+
+    web_app._run_simulation(1, "logistic", 2, 3, 1)
+    out, _ = capsys.readouterr()
+    assert "Streamlit not installed" in out

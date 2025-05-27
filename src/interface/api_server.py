@@ -221,6 +221,7 @@ class SimRequest(BaseModel):
     """Payload for the ``/simulate`` endpoint."""
 
     horizon: int = 5
+    num_sectors: int = 6
     pop_size: int = 6
     generations: int = 3
     curve: str = "logistic"
@@ -305,7 +306,7 @@ async def _background_run(sim_id: str, cfg: SimRequest) -> None:
     if cfg.sectors:
         secs = [sector.Sector(s.name, s.energy, s.entropy, s.growth) for s in cfg.sectors]
     else:
-        secs = [sector.Sector(f"s{i:02d}") for i in range(cfg.pop_size)]
+        secs = [sector.Sector(f"s{i:02d}") for i in range(cfg.num_sectors)]
     traj: list[ForecastTrajectoryPoint] = []
     for year in range(1, cfg.horizon + 1):
         t = year / cfg.horizon
