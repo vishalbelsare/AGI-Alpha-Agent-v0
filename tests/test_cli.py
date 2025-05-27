@@ -191,3 +191,35 @@ def test_replay_existing(tmp_path) -> None:
             led.tail.return_value = [{"ts": 0.0, "sender": "a", "recipient": "b", "payload": {"x": 1}}]
             out = CliRunner().invoke(cli.main, ["replay"])
             assert "a -> b" in out.output
+
+
+def test_simulate_does_not_modify_global_cfg() -> None:
+    """CLI options should not persist on the global config."""
+    runner = CliRunner()
+    original = cli.config.CFG.model_dump()
+
+    with patch.object(cli, "asyncio"), patch.object(cli.orchestrator, "Orchestrator"):
+        res = runner.invoke(
+            cli.main,
+            [
+                "simulate",
+                "--horizon",
+                "1",
+                "--offline",
+                "--sectors",
+                "1",
+                "--pop-size",
+                "1",
+                "--generations",
+                "1",
+                "--model",
+                "other",
+                "--temperature",
+                "0.9",
+                "--context-window",
+                "1024",
+            ],
+        )
+
+    assert res.exit_code == 0
+    assert cli.config.CFG.model_dump() == original
