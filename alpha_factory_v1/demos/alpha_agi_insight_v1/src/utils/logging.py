@@ -189,3 +189,11 @@ class Ledger:
         if self.conn:
             self.conn.close()
             self.conn = None
+
+    def __enter__(self) -> "Ledger":
+        """Return ``self`` for context manager support."""
+        return self
+
+    def __exit__(self, exc_type: object, exc: object, tb: object) -> None:
+        """Ensure the database connection is closed."""
+        self.close()
