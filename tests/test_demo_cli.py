@@ -1,5 +1,7 @@
 import os
+import csv
 import json
+from io import StringIO
 from pathlib import Path
 from unittest.mock import patch
 import pytest
@@ -175,9 +177,10 @@ def test_simulate_export_formats(export_fmt: str) -> None:
     if export_fmt == "json":
         assert res.output.startswith("[")
     else:
-        lines = res.output.splitlines()
-        assert lines[0] == "year,capability,affected"
-        assert "," in lines[1]
+        reader = csv.reader(StringIO(res.output))
+        rows = list(reader)
+        assert rows[0] == ["year", "capability", "affected"]
+        assert len(rows) > 1
 
 
 def test_simulate_invalid_option() -> None:

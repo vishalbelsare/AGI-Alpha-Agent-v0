@@ -1,6 +1,8 @@
 # SPDX-License-Identifier: Apache-2.0
 """Additional CLI tests using click CliRunner."""
 
+import csv
+from io import StringIO
 from unittest.mock import patch
 from click.testing import CliRunner
 
@@ -72,7 +74,10 @@ def test_simulate_export_formats() -> None:
                 ],
             )
     assert res_json.output.startswith("[")
-    assert "year,capability,affected" in res_csv.output
+    reader = csv.reader(StringIO(res_csv.output))
+    rows = list(reader)
+    assert rows[0] == ["year", "capability", "affected"]
+    assert len(rows) > 1
 
 
 def test_show_results_export_formats(tmp_path) -> None:

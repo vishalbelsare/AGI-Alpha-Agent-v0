@@ -9,6 +9,8 @@ console output optionally leverages ``rich`` for nicer tables.
 from __future__ import annotations
 
 import asyncio
+import csv
+import sys
 import json
 import os
 import random
@@ -177,10 +179,10 @@ def simulate(
         ]
         click.echo(json.dumps(data))
     elif export == "csv":
-        lines = ["year,capability,affected"]
+        writer = csv.writer(sys.stdout)
+        writer.writerow(["year", "capability", "affected"])
         for r in results:
-            lines.append(f"{r.year},{r.capability},{'|'.join(s.name for s in r.affected)}")
-        click.echo("\n".join(lines))
+            writer.writerow([r.year, r.capability, "|".join(s.name for s in r.affected)])
     else:
         _format_results(results)
 
