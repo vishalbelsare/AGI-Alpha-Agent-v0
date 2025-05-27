@@ -357,6 +357,21 @@ For advanced options see
 
 For details see [docs/API.md](docs/API.md).
 
+### 5.4 Building the Web Dashboard
+
+Run the following commands under `src/interface/web_client` to compile the
+React dashboard:
+
+```bash
+pnpm install
+pnpm build
+```
+
+This installs dependencies and outputs static files in `dist/`. The provided
+`Dockerfile` already runs these steps, so manual builds are only needed for
+local development or customization. See the
+[web_client/README.md](src/interface/web_client/README.md) for advanced usage.
+
 ---
 
 ## 6 Configuration
