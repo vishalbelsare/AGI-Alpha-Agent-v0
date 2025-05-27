@@ -11,6 +11,7 @@ from __future__ import annotations
 from .base_agent import BaseAgent
 from ..utils import messaging
 from ..utils.logging import Ledger
+from ..utils.retry import with_retry
 
 
 class PlanningAgent(BaseAgent):
@@ -26,12 +27,12 @@ class PlanningAgent(BaseAgent):
             try:
                 from ..utils import local_llm
 
-                plan = local_llm.chat("plan research task", self.bus.settings)
+                plan = with_retry(local_llm.chat)("plan research task", self.bus.settings)
             except Exception:  # pragma: no cover - model optional
                 plan = "collect baseline metrics"
         elif self.oai_ctx:
             try:  # pragma: no cover - SDK optional
-                plan = await self.oai_ctx.run(prompt="plan research task")
+                plan = await with_retry(self.oai_ctx.run)(prompt="plan research task")
             except Exception:
                 plan = "collect baseline metrics"
         await self.emit("research", {"plan": plan})
