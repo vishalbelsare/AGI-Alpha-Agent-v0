@@ -74,6 +74,9 @@ class Settings:
     solana_rpc_url: str = os.getenv("AGI_INSIGHT_SOLANA_URL", "https://api.testnet.solana.com")
     solana_wallet: str | None = os.getenv("AGI_INSIGHT_SOLANA_WALLET")
     solana_wallet_file: str | None = os.getenv("AGI_INSIGHT_SOLANA_WALLET_FILE")
+    model_name: str = os.getenv("AGI_MODEL_NAME", "gpt-4o-mini")
+    temperature: float = float(os.getenv("AGI_TEMPERATURE", "0.2"))
+    context_window: int = _env_int("AGI_CONTEXT_WINDOW", 8192)
 
     def __post_init__(self) -> None:
         if not self.openai_api_key:

@@ -35,7 +35,23 @@ class BaseAgent:
         self.name = name
         self.bus = bus
         self.ledger = ledger
-        self.oai_ctx = AgentContext() if AgentContext is not None else None
+        if AgentContext is not None:
+            try:
+                self.oai_ctx = AgentContext(
+                    model=bus.settings.model_name,
+                    temperature=bus.settings.temperature,
+                    context_window=bus.settings.context_window,
+                )
+            except TypeError:
+                try:
+                    self.oai_ctx = AgentContext(
+                        model=bus.settings.model_name,
+                        temperature=bus.settings.temperature,
+                    )
+                except Exception:
+                    self.oai_ctx = AgentContext()
+        else:
+            self.oai_ctx = None
         self.adk = ADKAdapter() if ADKAdapter.is_available() else None
         self.mcp = MCPAdapter() if MCPAdapter.is_available() else None
         self.bus.subscribe(name, self._on_envelope)

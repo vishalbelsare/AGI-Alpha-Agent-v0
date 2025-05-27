@@ -74,6 +74,9 @@ def main() -> None:
 @click.option("--offline", is_flag=True, help="Force offline mode")
 @click.option("--no-broadcast", is_flag=True, help="Disable blockchain broadcasting")
 @click.option("--llama-model-path", type=click.Path(), help="Path to local Llama model")
+@click.option("--model", "model_name", help="Model name for AgentContext/local models")
+@click.option("--temperature", type=float, help="Model temperature")
+@click.option("--context-window", type=int, help="Context window size")
 @click.option("--sectors-file", type=click.Path(exists=True), help="JSON file with sector definitions")
 @click.option("--sectors", default=6, show_default=True, type=int, help="Number of sectors")
 @click.option("--pop-size", default=6, show_default=True, type=int, help="MATS population size")
@@ -95,6 +98,9 @@ def simulate(
     start_orchestrator: bool,
     no_broadcast: bool,
     llama_model_path: str | None,
+    model_name: str | None,
+    temperature: float | None,
+    context_window: int | None,
 ) -> None:
     """Run a forecast simulation.
 
@@ -112,6 +118,9 @@ def simulate(
         start_orchestrator: Launch orchestrator after the run.
         no_broadcast: Disable ledger broadcasting.
         llama_model_path: Path to a local Llama model.
+        model_name: Model identifier for LLM calls.
+        temperature: Sampling temperature for completions.
+        context_window: Prompt context window size.
 
     Returns:
         None
@@ -127,6 +136,12 @@ def simulate(
         settings.offline = True
     if no_broadcast:
         settings.broadcast = False
+    if model_name is not None:
+        settings.model_name = model_name
+    if temperature is not None:
+        settings.temperature = temperature
+    if context_window is not None:
+        settings.context_window = context_window
 
     orch = orchestrator.Orchestrator(settings)
     if sectors_file:
@@ -297,9 +312,19 @@ def agents_status(watch: bool) -> None:
 
 @main.command(name="orchestrator")
 @click.option("--verbose", is_flag=True, help="Verbose output")
-def run_orchestrator(verbose: bool) -> None:
+@click.option("--model", "model_name", help="Model name for AgentContext/local models")
+@click.option("--temperature", type=float, help="Model temperature")
+@click.option("--context-window", type=int, help="Context window size")
+def run_orchestrator(verbose: bool, model_name: str | None, temperature: float | None, context_window: int | None) -> None:
     """Run the orchestrator until interrupted."""
-    orch = orchestrator.Orchestrator()
+    settings = config.CFG
+    if model_name is not None:
+        settings.model_name = model_name
+    if temperature is not None:
+        settings.temperature = temperature
+    if context_window is not None:
+        settings.context_window = context_window
+    orch = orchestrator.Orchestrator(settings)
     if verbose and console is not None:
         console.log("Starting orchestrator … press Ctrl+C to stop")
     try:
