@@ -51,13 +51,16 @@ class CodeGenAgent(BaseAgent):
     def execute_in_sandbox(self, code: str) -> tuple[str, str]:
         """Run ``code`` inside a subprocess with resource limits."""
 
+        cpu_sec = int(os.getenv("SANDBOX_CPU_SEC", "2"))
+        mem_mb = int(os.getenv("SANDBOX_MEM_MB", "256"))
+        mem_bytes = mem_mb * 1024 * 1024
+
         def _apply_limits() -> None:  # pragma: no cover - platform dependent
             try:
                 import resource
 
-                resource.setrlimit(resource.RLIMIT_CPU, (2, 2))
-                mem = 128 * 1024 * 1024
-                resource.setrlimit(resource.RLIMIT_AS, (mem, mem))
+                resource.setrlimit(resource.RLIMIT_CPU, (cpu_sec, cpu_sec))
+                resource.setrlimit(resource.RLIMIT_AS, (mem_bytes, mem_bytes))
             except Exception:
                 pass
 
@@ -70,8 +73,8 @@ class CodeGenAgent(BaseAgent):
             "import json,sys,contextlib,io,textwrap,resource\n"
             "code=open(sys.argv[1]).read()\n"
             "try:\n"
-            "    resource.setrlimit(resource.RLIMIT_CPU,(2,2))\n"
-            "    resource.setrlimit(resource.RLIMIT_AS,(256*1024*1024,256*1024*1024))\n"
+            f"    resource.setrlimit(resource.RLIMIT_CPU,({cpu_sec},{cpu_sec}))\n"
+            f"    resource.setrlimit(resource.RLIMIT_AS,({mem_bytes},{mem_bytes}))\n"
             "except Exception:\n"
             "    pass\n"
             "wrapped='def snippet():\\n'+textwrap.indent(code,'    ')\n"

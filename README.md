@@ -650,11 +650,13 @@ for instructions and example volume mounts.
 | `AGI_INSIGHT_ALLOW_INSECURE` | `0` | Set to `1` to run the bus without TLS when no certificate is provided. |
 | `API_TOKEN` | `REPLACE_ME_TOKEN` | Bearer token required by the REST API. |
 | `API_CORS_ORIGINS` | `*` | Comma-separated list of allowed CORS origins. |
+| `SANDBOX_CPU_SEC` | `2` | CPU time limit for sandboxed code. |
+| `SANDBOX_MEM_MB` | `256` | Memory cap for sandboxed code in MB. |
 
 The values above mirror `.env.sample`. When running the stack with Docker
 Compose, adjust the environment section of
 `infrastructure/docker-compose.yml` to override any variable—such as the gRPC
-bus port or ledger path.
+bus port or ledger path. Sandbox limits are described in [docs/sandbox.md](docs/sandbox.md).
 
 ### Finance Demo Quick‑Start
 

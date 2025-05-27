@@ -8,6 +8,8 @@ All notable changes to this project are documented in this file.
 - Expanded API documentation with `curl` and WebSocket examples.
 - Additional CLI notes and help command reference.
 - Documented `AGI_INSIGHT_MEMORY_PATH` for persistent storage configuration.
+- Optional CPU and memory caps for the CodeGen sandbox via
+  `SANDBOX_CPU_SEC` and `SANDBOX_MEM_MB`.
 - Configurable secret backend for HashiCorp Vault and cloud managers via `AGI_INSIGHT_SECRET_BACKEND`.
 - Optional JSON console logging and DuckDB ledger support.
 - Aggregated forecast endpoint `/insight` and OpenAPI schema exposure.
