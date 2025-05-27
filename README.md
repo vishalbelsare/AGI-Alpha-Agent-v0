@@ -759,7 +759,7 @@ make build_web
 docker compose build
 docker compose up
 ```
-Open <http://localhost:8501> in your browser. When `RUN_MODE=web`, the container
+Open <http://localhost:8080> in your browser. When `RUN_MODE=web`, the container
 serves the static files from `src/interface/web_client/dist` using `python -m
 http.server`. The FastAPI demo also mounts this folder at `/` when present so the
 dashboard is reachable without additional tooling.
@@ -768,7 +768,7 @@ Once running, Docker Compose marks the services **healthy** when:
 
 - `http://localhost:8000/runs` responds with `{"ids": []}` (or listed run IDs) for the
   orchestrator container.
-- `http://localhost:8501/` returns status `200` for the web container.
+- `http://localhost:8080/` returns status `200` for the web container.
 
 The dashboard now plots a 3‑D scatter chart of effectiveness vs. risk vs.
 complexity from the final population.
@@ -796,7 +796,7 @@ cp .env.sample .env
 cd infrastructure
 docker build -t alpha-demo .
 docker compose up -d
-# Dashboard available at <http://localhost:8501>
+# Dashboard available at <http://localhost:8080>
 ```
 
 The Helm chart under `infrastructure/helm-chart` mirrors this Compose
@@ -806,7 +806,7 @@ setup:
 helm upgrade --install alpha-demo ./infrastructure/helm-chart \
   --values ./infrastructure/helm-chart/values.yaml \
   --set env.RUN_MODE=web
-# → browse to <http://localhost:8501>
+# → browse to <http://localhost:8080>
 ```
 
 Terraform scripts in `infrastructure/terraform` provide GCP and AWS
@@ -821,7 +821,7 @@ terraform apply
 
 | Target | Command | Notes |
 |--------|---------|-------|
-| **Docker Compose** | `docker compose up -d` | Web UI on `localhost:8501` |
+| **Docker Compose** | `docker compose up -d` | Web UI on `localhost:8080` |
 | **Helm (K8s)** | `helm install af helm/alpha-factory` | `--set env.RUN_MODE=web` |
 | **AWS Fargate** | `./infra/deploy_fargate.sh` | set `container_image` & `subnets` |
 | **IoT Edge** | `python edge_runner.py --agents manufacturing,energy` | Jetson Nano |
