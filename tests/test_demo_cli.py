@@ -2,6 +2,7 @@ import os
 import json
 from pathlib import Path
 from unittest.mock import patch
+import pytest
 from click.testing import CliRunner
 from alpha_factory_v1.demos.alpha_agi_insight_v1.src.interface import cli
 
@@ -144,3 +145,46 @@ def test_simulate_sectors_file_json(tmp_path: Path) -> None:
     assert isinstance(data, list)
     assert data
     assert {"year", "capability", "affected"} <= set(data[0])
+
+
+@pytest.mark.parametrize("export_fmt", ["json", "csv"])
+def test_simulate_export_formats(export_fmt: str) -> None:
+    """Ensure simulate exports JSON and CSV correctly."""
+    runner = CliRunner()
+    with patch.object(cli, "asyncio"):
+        with patch.object(cli.orchestrator, "Orchestrator"):
+            res = runner.invoke(
+                cli.main,
+                [
+                    "simulate",
+                    "--horizon",
+                    "1",
+                    "--offline",
+                    "--sectors",
+                    "1",
+                    "--pop-size",
+                    "1",
+                    "--generations",
+                    "1",
+                    "--export",
+                    export_fmt,
+                ],
+            )
+
+    assert res.exit_code == 0
+    if export_fmt == "json":
+        assert res.output.startswith("[")
+    else:
+        lines = res.output.splitlines()
+        assert lines[0] == "year,capability,affected"
+        assert "," in lines[1]
+
+
+def test_simulate_invalid_option() -> None:
+    """Invoke simulate with an invalid export option."""
+    res = CliRunner().invoke(
+        cli.main,
+        ["simulate", "--horizon", "1", "--offline", "--export", "xml"],
+    )
+    assert res.exit_code != 0
+    assert "Invalid value for '--export'" in res.output
