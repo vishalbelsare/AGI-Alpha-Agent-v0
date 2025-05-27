@@ -11,6 +11,7 @@ from __future__ import annotations
 from .base_agent import BaseAgent
 from ..utils import messaging
 from ..utils.logging import Ledger
+from ..utils.tracing import span
 import json
 from pathlib import Path
 
@@ -34,11 +35,13 @@ class MemoryAgent(BaseAgent):
 
     async def run_cycle(self) -> None:
         """Periodically report memory size."""
-        await self.emit("orch", {"stored": len(self.records)})
+        with span("memory.run_cycle"):
+            await self.emit("orch", {"stored": len(self.records)})
 
     async def handle(self, env: messaging.Envelope) -> None:
         """Store payload for later retrieval."""
-        self.records.append(env.payload)
-        if self._store:
-            with self._store.open("a", encoding="utf-8") as fh:
-                fh.write(json.dumps(env.payload) + "\n")
+        with span("memory.handle"):
+            self.records.append(env.payload)
+            if self._store:
+                with self._store.open("a", encoding="utf-8") as fh:
+                    fh.write(json.dumps(env.payload) + "\n")

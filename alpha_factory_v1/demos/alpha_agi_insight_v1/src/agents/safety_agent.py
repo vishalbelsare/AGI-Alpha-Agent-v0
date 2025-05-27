@@ -11,6 +11,7 @@ from __future__ import annotations
 from .base_agent import BaseAgent
 from ..utils import messaging
 from ..utils.logging import Ledger
+from ..utils.tracing import span
 
 
 class SafetyGuardianAgent(BaseAgent):
@@ -21,10 +22,12 @@ class SafetyGuardianAgent(BaseAgent):
 
     async def run_cycle(self) -> None:
         """No-op periodic check."""
-        return None
+        with span("safety.run_cycle"):
+            return None
 
     async def handle(self, env: messaging.Envelope) -> None:
         """Simple pattern-based validation."""
-        code = env.payload.get("code", "")
-        status = "blocked" if "import os" in code else "ok"
-        await self.emit("memory", {"code": code, "status": status})
+        with span("safety.handle"):
+            code = env.payload.get("code", "")
+            status = "blocked" if "import os" in code else "ok"
+            await self.emit("memory", {"code": code, "status": status})

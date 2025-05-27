@@ -26,6 +26,7 @@ except Exception:  # pragma: no cover - optional
     coloredlogs = None
 
 from . import messaging
+from .tracing import span
 
 try:  # optional dependency
     from blake3 import blake3
@@ -143,15 +144,15 @@ class Ledger:
 
     def log(self, env: messaging.Envelope) -> None:
         """Hash ``env`` and append to the ledger."""
-
-        assert self.conn is not None
-        data = json.dumps(asdict(env), sort_keys=True).encode()
-        digest = blake3(data).hexdigest()
-        with self.conn:
-            self.conn.execute(
-                "INSERT INTO messages (ts, sender, recipient, payload, hash) VALUES (?, ?, ?, ?, ?)",
-                (env.ts, env.sender, env.recipient, json.dumps(env.payload), digest),
-            )
+        with span("ledger.log"):
+            assert self.conn is not None
+            data = json.dumps(asdict(env), sort_keys=True).encode()
+            digest = blake3(data).hexdigest()
+            with self.conn:
+                self.conn.execute(
+                    "INSERT INTO messages (ts, sender, recipient, payload, hash) VALUES (?, ?, ?, ?, ?)",
+                    (env.ts, env.sender, env.recipient, json.dumps(env.payload), digest),
+                )
 
     def compute_merkle_root(self) -> str:
         assert self.conn is not None

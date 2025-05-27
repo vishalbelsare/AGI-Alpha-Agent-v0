@@ -20,6 +20,7 @@ from .base_agent import BaseAgent
 from ..utils import messaging
 from ..utils.logging import Ledger
 from ..utils.retry import with_retry
+from ..utils.tracing import span
 
 
 class CodeGenAgent(BaseAgent):
@@ -30,19 +31,22 @@ class CodeGenAgent(BaseAgent):
 
     async def run_cycle(self) -> None:
         """No-op background loop."""
-        return None
+        with span("codegen.run_cycle"):
+            return None
 
     async def handle(self, env: messaging.Envelope) -> None:
         """Translate market insight into executable code."""
-        analysis = env.payload.get("analysis", "")
-        code = "print('alpha')"
-        if self.oai_ctx and not self.bus.settings.offline:
-            try:  # pragma: no cover
-                code = await with_retry(self.oai_ctx.run)(prompt=str(analysis))
-            except Exception:
-                pass
-        self.execute_in_sandbox(code)
-        await self.emit("safety", {"code": code})
+        with span("codegen.handle"):
+            analysis = env.payload.get("analysis", "")
+            code = "print('alpha')"
+            if self.oai_ctx and not self.bus.settings.offline:
+                try:  # pragma: no cover
+                    with span("openai.run"):
+                        code = await with_retry(self.oai_ctx.run)(prompt=str(analysis))
+                except Exception:
+                    pass
+            self.execute_in_sandbox(code)
+            await self.emit("safety", {"code": code})
 
     def execute_in_sandbox(self, code: str) -> tuple[str, str]:
         """Run ``code`` inside a subprocess with resource limits."""

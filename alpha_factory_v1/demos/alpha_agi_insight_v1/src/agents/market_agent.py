@@ -12,6 +12,7 @@ from .base_agent import BaseAgent
 from ..utils import messaging
 from ..utils.logging import Ledger
 from ..utils.retry import with_retry
+from ..utils.tracing import span
 
 
 class MarketAgent(BaseAgent):
@@ -22,15 +23,18 @@ class MarketAgent(BaseAgent):
 
     async def run_cycle(self) -> None:
         """Emit a periodic market snapshot."""
-        await self.emit("codegen", {"analysis": "neutral"})
+        with span("market.run_cycle"):
+            await self.emit("codegen", {"analysis": "neutral"})
 
     async def handle(self, env: messaging.Envelope) -> None:
         """Process strategy input and compute market impact."""
-        strategy = env.payload.get("strategy")
-        analysis = f"impact of {strategy}"
-        if self.oai_ctx and not self.bus.settings.offline:
-            try:  # pragma: no cover
-                analysis = await with_retry(self.oai_ctx.run)(prompt=str(strategy))
-            except Exception:
-                pass
-        await self.emit("codegen", {"analysis": analysis})
+        with span("market.handle"):
+            strategy = env.payload.get("strategy")
+            analysis = f"impact of {strategy}"
+            if self.oai_ctx and not self.bus.settings.offline:
+                try:  # pragma: no cover
+                    with span("openai.run"):
+                        analysis = await with_retry(self.oai_ctx.run)(prompt=str(strategy))
+                except Exception:
+                    pass
+            await self.emit("codegen", {"analysis": analysis})

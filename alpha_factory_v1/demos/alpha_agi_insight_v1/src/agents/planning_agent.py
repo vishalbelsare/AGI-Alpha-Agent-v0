@@ -12,6 +12,7 @@ from .base_agent import BaseAgent
 from ..utils import messaging
 from ..utils.logging import Ledger
 from ..utils.retry import with_retry
+from ..utils.tracing import span
 
 
 class PlanningAgent(BaseAgent):
@@ -22,20 +23,23 @@ class PlanningAgent(BaseAgent):
 
     async def run_cycle(self) -> None:
         """Emit a high level research request."""
-        plan = "collect baseline metrics"
-        if self.bus.settings.offline:
-            try:
-                from ..utils import local_llm
+        with span("planning.run_cycle"):
+            plan = "collect baseline metrics"
+            if self.bus.settings.offline:
+                try:
+                    from ..utils import local_llm
 
-                plan = with_retry(local_llm.chat)("plan research task", self.bus.settings)
-            except Exception:  # pragma: no cover - model optional
-                plan = "collect baseline metrics"
-        elif self.oai_ctx:
-            try:  # pragma: no cover - SDK optional
-                plan = await with_retry(self.oai_ctx.run)(prompt="plan research task")
-            except Exception:
-                plan = "collect baseline metrics"
-        await self.emit("research", {"plan": plan})
+                    with span("local_llm.chat"):
+                        plan = with_retry(local_llm.chat)("plan research task", self.bus.settings)
+                except Exception:  # pragma: no cover - model optional
+                    plan = "collect baseline metrics"
+            elif self.oai_ctx:
+                try:  # pragma: no cover - SDK optional
+                    with span("openai.run"):
+                        plan = await with_retry(self.oai_ctx.run)(prompt="plan research task")
+                except Exception:
+                    plan = "collect baseline metrics"
+            await self.emit("research", {"plan": plan})
 
     async def handle(self, env: messaging.Envelope) -> None:
         """Log incoming feedback for future planning."""

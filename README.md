@@ -845,6 +845,13 @@ terraform apply
 | Traces | OpenTelemetry | `trace_id` |
 | Dashboards | Grafana | `alpha-factory/trade-lifecycle.json` |
 
+By default traces and metrics print to ``stdout``. To export to a collector such
+as **Jaeger**, set ``OTEL_EXPORTER_OTLP_ENDPOINT`` and start Jaeger locally:
+
+```bash
+docker run -p 16686:16686 -p 4317:4317 jaegertracing/all-in-one
+```
+
 ---
 
 <a name="10-extending-the-mesh"></a>
