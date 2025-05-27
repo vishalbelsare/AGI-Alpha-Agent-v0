@@ -40,7 +40,8 @@ try:
     from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
     from starlette.middleware.base import BaseHTTPMiddleware, RequestResponseEndpoint
     from fastapi.middleware.cors import CORSMiddleware
-    from starlette.responses import Response
+    from starlette.responses import Response, FileResponse
+    from fastapi.staticfiles import StaticFiles
     from pydantic import BaseModel
     import uvicorn
 except Exception:  # pragma: no cover - optional
@@ -389,6 +390,11 @@ if app is not None:
             pass
         finally:
             _progress_ws.discard(websocket)
+
+    # Serve the React SPA built assets if present
+    static_dir = Path(__file__).resolve().parent / "web_client" / "dist"
+    if static_dir.is_dir():
+        app.mount("/", StaticFiles(directory=static_dir, html=True), name="spa")
 
 
 def main(argv: List[str] | None = None) -> None:
