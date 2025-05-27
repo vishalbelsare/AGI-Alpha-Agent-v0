@@ -52,6 +52,8 @@ try:
     from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
     from starlette.middleware.base import BaseHTTPMiddleware, RequestResponseEndpoint
     from starlette.responses import Response
+    from fastapi.staticfiles import StaticFiles
+    from fastapi.middleware.cors import CORSMiddleware
     from pydantic import BaseModel
     import uvicorn
 except Exception as exc:  # pragma: no cover - optional
@@ -125,6 +127,15 @@ if app is not None:
             raise HTTPException(status_code=403, detail="Invalid token")
 
     app.add_middleware(SimpleRateLimiter)
+    origins = [o.strip() for o in os.getenv("API_CORS_ORIGINS", "*").split(",") if o.strip()]
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=origins,
+        allow_credentials=True,
+        allow_methods=["*"],
+        allow_headers=["*"],
+    )
+
 
     _simulations: dict[str, ResultsResponse] = {}
     _progress_ws: Set[Any] = set()
@@ -304,6 +315,10 @@ if app is not None:
             pass
         finally:
             _progress_ws.discard(websocket)
+
+    web_dist = Path(__file__).resolve().parents[5] / "src" / "interface" / "web_client" / "dist"
+    if web_dist.is_dir():
+        app.mount("/", StaticFiles(directory=str(web_dist), html=True), name="static")
 
 
 def main(argv: list[str] | None = None) -> None:

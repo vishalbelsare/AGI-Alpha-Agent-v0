@@ -170,6 +170,7 @@ def test_replay_existing(tmp_path) -> None:
             ),
         ):
             led = led_cls.return_value
+            led.__enter__.return_value = led
             led.tail.return_value = [{"ts": 0.0, "sender": "a", "recipient": "b", "payload": {"x": 1}}]
             out = CliRunner().invoke(cli.main, ["replay"])
             assert "a -> b" in out.output
