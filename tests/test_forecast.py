@@ -8,6 +8,15 @@ def test_logistic_curve_midpoint() -> None:
     assert forecast.logistic_curve(0.0) == pytest.approx(0.5)
 
 
+def test_logistic_curve_parameters() -> None:
+    """Custom ``k`` and ``x0`` should shift the curve."""
+    base = forecast.logistic_curve(0.0)
+    shifted = forecast.logistic_curve(0.5, x0=0.5)
+    steep = forecast.logistic_curve(0.1, k=2.0)
+    assert shifted == pytest.approx(base)
+    assert steep > forecast.logistic_curve(0.1)
+
+
 def test_thermodynamic_trigger() -> None:
     sec = sector.Sector("x", energy=1.0, entropy=2.0)
     assert not forecast.thermodynamic_trigger(sec, 0.1)
@@ -68,6 +77,23 @@ def test_capability_growth_curves() -> None:
     assert 0.0 <= exponential <= 1.0
     assert 0.0 <= linear <= 1.0
     assert 0.0 <= logistic <= 1.0
+
+
+def test_capability_growth_params() -> None:
+    """Capability growth should forward ``k`` and ``x0``."""
+    val_default = forecast.capability_growth(0.5, curve="logistic")
+    val_custom = forecast.capability_growth(0.5, curve="logistic", k=5.0, x0=0.0)
+    assert val_custom == pytest.approx(forecast.logistic_curve(0.5, k=5.0))
+    assert val_custom != val_default
+
+
+def test_exponential_curve_parameters() -> None:
+    """Exponential curve should honour ``k`` and ``x0``."""
+    base = forecast.exponential_curve(0.5)
+    shifted = forecast.exponential_curve(0.6, x0=0.1)
+    steep = forecast.exponential_curve(0.5, k=5.0)
+    assert shifted == pytest.approx(base)
+    assert steep < base
 
 
 def test_thermodynamic_trigger_edges() -> None:

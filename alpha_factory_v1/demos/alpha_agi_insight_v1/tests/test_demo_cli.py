@@ -19,7 +19,10 @@ def test_simulate_offline(tmp_path: Path) -> None:
     from unittest.mock import patch
 
     with patch.object(cli.config.CFG, "ledger_path", str(led_path)):  # type: ignore[attr-defined]
-        result = runner.invoke(cli.main, ["simulate", "--horizon", "2", "--offline"])
+        result = runner.invoke(
+            cli.main,
+            ["simulate", "--horizon", "2", "--offline", "--k", "5", "--x0", "0.1"],
+        )
     assert result.exit_code == 0
     assert "year" in result.output
 
