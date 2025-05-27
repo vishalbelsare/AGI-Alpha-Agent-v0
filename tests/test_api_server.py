@@ -13,11 +13,13 @@ os.environ.setdefault("API_RATE_LIMIT", "1000")
 
 
 from typing import Any, cast
+import importlib
 
 
 def make_client() -> TestClient:
     from src.interface import api_server
 
+    api_server = importlib.reload(api_server)
     return TestClient(cast(Any, api_server.app))
 
 
@@ -87,8 +89,9 @@ def test_background_run_direct(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) 
     assert (tmp_path / f"{sim_id}.json").exists()
     assert messages and messages[0]["id"] == sim_id
 
+
 def test_root_serves_spa() -> None:
     client = make_client()
     r = client.get("/")
     assert r.status_code == 200
-    assert "<div id=\"root\">" in r.text
+    assert '<div id="root">' in r.text
