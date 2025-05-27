@@ -8,6 +8,7 @@ All notable changes to this project are documented in this file.
 - Expanded API documentation with `curl` and WebSocket examples.
 - Additional CLI notes and help command reference.
 - Documented `AGI_INSIGHT_MEMORY_PATH` for persistent storage configuration.
+- Optional JSON console logging and DuckDB ledger support.
 
 ## [1.0.2] - 2025-06-30
 - Documented CLI and FastAPI usage with example commands.

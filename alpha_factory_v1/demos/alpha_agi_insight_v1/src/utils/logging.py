@@ -1,10 +1,12 @@
 # SPDX-License-Identifier: Apache-2.0
 """Structured logging and Merkle root broadcasting.
 
-The :class:`Ledger` class appends envelopes to a SQLite database and can
-periodically broadcast the Merkle root to Solana. ``setup`` configures
-standard logging with optional colorization.
+The :class:`Ledger` class appends envelopes to a local database (SQLite by
+default) and can periodically broadcast the Merkle root to Solana.
+``setup`` configures console logging, optionally emitting JSON lines.
 """
+
+__all__ = ["Ledger", "setup", "logging"]
 
 from __future__ import annotations
 
@@ -12,6 +14,8 @@ import asyncio
 import json
 import logging
 import sqlite3
+import os
+from datetime import datetime
 from dataclasses import asdict
 from pathlib import Path
 from typing import Iterable, List, cast
@@ -36,18 +40,39 @@ try:  # optional dependency
 except Exception:  # pragma: no cover - offline fallback
     AsyncClient = None
 
+try:  # optional dependency
+    import duckdb
+except Exception:  # pragma: no cover - optional
+    duckdb = None
+
 _log = logging.getLogger(__name__)
 
 
-def setup(level: str = "INFO") -> None:
+class _JsonFormatter(logging.Formatter):
+    def format(self, record: logging.LogRecord) -> str:  # noqa: D401 - short
+        data = {
+            "ts": datetime.fromtimestamp(record.created).isoformat(timespec="seconds"),
+            "lvl": record.levelname,
+            "name": record.name,
+            "msg": record.getMessage(),
+        }
+        return json.dumps(data)
+
+
+def setup(level: str = "INFO", json_logs: bool = False) -> None:
     """Initialise the root logger if not configured."""
 
     if not logging.getLogger().handlers:
-        fmt = "%(asctime)s %(levelname)s %(name)s | %(message)s"
-        if coloredlogs is not None:
-            coloredlogs.install(level=level, fmt=fmt, datefmt="%Y-%m-%d %H:%M:%S")
+        if json_logs:
+            handler = logging.StreamHandler()
+            handler.setFormatter(_JsonFormatter())
+            logging.basicConfig(level=level, handlers=[handler])
         else:
-            logging.basicConfig(level=level, format=fmt, datefmt="%Y-%m-%d %H:%M:%S")
+            fmt = "%(asctime)s %(levelname)s %(name)s | %(message)s"
+            if coloredlogs is not None:
+                coloredlogs.install(level=level, fmt=fmt, datefmt="%Y-%m-%d %H:%M:%S")
+            else:
+                logging.basicConfig(level=level, format=fmt, datefmt="%Y-%m-%d %H:%M:%S")
 
 
 def _merkle_root(hashes: Iterable[str]) -> str:
@@ -66,7 +91,7 @@ def _merkle_root(hashes: Iterable[str]) -> str:
 
 
 class Ledger:
-    """Append-only SQLite ledger with optional Merkle root broadcasting."""
+    """Append-only ledger with optional Merkle root broadcasting."""
 
     def __init__(
         self,
@@ -74,22 +99,42 @@ class Ledger:
         rpc_url: str | None = None,
         wallet: str | None = None,
         broadcast: bool = True,
+        db: str | None = None,
     ) -> None:
         self.path = Path(path)
         self.path.parent.mkdir(parents=True, exist_ok=True)
-        self.conn: sqlite3.Connection | None = sqlite3.connect(str(self.path))
-        self.conn.execute(
-            """
-            CREATE TABLE IF NOT EXISTS messages (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                ts REAL,
-                sender TEXT,
-                recipient TEXT,
-                payload TEXT,
-                hash TEXT
+        db_type = db or os.getenv("AGI_INSIGHT_DB", "sqlite")
+        self.db_type = db_type
+        if db_type == "duckdb" and duckdb is not None:
+            self.conn = duckdb.connect(str(self.path))
+            self.conn.execute(
+                """
+                CREATE TABLE IF NOT EXISTS messages (
+                    id BIGINT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
+                    ts DOUBLE,
+                    sender TEXT,
+                    recipient TEXT,
+                    payload TEXT,
+                    hash TEXT
+                )
+                """
             )
-            """
-        )
+        else:
+            if db_type == "duckdb" and duckdb is None:
+                _log.warning("AGI_INSIGHT_DB=duckdb but duckdb not installed – falling back to sqlite")
+            self.conn = sqlite3.connect(str(self.path))
+            self.conn.execute(
+                """
+                CREATE TABLE IF NOT EXISTS messages (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    ts REAL,
+                    sender TEXT,
+                    recipient TEXT,
+                    payload TEXT,
+                    hash TEXT
+                )
+                """
+            )
         self.conn.commit()
         self._task: asyncio.Task[None] | None = None
         self.rpc_url = rpc_url

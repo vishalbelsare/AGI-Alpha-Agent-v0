@@ -77,6 +77,8 @@ class Settings:
     model_name: str = os.getenv("AGI_MODEL_NAME", "gpt-4o-mini")
     temperature: float = float(os.getenv("AGI_TEMPERATURE", "0.2"))
     context_window: int = _env_int("AGI_CONTEXT_WINDOW", 8192)
+    json_logs: bool = os.getenv("AGI_INSIGHT_JSON_LOGS", "0") == "1"
+    db_type: str = os.getenv("AGI_INSIGHT_DB", "sqlite")
 
     def __post_init__(self) -> None:
         if not self.openai_api_key:

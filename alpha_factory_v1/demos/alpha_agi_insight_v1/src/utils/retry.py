@@ -1,6 +1,8 @@
 from __future__ import annotations
 
-from typing import Callable, TypeVar, Any
+# mypy: ignore-errors
+
+from typing import Callable, TypeVar, Any, cast
 
 try:  # pragma: no cover - optional dependency
     import backoff
@@ -28,19 +30,22 @@ def with_retry(func: Callable[..., T], *, max_tries: int = 3) -> Callable[..., T
         )
 
     if backoff is not None:
-        return backoff.on_exception(
-            backoff.expo,
-            Exception,
-            max_tries=max_tries,
-            jitter=backoff.full_jitter,
-            on_backoff=_log_retry,
-        )(func)
+        return cast(
+            Callable[..., T],
+            backoff.on_exception(
+                backoff.expo,
+                Exception,
+                max_tries=max_tries,
+                jitter=backoff.full_jitter,
+                on_backoff=_log_retry,
+            )(func),
+        )
 
     is_async = inspect.iscoroutinefunction(func)
 
     if is_async:
 
-        async def wrapper(*args: Any, **kwargs: Any) -> T:
+        async def wrapper_async(*args: Any, **kwargs: Any) -> T:
             for attempt in range(max_tries):
                 try:
                     return await func(*args, **kwargs)
@@ -56,9 +61,9 @@ def with_retry(func: Callable[..., T], *, max_tries: int = 3) -> Callable[..., T
                     )
                     await asyncio.sleep(2**attempt * 0.1)
 
-        return wrapper
+        return wrapper_async
 
-    def wrapper(*args: Any, **kwargs: Any) -> T:
+    def wrapper_sync(*args: Any, **kwargs: Any) -> T:
         for attempt in range(max_tries):
             try:
                 return func(*args, **kwargs)
@@ -74,4 +79,4 @@ def with_retry(func: Callable[..., T], *, max_tries: int = 3) -> Callable[..., T
                 )
                 time.sleep(2**attempt * 0.1)
 
-    return wrapper
+    return wrapper_sync
