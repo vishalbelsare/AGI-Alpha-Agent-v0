@@ -38,3 +38,19 @@ def test_run_simulation_smoke(capsys: pytest.CaptureFixture[str]) -> None:
     web_app._run_simulation(1, "logistic", 2, 3, 1)
     out, _ = capsys.readouterr()
     assert "Streamlit not installed" in out
+
+
+def test_progress_dom_updates() -> None:
+    """Smoke test that the React dashboard receives progress events."""
+
+    pw = pytest.importorskip("playwright.sync_api")
+    from fastapi.testclient import TestClient
+    from alpha_factory_v1.demos.alpha_agi_insight_v1.src.interface import api_server
+
+    client = TestClient(api_server.app)
+    browser = pw.sync_playwright().start().chromium.launch()
+    page = browser.new_page()
+    page.goto(str(client.base_url) + "/web/")
+    page.click("text=Run simulation")
+    page.wait_for_selector("#capability")
+    browser.close()
