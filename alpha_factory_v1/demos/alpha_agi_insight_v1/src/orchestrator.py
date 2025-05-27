@@ -92,7 +92,7 @@ class Orchestrator:
             market_agent.MarketAgent(self.bus, self.ledger),
             codegen_agent.CodeGenAgent(self.bus, self.ledger),
             safety_agent.SafetyGuardianAgent(self.bus, self.ledger),
-            memory_agent.MemoryAgent(self.bus, self.ledger),
+            memory_agent.MemoryAgent(self.bus, self.ledger, self.settings.memory_path),
         ]
         return agents
 
