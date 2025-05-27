@@ -5,3 +5,4 @@ mypy
 fastapi
 opentelemetry-api
 cryptography
+hypothesis

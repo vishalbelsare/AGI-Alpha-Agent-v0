@@ -72,9 +72,14 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.lock
           pip install pytest pytest-cov
-      - name: Run tests
+      - name: Run tests with coverage
         run: |
-          pytest -q alpha_factory_v1/demos/alpha_agi_insight_v1/tests
+          pytest --cov --cov-report=xml --cov-fail-under=60
+      - name: Upload coverage
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-xml
+          path: coverage.xml
 
   docker:
     name: "🐳 Docker build"
