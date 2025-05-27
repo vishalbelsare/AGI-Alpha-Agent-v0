@@ -12,6 +12,7 @@ from typing import Any, Callable, cast
 
 from . import config
 from .config import Settings
+from .tracing import span
 
 try:  # pragma: no cover - optional dependency
     from llama_cpp import Llama
@@ -78,6 +79,7 @@ def chat(prompt: str, cfg: Settings | None = None) -> str:
         _load_model(cfg)
     assert _CALL is not None
     try:
-        return _CALL(prompt, cfg)
+        with span("local_llm.chat"):
+            return _CALL(prompt, cfg)
     except Exception:  # pragma: no cover - runtime error
         return f"[offline] {prompt}"

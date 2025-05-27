@@ -12,6 +12,7 @@ from .base_agent import BaseAgent
 from ..utils import messaging
 from ..utils.logging import Ledger
 from ..utils.retry import with_retry
+from ..utils.tracing import span
 
 
 class StrategyAgent(BaseAgent):
@@ -26,18 +27,21 @@ class StrategyAgent(BaseAgent):
 
     async def handle(self, env: messaging.Envelope) -> None:
         """Compose a strategy from research results."""
-        val = env.payload.get("research")
-        strat = {"action": f"monitor {val}"}
-        if self.bus.settings.offline:
-            try:
-                from ..utils import local_llm
+        with span("strategy.handle"):
+            val = env.payload.get("research")
+            strat = {"action": f"monitor {val}"}
+            if self.bus.settings.offline:
+                try:
+                    from ..utils import local_llm
 
-                strat["action"] = with_retry(local_llm.chat)(str(val), self.bus.settings)
-            except Exception:  # pragma: no cover - model optional
-                pass
-        elif self.oai_ctx:
-            try:  # pragma: no cover
-                strat["action"] = await with_retry(self.oai_ctx.run)(prompt=str(val))
-            except Exception:
-                pass
-        await self.emit("market", {"strategy": strat})
+                    with span("local_llm.chat"):
+                        strat["action"] = with_retry(local_llm.chat)(str(val), self.bus.settings)
+                except Exception:  # pragma: no cover - model optional
+                    pass
+            elif self.oai_ctx:
+                try:  # pragma: no cover
+                    with span("openai.run"):
+                        strat["action"] = await with_retry(self.oai_ctx.run)(prompt=str(val))
+                except Exception:
+                    pass
+            await self.emit("market", {"strategy": strat})

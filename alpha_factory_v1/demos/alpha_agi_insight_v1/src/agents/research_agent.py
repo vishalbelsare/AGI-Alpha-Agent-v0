@@ -15,6 +15,7 @@ from ..simulation import forecast, sector
 from ..utils import messaging
 from ..utils.logging import Ledger
 from ..utils.retry import with_retry
+from ..utils.tracing import span
 
 
 class ResearchAgent(BaseAgent):
@@ -25,27 +26,32 @@ class ResearchAgent(BaseAgent):
 
     async def run_cycle(self) -> None:
         """Periodic sweep using a tiny evolutionary loop."""
-        secs = [sector.Sector(f"s{i}") for i in range(3)]
-        traj = forecast.forecast_disruptions(secs, 1)
-        if self.adk:
-            try:  # pragma: no cover - optional
-                self.adk.heartbeat()
-            except Exception:
-                pass
-        if self.mcp:
-            try:  # pragma: no cover - optional
-                self.mcp.heartbeat()
-            except Exception:
-                pass
-        await self.emit("strategy", {"research": traj[0].capability})
+        with span("research.run_cycle"):
+            secs = [sector.Sector(f"s{i}") for i in range(3)]
+            traj = forecast.forecast_disruptions(secs, 1)
+            if self.adk:
+                try:  # pragma: no cover - optional
+                    with span("adk.heartbeat"):
+                        self.adk.heartbeat()
+                except Exception:
+                    pass
+            if self.mcp:
+                try:  # pragma: no cover - optional
+                    with span("mcp.heartbeat"):
+                        self.mcp.heartbeat()
+                except Exception:
+                    pass
+            await self.emit("strategy", {"research": traj[0].capability})
 
     async def handle(self, env: messaging.Envelope) -> None:
         """Process planning requests and emit research results."""
-        plan = env.payload.get("plan", "")
-        cap = random.random()
-        if self.oai_ctx and not self.bus.settings.offline:
-            try:  # pragma: no cover
-                cap = float(await with_retry(self.oai_ctx.run)(prompt=str(plan)))
-            except Exception:
-                pass
-        await self.emit("strategy", {"research": cap})
+        with span("research.handle"):
+            plan = env.payload.get("plan", "")
+            cap = random.random()
+            if self.oai_ctx and not self.bus.settings.offline:
+                try:  # pragma: no cover
+                    with span("openai.run"):
+                        cap = float(await with_retry(self.oai_ctx.run)(prompt=str(plan)))
+                except Exception:
+                    pass
+            await self.emit("strategy", {"research": cap})

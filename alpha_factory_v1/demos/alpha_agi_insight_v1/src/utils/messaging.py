@@ -16,6 +16,7 @@ from pathlib import Path
 from typing import Any, Awaitable, Callable, Dict, List, Optional
 
 from .config import Settings
+from .tracing import span
 
 try:
     import grpc
@@ -52,24 +53,25 @@ class A2ABus:
         self._subs.setdefault(topic, []).append(handler)
 
     def publish(self, topic: str, env: Envelope) -> None:
-        if self._producer:
-            data = json.dumps(env.__dict__).encode()
-            asyncio.create_task(self._producer.send_and_wait(topic, data))
-        for h in list(self._subs.get(topic, [])):
-            try:
-                res = h(env)
-                if asyncio.iscoroutine(res):
-                    try:
-                        asyncio.get_running_loop().create_task(res)
-                    except RuntimeError:  # pragma: no cover - sync context
-                        asyncio.run(res)
-            except Exception:  # noqa: BLE001
-                logger.exception(
-                    "handler error %s -> %s on %s",
-                    env.sender,
-                    env.recipient,
-                    topic,
-                )
+        with span("bus.publish"):
+            if self._producer:
+                data = json.dumps(env.__dict__).encode()
+                asyncio.create_task(self._producer.send_and_wait(topic, data))
+            for h in list(self._subs.get(topic, [])):
+                try:
+                    res = h(env)
+                    if asyncio.iscoroutine(res):
+                        try:
+                            asyncio.get_running_loop().create_task(res)
+                        except RuntimeError:  # pragma: no cover - sync context
+                            asyncio.run(res)
+                except Exception:  # noqa: BLE001
+                    logger.exception(
+                        "handler error %s -> %s on %s",
+                        env.sender,
+                        env.recipient,
+                        topic,
+                    )
 
     async def _handle_rpc(self, request: bytes, context: Any) -> bytes:
         data = json.loads(request.decode())
