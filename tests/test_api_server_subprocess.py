@@ -72,3 +72,59 @@ def test_simulate_curve_subprocess() -> None:
     finally:
         proc.terminate()
         proc.wait(timeout=5)
+
+
+def _start_server(port: int, env: dict[str, str] | None = None) -> subprocess.Popen[bytes]:
+    cmd = [
+        sys.executable,
+        "-m",
+        "src.interface.api_server",
+        "--host",
+        "127.0.0.1",
+        "--port",
+        str(port),
+    ]
+    return subprocess.Popen(cmd, env=env or os.environ.copy())
+
+
+def _wait_running(url: str, headers: dict[str, str]) -> None:
+    for _ in range(50):
+        try:
+            r = httpx.get(f"{url}/runs", headers=headers)
+            if r.status_code == 200:
+                return
+        except Exception:
+            time.sleep(0.1)
+    raise AssertionError("server did not start")
+
+
+def test_results_requires_auth() -> None:
+    port = _free_port()
+    proc = _start_server(port)
+    url = f"http://127.0.0.1:{port}"
+    headers = {"Authorization": "Bearer test-token"}
+    try:
+        _wait_running(url, headers)
+        r = httpx.get(f"{url}/results")
+        assert r.status_code == 403
+    finally:
+        proc.terminate()
+        proc.wait(timeout=5)
+
+
+def test_rate_limit_exceeded() -> None:
+    port = _free_port()
+    env = os.environ.copy()
+    env["API_RATE_LIMIT"] = "3"
+    proc = _start_server(port, env)
+    url = f"http://127.0.0.1:{port}"
+    headers = {"Authorization": "Bearer test-token"}
+    try:
+        _wait_running(url, headers)
+        assert httpx.get(f"{url}/runs", headers=headers).status_code == 200
+        assert httpx.get(f"{url}/runs", headers=headers).status_code == 200
+        r = httpx.get(f"{url}/runs", headers=headers)
+        assert r.status_code == 429
+    finally:
+        proc.terminate()
+        proc.wait(timeout=5)
