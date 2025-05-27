@@ -79,3 +79,32 @@ def test_orchestrator_command_runs() -> None:
             res = runner.invoke(cli.main, ["orchestrator"])
             assert res.exit_code == 0
         aio.run.assert_called_once()
+
+
+def test_show_results_closes_ledger(tmp_path) -> None:
+    ledger = tmp_path / "audit.db"
+    ledger.touch()
+    with patch.object(cli.config.CFG, "ledger_path", ledger):
+        with patch.object(cli.logging, "Ledger") as led_cls:
+            led = led_cls.return_value
+            led.__enter__.return_value = led
+            led.__exit__.side_effect = lambda *_: led.close()
+            led.tail.return_value = [{"ts": 1.0, "sender": "a", "recipient": "b", "payload": {"x": 1}}]
+            CliRunner().invoke(cli.main, ["show-results"])
+        led.close.assert_called_once()
+
+
+def test_replay_closes_ledger(tmp_path) -> None:
+    ledger = tmp_path / "audit.db"
+    ledger.touch()
+    with patch.object(cli.config.CFG, "ledger_path", ledger):
+        with (
+            patch.object(cli.logging, "Ledger") as led_cls,
+            patch.object(cli.time, "sleep", return_value=None),
+        ):
+            led = led_cls.return_value
+            led.__enter__.return_value = led
+            led.__exit__.side_effect = lambda *_: led.close()
+            led.tail.return_value = [{"ts": 0.0, "sender": "a", "recipient": "b", "payload": {"x": 1}}]
+            CliRunner().invoke(cli.main, ["replay"])
+        led.close.assert_called_once()

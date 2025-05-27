@@ -198,12 +198,20 @@ def show_results(limit: int, export: str | None) -> None:
     if not path.exists():
         click.echo("No results found")
         return
-    led = logging.Ledger(str(path))
-    rows = led.tail(limit)
-    if not rows:
-        click.echo("No results found")
-        return
-    data = [(f"{r['ts']:.2f}", r["sender"], r["recipient"], json.dumps(r["payload"])) for r in rows]
+    with logging.Ledger(str(path)) as led:
+        rows = led.tail(limit)
+        if not rows:
+            click.echo("No results found")
+            return
+        data = [
+            (
+                f"{r['ts']:.2f}",
+                r["sender"],
+                r["recipient"],
+                json.dumps(r["payload"]),
+            )
+            for r in rows
+        ]
     if export == "json":
         items = [
             {
@@ -311,11 +319,11 @@ def replay() -> None:
     if not path.exists():
         click.echo("No ledger to replay")
         return
-    led = logging.Ledger(str(path))
-    for row in led.tail(1000):
-        msg = f"{row['ts']:.2f} {row['sender']} -> {row['recipient']} {json.dumps(row['payload'])}"
-        click.echo(msg)
-        time.sleep(0.1)
+    with logging.Ledger(str(path)) as led:
+        for row in led.tail(1000):
+            msg = f"{row['ts']:.2f} {row['sender']} -> {row['recipient']} {json.dumps(row['payload'])}"
+            click.echo(msg)
+            time.sleep(0.1)
 
 
 if __name__ == "__main__":  # pragma: no cover
