@@ -810,6 +810,8 @@ setup:
 helm upgrade --install alpha-demo ./infrastructure/helm-chart \
   --values ./infrastructure/helm-chart/values.yaml \
   --set env.RUN_MODE=web
+# Enable persistent storage for the audit ledger
+#   --set persistence.enabled=true --set persistence.size=5Gi
 # → browse to <http://localhost:8080>
 ```
 
