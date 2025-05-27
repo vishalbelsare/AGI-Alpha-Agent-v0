@@ -7,6 +7,7 @@ All notable changes to this project are documented in this file.
 - Detailed design overview for the α‑AGI Insight demo under `alpha_factory_v1/demos/alpha_agi_insight_v1/docs`.
 - Expanded API documentation with `curl` and WebSocket examples.
 - Additional CLI notes and help command reference.
+- Documented `AGI_INSIGHT_MEMORY_PATH` for persistent storage configuration.
 
 ## [1.0.2] - 2025-06-30
 - Documented CLI and FastAPI usage with example commands.
