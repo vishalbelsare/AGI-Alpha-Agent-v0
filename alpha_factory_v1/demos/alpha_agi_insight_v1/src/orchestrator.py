@@ -24,6 +24,7 @@ from .agents import (
     memory_agent,
 )
 from .utils import config, messaging, logging as insight_logging
+from .utils import alerts
 from .utils.logging import Ledger
 from .agents.base_agent import BaseAgent
 
@@ -47,6 +48,7 @@ class AgentRunner:
                 await self.agent.run_cycle()
             except Exception as exc:  # noqa: BLE001
                 log.warning("%s failed: %s", self.agent.name, exc)
+                alerts.send_alert(f"{self.agent.name} failed: {exc}")
             env = messaging.Envelope(self.agent.name, "orch", {"heartbeat": True}, time.time())
             ledger.log(env)
             bus.publish("orch", env)
@@ -118,6 +120,10 @@ class Orchestrator:
         )
         self.ledger.log(env)
         self.bus.publish("system", env)
+        alerts.send_alert(
+            f"{runner.agent.name} restarted",
+            self.settings.alert_webhook_url,
+        )
 
     async def _on_orch(self, env: messaging.Envelope) -> None:
         if env.payload.get("heartbeat") and env.sender in self.runners:
