@@ -626,6 +626,7 @@ for instructions and example volume mounts.
 | `AGI_INSIGHT_BUS_TOKEN` | _(empty)_ | Shared secret for bus authentication. |
 | `AGI_INSIGHT_ALLOW_INSECURE` | `0` | Set to `1` to run the bus without TLS when no certificate is provided. |
 | `API_TOKEN` | `REPLACE_ME_TOKEN` | Bearer token required by the REST API. |
+| `API_CORS_ORIGINS` | `*` | Comma-separated list of allowed CORS origins. |
 
 The values above mirror `.env.sample`. When running the stack with Docker
 Compose, adjust the environment section of
@@ -755,7 +756,8 @@ docker compose up
 ```
 Open <http://localhost:8501> in your browser. When `RUN_MODE=web`, the container
 serves the static files from `src/interface/web_client/dist` using `python -m
-http.server`.
+http.server`. The FastAPI demo also mounts this folder at `/` when present so the
+dashboard is reachable without additional tooling.
 
 The dashboard now plots a 3‑D scatter chart of effectiveness vs. risk vs.
 complexity from the final population.

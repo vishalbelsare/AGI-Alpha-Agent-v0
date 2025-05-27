@@ -157,4 +157,4 @@ wscat -c "ws://localhost:8000/ws/progress" \
   -H "Authorization: Bearer $API_TOKEN"
 ```
 
-The server honours environment variables defined in `.env` such as `PORT` (HTTP port), `OPENAI_API_KEY` and `RUN_MODE`. When `RUN_MODE=web`, a small frontend served at `/` consumes these endpoints via JavaScript.
+The server honours environment variables defined in `.env` such as `PORT` (HTTP port) and `OPENAI_API_KEY`. When a prebuilt React dashboard exists under `src/interface/web_client/dist`, it is automatically served at the root path (`/`). CORS headers are configured via `API_CORS_ORIGINS` (default `"*"`).

@@ -103,6 +103,7 @@ def test_replay_outputs_rows(tmp_path) -> None:
     with patch.object(cli.config.CFG, "ledger_path", path):
         with patch.object(cli.logging, "Ledger") as led_cls, patch.object(cli.time, "sleep", return_value=None):
             led = led_cls.return_value
+            led.__enter__.return_value = led
             led.tail.return_value = [SAMPLE_LEDGER_ROW]
             res = CliRunner().invoke(cli.main, ["replay"])
     assert "a -> b" in res.output
