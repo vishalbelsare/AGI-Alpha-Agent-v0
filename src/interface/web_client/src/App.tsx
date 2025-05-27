@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 import React, { useEffect, useState, FormEvent } from 'react';
 import Plotly from 'plotly.js-dist';
 
