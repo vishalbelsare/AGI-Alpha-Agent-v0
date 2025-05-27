@@ -139,17 +139,18 @@ def simulate(
     if llama_model_path is not None:
         os.environ["LLAMA_MODEL_PATH"] = str(llama_model_path)
 
-    settings = config.CFG
+    cfg = config.CFG.model_dump()
     if offline:
-        settings.offline = True
+        cfg["offline"] = True
+    if model_name is not None:
+        cfg["model_name"] = model_name
+    if temperature is not None:
+        cfg["temperature"] = temperature
+    if context_window is not None:
+        cfg["context_window"] = context_window
+    settings = config.Settings(**cfg)
     if no_broadcast:
         settings.broadcast = False
-    if model_name is not None:
-        settings.model_name = model_name
-    if temperature is not None:
-        settings.temperature = temperature
-    if context_window is not None:
-        settings.context_window = context_window
 
     orch = orchestrator.Orchestrator(settings)
     if sectors_file:
@@ -325,7 +326,9 @@ def agents_status(watch: bool) -> None:
 @click.option("--model", "model_name", help="Model name for AgentContext/local models")
 @click.option("--temperature", type=float, help="Model temperature")
 @click.option("--context-window", type=int, help="Context window size")
-def run_orchestrator(verbose: bool, model_name: str | None, temperature: float | None, context_window: int | None) -> None:
+def run_orchestrator(
+    verbose: bool, model_name: str | None, temperature: float | None, context_window: int | None
+) -> None:
     """Run the orchestrator until interrupted."""
     settings = config.CFG
     if model_name is not None:
