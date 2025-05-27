@@ -1,4 +1,6 @@
 import os
+import json
+from pathlib import Path
 from unittest.mock import patch
 from click.testing import CliRunner
 from alpha_factory_v1.demos.alpha_agi_insight_v1.src.interface import cli
@@ -18,7 +20,7 @@ def test_simulate_without_flag_does_not_start() -> None:
                     "--sectors",
                     "1",
                     "--pop-size",
-                    "1",
+                    "2",
                     "--generations",
                     "1",
                 ],
@@ -108,3 +110,37 @@ def test_replay_closes_ledger(tmp_path) -> None:
             led.tail.return_value = [{"ts": 0.0, "sender": "a", "recipient": "b", "payload": {"x": 1}}]
             CliRunner().invoke(cli.main, ["replay"])
         led.close.assert_called_once()
+
+
+def test_simulate_sectors_file_json(tmp_path: Path) -> None:
+    """Run simulate with a sectors file and export JSON."""
+    src = Path("alpha_factory_v1/demos/alpha_agi_insight_v1/docs/sectors.sample.json")
+    sectors_file = tmp_path / "sectors.json"
+    sectors_file.write_text(src.read_text(encoding="utf-8"), encoding="utf-8")
+
+    runner = CliRunner()
+    with patch.object(cli, "asyncio"):
+        with patch.object(cli.orchestrator, "Orchestrator"):
+            res = runner.invoke(
+                cli.main,
+                [
+                    "simulate",
+                    "--horizon",
+                    "1",
+                    "--offline",
+                    "--sectors-file",
+                    str(sectors_file),
+                    "--pop-size",
+                    "2",
+                    "--generations",
+                    "1",
+                    "--export",
+                    "json",
+                ],
+            )
+
+    assert res.exit_code == 0
+    data = json.loads(res.output)
+    assert isinstance(data, list)
+    assert data
+    assert {"year", "capability", "affected"} <= set(data[0])
