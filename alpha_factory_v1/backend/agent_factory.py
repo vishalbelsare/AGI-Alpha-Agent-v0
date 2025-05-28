@@ -42,6 +42,10 @@ from pathlib import Path
 from types import ModuleType
 from typing import Any, Dict, List, Optional, Sequence
 
+# Environment variables
+ALLOW_LOCAL_CODE_ENV = "ALPHA_FACTORY_ALLOW_LOCAL_CODE"
+LEGACY_ALLOW_LOCAL_CODE_ENV = "ALPHAFAC_ALLOW_LOCAL_CODE"
+
 LOGGER = logging.getLogger(__name__)
 
 # ╭──────────────────────────────────────────────────────────────────────╮
@@ -182,6 +186,14 @@ def _auto_select_model() -> str:
     return "local-sbert"
 
 
+def _allow_local_code() -> bool:
+    """Check both new and legacy opts for enabling local PythonTool."""
+    return (
+        os.getenv(ALLOW_LOCAL_CODE_ENV)
+        or os.getenv(LEGACY_ALLOW_LOCAL_CODE_ENV)
+    ) == "1"
+
+
 # ╭──────────────────────────────────────────────────────────────────────╮
 # │ 4 ▸ Default, *safe* tool-chain                                      │
 # ╰──────────────────────────────────────────────────────────────────────╯
@@ -202,7 +214,7 @@ def get_default_tools() -> List[Any]:
         base.append(ComputerTool())
 
     # PythonTool executes *locally* – only enable if user opts in explicitly.
-    if SDK_AVAILABLE and os.getenv("ALPHAFAC_ALLOW_LOCAL_CODE") == "1":
+    if SDK_AVAILABLE and _allow_local_code():
         base.append(PythonTool())
 
     return base
@@ -244,7 +256,8 @@ def build_core_agent(
     Notes
     -----
     The default tool selection honours ``OPENAI_API_KEY`` and
-    ``ALPHAFAC_ALLOW_LOCAL_CODE`` environment variables at call time.
+    ``ALPHA_FACTORY_ALLOW_LOCAL_CODE`` (or legacy ``ALPHAFAC_ALLOW_LOCAL_CODE``)
+    environment variables at call time.
     Set them before invoking this function if the agent requires
     networked or local code execution tools.
     """
