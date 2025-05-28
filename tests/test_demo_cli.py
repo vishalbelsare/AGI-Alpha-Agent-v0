@@ -1,12 +1,30 @@
 import os
+import sys
+import types
 import csv
 import json
+from dataclasses import dataclass
 from io import StringIO
 from pathlib import Path
 from unittest.mock import patch
 import pytest
 from click.testing import CliRunner
-from alpha_factory_v1.demos.alpha_agi_insight_v1.src.interface import cli
+
+_STUB = "alpha_factory_v1.demos.alpha_agi_insight_v1.src.utils.a2a_pb2"
+if _STUB not in sys.modules:  # pragma: no cover - optional proto
+    stub = types.ModuleType("a2a_pb2")
+    @dataclass
+    class Envelope:
+        sender: str
+        recipient: str
+        payload: dict[str, object]
+        ts: float
+
+    stub.Envelope = Envelope
+    sys.modules[_STUB] = stub
+
+from alpha_factory_v1.demos.alpha_agi_insight_v1.src.interface import cli  # noqa: E402
+from alpha_factory_v1.demos.alpha_agi_insight_v1.src.utils import logging, messaging  # noqa: E402
 
 
 def test_simulate_without_flag_does_not_start() -> None:
@@ -113,6 +131,22 @@ def test_replay_closes_ledger(tmp_path) -> None:
             led.tail.return_value = [{"ts": 0.0, "sender": "a", "recipient": "b", "payload": {"x": 1}}]
             CliRunner().invoke(cli.main, ["replay"])
         led.close.assert_called_once()
+
+
+def test_replay_outputs_events(tmp_path: Path) -> None:
+    """Replay should print formatted ledger rows."""
+    path = tmp_path / "audit.db"
+    with logging.Ledger(str(path), broadcast=False) as led:
+        led.log(messaging.Envelope("a", "b", {"x": 1}, 0.0))
+        led.log(messaging.Envelope("b", "c", {"y": 2}, 1.0))
+
+    with patch.object(cli.config.CFG, "ledger_path", str(path)):
+        with patch.object(cli.time, "sleep", return_value=None):
+            res = CliRunner().invoke(cli.main, ["replay"])
+
+    lines = [ln.strip() for ln in res.output.splitlines() if ln.strip()]
+    assert "0.00 a -> b {\"x\": 1}" in lines[0]
+    assert "1.00 b -> c {\"y\": 2}" in lines[1]
 
 
 def test_simulate_sectors_file_json(tmp_path: Path) -> None:
