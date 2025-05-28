@@ -305,3 +305,13 @@ class Ledger:
     def __exit__(self, exc_type: object, exc: object, tb: object) -> None:
         """Ensure the database connection is closed."""
         self.close()
+
+    async def __aenter__(self) -> "Ledger":
+        """Start the Merkle broadcast task and return ``self``."""
+        self.start_merkle_task()
+        return self
+
+    async def __aexit__(self, exc_type: object, exc: object, tb: object) -> None:
+        """Stop the Merkle task and close the database."""
+        await self.stop_merkle_task()
+        self.close()
