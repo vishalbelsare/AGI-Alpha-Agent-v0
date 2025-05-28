@@ -89,3 +89,47 @@ def test_error_threshold_restart(monkeypatch) -> None:
     asyncio.run(run())
 
     assert "restart" in events
+
+
+class DummyAgent(orchestrator.BaseAgent):
+    NAME = "dummy"
+    CYCLE_SECONDS = 0.05
+
+    def __init__(self, bus: orchestrator.messaging.A2ABus, ledger: orchestrator.Ledger) -> None:
+        super().__init__("dummy", bus, ledger)
+
+    async def run_cycle(self) -> None:
+        await asyncio.sleep(0)
+
+    async def handle(self, _env: orchestrator.messaging.Envelope) -> None:  # pragma: no cover - helper
+        pass
+
+
+def test_background_tasks_lifecycle() -> None:
+    settings = config.Settings(bus_port=0)
+    with mock.patch.object(orchestrator.Orchestrator, "_init_agents", lambda self: [DummyAgent(self.bus, self.ledger)]):
+        orch = orchestrator.Orchestrator(settings)
+
+    async def run() -> None:
+        with (
+            mock.patch.object(orch.bus, "start", mock.AsyncMock()) as bus_start,
+            mock.patch.object(orch.bus, "stop", mock.AsyncMock()) as bus_stop,
+            mock.patch.object(orch.ledger, "start_merkle_task") as merkle_start,
+            mock.patch.object(orch.ledger, "stop_merkle_task", mock.AsyncMock()) as merkle_stop,
+        ):
+            task = asyncio.create_task(orch.run_forever())
+            await asyncio.sleep(0.05)
+            assert orch._monitor_task is not None and not orch._monitor_task.done()
+            runner = orch.runners["dummy"]
+            assert runner.task is not None and not runner.task.done()
+            merkle_start.assert_called_once()
+            bus_start.assert_awaited_once()
+            task.cancel()
+            with contextlib.suppress(asyncio.CancelledError):
+                await task
+            assert orch._monitor_task is not None and orch._monitor_task.cancelled()
+            assert runner.task is not None and runner.task.cancelled()
+            bus_stop.assert_awaited_once()
+            merkle_stop.assert_awaited_once()
+
+    asyncio.run(run())
