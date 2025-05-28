@@ -28,7 +28,6 @@ def _load_dotenv(path: str = ".env") -> None:
             os.environ.setdefault(k, v)
 
 
-_load_dotenv()
 
 
 def _env_int(name: str, default: int) -> int:
@@ -56,6 +55,15 @@ def _prefetch_vault() -> None:
                 os.environ["OPENAI_API_KEY"] = value
         except Exception as exc:  # noqa: BLE001
             _log.warning("Vault lookup failed: %s", exc)
+
+
+def init_config(env_file: str = ".env") -> None:
+    """Load environment variables and refresh :data:`CFG`."""
+
+    _load_dotenv(env_file)
+    _prefetch_vault()
+    global CFG
+    CFG = Settings()
 
 
 class Settings(BaseSettings):
@@ -110,6 +118,5 @@ class Settings(BaseSettings):
         return f"Settings({data})"
 
 
-_prefetch_vault()
 
 CFG = Settings()
