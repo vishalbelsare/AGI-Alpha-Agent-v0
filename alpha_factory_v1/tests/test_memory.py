@@ -1,12 +1,11 @@
 import unittest
 import tempfile
-import os
 from alpha_factory_v1.backend.memory import Memory
 
 class MemoryTest(unittest.TestCase):
     def test_write_and_read(self):
         with tempfile.TemporaryDirectory() as tmpdir:
-            mem = Memory(tmpdir)
+            mem = Memory(directory=tmpdir)
             mem.write('agent1', 'greeting', {'msg': 'hello'})
             mem.write('agent2', 'greeting', {'msg': 'world'})
             records = mem.read()
@@ -18,7 +17,7 @@ class MemoryTest(unittest.TestCase):
 
     def test_limit_and_query_alias(self):
         with tempfile.TemporaryDirectory() as tmpdir:
-            mem = Memory(tmpdir)
+            mem = Memory(directory=tmpdir)
             for i in range(10):
                 mem.write('agent', 'num', {'i': i})
             recs = mem.read(limit=5)
@@ -29,7 +28,7 @@ class MemoryTest(unittest.TestCase):
 
     def test_flush(self):
         with tempfile.TemporaryDirectory() as tmpdir:
-            mem = Memory(tmpdir)
+            mem = Memory(directory=tmpdir)
             mem.write('agent', 'x', {'n': 1})
             self.assertEqual(len(mem.read()), 1)
             mem.flush()

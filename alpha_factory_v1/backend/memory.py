@@ -27,11 +27,16 @@ _log.setLevel(os.getenv("LOGLEVEL", "INFO"))
 class Memory:
     """Append‑only JSONL store; just good enough for unit‑tests & demos."""
 
-    def __init__(self, dir: str | os.PathLike[str] | None = None) -> None:
+    def __init__(self, directory: str | os.PathLike[str] | None = None) -> None:
+        """Create a new memory store.
+
+        When *directory* is ``None``, the path defaults to the ``AF_MEMORY_DIR``
+        environment variable or ``/tmp/alphafactory``.
+        """
         # Pick a safe, always‑writeable directory.
-        if dir is None:
-            dir = os.getenv("AF_MEMORY_DIR", Path(tempfile.gettempdir()) / "alphafactory")
-        self.dir = Path(dir)
+        if directory is None:
+            directory = os.getenv("AF_MEMORY_DIR", Path(tempfile.gettempdir()) / "alphafactory")
+        self.dir = Path(directory)
         self.dir.mkdir(parents=True, exist_ok=True)
 
         self.file = self.dir / "events.jsonl"
