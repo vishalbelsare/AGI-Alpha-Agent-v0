@@ -229,6 +229,22 @@ if app is not None:
         id: str
         population: list[PopulationMember]
 
+    class InsightRequest(BaseModel):
+        """Payload selecting runs for aggregation."""
+
+        ids: list[str] | None = None
+
+    class InsightPoint(BaseModel):
+        """Aggregated capability value per year."""
+
+        year: int
+        capability: float
+
+    class InsightResponse(BaseModel):
+        """Aggregated forecast data."""
+
+        forecast: list[InsightPoint]
+
     async def _background_run(sim_id: str, cfg: SimRequest) -> None:
         secs = [sector.Sector(f"s{i:02d}") for i in range(cfg.pop_size)]
         traj: list[ForecastTrajectoryPoint] = []
@@ -341,6 +357,28 @@ if app is not None:
     @app.get("/runs", response_model=RunsResponse)
     async def list_runs(_: None = Depends(verify_token)) -> RunsResponse:
         return RunsResponse(ids=list(_simulations.keys()))
+
+    @app.post("/insight", response_model=InsightResponse)
+    async def insight(req: InsightRequest, _: None = Depends(verify_token)) -> InsightResponse | JSONResponse:
+        """Return aggregated forecast data across runs."""
+
+        try:
+            ids = req.ids or list(_simulations.keys())
+            forecasts = [_simulations[i].forecast for i in ids if i in _simulations]
+            if not forecasts:
+                raise HTTPException(status_code=404)
+
+            year_map: dict[int, list[float]] = {}
+            for fc in forecasts:
+                for point in fc:
+                    year_map.setdefault(point.year, []).append(point.capability)
+            agg = [
+                InsightPoint(year=year, capability=sum(vals) / len(vals))
+                for year, vals in sorted(year_map.items())
+            ]
+            return InsightResponse(forecast=agg)
+        except HTTPException as exc:
+            return problem_response(exc)
 
     @app.websocket("/ws/progress")
     async def ws_progress(websocket: WebSocket) -> None:
