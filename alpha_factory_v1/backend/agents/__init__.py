@@ -552,7 +552,7 @@ def _health_loop():
         )
 
 
-threading.Thread(target=_health_loop, daemon=True, name="agent-health").start()
+
 
 
 ##############################################################################
@@ -567,7 +567,25 @@ def _rescan_loop():  # pragma: no cover
         time.sleep(_RESCAN_SEC)
 
 
-threading.Thread(target=_rescan_loop, daemon=True, name="agent-rescan").start()
+_bg_started = False
+_health_thread: threading.Thread | None = None
+_rescan_thread: threading.Thread | None = None
+
+
+def start_background_tasks() -> None:
+    """Launch health monitor and rescan loops exactly once."""
+    global _bg_started, _health_thread, _rescan_thread
+    if _bg_started:
+        return
+    _bg_started = True
+    _health_thread = threading.Thread(
+        target=_health_loop, daemon=True, name="agent-health"
+    )
+    _rescan_thread = threading.Thread(
+        target=_rescan_loop, daemon=True, name="agent-rescan"
+    )
+    _health_thread.start()
+    _rescan_thread.start()
 
 
 ##############################################################################
@@ -647,4 +665,5 @@ __all__ = [
     "list_agents",
     "capability_agents",
     "get_agent",
+    "start_background_tasks",
 ]
