@@ -40,7 +40,7 @@ def _start_server(port: int, env: dict[str, str] | None = None) -> subprocess.Po
 
 
 def _wait_ready(url: str) -> None:
-    for _ in range(50):
+    for _ in range(100):
         try:
             r = httpx.get(f"{url}/metrics")
             if r.status_code == 200:

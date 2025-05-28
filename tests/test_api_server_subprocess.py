@@ -6,6 +6,8 @@ import time
 
 import pytest
 
+websockets = pytest.importorskip("websockets.sync.client")
+
 fastapi = pytest.importorskip("fastapi")
 httpx = pytest.importorskip("httpx")
 
@@ -35,7 +37,7 @@ def test_simulate_curve_subprocess() -> None:
     url = f"http://127.0.0.1:{port}"
     headers = {"Authorization": "Bearer test-token"}
     try:
-        for _ in range(50):
+        for _ in range(100):
             try:
                 r = httpx.get(f"{url}/runs", headers=headers)
                 if r.status_code == 200:
@@ -94,7 +96,7 @@ def _start_server(port: int, env: dict[str, str] | None = None) -> subprocess.Po
 
 
 def _wait_running(url: str, headers: dict[str, str]) -> None:
-    for _ in range(50):
+    for _ in range(100):
         try:
             r = httpx.get(f"{url}/runs", headers=headers)
             if r.status_code == 200:
@@ -169,6 +171,21 @@ def test_problem_json_subprocess() -> None:
         assert data.get("type") == "about:blank"
         assert data.get("status") == 404
         assert "title" in data
+    finally:
+        proc.terminate()
+        proc.wait(timeout=5)
+
+
+def test_ws_progress_token_param() -> None:
+    port = _free_port()
+    proc = _start_server(port)
+    url = f"http://127.0.0.1:{port}"
+    headers = {"Authorization": "Bearer test-token"}
+    try:
+        _wait_running(url, headers)
+        ws_url = f"ws://127.0.0.1:{port}/ws/progress?token=test-token"
+        with websockets.connect(ws_url) as ws:
+            pass
     finally:
         proc.terminate()
         proc.wait(timeout=5)

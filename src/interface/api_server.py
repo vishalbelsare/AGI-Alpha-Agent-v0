@@ -531,8 +531,12 @@ if app is not None:
 
     @app.websocket("/ws/progress")
     async def ws_progress(websocket: WebSocket) -> None:
-        auth = websocket.headers.get("authorization")
-        if not auth or not auth.startswith("Bearer ") or auth.split(" ", 1)[1] != API_TOKEN:
+        token = websocket.headers.get("authorization")
+        if token and token.startswith("Bearer "):
+            token = token.split(" ", 1)[1]
+        else:
+            token = websocket.query_params.get("token", "")
+        if token != API_TOKEN:
             await websocket.close(code=1008)
             return
         """Stream year-by-year progress updates to the client."""
