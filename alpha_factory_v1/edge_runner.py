@@ -125,6 +125,13 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
 
 
 def main() -> None:
+    """Parse CLI options and launch :mod:`alpha_factory_v1.run`.
+
+    Environment variables such as ``PORT``, ``CYCLE``, ``METRICS_PORT`` and
+    ``A2A_PORT`` provide default values for the corresponding command line
+    flags.
+    """
+
     args = parse_args()
 
     if args.version:
