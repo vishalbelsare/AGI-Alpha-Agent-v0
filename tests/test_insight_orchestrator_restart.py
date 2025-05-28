@@ -41,8 +41,7 @@ class TestInsightOrchestratorRestart(unittest.TestCase):
         runner = orch.runners["freeze"]
 
         async def run() -> bool:
-            orch.ledger.start_merkle_task(3600)
-            async with orch.bus:
+            async with orch.bus, orch.ledger:
                 runner.start(orch.bus, orch.ledger)
                 monitor = asyncio.create_task(orch._monitor())
                 await asyncio.sleep(3)
@@ -54,8 +53,6 @@ class TestInsightOrchestratorRestart(unittest.TestCase):
                     runner.task.cancel()
                     with contextlib.suppress(asyncio.CancelledError):
                         await runner.task
-            await orch.ledger.stop_merkle_task()
-            orch.ledger.close()
             return active
 
         with mock.patch.object(orchestrator.log, "warning") as warn:

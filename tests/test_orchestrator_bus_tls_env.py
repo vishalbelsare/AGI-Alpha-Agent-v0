@@ -79,25 +79,21 @@ def test_orchestrator_bus_tls_env(tmp_path: Path) -> None:
         orch = orchestrator.Orchestrator(config.Settings())
 
         async def run() -> None:
-            async with orch.bus:
+            async with orch.bus, orch.ledger:
                 assert orch.bus._server is not None
-                try:
-                    creds = grpc.ssl_channel_credentials(root_certificates=ca)
-                    async with grpc.aio.secure_channel(
-                        f"localhost:{port}", creds
-                    ) as ch:
-                        stub = ch.unary_unary("/bus.Bus/Send")
-                        payload = {
-                            "sender": "a",
-                            "recipient": "b",
-                            "payload": {},
-                            "ts": 0.0,
-                            "token": "bad",
-                        }
-                        with pytest.raises(grpc.aio.AioRpcError):
-                            await stub(json.dumps(payload).encode())
-                finally:
-                    await orch.ledger.stop_merkle_task()
-                    orch.ledger.close()
+                creds = grpc.ssl_channel_credentials(root_certificates=ca)
+                async with grpc.aio.secure_channel(
+                    f"localhost:{port}", creds
+                ) as ch:
+                    stub = ch.unary_unary("/bus.Bus/Send")
+                    payload = {
+                        "sender": "a",
+                        "recipient": "b",
+                        "payload": {},
+                        "ts": 0.0,
+                        "token": "bad",
+                    }
+                    with pytest.raises(grpc.aio.AioRpcError):
+                        await stub(json.dumps(payload).encode())
 
         asyncio.run(run())
