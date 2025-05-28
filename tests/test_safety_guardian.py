@@ -7,27 +7,11 @@ import asyncio
 import os
 import sys
 import tempfile
-import types
 import unittest
 from unittest import mock
 
 import pytest
 
-_STUB = "alpha_factory_v1.demos.alpha_agi_insight_v1.src.utils.a2a_pb2"
-if _STUB not in sys.modules:
-    stub = types.ModuleType("a2a_pb2")
-
-    from dataclasses import dataclass
-
-    @dataclass
-    class Envelope:
-        sender: str = ""
-        recipient: str = ""
-        payload: dict[str, object] | None = None
-        ts: float = 0.0
-
-    stub.Envelope = Envelope
-    sys.modules[_STUB] = stub
 
 from alpha_factory_v1.demos.alpha_agi_insight_v1.src.agents import safety_agent
 from alpha_factory_v1.demos.alpha_agi_insight_v1.src.utils import logging as insight_logging
@@ -73,12 +57,22 @@ class TestSafetyGuardian(unittest.TestCase):
         self.agent = safety_agent.SafetyGuardianAgent(self.bus, self.ledger)
 
     def test_blocks_malicious_code(self) -> None:
-        env = messaging.Envelope("codegen", "safety", {"code": "import os\nos.system('rm -rf /')"}, 0.0)
+        env = messaging.Envelope(
+            sender="codegen",
+            recipient="safety",
+            payload={"code": "import os\nos.system('rm -rf /')"},
+            ts=0.0,
+        )
         asyncio.run(self.agent.handle(env))
         self.assertEqual(self.bus.published[-1][1].payload["status"], "blocked")
 
     def test_allows_safe_code(self) -> None:
-        env = messaging.Envelope("codegen", "safety", {"code": "print('hi')"}, 0.0)
+        env = messaging.Envelope(
+            sender="codegen",
+            recipient="safety",
+            payload={"code": "print('hi')"},
+            ts=0.0,
+        )
         asyncio.run(self.agent.handle(env))
         self.assertEqual(self.bus.published[-1][1].payload["status"], "ok")
 
@@ -126,7 +120,7 @@ class TestLedgerBroadcast(unittest.TestCase):
 
     def test_broadcast_merkle_root(self) -> None:
         led = self._ledger()
-        env = messaging.Envelope("a", "b", {"v": 1}, 0.0)
+        env = messaging.Envelope(sender="a", recipient="b", payload={"v": 1}, ts=0.0)
         led.log(env)
         root = led.compute_merkle_root()
         captured, DummyClient, DummyTx, DummyInstr, DummyPk = self._dummy_classes()

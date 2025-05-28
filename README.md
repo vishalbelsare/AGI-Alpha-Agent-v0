@@ -783,8 +783,8 @@ Alternatively run inside Docker:
 ```bash
 # build the web client first so `dist/` exists
 make build_web
-# regenerate protobuf modules (uses `betterproto` when available)
-make proto
+# regenerate protobuf modules and Go stubs
+make proto  # outputs Go files under alpha_factory_v1/proto/go/
 make compose-up  # builds and waits for healthy services
 ```
 Open <http://localhost:8080> in your browser. When `RUN_MODE=web`, the container

@@ -6,7 +6,6 @@ from __future__ import annotations
 import asyncio
 import sys
 import types
-from dataclasses import dataclass
 
 import pytest
 
@@ -17,19 +16,6 @@ from hypothesis.strategies import composite
 from alpha_factory_v1.demos.alpha_agi_insight_v1.src.agents import safety_agent
 from alpha_factory_v1.demos.alpha_agi_insight_v1.src.utils import config, messaging
 
-_STUB = "alpha_factory_v1.demos.alpha_agi_insight_v1.src.utils.a2a_pb2"
-if _STUB not in sys.modules:
-    stub = types.ModuleType("a2a_pb2")
-
-    @dataclass
-    class Envelope:
-        sender: str = ""
-        recipient: str = ""
-        payload: dict[str, object] | None = None
-        ts: float = 0.0
-
-    stub.Envelope = Envelope
-    sys.modules[_STUB] = stub
 
 
 class DummyBus:
@@ -87,7 +73,7 @@ def malformed_envelopes(draw: st.DrawFn) -> messaging.Envelope:
     payload = draw(st.dictionaries(st.text(min_size=1, max_size=5), json_values, max_size=3))
     code = draw(st.text(min_size=0, max_size=100).map(lambda s: "import os" + s))
     payload["code"] = code
-    return messaging.Envelope(sender, recipient, payload, ts)
+    return messaging.Envelope(sender=sender, recipient=recipient, payload=payload, ts=ts)
 
 
 @settings(max_examples=25)

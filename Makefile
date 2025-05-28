@@ -33,5 +33,5 @@ proto:
 	./scripts/gen_proto.py
 
 proto-verify:
-	$(MAKE) proto
-	git --no-pager diff --exit-code src/utils/a2a_pb2.py src/utils/a2a_pb2_dataclass.py
+        $(MAKE) proto
+        git --no-pager diff --exit-code src/utils/a2a_pb2.py alpha_factory_v1/proto/go/a2a.pb.go
