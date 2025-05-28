@@ -93,6 +93,7 @@ with contextlib.suppress(ModuleNotFoundError):
 
 # ───────────────────── mandatory local imports ────────────────────────
 from backend.agents import list_agents, get_agent  # auto-disc helpers
+from alpha_factory_v1.utils.env import _env_int
 
 # Memory fabric is optional → graceful stub when absent
 try:
@@ -121,15 +122,6 @@ except ModuleNotFoundError:  # pragma: no cover
 
 # ────────────────────────── configuration ─────────────────────────────
 ENV = os.getenv
-
-
-def _env_int(name: str, default: int) -> int:
-    """Return ``int`` environment value or ``default`` if conversion fails."""
-
-    try:
-        return int(ENV(name, default))
-    except (TypeError, ValueError):
-        return default
 
 
 DEV_MODE = ENV("DEV_MODE", "false").lower() == "true" or "--dev" in sys.argv

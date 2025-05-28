@@ -115,17 +115,12 @@ except ModuleNotFoundError:  # pragma: no cover
 from backend.agents.base import AgentBase  # pylint: disable=import-error
 from backend.agents import AgentMetadata, register_agent
 from backend.orchestrator import _publish  # pylint: disable=import-error
+from alpha_factory_v1.utils.env import _env_int
 
 logger = logging.getLogger(__name__)
 
 
 # ─────────────────────────── helper / governance utils ──────────────────────
-def _env_int(key: str, default: int) -> int:  # robust ENV→int
-    try:
-        return int(os.getenv(key, default))
-    except ValueError:
-        return default
-
 
 def _now() -> str:  # ISO-UTC
     return datetime.now(timezone.utc).isoformat(timespec="seconds")
