@@ -197,10 +197,14 @@ class _GrpcTransport:
             else:
                 channel = grpc.aio.secure_channel(target, creds)
         # Wait for the TLS handshake to complete
-        if timeout:
-            await asyncio.wait_for(channel.channel_ready(), timeout)
-        else:
-            await channel.channel_ready()
+        try:
+            if timeout:
+                await asyncio.wait_for(channel.channel_ready(), timeout)
+            else:
+                await channel.channel_ready()
+        except Exception:
+            await channel.close()
+            raise
         # Lazy import of auto‑generated stub
         from proto.alpha_factory.v1 import alpha_pb2_grpc as stubs  # type: ignore
 
