@@ -33,12 +33,19 @@ class ResearchAgent(BaseAgent):
                 try:  # pragma: no cover - optional
                     with span("adk.heartbeat"):
                         self.adk.heartbeat()
+                    with span("adk.list_packages"):
+                        _ = len(self.adk.list_packages())
                 except Exception:
                     pass
             if self.mcp:
                 try:  # pragma: no cover - optional
                     with span("mcp.heartbeat"):
                         self.mcp.heartbeat()
+                    with span("mcp.invoke"):
+                        try:
+                            await self.mcp.invoke_tool("noop", {})
+                        except Exception:
+                            pass
                 except Exception:
                     pass
             await self.emit("strategy", {"research": traj[0].capability})
