@@ -182,6 +182,7 @@ template). The sample file now lists every variable with its default value.
 ## Coding Style
 - Use Python 3.11 or 3.12 (**Python ≥3.11 and <3.13**) and include type hints for public APIs.
 - Indent with 4 spaces and keep lines under 120 characters.
+- `.editorconfig` enforces UTF-8 encoding, LF line endings and the 120-character limit for Python and Markdown files.
 - Provide concise [Google style](https://google.github.io/styleguide/pyguide.html#381-docstrings) docstrings
 for modules, classes and functions.
 - Format code with `black` (line length 120) and run `ruff` or `flake8` for linting, if available.
