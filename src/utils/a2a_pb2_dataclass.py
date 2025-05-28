@@ -1,5 +1,7 @@
 # SPDX-License-Identifier: Apache-2.0
-"""Dataclass version of ``a2a.proto`` messages."""
+
+Dataclass version of ``a2a.proto`` messages.
+
 from __future__ import annotations
 
 from dataclasses import dataclass, field, asdict
