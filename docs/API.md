@@ -190,6 +190,18 @@ The response contains the average capability value per year:
 }
 ```
 
+**GET `/status`**
+
+List all running agents with their last heartbeat and restart count.
+
+```json
+{
+  "agents": {
+    "planning": {"last_beat": 0.0, "restarts": 0}
+  }
+}
+```
+
 **WebSocket `/ws/progress`**
 
 Streams progress messages during a running simulation. Messages are plain text lines

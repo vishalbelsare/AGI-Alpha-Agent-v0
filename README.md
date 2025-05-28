@@ -796,6 +796,7 @@ Once running, Docker Compose marks the services **healthy** when:
 
 - `http://localhost:8000/healthz` returns status `200` for the orchestrator container.
 - `http://localhost:8000/status` exposes agent heartbeats and restart counts.
+  Use `alpha-agi-insight-v1 agents-status` to view the same data from the CLI.
 - `http://localhost:8080/` returns status `200` for the web container.
 
 The dashboard now plots a 3‑D scatter chart of effectiveness vs. risk vs.
