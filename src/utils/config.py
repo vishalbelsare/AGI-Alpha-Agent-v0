@@ -21,7 +21,6 @@ def _load_dotenv(path: str = ".env") -> None:
             os.environ.setdefault(k, v)
 
 
-_load_dotenv()
 
 
 def _env_int(name: str, default: int) -> int:
@@ -114,7 +113,15 @@ def _prefetch_vault() -> None:
             _log.warning("Vault lookup failed: %s", exc)
 
 
-_prefetch_vault()
+def init_config(env_file: str = ".env") -> None:
+    """Load environment variables and refresh :data:`CFG`."""
+
+    _load_dotenv(env_file)
+    _prefetch_vault()
+    global CFG
+    CFG = Settings()
+
+
 
 
 class Settings(BaseSettings):

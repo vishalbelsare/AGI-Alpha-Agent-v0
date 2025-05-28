@@ -14,6 +14,7 @@ from collections import OrderedDict
 from pathlib import Path
 from typing import Any, List, TYPE_CHECKING, cast, Set
 from alpha_factory_v1.demos.alpha_agi_insight_v1.src.utils import alerts
+from src.utils.config import init_config
 
 
 if TYPE_CHECKING:  # pragma: no cover - typing only
@@ -547,6 +548,7 @@ def main(argv: List[str] | None = None) -> None:
     if FastAPI is None:
         raise SystemExit("FastAPI is required to run the API server")
 
+    init_config()
     parser = argparse.ArgumentParser(description="Run the AGI simulation API server")
     parser.add_argument("--host", default="0.0.0.0", help="Bind host")
     parser.add_argument("--port", type=int, default=8000, help="Bind port")
