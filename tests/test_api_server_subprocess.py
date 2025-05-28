@@ -184,8 +184,48 @@ def test_ws_progress_token_param() -> None:
     try:
         _wait_running(url, headers)
         ws_url = f"ws://127.0.0.1:{port}/ws/progress?token=test-token"
-        with websockets.connect(ws_url) as ws:
+        with websockets.connect(ws_url):
             pass
+    finally:
+        proc.terminate()
+        proc.wait(timeout=5)
+
+
+def test_insight_endpoint_subprocess() -> None:
+    port = _free_port()
+    proc = _start_server(port)
+    url = f"http://127.0.0.1:{port}"
+    headers = {"Authorization": "Bearer test-token"}
+    try:
+        _wait_running(url, headers)
+        r = httpx.post(
+            f"{url}/simulate",
+            json={
+                "horizon": 1,
+                "num_sectors": 2,
+                "pop_size": 2,
+                "generations": 1,
+                "curve": "linear",
+            },
+            headers=headers,
+        )
+        assert r.status_code == 200
+        sim_id = r.json()["id"]
+        for _ in range(400):
+            r = httpx.get(f"{url}/results/{sim_id}", headers=headers)
+            if r.status_code == 200:
+                results = r.json()
+                break
+            time.sleep(0.05)
+        assert r.status_code == 200
+
+        r_insight = httpx.post(
+            f"{url}/insight",
+            json={"ids": [sim_id]},
+            headers=headers,
+        )
+        assert r_insight.status_code == 200
+        assert r_insight.json()["forecast"] == results["forecast"]
     finally:
         proc.terminate()
         proc.wait(timeout=5)
