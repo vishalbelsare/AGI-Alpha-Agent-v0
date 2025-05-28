@@ -19,22 +19,6 @@ from alpha_factory_v1.demos.alpha_agi_insight_v1.src.agents import safety_agent
 from alpha_factory_v1.demos.alpha_agi_insight_v1.src.utils import config, messaging
 from alpha_factory_v1.demos.alpha_agi_insight_v1.src.utils import logging as insight_logging
 
-_STUB = "alpha_factory_v1.demos.alpha_agi_insight_v1.src.utils.a2a_pb2"
-if _STUB not in sys.modules:
-    stub = types.ModuleType("a2a_pb2")
-
-    from dataclasses import dataclass
-
-    @dataclass
-    class Envelope:
-        sender: str = ""
-        recipient: str = ""
-        payload: dict[str, object] | None = None
-        ts: float = 0.0
-
-    stub.Envelope = Envelope
-    sys.modules[_STUB] = stub
-
 
 class DummyBus:
     def __init__(self, settings: config.Settings) -> None:
@@ -72,7 +56,12 @@ def test_blocks_import_os(code: str) -> None:
     bus = DummyBus(config.Settings(bus_port=0))
     led = DummyLedger()
     agent = safety_agent.SafetyGuardianAgent(bus, led)
-    env = messaging.Envelope("codegen", "safety", {"code": code}, 0.0)
+    env = messaging.Envelope(
+        sender="codegen",
+        recipient="safety",
+        payload={"code": code},
+        ts=0.0,
+    )
     asyncio.run(agent.handle(env))
     assert bus.published[-1][1].payload["status"] == "blocked"
 
@@ -84,7 +73,12 @@ def test_allows_safe_code(code: str) -> None:
     bus = DummyBus(config.Settings(bus_port=0))
     led = DummyLedger()
     agent = safety_agent.SafetyGuardianAgent(bus, led)
-    env = messaging.Envelope("codegen", "safety", {"code": code}, 0.0)
+    env = messaging.Envelope(
+        sender="codegen",
+        recipient="safety",
+        payload={"code": code},
+        ts=0.0,
+    )
     asyncio.run(agent.handle(env))
     assert bus.published[-1][1].payload["status"] == "ok"
 
@@ -130,7 +124,7 @@ def test_fuzz_envelope_blocks_malicious(sender: str, recipient: str, ts: float, 
     bus = DummyBus(config.Settings(bus_port=0))
     led = DummyLedger()
     agent = safety_agent.SafetyGuardianAgent(bus, led)
-    env = messaging.Envelope(sender, recipient, payload, ts)
+    env = messaging.Envelope(sender=sender, recipient=recipient, payload=payload, ts=ts)
     asyncio.run(agent.handle(env))
     assert bus.published[-1][1].payload["status"] == "blocked"
 
@@ -148,7 +142,7 @@ def test_fuzz_envelope_allows_safe(sender: str, recipient: str, ts: float, paylo
     bus = DummyBus(config.Settings(bus_port=0))
     led = DummyLedger()
     agent = safety_agent.SafetyGuardianAgent(bus, led)
-    env = messaging.Envelope(sender, recipient, payload, ts)
+    env = messaging.Envelope(sender=sender, recipient=recipient, payload=payload, ts=ts)
     asyncio.run(agent.handle(env))
     assert bus.published[-1][1].payload["status"] == "ok"
 
@@ -159,7 +153,7 @@ def test_missing_code_defaults_to_ok(payload: dict[str, object]) -> None:
     bus = DummyBus(config.Settings(bus_port=0))
     led = DummyLedger()
     agent = safety_agent.SafetyGuardianAgent(bus, led)
-    env = messaging.Envelope("src", "safety", payload, 0.0)
+    env = messaging.Envelope(sender="src", recipient="safety", payload=payload, ts=0.0)
     asyncio.run(agent.handle(env))
     assert bus.published[-1][1].payload["status"] == "ok"
 
@@ -201,7 +195,12 @@ def _dummy_classes():
 def test_broadcast_merkle_root_property(tmp_path: pathlib.Path, count: int, broadcast: bool) -> None:
     led = insight_logging.Ledger(str(tmp_path / "l.db"), rpc_url="http://rpc.test", broadcast=broadcast)
     for i in range(count):
-        env = messaging.Envelope(f"s{i}", f"r{i}", {"v": i}, float(i))
+        env = messaging.Envelope(
+            sender=f"s{i}",
+            recipient=f"r{i}",
+            payload={"v": i},
+            ts=float(i),
+        )
         led.log(env)
     root = led.compute_merkle_root()
     captured, DummyClient, DummyTx, DummyInstr, DummyPk = _dummy_classes()

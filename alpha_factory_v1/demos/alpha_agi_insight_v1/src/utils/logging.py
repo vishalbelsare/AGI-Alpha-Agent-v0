@@ -17,7 +17,7 @@ import logging
 import sqlite3
 import os
 from datetime import datetime
-from dataclasses import asdict
+import dataclasses
 from pathlib import Path
 from typing import Iterable, List, cast
 
@@ -28,6 +28,8 @@ except Exception:  # pragma: no cover - optional
 
 from . import messaging
 from .tracing import span
+from src.utils import a2a_pb2 as pb
+from google.protobuf import json_format
 
 try:  # optional dependency
     from blake3 import blake3
@@ -188,19 +190,26 @@ class Ledger:
         """Hash ``env`` and append to the ledger."""
         with span("ledger.log"):
             assert self.conn is not None
-            data = json.dumps(asdict(env), sort_keys=True).encode()
+            if dataclasses.is_dataclass(env):
+                record = dataclasses.asdict(env)
+            elif isinstance(env, pb.Envelope):
+                record = json_format.MessageToDict(env, preserving_proto_field_name=True)
+            else:
+                record = env.__dict__
+            data = json.dumps(record, sort_keys=True).encode()
             digest = blake3(data).hexdigest()
+            payload_json = json.dumps(record.get("payload", {}))
             if self.db_type == "postgres":
                 with self.conn, self.conn.cursor() as cur:
                     cur.execute(
                         "INSERT INTO messages (ts, sender, recipient, payload, hash) VALUES (%s, %s, %s, %s, %s)",
-                        (env.ts, env.sender, env.recipient, json.dumps(env.payload), digest),
+                        (env.ts, env.sender, env.recipient, payload_json, digest),
                     )
             else:
                 with self.conn:
                     self.conn.execute(
                         "INSERT INTO messages (ts, sender, recipient, payload, hash) VALUES (?, ?, ?, ?, ?)",
-                        (env.ts, env.sender, env.recipient, json.dumps(env.payload), digest),
+                        (env.ts, env.sender, env.recipient, payload_json, digest),
                     )
 
     def compute_merkle_root(self) -> str:

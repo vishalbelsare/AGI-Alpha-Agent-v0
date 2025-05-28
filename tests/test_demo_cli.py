@@ -1,35 +1,16 @@
 import os
 import sys
-import types
 import csv
 import json
-from dataclasses import dataclass
 from io import StringIO
 from pathlib import Path
 from unittest.mock import patch
 import pytest
 from click.testing import CliRunner
 
-_STUB = "alpha_factory_v1.demos.alpha_agi_insight_v1.src.utils.a2a_pb2"
-if _STUB not in sys.modules:  # pragma: no cover - optional proto
-    stub = types.ModuleType("a2a_pb2")
-
-    @dataclass
-    class Envelope:
-        sender: str
-        recipient: str
-        payload: dict[str, object]
-        ts: float
-
-    stub.Envelope = Envelope
-    sys.modules[_STUB] = stub
 
 from alpha_factory_v1.demos.alpha_agi_insight_v1.src.interface import cli  # noqa: E402
 from alpha_factory_v1.demos.alpha_agi_insight_v1.src.utils import logging, messaging  # noqa: E402
-
-if _STUB in sys.modules:
-    logging.Envelope = sys.modules[_STUB].Envelope  # type: ignore[attr-defined]
-    messaging.Envelope = sys.modules[_STUB].Envelope  # type: ignore[attr-defined]
 
 
 def test_simulate_without_flag_does_not_start() -> None:
@@ -157,8 +138,8 @@ def test_replay_outputs_events(tmp_path: Path) -> None:
     """Replay should print formatted ledger rows."""
     path = tmp_path / "audit.db"
     with logging.Ledger(str(path), broadcast=False) as led:
-        led.log(messaging.Envelope("a", "b", {"x": 1}, 0.0))
-        led.log(messaging.Envelope("b", "c", {"y": 2}, 1.0))
+        led.log(messaging.Envelope(sender="a", recipient="b", payload={"x": 1}, ts=0.0))
+        led.log(messaging.Envelope(sender="b", recipient="c", payload={"y": 2}, ts=1.0))
 
     with patch.object(cli.config.CFG, "ledger_path", str(path)):
         with patch.object(cli.time, "sleep", return_value=None):
@@ -172,8 +153,8 @@ def test_replay_outputs_events(tmp_path: Path) -> None:
 def test_replay_since_and_count(tmp_path: Path) -> None:
     path = tmp_path / "audit.db"
     with logging.Ledger(str(path), broadcast=False) as led:
-        led.log(messaging.Envelope("a", "b", {"x": 1}, 0.0))
-        led.log(messaging.Envelope("b", "c", {"y": 2}, 1.0))
+        led.log(messaging.Envelope(sender="a", recipient="b", payload={"x": 1}, ts=0.0))
+        led.log(messaging.Envelope(sender="b", recipient="c", payload={"y": 2}, ts=1.0))
 
     with patch.object(cli.config.CFG, "ledger_path", str(path)):
         with patch.object(cli.time, "sleep", return_value=None):

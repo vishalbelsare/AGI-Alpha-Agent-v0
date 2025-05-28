@@ -11,7 +11,6 @@ from __future__ import annotations
 import asyncio
 import json
 import logging
-import dataclasses
 from pathlib import Path
 import contextlib
 from typing import Any, Awaitable, Callable, Dict, List, Optional
@@ -75,9 +74,7 @@ class A2ABus:
         with span("bus.publish"):
             bus_messages_total.labels(topic).inc()
             if self._producer:
-                if dataclasses.is_dataclass(env):
-                    payload = dataclasses.asdict(env)
-                elif isinstance(env, pb.Envelope):
+                if isinstance(env, pb.Envelope):
                     payload = json_format.MessageToDict(env, preserving_proto_field_name=True)
                 else:  # support SimpleNamespace in tests
                     payload = env.__dict__

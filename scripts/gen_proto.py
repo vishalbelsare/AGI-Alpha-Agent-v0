@@ -31,51 +31,19 @@ def main() -> int:
         if subprocess.run(cmd, check=False).returncode != 0:
             return 1
 
-    dataclass = out_dir / "a2a_pb2_dataclass.py"
+    go_out = Path("alpha_factory_v1/proto/go")
+    go_out.mkdir(parents=True, exist_ok=True)
 
-    if HAS_GRPC and shutil.which("protoc-gen-python_betterproto"):
-        with tempfile.TemporaryDirectory() as tmp:
-            better_cmd = [
-                sys.executable,
-                "-m",
-                "grpc_tools.protoc",
-                f"-I{out_dir}",
-                f"--python_betterproto_out={tmp}",
-                str(proto),
-            ]
-            if subprocess.run(better_cmd, check=False).returncode == 0:
-                generated = Path(tmp) / "a2a_pb.py"
-                if not generated.exists():
-                    generated = Path(tmp) / "a2a_pb2.py"
-                if generated.exists():
-                    dataclass.write_text(generated.read_text())
-                    return 0
+    if shutil.which("protoc") and shutil.which("protoc-gen-go"):
+        go_cmd = [
+            "protoc",
+            f"-I{out_dir}",
+            f"--go_out={go_out}",
+            "--go_opt=paths=source_relative",
+            str(proto),
+        ]
+        subprocess.run(go_cmd, check=False)
 
-    dataclass.write_text(
-        '''# SPDX-License-Identifier: Apache-2.0
-
-Dataclass version of ``a2a.proto`` messages.
-
-from __future__ import annotations
-
-from dataclasses import dataclass, field, asdict
-from typing import Any, Dict
-
-
-@dataclass(slots=True)
-class Envelope:
-    """Lightweight envelope for bus messages."""
-
-    sender: str = ""
-    recipient: str = ""
-    payload: Dict[str, Any] = field(default_factory=dict)
-    ts: float = 0.0
-
-    def to_dict(self) -> Dict[str, Any]:
-        """Return a dictionary representation."""
-        return asdict(self)
-'''
-    )
     return 0
 
 
