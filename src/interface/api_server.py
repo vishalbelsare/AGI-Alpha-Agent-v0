@@ -124,6 +124,11 @@ if app is not None:
             ip = request.client.host if request.client else "unknown"
             now = time.time()
             async with self.lock:
+                # purge expired entries to prevent unbounded growth
+                expired = [k for k, (_, ts) in self.counters.items() if now - ts > self.window]
+                for k in expired:
+                    del self.counters[k]
+
                 count, start = self.counters.get(ip, (0, now))
                 if now - start > self.window:
                     count = 0
