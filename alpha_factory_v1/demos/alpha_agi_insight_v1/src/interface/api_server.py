@@ -66,25 +66,29 @@ app = FastAPI(title="α‑AGI Insight") if FastAPI is not None else None
 
 if app is not None:
     app_f: FastAPI = app
-    _orch: Any | None = None
+    app_f.state.orchestrator = None
+    app_f.state.task = None
 
     @app.on_event("startup")
     async def _start() -> None:
-        global _orch
-        orch_mod = importlib.import_module("alpha_factory_v1.demos.alpha_agi_insight_v1.src.orchestrator")
-        _orch = orch_mod.Orchestrator()
-        app_f.state.task = asyncio.create_task(_orch.run_forever())
+        orch_mod = importlib.import_module(
+            "alpha_factory_v1.demos.alpha_agi_insight_v1.src.orchestrator"
+        )
+        app_f.state.orchestrator = orch_mod.Orchestrator()
+        app_f.state.task = asyncio.create_task(
+            app_f.state.orchestrator.run_forever()
+        )
         _load_results()
 
     @app.on_event("shutdown")
     async def _stop() -> None:
-        global _orch
         task = getattr(app_f.state, "task", None)
         if task:
             task.cancel()
             with contextlib.suppress(asyncio.CancelledError):
                 await task
-        _orch = None
+            app_f.state.task = None
+        app_f.state.orchestrator = None
 
     API_TOKEN = os.getenv("API_TOKEN")
     if not API_TOKEN:
