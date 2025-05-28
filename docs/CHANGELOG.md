@@ -20,6 +20,7 @@ All notable changes to this project are documented in this file.
 - `GraphMemory._fallback_query` now returns stub data when both Neo4j and NetworkX are missing.
 - Property-based tests verify `SafetyGuardianAgent` blocks malicious code.
 - Added optional e2e test broadcasting Merkle roots to the Solana devnet.
+- Example Helm values file for the Insight chart.
 
 ## [v1.0] - 2025-07-01
 - CLI commands `simulate`, `show-results`, `agents-status` and `replay` for running and inspecting forecasts.

@@ -7,3 +7,4 @@ helm upgrade --install insight ./alpha_factory_v1/demos/alpha_agi_insight_v1/inf
   --set env.RUN_MODE=api
 ```
 Values such as `service.port` or `image` can be customised via `--set` or a custom values file.
+`values.example.yaml` demonstrates typical overrides such as API tokens, service ports and replica counts.
