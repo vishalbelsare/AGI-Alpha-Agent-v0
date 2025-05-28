@@ -781,6 +781,8 @@ Alternatively run inside Docker:
 ```bash
 # build the web client first so `dist/` exists
 make build_web
+# regenerate protobuf dataclasses
+make proto
 make compose-up  # builds and waits for healthy services
 ```
 Open <http://localhost:8080> in your browser. When `RUN_MODE=web`, the container
