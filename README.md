@@ -778,8 +778,7 @@ Alternatively run inside Docker:
 ```bash
 # build the web client first so `dist/` exists
 make build_web
-docker compose build
-docker compose up
+make compose-up  # builds and waits for healthy services
 ```
 Open <http://localhost:8080> in your browser. When `RUN_MODE=web`, the container
 serves the static files from `src/interface/web_client/dist` using `python -m
@@ -788,8 +787,7 @@ dashboard is reachable without additional tooling.
 
 Once running, Docker Compose marks the services **healthy** when:
 
-- `http://localhost:8000/runs` responds with `{"ids": []}` (or listed run IDs) for the
-  orchestrator container.
+- `http://localhost:8000/healthz` returns status `200` for the orchestrator container.
 - `http://localhost:8080/` returns status `200` for the web container.
 
 The dashboard now plots a 3‑D scatter chart of effectiveness vs. risk vs.

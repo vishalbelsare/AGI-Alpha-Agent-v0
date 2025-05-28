@@ -29,7 +29,7 @@ services:
     restart: unless-stopped              # restart policy
     healthcheck:
       <<: *default_healthcheck
-      test: ["CMD", "curl", "-sf", "http://localhost:8000/runs"]
+      test: ["CMD", "curl", "-sf", "http://localhost:8000/healthz"]
 
   agents:
     image: alpha-demo:latest             # reuse the demo image
@@ -69,4 +69,4 @@ services:
       - orchestrator                     # wait for orchestrator
     healthcheck:
       <<: *default_healthcheck
-      test: ["CMD", "curl", "-sf", "http://localhost:8501/"]
+      test: ["CMD", "curl", "-sf", "http://localhost:8000/healthz"]
