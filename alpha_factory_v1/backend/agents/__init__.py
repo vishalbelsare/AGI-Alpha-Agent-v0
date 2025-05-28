@@ -75,13 +75,11 @@ try:  # Prometheus metrics
         Gauge as _Gauge,
         Histogram as _Histogram,
         CollectorRegistry,
-        REGISTRY as _REG,
     )  # type: ignore
+    from alpha_factory_v1.backend.metrics_registry import get_metric as _reg_metric
 
     def _get_metric(cls, name: str, desc: str, labels=None):
-        if name in getattr(_REG, "_names_to_collectors", {}):
-            return _REG._names_to_collectors[name]
-        return cls(name, desc, labels) if labels else cls(name, desc)
+        return _reg_metric(cls, name, desc, labels)
 
     def Counter(name: str, desc: str, labels=None):  # type: ignore[misc]
         return _get_metric(_Counter, name, desc, labels)

@@ -68,12 +68,11 @@ _Prom: SimpleNamespace = SimpleNamespace(Counter=None, Gauge=None, Histogram=Non
 _OTEL: SimpleNamespace = SimpleNamespace(tracer=None)
 
 try:
-    from prometheus_client import Counter, Gauge, Histogram, REGISTRY  # type: ignore
+    from prometheus_client import Counter, Gauge, Histogram  # type: ignore
+    from alpha_factory_v1.backend.metrics_registry import get_metric as _reg_metric
 
     def _get_metric(cls, name: str, desc: str):
-        if name in getattr(REGISTRY, "_names_to_collectors", {}):
-            return REGISTRY._names_to_collectors[name]
-        return cls(name, desc)
+        return _reg_metric(cls, name, desc)
 
     _Prom.Counter = Counter  # type: ignore[assignment]
     _Prom.Gauge = Gauge

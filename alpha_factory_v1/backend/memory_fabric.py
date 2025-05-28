@@ -149,12 +149,10 @@ CFG = _Settings()  # single instance
 
 # ───────────────────── telemetry helpers ░────────────────────
 if "Counter" in globals():
-    from prometheus_client import REGISTRY as _REG
+    from alpha_factory_v1.backend.metrics_registry import get_metric as _reg_metric
 
     def _get_metric(cls, name: str, desc: str):
-        if name in getattr(_REG, "_names_to_collectors", {}):
-            return _REG._names_to_collectors[name]
-        return cls(name, desc)
+        return _reg_metric(cls, name, desc)
 
     _MET_V_ADD = _get_metric(Counter, "af_mem_vector_add_total", "Vectors stored")
     _MET_V_SRCH = _get_metric(

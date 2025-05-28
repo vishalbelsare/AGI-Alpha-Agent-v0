@@ -58,7 +58,6 @@ try:
     import prometheus_client
     from prometheus_client import (
         Counter,
-        Histogram,
         generate_latest,
     )
     from alpha_factory_v1.demos.alpha_agi_insight_v1.src.utils.tracing import (
@@ -91,12 +90,10 @@ if app is not None:
         return _N()
 
     if prometheus_client is not None:
-        from prometheus_client import REGISTRY as _REG
+        from alpha_factory_v1.backend.metrics_registry import get_metric
 
         def _get_metric(cls: Any, name: str, desc: str, labels: list[str]) -> Any:
-            if name in getattr(_REG, "_names_to_collectors", {}):
-                return _REG._names_to_collectors[name]
-            return cls(name, desc, labels)
+            return get_metric(cls, name, desc, labels)
 
         REQ_COUNT = _get_metric(Counter, "api_requests_total", "HTTP requests", ["method", "endpoint", "status"])
         REQ_LAT = api_request_seconds
