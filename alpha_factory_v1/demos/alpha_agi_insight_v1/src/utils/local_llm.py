@@ -81,5 +81,6 @@ def chat(prompt: str, cfg: Settings | None = None) -> str:
     try:
         with span("local_llm.chat"):
             return _CALL(prompt, cfg)
-    except Exception:  # pragma: no cover - runtime error
+    except Exception as exc:  # pragma: no cover - runtime error
+        _log.exception("Local chat failed: %s", exc)
         return f"[offline] {prompt}"
