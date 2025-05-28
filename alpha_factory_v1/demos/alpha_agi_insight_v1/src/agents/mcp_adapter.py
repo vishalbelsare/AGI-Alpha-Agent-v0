@@ -25,3 +25,8 @@ class MCPAdapter:
     def heartbeat(self) -> None:
         """Simple read of internal state to ensure the object works."""
         _ = len(self._group.sessions)
+
+    async def invoke_tool(self, name: str, args: dict[str, object] | None = None) -> object:
+        """Invoke a tool by name using :class:`mcp.ClientSessionGroup`."""
+        args = args or {}
+        return await self._group.call_tool(name, args)
