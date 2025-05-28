@@ -187,30 +187,44 @@ class GraphMemory:
             else:
                 # Minimal always-available stub
                 class _Stub:  # pylint: disable=too-few-public-methods
-                    nodes: set[str] = set()
-                    edges: list[tuple[str, str, str, dict[str, Any]]] = []
+                    def __init__(self) -> None:
+                        self.nodes: set[str] = set()
+                        self._edges: list[tuple[str, str, str, dict[str, Any]]] = []
 
                     def add_node(self, n):  # noqa: D401
                         self.nodes.add(n)
 
                     def add_edge(self, u, v, key=None, **d):
-                        self.edges.append((u, v, key, d))
+                        self._edges.append((u, v, key, d))
 
                     def number_of_nodes(self):
                         return len(self.nodes)
 
                     def number_of_edges(self):
-                        return len(self.edges)
+                        return len(self._edges)
+
+                    def edges(self, *, keys=False, data=False):
+                        if keys and data:
+                            return list(self._edges)
+                        if keys:
+                            return [(u, v, k) for u, v, k, _ in self._edges]
+                        if data:
+                            return [(u, v, d) for u, v, _, d in self._edges]
+                        return [(u, v) for u, v, _, _ in self._edges]
 
                     def out_edges(self, n, keys=True, data=True):
-                        return [(u, v, k, d) for u, v, k, d in self.edges if u == n]
+                        return [
+                            (u, v, k, d)
+                            for u, v, k, d in self._edges
+                            if u == n
+                        ]
 
                     def successors(self, n):
-                        return [v for u, v, *_ in self.edges if u == n]
+                        return [v for u, v, *_ in self._edges if u == n]
 
                     def clear(self):
                         self.nodes.clear()
-                        self.edges.clear()
+                        self._edges.clear()
 
                 self._g = _Stub()  # type: ignore
             _log.warning("GraphMemory using *in-memory* backend – data not persisted")
