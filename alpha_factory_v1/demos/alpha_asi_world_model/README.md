@@ -12,6 +12,11 @@ Last updated 2025-04-25   Maintainer → Montreal.AI Core AGI Team
 
 ---
 
+> **Disclaimer**
+> This demo is a conceptual research prototype and does **not** represent real
+> AGI capabilities. See the project's [Apache 2.0 license](../../../LICENSE) and
+> [security policy](../../../SECURITY.md) for details.
+
 ## 0  Table of Contents  <!-- omit in toc -->
 1. [Why this demo matters](#1-why-this-demo-matters)
 2. [Quick-start 🥑](#2-quick-start-)
