@@ -781,7 +781,7 @@ Alternatively run inside Docker:
 ```bash
 # build the web client first so `dist/` exists
 make build_web
-# regenerate protobuf dataclasses
+# regenerate protobuf modules (requires `betterproto` plugin)
 make proto
 make compose-up  # builds and waits for healthy services
 ```

@@ -11,14 +11,14 @@ from __future__ import annotations
 import asyncio
 import json
 import logging
-from google.protobuf.json_format import MessageToDict, ParseDict
+import dataclasses
 from pathlib import Path
 import contextlib
 from typing import Any, Awaitable, Callable, Dict, List, Optional
 
 from .config import Settings
 from .tracing import span, bus_messages_total
-from .a2a_pb2 import Envelope
+from src.utils.a2a_pb2_dataclass import Envelope
 
 try:
     import grpc
@@ -71,7 +71,11 @@ class A2ABus:
         with span("bus.publish"):
             bus_messages_total.labels(topic).inc()
             if self._producer:
-                data = json.dumps(MessageToDict(env)).encode()
+                if dataclasses.is_dataclass(env):
+                    payload = dataclasses.asdict(env)
+                else:  # support SimpleNamespace in tests
+                    payload = env.__dict__
+                data = json.dumps(payload).encode()
                 asyncio.create_task(self._producer.send_and_wait(topic, data))
             for h in list(self._subs.get(topic, [])):
                 try:
@@ -96,8 +100,7 @@ class A2ABus:
             if grpc:
                 await context.abort(grpc.StatusCode.PERMISSION_DENIED, "unauthenticated")
             return b"denied"
-        env = Envelope()
-        ParseDict(data, env)
+        env = Envelope(**data)
         self.publish(env.recipient, env)
         return b"ok"
 
