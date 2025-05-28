@@ -44,3 +44,11 @@ def test_insight_invalid_token() -> None:
     client = _make_client()
     resp = client.post("/insight", json={}, headers={"Authorization": "Bearer bad"})
     assert resp.status_code == 403
+
+
+def test_insight_missing_ids() -> None:
+    _setup_simulations()
+    client = _make_client()
+    headers = {"Authorization": "Bearer test-token"}
+    resp = client.post("/insight", json={"ids": ["missing"]}, headers=headers)
+    assert resp.status_code == 404
