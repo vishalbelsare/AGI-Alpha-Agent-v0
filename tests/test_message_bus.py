@@ -10,9 +10,11 @@ class TestMessageBus(TestCase):
         cfg = config.Settings(bus_port=0)
         with mock.patch.object(messaging, "AIOKafkaProducer", None), \
              mock.patch.object(messaging, "grpc", None):
-            bus = messaging.A2ABus(cfg)
-            asyncio.run(bus.start())
-            asyncio.run(bus.stop())
+            async def run() -> None:
+                async with messaging.A2ABus(cfg):
+                    pass
+
+            asyncio.run(run())
 
     def test_kafka_publish(self) -> None:
         events: list[object] = []
@@ -32,16 +34,17 @@ class TestMessageBus(TestCase):
 
         cfg = config.Settings(bus_port=0, broker_url="k:1")
         with mock.patch.object(messaging, "AIOKafkaProducer", Prod):
-            bus = messaging.A2ABus(cfg)
-            asyncio.run(bus.start())
-            env = types.SimpleNamespace(sender="a", recipient="b", payload={}, ts=0.0)
+            async def run() -> None:
+                async with messaging.A2ABus(cfg) as bus:
+                    env = types.SimpleNamespace(sender="a", recipient="b", payload={}, ts=0.0)
 
-            async def _send() -> None:
-                bus.publish("b", env)
-                await asyncio.sleep(0)
+                    async def _send() -> None:
+                        bus.publish("b", env)
+                        await asyncio.sleep(0)
 
-            asyncio.run(_send())
-            asyncio.run(bus.stop())
+                    await _send()
+
+            asyncio.run(run())
 
         self.assertEqual(events[0:2], ["k:1", "start"])
         self.assertIn("stop", events)

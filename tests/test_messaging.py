@@ -32,11 +32,11 @@ def test_publish_to_async_subscriber() -> None:
 
 def test_start_stop_logging(caplog: Any) -> None:
     """Bus start and stop should emit informative log messages."""
-    bus = messaging.A2ABus(config.Settings(bus_port=0, broker_url="kafka:9092"))
-
     async def run() -> None:
-        await bus.start()
-        await bus.stop()
+        async with messaging.A2ABus(
+            config.Settings(bus_port=0, broker_url="kafka:9092")
+        ):
+            pass
 
     with caplog.at_level(logging.INFO):
         asyncio.run(run())
