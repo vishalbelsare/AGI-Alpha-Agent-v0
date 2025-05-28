@@ -72,6 +72,10 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.lock
           pip install pytest pytest-cov pytest-benchmark mutmut
+      - name: Install proto compiler
+        run: pip install grpcio-tools
+      - name: Verify protobuf
+        run: make proto-verify
       - name: Run tests with coverage
         run: |
           pytest --cov --cov-report=xml --cov-fail-under=70
