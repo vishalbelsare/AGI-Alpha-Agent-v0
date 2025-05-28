@@ -28,5 +28,9 @@ def problem_response(exc: HTTPException) -> JSONResponse:
     if detail:
         body["detail"] = detail
 
-    return JSONResponse(status_code=exc.status_code, content=body)
+    return JSONResponse(
+        status_code=exc.status_code,
+        content=body,
+        media_type="application/problem+json",
+    )
 
