@@ -10,6 +10,7 @@ import json
 import os
 import secrets
 import time
+from collections import OrderedDict
 from pathlib import Path
 from typing import Any, List, TYPE_CHECKING, cast, Set
 from alpha_factory_v1.demos.alpha_agi_insight_v1.src.utils import alerts
@@ -203,16 +204,21 @@ if app is not None:
         _orch = None
 
 
-_simulations: dict[str, ResultsResponse] = {}
+_simulations: OrderedDict[str, ResultsResponse] = OrderedDict()
 _progress_ws: Set[Any] = set()
 _latest_id: str | None = None
 _results_dir = Path(
-    os.getenv("SIM_RESULTS_DIR", os.path.join(os.getenv("ALPHA_DATA_DIR", "/tmp/alphafactory"), "simulations"))
+    os.getenv(
+        "SIM_RESULTS_DIR",
+        os.path.join(os.getenv("ALPHA_DATA_DIR", "/tmp/alphafactory"), "simulations"),
+    )
 )
+_max_results = int(os.getenv("MAX_RESULTS", "100"))
 _results_dir.mkdir(parents=True, exist_ok=True)
 
 
 def _load_results() -> None:
+    entries: list[tuple[float, ResultsResponse]] = []
     latest_time = 0.0
     latest_id: str | None = None
     for f in _results_dir.glob("*.json"):
@@ -221,11 +227,18 @@ def _load_results() -> None:
             res = ResultsResponse(**data)
         except Exception:
             continue
-        _simulations[res.id] = res
         mtime = f.stat().st_mtime
+        entries.append((mtime, res))
         if mtime > latest_time:
             latest_time = mtime
             latest_id = res.id
+    _simulations.clear()
+    for _, res in sorted(entries, key=lambda t: t[0]):
+        _simulations[res.id] = res
+    while len(_simulations) > _max_results:
+        old_id, _ = _simulations.popitem(last=False)
+        with contextlib.suppress(FileNotFoundError):
+            (_results_dir / f"{old_id}.json").unlink()
     global _latest_id
     _latest_id = latest_id
 
@@ -233,6 +246,11 @@ def _load_results() -> None:
 def _save_result(result: ResultsResponse) -> None:
     path = _results_dir / f"{result.id}.json"
     path.write_text(result.json())
+    _simulations[result.id] = result
+    while len(_simulations) > _max_results:
+        old_id, _ = _simulations.popitem(last=False)
+        with contextlib.suppress(FileNotFoundError):
+            (_results_dir / f"{old_id}.json").unlink()
     global _latest_id
     _latest_id = result.id
 
@@ -382,10 +400,7 @@ async def _background_run(sim_id: str, cfg: SimRequest) -> None:
         forecast=[ForecastPoint(year=p.year, capability=p.capability) for p in traj],
         population=pop_data,
     )
-    _simulations[sim_id] = result
     _save_result(result)
-    global _latest_id
-    _latest_id = sim_id
 
 
 if app is not None:

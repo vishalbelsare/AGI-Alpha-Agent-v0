@@ -655,6 +655,7 @@ for instructions and example volume mounts.
 | `API_CORS_ORIGINS` | `*` | Comma-separated list of allowed CORS origins. |
 | `SANDBOX_CPU_SEC` | `2` | CPU time limit for sandboxed code. |
 | `SANDBOX_MEM_MB` | `256` | Memory cap for sandboxed code in MB. |
+| `MAX_RESULTS` | `100` | Maximum stored simulation results. |
 
 The values above mirror `.env.sample`. When running the stack with Docker
 Compose, adjust the environment section of
