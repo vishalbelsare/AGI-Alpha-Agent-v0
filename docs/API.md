@@ -17,6 +17,20 @@ shut down on exit. Available endpoints are:
 - `GET /openapi.json` – FastAPI auto-generated schema.
 - `GET /metrics` – Prometheus metrics for monitoring.
 
+### Error Responses
+
+Errors follow the [RFC&nbsp;7807](https://datatracker.ietf.org/doc/html/rfc7807)
+`application/problem+json` format:
+
+```json
+{
+  "type": "about:blank",
+  "title": "Not Found",
+  "status": 404,
+  "detail": "Optional human readable message"
+}
+```
+
 ## Authentication
 
 All requests must include an `Authorization: Bearer $API_TOKEN` header so the

@@ -45,11 +45,12 @@ try:
     from fastapi import FastAPI, HTTPException, WebSocket, Request, Depends
     from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
     from starlette.middleware.base import BaseHTTPMiddleware, RequestResponseEndpoint
-    from starlette.responses import Response, PlainTextResponse
+    from starlette.responses import Response, PlainTextResponse, JSONResponse
     from fastapi.staticfiles import StaticFiles
     from fastapi.middleware.cors import CORSMiddleware
     from pydantic import BaseModel
     import uvicorn
+    from .problem_json import problem_response
 except Exception as exc:  # pragma: no cover - optional
     FastAPI = None  # type: ignore
     HTTPException = None  # type: ignore
@@ -278,33 +279,45 @@ if app is not None:
         return "ok"
 
     @app.post("/simulate", response_model=SimStartResponse)
-    async def simulate(req: SimRequest, _: None = Depends(verify_token)) -> SimStartResponse:
-        sim_id = secrets.token_hex(8)
-        asyncio.create_task(_background_run(sim_id, req))
-        return SimStartResponse(id=sim_id)
+    async def simulate(req: SimRequest, _: None = Depends(verify_token)) -> SimStartResponse | JSONResponse:
+        try:
+            sim_id = secrets.token_hex(8)
+            asyncio.create_task(_background_run(sim_id, req))
+            return SimStartResponse(id=sim_id)
+        except HTTPException as exc:
+            return problem_response(exc)
 
     @app.get("/results/{sim_id}", response_model=ResultsResponse)
-    async def get_results(sim_id: str, _: None = Depends(verify_token)) -> ResultsResponse:
-        result = _simulations.get(sim_id)
-        if result is None:
-            raise HTTPException(status_code=404)
-        return result
+    async def get_results(sim_id: str, _: None = Depends(verify_token)) -> ResultsResponse | JSONResponse:
+        try:
+            result = _simulations.get(sim_id)
+            if result is None:
+                raise HTTPException(status_code=404)
+            return result
+        except HTTPException as exc:
+            return problem_response(exc)
 
     @app.get("/results", response_model=ResultsResponse)
-    async def get_latest(_: None = Depends(verify_token)) -> ResultsResponse:
-        if _latest_id is None:
-            raise HTTPException(status_code=404)
-        result = _simulations.get(_latest_id)
-        if result is None:
-            raise HTTPException(status_code=404)
-        return result
+    async def get_latest(_: None = Depends(verify_token)) -> ResultsResponse | JSONResponse:
+        try:
+            if _latest_id is None:
+                raise HTTPException(status_code=404)
+            result = _simulations.get(_latest_id)
+            if result is None:
+                raise HTTPException(status_code=404)
+            return result
+        except HTTPException as exc:
+            return problem_response(exc)
 
     @app.get("/population/{sim_id}", response_model=PopulationResponse)
-    async def get_population(sim_id: str, _: None = Depends(verify_token)) -> PopulationResponse:
-        result = _simulations.get(sim_id)
-        if result is None:
-            raise HTTPException(status_code=404)
-        return PopulationResponse(id=sim_id, population=result.population or [])
+    async def get_population(sim_id: str, _: None = Depends(verify_token)) -> PopulationResponse | JSONResponse:
+        try:
+            result = _simulations.get(sim_id)
+            if result is None:
+                raise HTTPException(status_code=404)
+            return PopulationResponse(id=sim_id, population=result.population or [])
+        except HTTPException as exc:
+            return problem_response(exc)
 
     @app.get("/runs", response_model=RunsResponse)
     async def list_runs(_: None = Depends(verify_token)) -> RunsResponse:
