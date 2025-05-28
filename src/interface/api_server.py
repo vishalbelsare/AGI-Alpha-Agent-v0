@@ -165,9 +165,7 @@ if app is not None:
             now = time.time()
             if now - self.window_start >= self.window:
                 if self.req_count and (self.resp_429 / self.req_count) > 0.05:
-                    alerts.send_alert(
-                        f"High rate of 429 responses: {self.resp_429}/{self.req_count}"
-                    )
+                    alerts.send_alert(f"High rate of 429 responses: {self.resp_429}/{self.req_count}")
                 self.window_start = now
                 self.req_count = 0
                 self.resp_429 = 0
@@ -205,13 +203,9 @@ if app is not None:
 
     @app.on_event("startup")
     async def _start() -> None:
-        orch_mod = importlib.import_module(
-            "alpha_factory_v1.demos.alpha_agi_insight_v1.src.orchestrator"
-        )
+        orch_mod = importlib.import_module("alpha_factory_v1.demos.alpha_agi_insight_v1.src.orchestrator")
         app_f.state.orchestrator = orch_mod.Orchestrator()
-        app_f.state.orch_task = asyncio.create_task(
-            app_f.state.orchestrator.run_forever()
-        )
+        app_f.state.orch_task = asyncio.create_task(app_f.state.orchestrator.run_forever())
         _load_results()
 
     @app.on_event("shutdown")
@@ -359,6 +353,20 @@ class InsightResponse(BaseModel):
     """Aggregated forecast data."""
 
     forecast: list[InsightPoint]
+
+
+class AgentStatus(BaseModel):
+    """Status information for a single agent."""
+
+    name: str
+    last_beat: float
+    restarts: int
+
+
+class StatusResponse(BaseModel):
+    """Response model for ``/status``."""
+
+    agents: list[AgentStatus]
 
 
 async def _background_run(sim_id: str, cfg: SimRequest) -> None:
@@ -509,6 +517,18 @@ if app is not None:
     async def list_runs(_: None = Depends(verify_token)) -> RunsResponse:
         """Return identifiers for all stored runs."""
         return RunsResponse(ids=list(_simulations.keys()))
+
+    @app.get("/status", response_model=StatusResponse)
+    async def status(_: None = Depends(verify_token)) -> StatusResponse:
+        """Return orchestrator agent stats."""
+
+        orch = cast(Any, app_f.state.orchestrator)
+        if orch is None:
+            raise HTTPException(status_code=503, detail="Orchestrator not running")
+        items = [
+            AgentStatus(name=r.agent.name, last_beat=r.last_beat, restarts=r.restarts) for r in orch.runners.values()
+        ]
+        return StatusResponse(agents=items)
 
     @app.post("/insight", response_model=InsightResponse)
     async def insight(req: InsightRequest, _: None = Depends(verify_token)) -> InsightResponse | JSONResponse:

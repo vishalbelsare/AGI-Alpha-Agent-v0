@@ -94,10 +94,17 @@ def test_show_results_export_formats(tmp_path) -> None:
 
 
 def test_agents_status_names() -> None:
-    with patch.object(cli.orchestrator, "Orchestrator") as orch_cls:
-        orch = orch_cls.return_value
-        runner_obj = type("Runner", (), {"agent": type("Agent", (), {"name": "AgentZ"})()})()
-        orch.runners = {"AgentZ": runner_obj}
+    class Dummy:
+        status_code = 200
+
+        def __init__(self, data: dict) -> None:
+            self._data = data
+
+        def json(self) -> dict:
+            return self._data
+
+    payload = {"agents": [{"name": "AgentZ", "last_beat": 0.0, "restarts": 2}]}
+    with patch.object(cli.requests, "get", return_value=Dummy(payload)):
         result = CliRunner().invoke(cli.main, ["agents-status"])
     assert "AgentZ" in result.output
     assert "restarts" in result.output

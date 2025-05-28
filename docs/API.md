@@ -13,6 +13,7 @@ shut down on exit. Available endpoints are:
 - `GET /results/{sim_id}` – fetch final forecast data.
 - `GET /population/{sim_id}` – retrieve only the population list.
 - `POST /insight` – aggregate existing forecasts.
+- `GET /status` – current agent heartbeats and restart counts.
 - `WS  /ws/progress` – stream progress logs while the simulation runs.
 - `GET /openapi.json` – FastAPI auto-generated schema.
 - `GET /metrics` – Prometheus metrics for monitoring.
