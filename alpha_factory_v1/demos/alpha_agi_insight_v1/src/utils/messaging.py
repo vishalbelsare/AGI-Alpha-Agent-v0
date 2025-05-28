@@ -18,7 +18,10 @@ from typing import Any, Awaitable, Callable, Dict, List, Optional
 
 from .config import Settings
 from .tracing import span, bus_messages_total
-from src.utils.a2a_pb2_dataclass import Envelope
+from src.utils import a2a_pb2 as pb
+from google.protobuf import json_format
+
+Envelope = pb.Envelope
 
 try:
     import grpc
@@ -34,16 +37,17 @@ except ModuleNotFoundError:  # pragma: no cover - broker optional
 logger = logging.getLogger(__name__)
 
 
-
-
 class A2ABus:
     """In-memory pub/sub with best-effort gRPC transport."""
+
+    PROTO_VERSION = "proto_schema=1"
 
     def __init__(self, settings: Settings) -> None:
         self.settings = settings
         self._subs: Dict[str, List[Callable[[Envelope], Awaitable[None] | None]]] = {}
         self._server: "grpc.aio.Server | None" = None
         self._producer: Optional[AIOKafkaProducer] = None
+        self._handshake = False
 
     async def __aenter__(self) -> "A2ABus":
         """Start the bus when entering an async context."""
@@ -73,6 +77,8 @@ class A2ABus:
             if self._producer:
                 if dataclasses.is_dataclass(env):
                     payload = dataclasses.asdict(env)
+                elif isinstance(env, pb.Envelope):
+                    payload = json_format.MessageToDict(env, preserving_proto_field_name=True)
                 else:  # support SimpleNamespace in tests
                     payload = env.__dict__
                 data = json.dumps(payload).encode()
@@ -94,13 +100,27 @@ class A2ABus:
                     )
 
     async def _handle_rpc(self, request: bytes, context: Any) -> bytes:
-        data = json.loads(request.decode())
+        text = request.decode()
+        if not getattr(self, "_handshake", False):
+            if text.strip() != self.PROTO_VERSION:
+                if grpc:
+                    await context.abort(grpc.StatusCode.FAILED_PRECONDITION, "handshake required")
+                return b"handshake required"
+            self._handshake = True
+            return self.PROTO_VERSION.encode()
+        data = json.loads(text)
         token = data.pop("token", None)
         if self.settings.bus_token and token != self.settings.bus_token:
             if grpc:
                 await context.abort(grpc.StatusCode.PERMISSION_DENIED, "unauthenticated")
             return b"denied"
-        env = Envelope(**data)
+        env = Envelope(
+            sender=data.get("sender", ""),
+            recipient=data.get("recipient", ""),
+            ts=float(data.get("ts", 0.0)),
+        )
+        if isinstance(data.get("payload"), dict):
+            env.payload.update(data["payload"])
         self.publish(env.recipient, env)
         return b"ok"
 
@@ -110,6 +130,7 @@ class A2ABus:
             self.settings.bus_port,
             self.settings.broker_url or "disabled",
         )
+        self._handshake = False
         if self.settings.broker_url and AIOKafkaProducer:
             self._producer = AIOKafkaProducer(bootstrap_servers=self.settings.broker_url)
             await self._producer.start()

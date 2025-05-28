@@ -11,8 +11,8 @@ import grpc
 class TestMessageBus(TestCase):
     def test_start_without_optional_dependencies(self) -> None:
         cfg = config.Settings(bus_port=0)
-        with mock.patch.object(messaging, "AIOKafkaProducer", None), \
-             mock.patch.object(messaging, "grpc", None):
+        with mock.patch.object(messaging, "AIOKafkaProducer", None), mock.patch.object(messaging, "grpc", None):
+
             async def run() -> None:
                 async with messaging.A2ABus(cfg):
                     pass
@@ -37,6 +37,7 @@ class TestMessageBus(TestCase):
 
         cfg = config.Settings(bus_port=0, broker_url="k:1")
         with mock.patch.object(messaging, "AIOKafkaProducer", Prod):
+
             async def run() -> None:
                 async with messaging.A2ABus(cfg) as bus:
                     env = types.SimpleNamespace(sender="a", recipient="b", payload={}, ts=0.0)
@@ -78,6 +79,7 @@ def test_publish_grpc() -> None:
         async with bus:
             async with grpc.aio.insecure_channel(f"localhost:{port}") as ch:
                 stub = ch.unary_unary("/bus.Bus/Send")
+                await stub(b"proto_schema=1")
                 payload = {
                     "sender": "a",
                     "recipient": "x",

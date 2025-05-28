@@ -82,10 +82,9 @@ def test_orchestrator_bus_tls_env(tmp_path: Path) -> None:
             async with orch.bus, orch.ledger:
                 assert orch.bus._server is not None
                 creds = grpc.ssl_channel_credentials(root_certificates=ca)
-                async with grpc.aio.secure_channel(
-                    f"localhost:{port}", creds
-                ) as ch:
+                async with grpc.aio.secure_channel(f"localhost:{port}", creds) as ch:
                     stub = ch.unary_unary("/bus.Bus/Send")
+                    await stub(b"proto_schema=1")
                     payload = {
                         "sender": "a",
                         "recipient": "b",

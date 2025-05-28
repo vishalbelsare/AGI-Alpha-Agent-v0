@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import time
 from typing import Any, TYPE_CHECKING
+from google.protobuf import struct_pb2
 
 from ..utils import messaging
 from .adk_adapter import ADKAdapter
@@ -61,7 +62,14 @@ class BaseAgent:
         await self.handle(env)
 
     async def emit(self, recipient: str, payload: Any) -> None:
-        env = messaging.Envelope(self.name, recipient, payload, time.time())
+        env = messaging.Envelope(
+            sender=self.name,
+            recipient=recipient,
+            payload=struct_pb2.Struct(),
+            ts=time.time(),
+        )
+        if isinstance(payload, dict):
+            env.payload.update(payload)
         self.ledger.log(env)
         self.bus.publish(recipient, env)
 

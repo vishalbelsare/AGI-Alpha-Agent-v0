@@ -14,6 +14,7 @@ import time
 import contextlib
 import os
 from typing import Callable, Dict, List
+from google.protobuf import struct_pb2
 
 from .agents import (
     planning_agent,
@@ -59,18 +60,17 @@ class AgentRunner:
             else:
                 self.error_count = 0
                 env = messaging.Envelope(
-                    self.agent.name,
-                    "orch",
-                    {"heartbeat": True},
-                    time.time(),
+                    sender=self.agent.name,
+                    recipient="orch",
+                    payload=struct_pb2.Struct(),
+                    ts=time.time(),
                 )
+                env.payload.update({"heartbeat": True})
                 ledger.log(env)
                 bus.publish("orch", env)
                 self.last_beat = env.ts
             finally:
-                agent_cycle_seconds.labels(self.agent.name).observe(
-                    time.perf_counter() - start
-                )
+                agent_cycle_seconds.labels(self.agent.name).observe(time.perf_counter() - start)
             await asyncio.sleep(self.period)
 
     def start(self, bus: messaging.A2ABus, ledger: Ledger) -> None:
@@ -128,21 +128,23 @@ class Orchestrator:
 
     def _register(self, runner: AgentRunner) -> None:
         env = messaging.Envelope(
-            "orch",
-            "system",
-            {"event": "register", "agent": runner.agent.name, "capabilities": runner.capabilities},
-            time.time(),
+            sender="orch",
+            recipient="system",
+            payload=struct_pb2.Struct(),
+            ts=time.time(),
         )
+        env.payload.update({"event": "register", "agent": runner.agent.name, "capabilities": runner.capabilities})
         self.ledger.log(env)
         self.bus.publish("system", env)
 
     def _record_restart(self, runner: AgentRunner) -> None:
         env = messaging.Envelope(
-            "orch",
-            "system",
-            {"event": "restart", "agent": runner.agent.name},
-            time.time(),
+            sender="orch",
+            recipient="system",
+            payload=struct_pb2.Struct(),
+            ts=time.time(),
         )
+        env.payload.update({"event": "restart", "agent": runner.agent.name})
         self.ledger.log(env)
         self.bus.publish("system", env)
         alerts.send_alert(
