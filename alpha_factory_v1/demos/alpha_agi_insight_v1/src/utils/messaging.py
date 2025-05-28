@@ -17,7 +17,7 @@ import contextlib
 from typing import Any, Awaitable, Callable, Dict, List, Optional
 
 from .config import Settings
-from .tracing import span
+from .tracing import span, bus_messages_total
 
 try:
     import grpc
@@ -65,6 +65,7 @@ class A2ABus:
 
     def publish(self, topic: str, env: Envelope) -> None:
         with span("bus.publish"):
+            bus_messages_total.labels(topic).inc()
             if self._producer:
                 data = json.dumps(env.__dict__).encode()
                 asyncio.create_task(self._producer.send_and_wait(topic, data))

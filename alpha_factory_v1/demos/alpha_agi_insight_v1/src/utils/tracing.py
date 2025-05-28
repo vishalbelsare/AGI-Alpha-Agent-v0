@@ -30,10 +30,67 @@ except Exception:  # pragma: no cover - missing SDK
     metrics = None
     trace = None
 
-__all__ = ["tracer", "meter", "span", "configure"]
+__all__ = [
+    "tracer",
+    "meter",
+    "span",
+    "configure",
+    "bus_messages_total",
+    "agent_cycle_seconds",
+    "api_request_seconds",
+]
 
 tracer = None
 meter = None
+
+try:
+    import prometheus_client
+    from prometheus_client import Counter, Histogram
+except ModuleNotFoundError:  # pragma: no cover - optional
+    prometheus_client = None  # type: ignore
+
+
+def _noop(*_a: Any, **_kw: Any) -> Any:
+    class _N:
+        def labels(self, *_a: Any, **_kw: Any) -> "_N":
+            return self
+
+        def observe(self, *_a: Any) -> None: ...
+
+        def inc(self, *_a: Any) -> None: ...
+
+    return _N()
+
+if prometheus_client is not None:
+    from prometheus_client import REGISTRY as _REG
+
+    def _get_metric(cls: Any, name: str, desc: str, labels: list[str]) -> Any:
+        if name in getattr(_REG, "_names_to_collectors", {}):
+            return _REG._names_to_collectors[name]
+        return cls(name, desc, labels)
+
+    bus_messages_total = _get_metric(
+        Counter,
+        "bus_messages_total",
+        "Messages published on the internal bus",
+        ["topic"],
+    )
+    agent_cycle_seconds = _get_metric(
+        Histogram,
+        "agent_cycle_seconds",
+        "Duration of one agent cycle",
+        ["agent"],
+    )
+    api_request_seconds = _get_metric(
+        Histogram,
+        "api_request_seconds",
+        "HTTP request latency",
+        ["method", "endpoint"],
+    )
+else:  # pragma: no cover - prometheus not installed
+    bus_messages_total = _noop()
+    agent_cycle_seconds = _noop()
+    api_request_seconds = _noop()
 
 
 def configure() -> None:

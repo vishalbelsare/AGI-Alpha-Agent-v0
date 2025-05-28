@@ -60,7 +60,7 @@ def test_metrics_endpoint_subprocess() -> None:
         assert resp.status_code == 200
         text = resp.text
         assert "api_requests_total" in text
-        assert "api_request_duration_seconds" in text
+        assert "api_request_seconds" in text
         assert text.startswith("# HELP")
     finally:
         proc.terminate()
