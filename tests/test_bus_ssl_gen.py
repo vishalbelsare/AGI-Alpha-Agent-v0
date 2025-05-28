@@ -37,13 +37,11 @@ def test_bus_tls_with_script(tmp_path: Path) -> None:
     port = _free_port()
     cert, key, ca, token = _gen_certs(tmp_path)
     cfg = config.Settings(bus_port=port, bus_cert=cert, bus_key=key, bus_token=token)
-    bus = messaging.A2ABus(cfg)
     received: list[messaging.Envelope] = []
 
     async def run() -> None:
-        bus.subscribe("b", lambda e: received.append(e))
-        await bus.start()
-        try:
+        async with messaging.A2ABus(cfg) as bus:
+            bus.subscribe("b", lambda e: received.append(e))
             creds = grpc.ssl_channel_credentials(root_certificates=ca)
             async with grpc.aio.secure_channel(f"localhost:{port}", creds) as ch:
                 stub = ch.unary_unary("/bus.Bus/Send")
@@ -56,9 +54,7 @@ def test_bus_tls_with_script(tmp_path: Path) -> None:
                 }
                 await stub(json.dumps(payload).encode())
             await asyncio.sleep(0.05)
-        finally:
-            await bus.stop()
-            shutil.rmtree(tmp_path / "certs", ignore_errors=True)
+        shutil.rmtree(tmp_path / "certs", ignore_errors=True)
 
     asyncio.run(run())
     assert received and received[0].payload["v"] == 1

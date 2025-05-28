@@ -65,13 +65,11 @@ def test_bus_tls_accept(tmp_path: Path) -> None:
     port = _free_port()
     cert, key, ca = _make_cert(tmp_path)
     cfg = config.Settings(bus_port=port, bus_cert=cert, bus_key=key, bus_token="tok")
-    bus = messaging.A2ABus(cfg)
     received: list[messaging.Envelope] = []
 
     async def run() -> None:
-        bus.subscribe("b", lambda e: received.append(e))
-        await bus.start()
-        try:
+        async with messaging.A2ABus(cfg) as bus:
+            bus.subscribe("b", lambda e: received.append(e))
             creds = grpc.ssl_channel_credentials(root_certificates=ca)
             async with grpc.aio.secure_channel(f"localhost:{port}", creds) as ch:
                 stub = ch.unary_unary("/bus.Bus/Send")
@@ -84,8 +82,6 @@ def test_bus_tls_accept(tmp_path: Path) -> None:
                 }
                 await stub(json.dumps(payload).encode())
             await asyncio.sleep(0.05)
-        finally:
-            await bus.stop()
 
     asyncio.run(run())
     assert received and received[0].payload["v"] == 1
@@ -97,11 +93,9 @@ def test_bus_tls_reject_bad_token(tmp_path: Path) -> None:
     port = _free_port()
     cert, key, ca = _make_cert(tmp_path)
     cfg = config.Settings(bus_port=port, bus_cert=cert, bus_key=key, bus_token="tok")
-    bus = messaging.A2ABus(cfg)
 
     async def run() -> None:
-        await bus.start()
-        try:
+        async with messaging.A2ABus(cfg):
             creds = grpc.ssl_channel_credentials(root_certificates=ca)
             async with grpc.aio.secure_channel(f"localhost:{port}", creds) as ch:
                 stub = ch.unary_unary("/bus.Bus/Send")
@@ -114,8 +108,6 @@ def test_bus_tls_reject_bad_token(tmp_path: Path) -> None:
                 }
                 with pytest.raises(grpc.aio.AioRpcError):
                     await stub(json.dumps(payload).encode())
-        finally:
-            await bus.stop()
 
     asyncio.run(run())
 

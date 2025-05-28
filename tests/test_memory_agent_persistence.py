@@ -10,8 +10,10 @@ def test_memory_agent_persists_records(tmp_path):
     led = logging.Ledger(str(tmp_path / "ledger.db"))
     agent = memory_agent.MemoryAgent(bus, led, str(mem_file))
     env = messaging.Envelope("a", "memory", {"v": 1}, 0.0)
-    asyncio.run(agent.handle(env))
+    async def run() -> None:
+        async with bus:
+            await agent.handle(env)
+    asyncio.run(run())
     agent2 = memory_agent.MemoryAgent(bus, led, str(mem_file))
     assert agent2.records and agent2.records[0]["v"] == 1
-    asyncio.run(bus.stop())
     led.close()

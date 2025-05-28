@@ -43,13 +43,11 @@ def test_bus_secure(tmp_path: Path) -> None:
         bus_token=token,
         allow_insecure=False,
     )
-    bus = messaging.A2ABus(cfg)
     received: list[messaging.Envelope] = []
 
     async def run() -> None:
-        bus.subscribe("b", lambda e: received.append(e))
-        await bus.start()
-        try:
+        async with messaging.A2ABus(cfg) as bus:
+            bus.subscribe("b", lambda e: received.append(e))
             creds = grpc.ssl_channel_credentials(root_certificates=ca)
             async with grpc.aio.secure_channel(f"localhost:{port}", creds) as ch:
                 stub = ch.unary_unary("/bus.Bus/Send")
@@ -74,9 +72,7 @@ def test_bus_secure(tmp_path: Path) -> None:
                 else:
                     assert resp == b"denied"
             await asyncio.sleep(0.05)
-        finally:
-            await bus.stop()
-            shutil.rmtree(tmp_path / "certs", ignore_errors=True)
+        shutil.rmtree(tmp_path / "certs", ignore_errors=True)
 
     asyncio.run(run())
     assert len(received) == 1 and received[0].payload["v"] == 1

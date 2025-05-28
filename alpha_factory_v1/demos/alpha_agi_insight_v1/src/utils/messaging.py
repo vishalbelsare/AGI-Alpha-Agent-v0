@@ -50,6 +50,15 @@ class A2ABus:
         self._server: "grpc.aio.Server | None" = None
         self._producer: Optional[AIOKafkaProducer] = None
 
+    async def __aenter__(self) -> "A2ABus":
+        """Start the bus when entering an async context."""
+        await self.start()
+        return self
+
+    async def __aexit__(self, exc_type, exc, tb) -> None:
+        """Stop the bus when exiting an async context."""
+        await self.stop()
+
     def subscribe(self, topic: str, handler: Callable[[Envelope], Awaitable[None] | None]) -> None:
         self._subs.setdefault(topic, []).append(handler)
 

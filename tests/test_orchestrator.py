@@ -74,18 +74,17 @@ def test_error_threshold_restart(monkeypatch) -> None:
     runner = orch.runners["fail"]
 
     async def run() -> None:
-        await orch.bus.start()
-        runner.start(orch.bus, orch.ledger)
-        monitor = asyncio.create_task(orch._monitor())
-        await asyncio.sleep(3)
-        monitor.cancel()
-        with contextlib.suppress(asyncio.CancelledError):
-            await monitor
-        if runner.task:
-            runner.task.cancel()
+        async with orch.bus:
+            runner.start(orch.bus, orch.ledger)
+            monitor = asyncio.create_task(orch._monitor())
+            await asyncio.sleep(3)
+            monitor.cancel()
             with contextlib.suppress(asyncio.CancelledError):
-                await runner.task
-        await orch.bus.stop()
+                await monitor
+            if runner.task:
+                runner.task.cancel()
+                with contextlib.suppress(asyncio.CancelledError):
+                    await runner.task
 
     asyncio.run(run())
 

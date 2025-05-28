@@ -20,8 +20,9 @@ def test_memory_agent_file_persistence(tmp_path: Path) -> None:
     envs = [messaging.Envelope("a", "memory", {"idx": i}, 0.0) for i in range(3)]
 
     async def _run() -> None:
-        for env in envs:
-            await agent.handle(env)
+        async with bus:
+            for env in envs:
+                await agent.handle(env)
 
     asyncio.run(_run())
 
@@ -31,5 +32,4 @@ def test_memory_agent_file_persistence(tmp_path: Path) -> None:
     agent2 = memory_agent.MemoryAgent(bus, ledger, str(mem_file))
     assert [r["idx"] for r in agent2.records] == list(range(3))
 
-    asyncio.run(bus.stop())
     ledger.close()
