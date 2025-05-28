@@ -11,11 +11,14 @@ import json
 import os
 import secrets
 import time
+import logging
 from collections import OrderedDict
 from pathlib import Path
 from typing import Any, List, TYPE_CHECKING, cast, Set
 from alpha_factory_v1.demos.alpha_agi_insight_v1.src.utils import alerts
 from src.utils.config import init_config
+
+_log = logging.getLogger(__name__)
 
 
 if TYPE_CHECKING:  # pragma: no cover - typing only
@@ -40,7 +43,15 @@ sector = importlib.import_module("alpha_factory_v1.demos.alpha_agi_insight_v1.sr
 mats = importlib.import_module("alpha_factory_v1.demos.alpha_agi_insight_v1.src.simulation.mats")
 
 try:
-    from fastapi import FastAPI, HTTPException, WebSocket, Request, Depends, APIRouter
+    from fastapi import (
+        FastAPI,
+        HTTPException,
+        WebSocket,
+        WebSocketDisconnect,
+        Request,
+        Depends,
+        APIRouter,
+    )
     from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
     from starlette.middleware.base import BaseHTTPMiddleware, RequestResponseEndpoint
     from fastapi.middleware.cors import CORSMiddleware
@@ -49,11 +60,13 @@ try:
     from pydantic import BaseModel
     import uvicorn
     from .problem_json import problem_response
-except Exception:  # pragma: no cover - optional
+except ModuleNotFoundError as exc:  # pragma: no cover - optional
+    _log.warning("FastAPI components unavailable: %s", exc)
     FastAPI = None  # type: ignore
     HTTPException = None  # type: ignore
     BaseModel = object  # type: ignore
     WebSocket = Any  # type: ignore
+    WebSocketDisconnect = Any  # type: ignore
     uvicorn = None  # type: ignore
 
 try:
@@ -233,7 +246,8 @@ def _load_results() -> None:
         try:
             data = json.loads(f.read_text())
             res = ResultsResponse(**data)
-        except Exception:
+        except (json.JSONDecodeError, ValueError) as exc:
+            _log.warning("Skipping corrupt results file %s: %s", f, exc)
             continue
         mtime = f.stat().st_mtime
         entries.append((mtime, res))
@@ -378,7 +392,8 @@ async def _background_run(sim_id: str, cfg: SimRequest) -> None:
         for ws in list(_progress_ws):
             try:
                 await ws.send_json({"id": sim_id, "year": year, "capability": cap})
-            except Exception:
+            except (RuntimeError, WebSocketDisconnect) as exc:
+                _log.debug("Dropping progress WebSocket %s: %s", ws, exc)
                 _progress_ws.discard(ws)
         await asyncio.sleep(0)
 
@@ -526,8 +541,8 @@ if app is not None:
         try:
             while True:
                 await websocket.receive_text()
-        except Exception:
-            pass
+        except (WebSocketDisconnect, RuntimeError) as exc:
+            _log.debug("Progress WebSocket closed: %s", exc)
         finally:
             _progress_ws.discard(websocket)
 
