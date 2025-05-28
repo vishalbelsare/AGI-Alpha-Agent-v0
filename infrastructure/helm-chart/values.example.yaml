@@ -1,0 +1,14 @@
+# Example overrides for Alpha Factory demo
+image: ghcr.io/example/alpha-demo:latest
+replicaCount: 2
+env:
+  OPENAI_API_KEY: "sk-REPLACE-ME"
+  RUN_MODE: web
+  AGI_INSIGHT_BUS_PORT: "7000"
+  AGI_INSIGHT_OFFLINE: "0"
+  AGI_INSIGHT_LEDGER_PATH: "/data/ledger/audit.db"
+service:
+  type: NodePort
+  port: 8080
+  uiPort: 8585
+  busPort: 7000
