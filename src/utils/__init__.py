@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 """Shared utilities and configuration."""
 
 from .config import CFG, get_secret
