@@ -162,6 +162,9 @@ def test_problem_json_subprocess() -> None:
         _wait_running(url, headers)
         r = httpx.get(f"{url}/results/missing", headers=headers)
         assert r.status_code == 404
+        assert r.headers.get("content-type", "").startswith(
+            "application/problem+json"
+        )
         data = r.json()
         assert data.get("type") == "about:blank"
         assert data.get("status") == 404
