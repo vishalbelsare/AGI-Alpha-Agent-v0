@@ -155,7 +155,7 @@ except Exception as exc:  # pragma: no cover
 # ╰──────────────────────────────────────────────────────────────────────╯
 def _has_llama_cpp() -> bool:
     """Detect if a llama-cpp based local model is configured."""
-    return bool(os.getenv("LLAMA_CPP_MODEL") or os.getenv("LLAMA_MODEL_PATH"))
+    return bool(os.getenv("LLAMA_MODEL_PATH"))
 
 
 def _auto_select_model() -> str:
@@ -188,10 +188,7 @@ def _auto_select_model() -> str:
 
 def _allow_local_code() -> bool:
     """Check both new and legacy opts for enabling local PythonTool."""
-    return (
-        os.getenv(ALLOW_LOCAL_CODE_ENV)
-        or os.getenv(LEGACY_ALLOW_LOCAL_CODE_ENV)
-    ) == "1"
+    return (os.getenv(ALLOW_LOCAL_CODE_ENV) or os.getenv(LEGACY_ALLOW_LOCAL_CODE_ENV)) == "1"
 
 
 # ╭──────────────────────────────────────────────────────────────────────╮
