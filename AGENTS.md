@@ -167,6 +167,7 @@ template). The sample file now lists every variable with its default value.
 | `LOGLEVEL` | Logging level | `INFO` |
 | `API_TOKEN` | Bearer token for the demo API | `REPLACE_ME_TOKEN` |
 | `API_RATE_LIMIT` | Requests per minute per IP | `60` |
+| `API_CORS_ORIGINS` | Comma-separated CORS origins for the API | `*` |
 | `ALPHA_KAFKA_BROKER` | Kafka broker address | _(none)_ |
 | `ALPHA_DATA_DIR` | Base data directory | `/data` |
 | `OTEL_EXPORTER_OTLP_ENDPOINT` | OTLP export endpoint | `http://tempo:4317` |
