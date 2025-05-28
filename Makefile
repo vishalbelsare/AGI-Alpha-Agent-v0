@@ -29,6 +29,7 @@ print(f"p95 latency: {data['metrics']['http_req_duration']['p(95)']} ms")
 PY
 
 proto:
-python -m grpc_tools.protoc -I src/utils --python_out=src/utils src/utils/a2a.proto
+    python -m grpc_tools.protoc -I src/utils --python_out=src/utils \
+        --python_betterproto_out=src/utils src/utils/a2a.proto
 
 
