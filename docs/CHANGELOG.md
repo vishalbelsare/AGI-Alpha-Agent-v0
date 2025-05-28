@@ -18,6 +18,8 @@ All notable changes to this project are documented in this file.
 - Baseline load test metrics: p95 latency below 180 ms with 20 VUs.
 - Prometheus metrics available at `/metrics`.
 - `GraphMemory._fallback_query` now returns stub data when both Neo4j and NetworkX are missing.
+- Property-based tests verify `SafetyGuardianAgent` blocks malicious code.
+- Added optional e2e test broadcasting Merkle roots to the Solana devnet.
 
 ## [v1.0] - 2025-07-01
 - CLI commands `simulate`, `show-results`, `agents-status` and `replay` for running and inspecting forecasts.
