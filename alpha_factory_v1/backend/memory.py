@@ -14,7 +14,16 @@ import os
 import tempfile
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any
+from typing import Any, TypedDict
+
+
+class EventRecord(TypedDict):
+    """JSON-serializable memory record."""
+
+    ts: str
+    agent: str
+    kind: str
+    data: Any
 
 _log = logging.getLogger("alpha_factory.memory")
 if not _log.handlers:
@@ -55,12 +64,12 @@ class Memory:
         with self.file.open("a", encoding="utf‑8") as fh:
             fh.write(json.dumps(record, ensure_ascii=False) + "\n")
 
-    def read(self, limit: int = 100) -> list[dict[str, Any]]:
+    def read(self, limit: int = 100) -> list[EventRecord]:
         """Return *limit* most‑recent records (newest‑last)."""
         with self.file.open(encoding="utf-8") as fh:
             lines = fh.readlines()[-limit:]
 
-        records: list[dict[str, Any]] = []
+        records: list[EventRecord] = []
         for line in lines:
             try:
                 records.append(json.loads(line))
@@ -69,7 +78,7 @@ class Memory:
         return records
 
     # ------------------------------------------------------------------
-    def query(self, limit: int = 100) -> list[dict[str, Any]]:
+    def query(self, limit: int = 100) -> list[EventRecord]:
         """Alias of :meth:`read` for backward compatibility."""
         return self.read(limit)
 
