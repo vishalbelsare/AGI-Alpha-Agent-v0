@@ -157,7 +157,7 @@ class GraphMemory:
     ) -> None:
         uri = uri or os.getenv("NEO4J_URI")
         user = user or os.getenv("NEO4J_USER")
-        password = password or os.getenv("NEO4J_PASS")
+        password = password or os.getenv("NEO4J_PASSWORD") or os.getenv("NEO4J_PASS")
         self._db = database or os.getenv("NEO4J_DATABASE", "neo4j")
 
         self._driver = None
