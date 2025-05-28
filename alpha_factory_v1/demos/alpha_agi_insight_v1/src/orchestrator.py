@@ -25,6 +25,7 @@ from .agents import (
     memory_agent,
 )
 from .utils import config, messaging, logging as insight_logging
+from .utils.tracing import agent_cycle_seconds
 from .utils import alerts
 from .utils.logging import Ledger
 from .agents.base_agent import BaseAgent
@@ -48,6 +49,7 @@ class AgentRunner:
 
     async def loop(self, bus: messaging.A2ABus, ledger: Ledger) -> None:
         while True:
+            start = time.perf_counter()
             try:
                 await self.agent.run_cycle()
             except Exception as exc:  # noqa: BLE001
@@ -65,6 +67,10 @@ class AgentRunner:
                 ledger.log(env)
                 bus.publish("orch", env)
                 self.last_beat = env.ts
+            finally:
+                agent_cycle_seconds.labels(self.agent.name).observe(
+                    time.perf_counter() - start
+                )
             await asyncio.sleep(self.period)
 
     def start(self, bus: messaging.A2ABus, ledger: Ledger) -> None:

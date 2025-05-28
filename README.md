@@ -874,6 +874,8 @@ See [docs/deployment_security.md](docs/deployment_security.md) for TLS setup, AP
 | Traces | OpenTelemetry | `trace_id` |
 | Dashboards | Grafana | `alpha-factory/trade-lifecycle.json` |
 
+Prometheus scrapes metrics from the API server at `/metrics`.
+
 By default traces and metrics print to ``stdout``. To export to a collector such
 as **Jaeger**, set ``OTEL_EXPORTER_OTLP_ENDPOINT`` and start Jaeger locally:
 

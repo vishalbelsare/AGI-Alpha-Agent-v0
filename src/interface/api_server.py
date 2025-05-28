@@ -58,6 +58,9 @@ try:
         Histogram,
         generate_latest,
     )
+    from alpha_factory_v1.demos.alpha_agi_insight_v1.src.utils.tracing import (
+        api_request_seconds,
+    )
 except ModuleNotFoundError:  # pragma: no cover - optional
     prometheus_client = None  # type: ignore
 
@@ -93,10 +96,10 @@ if app is not None:
             return cls(name, desc, labels)
 
         REQ_COUNT = _get_metric(Counter, "api_requests_total", "HTTP requests", ["method", "endpoint", "status"])
-        REQ_LAT = _get_metric(Histogram, "api_request_duration_seconds", "Request latency", ["method", "endpoint"])
+        REQ_LAT = api_request_seconds
     else:  # pragma: no cover - prometheus not installed
         REQ_COUNT = _noop()
-        REQ_LAT = _noop()
+        REQ_LAT = api_request_seconds
 
     metrics_router = APIRouter()
 
