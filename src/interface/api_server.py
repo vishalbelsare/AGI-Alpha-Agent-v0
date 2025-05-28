@@ -40,10 +40,11 @@ try:
     from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
     from starlette.middleware.base import BaseHTTPMiddleware, RequestResponseEndpoint
     from fastapi.middleware.cors import CORSMiddleware
-    from starlette.responses import Response, PlainTextResponse
+    from starlette.responses import Response, PlainTextResponse, JSONResponse
     from fastapi.staticfiles import StaticFiles
     from pydantic import BaseModel
     import uvicorn
+    from .problem_json import problem_response
 except Exception:  # pragma: no cover - optional
     FastAPI = None  # type: ignore
     HTTPException = None  # type: ignore
@@ -367,7 +368,7 @@ async def _background_run(sim_id: str, cfg: SimRequest) -> None:
 if app is not None:
 
     @app.post("/simulate", response_model=SimStartResponse)
-    async def simulate(req: SimRequest, _: None = Depends(verify_token)) -> SimStartResponse:
+    async def simulate(req: SimRequest, _: None = Depends(verify_token)) -> SimStartResponse | JSONResponse:
         """Start a simulation and return its identifier."""
 
         start = time.perf_counter()
@@ -378,13 +379,13 @@ if app is not None:
             return SimStartResponse(id=sim_id)
         except HTTPException as exc:
             status = str(exc.status_code)
-            raise
+            return problem_response(exc)
         finally:
             REQ_COUNT.labels("POST", "/simulate", status).inc()
             REQ_LAT.labels("POST", "/simulate").observe(time.perf_counter() - start)
 
     @app.get("/results/{sim_id}", response_model=ResultsResponse)
-    async def get_results(sim_id: str, _: None = Depends(verify_token)) -> ResultsResponse:
+    async def get_results(sim_id: str, _: None = Depends(verify_token)) -> ResultsResponse | JSONResponse:
         """Return final forecast data for ``sim_id`` if available."""
 
         start = time.perf_counter()
@@ -397,13 +398,13 @@ if app is not None:
             return result
         except HTTPException as exc:
             status = str(exc.status_code)
-            raise
+            return problem_response(exc)
         finally:
             REQ_COUNT.labels("GET", "/results/{sim_id}", status).inc()
             REQ_LAT.labels("GET", "/results/{sim_id}").observe(time.perf_counter() - start)
 
     @app.get("/results", response_model=ResultsResponse)
-    async def get_latest(_: None = Depends(verify_token)) -> ResultsResponse:
+    async def get_latest(_: None = Depends(verify_token)) -> ResultsResponse | JSONResponse:
         """Return the most recently completed simulation."""
 
         start = time.perf_counter()
@@ -419,13 +420,13 @@ if app is not None:
             return result
         except HTTPException as exc:
             status = str(exc.status_code)
-            raise
+            return problem_response(exc)
         finally:
             REQ_COUNT.labels("GET", "/results", status).inc()
             REQ_LAT.labels("GET", "/results").observe(time.perf_counter() - start)
 
     @app.get("/population/{sim_id}", response_model=PopulationResponse)
-    async def get_population(sim_id: str, _: None = Depends(verify_token)) -> PopulationResponse:
+    async def get_population(sim_id: str, _: None = Depends(verify_token)) -> PopulationResponse | JSONResponse:
         """Return the final population for ``sim_id`` if available."""
 
         start = time.perf_counter()
@@ -438,7 +439,7 @@ if app is not None:
             return PopulationResponse(id=sim_id, population=result.population or [])
         except HTTPException as exc:
             status = str(exc.status_code)
-            raise
+            return problem_response(exc)
         finally:
             REQ_COUNT.labels("GET", "/population/{sim_id}", status).inc()
             REQ_LAT.labels("GET", "/population/{sim_id}").observe(time.perf_counter() - start)
@@ -449,20 +450,23 @@ if app is not None:
         return RunsResponse(ids=list(_simulations.keys()))
 
     @app.post("/insight", response_model=InsightResponse)
-    async def insight(req: InsightRequest, _: None = Depends(verify_token)) -> InsightResponse:
+    async def insight(req: InsightRequest, _: None = Depends(verify_token)) -> InsightResponse | JSONResponse:
         """Return aggregated forecast data across runs."""
 
-        ids = req.ids or list(_simulations.keys())
-        forecasts = [_simulations[i].forecast for i in ids if i in _simulations]
-        if not forecasts:
-            raise HTTPException(status_code=404)
+        try:
+            ids = req.ids or list(_simulations.keys())
+            forecasts = [_simulations[i].forecast for i in ids if i in _simulations]
+            if not forecasts:
+                raise HTTPException(status_code=404)
 
-        year_map: dict[int, list[float]] = {}
-        for fc in forecasts:
-            for point in fc:
-                year_map.setdefault(point.year, []).append(point.capability)
-        agg = [InsightPoint(year=year, capability=sum(vals) / len(vals)) for year, vals in sorted(year_map.items())]
-        return InsightResponse(forecast=agg)
+            year_map: dict[int, list[float]] = {}
+            for fc in forecasts:
+                for point in fc:
+                    year_map.setdefault(point.year, []).append(point.capability)
+            agg = [InsightPoint(year=year, capability=sum(vals) / len(vals)) for year, vals in sorted(year_map.items())]
+            return InsightResponse(forecast=agg)
+        except HTTPException as exc:
+            return problem_response(exc)
 
     @app.websocket("/ws/progress")
     async def ws_progress(websocket: WebSocket) -> None:

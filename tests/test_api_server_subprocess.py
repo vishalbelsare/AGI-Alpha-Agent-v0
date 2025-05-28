@@ -151,3 +151,21 @@ def test_results_requires_auth_cors() -> None:
     finally:
         proc.terminate()
         proc.wait(timeout=5)
+
+
+def test_problem_json_subprocess() -> None:
+    port = _free_port()
+    proc = _start_server(port)
+    url = f"http://127.0.0.1:{port}"
+    headers = {"Authorization": "Bearer test-token"}
+    try:
+        _wait_running(url, headers)
+        r = httpx.get(f"{url}/results/missing", headers=headers)
+        assert r.status_code == 404
+        data = r.json()
+        assert data.get("type") == "about:blank"
+        assert data.get("status") == 404
+        assert "title" in data
+    finally:
+        proc.terminate()
+        proc.wait(timeout=5)
