@@ -56,6 +56,22 @@ with contextlib.suppress(ModuleNotFoundError):
 with contextlib.suppress(ModuleNotFoundError):
     import adk  # type: ignore
 with contextlib.suppress(ModuleNotFoundError):
+    from aiohttp import ClientError as AiohttpClientError  # type: ignore
+with contextlib.suppress(Exception):  # pragma: no cover - optional ADK
+    from adk import ClientError as AdkClientError  # type: ignore[attr-defined]
+if "AiohttpClientError" not in globals():
+
+    class AiohttpClientError(Exception):
+        pass
+
+
+if "AdkClientError" not in globals():
+
+    class AdkClientError(Exception):
+        pass
+
+
+with contextlib.suppress(ModuleNotFoundError):
     from openai.agents import tool  # type: ignore
 if "tool" not in globals():  # offline stub
 
@@ -412,9 +428,12 @@ class FinanceAgent(AgentBase):
     def _safe_price(self, sym: str) -> float:
         try:
             return self.broker.price(sym)
-        except Exception as exc:  # noqa: BLE001
+        except (AiohttpClientError, asyncio.TimeoutError, OSError) as exc:
             _log.error("Price fetch failed (%s); fallback last-known.", exc)
             return self.history[sym][-1] if self.history[sym] else 100.0
+        except Exception as exc:  # pragma: no cover - unexpected
+            _log.exception("Unexpected price fetch error: %s", exc)
+            raise
 
     def _publish_state(self, prices: Dict[str, float], risk: Dict[str, float]):
         cash_equiv = self.cfg.start_balance - sum(
@@ -437,8 +456,11 @@ class FinanceAgent(AgentBase):
             client = adk.Client()
             await client.register(node_type="finance", metadata={"universe": ",".join(self.cfg.universe)})
             _log.info("Registered in ADK mesh id=%s", client.node_id)
-        except Exception as exc:  # noqa: BLE001
+        except (AdkClientError, AiohttpClientError, asyncio.TimeoutError, OSError) as exc:
             _log.warning("ADK mesh registration failed: %s", exc)
+        except Exception as exc:  # pragma: no cover - unexpected
+            _log.exception("Unexpected ADK registration error: %s", exc)
+            raise
 
 
 # ═════════════════════ registry hook ═══════════════════════════

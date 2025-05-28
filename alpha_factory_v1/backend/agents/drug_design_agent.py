@@ -97,6 +97,17 @@ try:
     import adk  # type: ignore
 except ModuleNotFoundError:  # pragma: no cover
     adk = None  # type: ignore
+try:
+    from aiohttp import ClientError as AiohttpClientError  # type: ignore
+except Exception:  # pragma: no cover - optional
+    AiohttpClientError = OSError  # type: ignore
+try:
+    from adk import ClientError as AdkClientError  # type: ignore[attr-defined]
+except Exception:  # pragma: no cover - optional
+
+    class AdkClientError(Exception):
+        pass
+
 
 try:
     import selfies as sf  # type: ignore
@@ -116,6 +127,7 @@ logger = logging.getLogger(__name__)
 # ---------------------------------------------------------------------------
 # Environment & governance helpers -----------------------------------------
 # ---------------------------------------------------------------------------
+
 
 def _env_float(var: str, default: float) -> float:
     try:
@@ -483,8 +495,11 @@ class DrugDesignAgent(AgentBase):
             client = adk.Client()
             await client.register(node_type=self.NAME)
             logger.info("[DD] registered mesh id=%s", client.node_id)
-        except Exception as exc:  # noqa: BLE001
+        except (AdkClientError, AiohttpClientError, asyncio.TimeoutError, OSError) as exc:
             logger.warning("ADK register failed: %s", exc)
+        except Exception as exc:  # pragma: no cover - unexpected
+            logger.exception("Unexpected ADK registration error: %s", exc)
+            raise
 
 
 # ---------------------------------------------------------------------------

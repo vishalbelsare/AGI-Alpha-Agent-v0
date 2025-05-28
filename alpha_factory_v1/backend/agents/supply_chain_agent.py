@@ -96,6 +96,17 @@ try:
     import adk  # Google Agent Development Kit
 except ModuleNotFoundError:  # pragma: no cover
     adk = None  # type: ignore
+try:
+    from aiohttp import ClientError as AiohttpClientError  # type: ignore
+except Exception:  # pragma: no cover - optional
+    AiohttpClientError = OSError  # type: ignore
+try:
+    from adk import ClientError as AdkClientError  # type: ignore[attr-defined]
+except Exception:  # pragma: no cover - optional
+
+    class AdkClientError(Exception):
+        pass
+
 
 # ---------------------------------------------------------------------------
 # Alpha‑Factory local imports (lightweight, no heavy deps)
@@ -305,8 +316,11 @@ class SupplyChainAgent(AgentBase):  # noqa: D101
             client = adk.Client()
             await client.register(node_type=self.NAME)
             logger.info("[SC] registered with ADK mesh as %s", client.node_id)
-        except Exception as exc:  # noqa: BLE001
+        except (AdkClientError, AiohttpClientError, asyncio.TimeoutError, OSError) as exc:
             logger.warning("ADK registration failed: %s", exc)
+        except Exception as exc:  # pragma: no cover - unexpected
+            logger.exception("Unexpected ADK registration error: %s", exc)
+            raise
 
 
 # ---------------------------------------------------------------------------

@@ -84,6 +84,17 @@ try:
     import adk  # type: ignore
 except ModuleNotFoundError:  # pragma: no cover
     adk = None  # type: ignore
+try:
+    from aiohttp import ClientError as AiohttpClientError  # type: ignore
+except Exception:  # pragma: no cover - optional
+    AiohttpClientError = OSError  # type: ignore
+try:
+    from adk import ClientError as AdkClientError  # type: ignore[attr-defined]
+except Exception:  # pragma: no cover - optional
+
+    class AdkClientError(Exception):
+        pass
+
 
 # ---------------------------------------------------------------------------
 # Alpha‑Factory lightweight core imports  ------------------------------------
@@ -98,6 +109,7 @@ logger = logging.getLogger(__name__)
 # ---------------------------------------------------------------------------
 # Configuration dataclass  ---------------------------------------------------
 # ---------------------------------------------------------------------------
+
 
 def _env_bool(name: str) -> bool:
     return os.getenv(name, "").lower() in {"1", "true", "yes"}
@@ -352,8 +364,11 @@ class RetailDemandAgent(AgentBase):
             client = adk.Client()
             await client.register(node_type=self.NAME, metadata={"runtime": "alpha_factory"})
             logger.info("[RD] registered in ADK mesh id=%s", client.node_id)
-        except Exception as exc:  # noqa: BLE001
+        except (AdkClientError, AiohttpClientError, asyncio.TimeoutError, OSError) as exc:
             logger.warning("ADK registration failed: %s", exc)
+        except Exception as exc:  # pragma: no cover - unexpected
+            logger.exception("Unexpected ADK registration error: %s", exc)
+            raise
 
 
 # ---------------------------------------------------------------------------
