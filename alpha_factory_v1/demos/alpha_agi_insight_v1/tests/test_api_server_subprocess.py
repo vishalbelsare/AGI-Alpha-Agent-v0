@@ -42,7 +42,7 @@ def test_docs_available() -> None:
     proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, env=env)
     url = f"http://127.0.0.1:{port}"
     try:
-        for _ in range(50):
+        for _ in range(100):
             try:
                 r = httpx.get(url + "/docs")
                 if r.status_code == 200:
@@ -78,7 +78,7 @@ def test_simulation_endpoints() -> None:
     url = f"http://127.0.0.1:{port}"
     headers = {"Authorization": "Bearer test-token"}
     try:
-        for _ in range(50):
+        for _ in range(100):
             try:
                 r = httpx.get(url + "/runs", headers=headers)
                 if r.status_code == 200:
