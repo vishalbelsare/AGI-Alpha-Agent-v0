@@ -23,10 +23,8 @@ class Sector:
     disrupted: bool = False
 
 
-def load_sectors(
-    path: str | os.PathLike[str], *, energy: float = 1.0, entropy: float = 1.0
-) -> list[Sector]:
-"""Load sector definitions from a JSON file.
+def load_sectors(path: str | os.PathLike[str], *, energy: float = 1.0, entropy: float = 1.0) -> list[Sector]:
+    """Load sector definitions from a JSON file.
 
     The file may contain a list of strings representing sector names or a list
     of objects with ``name`` and optional ``energy``, ``entropy`` and ``growth``

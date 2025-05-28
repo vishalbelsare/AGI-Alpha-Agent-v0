@@ -17,6 +17,7 @@ All notable changes to this project are documented in this file.
 - Aggregated forecast endpoint `/insight` and OpenAPI schema exposure.
 - Baseline load test metrics: p95 latency below 180 ms with 20 VUs.
 - Prometheus metrics available at `/metrics`.
+- Lightweight `/status` endpoint listing agent names, heartbeats and restarts.
 - `GraphMemory._fallback_query` now returns stub data when both Neo4j and NetworkX are missing.
 - Property-based tests verify `SafetyGuardianAgent` blocks malicious code.
 - Added optional e2e test broadcasting Merkle roots to the Solana devnet.

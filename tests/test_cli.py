@@ -7,32 +7,38 @@ from alpha_factory_v1.demos.alpha_agi_insight_v1.src.interface import cli
 
 
 def test_agents_status_lists_names() -> None:
-    with patch.object(cli.orchestrator, "Orchestrator") as orch_cls:
-        orch = orch_cls.return_value
-        runner = type(
-            "Runner",
-            (),
-            {"agent": type("Agent", (), {"name": "AgentX"})()},
-        )()
-        orch.runners = {"AgentX": runner}
+    class Dummy:
+        status_code = 200
+
+        def __init__(self, data: dict) -> None:
+            self._data = data
+
+        def json(self) -> dict:
+            return self._data
+
+    payload = {"agents": [{"name": "AgentX", "last_beat": 1.0, "restarts": 0}]}
+    with patch.object(cli.requests, "get", return_value=Dummy(payload)):
         result = CliRunner().invoke(cli.main, ["agents-status"])
-        assert "AgentX" in result.output
-        assert "restarts" in result.output
+    assert "AgentX" in result.output
+    assert "restarts" in result.output
 
 
 def test_agents_status_watch_stops_on_interrupt() -> None:
-    with patch.object(cli.orchestrator, "Orchestrator") as orch_cls:
-        orch = orch_cls.return_value
-        runner = type(
-            "Runner",
-            (),
-            {"agent": type("Agent", (), {"name": "AgentY"})()},
-        )()
-        orch.runners = {"AgentY": runner}
+    class Dummy:
+        status_code = 200
+
+        def __init__(self, data: dict) -> None:
+            self._data = data
+
+        def json(self) -> dict:
+            return self._data
+
+    payload = {"agents": [{"name": "AgentY", "last_beat": 1.0, "restarts": 0}]}
+    with patch.object(cli.requests, "get", return_value=Dummy(payload)):
         with patch.object(cli.time, "sleep", side_effect=KeyboardInterrupt):
             result = CliRunner().invoke(cli.main, ["agents-status", "--watch"])
-        assert "AgentY" in result.output
-        assert "last_beat" in result.output
+    assert "AgentY" in result.output
+    assert "last_beat" in result.output
 
 
 def test_show_results_missing(tmp_path) -> None:

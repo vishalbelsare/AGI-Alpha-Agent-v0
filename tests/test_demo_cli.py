@@ -13,6 +13,7 @@ from click.testing import CliRunner
 _STUB = "alpha_factory_v1.demos.alpha_agi_insight_v1.src.utils.a2a_pb2"
 if _STUB not in sys.modules:  # pragma: no cover - optional proto
     stub = types.ModuleType("a2a_pb2")
+
     @dataclass
     class Envelope:
         sender: str
@@ -25,6 +26,10 @@ if _STUB not in sys.modules:  # pragma: no cover - optional proto
 
 from alpha_factory_v1.demos.alpha_agi_insight_v1.src.interface import cli  # noqa: E402
 from alpha_factory_v1.demos.alpha_agi_insight_v1.src.utils import logging, messaging  # noqa: E402
+
+if _STUB in sys.modules:
+    logging.Envelope = sys.modules[_STUB].Envelope  # type: ignore[attr-defined]
+    messaging.Envelope = sys.modules[_STUB].Envelope  # type: ignore[attr-defined]
 
 
 def test_simulate_without_flag_does_not_start() -> None:
@@ -82,13 +87,27 @@ def test_show_results_table(tmp_path) -> None:
 
 
 def test_agents_status_lists_all_agents(tmp_path) -> None:
-    path = tmp_path / "audit.db"
-    with patch.object(cli.config.CFG, "ledger_path", str(path)):
-        orch = cli.orchestrator.Orchestrator()
-        with patch.object(cli.orchestrator, "Orchestrator", return_value=orch):
-            result = CliRunner().invoke(cli.main, ["agents-status"])
-    for name in orch.runners.keys():
-        assert name in result.output
+    class Dummy:
+        status_code = 200
+
+        def __init__(self, data: dict) -> None:
+            self._data = data
+
+        def json(self) -> dict:
+            return self._data
+
+    payload = {
+        "agents": [
+            {"name": "AgentA", "last_beat": 1.0, "restarts": 0},
+            {"name": "AgentB", "last_beat": 2.0, "restarts": 1},
+        ]
+    }
+
+    with patch.object(cli.requests, "get", return_value=Dummy(payload)) as get:
+        result = CliRunner().invoke(cli.main, ["agents-status"])
+
+    get.assert_called_once()
+    assert "AgentA" in result.output and "AgentB" in result.output
     assert "last_beat" in result.output
 
 
@@ -146,8 +165,8 @@ def test_replay_outputs_events(tmp_path: Path) -> None:
             res = CliRunner().invoke(cli.main, ["replay"])
 
     lines = [ln.strip() for ln in res.output.splitlines() if ln.strip()]
-    assert "0.00 a -> b {\"x\": 1}" in lines[0]
-    assert "1.00 b -> c {\"y\": 2}" in lines[1]
+    assert '0.00 a -> b {"x": 1}' in lines[0]
+    assert '1.00 b -> c {"y": 2}' in lines[1]
 
 
 def test_replay_since_and_count(tmp_path: Path) -> None:

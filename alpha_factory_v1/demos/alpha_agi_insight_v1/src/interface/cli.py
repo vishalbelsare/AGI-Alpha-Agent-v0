@@ -19,6 +19,7 @@ from pathlib import Path
 from typing import Any, Iterable, List
 
 import click
+import af_requests as requests
 
 try:
     from rich.console import Console
@@ -311,14 +312,24 @@ def agents_status(watch: bool) -> None:
     Returns:
         None
     """
-    orch = orchestrator.Orchestrator()
+
+    base = os.getenv("BUSINESS_HOST", "http://localhost:8000").rstrip("/")
+    token = os.getenv("API_TOKEN", "")
+
+    def _fetch() -> list[dict[str, object]]:
+        resp = requests.get(
+            f"{base}/status",
+            headers={"Authorization": f"Bearer {token}"} if token else {},
+            timeout=5,
+        )
+        if resp.status_code != 200:
+            raise click.ClickException(f"HTTP {resp.status_code}")
+        data = resp.json()
+        return data.get("agents", [])
 
     def render() -> None:
-        data = [
-            (r.agent.name, f"{r.last_beat:.0f}", r.restarts)
-            for r in orch.runners.values()
-        ]
-        _rich_table(["agent", "last_beat", "restarts"], data)
+        rows = [(a.get("name"), f"{a.get('last_beat', 0):.0f}", a.get("restarts", 0)) for a in _fetch()]
+        _rich_table(["agent", "last_beat", "restarts"], rows)
 
     try:
         while True:
