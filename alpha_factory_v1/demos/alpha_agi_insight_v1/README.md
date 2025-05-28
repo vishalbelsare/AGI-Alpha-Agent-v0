@@ -435,6 +435,7 @@ The directory is created with permissions `0700` when missing.
 | **Cloud Run** | `terraform apply -chdir=infrastructure/terraform` | GCP example |
 
 All containers are x86-64/arm64 multi-arch and GPU-aware (CUDA 12).
+`infrastructure/helm-chart/values.example.yaml` shows typical overrides such as API tokens, service ports and replica counts.
 
 ---
 

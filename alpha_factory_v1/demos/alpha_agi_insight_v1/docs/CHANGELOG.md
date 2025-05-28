@@ -4,7 +4,7 @@ All notable changes to the α‑AGI Insight demo are documented in this file.
 
 ## [Unreleased]
 ### Added
-- _Nothing yet_
+- Example Helm values file `infrastructure/helm-chart/values.example.yaml`.
 
 <!-- Template for future entries
 ## [VERSION] - YYYY-MM-DD
