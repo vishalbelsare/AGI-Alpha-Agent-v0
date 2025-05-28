@@ -836,6 +836,8 @@ helm upgrade --install alpha-demo ./infrastructure/helm-chart \
 # → browse to <http://localhost:8080>
 ```
 
+`values.example.yaml` demonstrates typical overrides such as API tokens, service ports and replica counts.
+
 Terraform scripts in `infrastructure/terraform` provide GCP and AWS
 examples. Update the placeholder image and networking variables,
 then initialise and apply:
