@@ -17,6 +17,7 @@ def test_agents_status_lists_names() -> None:
         orch.runners = {"AgentX": runner}
         result = CliRunner().invoke(cli.main, ["agents-status"])
         assert "AgentX" in result.output
+        assert "restarts" in result.output
 
 
 def test_agents_status_watch_stops_on_interrupt() -> None:
@@ -31,6 +32,7 @@ def test_agents_status_watch_stops_on_interrupt() -> None:
         with patch.object(cli.time, "sleep", side_effect=KeyboardInterrupt):
             result = CliRunner().invoke(cli.main, ["agents-status", "--watch"])
         assert "AgentY" in result.output
+        assert "last_beat" in result.output
 
 
 def test_show_results_missing(tmp_path) -> None:

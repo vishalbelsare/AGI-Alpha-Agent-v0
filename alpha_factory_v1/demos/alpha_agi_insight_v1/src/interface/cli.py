@@ -308,8 +308,11 @@ def agents_status(watch: bool) -> None:
     orch = orchestrator.Orchestrator()
 
     def render() -> None:
-        data = [(r.agent.name,) for r in orch.runners.values()]
-        _rich_table(["agent"], data)
+        data = [
+            (r.agent.name, f"{r.last_beat:.0f}", r.restarts)
+            for r in orch.runners.values()
+        ]
+        _rich_table(["agent", "last_beat", "restarts"], data)
 
     try:
         while True:
@@ -371,7 +374,9 @@ def api_server_cmd(host: str, port: int) -> None:
 
 
 @main.command()
-def replay() -> None:
+@click.option("--since", type=float, help="Replay events newer than timestamp")
+@click.option("--count", type=int, help="Number of events to replay")
+def replay(since: float | None, count: int | None) -> None:
     """Replay ledger events with a short delay.
 
     Returns:
@@ -382,7 +387,11 @@ def replay() -> None:
         click.echo("No ledger to replay")
         return
     with logging.Ledger(str(path)) as led:
-        for row in led.tail(1000):
+        limit = count or 1000
+        rows = led.tail(limit)
+        if since is not None:
+            rows = [r for r in rows if r["ts"] >= since]
+        for row in rows:
             msg = f"{row['ts']:.2f} {row['sender']} -> {row['recipient']} {json.dumps(row['payload'])}"
             click.echo(msg)
             time.sleep(0.1)

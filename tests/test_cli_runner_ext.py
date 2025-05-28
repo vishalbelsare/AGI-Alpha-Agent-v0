@@ -100,6 +100,7 @@ def test_agents_status_names() -> None:
         orch.runners = {"AgentZ": runner_obj}
         result = CliRunner().invoke(cli.main, ["agents-status"])
     assert "AgentZ" in result.output
+    assert "restarts" in result.output
 
 
 def test_replay_outputs_rows(tmp_path) -> None:
