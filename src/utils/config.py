@@ -24,13 +24,6 @@ def _load_dotenv(path: str = ".env") -> None:
 
 
 
-def _env_int(name: str, default: int) -> int:
-    try:
-        return int(os.getenv(name, default))
-    except (TypeError, ValueError):
-        return default
-
-
 def get_secret(name: str, default: Optional[str] = None) -> Optional[str]:
     """Return ``name`` from the configured secret backend or environment.
 
