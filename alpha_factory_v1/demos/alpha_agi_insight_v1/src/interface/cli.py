@@ -325,7 +325,17 @@ def agents_status(watch: bool) -> None:
         if resp.status_code != 200:
             raise click.ClickException(f"HTTP {resp.status_code}")
         data = resp.json()
-        return data.get("agents", [])
+        agents = data.get("agents", {})
+        if isinstance(agents, dict):
+            return [
+                {
+                    "name": name,
+                    "last_beat": info.get("last_beat", 0),
+                    "restarts": info.get("restarts", 0),
+                }
+                for name, info in agents.items()
+            ]
+        return agents
 
     def render() -> None:
         rows = [(a.get("name"), f"{a.get('last_beat', 0):.0f}", a.get("restarts", 0)) for a in _fetch()]

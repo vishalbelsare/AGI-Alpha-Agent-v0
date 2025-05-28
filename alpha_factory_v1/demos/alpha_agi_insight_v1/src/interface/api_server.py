@@ -71,13 +71,9 @@ if app is not None:
 
     @app.on_event("startup")
     async def _start() -> None:
-        orch_mod = importlib.import_module(
-            "alpha_factory_v1.demos.alpha_agi_insight_v1.src.orchestrator"
-        )
+        orch_mod = importlib.import_module("alpha_factory_v1.demos.alpha_agi_insight_v1.src.orchestrator")
         app_f.state.orchestrator = orch_mod.Orchestrator()
-        app_f.state.task = asyncio.create_task(
-            app_f.state.orchestrator.run_forever()
-        )
+        app_f.state.task = asyncio.create_task(app_f.state.orchestrator.run_forever())
         _load_results()
 
     @app.on_event("shutdown")
@@ -245,6 +241,17 @@ if app is not None:
 
         forecast: list[InsightPoint]
 
+    class StatusAgent(BaseModel):
+        """Heartbeat information for a single agent."""
+
+        last_beat: float
+        restarts: int
+
+    class StatusResponse(BaseModel):
+        """Agent heartbeat summary."""
+
+        agents: dict[str, StatusAgent]
+
     async def _background_run(sim_id: str, cfg: SimRequest) -> None:
         secs = [sector.Sector(f"s{i:02d}") for i in range(cfg.pop_size)]
         traj: list[ForecastTrajectoryPoint] = []
@@ -358,6 +365,14 @@ if app is not None:
     async def list_runs(_: None = Depends(verify_token)) -> RunsResponse:
         return RunsResponse(ids=list(_simulations.keys()))
 
+    @app.get("/status", response_model=StatusResponse)
+    async def status(_: None = Depends(verify_token)) -> StatusResponse:
+        orch = getattr(app_f.state, "orchestrator", None)
+        agents: dict[str, StatusAgent] = {}
+        if orch is not None:
+            agents = {name: StatusAgent(last_beat=r.last_beat, restarts=r.restarts) for name, r in orch.runners.items()}
+        return StatusResponse(agents=agents)
+
     @app.post("/insight", response_model=InsightResponse)
     async def insight(req: InsightRequest, _: None = Depends(verify_token)) -> InsightResponse | JSONResponse:
         """Return aggregated forecast data across runs."""
@@ -372,10 +387,7 @@ if app is not None:
             for fc in forecasts:
                 for point in fc:
                     year_map.setdefault(point.year, []).append(point.capability)
-            agg = [
-                InsightPoint(year=year, capability=sum(vals) / len(vals))
-                for year, vals in sorted(year_map.items())
-            ]
+            agg = [InsightPoint(year=year, capability=sum(vals) / len(vals)) for year, vals in sorted(year_map.items())]
             return InsightResponse(forecast=agg)
         except HTTPException as exc:
             return problem_response(exc)
