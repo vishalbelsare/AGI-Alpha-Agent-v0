@@ -42,3 +42,10 @@ class ADKAdapter:
         if not callable(list_fn):
             raise AttributeError("list_remote_packages not available")
         return [pkg.name for pkg in list_fn()]
+
+    def generate_text(self, prompt: str) -> str:
+        """Generate text using ``adk.Client`` if the method exists."""
+        gen_fn = getattr(self._client, "generate", None)
+        if not callable(gen_fn):
+            raise AttributeError("generate not available")
+        return gen_fn(prompt)
