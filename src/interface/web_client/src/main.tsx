@@ -27,6 +27,8 @@ function Dashboard() {
   const [popSize, setPopSize] = useState(6);
   const [generations, setGenerations] = useState(3);
   const [curve, setCurve] = useState('logistic');
+  const [energy, setEnergy] = useState(1);
+  const [entropy, setEntropy] = useState(1);
   const [progress, setProgress] = useState(0);
   const [runId, setRunId] = useState<string | null>(null);
   const [timeline, setTimeline] = useState<ForecastPoint[]>([]);
@@ -104,6 +106,11 @@ function Dashboard() {
         pop_size: Number(popSize),
         generations: Number(generations),
         curve,
+        sectors: Array.from({ length: 6 }, (_, i) => ({
+          name: `s${String(i).padStart(2, '0')}`,
+          energy: Number(energy),
+          entropy: Number(entropy),
+        })),
       }),
     });
     if (!res.ok) return;
@@ -154,6 +161,24 @@ function Dashboard() {
             type="number"
             value={generations}
             onChange={(e) => setGenerations(Number(e.target.value))}
+          />
+        </label>
+        <label>
+          Energy
+          <input
+            type="number"
+            step="any"
+            value={energy}
+            onChange={(e) => setEnergy(Number(e.target.value))}
+          />
+        </label>
+        <label>
+          Entropy
+          <input
+            type="number"
+            step="any"
+            value={entropy}
+            onChange={(e) => setEntropy(Number(e.target.value))}
           />
         </label>
         <label>
