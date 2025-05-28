@@ -92,7 +92,11 @@ with contextlib.suppress(ModuleNotFoundError):
 
 
 # ───────────────────── mandatory local imports ────────────────────────
-from backend.agents import list_agents, get_agent  # auto-disc helpers
+from backend.agents import (
+    list_agents,
+    get_agent,
+    start_background_tasks,
+)  # auto-disc helpers
 from alpha_factory_v1.utils.env import _env_int
 
 # Memory fabric is optional → graceful stub when absent
@@ -472,6 +476,8 @@ async def _main() -> None:
             "Edit .env or your Docker secrets to configure a strong password."
         )
         sys.exit(1)
+
+    start_background_tasks()
 
     # ─── Discover/instantiate agents ─────────────────────────────────
     avail = list_agents()

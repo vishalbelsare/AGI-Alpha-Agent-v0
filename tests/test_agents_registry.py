@@ -195,7 +195,12 @@ class TestHealthQuarantine(unittest.TestCase):
         AGENT_REGISTRY.update(self._registry_backup)
 
     def test_stub_after_errors(self):
-        from alpha_factory_v1.backend.agents import _HEALTH_Q, StubAgent, _ERR_THRESHOLD
+        from alpha_factory_v1.backend.agents import (
+            _HEALTH_Q,
+            StubAgent,
+            _ERR_THRESHOLD,
+            start_background_tasks,
+        )
 
         class FailingAgent(AgentBase):
             NAME = "fail"
@@ -205,6 +210,7 @@ class TestHealthQuarantine(unittest.TestCase):
 
         meta = AgentMetadata(name="fail", cls=FailingAgent, version="0", capabilities=[])  # type: ignore[list-item]
         register_agent(meta)
+        start_background_tasks()
         # Pre-set error count to threshold -1
         object.__setattr__(AGENT_REGISTRY["fail"], "err_count", _ERR_THRESHOLD - 1)
         _HEALTH_Q.put(("fail", 0.0, False))
