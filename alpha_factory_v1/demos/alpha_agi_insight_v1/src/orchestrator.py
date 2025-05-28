@@ -24,6 +24,7 @@ from .agents import (
     codegen_agent,
     safety_agent,
     memory_agent,
+    adk_summariser_agent,
 )
 from .utils import config, messaging, logging as insight_logging
 from .utils.tracing import agent_cycle_seconds
@@ -120,6 +121,7 @@ class Orchestrator:
         agents = [
             planning_agent.PlanningAgent(self.bus, self.ledger),
             research_agent.ResearchAgent(self.bus, self.ledger),
+            adk_summariser_agent.ADKSummariserAgent(self.bus, self.ledger),
             strategy_agent.StrategyAgent(self.bus, self.ledger),
             market_agent.MarketAgent(self.bus, self.ledger),
             codegen_agent.CodeGenAgent(self.bus, self.ledger),

@@ -43,9 +43,11 @@ class ResearchAgent(BaseAgent):
                         self.mcp.heartbeat()
                     with span("mcp.invoke"):
                         try:
-                            await self.mcp.invoke_tool("noop", {})
+                            result = await self.mcp.invoke_tool("noop", {})
                         except Exception:
-                            pass
+                            result = None
+                    if result is not None:
+                        await self.emit("memory", {"noop": result})
                 except Exception:
                     pass
             await self.emit("strategy", {"research": traj[0].capability})
