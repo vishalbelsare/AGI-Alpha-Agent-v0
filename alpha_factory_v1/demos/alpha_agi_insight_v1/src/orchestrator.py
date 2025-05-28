@@ -13,6 +13,7 @@ import asyncio
 import time
 import contextlib
 import os
+import random
 from typing import Callable, Dict, List
 from google.protobuf import struct_pb2
 
@@ -33,6 +34,7 @@ from .utils.logging import Ledger
 from .agents.base_agent import BaseAgent
 
 ERR_THRESHOLD = int(os.getenv("AGENT_ERR_THRESHOLD", "3"))
+BACKOFF_EXP_AFTER = int(os.getenv("AGENT_BACKOFF_EXP_AFTER", "3"))
 
 log = insight_logging.logging.getLogger(__name__)
 
@@ -49,6 +51,7 @@ class AgentRunner:
         self.restarts = 0
         self.task: asyncio.Task[None] | None = None
         self.error_count = 0
+        self.restart_streak = 0
 
     async def loop(self, bus: messaging.A2ABus, ledger: Ledger) -> None:
         while True:
@@ -61,6 +64,7 @@ class AgentRunner:
                 self.error_count += 1
             else:
                 self.error_count = 0
+                self.restart_streak = 0
                 env = messaging.Envelope(
                     sender=self.agent.name,
                     recipient="orch",
@@ -92,6 +96,7 @@ class AgentRunner:
         self.agent = self.cls(bus, ledger)
         self.error_count = 0
         self.restarts += 1
+        self.restart_streak += 1
         self.start(bus, ledger)
 
 
@@ -158,7 +163,9 @@ class Orchestrator:
 
     async def _on_orch(self, env: messaging.Envelope) -> None:
         if env.payload.get("heartbeat") and env.sender in self.runners:
-            self.runners[env.sender].last_beat = env.ts
+            runner = self.runners[env.sender]
+            runner.last_beat = env.ts
+            runner.restart_streak = 0
 
     async def _monitor(self) -> None:
         while True:
@@ -166,14 +173,26 @@ class Orchestrator:
             now = time.time()
             for r in list(self.runners.values()):
                 if r.task and r.task.done():
+                    delay = random.uniform(0.5, 1.5)
+                    if r.restart_streak >= BACKOFF_EXP_AFTER:
+                        delay *= 2 ** (r.restart_streak - BACKOFF_EXP_AFTER + 1)
+                    await asyncio.sleep(delay)
                     await r.restart(self.bus, self.ledger)
                     self._record_restart(r)
                 elif r.error_count >= ERR_THRESHOLD:
                     log.warning("%s exceeded error threshold – restarting", r.agent.name)
+                    delay = random.uniform(0.5, 1.5)
+                    if r.restart_streak >= BACKOFF_EXP_AFTER:
+                        delay *= 2 ** (r.restart_streak - BACKOFF_EXP_AFTER + 1)
+                    await asyncio.sleep(delay)
                     await r.restart(self.bus, self.ledger)
                     self._record_restart(r)
                 elif now - r.last_beat > r.period * 5:
                     log.warning("%s unresponsive – restarting", r.agent.name)
+                    delay = random.uniform(0.5, 1.5)
+                    if r.restart_streak >= BACKOFF_EXP_AFTER:
+                        delay *= 2 ** (r.restart_streak - BACKOFF_EXP_AFTER + 1)
+                    await asyncio.sleep(delay)
                     await r.restart(self.bus, self.ledger)
                     self._record_restart(r)
 
