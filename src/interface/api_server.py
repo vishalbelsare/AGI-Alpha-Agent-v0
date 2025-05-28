@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 """FastAPI server exposing simulation endpoints."""
 
 from __future__ import annotations

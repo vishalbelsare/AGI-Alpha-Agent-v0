@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 """Simple Streamlit interface for forecasting disruptions."""
 
 from __future__ import annotations

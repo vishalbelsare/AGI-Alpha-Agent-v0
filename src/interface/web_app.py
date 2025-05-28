@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 """Interactive Streamlit dashboard for running AGI simulations.
 
 The app mirrors the ``cli.py`` options with widgets for the forecast horizon,

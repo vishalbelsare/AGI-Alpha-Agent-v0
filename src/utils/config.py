@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 """Environment-driven configuration shared across components."""
 
 from __future__ import annotations
