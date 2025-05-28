@@ -102,6 +102,7 @@ def test_grpc_bus_tls_message_exchange(tmp_path: Path) -> None:
             creds = grpc.ssl_channel_credentials(root_certificates=ca)
             async with grpc.aio.secure_channel(f"localhost:{port}", creds) as ch:
                 stub = ch.unary_unary("/bus.Bus/Send")
+                await stub(b"proto_schema=1")
                 payload = {
                     "sender": "a",
                     "recipient": "b",
@@ -123,11 +124,13 @@ def test_grpc_bus_tls_bad_token(tmp_path: Path) -> None:
     port = _free_port()
     cert, key, ca = _make_cert(tmp_path)
     cfg = config.Settings(bus_port=port, bus_cert=cert, bus_key=key, bus_token="tok")
+
     async def run() -> None:
         async with messaging.A2ABus(cfg):
             creds = grpc.ssl_channel_credentials(root_certificates=ca)
             async with grpc.aio.secure_channel(f"localhost:{port}", creds) as ch:
                 stub = ch.unary_unary("/bus.Bus/Send")
+                await stub(b"proto_schema=1")
                 payload = {
                     "sender": "a",
                     "recipient": "b",
@@ -313,16 +316,9 @@ def test_base_agent_no_openai_sdk(monkeypatch) -> None:
         return orig_import(name, globals, locals, fromlist, level)
 
     monkeypatch.setattr(builtins, "__import__", fake_import)
-    if (
-        "alpha_factory_v1.demos.alpha_agi_insight_v1.src.agents.base_agent"
-        in sys.modules
-    ):
-        del sys.modules[
-            "alpha_factory_v1.demos.alpha_agi_insight_v1.src.agents.base_agent"
-        ]
-    base_agent = importlib.import_module(
-        "alpha_factory_v1.demos.alpha_agi_insight_v1.src.agents.base_agent"
-    )
+    if "alpha_factory_v1.demos.alpha_agi_insight_v1.src.agents.base_agent" in sys.modules:
+        del sys.modules["alpha_factory_v1.demos.alpha_agi_insight_v1.src.agents.base_agent"]
+    base_agent = importlib.import_module("alpha_factory_v1.demos.alpha_agi_insight_v1.src.agents.base_agent")
 
     class DummyLedger:
         def log(self, _env) -> None:  # type: ignore[override]

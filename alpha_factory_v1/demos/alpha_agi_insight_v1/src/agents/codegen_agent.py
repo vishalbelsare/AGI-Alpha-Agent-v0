@@ -13,6 +13,7 @@ import os
 import shutil
 import subprocess
 import sys
+from google.protobuf import struct_pb2
 import tempfile
 import time
 
@@ -122,6 +123,12 @@ class CodeGenAgent(BaseAgent):
             os.unlink(code_path)
             os.unlink(helper_path)
 
-        env = messaging.Envelope(self.name, "exec", {"stdout": out, "stderr": err}, time.time())
+        env = messaging.Envelope(
+            sender=self.name,
+            recipient="exec",
+            payload=struct_pb2.Struct(),
+            ts=time.time(),
+        )
+        env.payload.update({"stdout": out, "stderr": err})
         self.ledger.log(env)
         return out, err

@@ -210,3 +210,10 @@ running.
 Prometheus scrapes `/metrics` on the same port as the API. The endpoint exposes
 counters and histograms such as `api_requests_total` and
 `api_request_duration_seconds`.
+
+### Message Bus Protocol
+
+Agents communicate over a lightweight gRPC bus. On connection clients must
+perform a simple handshake by sending the literal string `proto_schema=1` to the
+`/bus.Bus/Send` method. The server replies with the same string. After the
+handshake, JSON encoded envelopes defined by `a2a.proto` may be transmitted.
