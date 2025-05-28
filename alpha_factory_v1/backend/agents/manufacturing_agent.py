@@ -93,20 +93,13 @@ from backend.trace_ws import hub  # pylint: disable=import-error
 from backend.agent_base import AgentBase  # pylint: disable=import-error
 from backend.agents import AgentMetadata, register_agent  # pylint: disable=import-error
 from backend.orchestrator import _publish  # pylint: disable=import-error
+from alpha_factory_v1.utils.env import _env_int
 
 logger = logging.getLogger(__name__)
 
 # ---------------------------------------------------------------------------
 # Helper utilities -----------------------------------------------------------
 # ---------------------------------------------------------------------------
-
-
-def _env_int(key: str, default: int) -> int:
-    try:
-        return int(os.getenv(key, default))
-    except ValueError:
-        return default
-
 
 def _env_float(key: str, default: float) -> float:
     try:

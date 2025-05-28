@@ -21,21 +21,9 @@ import os
 from typing import Callable
 
 from alpha_factory_v1 import run as af_run, __version__
+from alpha_factory_v1.utils.env import _env_int
 
 log = logging.getLogger(__name__)
-
-
-def _env_int(name: str, default: int) -> int:
-    """Return ``int`` environment value or ``default`` if conversion fails."""
-
-    val = os.getenv(name)
-    if val is None:
-        return default
-    try:
-        return int(val)
-    except (TypeError, ValueError):
-        log.warning("Invalid %s=%r, using default %s", name, val, default)
-        return default
 
 
 def _positive_int(name: str) -> Callable[[str], int]:

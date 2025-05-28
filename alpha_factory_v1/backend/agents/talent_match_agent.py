@@ -101,6 +101,7 @@ except ModuleNotFoundError:  # pragma: no cover
 from backend.agent_base import AgentBase  # pylint: disable=import-error
 from backend.agents import AgentMetadata, register_agent
 from backend.orchestrator import _publish
+from alpha_factory_v1.utils.env import _env_int
 
 logger = logging.getLogger(__name__)
 
@@ -111,14 +112,6 @@ logger = logging.getLogger(__name__)
 
 def _now() -> str:
     return datetime.now(timezone.utc).isoformat()
-
-
-def _env_int(name: str, default: int) -> int:
-    try:
-        return int(os.getenv(name, default))
-    except ValueError:
-        return default
-
 
 def _digest(payload: Any) -> str:
     return hashlib.sha256(json.dumps(payload, separators=(",", ":"), sort_keys=True).encode()).hexdigest()

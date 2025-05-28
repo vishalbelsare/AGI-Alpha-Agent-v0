@@ -109,20 +109,13 @@ except ModuleNotFoundError:  # pragma: no cover
 from backend.agent_base import AgentBase  # pylint: disable=import-error
 from backend.agents import AgentMetadata, register_agent  # pylint: disable=import-error
 from backend.orchestrator import _publish  # pylint: disable=import-error
+from alpha_factory_v1.utils.env import _env_int
 
 logger = logging.getLogger(__name__)
 
 # ---------------------------------------------------------------------------
 # Environment & governance helpers -----------------------------------------
 # ---------------------------------------------------------------------------
-
-
-def _env_int(var: str, default: int) -> int:
-    try:
-        return int(os.getenv(var, default))
-    except ValueError:
-        return default
-
 
 def _env_float(var: str, default: float) -> float:
     try:
