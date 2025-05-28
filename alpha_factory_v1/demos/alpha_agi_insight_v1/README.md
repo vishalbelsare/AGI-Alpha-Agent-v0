@@ -280,14 +280,16 @@ python -m alpha_factory_v1.demos.alpha_agi_insight_v1.src.interface.cli simulate
 
 ## 5 Web UI
 
-### 5.1 Streamlit (local demo)
+Streamlit is for demo-mode only—**not recommended for production**.
+Use the **FastAPI + React** stack for production deployments.
+### 5.1 Streamlit (demo mode only)
 
 ```bash
 streamlit run src/interface/web_app.py
 # browse to http://localhost:8501
 ```
 
-### 5.2 FastAPI + React (scalable)
+### 5.2 FastAPI + React (production path)
 
 ```bash
 # backend
