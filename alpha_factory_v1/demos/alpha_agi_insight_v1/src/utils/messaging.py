@@ -11,13 +11,14 @@ from __future__ import annotations
 import asyncio
 import json
 import logging
-from dataclasses import dataclass
+from google.protobuf.json_format import MessageToDict, ParseDict
 from pathlib import Path
 import contextlib
 from typing import Any, Awaitable, Callable, Dict, List, Optional
 
 from .config import Settings
 from .tracing import span, bus_messages_total
+from .a2a_pb2 import Envelope
 
 try:
     import grpc
@@ -33,12 +34,6 @@ except ModuleNotFoundError:  # pragma: no cover - broker optional
 logger = logging.getLogger(__name__)
 
 
-@dataclass(slots=True)
-class Envelope:
-    sender: str
-    recipient: str
-    payload: Dict[str, Any]
-    ts: float
 
 
 class A2ABus:
@@ -76,7 +71,7 @@ class A2ABus:
         with span("bus.publish"):
             bus_messages_total.labels(topic).inc()
             if self._producer:
-                data = json.dumps(env.__dict__).encode()
+                data = json.dumps(MessageToDict(env)).encode()
                 asyncio.create_task(self._producer.send_and_wait(topic, data))
             for h in list(self._subs.get(topic, [])):
                 try:
@@ -101,7 +96,8 @@ class A2ABus:
             if grpc:
                 await context.abort(grpc.StatusCode.PERMISSION_DENIED, "unauthenticated")
             return b"denied"
-        env = Envelope(**data)
+        env = Envelope()
+        ParseDict(data, env)
         self.publish(env.recipient, env)
         return b"ok"
 
