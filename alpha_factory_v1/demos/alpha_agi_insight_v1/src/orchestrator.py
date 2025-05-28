@@ -45,6 +45,7 @@ class AgentRunner:
         self.period = getattr(agent, "CYCLE_SECONDS", 1.0)
         self.capabilities = getattr(agent, "CAPABILITIES", [])
         self.last_beat = time.time()
+        self.restarts = 0
         self.task: asyncio.Task[None] | None = None
         self.error_count = 0
 
@@ -89,6 +90,7 @@ class AgentRunner:
             close()
         self.agent = self.cls(bus, ledger)
         self.error_count = 0
+        self.restarts += 1
         self.start(bus, ledger)
 
 

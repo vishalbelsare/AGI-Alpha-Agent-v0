@@ -89,6 +89,7 @@ def test_agents_status_lists_all_agents(tmp_path) -> None:
             result = CliRunner().invoke(cli.main, ["agents-status"])
     for name in orch.runners.keys():
         assert name in result.output
+    assert "last_beat" in result.output
 
 
 def test_plain_table_handles_no_rows() -> None:
@@ -147,6 +148,21 @@ def test_replay_outputs_events(tmp_path: Path) -> None:
     lines = [ln.strip() for ln in res.output.splitlines() if ln.strip()]
     assert "0.00 a -> b {\"x\": 1}" in lines[0]
     assert "1.00 b -> c {\"y\": 2}" in lines[1]
+
+
+def test_replay_since_and_count(tmp_path: Path) -> None:
+    path = tmp_path / "audit.db"
+    with logging.Ledger(str(path), broadcast=False) as led:
+        led.log(messaging.Envelope("a", "b", {"x": 1}, 0.0))
+        led.log(messaging.Envelope("b", "c", {"y": 2}, 1.0))
+
+    with patch.object(cli.config.CFG, "ledger_path", str(path)):
+        with patch.object(cli.time, "sleep", return_value=None):
+            res = CliRunner().invoke(cli.main, ["replay", "--since", "0.5", "--count", "1"])
+
+    lines = [ln.strip() for ln in res.output.splitlines() if ln.strip()]
+    assert len(lines) == 1
+    assert "b -> c" in lines[0]
 
 
 def test_simulate_sectors_file_json(tmp_path: Path) -> None:
