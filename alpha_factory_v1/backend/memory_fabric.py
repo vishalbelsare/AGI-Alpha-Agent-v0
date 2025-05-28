@@ -26,7 +26,8 @@ Environment variables (factory defaults in brackets)
 ─────────────────────────────────────────────────────
 PGHOST / PGPORT[5432] / PGUSER / PGPASSWORD / PGDATABASE[memdb]
 PGVECTOR_INDEX_IVFFLAT_LISTS[100]  – performance tuning
-NEO4J_URI[bolt://localhost:7687] / NEO4J_USER[neo4j] / NEO4J_PASS[neo4j]
+NEO4J_URI[bolt://localhost:7687] / NEO4J_USER[neo4j] /
+NEO4J_PASSWORD[neo4j] (NEO4J_PASS deprecated)
 OPENAI_API_KEY (optional) – OpenAI embeddings with SBERT/hashing fallback
 VECTOR_DIM[768]           – embedding dimension for pgvector & FAISS
 MEM_TTL_SECONDS[0]        – 0 = keep forever, else soft-delete after TTL
@@ -131,7 +132,8 @@ class _Settings(BaseSettings):
     # Graph
     NEO4J_URI: str = "bolt://localhost:7687"
     NEO4J_USER: str = "neo4j"
-    NEO4J_PASS: str = "neo4j"
+    NEO4J_PASSWORD: str = "neo4j"
+    NEO4J_PASS: Optional[str] = None  # deprecated fallback
 
     # Memory policies
     MEM_TTL_SECONDS: int = 0  # 0 = infinite
@@ -146,6 +148,9 @@ class _Settings(BaseSettings):
 
 
 CFG = _Settings()  # single instance
+# Backward compatibility: allow deprecated NEO4J_PASS
+if CFG.NEO4J_PASSWORD == "neo4j" and (os.getenv("NEO4J_PASS") or CFG.NEO4J_PASS):
+    CFG.NEO4J_PASSWORD = os.getenv("NEO4J_PASS", CFG.NEO4J_PASS or "neo4j")
 
 # ───────────────────── telemetry helpers ░────────────────────
 if "Counter" in globals():
@@ -507,7 +512,9 @@ class _GraphStore:
         if "GraphDatabase" not in globals():
             return
         try:
-            self._driver = GraphDatabase.driver(CFG.NEO4J_URI, auth=(CFG.NEO4J_USER, CFG.NEO4J_PASS))
+            self._driver = GraphDatabase.driver(
+                CFG.NEO4J_URI, auth=(CFG.NEO4J_USER, CFG.NEO4J_PASSWORD)
+            )
             with self._driver.session() as s:
                 s.run("RETURN 1").single()
             self._mode = "neo4j"
