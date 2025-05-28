@@ -28,6 +28,8 @@ def send_alert(message: str, url: str | None = None) -> None:
         payload = {"text": message}
 
     try:
-        requests.post(hook, json=payload, timeout=5)
+        resp = requests.post(hook, json=payload, timeout=5)
+        if not 200 <= resp.status_code <= 299:
+            _log.warning("alert failed with status %s", resp.status_code)
     except Exception as exc:  # pragma: no cover - network errors
         _log.warning("alert failed: %s", exc)

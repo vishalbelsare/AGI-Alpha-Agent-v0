@@ -4,6 +4,8 @@ from __future__ import annotations
 
 import asyncio
 import contextlib
+import logging
+import pytest
 
 from alpha_factory_v1.demos.alpha_agi_insight_v1.src import orchestrator
 from alpha_factory_v1.demos.alpha_agi_insight_v1.src.utils import alerts, messaging, config
@@ -92,3 +94,14 @@ def test_agent_failure_alert(monkeypatch) -> None:
 
     assert sent["url"] == "http://hook"
     assert "failed" in (sent["payload"].get("text") or sent["payload"].get("content", ""))
+
+
+def test_alert_warning(monkeypatch, caplog: pytest.LogCaptureFixture) -> None:
+    def fake_post(*_a, **_kw):
+        return type("R", (), {"status_code": 500})()
+
+    monkeypatch.setattr(alerts, "requests", type("M", (), {"post": fake_post}))
+
+    caplog.set_level(logging.WARNING)
+    alerts.send_alert("oops", "http://hook")
+    assert any("status 500" in r.getMessage() for r in caplog.records)
