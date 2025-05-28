@@ -90,6 +90,22 @@ def test_background_run_direct(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) 
     assert messages and messages[0]["id"] == sim_id
 
 
+def test_results_dir_permissions(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    """Directory is created with 0700 permissions."""
+
+    path = tmp_path / "results"
+    monkeypatch.setenv("SIM_RESULTS_DIR", str(path))
+
+    import importlib
+
+    from src.interface import api_server as api
+
+    api = importlib.reload(api)
+
+    assert path.exists()
+    assert (path.stat().st_mode & 0o777) == 0o700
+
+
 def test_root_serves_spa() -> None:
     client = make_client()
     r = client.get("/")

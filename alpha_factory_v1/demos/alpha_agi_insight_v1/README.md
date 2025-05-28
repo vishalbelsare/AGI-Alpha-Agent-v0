@@ -396,7 +396,7 @@ local development or customization. See the
 | `AGI_INSIGHT_SOLANA_URL` | Solana RPC endpoint | `https://api.testnet.solana.com` |
 | `AGI_INSIGHT_SOLANA_WALLET` | Wallet private key (hex) | _unset_ |
 | `AGI_INSIGHT_SOLANA_WALLET_FILE` | Path to wallet key file | _unset_ |
-| `SIM_RESULTS_DIR` | Folder for simulation JSON results | `$ALPHA_DATA_DIR/simulations` |
+| `SIM_RESULTS_DIR` | Folder for simulation JSON results (created with mode `0700`) | `$ALPHA_DATA_DIR/simulations` |
 | `MAX_RESULTS` | Number of results to keep on disk | `100` |
 | `API_TOKEN` | Bearer token required by the REST API | `REPLACE_ME_TOKEN` |
 
@@ -421,6 +421,7 @@ use `AGI_INSIGHT_SOLANA_WALLET_FILE` to reference the file containing the
 hex-encoded private key.
 When `AGI_INSIGHT_MEMORY_PATH` is not set the MemoryAgent keeps records only in memory.
 The API server stores simulation results as JSON files under `SIM_RESULTS_DIR`.
+The directory is created with permissions `0700` when missing.
 
 ---
 
