@@ -12,6 +12,7 @@ import secrets
 import time
 from pathlib import Path
 from typing import Any, List, TYPE_CHECKING, cast, Set
+from alpha_factory_v1.demos.alpha_agi_insight_v1.src.utils import alerts
 
 
 if TYPE_CHECKING:  # pragma: no cover - typing only
@@ -133,10 +134,32 @@ if app is not None:
             return await call_next(request)
 
     class MetricsMiddleware(BaseHTTPMiddleware):
+        """Collect metrics and watch for excessive throttling."""
+
+        def __init__(self, app: FastAPI, window: int = 60) -> None:
+            super().__init__(app)
+            self.window = window
+            self.window_start = time.time()
+            self.req_count = 0
+            self.resp_429 = 0
+
         async def dispatch(self, request: Request, call_next: RequestResponseEndpoint) -> Response:
+            now = time.time()
+            if now - self.window_start >= self.window:
+                if self.req_count and (self.resp_429 / self.req_count) > 0.05:
+                    alerts.send_alert(
+                        f"High rate of 429 responses: {self.resp_429}/{self.req_count}"
+                    )
+                self.window_start = now
+                self.req_count = 0
+                self.resp_429 = 0
+
+            self.req_count += 1
             start = time.perf_counter()
             response = await call_next(request)
             duration = time.perf_counter() - start
+            if response.status_code == 429:
+                self.resp_429 += 1
             REQ_COUNT.labels(request.method, request.url.path, str(response.status_code)).inc()
             REQ_LAT.labels(request.method, request.url.path).observe(duration)
             return response

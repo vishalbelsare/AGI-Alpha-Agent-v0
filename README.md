@@ -621,6 +621,8 @@ start if `NEO4J_PASSWORD` remains `REPLACE_ME` or is missing.
 Set `API_TOKEN` to a strong secret so that the REST API can authenticate
 incoming requests. Clients must send `Authorization: Bearer <token>`. Use
 `API_RATE_LIMIT` to limit requests per minute per IP (default `60`).
+If more than 5% of requests return HTTP `429` within a minute, the server calls
+`utils.alerts.send_alert` to report excessive throttling.
 Avoid storing private keys directly in `.env`. Instead set
 `AGI_INSIGHT_SOLANA_WALLET_FILE` to a file containing your hex-encoded wallet
 key and keep that file readable only by the orchestrator.
