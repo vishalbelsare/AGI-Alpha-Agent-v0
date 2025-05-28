@@ -83,6 +83,8 @@ def main() -> None:
 @click.option("--context-window", type=int, help="Context window size")
 @click.option("--sectors-file", type=click.Path(exists=True), help="JSON file with sector definitions")
 @click.option("--sectors", default=6, show_default=True, type=int, help="Number of sectors")
+@click.option("--energy", default=1.0, show_default=True, type=float, help="Initial sector energy")
+@click.option("--entropy", default=1.0, show_default=True, type=float, help="Initial sector entropy")
 @click.option("--pop-size", default=6, show_default=True, type=int, help="MATS population size")
 @click.option("--generations", default=3, show_default=True, type=int, help="Evolution steps")
 @click.option("--export", type=click.Choice(["json", "csv"]), help="Export results format")
@@ -95,6 +97,8 @@ def simulate(
     offline: bool,
     sectors_file: str | None,
     sectors: int,
+    energy: float,
+    entropy: float,
     pop_size: int,
     generations: int,
     export: str | None,
@@ -117,6 +121,8 @@ def simulate(
         offline: Force offline mode.
         sectors_file: JSON file with sector definitions.
         sectors: Number of sectors to simulate.
+        energy: Initial sector energy.
+        entropy: Initial sector entropy.
         pop_size: MATS population size.
         generations: Number of evolution steps.
         export: Format to export results.
@@ -154,9 +160,9 @@ def simulate(
 
     orch = orchestrator.Orchestrator(settings)
     if sectors_file:
-        secs = sector.load_sectors(sectors_file)
+        secs = sector.load_sectors(sectors_file, energy=energy, entropy=entropy)
     else:
-        secs = [sector.Sector(f"s{i:02d}") for i in range(sectors)]
+        secs = [sector.Sector(f"s{i:02d}", energy, entropy) for i in range(sectors)]
     trajectory = forecast.forecast_disruptions(
         secs,
         horizon,

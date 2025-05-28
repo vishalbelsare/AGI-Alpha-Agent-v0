@@ -108,7 +108,8 @@ Example (using ``--sectors-file`` to customise the simulation):
 AGI_INSIGHT_OFFLINE=1 AGI_INSIGHT_BROADCAST=0 \
 python -m alpha_factory_v1.demos.alpha_agi_insight_v1.src.interface.cli simulate \
   --curve linear --k 8 --x0 0.0 --llama-model-path "$LLAMA_MODEL_PATH" \
-  --offline --sectors-file alpha_factory_v1/demos/alpha_agi_insight_v1/docs/sectors.sample.json
+  --offline --energy 2.0 --entropy 0.5 \
+  --sectors-file alpha_factory_v1/demos/alpha_agi_insight_v1/docs/sectors.sample.json
 ```
 
 Produces output similar to:
@@ -251,9 +252,10 @@ See [AGENTS.md](AGENTS.md) for the full contributor guide.
     - `AGI_INSIGHT_BROADCAST=0` disables blockchain broadcasting
     - Example:
       ```bash
-      AGI_INSIGHT_OFFLINE=1 AGI_INSIGHT_BROADCAST=0 
-        python -m alpha_factory_v1.demos.alpha_agi_insight_v1.src.interface.cli 
-        simulate --offline --llama-model-path "$LLAMA_MODEL_PATH"
+      AGI_INSIGHT_OFFLINE=1 AGI_INSIGHT_BROADCAST=0
+        python -m alpha_factory_v1.demos.alpha_agi_insight_v1.src.interface.cli
+        simulate --offline --energy 2.0 --entropy 0.5 \
+        --llama-model-path "$LLAMA_MODEL_PATH"
       ```
 7. [Deployment Recipes 🍳](#7-deployment-recipes)
 7.1. [Deploying securely 🚀](#71-deploying-securely)
