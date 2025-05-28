@@ -1,9 +1,7 @@
 # SPDX-License-Identifier: Apache-2.0
 from __future__ import annotations
 
-# mypy: ignore-errors
-
-from typing import Callable, TypeVar, Any, cast
+from typing import Any, Awaitable, Callable, ParamSpec, TypeVar, overload, cast
 
 try:  # pragma: no cover - optional dependency
     import backoff
@@ -15,10 +13,21 @@ import asyncio
 import inspect
 import time
 
+P = ParamSpec("P")
 T = TypeVar("T")
 
 
-def with_retry(func: Callable[..., T], *, max_tries: int = 3) -> Callable[..., T]:
+@overload
+def with_retry(func: Callable[P, Awaitable[T]], *, max_tries: int = 3) -> Callable[P, Awaitable[T]]:
+    ...
+
+
+@overload
+def with_retry(func: Callable[P, T], *, max_tries: int = 3) -> Callable[P, T]:
+    ...
+
+
+def with_retry(func: Callable[P, Any], *, max_tries: int = 3) -> Callable[P, Any]:
     """Wrap *func* with exponential backoff and logging."""
 
     def _log_retry(details: dict[str, Any]) -> None:
@@ -30,26 +39,28 @@ def with_retry(func: Callable[..., T], *, max_tries: int = 3) -> Callable[..., T
             details.get("exception"),
         )
 
-    if backoff is not None:
-        return cast(
-            Callable[..., T],
-            backoff.on_exception(
-                backoff.expo,
-                Exception,
-                max_tries=max_tries,
-                jitter=backoff.full_jitter,
-                on_backoff=_log_retry,
-            )(func),
-        )
-
     is_async = inspect.iscoroutinefunction(func)
+
+    if backoff is not None:
+        wrapped = backoff.on_exception(
+            backoff.expo,
+            Exception,
+            max_tries=max_tries,
+            jitter=backoff.full_jitter,
+            on_backoff=_log_retry,
+        )(func)
+        if is_async:
+            return cast(Callable[P, Awaitable[T]], wrapped)
+        return cast(Callable[P, T], wrapped)
 
     if is_async:
 
-        async def wrapper_async(*args: Any, **kwargs: Any) -> T:
+        async def wrapper_async(*args: P.args, **kwargs: P.kwargs) -> Any:
             for attempt in range(max_tries):
                 try:
-                    return await func(*args, **kwargs)
+                    return await cast(Callable[P, Awaitable[T]], func)(
+                        *args, **kwargs
+                    )
                 except Exception as exc:  # pragma: no cover - runtime errors
                     if attempt + 1 >= max_tries:
                         raise
@@ -61,13 +72,14 @@ def with_retry(func: Callable[..., T], *, max_tries: int = 3) -> Callable[..., T
                         }
                     )
                     await asyncio.sleep(2**attempt * 0.1)
+            raise AssertionError("unreachable")
 
-        return wrapper_async
+        return cast(Callable[P, Any], wrapper_async)
 
-    def wrapper_sync(*args: Any, **kwargs: Any) -> T:
+    def wrapper_sync(*args: P.args, **kwargs: P.kwargs) -> Any:
         for attempt in range(max_tries):
             try:
-                return func(*args, **kwargs)
+                return cast(Callable[P, T], func)(*args, **kwargs)
             except Exception as exc:  # pragma: no cover - runtime errors
                 if attempt + 1 >= max_tries:
                     raise
@@ -79,5 +91,6 @@ def with_retry(func: Callable[..., T], *, max_tries: int = 3) -> Callable[..., T
                     }
                 )
                 time.sleep(2**attempt * 0.1)
+        raise AssertionError("unreachable")
 
-    return wrapper_sync
+    return cast(Callable[P, Any], wrapper_sync)
