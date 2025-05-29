@@ -218,6 +218,15 @@ python -m webbrowser http://localhost:8000/docs
 ```
 The adapters initialise automatically when these optional packages are present.
 
+Once the API server is running you can launch a simulation:
+
+```bash
+curl -X POST http://localhost:8000/simulate \
+  -H "Authorization: Bearer $API_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{"horizon": 5, "pop_size": 6, "generations": 3, "curve": "linear", "energy": 1.0, "entropy": 1.0}'
+```
+
 ## Disclaimer
 This repository is a conceptual research prototype. References to "AGI" and
 "superintelligence" describe aspirational goals and do not indicate the presence

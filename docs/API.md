@@ -59,7 +59,7 @@ Once the server is running you can trigger a forecast using `curl`:
 curl -X POST http://localhost:8000/simulate \
   -H "Authorization: Bearer $API_TOKEN" \
   -H "Content-Type: application/json" \
-  -d '{"horizon": 5, "pop_size": 6, "generations": 3, "curve": "linear"}'
+  -d '{"horizon": 5, "pop_size": 6, "generations": 3, "curve": "linear", "energy": 1.0, "entropy": 1.0}'
 ```
 
 Retrieve the results when the run finishes:
@@ -118,6 +118,9 @@ Start a new simulation. Send a JSON payload with the following fields:
 - `curve` – capability growth curve (`logistic`, `linear`, `exponential`)
 - `k` – optional growth curve steepness
 - `x0` – optional growth curve midpoint
+- `energy` – initial energy level for generated sectors
+- `entropy` – initial entropy level for generated sectors
+- `sectors` – optional list of sector objects with `name`, `energy`, `entropy` and `growth`
 
 ```json
 {
@@ -126,7 +129,10 @@ Start a new simulation. Send a JSON payload with the following fields:
   "generations": 3,
   "curve": "logistic",
   "k": 10.0,
-  "x0": 0.0
+  "x0": 0.0,
+  "energy": 1.0,
+  "entropy": 1.0,
+  "sectors": [{"name": "s00", "energy": 1.0, "entropy": 1.0, "growth": 0.05}]
 }
 ```
 

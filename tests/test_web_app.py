@@ -1,8 +1,8 @@
 import pytest
 
 pd = pytest.importorskip("pandas")
-from src.interface import web_app
-from alpha_factory_v1.demos.alpha_agi_insight_v1.src.simulation import forecast, sector, mats  # type: ignore[import]
+from src.interface import web_app  # noqa: E402
+from alpha_factory_v1.demos.alpha_agi_insight_v1.src.simulation import forecast, sector, mats  # noqa: E402
 
 
 def test_timeline_df() -> None:
@@ -33,9 +33,9 @@ def test_population_df() -> None:
 
 
 def test_run_simulation_smoke(capsys: pytest.CaptureFixture[str]) -> None:
-    """Ensure _run_simulation accepts the new num_sectors argument."""
+    """Ensure _run_simulation accepts energy and entropy options."""
 
-    web_app._run_simulation(1, "logistic", 2, 3, 1)
+    web_app._run_simulation(1, "logistic", 2, 3, 1, 1.0, 1.0)
     out, _ = capsys.readouterr()
     assert "Streamlit not installed" in out
 

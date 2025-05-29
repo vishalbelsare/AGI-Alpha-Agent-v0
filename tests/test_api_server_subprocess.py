@@ -55,6 +55,8 @@ def test_simulate_curve_subprocess() -> None:
                 "pop_size": 2,
                 "generations": 1,
                 "curve": "linear",
+                "energy": 1.0,
+                "entropy": 1.0,
             },
             headers=headers,
         )
@@ -206,6 +208,8 @@ def test_insight_endpoint_subprocess() -> None:
                 "pop_size": 2,
                 "generations": 1,
                 "curve": "linear",
+                "energy": 1.0,
+                "entropy": 1.0,
             },
             headers=headers,
         )
