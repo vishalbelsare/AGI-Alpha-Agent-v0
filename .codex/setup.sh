@@ -51,15 +51,28 @@ elif [[ "${MINIMAL_INSTALL:-0}" == "1" ]]; then
   # Install a reduced set of runtime/test dependencies
   packages=(
     pytest
+    pytest-benchmark
     prometheus_client
+    mypy
     openai
     openai-agents
     google-adk
     anthropic
     fastapi
     opentelemetry-api
+    grpcio
+    grpcio-tools
     httpx
     uvicorn
+    cryptography
+    hypothesis
+    pytest-httpx
+    numpy
+    pandas
+    playwright
+    websockets
+    click
+    requests
   )
   $PYTHON -m pip install --quiet "${wheel_opts[@]}" "${packages[@]}"
 else
