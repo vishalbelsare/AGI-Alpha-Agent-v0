@@ -240,6 +240,20 @@ pre-commit run --files <paths>   # before each commit
     matches its `requirements.txt`. They rely on `pip-tools`.
   - Hooks are configured in `.pre-commit-config.yaml` at the repository root.
 
+#### Pre-commit in Air-Gapped Setups
+
+If `pre-commit` fails with a network error such as `No route to host`,
+build a wheelhouse and install hooks from there:
+
+```bash
+mkdir -p /media/wheels
+pip wheel -r requirements-dev.txt -w /media/wheels
+WHEELHOUSE=/media/wheels pre-commit run --all-files
+```
+
+Set `WHEELHOUSE` to the directory containing wheels so `pre-commit` can
+install dependencies without internet access.
+
 ## Pull Requests
 - Keep commits focused and descriptive. Use meaningful commit messages.
 - Ensure `git status` shows a clean working tree before committing.
