@@ -40,6 +40,8 @@ else
     anthropic
     fastapi
     opentelemetry-api
+    httpx
+    uvicorn
   )
   $PYTHON -m pip install --quiet "${wheel_opts[@]}" "${packages[@]}"
 fi
