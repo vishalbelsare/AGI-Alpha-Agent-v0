@@ -34,6 +34,8 @@ OPTIONAL = [
     "google_adk",
 ]
 
+PIP_NAMES = {"openai_agents": "openai-agents", "google_adk": "google-adk"}
+
 
 def main(argv: Optional[List[str]] = None) -> int:
     parser = argparse.ArgumentParser(description="Validate runtime dependencies")
@@ -71,7 +73,8 @@ def main(argv: Optional[List[str]] = None) -> int:
             cmd = [sys.executable, "-m", "pip", "install", "--quiet"]
             if wheelhouse:
                 cmd += ["--no-index", "--find-links", wheelhouse]
-            cmd += missing
+            packages = [PIP_NAMES.get(pkg, pkg) for pkg in missing]
+            cmd += packages
             print("Attempting automatic install:", " ".join(cmd))
             try:
                 result = subprocess.run(cmd, capture_output=True, text=True, check=True)
