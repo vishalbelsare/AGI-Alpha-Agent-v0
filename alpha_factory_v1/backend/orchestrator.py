@@ -48,21 +48,26 @@ from typing import Any, Dict, List, Optional
 
 # ────────────────────────── soft-imports (all optional) ───────────────
 try:
-    from fastapi import FastAPI, HTTPException, File, Request
+    from fastapi import FastAPI, HTTPException, File, Request, Depends
     from fastapi.responses import PlainTextResponse
+    from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
     import uvicorn
 except ModuleNotFoundError:  # fallback mode
     FastAPI = None  # type: ignore
 
-    class HTTPException(Exception):
-        ...
+    class HTTPException(Exception): ...
 
     PlainTextResponse = object  # type: ignore
 
-    def File(*_a, **_kw):
-        ...
+    def File(*_a, **_kw): ...
 
     Request = object  # type: ignore
+
+    def Depends(*_a, **_kw):  # type: ignore
+        return None
+
+    HTTPBearer = object  # type: ignore
+    HTTPAuthorizationCredentials = object  # type: ignore
 
 with contextlib.suppress(ModuleNotFoundError):
     import grpc
@@ -332,11 +337,24 @@ def _build_rest(runners: Dict[str, AgentRunner]) -> Optional[FastAPI]:
     if FastAPI is None:
         return None
 
+    token = os.getenv("API_TOKEN")
+    if not token:
+        raise RuntimeError("API_TOKEN environment variable must be set")
+
+    security = HTTPBearer()
+
+    async def verify_token(
+        credentials: HTTPAuthorizationCredentials = Depends(security),
+    ) -> None:
+        if credentials.credentials != token:
+            raise HTTPException(status_code=403, detail="Invalid token")
+
     app = FastAPI(
         title="Alpha-Factory Orchestrator",
         version="3.0.0",
         docs_url="/docs",
         redoc_url=None,
+        dependencies=[Depends(verify_token)],
     )
 
     @app.get("/healthz", response_class=PlainTextResponse)
