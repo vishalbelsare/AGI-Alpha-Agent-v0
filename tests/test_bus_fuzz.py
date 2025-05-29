@@ -88,3 +88,28 @@ def test_bus_handles_arbitrary_envelopes(env: messaging.Envelope | types.SimpleN
 
     asyncio.run(run())
     assert received
+
+
+def test_bus_extreme_envelopes() -> None:
+    """Large or malformed messages should not crash the bus."""
+
+    bus = messaging.A2ABus(config.Settings(bus_port=0))
+    received: list[object] = []
+
+    async def handler(env: object) -> None:
+        received.append(env)
+
+    bus.subscribe("x", handler)
+
+    async def run() -> None:
+        for size in (0, 1, 100, 1000, 10000, 50000):
+            env = messaging.Envelope(sender="s" * size, recipient="x", ts=1e308)
+            env.payload["data"] = "p" * size
+            bus.publish("x", env)
+        bus.publish("x", messaging.Envelope(sender="", recipient="x", ts=float("inf")))
+        bus.publish("x", messaging.Envelope(sender="", recipient="x", ts=float("-inf")))
+        bus.publish("x", types.SimpleNamespace(sender=None, recipient="x", payload={}, ts=None))
+        await asyncio.sleep(0)
+
+    asyncio.run(run())
+    assert received
