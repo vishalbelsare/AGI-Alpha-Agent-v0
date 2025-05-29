@@ -4,6 +4,7 @@ set -euo pipefail
 PYTHON=${PYTHON:-python3}
 
 # Support offline installation via WHEELHOUSE
+# Set COLAB_INSTALL=1 to install the Colab dependencies lock file.
 wheel_opts=()
 if [[ -n "${WHEELHOUSE:-}" ]]; then
   wheel_opts+=(--no-index --find-links "$WHEELHOUSE")
@@ -18,18 +19,30 @@ $PYTHON -m pip install --quiet "${wheel_opts[@]}" pip-tools
 # Install package in editable mode
 $PYTHON -m pip install --quiet "${wheel_opts[@]}" -e .
 
-# Minimal runtime/test dependencies
-packages=(
-  pytest
-  prometheus_client
-  openai
-  openai-agents
-  google-adk
-  anthropic
-  fastapi
-  opentelemetry-api
-)
-$PYTHON -m pip install --quiet "${wheel_opts[@]}" "${packages[@]}"
+# Install additional dependencies when running in Google Colab
+if [[ "${COLAB_INSTALL:-0}" == "1" ]]; then
+  # COLAB_INSTALL=1 installs packages from the Colab lock file, supporting the
+  # same offline mode as WHEELHOUSE.
+  $PYTHON -m pip install --quiet "${wheel_opts[@]}" \
+    -r alpha_factory_v1/requirements-colab.lock
+elif [[ "${FULL_INSTALL:-0}" == "1" ]]; then
+  # When FULL_INSTALL=1, use the deterministic lock file for reproducible
+  # offline installs.
+  $PYTHON -m pip install --quiet "${wheel_opts[@]}" -r requirements.lock
+else
+  # Minimal runtime/test dependencies
+  packages=(
+    pytest
+    prometheus_client
+    openai
+    openai-agents
+    google-adk
+    anthropic
+    fastapi
+    opentelemetry-api
+  )
+  $PYTHON -m pip install --quiet "${wheel_opts[@]}" "${packages[@]}"
+fi
 
 # Validate environment and install any remaining deps
 check_env_opts=()
