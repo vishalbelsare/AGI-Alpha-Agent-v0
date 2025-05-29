@@ -36,6 +36,12 @@ repos:
         language: python
         additional_dependencies: [pip-tools]
         pass_filenames: false
+      - id: verify-alpha-colab-requirements-lock
+        name: Verify alpha_factory_v1 requirements-colab.lock is up to date
+        entry: python scripts/verify_alpha_colab_requirements_lock.py
+        language: python
+        additional_dependencies: [pip-tools]
+        pass_filenames: false
       - id: verify-backend-requirements-lock
         name: Verify backend requirements-lock.txt is up to date
         entry: python scripts/verify_backend_requirements_lock.py
