@@ -45,7 +45,7 @@ __all__: Final[List[str]] = [
     "__version__",
 ]
 
-__version__: Final[str] = "1.0.0"
+__version__: Final[str] = "1.1.0"
 
 # ──────────────────────────────────────────────────────────────────────────────
 #  Agent showcase (edu-doc string for auditors & newcomers)
