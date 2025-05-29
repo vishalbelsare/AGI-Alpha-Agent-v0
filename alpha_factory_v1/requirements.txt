@@ -7,7 +7,7 @@
 
 # ─────────── Core web runtimes ─────────────────────────────────────────
 fastapi>=0.111,<1.0
-uvicorn[standard]~=0.29
+uvicorn[standard]~=0.34
 flask~=3.0
 gunicorn~=21.2
 orjson~=3.9
@@ -30,8 +30,8 @@ pytest~=8.2
 gitpython~=3.1          # local PR simulation for self-healing demo
 
 # ─────────── LLM / Agents stack ────────────────────────────────────────
-openai>=1.77.0,<2.0       # GPT-4o & embeddings (sync with backend)
-openai-agents>=0.0.14   # **critical** – official Agents SDK
+openai>=1.82.0,<2.0       # GPT-4o & embeddings (sync with backend)
+openai-agents>=0.0.16   # **critical** – official Agents SDK
 anthropic>=0.21         # Claude & MCP bridge
 litellm>=1.31           # local gateway / fallback router
 tiktoken>=0.5
