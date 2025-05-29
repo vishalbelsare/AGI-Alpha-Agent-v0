@@ -30,3 +30,9 @@ repos:
         language: python
         additional_dependencies: [pip-tools]
         pass_filenames: false
+      - id: verify-alpha-requirements-lock
+        name: Verify alpha_factory_v1 requirements.lock is up to date
+        entry: python scripts/verify_alpha_requirements_lock.py
+        language: python
+        additional_dependencies: [pip-tools]
+        pass_filenames: false
