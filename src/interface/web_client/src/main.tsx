@@ -161,7 +161,7 @@ function Dashboard() {
           />
         </label>
         <label>
-          Energy
+          Initial energy
           <input
             type="number"
             step="any"
@@ -170,7 +170,7 @@ function Dashboard() {
           />
         </label>
         <label>
-          Entropy
+          Initial entropy
           <input
             type="number"
             step="any"

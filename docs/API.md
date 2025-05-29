@@ -122,6 +122,9 @@ Start a new simulation. Send a JSON payload with the following fields:
 - `entropy` – initial entropy level for generated sectors
 - `sectors` – optional list of sector objects with `name`, `energy`, `entropy` and `growth`
 
+`energy` and `entropy` apply when no custom `sectors` list is provided and map
+to the `--energy` and `--entropy` CLI options.
+
 ```json
 {
   "horizon": 5,

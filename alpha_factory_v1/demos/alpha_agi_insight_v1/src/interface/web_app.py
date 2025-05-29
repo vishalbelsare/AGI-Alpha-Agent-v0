@@ -21,10 +21,17 @@ if TYPE_CHECKING:  # pragma: no cover - typing only
     import pandas as pd
 
 
-def _simulate(horizon: int, curve: str, pop_size: int, generations: int) -> list[Any]:
+def _simulate(
+    horizon: int,
+    curve: str,
+    pop_size: int,
+    generations: int,
+    energy: float = 1.0,
+    entropy: float = 1.0,
+) -> list[Any]:
     """Run the disruption forecast and return the trajectory."""
 
-    secs = [sector.Sector(f"s{i:02d}") for i in range(pop_size)]
+    secs = [sector.Sector(f"s{i:02d}", energy, entropy) for i in range(pop_size)]
     return forecast.forecast_disruptions(
         secs,
         horizon,
@@ -81,9 +88,11 @@ def main() -> None:  # pragma: no cover - entry point
     curve = st.sidebar.selectbox("Growth curve", ["logistic", "linear", "exponential"], index=0)
     pop_size = st.sidebar.slider("Population size", 2, 20, 6)
     generations = st.sidebar.slider("Generations", 1, 20, 3)
+    energy = st.sidebar.number_input("Initial energy", min_value=0.0, value=1.0)
+    entropy = st.sidebar.number_input("Initial entropy", min_value=0.0, value=1.0)
 
     if st.sidebar.button("Run forecast"):
-        traj = _simulate(horizon, curve, pop_size, generations)
+        traj = _simulate(horizon, curve, pop_size, generations, energy, entropy)
         df = _timeline_df(traj)
         import plotly.express as px
 
