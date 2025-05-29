@@ -46,7 +46,7 @@ class A2ABus:
         self._subs: Dict[str, List[Callable[[Envelope], Awaitable[None] | None]]] = {}
         self._server: "grpc.aio.Server | None" = None
         self._producer: Optional[AIOKafkaProducer] = None
-        self._handshake = False
+        self._handshake_peers: set[str] = set()
 
     async def __aenter__(self) -> "A2ABus":
         """Start the bus when entering an async context."""
@@ -98,12 +98,15 @@ class A2ABus:
 
     async def _handle_rpc(self, request: bytes, context: Any) -> bytes:
         text = request.decode()
-        if not getattr(self, "_handshake", False):
+        peer = context.peer() if grpc else ""
+        if peer not in self._handshake_peers:
             if text.strip() != self.PROTO_VERSION:
                 if grpc:
                     await context.abort(grpc.StatusCode.FAILED_PRECONDITION, "handshake required")
                 return b"handshake required"
-            self._handshake = True
+            self._handshake_peers.add(peer)
+            if grpc and hasattr(context, "add_callback"):
+                context.add_callback(lambda: self._handshake_peers.discard(peer))
             return self.PROTO_VERSION.encode()
         data = json.loads(text)
         token = data.pop("token", None)
@@ -119,6 +122,8 @@ class A2ABus:
         if isinstance(data.get("payload"), dict):
             env.payload.update(data["payload"])
         self.publish(env.recipient, env)
+        if grpc and hasattr(context, "add_callback"):
+            context.add_callback(lambda: self._handshake_peers.discard(peer))
         return b"ok"
 
     async def start(self) -> None:
@@ -127,7 +132,7 @@ class A2ABus:
             self.settings.bus_port,
             self.settings.broker_url or "disabled",
         )
-        self._handshake = False
+        self._handshake_peers.clear()
         if self.settings.broker_url and AIOKafkaProducer:
             self._producer = AIOKafkaProducer(bootstrap_servers=self.settings.broker_url)
             await self._producer.start()
@@ -166,3 +171,4 @@ class A2ABus:
         if self._producer:
             await self._producer.stop()
             self._producer = None
+        self._handshake_peers.clear()

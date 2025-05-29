@@ -6,6 +6,7 @@ from alpha_factory_v1.demos.alpha_agi_insight_v1.src.utils import config, messag
 import json
 import socket
 import grpc
+import pytest
 
 
 class TestMessageBus(TestCase):
@@ -108,7 +109,7 @@ def test_publish_kafka_disabled() -> None:
 
         async def run() -> None:
             async with bus:
-                env = messaging.Envelope("a", "x", {"ok": True}, 0.0)
+                env = messaging.Envelope(sender="a", recipient="x", payload={"ok": True}, ts=0.0)
                 bus.publish("x", env)
                 await asyncio.sleep(0)
 
@@ -116,3 +117,46 @@ def test_publish_kafka_disabled() -> None:
 
     assert len(events) == 1
     assert events[0].payload["ok"] is True
+
+
+def test_new_connection_requires_handshake() -> None:
+    port = _free_port()
+    cfg = config.Settings(bus_port=port, allow_insecure=True)
+    bus = messaging.A2ABus(cfg)
+    received: list[messaging.Envelope] = []
+
+    def handler(env: messaging.Envelope) -> None:
+        received.append(env)
+
+    bus.subscribe("x", handler)
+
+    async def run() -> None:
+        async with bus:
+            # first client performs handshake and sends message
+            async with grpc.aio.insecure_channel(f"localhost:{port}") as ch1:
+                stub1 = ch1.unary_unary("/bus.Bus/Send")
+                await stub1(b"proto_schema=1")
+                payload = {
+                    "sender": "a",
+                    "recipient": "x",
+                    "payload": {"v": 1},
+                    "ts": 0.0,
+                }
+                await stub1(json.dumps(payload).encode())
+
+            # second client should fail without handshake
+            async with grpc.aio.insecure_channel(f"localhost:{port}") as ch2:
+                stub2 = ch2.unary_unary("/bus.Bus/Send")
+                payload = {
+                    "sender": "b",
+                    "recipient": "x",
+                    "payload": {"v": 2},
+                    "ts": 0.0,
+                }
+                with pytest.raises(grpc.aio.AioRpcError):
+                    await stub2(json.dumps(payload).encode())
+
+    asyncio.run(run())
+
+    assert len(received) == 1
+    assert received[0].payload["v"] == 1
