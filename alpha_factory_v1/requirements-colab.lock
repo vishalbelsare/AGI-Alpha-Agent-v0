@@ -1,0 +1,13 @@
+fastapi>=0.111,<1.0
+uvicorn[standard]~=0.34
+pyngrok
+ctransformers==0.2.27
+k6-python
+subprocess-tee
+ray[default]==2.10.0
+openai>=1.82.0,<2.0
+openai-agents>=0.0.16
+anthropic>=0.21
+litellm>=1.31
+pytest~=8.2
+prometheus-client~=0.19
