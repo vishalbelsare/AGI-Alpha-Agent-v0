@@ -29,6 +29,8 @@ else
     openai_agents
     google_adk
     anthropic
+    fastapi
+    opentelemetry-api
   )
   $PYTHON -m pip install --quiet "${wheel_opts[@]}" "${packages[@]}"
 fi
