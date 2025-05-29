@@ -38,6 +38,9 @@ else
     opentelemetry-sdk
     httpx
     uvicorn
+    grpcio
+    requests
+    pydantic-settings
   )
   if [[ "${DEV_INSTALL:-0}" == "1" ]]; then
     packages+=(
@@ -45,6 +48,9 @@ else
       pytest-httpx
       hypothesis
       grpcio-tools
+      grpcio
+      requests
+      pydantic-settings
     )
   fi
   $PYTHON -m pip install --quiet "${wheel_opts[@]}" "${packages[@]}"
