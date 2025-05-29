@@ -1,8 +1,8 @@
 # ======================================================================
-#  AGI-Alpha-Agent-v0  ·  Backend dependency lockfile  (May 2025)
-#  -- Supports online (OpenAI/Anthropic keys) *and* fully-offline runs
+#  AGI-Alpha-Agent-v0  ·  Baseline runtime requirements  (May 2025)
+#  -- This file lists the minimum versions tested by CI; it is not a lock file
+#  -- Supports online (OpenAI/Anthropic keys) and fully offline runs
 #  -- All packages ship manylinux / pure-python wheels on PyPI
-#  -- Version pins chosen to avoid known CVEs & resolve dependency DAG
 # ======================================================================
 
 # ─────────── Core web runtimes ─────────────────────────────────────────
