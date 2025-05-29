@@ -250,7 +250,11 @@ class Ledger:
         return result
 
     async def broadcast_merkle_root(self) -> None:
-        root = self.compute_merkle_root()
+        try:
+            root = self.compute_merkle_root()
+        except Exception as exc:  # pragma: no cover - corruption
+            _log.warning("Failed to compute Merkle root: %s", exc)
+            return
         if AsyncClient is None or not self.broadcast:
             _log.info("Merkle root %s", root)
             return
