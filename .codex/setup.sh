@@ -18,7 +18,25 @@ fi
 
 # Abort when no wheelhouse is available and the network is unreachable
 if [[ -z "${WHEELHOUSE:-}" ]]; then
-  if ! curl -sSf https://pypi.org/simple/ -o /dev/null 2>&1; then
+  network_ok=1
+  if command -v curl >/dev/null 2>&1; then
+    if curl -sSf https://pypi.org/simple/ -o /dev/null 2>&1; then
+      network_ok=0
+    fi
+  else
+    if $PYTHON - <<'EOF'
+import socket, sys
+try:
+    socket.create_connection(("pypi.org", 443), timeout=3)
+except Exception:
+    sys.exit(1)
+EOF
+    then
+      network_ok=0
+    fi
+  fi
+
+  if [[ ${network_ok} -ne 0 ]]; then
     cat <<'EOF'
 ERROR: No network access and no wheelhouse found.
 Create one with:
