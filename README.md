@@ -209,7 +209,8 @@ cd AGI-Alpha-Agent-v0
 python3 -m venv .venv
 source .venv/bin/activate
 # Install runtime dependencies
-pip install -r requirements.lock
+# Install runtime dependencies
+pip install -r requirements.lock  # pinned versions for deterministic setup
 # Optional ADK/MCP integration
 pip install google-adk mcp
 # Requires Python 3.11–3.12 (<3.13)
@@ -217,6 +218,14 @@ pip install google-adk mcp
 python -m webbrowser http://localhost:8000/docs
 ```
 The adapters initialise automatically when these optional packages are present.
+
+To regenerate `requirements.lock` with the exact versions from
+`requirements.txt`, run:
+
+```bash
+pip install -r requirements.txt
+pip freeze > requirements.lock
+```
 
 Once the API server is running you can launch a simulation:
 

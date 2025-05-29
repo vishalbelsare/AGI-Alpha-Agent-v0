@@ -59,6 +59,17 @@ Follow these steps when installing without internet access:
   pip wheel -r requirements-dev.txt -w /media/wheels
   ```
 
+- Generate a deterministic lock file after installing dependencies:
+  ```bash
+  pip install -r requirements.txt
+  pip freeze > requirements.lock
+  ```
+
+- Install from the lock file to reproduce identical environments:
+  ```bash
+  pip install -r requirements.lock
+  ```
+
 - Install from the wheelhouse:
   ```bash
   WHEELHOUSE=/media/wheels AUTO_INSTALL_MISSING=1 ./codex/setup.sh
