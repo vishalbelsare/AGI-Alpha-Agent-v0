@@ -17,6 +17,15 @@ _log = logging.getLogger(__name__)
 
 
 def _load_dotenv(path: str = ".env") -> None:
+    """Load default variables from ``path`` when available.
+
+    Key/value pairs from the file are added to :mod:`os.environ` only if the
+    variable is not already defined.
+
+    Args:
+        path: Location of the ``.env`` file.
+    """
+
     if Path(path).is_file():
         for k, v in _load_env_file(path).items():
             os.environ.setdefault(k, v)
