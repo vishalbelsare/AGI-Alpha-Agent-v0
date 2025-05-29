@@ -81,6 +81,20 @@ Follow these steps when installing without internet access:
   python check_env.py --auto-install --wheelhouse /media/wheels
   ```
 
+#### Colab Requirements
+
+- Build wheels for `alpha_factory_v1/requirements-colab.txt`:
+  ```bash
+  pip wheel -r alpha_factory_v1/requirements-colab.txt -w /media/wheels
+  ```
+- Compile the lock file from the wheelhouse:
+  ```bash
+  pip-compile --no-index --find-links /media/wheels --generate-hashes \
+      --output-file alpha_factory_v1/requirements-colab.lock \
+      alpha_factory_v1/requirements-colab.txt
+  ```
+  The `verify-alpha-colab-requirements-lock` hook relies on this lock file.
+
 - See [`alpha_factory_v1/scripts/README.md`](alpha_factory_v1/scripts/README.md) for additional offline tips.
 - After setup, validate with `python check_env.py --auto-install`. When `WHEELHOUSE` is set, run `python check_env.py --auto-install --wheelhouse <path>` so optional packages install correctly offline.
 - The unit tests rely on `fastapi`, `opentelemetry-api`, `openai-agents` and `google-adk`. `./codex/setup.sh` installs these packages automatically. When skipping the setup script, run
