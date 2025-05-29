@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 import py_compile
 import unittest
 from pathlib import Path

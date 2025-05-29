@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 """Helper to import the project when not installed."""
 
 from importlib.util import find_spec
