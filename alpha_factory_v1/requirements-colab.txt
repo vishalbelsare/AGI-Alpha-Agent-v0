@@ -1,5 +1,5 @@
-fastapi
-uvicorn
+fastapi>=0.111,<1.0
+uvicorn[standard]~=0.29
 pyngrok
 ctransformers==0.2.27
 k6-python
@@ -9,5 +9,5 @@ openai>=1.76.0,<2.0
 openai-agents>=0.0.14
 anthropic>=0.21
 litellm>=1.31
-pytest
-prometheus_client
+pytest~=8.2
+prometheus-client~=0.19
