@@ -140,7 +140,7 @@ if app is not None:
         )
     )
     _max_results = int(os.getenv("MAX_RESULTS", "100"))
-    _results_dir.mkdir(parents=True, exist_ok=True)
+    _results_dir.mkdir(parents=True, exist_ok=True, mode=0o700)
 
     def _load_results() -> None:
         entries: list[tuple[float, ResultsResponse]] = []
