@@ -3,6 +3,7 @@ import stat
 import zipfile
 import unittest
 from unittest import mock
+import os
 
 import pytest
 
@@ -10,6 +11,8 @@ pytest.importorskip("fastapi", reason="fastapi is required for REST API tests")
 from fastapi.testclient import TestClient
 
 from alpha_factory_v1.backend import orchestrator
+
+os.environ.setdefault("API_TOKEN", "test-token")
 
 
 class DummyAgent:
@@ -44,18 +47,19 @@ class TestRestAPI(unittest.TestCase):
             app = orchestrator._build_rest({"dummy": runner})
             self.assertIsNotNone(app)
             client = TestClient(app)
+            headers = {"Authorization": "Bearer test-token"}
 
-            resp = client.get("/agents")
+            resp = client.get("/agents", headers=headers)
             self.assertEqual(resp.status_code, 200)
             self.assertEqual(resp.json(), ["dummy"])
 
             runner.next_ts = 5
-            resp = client.post("/agent/dummy/trigger")
+            resp = client.post("/agent/dummy/trigger", headers=headers)
             self.assertEqual(resp.status_code, 200)
             self.assertEqual(resp.json(), {"queued": True})
             self.assertEqual(runner.next_ts, 0)
 
-            resp = client.get("/memory/search", params={"q": "foo", "k": 1})
+            resp = client.get("/memory/search", params={"q": "foo", "k": 1}, headers=headers)
             self.assertEqual(resp.status_code, 200)
             self.assertEqual(resp.json(), [{"q": "foo"}])
 
@@ -65,6 +69,7 @@ class TestRestAPI(unittest.TestCase):
             resp = client.post(
                 "/agent/dummy/update_model",
                 files={"file": ("m.zip", buf.getvalue(), "application/zip")},
+                headers=headers,
             )
             self.assertEqual(resp.status_code, 200)
             self.assertEqual(resp.json(), {"status": "ok"})
@@ -79,6 +84,7 @@ class TestRestAPI(unittest.TestCase):
             resp = client.post(
                 "/agent/dummy/update_model",
                 files={"file": ("m.zip", buf.getvalue(), "application/zip")},
+                headers=headers,
             )
             self.assertEqual(resp.status_code, 400)
 
