@@ -18,6 +18,24 @@ $PYTHON -m pip install --quiet "${wheel_opts[@]}" pip-tools
 # Install package in editable mode
 $PYTHON -m pip install --quiet "${wheel_opts[@]}" -e .
 
+# Verify network access when curl is missing. Abort only when the
+# Python check fails and WHEELHOUSE is unset.
+if ! command -v curl >/dev/null 2>&1; then
+  if ! $PYTHON - <<'EOF'
+import socket, sys
+try:
+    socket.gethostbyname("pypi.org")
+except Exception:
+    sys.exit(1)
+EOF
+  then
+    if [[ -z "${WHEELHOUSE:-}" ]]; then
+      echo "Unable to reach pypi.org and WHEELHOUSE is unset" >&2
+      exit 1
+    fi
+  fi
+fi
+
 # When FULL_INSTALL=1, install the fully pinned dependencies from the
 # deterministic lock file. This path also supports offline installs via a
 # wheelhouse. Otherwise install a minimal set of runtime packages for fast
