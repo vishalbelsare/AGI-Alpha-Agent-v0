@@ -26,21 +26,61 @@ if [[ "${FULL_INSTALL:-0}" == "1" ]]; then
   $PYTHON -m pip install --quiet "${wheel_opts[@]}" -r requirements.lock
 else
   packages=(
-    pytest
-    prometheus_client
+    accelerate
+    aiohttp
+    anthropic
+    backoff
+    better-profanity
+    ccxt
+    chromadb
+    click
+    cryptography
+    ctransformers
+    deap
+    faiss-cpu
+    fastapi
+    feedparser
+    flask
+    gitpython
+    google-adk
+    grpcio
+    grpcio-tools
+    gunicorn
+    httpx
+    litellm
+    llama-cpp-python
+    neo4j
+    networkx
+    newsapi-python
+    noaa-sdk
+    numpy
     openai
     openai-agents
-    google-adk
-    anthropic
-    fastapi
-    cryptography
     opentelemetry-api
     opentelemetry-sdk
-    httpx
-    uvicorn
-    grpcio
-    requests
+    orjson
+    ortools
+    pandas
+    playwright
+    plotly
+    prometheus-client
+    psycopg2-binary
+    pydantic
     pydantic-settings
+    pytest
+    python-dotenv
+    requests
+    rich
+    rocketry
+    scipy
+    sentence-transformers
+    sentencepiece
+    streamlit
+    tiktoken
+    transformers
+    'uvicorn[standard]'
+    websockets
+    yfinance
   )
   if [[ "${DEV_INSTALL:-0}" == "1" ]]; then
     packages+=(
