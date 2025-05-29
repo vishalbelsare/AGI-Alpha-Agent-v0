@@ -46,7 +46,6 @@ try:
     from fastapi import (
         FastAPI,
         HTTPException,
-        WebSocket,
         WebSocketDisconnect,
         Request,
         Depends,
@@ -65,9 +64,15 @@ except ModuleNotFoundError as exc:  # pragma: no cover - optional
     FastAPI = None  # type: ignore
     HTTPException = None  # type: ignore
     BaseModel = object  # type: ignore
-    WebSocket = Any  # type: ignore
     WebSocketDisconnect = Any  # type: ignore
     uvicorn = None  # type: ignore
+
+if TYPE_CHECKING:
+    from fastapi import WebSocket
+elif FastAPI is not None:
+    from fastapi import WebSocket
+else:
+    WebSocket = Any  # type: ignore
 
 try:
     import prometheus_client
@@ -220,7 +225,7 @@ if app is not None:
 
 
 _simulations: OrderedDict[str, ResultsResponse] = OrderedDict()
-_progress_ws: Set[Any] = set()
+_progress_ws: Set[WebSocket] = set()
 _latest_id: str | None = None
 _results_dir = Path(
     os.getenv(
