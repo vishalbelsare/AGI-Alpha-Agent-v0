@@ -15,16 +15,23 @@ $PYTHON -m pip install --quiet "${wheel_opts[@]}" --upgrade pip setuptools wheel
 # Install package in editable mode
 $PYTHON -m pip install --quiet "${wheel_opts[@]}" -e .
 
-# Minimal runtime/test dependencies
-packages=(
-  pytest
-  prometheus_client
-  openai
-  openai_agents
-  google_adk
-  anthropic
-)
-$PYTHON -m pip install --quiet "${wheel_opts[@]}" "${packages[@]}"
+# When FULL_INSTALL=1, install the fully pinned dependencies from the
+# deterministic lock file. This path also supports offline installs via a
+# wheelhouse. Otherwise install a minimal set of runtime packages for fast
+# setup in networked environments.
+if [[ "${FULL_INSTALL:-0}" == "1" ]]; then
+  $PYTHON -m pip install --quiet "${wheel_opts[@]}" -r requirements.lock
+else
+  packages=(
+    pytest
+    prometheus_client
+    openai
+    openai_agents
+    google_adk
+    anthropic
+  )
+  $PYTHON -m pip install --quiet "${wheel_opts[@]}" "${packages[@]}"
+fi
 
 # Validate environment and install any remaining deps
 check_env_opts=()
