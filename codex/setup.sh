@@ -33,6 +33,7 @@ else
     google-adk
     anthropic
     fastapi
+    cryptography
     opentelemetry-api
     httpx
     uvicorn
