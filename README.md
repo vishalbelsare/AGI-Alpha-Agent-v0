@@ -793,9 +793,11 @@ Alternatively run inside Docker:
 # build the web client first so `dist/` exists
 make build_web
 # regenerate protobuf modules and Go stubs
-make proto  # outputs Go files under alpha_factory_v1/proto/go/
+./tools/gen_proto_stubs.sh  # updates src/utils/a2a_pb2.py and tools/go_a2a_client/a2a.pb.go
 make compose-up  # builds and waits for healthy services
 ```
+Run `./tools/gen_proto_stubs.sh` whenever `src/utils/a2a.proto` changes to keep the
+Python and Go stubs up to date.
 Open <http://localhost:8080> in your browser. When `RUN_MODE=web`, the container
 serves the static files from `src/interface/web_client/dist` using `python -m
 http.server`. The FastAPI demo also mounts this folder at `/` when present so the
