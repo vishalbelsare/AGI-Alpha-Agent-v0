@@ -26,6 +26,18 @@ REQUIRED = [
     "anthropic",
     "fastapi",
     "opentelemetry",
+    "uvicorn",
+    "httpx",
+    "grpc",
+    "cryptography",
+    "numpy",
+    "click",
+    "requests",
+    "pandas",
+    "playwright.sync_api",
+    "websockets",
+    "pytest_benchmark",
+    "hypothesis",
 ]
 
 # Optional integrations that may not be present in restricted environments.
@@ -34,7 +46,14 @@ OPTIONAL = [
     "google_adk",
 ]
 
-PIP_NAMES = {"openai_agents": "openai-agents", "google_adk": "google-adk"}
+PIP_NAMES = {
+    "openai_agents": "openai-agents",
+    "google_adk": "google-adk",
+    "grpc": "grpcio",
+    "pytest_benchmark": "pytest-benchmark",
+    "playwright.sync_api": "playwright",
+    "websockets": "websockets",
+}
 
 
 def main(argv: Optional[List[str]] = None) -> int:
@@ -56,8 +75,9 @@ def main(argv: Optional[List[str]] = None) -> int:
     for pkg in REQUIRED + OPTIONAL:
         try:
             spec = importlib.util.find_spec(pkg)
-        except ValueError:
+        except (ValueError, ModuleNotFoundError):
             # handle cases where a namespace package left an invalid entry
+            # or the root package itself is missing
             spec = None
         if spec is None:
             if pkg in OPTIONAL:
