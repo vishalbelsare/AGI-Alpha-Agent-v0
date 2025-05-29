@@ -3,8 +3,8 @@
 All notable changes to this project are documented in this file.
 
 ## [Unreleased]
-- Synced `openai` pin across requirements files and clarified why
-  `requests` and `rich` differ between layers.
+- Synced `openai`, `openai-agents` and `uvicorn` pins across requirements files
+  and clarified why `requests` and `rich` differ between layers.
 
 ## [1.1.0] - 2025-07-15
 ### Added
