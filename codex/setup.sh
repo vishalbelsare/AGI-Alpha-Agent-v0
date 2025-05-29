@@ -100,17 +100,15 @@ else
     websockets
     yfinance
   )
-  if [[ "${DEV_INSTALL:-0}" == "1" ]]; then
-    packages+=(
-      pytest-benchmark
-      pytest-httpx
-      hypothesis
-      grpcio-tools
-      grpcio
-      requests
-      pydantic-settings
-    )
-  fi
+  packages+=(
+    pytest-benchmark
+    pytest-httpx
+    hypothesis
+    grpcio-tools
+    grpcio
+    requests
+    pydantic-settings
+  )
   $PYTHON -m pip install --quiet "${wheel_opts[@]}" "${packages[@]}"
 fi
 
