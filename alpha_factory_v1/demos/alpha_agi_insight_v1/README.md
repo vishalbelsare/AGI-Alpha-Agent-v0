@@ -411,7 +411,10 @@ local development or customization. See the
 | `AGI_INSIGHT_SOLANA_WALLET_FILE` | Path to wallet key file | _unset_ |
 | `SIM_RESULTS_DIR` | Folder for simulation JSON results (created with mode `0700`) | `$ALPHA_DATA_DIR/simulations` |
 | `MAX_RESULTS` | Number of results to keep on disk | `100` |
+| `BUSINESS_HOST` | Base orchestrator URL for bridges | `"http://localhost:8000"` |
 | `API_TOKEN` | Bearer token required by the REST API | `REPLACE_ME_TOKEN` |
+
+`BUSINESS_HOST` sets the orchestrator URL used by helper commands to reach the REST API.
 
 To secure the gRPC bus provide `AGI_INSIGHT_BUS_CERT`,
 `AGI_INSIGHT_BUS_KEY` and `AGI_INSIGHT_BUS_TOKEN`. When these are omitted set
