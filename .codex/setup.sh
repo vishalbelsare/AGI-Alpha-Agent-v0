@@ -23,9 +23,11 @@ packages=(
   pytest
   prometheus_client
   openai
-  openai_agents
-  google_adk
+  openai-agents
+  google-adk
   anthropic
+  fastapi
+  opentelemetry-api
 )
 $PYTHON -m pip install --quiet "${wheel_opts[@]}" "${packages[@]}"
 

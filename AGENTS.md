@@ -83,8 +83,7 @@ Follow these steps when installing without internet access:
 
 - See [`alpha_factory_v1/scripts/README.md`](alpha_factory_v1/scripts/README.md) for additional offline tips.
 - After setup, validate with `python check_env.py --auto-install`. When `WHEELHOUSE` is set, run `python check_env.py --auto-install --wheelhouse <path>` so optional packages install correctly offline.
-- The unit tests rely on `fastapi` and `opentelemetry-api`. `./codex/setup.sh`
-  installs these packages automatically. When skipping the setup script, run
+- The unit tests rely on `fastapi`, `opentelemetry-api`, `openai-agents` and `google-adk`. `./codex/setup.sh` installs these packages automatically. When skipping the setup script, run
   `pip install -r requirements-dev.txt` or ensure `check_env.py` reports no
   missing packages before running `pytest`.
 - Execute `pytest -q` (or `python -m alpha_factory_v1.scripts.run_tests`) and ensure the entire suite passes.
