@@ -12,6 +12,8 @@ import sys
 import subprocess
 import tempfile
 from pathlib import Path
+import socket
+from contextlib import suppress
 
 try:
     from packaging.version import Version
@@ -125,6 +127,26 @@ def ensure_dir(path: Path) -> None:
         banner(f"Using {path}", "GREEN")
 
 
+def check_network(host: str = "pypi.org", timeout: float = 2.0) -> bool:
+    """Return True if *host* can be resolved within *timeout* seconds."""
+    try:
+        with suppress(Exception):
+            prev = socket.getdefaulttimeout()
+        socket.setdefaulttimeout(timeout)
+        socket.gethostbyname(host)
+    except Exception:
+        banner(
+            f"WARNING: Unable to resolve {host}. Use --wheelhouse for offline installs.",
+            "YELLOW",
+        )
+        return False
+    finally:
+        with suppress(Exception):
+            socket.setdefaulttimeout(prev)
+    banner(f"{host} resolved", "GREEN")
+    return True
+
+
 def check_openai_agents_version(min_version: str = "0.0.14") -> bool:
     """Verify ``openai_agents`` is new enough when installed."""
     import importlib
@@ -157,7 +179,13 @@ OPTIONAL_DEPS = {
 }
 
 
-def main() -> None:
+def main(argv: list[str] | None = None) -> None:
+    import argparse
+
+    parser = argparse.ArgumentParser(description="Validate environment")
+    parser.add_argument("--offline", action="store_true", help="Skip network checks")
+    args = parser.parse_args(argv)
+
     banner("Alpha-Factory Preflight Check", "YELLOW")
     ok = True
     ok &= check_python()
@@ -165,6 +193,8 @@ def main() -> None:
     ok &= check_cmd("git")
     ok &= check_docker_daemon()
     ok &= check_docker_compose()
+    if not args.offline:
+        check_network()
     # Always install pytest and prometheus_client for smooth local tests
     ok &= check_pkg("pytest")
     ok &= check_pkg("prometheus_client")
