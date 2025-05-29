@@ -4,7 +4,7 @@ This page documents the REST endpoints provided by the demo API server and the a
 
 ## REST endpoints
 
-The API is implemented with FastAPI in `src/interface/api_server.py`. The
+The API is implemented with FastAPI in `src.interface.api_server`. The
 orchestrator boots in the background when the server starts and is gracefully
 shut down on exit. Available endpoints are:
 
