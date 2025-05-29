@@ -3,6 +3,7 @@
 """Ensure requirements.lock is in sync with requirements.txt."""
 from __future__ import annotations
 
+import os
 import shutil
 import subprocess
 import sys
@@ -22,15 +23,22 @@ def main() -> int:
             cmd = [pip_compile]
         else:
             cmd = [sys.executable, "-m", "piptools", "compile"]
-        cmd += ["--quiet", "--generate-hashes", str(req_txt), "-o", str(out_path)]
+        wheelhouse = os.getenv("WHEELHOUSE")
+        cmd += ["--quiet"]
+        if wheelhouse:
+            cmd += ["--no-index", "--find-links", wheelhouse]
+        cmd += ["--generate-hashes", str(req_txt), "-o", str(out_path)]
         result = subprocess.run(cmd, capture_output=True, text=True)
         sys.stdout.write(result.stdout)
         sys.stderr.write(result.stderr)
         if result.returncode != 0:
             return result.returncode
         if out_path.read_bytes() != lock_file.read_bytes():
+            extra = ""
+            if wheelhouse:
+                extra = f"--no-index --find-links {wheelhouse} "
             sys.stderr.write(
-                "requirements.lock is outdated. Run 'pip-compile --quiet --generate-hashes requirements.txt'\n"
+                f"requirements.lock is outdated. Run 'pip-compile {extra}--quiet --generate-hashes requirements.txt'\n"
             )
             return 1
     return 0
