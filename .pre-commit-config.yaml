@@ -17,3 +17,10 @@ repos:
     hooks:
       - id: mypy
         args: ["--config-file", "mypy.ini"]
+  - repo: local
+    hooks:
+      - id: proto-verify
+        name: Verify protobuf files are up to date
+        entry: make proto-verify
+        language: system
+        pass_filenames: false
