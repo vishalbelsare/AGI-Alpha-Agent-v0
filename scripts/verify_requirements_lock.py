@@ -27,7 +27,7 @@ def main() -> int:
         cmd += ["--quiet"]
         if wheelhouse:
             cmd += ["--no-index", "--find-links", wheelhouse]
-        cmd += ["--generate-hashes", str(req_txt), "-o", str(out_path)]
+        cmd += [str(req_txt), "-o", str(out_path)]
         result = subprocess.run(cmd, capture_output=True, text=True)
         sys.stdout.write(result.stdout)
         sys.stderr.write(result.stderr)
@@ -38,7 +38,7 @@ def main() -> int:
             if wheelhouse:
                 extra = f"--no-index --find-links {wheelhouse} "
             sys.stderr.write(
-                f"requirements.lock is outdated. Run 'pip-compile {extra}--quiet --generate-hashes requirements.txt'\n"
+                f"requirements.lock is outdated. Run 'pip-compile {extra}--quiet requirements.txt -o requirements.lock'\n"
             )
             return 1
     return 0
