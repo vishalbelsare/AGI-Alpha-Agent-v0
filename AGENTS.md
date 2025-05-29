@@ -298,6 +298,12 @@ openssl dgst -sha512 -binary <wheel>.whl |
   openssl pkeyutl -verify -pubin -inkey "$AGENT_WHEEL_PUBKEY" -sigfile <wheel>.whl.sig
 ```
 
+Alternatively run the bundled helper:
+
+```bash
+verify-wheel-sig path/to/agent.whl
+```
+
 On Windows PowerShell:
 
 ```powershell
