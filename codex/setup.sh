@@ -12,6 +12,9 @@ fi
 # Upgrade pip and core build tools
 $PYTHON -m pip install --quiet "${wheel_opts[@]}" --upgrade pip setuptools wheel
 
+# Install pip-compile (pip-tools) early so hooks can verify lock files
+$PYTHON -m pip install --quiet "${wheel_opts[@]}" pip-tools
+
 # Install package in editable mode
 $PYTHON -m pip install --quiet "${wheel_opts[@]}" -e .
 
