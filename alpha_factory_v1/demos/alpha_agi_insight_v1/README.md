@@ -263,10 +263,21 @@ python -m alpha_factory_v1.demos.alpha_agi_insight_v1.src.interface.cli show-res
 
 # Monitor agent health in a live session
 python -m alpha_factory_v1.demos.alpha_agi_insight_v1.src.interface.cli agents-status --watch
+
+# Replay ledger events to inspect past runs
+python -m alpha_factory_v1.demos.alpha_agi_insight_v1.src.interface.cli replay --count 20
 ```
+
+`replay` replays ledger events stored under `AGI_INSIGHT_LEDGER_PATH` so you can step through previous runs.
 
 Helpful flags: `--offline` (force local models), `--pop-size`, `--generations`,
 `--export csv|json`, `--verbose`.
+
+| Command | Description |
+|---------|-------------|
+| `simulate` | Run a forecast simulation. |
+| `agents-status` | Show registered agents and health metrics. |
+| `replay` | Replay events from `AGI_INSIGHT_LEDGER_PATH`. |
 
 Example offline invocation:
 
