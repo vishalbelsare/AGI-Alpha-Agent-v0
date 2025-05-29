@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 import asyncio
 import random
 from alpha_factory_v1.demos.alpha_agi_insight_v1.src.agents import (

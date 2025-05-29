@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 import math
 import pytest
 from alpha_factory_v1.demos.alpha_agi_insight_v1.src.simulation import forecast, sector
