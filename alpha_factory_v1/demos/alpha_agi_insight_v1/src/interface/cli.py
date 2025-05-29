@@ -84,8 +84,20 @@ def main() -> None:
 @click.option("--context-window", type=int, help="Context window size")
 @click.option("--sectors-file", type=click.Path(exists=True), help="JSON file with sector definitions")
 @click.option("--sectors", default=6, show_default=True, type=int, help="Number of sectors")
-@click.option("--energy", default=1.0, show_default=True, type=float, help="Initial sector energy")
-@click.option("--entropy", default=1.0, show_default=True, type=float, help="Initial sector entropy")
+@click.option(
+    "--energy",
+    default=1.0,
+    show_default=True,
+    type=float,
+    help="Initial sector energy (also configurable via the web UI)",
+)
+@click.option(
+    "--entropy",
+    default=1.0,
+    show_default=True,
+    type=float,
+    help="Initial sector entropy (also configurable via the web UI)",
+)
 @click.option("--pop-size", default=6, show_default=True, type=int, help="MATS population size")
 @click.option("--generations", default=3, show_default=True, type=int, help="Evolution steps")
 @click.option("--export", type=click.Choice(["json", "csv"]), help="Export results format")

@@ -80,14 +80,29 @@ def _run_simulation(
     num_sectors: int,
     pop_size: int,
     generations: int,
+    energy: float,
+    entropy: float,
 ) -> None:
-    """Execute the simulation and update charts live."""
+    """Execute the simulation and update charts live.
+
+    Args:
+        horizon: Forecast horizon in years.
+        curve: Capability growth curve.
+        num_sectors: Number of simulated sectors.
+        pop_size: Evolutionary population size.
+        generations: Number of evolution steps.
+        energy: Initial sector energy.
+        entropy: Initial sector entropy.
+
+    Returns:
+        None
+    """
     if st is None:  # pragma: no cover - fallback
         print("Streamlit not installed")
         return
 
     st.session_state.logs = []
-    secs = [sector.Sector(f"s{i:02d}") for i in range(num_sectors)]
+    secs = [sector.Sector(f"s{i:02d}", energy, entropy) for i in range(num_sectors)]
     timeline_placeholder = st.empty()
     pareto_placeholder = st.empty()
     scatter_placeholder = st.empty()
@@ -185,15 +200,13 @@ def main() -> None:  # pragma: no cover - entry point
     st.title("AGI Simulation Dashboard")
     horizon = st.sidebar.number_input("Forecast horizon", min_value=1, max_value=20, value=5)
     curve = st.sidebar.selectbox("Growth curve", ["logistic", "linear", "exponential"], index=0)
-    num_sectors = st.sidebar.number_input(
-        "Number of sectors", min_value=1, max_value=20, value=6
-    )
-    pop_size = st.sidebar.number_input(
-        "Population size", min_value=2, max_value=20, value=6
-    )
+    num_sectors = st.sidebar.number_input("Number of sectors", min_value=1, max_value=20, value=6)
+    pop_size = st.sidebar.number_input("Population size", min_value=2, max_value=20, value=6)
     generations = st.sidebar.number_input("Generations", min_value=1, max_value=20, value=3)
+    energy = st.sidebar.slider("Initial energy", min_value=0.0, max_value=10.0, value=1.0)
+    entropy = st.sidebar.slider("Initial entropy", min_value=0.0, max_value=10.0, value=1.0)
     if st.sidebar.button("Run simulation"):
-        _run_simulation(horizon, curve, num_sectors, pop_size, generations)
+        _run_simulation(horizon, curve, num_sectors, pop_size, generations, energy, entropy)
 
 
 if __name__ == "__main__":  # pragma: no cover - script entry

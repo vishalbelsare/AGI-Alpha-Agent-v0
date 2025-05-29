@@ -106,11 +106,8 @@ function Dashboard() {
         pop_size: Number(popSize),
         generations: Number(generations),
         curve,
-        sectors: Array.from({ length: 6 }, (_, i) => ({
-          name: `s${String(i).padStart(2, '0')}`,
-          energy: Number(energy),
-          entropy: Number(entropy),
-        })),
+        energy: Number(energy),
+        entropy: Number(entropy),
       }),
     });
     if (!res.ok) return;
