@@ -35,6 +35,7 @@ else
     fastapi
     cryptography
     opentelemetry-api
+    opentelemetry-sdk
     httpx
     uvicorn
   )
