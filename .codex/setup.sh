@@ -3,11 +3,32 @@ set -euo pipefail
 
 PYTHON=${PYTHON:-python3}
 
+# Resolve repository root and default wheelhouse
+REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+if [[ -z "${WHEELHOUSE:-}" && -d "${REPO_ROOT}/wheels" ]]; then
+  WHEELHOUSE="${REPO_ROOT}/wheels"
+fi
+
 # Support offline installation via WHEELHOUSE
 # Set COLAB_INSTALL=1 to install the Colab dependencies lock file.
 wheel_opts=()
 if [[ -n "${WHEELHOUSE:-}" ]]; then
   wheel_opts+=(--no-index --find-links "$WHEELHOUSE")
+fi
+
+# Abort when no wheelhouse is available and the network is unreachable
+if [[ -z "${WHEELHOUSE:-}" ]]; then
+  if ! curl -sSf https://pypi.org/simple/ -o /dev/null 2>&1; then
+    cat <<'EOF'
+ERROR: No network access and no wheelhouse found.
+Create one with:
+  mkdir -p wheels
+  pip wheel -r requirements.lock -w wheels
+  pip wheel -r requirements-dev.txt -w wheels
+Then re-run ./codex/setup.sh
+EOF
+    exit 1
+  fi
 fi
 
 # Upgrade pip and core build tools

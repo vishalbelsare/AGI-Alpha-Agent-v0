@@ -69,7 +69,8 @@ Follow these steps when installing without internet access:
   pip install -r requirements.lock
   ```
 
-- Install from the wheelhouse:
+- Install from the wheelhouse (the setup script automatically uses a
+  `wheels/` directory in the repository root when `WHEELHOUSE` is unset):
   ```bash
   WHEELHOUSE=/media/wheels AUTO_INSTALL_MISSING=1 ./codex/setup.sh
   WHEELHOUSE=/media/wheels AUTO_INSTALL_MISSING=1 python check_env.py --auto-install --wheelhouse /media/wheels
@@ -80,6 +81,10 @@ Follow these steps when installing without internet access:
   pip check
   python check_env.py --auto-install --wheelhouse /media/wheels
   ```
+
+- The setup script exits with an error if neither network access nor a
+  wheelhouse is available. Build a wheelhouse as shown above and rerun
+  the command.
 
 #### Colab Requirements
 

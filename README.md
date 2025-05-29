@@ -74,7 +74,9 @@ Follow these steps when working without internet access.
    pip wheel -r requirements-dev.txt -w /media/wheels
    ```
 
-2. **Install from the wheelhouse** and verify packages:
+2. **Install from the wheelhouse** and verify packages. The setup script
+   automatically uses a `wheels/` directory in the repository root when
+   `WHEELHOUSE` is unset:
    ```bash
    WHEELHOUSE=/media/wheels AUTO_INSTALL_MISSING=1 ./codex/setup.sh
    WHEELHOUSE=/media/wheels AUTO_INSTALL_MISSING=1 \
@@ -590,16 +592,18 @@ cd AGI-Alpha-Agent-v0
 python check_env.py --auto-install  # verify & auto-install deps
 # Install runtime dependencies
 pip install -r requirements.lock
-# (If this fails with a network error, rerun with --wheelhouse <path>)
+# (If this fails with a network error, create a wheelhouse and rerun
+#  with --wheelhouse <path> or place the wheels under ./wheels)
 ./quickstart.sh               # creates venv, installs deps, launches
 # Use `--wheelhouse /path/to/wheels` to install offline packages when
-# the host has no internet access. `WHEELHOUSE` should point to a
-# directory containing pre-downloaded wheels. Running
+# the host has no internet access. The setup script automatically
+# falls back to `./wheels` if present. Running
 # `python check_env.py --auto-install --wheelhouse /path/to/wheels`
 # installs any missing optional packages. Example offline setup:
 #   export WHEELHOUSE=/media/wheels
 #   python check_env.py --auto-install --wheelhouse $WHEELHOUSE
-# The script prints this hint automatically if auto-install fails due to network errors.
+# The setup script exits with a message if neither network nor a wheelhouse
+# are available.
 # open the docs in your browser
 python -m webbrowser http://localhost:8000/docs
 # Alternatively, ``python alpha_factory_v1/quickstart.py`` provides the same
