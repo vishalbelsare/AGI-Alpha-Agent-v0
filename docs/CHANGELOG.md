@@ -3,7 +3,11 @@
 All notable changes to this project are documented in this file.
 
 ## [Unreleased]
+
+## [1.1.0] - 2025-07-15
 ### Added
+- CLI commands `agents-status` and `replay` for monitoring agents and replaying ledger events.
+- ADK and MCP adapters bridging the Alpha Data Kernel and Multi‑Chain Proxy.
 - Detailed design overview for the α‑AGI Insight demo under `alpha_factory_v1/demos/alpha_agi_insight_v1/docs`.
 - Expanded API documentation with `curl` and WebSocket examples.
 - Additional CLI notes and help command reference.
@@ -24,6 +28,7 @@ All notable changes to this project are documented in this file.
 - Example Helm values file for the Insight chart.
 - `simulate` command now accepts `--energy` and `--entropy` to set initial
   sector values. The React dashboard exposes matching input fields.
+- Version constant ``__version__`` defined in ``alpha_factory_v1.demos.alpha_agi_insight_v1.__init__``.
 
 ## [v1.0] - 2025-07-01
 - CLI commands `simulate`, `show-results`, `agents-status` and `replay` for running and inspecting forecasts.
