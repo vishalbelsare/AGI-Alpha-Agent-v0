@@ -13,21 +13,16 @@ import os
 from pathlib import Path
 from typing import Any, Optional
 
-from alpha_factory_v1.utils.env import _load_env_file
+from alpha_factory_v1.utils.config_common import (
+    SettingsBase,
+    _load_dotenv,
+    _prefetch_vault,
+)
 
 from pydantic import Field
-from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 _log = logging.getLogger(__name__)
-
-
-def _load_dotenv(path: str = ".env") -> None:
-    if Path(path).is_file():
-        for k, v in _load_env_file(path).items():
-            os.environ.setdefault(k, v)
-
-
 
 
 def _env_int(name: str, default: int) -> int:
@@ -35,26 +30,6 @@ def _env_int(name: str, default: int) -> int:
         return int(os.getenv(name, default))
     except (TypeError, ValueError):
         return default
-
-
-def _prefetch_vault() -> None:
-    """Populate environment secrets from HashiCorp Vault if configured."""
-    if "VAULT_ADDR" in os.environ:
-        try:  # pragma: no cover - optional dependency
-            import importlib
-
-            hvac = importlib.import_module("hvac")
-
-            addr = os.environ["VAULT_ADDR"]
-            token = os.getenv("VAULT_TOKEN")
-            secret_path = os.getenv("OPENAI_API_KEY_PATH", "OPENAI_API_KEY")
-            client = hvac.Client(url=addr, token=token)
-            data = client.secrets.kv.read_secret_version(path=secret_path)
-            value = data["data"]["data"].get("OPENAI_API_KEY")
-            if value:
-                os.environ["OPENAI_API_KEY"] = value
-        except Exception as exc:  # noqa: BLE001
-            _log.warning("Vault lookup failed: %s", exc)
 
 
 def init_config(env_file: str = ".env") -> None:
@@ -66,7 +41,7 @@ def init_config(env_file: str = ".env") -> None:
     CFG = Settings()
 
 
-class Settings(BaseSettings):
+class Settings(SettingsBase):
     """Environment-driven configuration."""
 
     openai_api_key: Optional[str] = Field(default=None, alias="OPENAI_API_KEY")
@@ -90,13 +65,6 @@ class Settings(BaseSettings):
     json_logs: bool = Field(default=False, alias="AGI_INSIGHT_JSON_LOGS")
     db_type: str = Field(default="sqlite", alias="AGI_INSIGHT_DB")
 
-    model_config: SettingsConfigDict = {
-        "env_file": ".env",
-        "extra": "ignore",
-        "populate_by_name": True,
-        "env_prefix": "",
-    }
-
     def __init__(self, **data: Any) -> None:  # pragma: no cover - exercised in tests
         super().__init__(**data)
         if not self.openai_api_key:
@@ -109,14 +77,6 @@ class Settings(BaseSettings):
                 self.solana_wallet = Path(self.solana_wallet_file).read_text(encoding="utf-8").strip()
             except Exception as exc:  # pragma: no cover - optional
                 _log.warning("Failed to load wallet file %s: %s", self.solana_wallet_file, exc)
-
-    def __repr__(self) -> str:  # pragma: no cover - trivial
-        data = self.model_dump()
-        for k in tuple(data):
-            if any(s in k.lower() for s in ("token", "key", "password")) and data[k]:
-                data[k] = "***"
-        return f"Settings({data})"
-
 
 
 CFG = Settings()
