@@ -24,3 +24,9 @@ repos:
         entry: make proto-verify
         language: system
         pass_filenames: false
+      - id: verify-requirements-lock
+        name: Verify requirements.lock is up to date
+        entry: python scripts/verify_requirements_lock.py
+        language: python
+        additional_dependencies: [pip-tools]
+        pass_filenames: false
