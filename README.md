@@ -219,12 +219,10 @@ python -m webbrowser http://localhost:8000/docs
 ```
 The adapters initialise automatically when these optional packages are present.
 
-To regenerate `requirements.lock` with the exact versions from
-`requirements.txt`, run:
+To regenerate `requirements.lock` from `requirements.txt` with hashes, run:
 
 ```bash
-pip install -r requirements.txt
-pip freeze > requirements.lock
+pip-compile --generate-hashes --output-file requirements.lock requirements.txt
 ```
 
 Once the API server is running you can launch a simulation:
