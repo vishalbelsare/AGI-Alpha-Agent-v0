@@ -47,12 +47,8 @@ if [[ "${COLAB_INSTALL:-0}" == "1" ]]; then
   # same offline mode as WHEELHOUSE.
   $PYTHON -m pip install --quiet "${wheel_opts[@]}" \
     -r alpha_factory_v1/requirements-colab.lock
-elif [[ "${FULL_INSTALL:-0}" == "1" ]]; then
-  # When FULL_INSTALL=1, use the deterministic lock file for reproducible
-  # offline installs.
-  $PYTHON -m pip install --quiet "${wheel_opts[@]}" -r requirements.lock
-else
-  # Minimal runtime/test dependencies
+elif [[ "${MINIMAL_INSTALL:-0}" == "1" ]]; then
+  # Install a reduced set of runtime/test dependencies
   packages=(
     pytest
     prometheus_client
@@ -66,6 +62,9 @@ else
     uvicorn
   )
   $PYTHON -m pip install --quiet "${wheel_opts[@]}" "${packages[@]}"
+else
+  # By default use the deterministic lock file for reproducible installs.
+  $PYTHON -m pip install --quiet "${wheel_opts[@]}" -r requirements.lock
 fi
 
 # Validate environment and install any remaining deps
