@@ -11,10 +11,15 @@ uvicorn[standard]~=0.34
 flask~=3.0
 gunicorn~=21.2
 orjson~=3.9
+websockets~=15.0
 
 # ─────────── Utilities / config / governance ───────────────────────────
 python-dotenv~=1.0
 pydantic~=2.7
+pydantic-settings~=2.9
+click~=8.2
+requests~=2.32
+cryptography~=45.0
 better-profanity~=0.7
 httpx~=0.28
 aiohttp~=3.9
@@ -24,10 +29,13 @@ rich>=13           # CLI output only (backend omits to stay lean)
 # ─────────── Observability & task-orchestration ────────────────────────
 prometheus-client~=0.19
 rocketry~=2.5           # cron-like scheduler
+opentelemetry-api~=1.33
+opentelemetry-sdk~=1.33
 
 # ─────────── Testing & self-healing toolchain ──────────────────────────
 pytest~=8.2
 gitpython~=3.1          # local PR simulation for self-healing demo
+playwright~=1.42
 
 # ─────────── LLM / Agents stack ────────────────────────────────────────
 openai>=1.82.0,<2.0       # GPT-4o & embeddings (sync with backend)
@@ -35,6 +43,7 @@ openai-agents>=0.0.16   # **critical** – official Agents SDK
 anthropic>=0.21         # Claude & MCP bridge
 litellm>=1.31           # local gateway / fallback router
 tiktoken>=0.5
+grpcio~=1.71
 grpcio-tools
 
 # Google ADK – optional Agent-to-Agent federation (A2A protocol)
