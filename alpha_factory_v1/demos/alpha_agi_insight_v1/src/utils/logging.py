@@ -217,10 +217,21 @@ class Ledger:
         if self.db_type == "postgres":
             with self.conn.cursor() as cur:
                 cur.execute("SELECT hash FROM messages ORDER BY id")
-                hashes = [row[0] for row in cur.fetchall()]
+                raw_hashes = [row[0] for row in cur.fetchall()]
         else:
             cur = self.conn.execute("SELECT hash FROM messages ORDER BY id")
-            hashes = [row[0] for row in cur.fetchall()]
+            raw_hashes = [row[0] for row in cur.fetchall()]
+
+        hashes: List[str] = []
+        for h in raw_hashes:
+            if not isinstance(h, str) or not h:
+                continue
+            try:
+                bytes.fromhex(h)
+            except Exception:
+                continue
+            hashes.append(h)
+
         return _merkle_root(hashes)
 
     def tail(self, count: int = 10) -> List[dict[str, object]]:
