@@ -22,6 +22,8 @@ try:  # pragma: no cover - optional dependency
 except Exception:  # pragma: no cover - optional
     st = None
 
+__all__ = ["pareto_df", "population_df", "timeline_df", "main"]
+
 if TYPE_CHECKING:  # pragma: no cover - typing only
     ForecastModule = Any
     SectorModule = Any

@@ -14,6 +14,8 @@ except Exception:  # pragma: no cover - optional
     _st = None
 st: Any | None = cast(Any, _st)
 
+__all__ = ["main"]
+
 forecast = importlib.import_module("alpha_factory_v1.demos.alpha_agi_insight_v1.src.simulation.forecast")
 sector = importlib.import_module("alpha_factory_v1.demos.alpha_agi_insight_v1.src.simulation.sector")
 

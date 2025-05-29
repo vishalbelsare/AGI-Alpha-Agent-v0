@@ -815,7 +815,7 @@ complexity from the final population.
 
 If Streamlit isn't installed or you're running on a headless server, use:
 ```bash
-python src/interface/minimal_ui.py --text
+python -m src.interface.minimal_ui --text
 ```
 to display the forecast results directly in the console.
 
