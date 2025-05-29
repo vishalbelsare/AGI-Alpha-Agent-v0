@@ -35,7 +35,8 @@ fi
 $PYTHON -m pip install --quiet "${wheel_opts[@]}" --upgrade pip setuptools wheel
 
 # Install pip-compile (pip-tools) early so hooks can verify lock files
-$PYTHON -m pip install --quiet "${wheel_opts[@]}" pip-tools
+# Install pre-commit at the same time to enable hooks
+$PYTHON -m pip install --quiet "${wheel_opts[@]}" pip-tools pre-commit
 
 # Install package in editable mode
 $PYTHON -m pip install --quiet "${wheel_opts[@]}" -e .
