@@ -241,6 +241,12 @@ You can manually trigger the CI run from the GitHub UI:
 
 The pipeline validates linting, type checks, tests and the Docker build.
 
+### Deploy to Kind
+The **Deploy — Kind** workflow provisions a local kind cluster, builds the Insight demo image, installs the Helm chart with default values, applies Terraform from `infrastructure/terraform` using the local backend and waits for pods to become ready. Repository settings mark this workflow as **required**.
+
+1. Navigate to "Actions → 🚀 Deploy — Kind".
+2. Click "Run workflow" to launch the deployment.
+
 ### PR Message Guidelines
 - Keep the subject line concise and under 72 characters.
 - Optionally include a short body explaining the rationale.
