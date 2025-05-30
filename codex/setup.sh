@@ -50,6 +50,34 @@ fi
 # setup in networked environments.
 if [[ "${FULL_INSTALL:-0}" == "1" ]]; then
   $PYTHON -m pip install --quiet "${wheel_opts[@]}" -r requirements.lock
+elif [[ "${MINIMAL_INSTALL:-0}" == "1" ]]; then
+  packages=(
+    pytest
+    pytest-benchmark
+    prometheus_client
+    mypy
+    openai
+    openai-agents
+    google-adk
+    anthropic
+    fastapi
+    opentelemetry-api
+    grpcio
+    grpcio-tools
+    httpx
+    uvicorn
+    cryptography
+    hypothesis
+    pytest-httpx
+    numpy
+    pandas
+    playwright
+    plotly
+    websockets
+    click
+    requests
+  )
+  $PYTHON -m pip install --quiet "${wheel_opts[@]}" "${packages[@]}"
 else
   packages=(
     accelerate
