@@ -48,3 +48,8 @@ repos:
         language: python
         additional_dependencies: [pip-tools]
         pass_filenames: false
+      - id: verify-env-docs
+        name: Verify environment docs and runbook checklist
+        entry: python tools/check_env_table.py
+        language: python
+        pass_filenames: false
