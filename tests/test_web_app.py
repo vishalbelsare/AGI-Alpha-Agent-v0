@@ -36,7 +36,7 @@ def test_population_df() -> None:
 def test_run_simulation_smoke(capsys: pytest.CaptureFixture[str]) -> None:
     """Ensure _run_simulation accepts energy and entropy options."""
 
-    web_app._run_simulation(1, "logistic", 2, 3, 1, 1.0, 1.0)
+    web_app._run_simulation(1, "logistic", 2, 3, 1, 1.0, 1.0, save_plots=False)
     out, _ = capsys.readouterr()
     assert "Streamlit not installed" in out
 

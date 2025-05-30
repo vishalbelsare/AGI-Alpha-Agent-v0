@@ -29,7 +29,8 @@ except Exception:  # pragma: no cover - optional
     Table = None
 
 from .. import orchestrator
-from ..simulation import forecast, sector
+from ..simulation import forecast, sector, mats
+from src.utils.visual import plot_pareto
 from ..utils import config, logging
 
 console = Console() if Console else None
@@ -116,6 +117,7 @@ def main() -> None:
 )
 @click.option("--dry-run", is_flag=True, help="Run offline without broadcasting")
 @click.option("--export", type=click.Choice(["json", "csv"]), help="Export results format")
+@click.option("--save-plots", is_flag=True, help="Write pareto.png and pareto.json")
 @click.option("--verbose", is_flag=True, help="Verbose output")
 @click.option("--start-orchestrator", is_flag=True, help="Run orchestrator after simulation")
 def simulate(
@@ -133,6 +135,7 @@ def simulate(
     xover_rate: float,
     dry_run: bool,
     export: str | None,
+    save_plots: bool,
     verbose: bool,
     start_orchestrator: bool,
     no_broadcast: bool,
@@ -160,6 +163,7 @@ def simulate(
         xover_rate: Probability of performing crossover.
         dry_run: Run offline without broadcasting.
         export: Format to export results.
+        save_plots: Save pareto.png and pareto.json in the working directory.
         verbose: Enable verbose output.
         start_orchestrator: Launch orchestrator after the run.
         no_broadcast: Disable ledger broadcasting.
@@ -231,6 +235,20 @@ def simulate(
             writer.writerow([r.year, r.capability, "|".join(s.name for s in r.affected)])
     else:
         _format_results(results)
+
+    if save_plots:
+        def eval_fn(genome: list[float]) -> tuple[float, float, float]:
+            x, y = genome
+            return x**2, y**2, (x + y) ** 2
+
+        pop = mats.run_evolution(
+            eval_fn,
+            2,
+            population_size=pop_size,
+            generations=generations,
+        )
+        elites = [ind for ind in pop if ind.rank == 0]
+        plot_pareto(elites, Path("pareto.png"))
 
     if not start_orchestrator:
         ledger = getattr(orch, "ledger", None)

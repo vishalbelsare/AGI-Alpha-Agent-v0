@@ -2,5 +2,6 @@
 """Shared utilities and configuration."""
 
 from .config import CFG, get_secret
+from .visual import plot_pareto
 
-__all__ = ["CFG", "get_secret"]
+__all__ = ["CFG", "get_secret", "plot_pareto"]
