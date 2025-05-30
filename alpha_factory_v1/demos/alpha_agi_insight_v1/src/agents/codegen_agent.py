@@ -16,6 +16,7 @@ import sys
 from google.protobuf import struct_pb2
 import tempfile
 import time
+from src.self_edit.safety import is_code_safe
 
 
 from .base_agent import BaseAgent
@@ -47,7 +48,8 @@ class CodeGenAgent(BaseAgent):
                         code = await with_retry(self.oai_ctx.run)(prompt=str(analysis))
                 except Exception:
                     pass
-            self.execute_in_sandbox(code)
+            if is_code_safe(code):
+                self.execute_in_sandbox(code)
             await self.emit("safety", {"code": code})
 
     def execute_in_sandbox(self, code: str) -> tuple[str, str]:

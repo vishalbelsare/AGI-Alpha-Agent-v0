@@ -183,6 +183,13 @@ class Orchestrator:
             log.warning("Merkle mismatch for %s", agent_id)
             self.slash(agent_id)
 
+    def verify_ledger(self, expected: str, agent_id: str) -> None:
+        """Slash ``agent_id`` when the current ledger root mismatches ``expected``."""
+        actual = self.ledger.compute_merkle_root()
+        if actual != expected:
+            log.warning("Merkle mismatch for %s", agent_id)
+            self.slash(agent_id)
+
     async def _monitor(self) -> None:
         while True:
             await asyncio.sleep(2)
