@@ -5,7 +5,10 @@ from __future__ import annotations
 
 import logging
 import os
+from pathlib import Path
 from typing import Any, Optional, cast
+
+import yaml
 
 from alpha_factory_v1.utils.config_common import (
     SettingsBase,
@@ -13,9 +16,16 @@ from alpha_factory_v1.utils.config_common import (
     _prefetch_vault,
 )
 
-from pydantic import Field
+from pydantic import BaseModel, Field
 
 _log = logging.getLogger(__name__)
+
+
+class SelfImprovePrompts(BaseModel):
+    """Prompt templates for the self-improvement workflow."""
+
+    system: str = ""
+    user: str = ""
 
 
 def get_secret(name: str, default: Optional[str] = None) -> Optional[str]:
@@ -98,6 +108,11 @@ class Settings(SettingsBase):
     bus_port: int = Field(default=6006, alias="AGI_INSIGHT_BUS_PORT")
     ledger_path: str = Field(default="./ledger/audit.db", alias="AGI_INSIGHT_LEDGER_PATH")
     seed: Optional[int] = Field(default=None, alias="SEED")
+    self_improve_template: str = Field(
+        default=str(Path(__file__).resolve().parents[1] / "prompts" / "self_improve.yaml"),
+        alias="SELF_IMPROVE_TEMPLATE",
+    )
+    self_improve: "SelfImprovePrompts" = Field(default_factory=lambda: SelfImprovePrompts())
 
     def __init__(self, **data: Any) -> None:  # pragma: no cover - exercised in tests
         super().__init__(**data)
@@ -106,6 +121,12 @@ class Settings(SettingsBase):
         if not self.openai_api_key:
             _log.warning("OPENAI_API_KEY missing – offline mode enabled")
             self.offline = True
+        try:
+            raw = yaml.safe_load(Path(self.self_improve_template).read_text(encoding="utf-8"))
+        except Exception as exc:  # noqa: BLE001
+            _log.warning("Failed to load self-improve template: %s", exc)
+            raw = {}
+        self.self_improve = SelfImprovePrompts(**(raw or {}))
 
 
 CFG = Settings()
