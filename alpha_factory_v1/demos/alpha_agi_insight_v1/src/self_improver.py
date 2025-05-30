@@ -13,6 +13,8 @@ import time
 from pathlib import Path
 from typing import Tuple
 
+from src.utils.patch_guard import is_patch_valid
+
 try:
     import git
 except ModuleNotFoundError:  # pragma: no cover - optional
@@ -45,6 +47,11 @@ def improve_repo(repo_url: str, patch_file: str, metric_file: str, log_file: str
     repo_dir = Path(tempfile.mkdtemp(prefix="selfimprover-"))
     repo = git.Repo.clone_from(repo_url, repo_dir)
     baseline = _evaluate(repo_dir, metric_file)
+
+    diff = Path(patch_file).read_text()
+    if not is_patch_valid(diff):
+        raise ValueError("Invalid or unsafe patch")
+
     repo.git.apply(patch_file)
     repo.index.add([metric_file])
     repo.index.commit("apply patch")
