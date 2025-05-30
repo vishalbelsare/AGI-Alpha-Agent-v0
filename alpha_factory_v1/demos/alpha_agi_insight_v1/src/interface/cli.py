@@ -29,7 +29,7 @@ except Exception:  # pragma: no cover - optional
     Console = None
     Table = None
 
-from .. import orchestrator
+from .. import orchestrator, self_improver
 from ..simulation import forecast, sector, mats
 from src.utils.visual import plot_pareto
 from ..utils import config, logging
@@ -182,9 +182,11 @@ def simulate(
         random.seed(seed)
         with contextlib.suppress(ModuleNotFoundError):
             import numpy as np  # type: ignore
+
             np.random.seed(seed)
         with contextlib.suppress(ModuleNotFoundError):
             import torch  # type: ignore
+
             torch.manual_seed(seed)
         config.CFG.seed = seed
 
@@ -245,6 +247,7 @@ def simulate(
         _format_results(results)
 
     if save_plots:
+
         def eval_fn(genome: list[float]) -> tuple[float, float, float]:
             x, y = genome
             return x**2, y**2, (x + y) ** 2
@@ -462,6 +465,18 @@ def api_server_cmd(host: str, port: int) -> None:
         host=host,
         port=port,
     )
+
+
+@main.command(name="self-improver")
+@click.option("--repo", "repo_url", required=True, help="Repository URL or path")
+@click.option("--patch", "patch_file", type=click.Path(exists=True), required=True, help="Unified diff file")
+@click.option("--metric-file", default="metric.txt", show_default=True, help="Metric file inside repo")
+@click.option("--log", "log_file", default="improver_log.json", show_default=True, help="JSON file to append results")
+def self_improver_cmd(repo_url: str, patch_file: str, metric_file: str, log_file: str) -> None:
+    """Clone repo, apply patch, evaluate score delta and log it."""
+
+    delta, _ = self_improver.improve_repo(repo_url, patch_file, metric_file, log_file)
+    click.echo(f"score delta: {delta}")
 
 
 @main.command()
