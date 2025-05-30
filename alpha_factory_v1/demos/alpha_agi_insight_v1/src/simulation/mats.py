@@ -104,6 +104,7 @@ def _evolve_step(
     *,
     rng: random.Random,
     mutation_rate: float,
+    crossover_rate: float,
 ) -> Population:
     """Return the next generation from ``pop`` using NSGA‑II."""
 
@@ -113,8 +114,11 @@ def _evolve_step(
     offspring: Population = []
     while len(offspring) < mu:
         a, b = rng.sample(pop, 2)
-        cut = rng.randint(1, genome_length - 1)
-        child_genome = a.genome[:cut] + b.genome[cut:]
+        if genome_length > 1 and rng.random() < crossover_rate:
+            cut = rng.randint(1, genome_length - 1)
+            child_genome = a.genome[:cut] + b.genome[cut:]
+        else:
+            child_genome = list(a.genome)
         if rng.random() < mutation_rate:
             idx = rng.randrange(genome_length)
             child_genome[idx] += rng.uniform(-1, 1)
@@ -138,6 +142,7 @@ def run_evolution(
     *,
     population_size: int = 20,
     mutation_rate: float = 0.1,
+    crossover_rate: float = 0.5,
     generations: int = 10,
     seed: int | None = None,
 ) -> Population:
@@ -148,6 +153,7 @@ def run_evolution(
         genome_length: Number of float genes per individual.
         population_size: Number of individuals preserved each generation.
         mutation_rate: Probability of mutating a gene during crossover.
+        crossover_rate: Probability of performing crossover between parents.
         generations: Number of NSGA-II steps to perform.
         seed: Optional random seed for deterministic behaviour.
 
@@ -159,6 +165,12 @@ def run_evolution(
     pop = [Individual([rng.uniform(-1, 1) for _ in range(genome_length)]) for _ in range(population_size)]
 
     for _ in range(generations):
-        pop = _evolve_step(pop, fn, rng=rng, mutation_rate=mutation_rate)
+        pop = _evolve_step(
+            pop,
+            fn,
+            rng=rng,
+            mutation_rate=mutation_rate,
+            crossover_rate=crossover_rate,
+        )
 
     return pop

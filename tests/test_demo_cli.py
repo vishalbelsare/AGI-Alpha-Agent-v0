@@ -242,3 +242,15 @@ def test_simulate_invalid_option() -> None:
     )
     assert res.exit_code != 0
     assert "Invalid value for '--export'" in res.output
+
+
+def test_simulate_dry_run_mut_rate() -> None:
+    """Running simulate with --dry-run and custom mutation rate should succeed."""
+    runner = CliRunner()
+    with patch.object(cli, "asyncio"):
+        with patch.object(cli.orchestrator, "Orchestrator"):
+            res = runner.invoke(
+                cli.main,
+                ["simulate", "--dry-run", "--mut-rate", "0.2"],
+            )
+    assert res.exit_code == 0
