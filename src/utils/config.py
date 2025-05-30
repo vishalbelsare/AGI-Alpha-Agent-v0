@@ -97,6 +97,7 @@ class Settings(SettingsBase):
     offline: bool = Field(default=False, alias="AGI_INSIGHT_OFFLINE")
     bus_port: int = Field(default=6006, alias="AGI_INSIGHT_BUS_PORT")
     ledger_path: str = Field(default="./ledger/audit.db", alias="AGI_INSIGHT_LEDGER_PATH")
+    seed: Optional[int] = Field(default=None, alias="SEED")
 
     def __init__(self, **data: Any) -> None:  # pragma: no cover - exercised in tests
         super().__init__(**data)
