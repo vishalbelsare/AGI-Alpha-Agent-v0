@@ -101,6 +101,12 @@ Follow these steps when working without internet access.
    export AGI_INSIGHT_BROADCAST=0
    ```
 
+6. **Seed the lineage database** from existing DGM logs using ``--import-dgm``.
+   ```bash
+   python -m alpha_factory_v1.demos.alpha_agi_insight_v1.src.interface.cli \
+     simulate --import-dgm path/to/dgm/logs
+   ```
+
    Sample sector definitions live in
    ``alpha_factory_v1/demos/alpha_agi_insight_v1/docs/sectors.sample.json``.
    Pass this file with ``--sectors-file`` to forecast specific industries.
