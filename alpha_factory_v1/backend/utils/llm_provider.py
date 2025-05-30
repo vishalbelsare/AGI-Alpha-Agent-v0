@@ -40,6 +40,8 @@ from collections import OrderedDict
 from types import GeneratorType
 from typing import Any, Dict, Generator, Iterable, List, Optional, Sequence
 
+from src.monitoring import metrics
+
 # ──────────────────── optional dependencies ────────────────
 _HAS_PROM = _HAS_TOK = False
 try:
@@ -188,6 +190,8 @@ class _Provider:
         _CNT_REQ.labels(self.name, "ok" if ok else "fail").inc()
         if tokens:
             _CNT_TOK.labels(self.name).inc(tokens)
+            metrics.dgm_tokens_total.labels(self.name).inc(tokens)
+            metrics.dgm_cost_usd_total.labels(self.name).inc(tokens * metrics.COST_PER_TOKEN)
         _HIST_LAT.labels(self.name).observe(lat)
 
     # ----- public sync interface ------------------------------------------
