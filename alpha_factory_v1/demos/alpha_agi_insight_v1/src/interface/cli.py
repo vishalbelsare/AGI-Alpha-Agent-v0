@@ -100,6 +100,21 @@ def main() -> None:
 )
 @click.option("--pop-size", default=6, show_default=True, type=int, help="MATS population size")
 @click.option("--generations", default=3, show_default=True, type=int, help="Evolution steps")
+@click.option(
+    "--mut-rate",
+    default=0.1,
+    show_default=True,
+    type=float,
+    help="Mutation rate during crossover",
+)
+@click.option(
+    "--xover-rate",
+    default=0.5,
+    show_default=True,
+    type=float,
+    help="Crossover rate",
+)
+@click.option("--dry-run", is_flag=True, help="Run offline without broadcasting")
 @click.option("--export", type=click.Choice(["json", "csv"]), help="Export results format")
 @click.option("--verbose", is_flag=True, help="Verbose output")
 @click.option("--start-orchestrator", is_flag=True, help="Run orchestrator after simulation")
@@ -114,6 +129,9 @@ def simulate(
     entropy: float,
     pop_size: int,
     generations: int,
+    mut_rate: float,
+    xover_rate: float,
+    dry_run: bool,
     export: str | None,
     verbose: bool,
     start_orchestrator: bool,
@@ -138,6 +156,9 @@ def simulate(
         entropy: Initial sector entropy.
         pop_size: MATS population size.
         generations: Number of evolution steps.
+        mut_rate: Probability of mutating a gene.
+        xover_rate: Probability of performing crossover.
+        dry_run: Run offline without broadcasting.
         export: Format to export results.
         verbose: Enable verbose output.
         start_orchestrator: Launch orchestrator after the run.
@@ -159,6 +180,9 @@ def simulate(
         os.environ["LLAMA_MODEL_PATH"] = str(llama_model_path)
 
     cfg = config.CFG.model_dump()
+    if dry_run:
+        offline = True
+        no_broadcast = True
     if offline:
         cfg["offline"] = True
     if model_name is not None:
@@ -185,6 +209,8 @@ def simulate(
         pop_size=pop_size,
         generations=generations,
         seed=seed,
+        mut_rate=mut_rate,
+        xover_rate=xover_rate,
     )
     results = [forecast.ForecastPoint(t.year, t.capability, [s for s in t.sectors if s.disrupted]) for t in trajectory]
 

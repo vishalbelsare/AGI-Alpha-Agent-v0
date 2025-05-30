@@ -93,13 +93,22 @@ def thermodynamic_trigger(sector: Sector, capability: float) -> bool:
     return free_energy(sector, capability) < 0
 
 
-def _innovation_gain(pop_size: int = 6, generations: int = 1, *, seed: int | None = None) -> float:
+def _innovation_gain(
+    pop_size: int = 6,
+    generations: int = 1,
+    *,
+    seed: int | None = None,
+    mut_rate: float = 0.1,
+    xover_rate: float = 0.5,
+) -> float:
     """Return a small gain from a short MATS run.
 
     Args:
         pop_size: Number of individuals in the MATS population.
         generations: Number of evolution steps.
         seed: Optional RNG seed for deterministic output.
+        mut_rate: Probability of mutating a gene.
+        xover_rate: Probability of performing crossover.
     """
 
     def fn(genome: list[float]) -> tuple[float, float, float]:
@@ -113,6 +122,8 @@ def _innovation_gain(pop_size: int = 6, generations: int = 1, *, seed: int | Non
         fn,
         2,
         population_size=pop_size,
+        mutation_rate=mut_rate,
+        crossover_rate=xover_rate,
         generations=generations,
         seed=seed,
     )
@@ -131,8 +142,26 @@ def forecast_disruptions(
     pop_size: int = 6,
     generations: int = 1,
     seed: int | None = None,
+    mut_rate: float = 0.1,
+    xover_rate: float = 0.5,
 ) -> List[TrajectoryPoint]:
-    """Simulate sector trajectories and disruption events."""
+    """Simulate sector trajectories and disruption events.
+
+    Args:
+        sectors: Iterable of sectors to simulate.
+        horizon: Number of years to simulate.
+        curve: Name of the capability growth curve.
+        k: Optional curve steepness parameter.
+        x0: Optional curve midpoint shift.
+        pop_size: Population size for the evolutionary search.
+        generations: Number of evolution steps.
+        seed: Random seed for deterministic behaviour.
+        mut_rate: Probability of mutating a gene.
+        xover_rate: Probability of performing crossover.
+
+    Returns:
+        List of trajectory points for each simulated year.
+    """
 
     secs = list(sectors)
     results: List[TrajectoryPoint] = []
@@ -145,7 +174,13 @@ def forecast_disruptions(
                 sec.energy *= 1.0 + sec.growth
                 if thermodynamic_trigger(sec, cap):
                     sec.disrupted = True
-                    sec.energy += _innovation_gain(pop_size, generations, seed=seed)
+                    sec.energy += _innovation_gain(
+                        pop_size,
+                        generations,
+                        seed=seed,
+                        mut_rate=mut_rate,
+                        xover_rate=xover_rate,
+                    )
                     affected.append(sec)
         snapshot = [Sector(s.name, s.energy, s.entropy, s.growth, s.disrupted) for s in secs]
         results.append(TrajectoryPoint(year, cap, snapshot))
