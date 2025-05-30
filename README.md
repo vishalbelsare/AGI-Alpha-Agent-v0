@@ -597,7 +597,7 @@ pip install -r requirements.lock
 ./quickstart.sh               # creates venv, installs deps, launches
 # Use `--wheelhouse /path/to/wheels` to install offline packages when
 # the host has no internet access. The setup script automatically
-# falls back to `./wheels` if present. Running
+# sets `WHEELHOUSE` to `./wheels` when that directory exists. Running
 # `python check_env.py --auto-install --wheelhouse /path/to/wheels`
 # installs any missing optional packages. Example offline setup:
 #   export WHEELHOUSE=/media/wheels

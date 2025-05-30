@@ -69,8 +69,9 @@ Follow these steps when installing without internet access:
   pip install -r requirements.lock
   ```
 
-- Install from the wheelhouse (the setup script automatically uses a
-  `wheels/` directory in the repository root when `WHEELHOUSE` is unset):
+- Install from the wheelhouse (the setup script automatically sets
+  `WHEELHOUSE` to the `wheels/` directory in the repository root when
+  that directory exists):
   ```bash
   WHEELHOUSE=/media/wheels AUTO_INSTALL_MISSING=1 ./codex/setup.sh
   WHEELHOUSE=/media/wheels AUTO_INSTALL_MISSING=1 python check_env.py --auto-install --wheelhouse /media/wheels

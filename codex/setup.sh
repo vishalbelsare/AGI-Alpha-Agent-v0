@@ -3,6 +3,14 @@ set -euo pipefail
 
 PYTHON=${PYTHON:-python3}
 
+# Default to a wheelhouse next to the repository root when available
+if [[ -z "${WHEELHOUSE:-}" ]]; then
+  default_wheelhouse="$(dirname "$0")/../wheels"
+  if [[ -d "$default_wheelhouse" ]]; then
+    export WHEELHOUSE="$default_wheelhouse"
+  fi
+fi
+
 # Support offline installation via WHEELHOUSE
 wheel_opts=()
 if [[ -n "${WHEELHOUSE:-}" ]]; then
