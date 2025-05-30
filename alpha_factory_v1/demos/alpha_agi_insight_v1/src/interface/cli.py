@@ -30,6 +30,7 @@ except Exception:  # pragma: no cover - optional
     Table = None
 
 from .. import orchestrator, self_improver
+from src import scheduler
 from ..simulation import forecast, sector, mats
 from src.utils.visual import plot_pareto
 from ..utils import config, logging
@@ -477,6 +478,19 @@ def self_improver_cmd(repo_url: str, patch_file: str, metric_file: str, log_file
 
     delta, _ = self_improver.improve_repo(repo_url, patch_file, metric_file, log_file)
     click.echo(f"score delta: {delta}")
+
+
+@main.command()
+@click.option("--jobs", "jobs_file", type=click.Path(exists=True), required=True, help="JSON file with jobs")
+@click.option("--token-quota", type=int, help="Maximum tokens to consume")
+@click.option("--time-quota", type=int, help="Maximum runtime in seconds")
+def explore(jobs_file: str, token_quota: int | None, time_quota: int | None) -> None:
+    """Run self-improvement jobs under quota limits."""
+
+    data = json.loads(Path(jobs_file).read_text())
+    jobs = [scheduler.Job(**item) for item in data]
+    sched = scheduler.SelfImprovementScheduler(jobs, tokens_quota=token_quota, time_quota=time_quota)
+    asyncio.run(sched.serve())
 
 
 @main.command()
