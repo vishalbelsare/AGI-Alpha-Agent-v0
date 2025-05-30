@@ -155,3 +155,6 @@ if [[ -n "${WHEELHOUSE:-}" ]]; then
 fi
 $PYTHON check_env.py --auto-install "${check_env_opts[@]}"
 
+# Verify all dependencies are satisfied and abort on issues
+$PYTHON -m pip check
+
