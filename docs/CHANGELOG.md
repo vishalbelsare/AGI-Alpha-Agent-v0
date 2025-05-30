@@ -5,6 +5,7 @@ All notable changes to this project are documented in this file.
 ## [Unreleased]
 - Synced `openai`, `openai-agents` and `uvicorn` pins across requirements files
   and clarified why `requests` and `rich` differ between layers.
+- Added [`src/tools/analyse_backtrack.py`](../src/tools/analyse_backtrack.py) for visualising archive backtracks.
 
 ## [1.1.0] - 2025-07-15
 ### Added
