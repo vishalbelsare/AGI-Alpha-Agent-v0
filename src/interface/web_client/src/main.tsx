@@ -2,7 +2,7 @@
 import React, { useEffect, useState, FormEvent } from 'react';
 import ReactDOM from 'react-dom/client';
 import Plotly from 'plotly.js-dist';
-import LineageTree, { LineageNode } from '../components/LineageTree';
+import LineageTree, { LineageNode } from './LineageTree';
 
 interface SectorData {
   name: string;
@@ -92,6 +92,12 @@ function Dashboard() {
     if (!res.ok) return;
     const body = await res.json();
     setTimeline(body.forecast ?? []);
+  }
+
+  async function fetchPopulation(id: string) {
+    const res = await fetch(`${API_BASE}/population/${id}`, { headers: HEADERS });
+    if (!res.ok) return;
+    const body = await res.json();
     setPopulation(body.population ?? []);
   }
 
@@ -142,6 +148,7 @@ function Dashboard() {
     };
     ws.onclose = () => {
       fetchResults(id).catch(() => null);
+      fetchPopulation(id).catch(() => null);
     };
   }
 
