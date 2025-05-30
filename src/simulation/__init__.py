@@ -2,5 +2,14 @@
 """Lightweight simulation helpers."""
 
 from .mats_ops import GaussianParam, PromptRewrite, CodePatch
+from .replay import Scenario, available_scenarios, load_scenario, run_scenario
 
-__all__ = ["GaussianParam", "PromptRewrite", "CodePatch"]
+__all__ = [
+    "GaussianParam",
+    "PromptRewrite",
+    "CodePatch",
+    "Scenario",
+    "available_scenarios",
+    "load_scenario",
+    "run_scenario",
+]
