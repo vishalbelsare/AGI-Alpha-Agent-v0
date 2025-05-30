@@ -19,6 +19,8 @@ def test_run_benchmarks(tmp_path: Path) -> None:
     data = json.loads(result.stdout)
     assert any(d['task_id'].startswith('swebench_verified_mini') for d in data)
     assert any(d['task_id'].startswith('polyglot_lite') for d in data)
+    assert any(d['task_id'].startswith('swe_mini') for d in data)
+    assert any(d['task_id'].startswith('poly_mini') for d in data)
     for entry in data:
         assert 'time_ms' in entry and isinstance(entry['time_ms'], int)
         assert 'pass' in entry
