@@ -5,6 +5,7 @@ from __future__ import annotations
 import random
 from typing import Any, List
 
+import ast
 from src.self_edit.safety import is_code_safe
 from src.archive.selector import select_parent
 
@@ -60,11 +61,79 @@ class SelfRewriteOperator:
     def __call__(self, text: str) -> str:
         for _ in range(self.steps):
             candidate = self._op(text)
-            if is_code_safe(candidate):
-                text = candidate
-            else:
-                break
+            safe = is_code_safe(candidate)
+            if not safe:
+                try:
+                    ast.parse(candidate)
+                    parse_error = False
+                except SyntaxError:
+                    parse_error = True
+                if not parse_error:
+                    break
+
+            # Only validate candidate patches that look like diffs
+            if candidate.lstrip().startswith(("---", "diff")):
+                if not self._validate_patch(candidate):
+                    break
+
+            text = candidate
         return text
+
+    def _validate_patch(self, patch: str) -> bool:
+        """Apply ``patch`` in a temporary clone and run quality checks."""
+
+        from pathlib import Path
+        import shutil
+        import subprocess
+        import tempfile
+
+        try:
+            root = (
+                Path(
+                    subprocess.check_output(["git", "rev-parse", "--show-toplevel"], text=True).strip()
+                )
+            )
+        except subprocess.CalledProcessError:
+            return False
+
+        with tempfile.TemporaryDirectory() as tmp:
+            try:
+                subprocess.run(
+                    ["git", "clone", "--local", str(root), tmp],
+                    check=True,
+                    stdout=subprocess.DEVNULL,
+                    stderr=subprocess.DEVNULL,
+                )
+                apply = subprocess.run(
+                    ["git", "apply", "-"],
+                    input=patch.encode(),
+                    cwd=tmp,
+                    stdout=subprocess.DEVNULL,
+                    stderr=subprocess.DEVNULL,
+                )
+                if apply.returncode != 0:
+                    return False
+
+                checks = [
+                    ["pytest", "-q"],
+                    ["ruff", "."],
+                    ["bandit", "-q", "-r", "."],
+                ]
+                for cmd in checks:
+                    if shutil.which(cmd[0]) is None:
+                        continue
+                    proc = subprocess.run(
+                        cmd,
+                        cwd=tmp,
+                        stdout=subprocess.DEVNULL,
+                        stderr=subprocess.DEVNULL,
+                    )
+                    if proc.returncode != 0:
+                        return False
+            except Exception:
+                return False
+
+        return True
 
 
 def backtrack_boost(pop: List[Any], archive: List[Any], rate: float) -> Any:
