@@ -3,10 +3,14 @@
 
 from __future__ import annotations
 
-from collections import defaultdict
+from collections import defaultdict, deque
 from typing import Iterable, Mapping, Any
+import logging
+from pathlib import Path
 
-__all__ = ["compute_fitness"]
+from src.archive.db import ArchiveDB
+
+__all__ = ["compute_fitness", "CurriculumSwitcher"]
 
 
 def compute_fitness(results: Iterable[Mapping[str, Any]]) -> dict[str, dict[str, float]]:
@@ -45,3 +49,46 @@ def compute_fitness(results: Iterable[Mapping[str, Any]]) -> dict[str, dict[str,
         metrics[dataset] = {"pass_rate": passed / total if total else 0.0, "avg_ms": avg_ms}
 
     return metrics
+
+
+class CurriculumSwitcher:
+    """Manage dataset curriculum based on rolling pass rate."""
+
+    MINI = "swe_mini"
+    FULL = "swebench_verified_mini"
+    POLYGLOT = "polyglot_lite"
+
+    def __init__(self, db_path: str | Path, window: int = 10) -> None:
+        self.db = ArchiveDB(db_path)
+        self.window = window
+        self.history: deque[float] = deque(maxlen=window)
+        self._dataset = self.db.get_state("dataset", self.MINI)
+        self._log = logging.getLogger(__name__)
+        self._log.info("current dataset: %s", self._dataset)
+
+    @property
+    def dataset(self) -> str:
+        """Return the active dataset name."""
+
+        return self._dataset
+
+    def update(self, metrics: Mapping[str, Mapping[str, float]]) -> None:
+        """Update rolling stats and switch datasets when thresholds pass."""
+
+        rate = metrics.get(self._dataset, {}).get("pass_rate")
+        if rate is not None:
+            self.history.append(rate)
+        if not self.history:
+            return
+        avg = sum(self.history) / len(self.history)
+
+        if self._dataset == self.MINI and avg >= 0.40:
+            self._dataset = self.FULL
+            self.history.clear()
+            self.db.set_state("dataset", self._dataset)
+            self._log.info("switched dataset to %s", self._dataset)
+        elif self._dataset == self.FULL and avg >= 0.60:
+            self._dataset = self.POLYGLOT
+            self.history.clear()
+            self.db.set_state("dataset", self._dataset)
+            self._log.info("switched dataset to %s", self._dataset)
