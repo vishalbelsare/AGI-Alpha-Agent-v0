@@ -31,3 +31,19 @@ def test_accepts_normal_patch() -> None:
 +b
 """
     assert is_patch_valid(diff)
+
+
+def test_mixed_test_and_src_patch() -> None:
+    diff = (
+        "--- a/src/foo.py\n"
+        "+++ b/src/foo.py\n"
+        "@@\n"
+        "-a\n"
+        "+b\n"
+        "--- a/tests/bar.py\n"
+        "+++ b/tests/bar.py\n"
+        "@@\n"
+        "-x\n"
+        "+y\n"
+    )
+    assert is_patch_valid(diff)
