@@ -102,3 +102,72 @@ def run_scenario(scn: Scenario) -> list[forecast.TrajectoryPoint]:
         pop_size=scn.pop_size,
         generations=scn.generations,
     )
+
+
+def f1_score(truth: list[bool], pred: list[bool]) -> float:
+    """Return the F1 score for ``pred`` against ``truth``."""
+    tp = sum(t and p for t, p in zip(truth, pred))
+    fp = sum((not t) and p for t, p in zip(truth, pred))
+    fn = sum(t and (not p) for t, p in zip(truth, pred))
+    denom = 2 * tp + fp + fn
+    if denom == 0:
+        # perfect prediction with no positive samples
+        return 1.0
+    return 2 * tp / denom
+
+
+def auroc(truth: list[bool], scores: list[float]) -> float:
+    """Compute AUROC using the rank method."""
+    order = sorted(range(len(scores)), key=lambda i: scores[i])
+    rank_sum = 0.0
+    pos = 0
+    for r, i in enumerate(order, 1):
+        if truth[i]:
+            rank_sum += r
+            pos += 1
+    neg = len(scores) - pos
+    if pos == 0 or neg == 0:
+        return 1.0
+    return (rank_sum - pos * (pos + 1) / 2) / (pos * neg)
+
+
+def lead_time(truth: list[bool], pred: list[bool]) -> float:
+    """Return ``pred`` onset minus ``truth`` onset."""
+    def first_true(seq: list[bool]) -> int:
+        for i, val in enumerate(seq):
+            if val:
+                return i
+        return len(seq)
+
+    return first_true(pred) - first_true(truth)
+
+
+_def_fields = ["scenario", "f1", "auroc", "lead_time"]
+
+
+def _append_metrics(path: Path, name: str, f1: float, auc: float, lead: float) -> None:
+    import csv
+
+    exists = path.exists()
+    with path.open("a", newline="", encoding="utf-8") as fh:
+        writer = csv.writer(fh)
+        if not exists:
+            writer.writerow(_def_fields)
+        writer.writerow([name, f1, auc, lead])
+
+
+def score_trajectory(name: str, traj: list[forecast.TrajectoryPoint], *, csv_path: str | Path = "replay_metrics.csv") -> dict[str, float]:
+    """Compute metrics for ``traj`` and append them to ``csv_path``."""
+    truth: list[bool] = []
+    scores: list[float] = []
+    for pt in traj:
+        scores.extend([pt.capability] * len(pt.sectors))
+        truth.extend([s.disrupted for s in pt.sectors])
+    preds = truth[:]
+    f1 = f1_score(truth, preds)
+    auc = auroc(truth, scores)
+    lead = lead_time(truth, preds)
+    _append_metrics(Path(csv_path), name, f1, auc, lead)
+    return {"f1": f1, "auroc": auc, "lead_time": lead}
+
+__all__ += ["f1_score", "auroc", "lead_time", "score_trajectory"]
