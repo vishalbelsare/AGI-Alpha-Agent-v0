@@ -22,7 +22,7 @@ jobs:
         run: python scripts/run_replay_bench.py
       - name: Run micro benchmarks
         run: |
-          python benchmarks/run_benchmarks.py > bench_results.json
+          make benchmark
       - name: Upload micro benchmark results
         uses: actions/upload-artifact@v4
         with:

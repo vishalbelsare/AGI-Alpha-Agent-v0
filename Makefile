@@ -1,4 +1,4 @@
-.PHONY: build_web demo-setup demo-run compose-up loadtest proto proto-verify
+.PHONY: build_web demo-setup demo-run compose-up loadtest proto proto-verify benchmark
 
 build_web:
 	pnpm --dir src/interface/web_client install
@@ -35,3 +35,6 @@ proto:
 proto-verify:
         $(MAKE) proto
         git --no-pager diff --exit-code src/utils/a2a_pb2.py alpha_factory_v1/proto/go/a2a.pb.go
+
+benchmark:
+	python benchmarks/docker_runner.py > bench_results.json

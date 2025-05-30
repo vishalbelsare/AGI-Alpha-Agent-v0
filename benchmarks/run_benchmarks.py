@@ -38,7 +38,12 @@ def run_task(task_id: str, module_name: str) -> dict[str, object]:
 def main() -> None:
     # Ensure the repository root is on sys.path so benchmark modules import
     sys.path.insert(0, str(ROOT.parent))
-    datasets = ["swebench_verified_mini", "polyglot_lite"]
+    datasets = [
+        "swebench_verified_mini",
+        "polyglot_lite",
+        "swe_mini",
+        "poly_mini",
+    ]
     results = []
     for ds in datasets:
         for task_id, module in _discover_tasks(ds):
