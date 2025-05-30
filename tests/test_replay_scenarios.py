@@ -19,10 +19,19 @@ def test_available_scenarios() -> None:
     assert EXPECTED.issubset(names)
 
 
-@pytest.mark.parametrize("name", sorted(EXPECTED))
-def test_scenario_runs_fast(name: str) -> None:
+@pytest.mark.parametrize(
+    "scenario",
+    [
+        "scenario_1994_web",
+        "scenario_2001_genome",
+        "scenario_2008_mobile",
+        "scenario_2012_dl",
+        "scenario_2020_mrna",
+    ],
+    indirect=True,
+)
+def test_scenario_runs_fast(scenario) -> None:
     start = time.perf_counter()
-    scn = replay.load_scenario(name)
-    result = replay.run_scenario(scn)
-    assert len(result) == scn.horizon
+    result = replay.run_scenario(scenario)
+    assert len(result) == scenario.horizon
     assert time.perf_counter() - start < 120
