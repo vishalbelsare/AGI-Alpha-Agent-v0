@@ -16,6 +16,7 @@ import sys
 ROOT = Path(__file__).resolve().parents[1]
 ENV_SAMPLE = ROOT / "alpha_factory_v1" / ".env.sample"
 AGENTS_MD = ROOT / "AGENTS.md"
+RUNBOOK_MD = ROOT / "docs" / "POLICY_RUNBOOK.md"
 
 
 def parse_env_sample(path: Path) -> set[str]:
@@ -49,22 +50,56 @@ def parse_agents_table(path: Path) -> set[str]:
     return table_vars
 
 
+def parse_runbook_checklist(path: Path) -> list[str]:
+    text = path.read_text().splitlines()
+    try:
+        start = text.index("## Promotion Checklist for Self‑Modifying Code")
+    except ValueError:
+        return []
+    items: list[str] = []
+    for line in text[start + 1 :]:
+        line = line.strip()
+        if not line:
+            if items:
+                break
+            continue
+        if line[0].isdigit() and line[1:].lstrip().startswith("."):
+            # split at first period after the number
+            parts = line.split(" ", 1)
+            if len(parts) == 2:
+                items.append(parts[1])
+            else:
+                items.append("")
+        elif items:
+            break
+    return items
+
+
 def main() -> int:
     env_vars = parse_env_sample(ENV_SAMPLE)
     md_vars = parse_agents_table(AGENTS_MD)
+    checklist = parse_runbook_checklist(RUNBOOK_MD)
 
     missing_in_md = sorted(env_vars - md_vars)
     missing_in_env = sorted(md_vars - env_vars)
 
+    errors = False
     if missing_in_md or missing_in_env:
         if missing_in_md:
             print("Missing from AGENTS.md:", ", ".join(missing_in_md))
+            errors = True
         if missing_in_env:
             print("Missing from .env.sample:", ", ".join(missing_in_env))
-        return 1
+            errors = True
 
-    print("Environment variable table is up-to-date.")
-    return 0
+    if len(checklist) < 5:
+        print("Runbook checklist incomplete; expected at least 5 items")
+        errors = True
+
+    if not errors:
+        print("Environment variable table and runbook checklist are up-to-date.")
+        return 0
+    return 1
 
 
 if __name__ == "__main__":

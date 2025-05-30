@@ -245,6 +245,7 @@ of a real general intelligence. Use at your own risk.
 ## Further Reading
 - [docs/DESIGN.md](docs/DESIGN.md) — architecture overview and agent roles.
 - [docs/API.md](docs/API.md) — REST API and CLI endpoints.
+- [docs/dgm_ops.md](docs/dgm_ops.md) — scheduler flags and lineage audit notes.
 - Release notes are maintained in [docs/CHANGELOG.md](docs/CHANGELOG.md).
 - The [v1.0 entry](docs/CHANGELOG.md#v10---2025-07-01) lists the CLI, web UI and security features.
 - A demo specific overview can be found in
@@ -923,6 +924,8 @@ docker run -p 16686:16686 -p 4317:4317 jaegertracing/all-in-one
 
 The [policy runbook](docs/POLICY_RUNBOOK.md) outlines sandbox resource limits,
 timeout behaviour, required human review and rollback steps.
+Operational tips for the governance module reside in
+[docs/dgm_ops.md](docs/dgm_ops.md).
 
 ---
 
