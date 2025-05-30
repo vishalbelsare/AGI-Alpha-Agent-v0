@@ -88,6 +88,7 @@ elif [[ "${MINIMAL_INSTALL:-0}" == "1" ]]; then
     numpy
     pandas
     playwright
+    plotly
     websockets
     click
     requests
