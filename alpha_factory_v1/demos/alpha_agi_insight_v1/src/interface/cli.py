@@ -123,6 +123,13 @@ def main() -> None:
     type=float,
     help="Crossover rate",
 )
+@click.option(
+    "--backtrack-rate",
+    default=0.0,
+    show_default=True,
+    type=float,
+    help="Probability of selecting low-scoring parents",
+)
 @click.option("--dry-run", is_flag=True, help="Run offline without broadcasting")
 @click.option("--export", type=click.Choice(["json", "csv"]), help="Export results format")
 @click.option("--save-plots", is_flag=True, help="Write pareto.png and pareto.json")
@@ -141,6 +148,7 @@ def simulate(
     generations: int,
     mut_rate: float,
     xover_rate: float,
+    backtrack_rate: float,
     dry_run: bool,
     export: str | None,
     save_plots: bool,
@@ -170,6 +178,7 @@ def simulate(
         generations: Number of evolution steps.
         mut_rate: Probability of mutating a gene.
         xover_rate: Probability of performing crossover.
+        backtrack_rate: Probability of selecting low-scoring parents.
         dry_run: Run offline without broadcasting.
         export: Format to export results.
         save_plots: Save pareto.png and pareto.json in the working directory.
@@ -528,6 +537,37 @@ def replay(since: float | None, count: int | None) -> None:
             msg = f"{row['ts']:.2f} {row['sender']} -> {row['recipient']} {json.dumps(row['payload'])}"
             click.echo(msg)
             time.sleep(0.1)
+
+
+@main.command(name="evolve")
+@click.option("--max-cost", default=1.0, show_default=True, type=float, help="Cost budget")
+@click.option("--wallclock", type=float, help="Wallclock limit in seconds")
+@click.option(
+    "--backtrack-rate",
+    default=0.0,
+    show_default=True,
+    type=float,
+    help="Probability of selecting low-scoring parents",
+)
+def evolve_cmd(max_cost: float, wallclock: float | None, backtrack_rate: float) -> None:
+    """Run the minimal asynchronous evolution demo."""
+    from src import evolve as _evolve
+
+    async def _eval(genome: float) -> tuple[float, float]:
+        await asyncio.sleep(0)
+        return random.random(), 0.01
+
+    archive = _evolve.InMemoryArchive()
+    asyncio.run(
+        _evolve.evolve(
+            lambda g: g,
+            _eval,
+            archive,
+            max_cost=max_cost,
+            wallclock=wallclock,
+            backtrack_rate=backtrack_rate,
+        )
+    )
 
 
 @main.command(name="transfer-test")

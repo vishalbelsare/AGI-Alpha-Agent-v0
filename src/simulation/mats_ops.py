@@ -3,9 +3,10 @@
 from __future__ import annotations
 
 import random
-from typing import List
+from typing import Any, List
 
 from src.self_edit.safety import is_code_safe
+from src.archive.selector import select_parent
 
 
 class GaussianParam:
@@ -64,3 +65,22 @@ class SelfRewriteOperator:
             else:
                 break
         return text
+
+
+def backtrack_boost(pop: List[Any], archive: List[Any], rate: float) -> Any:
+    """Return a parent possibly selected from weaker individuals.
+
+    With probability ``rate`` the parent is drawn uniformly from the
+    lower half of ``archive`` based on fitness.  Otherwise the regular
+    ``select_parent`` mechanism chooses from ``pop``.
+    """
+
+    if not pop:
+        raise ValueError("population is empty")
+    if rate <= 0.0:
+        return select_parent(pop, temp=1.0)
+    if random.random() < rate:
+        ranked = sorted(archive, key=lambda c: getattr(c, "fitness", 0.0))
+        bottom = ranked[: max(1, len(ranked) // 2)]
+        return random.choice(bottom)
+    return select_parent(pop, temp=1.0)

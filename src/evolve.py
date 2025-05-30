@@ -10,7 +10,7 @@ import time
 from dataclasses import dataclass
 from typing import Any, Callable, Sequence
 
-from src.archive.selector import select_parent
+from src.simulation.mats_ops import backtrack_boost
 from src.monitoring import metrics
 
 
@@ -42,8 +42,19 @@ async def evolve(
     *,
     max_cost: float | None = None,
     wallclock: float | None = None,
+    backtrack_rate: float = 0.0,
 ) -> None:
-    """Run an asynchronous evolution loop until the budget is exhausted."""
+    """Run an asynchronous evolution loop until the budget is exhausted.
+
+    Args:
+        operator: Function producing a child genome from a parent's genome.
+        evaluate: Async function returning (fitness, cost) for a genome.
+        archive: Storage for evaluated candidates.
+        max_cost: Optional maximum cumulative evaluation cost.
+        wallclock: Optional time limit in seconds.
+        backtrack_rate: Probability of selecting parents from the lower
+            half of the archive scores.
+    """
 
     if not archive.all():
         # seed with a random candidate
@@ -58,7 +69,8 @@ async def evolve(
         if wallclock is not None and time.time() - start >= wallclock:
             break
 
-        parent = select_parent(archive.all(), temp=1.0)
+        population = archive.all()
+        parent = backtrack_boost(population, population, backtrack_rate)
         genome = operator(parent.genome)
         fitness, cost = await evaluate(genome)
         child = Candidate(genome=genome, fitness=fitness, novelty=random.random(), cost=cost)
@@ -86,6 +98,12 @@ def main(argv: Sequence[str] | None = None) -> None:
         default=None,
         help="Wallclock limit in seconds",
     )
+    parser.add_argument(
+        "--backtrack-rate",
+        type=float,
+        default=0.0,
+        help="Probability of selecting low-scoring parents",
+    )
     args = parser.parse_args(argv)
 
     archive = InMemoryArchive()
@@ -96,6 +114,7 @@ def main(argv: Sequence[str] | None = None) -> None:
             archive,
             max_cost=args.max_cost,
             wallclock=args.wallclock,
+            backtrack_rate=args.backtrack_rate,
         )
     )
 
