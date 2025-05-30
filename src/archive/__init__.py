@@ -10,6 +10,8 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, List
 
+from .db import ArchiveDB, ArchiveEntry
+
 
 @dataclass(slots=True)
 class Agent:
@@ -53,3 +55,6 @@ class Archive:
         weights = [1.0 / (1.0 + math.exp(-lam * (a.score - alpha0))) for a in agents]
         chosen = random.choices(agents, weights=weights, k=min(k, len(agents)))
         return chosen
+
+
+__all__ = ["Agent", "Archive", "ArchiveDB", "ArchiveEntry"]
