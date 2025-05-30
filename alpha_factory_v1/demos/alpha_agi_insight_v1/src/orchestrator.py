@@ -32,6 +32,7 @@ from .utils.tracing import agent_cycle_seconds
 from .utils import alerts
 from .utils.logging import Ledger
 from .agents.base_agent import BaseAgent
+from src.governance.stake_registry import StakeRegistry
 
 ERR_THRESHOLD = int(os.getenv("AGENT_ERR_THRESHOLD", "3"))
 BACKOFF_EXP_AFTER = int(os.getenv("AGENT_BACKOFF_EXP_AFTER", "3"))
@@ -114,6 +115,7 @@ class Orchestrator:
             broadcast=self.settings.broadcast,
             db=self.settings.db_type,
         )
+        self.registry = StakeRegistry()
         self.runners: Dict[str, AgentRunner] = {}
         self.bus.subscribe("orch", self._on_orch)
         for agent in self._init_agents():
@@ -145,6 +147,7 @@ class Orchestrator:
         env.payload.update({"event": "register", "agent": runner.agent.name, "capabilities": runner.capabilities})
         self.ledger.log(env)
         self.bus.publish("system", env)
+        self.registry.set_stake(runner.agent.name, 1.0)
 
     def _record_restart(self, runner: AgentRunner) -> None:
         env = messaging.Envelope(
@@ -166,6 +169,17 @@ class Orchestrator:
             runner = self.runners[env.sender]
             runner.last_beat = env.ts
             runner.restart_streak = 0
+
+    def slash(self, agent_id: str) -> None:
+        """Burn 10% of ``agent_id`` stake."""
+        self.registry.burn(agent_id, 0.1)
+
+    def verify_merkle_root(self, expected: str, agent_id: str) -> None:
+        """Slash ``agent_id`` when the ledger's Merkle root mismatches ``expected``."""
+        actual = self.ledger.compute_merkle_root()
+        if actual != expected:
+            log.warning("Merkle mismatch for %s", agent_id)
+            self.slash(agent_id)
 
     async def _monitor(self) -> None:
         while True:
