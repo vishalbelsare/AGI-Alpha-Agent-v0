@@ -24,3 +24,6 @@ def test_metrics_endpoint() -> None:
     assert resp.status_code == 200
     assert "api_requests_total" in resp.text
     assert "api_request_seconds" in resp.text
+    assert "dgm_best_score" in resp.text
+    assert "dgm_archive_mean" in resp.text
+    assert "dgm_lineage_depth" in resp.text

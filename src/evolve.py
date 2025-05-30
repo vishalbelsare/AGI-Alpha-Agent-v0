@@ -36,11 +36,20 @@ class InMemoryArchive:
     def __init__(self) -> None:
         self._items: list[Candidate] = []
 
+    def _update_metrics(self) -> None:
+        if not self._items:
+            return
+        scores = [c.fitness for c in self._items]
+        metrics.dgm_best_score.set(max(scores))
+        metrics.dgm_archive_mean.set(sum(scores) / len(scores))
+        metrics.dgm_lineage_depth.set(len(self._items))
+
     def all(self) -> Sequence[Candidate]:
         return list(self._items)
 
     async def accept(self, cand: Candidate) -> None:
         self._items.append(cand)
+        self._update_metrics()
 
 
 async def evolve(

@@ -10,6 +10,8 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, List
 
+from src.monitoring import metrics
+
 from .db import ArchiveDB, ArchiveEntry
 
 
@@ -39,9 +41,19 @@ class Archive:
                 ")"
             )
 
+    def _update_metrics(self) -> None:
+        records = self.all()
+        if not records:
+            return
+        scores = [a.score for a in records]
+        metrics.dgm_best_score.set(max(scores))
+        metrics.dgm_archive_mean.set(sum(scores) / len(scores))
+        metrics.dgm_lineage_depth.set(len(records))
+
     def add(self, meta: dict[str, Any], score: float) -> None:
         with sqlite3.connect(self.path) as cx:
             cx.execute("INSERT INTO agents(meta, score) VALUES (?, ?)", (json.dumps(meta), score))
+        self._update_metrics()
 
     def all(self) -> List[Agent]:
         with sqlite3.connect(self.path) as cx:
