@@ -11,6 +11,7 @@ from dataclasses import dataclass
 from typing import Any, Callable, Sequence
 
 from src.archive.selector import select_parent
+from src.monitoring import metrics
 
 
 @dataclass(slots=True)
@@ -62,6 +63,7 @@ async def evolve(
         fitness, cost = await evaluate(genome)
         child = Candidate(genome=genome, fitness=fitness, novelty=random.random(), cost=cost)
         await archive.accept(child)
+        metrics.dgm_children_total.inc()
         spent += cost
 
 

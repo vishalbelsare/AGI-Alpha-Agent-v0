@@ -67,6 +67,21 @@ def test_metrics_endpoint_subprocess() -> None:
         proc.wait(timeout=5)
 
 
+def test_metrics_curl() -> None:
+    port = _free_port()
+    proc = _start_server(port)
+    url = f"http://127.0.0.1:{port}"
+    try:
+        _wait_ready(url)
+        out = subprocess.check_output(["curl", "-sf", f"{url}/metrics"])
+        text = out.decode()
+        assert "api_requests_total" in text
+        assert "api_request_seconds" in text
+    finally:
+        proc.terminate()
+        proc.wait(timeout=5)
+
+
 def test_tracing_env_variable(monkeypatch: pytest.MonkeyPatch) -> None:
     endpoint = "http://collector:4317"
     called: list[str] = []

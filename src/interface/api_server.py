@@ -19,6 +19,7 @@ from typing import Any, List, TYPE_CHECKING, cast, Set
 from src.archive import Archive
 from alpha_factory_v1.demos.alpha_agi_insight_v1.src.utils import alerts
 from src.utils.config import init_config
+from src.monitoring import metrics
 
 __all__ = [
     "app",
@@ -448,6 +449,7 @@ async def _background_run(sim_id: str, cfg: SimRequest) -> None:
         population_size=cfg.pop_size,
         generations=cfg.generations,
     )
+    metrics.dgm_children_total.inc(len(pop))
 
     pop_data = [
         PopulationMember(
