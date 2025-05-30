@@ -60,6 +60,8 @@ async def evolve(
     max_cost: float | None = None,
     wallclock: float | None = None,
     backtrack_rate: float = 0.0,
+    beta: float = 1.0,
+    gamma: float = 0.0,
     phase_hook: Optional[Callable[[Phase], None]] = None,
 ) -> None:
     """Run the self-modification phase followed by task solving."""
@@ -71,6 +73,8 @@ async def evolve(
         max_cost=max_cost,
         wallclock=wallclock,
         backtrack_rate=backtrack_rate,
+        beta=beta,
+        gamma=gamma,
         phase_hook=phase_hook,
     )
     await task_solve_phase(
@@ -80,6 +84,8 @@ async def evolve(
         max_cost=max_cost,
         wallclock=wallclock,
         backtrack_rate=backtrack_rate,
+        beta=beta,
+        gamma=gamma,
         phase_hook=phase_hook,
     )
 
@@ -93,6 +99,8 @@ async def _phase_loop(
     max_cost: float | None = None,
     wallclock: float | None = None,
     backtrack_rate: float = 0.0,
+    beta: float = 1.0,
+    gamma: float = 0.0,
     phase_hook: Optional[Callable[[Phase], None]] = None,
 ) -> None:
     if not archive.all():
@@ -108,7 +116,7 @@ async def _phase_loop(
             break
 
         population = archive.all()
-        parent = backtrack_boost(population, population, backtrack_rate)
+        parent = backtrack_boost(population, population, backtrack_rate, beta=beta, gamma=gamma)
         genome = operator(parent.genome)
         if phase_hook:
             phase_hook(phase)
@@ -127,6 +135,8 @@ async def self_mod_phase(
     max_cost: float | None = None,
     wallclock: float | None = None,
     backtrack_rate: float = 0.0,
+    beta: float = 1.0,
+    gamma: float = 0.0,
     phase_hook: Optional[Callable[[Phase], None]] = None,
 ) -> None:
     await _phase_loop(
@@ -137,6 +147,8 @@ async def self_mod_phase(
         max_cost=max_cost,
         wallclock=wallclock,
         backtrack_rate=backtrack_rate,
+        beta=beta,
+        gamma=gamma,
         phase_hook=phase_hook,
     )
 
@@ -149,6 +161,8 @@ async def task_solve_phase(
     max_cost: float | None = None,
     wallclock: float | None = None,
     backtrack_rate: float = 0.0,
+    beta: float = 1.0,
+    gamma: float = 0.0,
     phase_hook: Optional[Callable[[Phase], None]] = None,
 ) -> None:
     await _phase_loop(
@@ -159,6 +173,8 @@ async def task_solve_phase(
         max_cost=max_cost,
         wallclock=wallclock,
         backtrack_rate=backtrack_rate,
+        beta=beta,
+        gamma=gamma,
         phase_hook=phase_hook,
     )
 
@@ -188,6 +204,18 @@ def main(argv: Sequence[str] | None = None) -> None:
         default=0.0,
         help="Probability of selecting low-scoring parents",
     )
+    parser.add_argument(
+        "--beta",
+        type=float,
+        default=1.0,
+        help="Score weight in parent selection",
+    )
+    parser.add_argument(
+        "--gamma",
+        type=float,
+        default=0.0,
+        help="Edit children count weight in parent selection",
+    )
     args = parser.parse_args(argv)
 
     archive = InMemoryArchive()
@@ -199,6 +227,8 @@ def main(argv: Sequence[str] | None = None) -> None:
             max_cost=args.max_cost,
             wallclock=args.wallclock,
             backtrack_rate=args.backtrack_rate,
+            beta=args.beta,
+            gamma=args.gamma,
         )
     )
 

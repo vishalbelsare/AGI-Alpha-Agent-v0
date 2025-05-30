@@ -549,7 +549,21 @@ def replay(since: float | None, count: int | None) -> None:
     type=float,
     help="Probability of selecting low-scoring parents",
 )
-def evolve_cmd(max_cost: float, wallclock: float | None, backtrack_rate: float) -> None:
+@click.option("--beta", default=1.0, show_default=True, type=float, help="Score weight")
+@click.option(
+    "--gamma",
+    default=0.0,
+    show_default=True,
+    type=float,
+    help="Edit children count weight",
+)
+def evolve_cmd(
+    max_cost: float,
+    wallclock: float | None,
+    backtrack_rate: float,
+    beta: float,
+    gamma: float,
+) -> None:
     """Run the minimal asynchronous evolution demo."""
     from src import evolve as _evolve
 
@@ -566,6 +580,8 @@ def evolve_cmd(max_cost: float, wallclock: float | None, backtrack_rate: float) 
             max_cost=max_cost,
             wallclock=wallclock,
             backtrack_rate=backtrack_rate,
+            beta=beta,
+            gamma=gamma,
         )
     )
 
