@@ -2,6 +2,7 @@
 import React, { useEffect, useState, FormEvent } from 'react';
 import ReactDOM from 'react-dom/client';
 import Plotly from 'plotly.js-dist';
+import LineageTree, { LineageNode } from '../components/LineageTree';
 
 interface SectorData {
   name: string;
@@ -33,10 +34,15 @@ function Dashboard() {
   const [runId, setRunId] = useState<string | null>(null);
   const [timeline, setTimeline] = useState<ForecastPoint[]>([]);
   const [population, setPopulation] = useState<PopulationMember[]>([]);
+  const [lineage, setLineage] = useState<LineageNode[]>([]);
 
   const API_BASE = (import.meta.env.VITE_API_BASE_URL ?? '').replace(/\/$/, '');
   const TOKEN = import.meta.env.VITE_API_TOKEN ?? '';
   const HEADERS = TOKEN ? { Authorization: `Bearer ${TOKEN}` } : {};
+
+  useEffect(() => {
+    fetchLineage().catch(() => null);
+  }, []);
 
   useEffect(() => {
     if (!timeline.length) return;
@@ -87,6 +93,13 @@ function Dashboard() {
     const body = await res.json();
     setTimeline(body.forecast ?? []);
     setPopulation(body.population ?? []);
+  }
+
+  async function fetchLineage() {
+    const res = await fetch(`${API_BASE}/lineage`, { headers: HEADERS });
+    if (!res.ok) return;
+    const body = await res.json();
+    setLineage(body);
   }
 
   async function onSubmit(e: FormEvent) {
@@ -193,6 +206,7 @@ function Dashboard() {
       <div id="sectors" style={{ width: '100%', height: 300 }} />
       <div id="capability" style={{ width: '100%', height: 300 }} />
       <div id="pareto" style={{ width: '100%', height: 400 }} />
+      <LineageTree data={lineage} />
     </div>
   );
 }
