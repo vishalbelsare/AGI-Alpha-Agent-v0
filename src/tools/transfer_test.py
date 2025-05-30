@@ -12,7 +12,7 @@ from src.archive import Archive, Agent
 
 
 DEFAULT_ARCHIVE = Path(os.getenv("ARCHIVE_PATH", "archive.db"))
-DEFAULT_RESULTS = Path("results/transfer.csv")
+DEFAULT_RESULTS = Path("results/transfer_matrix.csv")
 
 
 def evaluate_agent(agent: Agent, model: str) -> float:
@@ -32,25 +32,23 @@ def run_transfer_test(
     archive_path: str | Path = DEFAULT_ARCHIVE,
     out_file: str | Path = DEFAULT_RESULTS,
 ) -> None:
-    """Evaluate the top ``top_n`` agents on each model.
-
-    Appends the results to ``out_file``.
-    """
+    """Evaluate the top ``top_n`` agents on each model and store a score matrix."""
 
     arch = Archive(archive_path)
     agents = sorted(arch.all(), key=lambda a: a.score, reverse=True)[:top_n]
 
     path = Path(out_file)
     path.parent.mkdir(parents=True, exist_ok=True)
-    exists = path.exists()
-    with path.open("a", newline="", encoding="utf-8") as fh:
+    with path.open("w", newline="", encoding="utf-8") as fh:
         writer = csv.writer(fh)
-        if not exists:
-            writer.writerow(["id", "model", "score"])
+        model_list = list(models)
+        writer.writerow(["id", *model_list])
         for agent in agents:
-            for model in models:
+            row = [agent.id]
+            for model in model_list:
                 score = evaluate_agent(agent, model)
-                writer.writerow([agent.id, model, f"{score:.3f}"])
+                row.append(f"{score:.3f}")
+            writer.writerow(row)
 
 
 __all__ = ["run_transfer_test", "evaluate_agent"]

@@ -21,22 +21,23 @@ sys.modules.setdefault("rocketry.conds", conds_mod)
 from alpha_factory_v1.demos.alpha_agi_insight_v1.src.interface import cli  # noqa: E402
 
 
-def test_run_transfer_test_writes_csv(tmp_path, monkeypatch) -> None:
+def test_run_transfer_test_writes_matrix(tmp_path, monkeypatch) -> None:
     db = tmp_path / "arch.db"
     arch = Archive(db)
     arch.add({"name": "a"}, 0.1)
     arch.add({"name": "b"}, 0.9)
-    out = tmp_path / "results" / "transfer.csv"
+    out = tmp_path / "results" / "transfer_matrix.csv"
 
     def fake_eval(agent, model):
-        return agent.score + 1
+        return agent.score + {"x": 1.0, "y": 2.0}[model]
 
     monkeypatch.setattr(tt, "evaluate_agent", fake_eval)
 
-    tt.run_transfer_test(["m"], 1, archive_path=db, out_file=out)
+    tt.run_transfer_test(["x", "y"], 2, archive_path=db, out_file=out)
     lines = out.read_text().splitlines()
-    assert lines[0] == "id,model,score"
-    assert lines[1] == "2,m,1.900"
+    assert lines[0] == "id,x,y"
+    assert lines[1] == "2,1.900,2.900"
+    assert lines[2] == "1,1.100,2.100"
 
 
 def test_cli_transfer_test_invokes(monkeypatch) -> None:
@@ -53,13 +54,13 @@ def test_cli_transfer_test_invokes(monkeypatch) -> None:
     assert called == {"models": ["x", "y"], "top_n": 2}
 
 
-def test_run_transfer_test_appends(tmp_path, monkeypatch) -> None:
+def test_run_transfer_test_overwrites(tmp_path, monkeypatch) -> None:
     db = tmp_path / "arch.db"
     arch = Archive(db)
     arch.add({"name": "a"}, 0.5)
-    out = tmp_path / "results" / "transfer.csv"
+    out = tmp_path / "results" / "transfer_matrix.csv"
     out.parent.mkdir(parents=True)
-    out.write_text("id,model,score\n1,z,0.500\n")
+    out.write_text("old\n")
 
     def fake_eval(agent, model):
         return agent.score + 0.1
@@ -67,4 +68,4 @@ def test_run_transfer_test_appends(tmp_path, monkeypatch) -> None:
     monkeypatch.setattr(tt, "evaluate_agent", fake_eval)
     tt.run_transfer_test(["m"], 1, archive_path=db, out_file=out)
     lines = out.read_text().splitlines()
-    assert lines == ["id,model,score", "1,z,0.500", "1,m,0.600"]
+    assert lines == ["id,m", "1,0.600"]
