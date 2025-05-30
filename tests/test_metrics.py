@@ -61,6 +61,9 @@ def test_metrics_endpoint_subprocess() -> None:
         text = resp.text
         assert "api_requests_total" in text
         assert "api_request_seconds" in text
+        assert "dgm_best_score" in text
+        assert "dgm_archive_mean" in text
+        assert "dgm_lineage_depth" in text
         assert text.startswith("# HELP")
     finally:
         proc.terminate()
@@ -77,6 +80,9 @@ def test_metrics_curl() -> None:
         text = out.decode()
         assert "api_requests_total" in text
         assert "api_request_seconds" in text
+        assert "dgm_best_score" in text
+        assert "dgm_archive_mean" in text
+        assert "dgm_lineage_depth" in text
     finally:
         proc.terminate()
         proc.wait(timeout=5)
