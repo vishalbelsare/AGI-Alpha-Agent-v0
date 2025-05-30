@@ -14,8 +14,11 @@ import json
 import time
 from typing import Any, TYPE_CHECKING
 
+from pathlib import Path
+
 import pandas as pd
 import plotly.express as px
+from src.utils.visual import plot_pareto
 
 try:  # pragma: no cover - optional dependency
     import streamlit as st
@@ -84,6 +87,8 @@ def _run_simulation(
     generations: int,
     energy: float,
     entropy: float,
+    *,
+    save_plots: bool = False,
 ) -> None:
     """Execute the simulation and update charts live.
 
@@ -178,6 +183,10 @@ def _run_simulation(
     )
     scatter_placeholder.plotly_chart(fig_pop, use_container_width=True)
 
+    if save_plots:
+        elites = [ind for ind in pop if ind.rank == 0]
+        plot_pareto(elites, Path("pareto.png"))
+
     st.download_button(
         "Download results (JSON)",
         json.dumps(
@@ -193,11 +202,15 @@ def _run_simulation(
     st.download_button("Download timeline (CSV)", csv_bytes, file_name="timeline.csv")
 
 
-def main() -> None:  # pragma: no cover - entry point
+def main(argv: list[str] | None = None) -> None:  # pragma: no cover - entry point
     """Launch the Streamlit app."""
     if st is None:  # pragma: no cover - fallback
         print("Streamlit not installed")
         return
+
+    parser = argparse.ArgumentParser(description="AGI dashboard")
+    parser.add_argument("--save-plots", action="store_true", help="Write pareto.png and pareto.json")
+    args, _ = parser.parse_known_args(argv)
 
     st.title("AGI Simulation Dashboard")
     horizon = st.sidebar.number_input("Forecast horizon", min_value=1, max_value=20, value=5)
@@ -208,7 +221,16 @@ def main() -> None:  # pragma: no cover - entry point
     energy = st.sidebar.slider("Initial energy", min_value=0.0, max_value=10.0, value=1.0)
     entropy = st.sidebar.slider("Initial entropy", min_value=0.0, max_value=10.0, value=1.0)
     if st.sidebar.button("Run simulation"):
-        _run_simulation(horizon, curve, num_sectors, pop_size, generations, energy, entropy)
+        _run_simulation(
+            horizon,
+            curve,
+            num_sectors,
+            pop_size,
+            generations,
+            energy,
+            entropy,
+            save_plots=args.save_plots,
+        )
 
 
 if __name__ == "__main__":  # pragma: no cover - script entry

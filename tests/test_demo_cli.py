@@ -254,3 +254,29 @@ def test_simulate_dry_run_mut_rate() -> None:
                 ["simulate", "--dry-run", "--mut-rate", "0.2"],
             )
     assert res.exit_code == 0
+
+
+def test_simulate_save_plots(tmp_path: Path) -> None:
+    runner = CliRunner()
+    with patch.object(cli, "asyncio"):
+        with patch.object(cli.orchestrator, "Orchestrator"):
+            with runner.isolated_filesystem(temp_dir=tmp_path):
+                res = runner.invoke(
+                    cli.main,
+                    [
+                        "simulate",
+                        "--horizon",
+                        "1",
+                        "--offline",
+                        "--sectors",
+                        "1",
+                        "--pop-size",
+                        "1",
+                        "--generations",
+                        "1",
+                        "--save-plots",
+                    ],
+                )
+    assert res.exit_code == 0
+    assert Path("pareto.png").exists()
+    assert Path("pareto.json").exists()
