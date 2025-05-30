@@ -279,12 +279,13 @@ See [AGENTS.md](AGENTS.md) for the full contributor guide.
 7. [Deployment Recipes 🍳](#7-deployment-recipes)
 7.1. [Deploying securely 🚀](#71-deploying-securely)
 8. [Governance & Compliance ⚖️](#8-governance--compliance)  
-9. [Observability 🔭](#9-observability)  
-10. [Extending the Mesh 🔌](#10-extending-the-mesh)  
-11. [Troubleshooting 🛠️](#11-troubleshooting)  
-12. [Roadmap 🛣️](#12-roadmap)  
-13. [Credits 🌟](#13-credits)  
-14. [License 📝](#14-license)
+9. [Observability 🔭](#9-observability)
+10. [Safety & Security 🛡️](#10-safety--security)
+11. [Extending the Mesh 🔌](#11-extending-the-mesh)
+12. [Troubleshooting 🛠️](#12-troubleshooting)
+13. [Roadmap 🛣️](#13-roadmap)
+14. [Credits 🌟](#14-credits)
+15. [License 📝](#15-license)
 
 ---
 
@@ -917,8 +918,16 @@ docker run -p 16686:16686 -p 4317:4317 jaegertracing/all-in-one
 
 ---
 
-<a name="10-extending-the-mesh"></a>
-## 10 · Extending the Mesh 🔌
+<a name="10-safety--security"></a>
+## 10 · Safety & Security 🛡️
+
+The [policy runbook](docs/POLICY_RUNBOOK.md) outlines sandbox resource limits,
+timeout behaviour, required human review and rollback steps.
+
+---
+
+<a name="11-extending-the-mesh"></a>
+## 11 · Extending the Mesh 🔌
 ```python
 from backend.agents.base import AgentBase
 
@@ -938,8 +947,8 @@ super = my_pkg.super_agent:MySuperAgent
 
 ---
 
-<a name="11-troubleshooting"></a>
-## 11 · Troubleshooting 🛠️
+<a name="12-troubleshooting"></a>
+## 12 · Troubleshooting 🛠️
 
 | Symptom | Cause | Fix |
 |---------|-------|-----|
@@ -949,8 +958,8 @@ super = my_pkg.super_agent:MySuperAgent
 
 ---
 
-<a name="12-roadmap"></a>
-## 12 · Roadmap 🛣️
+<a name="13-roadmap"></a>
+## 13 · Roadmap 🛣️
 
 1. **RL‑on‑Execution** — slippage‑aware order routing  
 2. **Federated Mesh** — cross‑org agent exchange via ADK federation  
@@ -960,22 +969,22 @@ super = my_pkg.super_agent:MySuperAgent
 
 ---
 
-<a name="13-credits"></a>
-## 13 · Credits 🌟
+<a name="14-credits"></a>
+## 14 · Credits 🌟
 
 [Vincent Boucher](https://www.linkedin.com/in/montrealai/)—pioneer in AI and President of [MONTREAL.AI](https://www.montreal.ai/) since 2003—dominated the [OpenAI Gym](https://web.archive.org/web/20170929214241/https://gym.openai.com/read-only.html) with **AI Agents** in 2016 and unveiled the seminal [**“Multi‑Agent AI DAO”**](https://www.quebecartificialintelligence.com/priorart) in 2017.
 
 Our **AGI ALPHA AGENT**, fuelled by the strictly‑utility **$AGIALPHA** token, now taps that foundation to unleash the ultimate α‑signal engine.
 
-<a name="14-license"></a>
-## 14 · License
+<a name="15-license"></a>
+## 15 · License
 
 This project is distributed under the [Apache 2.0](LICENSE) license.
 All community members are expected to follow our [Code of Conduct](CODE_OF_CONDUCT.md).
 Please report security issues via the process outlined in our [Security Policy](SECURITY.md).
 
-<a name="15-final-note"></a>
-## 15 · Final Note
+<a name="16-final-note"></a>
+## 16 · Final Note
 
 This repository is a conceptual research prototype. Please use it responsibly
 and ensure all usage and contributions align with the project's
