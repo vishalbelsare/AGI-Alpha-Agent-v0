@@ -8,24 +8,30 @@ from typing import Any, Sequence
 import numpy as np
 
 
-def select_parent(population: Sequence[Any], temp: float) -> Any:
-    """Return a candidate chosen via softmax of ``fitness * novelty``.
+def select_parent(population: Sequence[Any], beta: float = 1.0, gamma: float = 0.0) -> Any:
+    """Return a candidate chosen via softmax of ``beta * score + gamma * edit_children_count``.
 
     Args:
-        population: Sequence of candidates exposing ``fitness`` and ``novelty`` attributes.
-        temp: Softmax temperature. Higher values yield a more uniform distribution.
+        population: Sequence of candidates exposing ``score`` and ``edit_children_count`` attributes.
+        beta: Weight applied to ``score``.
+        gamma: Weight applied to ``edit_children_count``.
 
     Returns:
         The selected candidate from ``population``.
     """
     if not population:
         raise ValueError("population is empty")
-    if temp <= 0:
-        raise ValueError("temp must be positive")
+    if beta == 0 and gamma == 0:
+        raise ValueError("beta and gamma cannot both be zero")
 
-    scores = np.asarray([float(getattr(ind, "fitness")) * float(getattr(ind, "novelty")) for ind in population])
-    logits = scores / temp
-    weights = np.exp(logits - np.max(logits))
+    logits = []
+    for ind in population:
+        score = getattr(ind, "score", float(getattr(ind, "fitness", 0.0)) * float(getattr(ind, "novelty", 1.0)))
+        edits = float(getattr(ind, "edit_children_count", 0.0))
+        logits.append(beta * float(score) + gamma * edits)
+
+    logits_arr = np.asarray(logits)
+    weights = np.exp(logits_arr - np.max(logits_arr))
     probs = weights / weights.sum()
 
     index = int(np.random.choice(len(population), p=probs))

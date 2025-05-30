@@ -136,7 +136,14 @@ class SelfRewriteOperator:
         return True
 
 
-def backtrack_boost(pop: List[Any], archive: List[Any], rate: float) -> Any:
+def backtrack_boost(
+    pop: List[Any],
+    archive: List[Any],
+    rate: float,
+    *,
+    beta: float = 1.0,
+    gamma: float = 0.0,
+) -> Any:
     """Return a parent possibly selected from weaker individuals.
 
     With probability ``rate`` the parent is drawn uniformly from the
@@ -147,9 +154,9 @@ def backtrack_boost(pop: List[Any], archive: List[Any], rate: float) -> Any:
     if not pop:
         raise ValueError("population is empty")
     if rate <= 0.0:
-        return select_parent(pop, temp=1.0)
+        return select_parent(pop, beta=beta, gamma=gamma)
     if random.random() < rate:
         ranked = sorted(archive, key=lambda c: getattr(c, "fitness", 0.0))
         bottom = ranked[: max(1, len(ranked) // 2)]
         return random.choice(bottom)
-    return select_parent(pop, temp=1.0)
+    return select_parent(pop, beta=beta, gamma=gamma)
