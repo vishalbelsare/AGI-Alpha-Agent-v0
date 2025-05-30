@@ -5,6 +5,8 @@ from __future__ import annotations
 import random
 from typing import List
 
+from src.self_edit.safety import is_code_safe
+
 
 class GaussianParam:
     """Add Gaussian noise to numeric genomes within bounds."""
@@ -56,5 +58,9 @@ class SelfRewriteOperator:
 
     def __call__(self, text: str) -> str:
         for _ in range(self.steps):
-            text = self._op(text)
+            candidate = self._op(text)
+            if is_code_safe(candidate):
+                text = candidate
+            else:
+                break
         return text
