@@ -85,6 +85,12 @@ def main() -> None:
 @click.option("--model", "model_name", help="Model name for AgentContext/local models")
 @click.option("--temperature", type=float, help="Model temperature")
 @click.option("--context-window", type=int, help="Context window size")
+@click.option(
+    "--import-dgm",
+    "import_dgm",
+    type=click.Path(exists=True),
+    help="Import DGM logs before simulation",
+)
 @click.option("--sectors-file", type=click.Path(exists=True), help="JSON file with sector definitions")
 @click.option("--sectors", default=6, show_default=True, type=int, help="Number of sectors")
 @click.option(
@@ -145,6 +151,7 @@ def simulate(
     model_name: str | None,
     temperature: float | None,
     context_window: int | None,
+    import_dgm: str | None,
     k: float | None,
     x0: float | None,
 ) -> None:
@@ -173,6 +180,7 @@ def simulate(
         model_name: Model identifier for LLM calls.
         temperature: Sampling temperature for completions.
         context_window: Prompt context window size.
+        import_dgm: Directory with DGM logs to import.
         k: Optional growth curve steepness.
         x0: Optional growth curve midpoint shift.
 
@@ -193,6 +201,11 @@ def simulate(
 
     if llama_model_path is not None:
         os.environ["LLAMA_MODEL_PATH"] = str(llama_model_path)
+
+    if import_dgm is not None:
+        from ..tools import dgm_import
+
+        dgm_import.import_logs(import_dgm)
 
     cfg = config.CFG.model_dump()
     if dry_run:

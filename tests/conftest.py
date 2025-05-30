@@ -1,6 +1,15 @@
 import pytest
-
+import sys
+import types
 from src.simulation import replay
+
+rocketry_stub = types.ModuleType("rocketry")
+rocketry_stub.Rocketry = type("Rocketry", (), {})
+conds_mod = types.ModuleType("rocketry.conds")
+conds_mod.every = lambda *_: None
+rocketry_stub.conds = conds_mod
+sys.modules.setdefault("rocketry", rocketry_stub)
+sys.modules.setdefault("rocketry.conds", conds_mod)
 
 
 @pytest.fixture(scope="module")
