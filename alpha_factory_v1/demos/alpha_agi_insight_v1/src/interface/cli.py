@@ -517,5 +517,21 @@ def replay(since: float | None, count: int | None) -> None:
             time.sleep(0.1)
 
 
+@main.command(name="transfer-test")
+@click.option(
+    "--models",
+    default="claude-3.7,gpt-4o",
+    show_default=True,
+    help="Comma-separated list of models",
+)
+@click.option("--top-n", default=3, show_default=True, type=int, help="Number of top agents")
+def transfer_test_cmd(models: str, top_n: int) -> None:
+    """Replay top agents on alternate models and store results."""
+    model_list = [m.strip() for m in models.split(",") if m.strip()]
+    from src.tools import transfer_test as _tt
+
+    _tt.run_transfer_test(model_list, top_n)
+
+
 if __name__ == "__main__":  # pragma: no cover
     main()
