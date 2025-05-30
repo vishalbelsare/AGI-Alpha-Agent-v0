@@ -9,6 +9,7 @@ console output optionally leverages ``rich`` for nicer tables.
 from __future__ import annotations
 
 import asyncio
+import contextlib
 import csv
 import sys
 import json
@@ -179,6 +180,13 @@ def simulate(
     """
     if seed is not None:
         random.seed(seed)
+        with contextlib.suppress(ModuleNotFoundError):
+            import numpy as np  # type: ignore
+            np.random.seed(seed)
+        with contextlib.suppress(ModuleNotFoundError):
+            import torch  # type: ignore
+            torch.manual_seed(seed)
+        config.CFG.seed = seed
 
     if llama_model_path is not None:
         os.environ["LLAMA_MODEL_PATH"] = str(llama_model_path)

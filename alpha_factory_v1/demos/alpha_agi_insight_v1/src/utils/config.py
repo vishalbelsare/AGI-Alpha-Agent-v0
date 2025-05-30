@@ -48,6 +48,7 @@ class Settings(SettingsBase):
     offline: bool = Field(default=False, alias="AGI_INSIGHT_OFFLINE")
     bus_port: int = Field(default=6006, alias="AGI_INSIGHT_BUS_PORT")
     ledger_path: str = Field(default="./ledger/audit.db", alias="AGI_INSIGHT_LEDGER_PATH")
+    seed: Optional[int] = Field(default=None, alias="AGI_INSIGHT_SEED")
     memory_path: Optional[str] = Field(default=None, alias="AGI_INSIGHT_MEMORY_PATH")
     broker_url: Optional[str] = Field(default=None, alias="AGI_INSIGHT_BROKER_URL")
     bus_token: Optional[str] = Field(default=None, alias="AGI_INSIGHT_BUS_TOKEN")

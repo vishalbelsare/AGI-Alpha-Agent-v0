@@ -3,6 +3,7 @@ import os
 import sys
 import csv
 import json
+import hashlib
 from io import StringIO
 from pathlib import Path
 from unittest.mock import patch
@@ -280,3 +281,37 @@ def test_simulate_save_plots(tmp_path: Path) -> None:
     assert res.exit_code == 0
     assert Path("pareto.png").exists()
     assert Path("pareto.json").exists()
+
+
+def test_simulate_seed_reproducible(tmp_path: Path) -> None:
+    """Output should be identical when running with the same seed."""
+    ledger = tmp_path / "audit.db"
+    args = [
+        "simulate",
+        "--horizon",
+        "1",
+        "--offline",
+        "--sectors",
+        "1",
+        "--pop-size",
+        "1",
+        "--generations",
+        "1",
+        "--export",
+        "json",
+        "--no-broadcast",
+        "--seed",
+        "42",
+    ]
+    runner = CliRunner()
+    with patch.object(cli, "asyncio"):
+        with patch.object(cli.orchestrator, "Orchestrator"):
+            with patch.object(cli.config.CFG, "ledger_path", ledger):
+                res1 = runner.invoke(cli.main, args)
+                res2 = runner.invoke(cli.main, args)
+
+    assert res1.exit_code == 0
+    assert res2.exit_code == 0
+    digest1 = hashlib.sha256(res1.output.encode()).hexdigest()
+    digest2 = hashlib.sha256(res2.output.encode()).hexdigest()
+    assert digest1 == digest2
