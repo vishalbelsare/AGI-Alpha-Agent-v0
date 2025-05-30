@@ -32,7 +32,7 @@ def _changed_files(diff: str) -> list[str]:
 
 
 def is_patch_valid(diff: str) -> bool:
-    """Return ``True`` if ``diff`` does not appear dangerous."""
+    """Return ``True`` if ``diff`` does not appear dangerous or malformed."""
 
     if not diff.strip():
         return False
@@ -43,7 +43,18 @@ def is_patch_valid(diff: str) -> bool:
             return False
 
     files = _changed_files(diff)
-    if files and all(f.startswith("tests/") or "/tests/" in f or f.split("/")[-1].startswith("test_") for f in files):
+
+    # Reject diffs that do not reference any files
+    if not files:
+        return False
+
+    # Reject diffs touching only test files
+    if all(
+        f.startswith("tests/")
+        or "/tests/" in f
+        or f.split("/")[-1].startswith("test_")
+        for f in files
+    ):
         return False
 
     return True
