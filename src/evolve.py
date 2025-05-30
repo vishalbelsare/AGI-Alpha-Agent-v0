@@ -8,7 +8,8 @@ import asyncio
 import random
 import time
 from dataclasses import dataclass
-from typing import Any, Callable, Sequence
+from enum import Enum, auto
+from typing import Any, Callable, Sequence, Awaitable, Optional
 
 from src.simulation.mats_ops import backtrack_boost
 from src.monitoring import metrics
@@ -20,6 +21,13 @@ class Candidate:
     fitness: float = 0.0
     novelty: float = 1.0
     cost: float = 0.0
+
+
+class Phase(Enum):
+    """Execution phase."""
+
+    SELF_MOD = auto()
+    TASK_SOLVE = auto()
 
 
 class InMemoryArchive:
@@ -37,27 +45,48 @@ class InMemoryArchive:
 
 async def evolve(
     operator: Callable[[Any], Any],
-    evaluate: Callable[[Any], tuple[float, float]],
+    evaluate: Callable[[Any], Awaitable[tuple[float, float]]],
     archive: InMemoryArchive,
     *,
     max_cost: float | None = None,
     wallclock: float | None = None,
     backtrack_rate: float = 0.0,
+    phase_hook: Optional[Callable[[Phase], None]] = None,
 ) -> None:
-    """Run an asynchronous evolution loop until the budget is exhausted.
+    """Run the self-modification phase followed by task solving."""
 
-    Args:
-        operator: Function producing a child genome from a parent's genome.
-        evaluate: Async function returning (fitness, cost) for a genome.
-        archive: Storage for evaluated candidates.
-        max_cost: Optional maximum cumulative evaluation cost.
-        wallclock: Optional time limit in seconds.
-        backtrack_rate: Probability of selecting parents from the lower
-            half of the archive scores.
-    """
+    await self_mod_phase(
+        operator,
+        evaluate,
+        archive,
+        max_cost=max_cost,
+        wallclock=wallclock,
+        backtrack_rate=backtrack_rate,
+        phase_hook=phase_hook,
+    )
+    await task_solve_phase(
+        operator,
+        evaluate,
+        archive,
+        max_cost=max_cost,
+        wallclock=wallclock,
+        backtrack_rate=backtrack_rate,
+        phase_hook=phase_hook,
+    )
 
+
+async def _phase_loop(
+    operator: Callable[[Any], Any],
+    evaluate: Callable[[Any], Awaitable[tuple[float, float]]],
+    archive: InMemoryArchive,
+    *,
+    phase: Phase,
+    max_cost: float | None = None,
+    wallclock: float | None = None,
+    backtrack_rate: float = 0.0,
+    phase_hook: Optional[Callable[[Phase], None]] = None,
+) -> None:
     if not archive.all():
-        # seed with a random candidate
         await archive.accept(Candidate(genome=0.0, fitness=0.0, novelty=1.0, cost=0.0))
 
     spent = 0.0
@@ -72,11 +101,57 @@ async def evolve(
         population = archive.all()
         parent = backtrack_boost(population, population, backtrack_rate)
         genome = operator(parent.genome)
+        if phase_hook:
+            phase_hook(phase)
         fitness, cost = await evaluate(genome)
         child = Candidate(genome=genome, fitness=fitness, novelty=random.random(), cost=cost)
         await archive.accept(child)
         metrics.dgm_children_total.inc()
         spent += cost
+
+
+async def self_mod_phase(
+    operator: Callable[[Any], Any],
+    evaluate: Callable[[Any], Awaitable[tuple[float, float]]],
+    archive: InMemoryArchive,
+    *,
+    max_cost: float | None = None,
+    wallclock: float | None = None,
+    backtrack_rate: float = 0.0,
+    phase_hook: Optional[Callable[[Phase], None]] = None,
+) -> None:
+    await _phase_loop(
+        operator,
+        evaluate,
+        archive,
+        phase=Phase.SELF_MOD,
+        max_cost=max_cost,
+        wallclock=wallclock,
+        backtrack_rate=backtrack_rate,
+        phase_hook=phase_hook,
+    )
+
+
+async def task_solve_phase(
+    operator: Callable[[Any], Any],
+    evaluate: Callable[[Any], Awaitable[tuple[float, float]]],
+    archive: InMemoryArchive,
+    *,
+    max_cost: float | None = None,
+    wallclock: float | None = None,
+    backtrack_rate: float = 0.0,
+    phase_hook: Optional[Callable[[Phase], None]] = None,
+) -> None:
+    await _phase_loop(
+        operator,
+        evaluate,
+        archive,
+        phase=Phase.TASK_SOLVE,
+        max_cost=max_cost,
+        wallclock=wallclock,
+        backtrack_rate=backtrack_rate,
+        phase_hook=phase_hook,
+    )
 
 
 async def _dummy_operator(genome: Any) -> Any:
