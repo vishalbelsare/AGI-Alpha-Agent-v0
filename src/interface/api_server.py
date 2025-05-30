@@ -15,6 +15,8 @@ import logging
 from collections import OrderedDict
 from pathlib import Path
 from typing import Any, List, TYPE_CHECKING, cast, Set
+
+from src.archive import Archive
 from alpha_factory_v1.demos.alpha_agi_insight_v1.src.utils import alerts
 from src.utils.config import init_config
 
@@ -28,6 +30,7 @@ __all__ = [
     "RunsResponse",
     "SimRequest",
     "SimStartResponse",
+    "LineageNode",
     "StatusResponse",
     "main",
 ]
@@ -357,6 +360,15 @@ class PopulationResponse(BaseModel):
     population: list[PopulationMember]
 
 
+class LineageNode(BaseModel):
+    """Archive entry for lineage visualisation."""
+
+    id: int
+    parent: int | None = None
+    diff: str | None = None
+    pass_rate: float
+
+
 class InsightRequest(BaseModel):
     """Payload selecting runs for aggregation."""
 
@@ -538,6 +550,23 @@ if app is not None:
     async def list_runs(_: None = Depends(verify_token)) -> RunsResponse:
         """Return identifiers for all stored runs."""
         return RunsResponse(ids=list(_simulations.keys()))
+
+    @app.get("/lineage", response_model=list[LineageNode])
+    async def lineage(_: None = Depends(verify_token)) -> list[LineageNode]:
+        """Return archive lineage information."""
+        path = Path(os.getenv("ARCHIVE_PATH", "archive.db"))
+        arch = Archive(path)
+        nodes: list[LineageNode] = []
+        for a in arch.all():
+            nodes.append(
+                LineageNode(
+                    id=a.id,
+                    parent=a.meta.get("parent"),
+                    diff=a.meta.get("diff") or a.meta.get("patch"),
+                    pass_rate=a.score,
+                )
+            )
+        return nodes
 
     @app.get("/status", response_model=StatusResponse)
     async def status(_: None = Depends(verify_token)) -> StatusResponse:
