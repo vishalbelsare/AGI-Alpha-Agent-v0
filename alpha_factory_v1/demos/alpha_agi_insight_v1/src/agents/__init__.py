@@ -11,6 +11,7 @@ from .mcp_adapter import MCPAdapter
 from .base_agent import BaseAgent
 from .research_agent import ResearchAgent
 from .adk_summariser_agent import ADKSummariserAgent
+from .chaos_agent import ChaosAgent
 
 __all__ = [
     "ADKAdapter",
@@ -18,4 +19,5 @@ __all__ = [
     "BaseAgent",
     "ResearchAgent",
     "ADKSummariserAgent",
+    "ChaosAgent",
 ]
