@@ -36,6 +36,7 @@ from src.governance.stake_registry import StakeRegistry
 
 ERR_THRESHOLD = int(os.getenv("AGENT_ERR_THRESHOLD", "3"))
 BACKOFF_EXP_AFTER = int(os.getenv("AGENT_BACKOFF_EXP_AFTER", "3"))
+PROMOTION_THRESHOLD = float(os.getenv("PROMOTION_THRESHOLD", "0"))
 
 log = insight_logging.logging.getLogger(__name__)
 
@@ -148,6 +149,7 @@ class Orchestrator:
         self.ledger.log(env)
         self.bus.publish("system", env)
         self.registry.set_stake(runner.agent.name, 1.0)
+        self.registry.set_threshold(f"promote:{runner.agent.name}", PROMOTION_THRESHOLD)
 
     def _record_restart(self, runner: AgentRunner) -> None:
         env = messaging.Envelope(
@@ -214,7 +216,11 @@ class Orchestrator:
         await self.bus.start()
         self.ledger.start_merkle_task(3600)
         for r in self.runners.values():
-            r.start(self.bus, self.ledger)
+            proposal = f"promote:{r.agent.name}"
+            if self.registry.accepted(proposal):
+                r.start(self.bus, self.ledger)
+            else:
+                log.info("%s awaiting promotion", r.agent.name)
         self._monitor_task = asyncio.create_task(self._monitor())
         try:
             while True:
