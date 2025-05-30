@@ -38,6 +38,7 @@ REQUIRED = [
     "websockets",
     "pytest_benchmark",
     "hypothesis",
+    "plotly",
 ]
 
 # Optional integrations that may not be present in restricted environments.
