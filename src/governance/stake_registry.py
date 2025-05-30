@@ -12,15 +12,24 @@ class StakeRegistry:
 
     stakes: MutableMapping[str, float] = field(default_factory=dict)
     votes: Dict[str, Dict[str, bool]] = field(default_factory=dict)
+    thresholds: Dict[str, float] = field(default_factory=dict)
 
     def set_stake(self, agent_id: str, amount: float) -> None:
         """Register ``agent_id`` with ``amount`` tokens."""
         self.stakes[agent_id] = float(amount)
 
+    def set_threshold(self, proposal_id: str, fraction: float) -> None:
+        """Set custom acceptance threshold for ``proposal_id``."""
+        self.thresholds[proposal_id] = float(fraction)
+
     def burn(self, agent_id: str, fraction: float) -> None:
         """Burn ``fraction`` of ``agent_id``'s stake if present."""
         if agent_id in self.stakes:
             self.stakes[agent_id] = max(0.0, self.stakes[agent_id] * (1.0 - fraction))
+
+    def archive_accept(self, agent_id: str) -> None:
+        """Burn 1% of ``agent_id`` stake when a candidate is accepted."""
+        self.burn(agent_id, 0.01)
 
     def total(self) -> float:
         """Return total stake across all agents."""
@@ -33,10 +42,11 @@ class StakeRegistry:
         self.votes.setdefault(proposal_id, {})[agent_id] = bool(support)
 
     def accepted(self, proposal_id: str) -> bool:
-        """Return ``True`` iff yes votes reach two-thirds of total stake."""
+        """Return ``True`` when yes-votes reach the required threshold."""
         total = self.total()
         if total == 0:
             return False
         votes = self.votes.get(proposal_id, {})
         yes = sum(self.stakes[a] for a, v in votes.items() if v)
-        return yes / total >= 2 / 3
+        required = self.thresholds.get(proposal_id, 2 / 3)
+        return yes / total >= required
