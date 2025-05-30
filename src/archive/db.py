@@ -40,6 +40,15 @@ class _ArchiveRow(Base):
     ts = Column(Float)
 
 
+class _StateRow(Base):
+    """Key/value storage for miscellaneous state."""
+
+    __tablename__ = "state"
+
+    key = Column(String, primary_key=True)
+    value = Column(String)
+
+
 class ArchiveDB:
     """Simple wrapper around ``sqlalchemy`` for archive access."""
 
@@ -99,3 +108,17 @@ class ArchiveDB:
             if not current.parent:
                 break
             current = self.get(current.parent)
+
+    # state helpers -----------------------------------------------------
+
+    def get_state(self, key: str, default: str | None = None) -> str | None:
+        """Return the stored value for ``key`` from the ``state`` table."""
+        with Session(self.engine) as session:
+            row = session.get(_StateRow, key)
+            return row.value if row is not None else default
+
+    def set_state(self, key: str, value: str) -> None:
+        """Store ``key`` as ``value`` in the ``state`` table."""
+        with Session(self.engine) as session:
+            session.merge(_StateRow(key=key, value=value))
+            session.commit()
