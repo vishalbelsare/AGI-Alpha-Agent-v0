@@ -77,6 +77,8 @@ elif [[ "${MINIMAL_INSTALL:-0}" == "1" ]]; then
     click
     requests
   )
+  # Deduplicate packages to avoid extra install noise
+  mapfile -t packages < <(printf '%s\n' "${packages[@]}" | sort -u)
   $PYTHON -m pip install --quiet "${wheel_opts[@]}" "${packages[@]}"
 else
   packages=(
@@ -145,6 +147,8 @@ else
     requests
     pydantic-settings
   )
+  # Deduplicate packages to avoid extra install noise
+  mapfile -t packages < <(printf '%s\n' "${packages[@]}" | sort -u)
   $PYTHON -m pip install --quiet "${wheel_opts[@]}" "${packages[@]}"
 fi
 
