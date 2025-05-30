@@ -44,3 +44,17 @@ class CodePatch:
         if not code.endswith("\n"):
             code += "\n"
         return code + suffix + "\n"
+
+
+class SelfRewriteOperator:
+    """Apply ``PromptRewrite`` multiple times."""
+
+    def __init__(self, steps: int = 2, rng: random.Random | None = None) -> None:
+        self.steps = steps
+        self.rng = rng or random.Random()
+        self._op = PromptRewrite(rng=self.rng)
+
+    def __call__(self, text: str) -> str:
+        for _ in range(self.steps):
+            text = self._op(text)
+        return text
