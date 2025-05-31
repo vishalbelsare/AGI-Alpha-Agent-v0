@@ -3,6 +3,7 @@ import importlib
 import os
 import time
 from typing import Any, cast
+from pathlib import Path
 from collections import deque
 
 import pytest
@@ -41,3 +42,23 @@ def test_throttle_alert(monkeypatch: pytest.MonkeyPatch) -> None:
 
     monkeypatch.setenv("API_RATE_LIMIT", "1000")
     importlib.reload(api)
+
+
+def test_lineage_detail(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setenv("API_RATE_LIMIT", "1000")
+    monkeypatch.setenv("ARCHIVE_PATH", str(tmp_path / "a.db"))
+    from src.archive import Archive
+    arch = Archive(tmp_path / "a.db")
+    arch.add({"diff": "root"}, 0.1)
+    arch.add({"parent": 1, "diff": "child"}, 0.2)
+
+    from src.interface import api_server as mod
+    api = importlib.reload(mod)
+
+    client = TestClient(cast(Any, api.app))
+    headers = {"Authorization": "Bearer test-token"}
+    resp = client.get("/lineage/2", headers=headers)
+    assert resp.status_code == 200
+    data = resp.json()
+    assert len(data) == 2
+    assert data[-1]["id"] == 2

@@ -575,6 +575,29 @@ if app is not None:
             )
         return nodes
 
+    @app.get("/lineage/{node_id}", response_model=list[LineageNode])
+    async def lineage_subtree(node_id: int, _: None = Depends(verify_token)) -> list[LineageNode]:
+        """Return lineage up to ``node_id``."""
+        path = Path(os.getenv("ARCHIVE_PATH", "archive.db"))
+        arch = Archive(path)
+        nodes: list[LineageNode] = []
+        found = False
+        for a in arch.all():
+            nodes.append(
+                LineageNode(
+                    id=a.id,
+                    parent=a.meta.get("parent"),
+                    diff=a.meta.get("diff") or a.meta.get("patch"),
+                    pass_rate=a.score,
+                )
+            )
+            if a.id == node_id:
+                found = True
+                break
+        if not found:
+            raise HTTPException(status_code=404)
+        return nodes
+
     @app.get("/status", response_model=StatusResponse)
     async def status(_: None = Depends(verify_token)) -> StatusResponse:
         """Return orchestrator agent stats."""
