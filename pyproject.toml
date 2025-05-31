@@ -48,6 +48,7 @@ alpha-agi-insight-api = "alpha_factory_v1.demos.alpha_agi_insight_v0.api_server:
 alpha-agi-insight-dashboard = "alpha_factory_v1.demos.alpha_agi_insight_v0.insight_dashboard:main"
 alpha-agi-insight-v1 = "alpha_factory_v1.demos.alpha_agi_insight_v1.src.interface.cli:main"
 alpha-agi-insight-v1-api = "alpha_factory_v1.demos.alpha_agi_insight_v1.src.interface.api_server:main"
+aii = "alpha_factory_v1.demos.alpha_agi_insight_v1.src.interface.cli:main"
 verify-wheel-sig = "alpha_factory_v1.scripts.verify_wheel_sig:main"
 
 [project.entry-points."alpha_factory.agents"]

@@ -30,6 +30,7 @@ except Exception:  # pragma: no cover - optional
     Table = None
 
 from .. import orchestrator, self_improver
+from src.archive.hash_archive import HashArchive
 from src import scheduler
 from ..simulation import forecast, sector, mats
 from src.utils.visual import plot_pareto
@@ -564,6 +565,31 @@ def replay(since: float | None, count: int | None) -> None:
             msg = f"{row['ts']:.2f} {row['sender']} -> {row['recipient']} {json.dumps(row['payload'])}"
             click.echo(msg)
             time.sleep(0.1)
+
+
+@main.group()
+def archive() -> None:
+    """Manage archived agent tarballs."""
+
+
+@archive.command("ls")
+@click.option("--proof", is_flag=True, help="Show Merkle proof stubs")
+@click.option("--db", "db_path", default="hash_archive.db", show_default=True, help="Archive database path")
+def archive_ls(proof: bool, db_path: str) -> None:
+    """List pinned CIDs."""
+
+    arch = HashArchive(db_path)
+    entries = arch.list_entries()
+    if not entries:
+        click.echo("No archive entries")
+        return
+    headers = ["id", "cid"]
+    rows = [(e[0], e[2]) for e in entries]
+    if proof:
+        root = arch.merkle_root()
+        headers.append("proof")
+        rows = [(r[0], r[1], root[:16]) for r in rows]
+    _rich_table(headers, rows)
 
 
 @main.command(name="evolve")
