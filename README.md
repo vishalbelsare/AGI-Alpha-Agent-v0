@@ -108,8 +108,14 @@ Follow these steps when working without internet access.
    ```
 
    Sample sector definitions live in
+
    ``alpha_factory_v1/demos/alpha_agi_insight_v1/docs/sectors.sample.json``.
    Pass this file with ``--sectors-file`` to forecast specific industries.
+
+   The built-in **Sector-Shock-10** dataset ships with the package and is
+   located using ``importlib.resources`` when running the demo. This allows
+   `simulate` to score forecasts even when the repository layout is not
+   available.
 
 Example (using ``--sectors-file`` to customise the simulation):
 

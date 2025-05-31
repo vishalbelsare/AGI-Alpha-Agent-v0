@@ -16,6 +16,7 @@ import json
 import os
 import random
 import time
+from importlib import resources
 from pathlib import Path
 from typing import Any, Iterable, List
 
@@ -272,7 +273,14 @@ def simulate(
         _format_results(results)
 
     # evaluate forecast accuracy on the Sector-Shock-10 dataset
-    scores = foresight_evaluate(Path(__file__).resolve().parents[5])
+    try:
+        repo_root = Path(resources.files("alpha_factory_v1"))
+        if not (repo_root / "data" / "sector_shock_10").exists():
+            raise FileNotFoundError
+    except Exception:  # pragma: no cover - fallback for editable installs
+        repo_root = Path(__file__).resolve().parents[5]
+
+    scores = foresight_evaluate(repo_root)
 
     result_data = {
         "version": 1,
