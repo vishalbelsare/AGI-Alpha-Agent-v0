@@ -19,8 +19,16 @@ from pathlib import Path
 class MemoryAgent(BaseAgent):
     """Persist artefacts produced by other agents."""
 
-    def __init__(self, bus: messaging.A2ABus, ledger: "Ledger", store_path: str | None = None) -> None:
-        super().__init__("memory", bus, ledger)
+    def __init__(
+        self,
+        bus: messaging.A2ABus,
+        ledger: "Ledger",
+        store_path: str | None = None,
+        *,
+        backend: str = "gpt-4o",
+        island: str = "default",
+    ) -> None:
+        super().__init__("memory", bus, ledger, backend=backend, island=island)
         self.records: list[dict[str, object]] = []
         self._store = Path(store_path) if store_path else None
         if self._store and self._store.exists():

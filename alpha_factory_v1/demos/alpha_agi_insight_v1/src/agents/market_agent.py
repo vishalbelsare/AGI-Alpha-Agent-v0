@@ -18,8 +18,15 @@ from ..utils.tracing import span
 class MarketAgent(BaseAgent):
     """Analyse markets and forward results to the code generator."""
 
-    def __init__(self, bus: messaging.A2ABus, ledger: "Ledger") -> None:
-        super().__init__("market", bus, ledger)
+    def __init__(
+        self,
+        bus: messaging.A2ABus,
+        ledger: "Ledger",
+        *,
+        backend: str = "gpt-4o",
+        island: str = "default",
+    ) -> None:
+        super().__init__("market", bus, ledger, backend=backend, island=island)
 
     async def run_cycle(self) -> None:
         """Emit a periodic market snapshot."""

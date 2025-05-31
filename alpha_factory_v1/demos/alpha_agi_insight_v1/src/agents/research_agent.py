@@ -21,8 +21,15 @@ from ..utils.tracing import span
 class ResearchAgent(BaseAgent):
     """Perform simple research based on plans from :class:`PlanningAgent`."""
 
-    def __init__(self, bus: messaging.A2ABus, ledger: "Ledger") -> None:
-        super().__init__("research", bus, ledger)
+    def __init__(
+        self,
+        bus: messaging.A2ABus,
+        ledger: "Ledger",
+        *,
+        backend: str = "gpt-4o",
+        island: str = "default",
+    ) -> None:
+        super().__init__("research", bus, ledger, backend=backend, island=island)
 
     async def run_cycle(self) -> None:
         """Periodic sweep using a tiny evolutionary loop."""

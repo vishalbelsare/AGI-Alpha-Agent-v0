@@ -42,8 +42,15 @@ from ..utils.tracing import span
 class CodeGenAgent(BaseAgent):
     """Generate code snippets from market analysis."""
 
-    def __init__(self, bus: messaging.A2ABus, ledger: "Ledger") -> None:
-        super().__init__("codegen", bus, ledger)
+    def __init__(
+        self,
+        bus: messaging.A2ABus,
+        ledger: "Ledger",
+        *,
+        backend: str = "gpt-4o",
+        island: str = "default",
+    ) -> None:
+        super().__init__("codegen", bus, ledger, backend=backend, island=island)
 
     async def run_cycle(self) -> None:
         """No-op background loop."""

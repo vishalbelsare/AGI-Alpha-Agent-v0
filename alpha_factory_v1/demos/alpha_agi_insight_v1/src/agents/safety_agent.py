@@ -18,8 +18,15 @@ from src.utils.opa_policy import violates_insider_policy
 class SafetyGuardianAgent(BaseAgent):
     """Validate generated code before persistence."""
 
-    def __init__(self, bus: messaging.A2ABus, ledger: "Ledger") -> None:
-        super().__init__("safety", bus, ledger)
+    def __init__(
+        self,
+        bus: messaging.A2ABus,
+        ledger: "Ledger",
+        *,
+        backend: str = "gpt-4o",
+        island: str = "default",
+    ) -> None:
+        super().__init__("safety", bus, ledger, backend=backend, island=island)
 
     async def run_cycle(self) -> None:
         """No-op periodic check."""

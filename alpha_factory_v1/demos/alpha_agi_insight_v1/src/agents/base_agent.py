@@ -12,6 +12,11 @@ import time
 from typing import Any, TYPE_CHECKING
 from google.protobuf import struct_pb2
 
+try:
+    from alpha_factory_v1.backend.utils.llm_provider import LLMProvider
+except Exception:  # pragma: no cover - optional
+    LLMProvider = None  # type: ignore[misc]
+
 from ..utils import messaging
 from .adk_adapter import ADKAdapter
 from .mcp_adapter import MCPAdapter
@@ -32,11 +37,22 @@ class BaseAgent:
 
     name: str
 
-    def __init__(self, name: str, bus: messaging.A2ABus, ledger: "Ledger") -> None:
-        self.name = name
+    def __init__(
+        self,
+        name: str,
+        bus: messaging.A2ABus,
+        ledger: "Ledger",
+        *,
+        backend: str = "gpt-4o",
+        island: str = "default",
+    ) -> None:
+        self.island = island
+        self.backend = backend
+        self.name = f"{name}_{island}" if island != "default" else name
         self.bus = bus
         self.ledger = ledger
-        if AgentContext is not None:
+        self.llm = None
+        if backend.startswith("gpt") and AgentContext is not None:
             try:
                 self.oai_ctx = AgentContext(
                     model=bus.settings.model_name,
@@ -53,10 +69,18 @@ class BaseAgent:
                     self.oai_ctx = AgentContext()
         else:
             self.oai_ctx = None
+            if LLMProvider is not None:
+                try:
+                    self.llm = LLMProvider(
+                        temperature=bus.settings.temperature,
+                        max_tokens=bus.settings.context_window,
+                    )
+                except Exception:
+                    self.llm = LLMProvider() if LLMProvider is not None else None
         self.adk = ADKAdapter() if ADKAdapter.is_available() else None
         self.mcp = MCPAdapter() if MCPAdapter.is_available() else None
         self._handler = self._on_envelope
-        self.bus.subscribe(name, self._handler)
+        self.bus.subscribe(self.name, self._handler)
 
     async def _on_envelope(self, env: messaging.Envelope) -> None:
         await self.handle(env)
