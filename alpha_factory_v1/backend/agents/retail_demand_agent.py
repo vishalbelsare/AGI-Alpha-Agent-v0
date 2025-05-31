@@ -298,7 +298,7 @@ class RetailDemandAgent(AgentBase):
             df = df.groupby(["sku", "date"], as_index=False)["demand"].sum()
             self._surrogate.fit(df)
             logger.info("[RD] surrogate retrained on %d rows", len(df))
-        except Exception as exc:  # noqa: BLE001
+        except (httpx.HTTPError, pd.errors.ParserError, OSError) as exc:
             logger.warning("Dataset refresh failed: %s", exc)
 
     # ------------------------------------------------------------------
@@ -351,7 +351,7 @@ class RetailDemandAgent(AgentBase):
                     max_tokens=200,
                 )
                 recs = json.loads(chat.choices[0].message.content)
-            except Exception as exc:  # noqa: BLE001
+            except (openai.OpenAIError, json.JSONDecodeError) as exc:
                 logger.warning("OpenAI rationale generation failed: %s", exc)
         return json.dumps(_wrap_mcp(self.NAME, recs))
 

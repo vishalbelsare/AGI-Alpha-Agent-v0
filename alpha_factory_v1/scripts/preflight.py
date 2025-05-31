@@ -75,7 +75,7 @@ def check_docker_daemon() -> bool:
         subprocess.run(["docker", "info"], check=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
         banner("docker daemon reachable", "GREEN")
         return True
-    except Exception:  # noqa: BLE001
+    except (subprocess.CalledProcessError, OSError):
         banner("docker daemon not running", "RED")
         return False
 
@@ -102,7 +102,7 @@ def check_docker_compose() -> bool:
             if (major, minor) < (2, 5):
                 banner("docker compose >=2.5 recommended", "YELLOW")
         return True
-    except Exception:  # noqa: BLE001
+    except (subprocess.CalledProcessError, OSError):
         banner("docker compose missing", "RED")
         return False
 

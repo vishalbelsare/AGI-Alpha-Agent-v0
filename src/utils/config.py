@@ -52,7 +52,7 @@ def get_secret(name: str, default: Optional[str] = None) -> Optional[str]:
             client = hvac.Client(url=addr, token=token)
             data = client.secrets.kv.read_secret_version(path=secret_path)
             return cast(Optional[str], data["data"]["data"].get(name, default))
-        except Exception as exc:  # noqa: BLE001
+        except Exception as exc:  # noqa: BLE001 - network/auth failures
             _log.warning("Vault secret '%s' failed: %s", name, exc)
             return os.getenv(name, default)
 
@@ -67,7 +67,7 @@ def get_secret(name: str, default: Optional[str] = None) -> Optional[str]:
             client = boto3.client("secretsmanager", region_name=region)
             resp = client.get_secret_value(SecretId=secret_id)
             return cast(Optional[str], resp.get("SecretString", default))
-        except Exception as exc:  # noqa: BLE001
+        except Exception as exc:  # noqa: BLE001 - network/auth failures
             _log.warning("AWS secret '%s' failed: %s", name, exc)
             return os.getenv(name, default)
 
@@ -83,7 +83,7 @@ def get_secret(name: str, default: Optional[str] = None) -> Optional[str]:
             secret_name = f"projects/{project}/secrets/{secret_id}/versions/latest"
             resp = client.access_secret_version(name=secret_name)
             return cast(str, resp.payload.data.decode("utf-8"))
-        except Exception as exc:  # noqa: BLE001
+        except Exception as exc:  # noqa: BLE001 - network/auth failures
             _log.warning("GCP secret '%s' failed: %s", name, exc)
             return os.getenv(name, default)
 
@@ -123,7 +123,7 @@ class Settings(SettingsBase):
             self.offline = True
         try:
             raw = yaml.safe_load(Path(self.self_improve_template).read_text(encoding="utf-8"))
-        except Exception as exc:  # noqa: BLE001
+        except (OSError, yaml.YAMLError) as exc:
             _log.warning("Failed to load self-improve template: %s", exc)
             raw = {}
         self.self_improve = SelfImprovePrompts(**(raw or {}))

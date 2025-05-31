@@ -80,6 +80,6 @@ def _cached_headlines(limit: int) -> List[str]:
         try:
             data = json.loads(_CACHE.read_text())
             return data["h"][:limit]
-        except Exception:  # noqa: BLE001
+        except (json.JSONDecodeError, OSError):
             pass
     return ["(no headlines available – offline)"]
