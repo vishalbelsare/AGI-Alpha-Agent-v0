@@ -12,9 +12,11 @@ import os
 import secrets
 import time
 import logging
-from collections import OrderedDict
+from collections import OrderedDict, deque
 from pathlib import Path
 from typing import Any, List, TYPE_CHECKING, cast, Set
+
+from cachetools import TTLCache
 
 from src.archive import Archive
 from alpha_factory_v1.demos.alpha_agi_insight_v1.src.utils import alerts
@@ -152,26 +154,28 @@ if app is not None:
             super().__init__(app)
             self.limit = int(os.getenv("API_RATE_LIMIT", str(limit)))
             self.window = window
-            self.counters: dict[str, tuple[int, float]] = {}
+            # Map IP address to a deque of request timestamps. TTLCache automatically
+            # evicts entries that have been idle for ``window`` seconds so we don't
+            # need to scan all entries on each request.
+            self.counters: TTLCache[str, deque[float]] = TTLCache(maxsize=1024, ttl=window)
             self.lock = asyncio.Lock()
 
         async def dispatch(self, request: Request, call_next: RequestResponseEndpoint) -> Response:
             ip = request.client.host if request.client else "unknown"
             now = time.time()
             async with self.lock:
-                # purge expired entries to prevent unbounded growth
-                expired = [k for k, (_, ts) in self.counters.items() if now - ts > self.window]
-                for k in expired:
-                    del self.counters[k]
-
-                count, start = self.counters.get(ip, (0, now))
-                if now - start > self.window:
-                    count = 0
-                    start = now
-                count += 1
-                self.counters[ip] = (count, start)
-                if count > self.limit:
+                dq = self.counters.get(ip)
+                if dq is None:
+                    dq = deque()
+                # drop timestamps outside the current window
+                while dq and now - dq[0] > self.window:
+                    dq.popleft()
+                if len(dq) >= self.limit:
+                    dq.append(now)
+                    self.counters[ip] = dq
                     return Response("Too Many Requests", status_code=429)
+                dq.append(now)
+                self.counters[ip] = dq
             return await call_next(request)
 
     class MetricsMiddleware(BaseHTTPMiddleware):
