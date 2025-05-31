@@ -23,8 +23,11 @@ except Exception:  # pragma: no cover - offline stub
 
     def tool(fn=None, **_):  # type: ignore
         return (lambda f: f)(fn) if fn else lambda f: f
+
+
 from src.self_edit.safety import is_code_safe
-from src.tools.diff_mutation import propose_diff as generate_diff
+from pathlib import Path
+from .mutators.code_diff import propose_diff as generate_diff
 from src.utils.opa_policy import violates_finance_policy
 from src.utils.secure_run import secure_run
 
@@ -67,7 +70,9 @@ class CodeGenAgent(BaseAgent):
 
     @tool(description="Propose a minimal diff implementing the given goal")
     def propose_diff(self, file_path: str, goal: str) -> str:  # noqa: D401
-        return generate_diff(file_path, goal)
+        repo_root = str(Path(file_path).resolve().parent)
+        spec = f"{Path(file_path).name}:{goal}"
+        return generate_diff(repo_root, spec)
 
     def execute_in_sandbox(self, code: str) -> tuple[str, str]:
         """Run ``code`` inside a subprocess with resource limits."""
