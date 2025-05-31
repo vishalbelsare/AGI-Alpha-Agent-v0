@@ -7,7 +7,7 @@ from typing import Any, List
 
 import ast
 from src.self_edit.safety import is_code_safe
-from src.archive.selector import select_parent
+from src.simulation.selector import select_parent
 
 
 class GaussianParam:
@@ -154,9 +154,9 @@ def backtrack_boost(
     if not pop:
         raise ValueError("population is empty")
     if rate <= 0.0:
-        return select_parent(pop, beta=beta, gamma=gamma)
+        return select_parent(pop, epsilon=0.1)
     if random.random() < rate:
         ranked = sorted(archive, key=lambda c: getattr(c, "fitness", 0.0))
         bottom = ranked[: max(1, len(ranked) // 2)]
         return random.choice(bottom)
-    return select_parent(pop, beta=beta, gamma=gamma)
+    return select_parent(pop, epsilon=0.1)
