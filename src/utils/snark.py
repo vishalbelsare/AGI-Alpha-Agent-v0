@@ -1,11 +1,12 @@
 # SPDX-License-Identifier: Apache-2.0
 """Minimal SNARK-style proof helpers.
 
-These utilities generate a deterministic proof that a particular
-``(agent-hash, score-tuple)`` entry exists in an evaluation transcript.
-The proof is a simple SHA-256 digest derived from the transcript and the
-provided tuple. This acts as a stand-in for a real zero-knowledge proof
-in constrained test environments.
+These utilities simulate zero-knowledge proofs for tests.  ``generate_proof``
+creates a deterministic hash proving that a particular ``(agent-hash,
+score-tuple)`` entry exists in an evaluation transcript.  ``aggregate_proof``
+combines several such digests to emulate an aggregated Bulletproof proof.  The
+implementation relies only on SHA-256 so it remains lightweight for CI
+environments without Circom or a full ZK stack.
 """
 from __future__ import annotations
 
@@ -16,7 +17,13 @@ import subprocess
 from pathlib import Path
 from typing import Sequence
 
-__all__ = ["generate_proof", "publish_proof", "verify_proof"]
+__all__ = [
+    "generate_proof",
+    "publish_proof",
+    "verify_proof",
+    "aggregate_proof",
+    "verify_aggregate_proof",
+]
 
 
 def _find_entry(transcript: Path, agent_hash: str, score: Sequence[float]) -> bool:
@@ -66,4 +73,21 @@ def publish_proof(
 def verify_proof(transcript_path: str | Path, agent_hash: str, score: Sequence[float], proof: str) -> bool:
     """Return ``True`` if ``proof`` matches the generated value."""
     expected = generate_proof(transcript_path, agent_hash, score)
+    return proof == expected
+
+
+def aggregate_proof(transcript_path: str | Path, items: Sequence[tuple[str, Sequence[float]]]) -> str:
+    """Return aggregated proof for ``items`` using ``generate_proof``."""
+    proofs = [generate_proof(transcript_path, h, s) for h, s in items]
+    blob = ",".join(sorted(proofs)).encode()
+    return hashlib.sha256(blob).hexdigest()
+
+
+def verify_aggregate_proof(
+    transcript_path: str | Path,
+    items: Sequence[tuple[str, Sequence[float]]],
+    proof: str,
+) -> bool:
+    """Return ``True`` if ``proof`` matches ``aggregate_proof``."""
+    expected = aggregate_proof(transcript_path, items)
     return proof == expected
