@@ -34,6 +34,7 @@ from src import scheduler
 from ..simulation import forecast, sector, mats
 from src.utils.visual import plot_pareto
 from ..utils import config, logging
+from src.eval.foresight import evaluate as foresight_evaluate
 
 console = Console() if Console else None
 
@@ -268,6 +269,32 @@ def simulate(
             writer.writerow([r.year, r.capability, "|".join(s.name for s in r.affected)])
     else:
         _format_results(results)
+
+    # evaluate forecast accuracy on the Sector-Shock-10 dataset
+    scores = foresight_evaluate(Path(__file__).resolve().parents[5])
+
+    result_data = {
+        "version": 1,
+        "forecast": [
+            {
+                "year": r.year,
+                "capability": r.capability,
+                "affected": [s.name for s in r.affected],
+            }
+            for r in results
+        ],
+        "scores": scores,
+    }
+
+    results_dir = Path(
+        os.getenv(
+            "SIM_RESULTS_DIR",
+            os.path.join(os.getenv("ALPHA_DATA_DIR", "/tmp/alphafactory"), "simulations"),
+        )
+    )
+    results_dir.mkdir(parents=True, exist_ok=True, mode=0o700)
+    out_file = results_dir / f"{int(time.time())}.json"
+    out_file.write_text(json.dumps(result_data))
 
     if save_plots:
 
