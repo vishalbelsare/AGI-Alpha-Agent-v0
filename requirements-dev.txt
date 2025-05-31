@@ -9,3 +9,6 @@ cryptography
 hypothesis
 grpcio-tools
 pytest-httpx
+
+types-PyYAML
+types-requests
