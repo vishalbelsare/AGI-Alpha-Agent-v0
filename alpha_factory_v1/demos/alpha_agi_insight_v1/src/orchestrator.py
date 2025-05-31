@@ -37,6 +37,11 @@ from .agents.base_agent import BaseAgent
 from src.governance.stake_registry import StakeRegistry
 from .simulation import mats
 
+try:  # platform specific
+    import resource  # type: ignore
+except Exception:  # pragma: no cover - Windows fallback
+    resource = None  # type: ignore
+
 ERR_THRESHOLD = int(os.getenv("AGENT_ERR_THRESHOLD", "3"))
 BACKOFF_EXP_AFTER = int(os.getenv("AGENT_BACKOFF_EXP_AFTER", "3"))
 PROMOTION_THRESHOLD = float(os.getenv("PROMOTION_THRESHOLD", "0"))
@@ -130,6 +135,13 @@ class Orchestrator:
         )
         self.registry = StakeRegistry()
         self.island_pops: Dict[str, mats.Population] = {}
+        self.experiment_pops: Dict[str, Dict[str, mats.Population]] = {"default": self.island_pops}
+        if resource is not None:
+            try:
+                limit = 8 * 1024 * 1024 * 1024
+                resource.setrlimit(resource.RLIMIT_AS, (limit, limit))
+            except Exception:  # pragma: no cover - unsupported platform
+                pass
         self.island_backends: Dict[str, str] = dict(self.settings.island_backends)
         self.runners: Dict[str, AgentRunner] = {}
         self.bus.subscribe("orch", self._on_orch)
@@ -169,31 +181,41 @@ class Orchestrator:
         self.registry.set_stake(runner.agent.name, 1.0)
         self.registry.set_threshold(f"promote:{runner.agent.name}", PROMOTION_THRESHOLD)
 
-    def evolve(
+    async def evolve(
         self,
         scenario_hash: str,
         fn: Callable[[list[float]], tuple[float, ...]],
         genome_length: int,
         sector: str = "generic",
         approach: str = "ga",
+        experiment_id: str = "default",
         **kwargs: object,
     ) -> mats.Population:
-        """Run evolution for ``scenario_hash`` using persistent islands."""
+        """Run evolution for ``scenario_hash`` keyed by ``experiment_id``."""
 
-        pop = mats.run_evolution(
+        pops = self.experiment_pops.setdefault(experiment_id, {})
+        if len(self.experiment_pops) > 10:
+            raise RuntimeError("max concurrent experiments exceeded")
+
+        pop = await asyncio.to_thread(
+            mats.run_evolution,
             fn,
             genome_length,
             scenario_hash=scenario_hash,
-            populations=self.island_pops,
+            populations=pops,
             **kwargs,
         )
-        self.island_pops[scenario_hash] = pop
+        pops[scenario_hash] = pop
         for ind in pop:
             self.solution_archive.add(
                 sector,
                 approach,
                 ind.score,
                 {"genome": ind.genome},
+            )
+            self.archive.insert_entry(
+                {"experiment_id": experiment_id, "genome": ind.genome},
+                {"score": ind.score},
             )
         return pop
 
