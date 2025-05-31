@@ -347,6 +347,7 @@ class SimStartResponse(BaseModel):
 class ResultsResponse(BaseModel):
     """Stored simulation outcome."""
 
+    version: int = 1
     id: str
     forecast: list[ForecastPoint]
     population: list[PopulationMember] | None = None
