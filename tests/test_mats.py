@@ -1,5 +1,6 @@
 # SPDX-License-Identifier: Apache-2.0
 from alpha_factory_v1.demos.alpha_agi_insight_v1.src.simulation import mats
+from src.evaluators.novelty import NoveltyIndex
 
 
 def test_run_evolution_deterministic() -> None:
@@ -43,7 +44,7 @@ def test_run_evolution_three_objectives() -> None:
 
     pop = mats.run_evolution(fn, 2, population_size=4, generations=2, seed=42)
 
-    assert all(len(ind.fitness or ()) == 3 for ind in pop)
+    assert all(len(ind.fitness or ()) == 4 for ind in pop)
 
 
 def test_pareto_front_after_five_generations() -> None:
@@ -61,3 +62,24 @@ def test_pareto_front_after_five_generations() -> None:
     )
     front = mats.pareto_front(pop)
     assert len(front) >= 10
+
+
+def test_novelty_divergence_for_elites() -> None:
+    def fn(genome: list[float]) -> tuple[float, float]:
+        x, y = genome
+        return x**2, y**2
+
+    idx = NoveltyIndex()
+    idx.add("0.0,0.0")
+
+    pop = mats.run_evolution(
+        fn,
+        2,
+        population_size=6,
+        generations=1,
+        seed=1,
+        novelty_index=idx,
+    )
+    front = mats.pareto_front(pop)
+    novelties = [ind.fitness[-1] for ind in front]
+    assert sum(n > 0.3 for n in novelties) >= len(novelties) - 1
