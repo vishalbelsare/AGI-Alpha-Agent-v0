@@ -12,6 +12,7 @@ from .base_agent import BaseAgent
 from ..utils import messaging
 from ..utils.logging import Ledger
 from ..utils.tracing import span
+from src.utils.opa_policy import violates_insider_policy
 
 
 class SafetyGuardianAgent(BaseAgent):
@@ -26,8 +27,14 @@ class SafetyGuardianAgent(BaseAgent):
             return None
 
     async def handle(self, env: messaging.Envelope) -> None:
-        """Simple pattern-based validation."""
+        """Validate payload before persistence."""
         with span("safety.handle"):
-            code = env.payload.get("code", "")
-            status = "blocked" if "import os" in code else "ok"
-            await self.emit("memory", {"code": code, "status": status})
+            code = str(env.payload.get("code", ""))
+            text_parts = [str(v) for v in env.payload.values() if isinstance(v, str)]
+            text = " ".join(text_parts)
+            status = "ok"
+            if "import os" in code or violates_insider_policy(text):
+                status = "blocked"
+            payload = dict(env.payload)
+            payload["status"] = status
+            await self.emit("memory", payload)
