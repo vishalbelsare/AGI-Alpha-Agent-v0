@@ -89,6 +89,12 @@ if Counter is not None and Gauge is not None:
         "GPU hours per unit fitness gain",
         [],
     )
+    dgm_gpu_seconds_per_gain = get_metric(
+        Gauge,
+        "dgm_gpu_seconds_per_gain",
+        "GPU seconds per unit fitness gain",
+        [],
+    )
 else:  # pragma: no cover - prometheus not installed
 
     class _N:
@@ -113,4 +119,4 @@ else:  # pragma: no cover - prometheus not installed
         dgm_gpu_hours_total
     ) = (
         dgm_fitness_gain_total
-    ) = dgm_gpu_hours_per_gain = _N()
+    ) = dgm_gpu_hours_per_gain = dgm_gpu_seconds_per_gain = _N()

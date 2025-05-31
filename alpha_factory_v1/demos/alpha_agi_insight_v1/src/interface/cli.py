@@ -610,12 +610,18 @@ def archive_ls(proof: bool, db_path: str) -> None:
     type=float,
     help="Edit children count weight",
 )
+@click.option(
+    "--max-cost-per-gain",
+    type=float,
+    help="Stop if GPU seconds per fitness gain exceed this value",
+)
 def evolve_cmd(
     max_cost: float,
     wallclock: float | None,
     backtrack_rate: float,
     beta: float,
     gamma: float,
+    max_cost_per_gain: float | None,
 ) -> None:
     """Run the minimal asynchronous evolution demo."""
     from src import evolve as _evolve
@@ -635,6 +641,7 @@ def evolve_cmd(
             backtrack_rate=backtrack_rate,
             beta=beta,
             gamma=gamma,
+            cost_threshold=max_cost_per_gain,
         )
     )
 

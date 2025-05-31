@@ -13,6 +13,35 @@ from pathlib import Path
 from src.monitoring import metrics
 
 
+class BanditEarlyStopper:
+    """Simple bandit-based early stopper."""
+
+    def __init__(self, threshold: float) -> None:
+        self.threshold = threshold
+        self.cost = 0.0
+        self.gain = 0.0
+        self.success = 1
+        self.fail = 1
+
+    def update(self, cost: float, gain: float) -> bool:
+        """Update stats and return ``True`` if training should stop."""
+        self.cost += cost
+        if gain > 0:
+            self.gain += gain
+            self.success += 1
+            metrics.dgm_fitness_gain_total.inc(gain)
+        else:
+            self.fail += 1
+        metrics.dgm_gpu_hours_total.inc(cost / 3600)
+        if self.gain > 0:
+            metrics.dgm_gpu_hours_per_gain.set(self.cost / 3600 / self.gain)
+            metrics.dgm_gpu_seconds_per_gain.set(self.cost / self.gain)
+        prob = random.betavariate(self.success, self.fail)
+        expected_gain = self.gain + prob
+        ratio = self.cost / expected_gain if expected_gain else float("inf")
+        return ratio > self.threshold
+
+
 class State(Enum):
     """Execution state."""
 
@@ -41,6 +70,8 @@ def run_loop(
     revive_rate: int = 0,
     agents: dict[str, bool] | None = None,
     rng: random.Random | None = None,
+    gains: list[float] | None = None,
+    early_stopper: BanditEarlyStopper | None = None,
 ) -> Result:
     """Run the FSM until budgets are exhausted.
 
@@ -66,6 +97,8 @@ def run_loop(
     agents = agents or {}
     revive_count = 0
 
+    gain_iter = iter(gains or [])
+
     try:
         while True:
             if state is State.SELECT:
@@ -76,6 +109,9 @@ def run_loop(
                 continue
             if state is State.BENCHMARK:
                 cost_spent += cost_per_cycle
+                gain = next(gain_iter, 0.0)
+                if early_stopper and early_stopper.update(cost_per_cycle, gain):
+                    break
                 state = State.ARCHIVE
                 continue
             if state is State.ARCHIVE:
