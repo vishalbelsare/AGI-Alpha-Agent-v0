@@ -6,12 +6,15 @@ from __future__ import annotations
 import asyncio
 import time
 from dataclasses import dataclass
-from typing import Iterable, Set
+from typing import Iterable, Set, Dict
+
+import random
 
 from rocketry import Rocketry
 from rocketry.conds import every
 
 from alpha_factory_v1.demos.alpha_agi_insight_v1.src import self_improver
+from src.monitoring import metrics
 
 
 @dataclass(slots=True)
@@ -38,8 +41,13 @@ class SelfImprovementScheduler:
         max_workers: int = 1,
     ) -> None:
         self.queue: asyncio.Queue[Job] = asyncio.Queue()
-        for job in jobs:
+        self._initial_jobs = list(jobs)
+        for job in self._initial_jobs:
             self.queue.put_nowait(job)
+        self._results: Dict[Job, float] = {}
+        self._stats: Dict[Job, tuple[int, int]] = {}
+        self._active_jobs: list[Job] = []
+        self._first_round_done = False
         self.tokens_quota = tokens_quota
         self.time_quota = time_quota
         self.max_workers = max_workers
@@ -60,15 +68,25 @@ class SelfImprovementScheduler:
         if self.tokens_quota is not None and self.tokens_used >= self.tokens_quota:
             self.app.session.finish()
             return
-        while not self.queue.empty() and len(self.running) < self.max_workers:
-            job = await self.queue.get()
+        # schedule initial evaluation or bandit-selected jobs
+        while len(self.running) < self.max_workers:
+            if not self._first_round_done:
+                if self.queue.empty():
+                    break
+                job = await self.queue.get()
+            else:
+                if not self._active_jobs:
+                    self.app.session.finish()
+                    break
+                job = self._select_job()
             task = asyncio.create_task(self._run_job(job))
             self.running.add(task)
             task.add_done_callback(self.running.discard)
 
     async def _run_job(self, job: Job) -> None:
+        start = time.perf_counter()
         try:
-            await asyncio.to_thread(
+            delta, _ = await asyncio.to_thread(
                 self_improver.improve_repo,
                 job.repo,
                 job.patch,
@@ -76,8 +94,49 @@ class SelfImprovementScheduler:
                 job.log,
             )
             self.tokens_used += job.tokens
+            gpu_hours = (time.perf_counter() - start) / 3600
+            metrics.dgm_gpu_hours_total.inc(gpu_hours)
+            if delta > 0:
+                metrics.dgm_fitness_gain_total.inc(delta)
+            if metrics.dgm_fitness_gain_total._value.get() > 0:
+                ratio = (
+                    metrics.dgm_gpu_hours_total._value.get()
+                    / metrics.dgm_fitness_gain_total._value.get()
+                )
+                metrics.dgm_gpu_hours_per_gain.set(ratio)
+            if not self._first_round_done:
+                self._results[job] = delta
+            else:
+                suc, fail = self._stats.get(job, (0, 0))
+                if delta > 0:
+                    suc += 1
+                else:
+                    fail += 1
+                self._stats[job] = (suc, fail)
         except Exception:  # noqa: BLE001
             await self.queue.put(job)
+        if not self._first_round_done and len(self._results) == len(self._initial_jobs):
+            self._finalize_first_round()
+
+    def _select_job(self) -> Job:
+        samples: Dict[Job, float] = {}
+        for job in self._active_jobs:
+            suc, fail = self._stats.get(job, (1, 1))
+            samples[job] = random.betavariate(suc, fail)
+        best = max(samples, key=samples.get)
+        return best
+
+    def _finalize_first_round(self) -> None:
+        deltas = list(self._results.values())
+        if not deltas:
+            self._first_round_done = True
+            return
+        threshold = sorted(deltas)[len(deltas) // 4]
+        for job, delta in self._results.items():
+            if delta > threshold:
+                self._active_jobs.append(job)
+                self._stats[job] = (1 if delta > 0 else 0, 0 if delta > 0 else 1)
+        self._first_round_done = True
 
     async def serve(self) -> None:
         """Run the scheduler until quotas are exhausted or queue is empty."""
