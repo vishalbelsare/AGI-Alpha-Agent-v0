@@ -15,6 +15,7 @@ from typing import Iterable, List
 
 from .sector import Sector
 from . import mats
+from ..evaluators import lead_time
 
 
 @dataclass(slots=True)
@@ -111,12 +112,19 @@ def _innovation_gain(
         xover_rate: Probability of performing crossover.
     """
 
-    def fn(genome: list[float]) -> tuple[float, float, float]:
+    def fn(genome: list[float]) -> tuple[float, float, float, float]:
         x, y = genome
         effectiveness = x**2
         negative_evar = y**2
         complexity = (x + y) ** 2
-        return effectiveness, negative_evar, complexity
+        history = [1.0, 1.0, 1.0]
+        base = lead_time._arima_baseline(history, 3)
+        forecast_series = [b + x + y for b in base]
+        lead_impr = lead_time.lead_signal_improvement(
+            history, forecast_series, months=3, threshold=1.1
+        )
+        lead_penalty = 1.0 - lead_impr
+        return effectiveness, negative_evar, complexity, lead_penalty
 
     pop = mats.run_evolution(
         fn,
