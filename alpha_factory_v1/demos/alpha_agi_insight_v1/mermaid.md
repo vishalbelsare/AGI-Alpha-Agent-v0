@@ -258,7 +258,7 @@ flowchart TD
 ```mermaid
 %% Diagram 2: Repository layout
 graph TD
-    A0[alpha_agi_insight_v0/] --- A1[README.md]
+    A0[alpha_agi_insight_v1/] --- A1[README.md]
     A0 --- A2[requirements.txt]
     A0 --- SRC[src/]
     A0 --- TEST[tests/]
@@ -403,7 +403,7 @@ flowchart TD
 
 ```mermaid
 graph TD
-  ROOT["alpha_agi_insight_v0/"]
+  ROOT["alpha_agi_insight_v1/"]
   subgraph Root
     ROOT_README["README.md"]
     REQ["requirements.txt"]

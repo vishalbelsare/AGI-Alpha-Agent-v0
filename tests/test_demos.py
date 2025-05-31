@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 import unittest
 from pathlib import Path
 from alpha_factory_v1.demos import validate_demos

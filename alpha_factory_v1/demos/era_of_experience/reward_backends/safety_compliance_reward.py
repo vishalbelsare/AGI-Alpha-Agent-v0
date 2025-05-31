@@ -30,7 +30,7 @@ Implementation details
 * Thread‑safe via a `threading.Lock`
 * Duplicate `request_id`s are ignored (idempotent)
 * Unknown / malformed payload → neutral reward 0.0
-* MIT License
+* Apache‑2.0 License
 
 © 2025 Montreal.AI
 """

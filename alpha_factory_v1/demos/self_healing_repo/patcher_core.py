@@ -1,5 +1,5 @@
 # alpha_factory_v1/demos/self_healing_repo/patcher_core.py
-# © 2025 MONTREAL.AI   MIT License
+# © 2025 MONTREAL.AI   Apache-2.0 License
 """
 patcher_core.py
 ───────────────

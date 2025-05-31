@@ -50,7 +50,7 @@ Implementation notes
 • **Stateless config**: tweak thresholds via module‑level constants.  
 • **Zero deps**: std‑lib only — works offline, inside minimal containers.
 
-© 2025 Montreal.AI – MIT License
+© 2025 Montreal.AI – Apache-2.0 License
 """
 
 from __future__ import annotations

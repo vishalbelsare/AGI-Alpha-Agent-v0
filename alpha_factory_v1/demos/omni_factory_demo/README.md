@@ -193,7 +193,7 @@ cd ../../..
 pip install -r requirements.txt  # install dependencies
 python check_env.py              # confirm optional extras available
 # If packages are reported missing, install them:
-pip install -r requirements.txt  # or requirements-colab.txt in Colab
+pip install -r requirements.txt  # or requirements-colab.lock in Colab
 pytest -q                        # optional quick self-test
 python -m alpha_factory_v1.demos.omni_factory_demo --metrics-port 9137
 python alpha_factory_v1/demos/omni_factory_demo/omni_dashboard.py

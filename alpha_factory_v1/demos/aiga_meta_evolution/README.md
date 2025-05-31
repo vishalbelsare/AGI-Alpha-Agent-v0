@@ -2,7 +2,7 @@
  AI‑GA Meta‑Evolution Demo
  Alpha‑Factory v1 👁️✨ — Multi‑Agent **AGENTIC α‑AGI**
  Out‑learn · Out‑think · Out‑strategise · Out‑evolve
- © 2025 MONTREAL.AI   MIT License
+ © 2025 MONTREAL.AI   Apache‑2.0 License
  -------------------------------------------------------------------------------
  Exhaustive README: quick‑start, deep‑dive, SOC‑2 rails, CI/CD, K8s,
  observability, SBOM notice. Rendered as GitHub‑flavoured Markdown.
@@ -213,9 +213,9 @@ agent is published over the A2A protocol for orchestration by external controlle
 └────────────────────────────────────────┘
 ```
 
-* **MetaEvolver** – pop 24, tournament‑k 3, elitism 2, novelty bonus toggle 
-* **EvoNet** – arbitrary hidden layers, activation ∈ {relu,tanh,sigmoid}, optional Hebbian ΔW 
-* **CurriculumEnv** – 12 × 12 grid, DFS solvability check, energy budget, genome auto‑mutation 
+* **MetaEvolver** – pop 24, tournament‑k 3, elitism 2, novelty bonus toggle
+* **EvoNet** – arbitrary hidden layers, activation ∈ {relu,tanh,sigmoid}, optional Hebbian ΔW
+* **CurriculumEnv** – 12 × 12 grid, DFS solvability check, energy budget, genome auto‑mutation
 
 ---
 
@@ -228,15 +228,15 @@ agent is published over the A2A protocol for orchestration by external controlle
 | `aiga_generations_total` | Counter |
 | `aiga_curriculum_stage` | 0–3 |
 
-Enable profile `telemetry` to autopush → Prometheus → Grafana. 
+Enable profile `telemetry` to autopush → Prometheus → Grafana.
 `docker compose --profile telemetry up`.
 
 ---
 
 ## 🧪 Tests & CI
 
-* **Coverage ≥ 90 %** in < 0.5 s (`pytest -q`) 
-* GitHub Actions → lint → test → build → Cosign sign 
+* **Coverage ≥ 90 %** in < 0.5 s (`pytest -q`)
+* GitHub Actions → lint → test → build → Cosign sign
 * **SBOM** via *Syft* (SPDX v3) per release
 
 ---
@@ -270,9 +270,9 @@ spec:
 
 ## 🛡 SOC‑2 & supply‑chain
 
-* Cosign‑signed images (`cosign verify …`) 
-* Runs **non‑root UID 1001**, read‑only code volume 
-* Secrets via K8s / Docker *secrets* (never baked into layers) 
+* Cosign‑signed images (`cosign verify …`)
+* Runs **non‑root UID 1001**, read‑only code volume
+* Secrets via K8s / Docker *secrets* (never baked into layers)
 * Dependencies hashed (Poetry lock) & validated at runtime 
 * SBOM exported; SLSA level 2 pipeline
 
@@ -306,7 +306,7 @@ spec:
 
 ## ⚖️ License & credits
 
-*Source & assets* © 2025 Montreal.AI, released under the **MIT License**. 
+*Source & assets* © 2025 Montreal.AI, released under the **Apache‑2.0 License**.
 Huge thanks to:
 
 * **Jeff Clune** – visionary behind AI‑GAs 

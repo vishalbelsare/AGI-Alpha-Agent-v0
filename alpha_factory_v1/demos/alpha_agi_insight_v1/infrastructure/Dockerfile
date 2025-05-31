@@ -2,22 +2,30 @@
 FROM python:3.11-slim
 
 # Install build tools for optional native extensions
-RUN apt-get update && apt-get install -y --no-install-recommends build-essential \
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential nodejs npm \
+    && npm install -g pnpm \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
 
 # Install Python dependencies for the demo
-COPY alpha_factory_v1/demos/alpha_agi_insight_v1/requirements.txt /tmp/requirements.txt
-RUN pip install --no-cache-dir -r /tmp/requirements.txt && rm /tmp/requirements.txt
+COPY alpha_factory_v1/demos/alpha_agi_insight_v1/requirements.lock /tmp/requirements.lock
+RUN pip install --no-cache-dir -r /tmp/requirements.lock && rm /tmp/requirements.lock
 
 # Copy the project source
 COPY . /app
-COPY src/interface/web_client/dist /app/src/interface/web_client/dist
+RUN pnpm --dir alpha_factory_v1/demos/alpha_agi_insight_v1/src/interface/web_client install \
+    && pnpm --dir alpha_factory_v1/demos/alpha_agi_insight_v1/src/interface/web_client run build \
+    && rm -rf alpha_factory_v1/demos/alpha_agi_insight_v1/src/interface/web_client/node_modules
+
+# copy built assets
+COPY alpha_factory_v1/demos/alpha_agi_insight_v1/src/interface/web_client/dist/ \
+    /app/alpha_factory_v1/demos/alpha_agi_insight_v1/src/interface/web_client/dist/
 
 # Add non-root user and entrypoint
 RUN adduser --disabled-password --gecos '' afuser && chown -R afuser /app
-COPY infrastructure/docker-entrypoint.sh /usr/local/bin/entrypoint.sh
+COPY alpha_factory_v1/demos/alpha_agi_insight_v1/infrastructure/docker-entrypoint.sh /usr/local/bin/entrypoint.sh
 RUN chmod +x /usr/local/bin/entrypoint.sh
 USER afuser
 

@@ -9,13 +9,17 @@ venv/
 # Distribution / packaging
 *.egg-info/
 node_modules/
-src/interface/web_client/dist/
 build/
 dist/
+!src/interface/web_client/dist/
+!alpha_factory_v1/demos/alpha_agi_insight_v1/src/interface/web_client/dist/
 
 # Logs
 *.log
 # Environment configuration files
 .env
 *.env
+
+# Key files
+*.key
 

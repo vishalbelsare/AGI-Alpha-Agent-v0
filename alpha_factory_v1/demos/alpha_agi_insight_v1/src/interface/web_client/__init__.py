@@ -1,1 +1,2 @@
-"""Static files for the optional React front end."""
+# SPDX-License-Identifier: Apache-2.0
+"""Minimal React dashboard for α‑AGI Insight."""

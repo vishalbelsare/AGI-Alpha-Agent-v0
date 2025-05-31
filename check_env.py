@@ -26,6 +26,19 @@ REQUIRED = [
     "anthropic",
     "fastapi",
     "opentelemetry",
+    "uvicorn",
+    "httpx",
+    "grpc",
+    "cryptography",
+    "numpy",
+    "click",
+    "requests",
+    "pandas",
+    "playwright.sync_api",
+    "websockets",
+    "pytest_benchmark",
+    "hypothesis",
+    "plotly",
 ]
 
 # Optional integrations that may not be present in restricted environments.
@@ -33,6 +46,15 @@ OPTIONAL = [
     "openai_agents",
     "google_adk",
 ]
+
+PIP_NAMES = {
+    "openai_agents": "openai-agents",
+    "google_adk": "google-adk",
+    "grpc": "grpcio",
+    "pytest_benchmark": "pytest-benchmark",
+    "playwright.sync_api": "playwright",
+    "websockets": "websockets",
+}
 
 
 def main(argv: Optional[List[str]] = None) -> int:
@@ -54,8 +76,9 @@ def main(argv: Optional[List[str]] = None) -> int:
     for pkg in REQUIRED + OPTIONAL:
         try:
             spec = importlib.util.find_spec(pkg)
-        except ValueError:
+        except (ValueError, ModuleNotFoundError):
             # handle cases where a namespace package left an invalid entry
+            # or the root package itself is missing
             spec = None
         if spec is None:
             if pkg in OPTIONAL:
@@ -71,7 +94,8 @@ def main(argv: Optional[List[str]] = None) -> int:
             cmd = [sys.executable, "-m", "pip", "install", "--quiet"]
             if wheelhouse:
                 cmd += ["--no-index", "--find-links", wheelhouse]
-            cmd += missing
+            packages = [PIP_NAMES.get(pkg, pkg) for pkg in missing]
+            cmd += packages
             print("Attempting automatic install:", " ".join(cmd))
             try:
                 result = subprocess.run(cmd, capture_output=True, text=True, check=True)

@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "alpha-factory-v1"
-version = "1.0.1"
+version = "1.1.0"
 description = "Alpha-Factory v1"
 readme = "README.md"
 requires-python = ">=3.11,<3.13"
@@ -13,13 +13,19 @@ requires-python = ">=3.11,<3.13"
 packages = [
     "alpha_factory_v1",
     "alpha_factory_v1.demos.alpha_agi_insight_v1",
+    "alpha_factory_v1.demos.alpha_agi_insight_v1.src",
+    "alpha_factory_v1.demos.alpha_agi_insight_v1.src.interface",
+    "alpha_factory_v1.demos.alpha_agi_insight_v1.src.interface.web_client",
     "af_requests",
     "src",
+    "src.interface",
+    "src.interface.web_client",
 ]
 
 [tool.setuptools.package-data]
 "alpha_factory_v1" = ["py.typed"]
 "src.interface.web_client" = ["dist/**"]
+"alpha_factory_v1.demos.alpha_agi_insight_v1.src.interface.web_client" = ["dist/**"]
 
 [project.scripts]
 alpha-factory = "alpha_factory_v1.run:run"
@@ -42,6 +48,8 @@ alpha-agi-insight-api = "alpha_factory_v1.demos.alpha_agi_insight_v0.api_server:
 alpha-agi-insight-dashboard = "alpha_factory_v1.demos.alpha_agi_insight_v0.insight_dashboard:main"
 alpha-agi-insight-v1 = "alpha_factory_v1.demos.alpha_agi_insight_v1.src.interface.cli:main"
 alpha-agi-insight-v1-api = "alpha_factory_v1.demos.alpha_agi_insight_v1.src.interface.api_server:main"
+aii = "alpha_factory_v1.demos.alpha_agi_insight_v1.src.interface.cli:main"
+verify-wheel-sig = "alpha_factory_v1.scripts.verify_wheel_sig:main"
 
 [project.entry-points."alpha_factory.agents"]
 # custom agents can be registered here
@@ -52,6 +60,11 @@ line-length = 120
 [tool.ruff]
 line-length = 120
 target-version = "py311"
+exclude = [
+    "alpha_factory_v1/demos/*",
+    "alpha_factory_v1/tests/*",
+    "*.ipynb",
+]
 
 [tool.flake8]
 max-line-length = 120

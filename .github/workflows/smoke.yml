@@ -1,0 +1,29 @@
+name: "🔥 Smoke Test"
+
+on:
+  workflow_dispatch:
+
+env:
+  PYTHON_VERSION_MATRIX: "3.11,3.12"
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    strategy:
+      matrix:
+        python-version: [${{ env.PYTHON_VERSION_MATRIX }}]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: pip
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.lock
+      - name: Run 2-year simulation
+        run: |
+          python -m alpha_factory_v1.demos.alpha_agi_insight_v1.src.interface.cli simulate \
+            --horizon 2 --sectors 1 --pop-size 1 --generations 1 --offline --no-broadcast

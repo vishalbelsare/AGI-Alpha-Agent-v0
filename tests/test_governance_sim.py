@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 import unittest
 from alpha_factory_v1.demos.solving_agi_governance import run_sim, summarise_with_agent
 
