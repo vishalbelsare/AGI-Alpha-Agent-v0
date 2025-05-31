@@ -25,6 +25,7 @@ from src.archive import Archive, ArchiveDB
 from alpha_factory_v1.demos.alpha_agi_insight_v1.src.utils import alerts
 from src.utils.config import init_config
 from src.monitoring import metrics
+from src.capsules import CapsuleFacts, ImpactScorer, load_capsule_facts
 
 __all__ = [
     "app",
@@ -265,6 +266,9 @@ _results_dir = Path(
 _max_results = int(os.getenv("MAX_RESULTS", "100"))
 _results_dir.mkdir(parents=True, exist_ok=True, mode=0o700)
 
+# Capsule facts for impact scoring
+_CAPSULE_FACTS = load_capsule_facts(Path(__file__).resolve().parents[1] / "capsules")
+
 # Kill-switch multisig tokens
 _kill_tokens = {
     t
@@ -399,6 +403,7 @@ class PopulationMember(BaseModel):
     risk: float
     complexity: float
     rank: int
+    impact: float | None = None
 
 
 class SimStartResponse(BaseModel):
@@ -539,12 +544,17 @@ async def _background_run(sim_id: str, cfg: SimRequest) -> None:
     )
     metrics.dgm_children_total.inc(len(pop))
 
+    # Pick first available capsule facts for impact scoring
+    _facts = next(iter(_CAPSULE_FACTS.values()), CapsuleFacts(0.0, 0.0))
+    _scorer = ImpactScorer()
+
     pop_data = [
         PopulationMember(
             effectiveness=ind.fitness[0],
             risk=ind.fitness[1],
             complexity=ind.fitness[2],
             rank=ind.rank,
+            impact=_scorer.score(_facts, ind.fitness[0]),
         )
         for ind in pop
     ]

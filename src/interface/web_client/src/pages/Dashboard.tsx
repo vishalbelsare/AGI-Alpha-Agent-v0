@@ -74,7 +74,7 @@ export default function Dashboard() {
         y: population.map((p) => p.risk),
         mode: 'markers',
         type: 'scatter',
-        marker: { color: population.map((p) => p.rank) },
+        marker: { color: population.map((p) => p.impact) },
       },
     ], {
       margin: { t: 20 },
