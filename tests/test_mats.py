@@ -44,3 +44,20 @@ def test_run_evolution_three_objectives() -> None:
     pop = mats.run_evolution(fn, 2, population_size=4, generations=2, seed=42)
 
     assert all(len(ind.fitness or ()) == 3 for ind in pop)
+
+
+def test_pareto_front_after_five_generations() -> None:
+    def fn(genome: list[float]) -> tuple[float, float]:
+        x, y = genome
+        return x**2, y**2
+
+    pop = mats.run_evolution(
+        fn,
+        2,
+        population_size=20,
+        generations=5,
+        seed=42,
+        scenario_hash="test",
+    )
+    front = mats.pareto_front(pop)
+    assert len(front) >= 10

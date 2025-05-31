@@ -34,6 +34,7 @@ from .utils.logging import Ledger
 from src.archive.service import ArchiveService
 from .agents.base_agent import BaseAgent
 from src.governance.stake_registry import StakeRegistry
+from .simulation import mats
 
 ERR_THRESHOLD = int(os.getenv("AGENT_ERR_THRESHOLD", "3"))
 BACKOFF_EXP_AFTER = int(os.getenv("AGENT_BACKOFF_EXP_AFTER", "3"))
@@ -124,6 +125,7 @@ class Orchestrator:
             broadcast=self.settings.broadcast,
         )
         self.registry = StakeRegistry()
+        self.island_pops: Dict[str, mats.Population] = {}
         self.runners: Dict[str, AgentRunner] = {}
         self.bus.subscribe("orch", self._on_orch)
         for agent in self._init_agents():
@@ -157,6 +159,25 @@ class Orchestrator:
         self.bus.publish("system", env)
         self.registry.set_stake(runner.agent.name, 1.0)
         self.registry.set_threshold(f"promote:{runner.agent.name}", PROMOTION_THRESHOLD)
+
+    def evolve(
+        self,
+        scenario_hash: str,
+        fn: Callable[[list[float]], tuple[float, ...]],
+        genome_length: int,
+        **kwargs: object,
+    ) -> mats.Population:
+        """Run evolution for ``scenario_hash`` using persistent islands."""
+
+        pop = mats.run_evolution(
+            fn,
+            genome_length,
+            scenario_hash=scenario_hash,
+            populations=self.island_pops,
+            **kwargs,
+        )
+        self.island_pops[scenario_hash] = pop
+        return pop
 
     def _record_restart(self, runner: AgentRunner) -> None:
         env = messaging.Envelope(

@@ -22,6 +22,9 @@ __all__ = [
     "run_evolution",
 ]
 
+# Keep per-scenario populations for island-style evolution.
+ISLANDS: dict[str, "Population"] = {}
+
 
 @dataclass(slots=True)
 class Individual:
@@ -154,6 +157,9 @@ def run_evolution(
     crossover_rate: float = 0.5,
     generations: int = 10,
     seed: int | None = None,
+    scenario_hash: str | None = None,
+    populations: dict[str, Population] | None = None,
+    exchange_interval: int = 5,
 ) -> Population:
     """Run an NSGA-II optimisation.
 
@@ -165,24 +171,42 @@ def run_evolution(
         crossover_rate: Probability of performing crossover between parents.
         generations: Number of NSGA-II steps to perform.
         seed: Optional random seed for deterministic behaviour.
+        scenario_hash: Key identifying the island population.
+        populations: Mapping of existing island populations.
+        exchange_interval: Exchange elites every ``exchange_interval`` generations.
 
     Returns:
         The final population after ``generations`` steps.
     """
 
     rng = random.Random(seed)
-    pop = [Individual([rng.uniform(-1, 1) for _ in range(genome_length)]) for _ in range(population_size)]
+    islands = populations if populations is not None else ISLANDS
+    key = scenario_hash or "default"
 
-    for _ in range(generations):
+    pop = islands.get(key)
+    if pop is None:
+        pop = [Individual([rng.uniform(-1, 1) for _ in range(genome_length)]) for _ in range(population_size)]
+    islands[key] = pop
+
+    for gen in range(generations):
         pop = _evolve_step(
-            pop,
+            islands[key],
             fn,
             rng=rng,
             mutation_rate=mutation_rate,
             crossover_rate=crossover_rate,
         )
+        islands[key] = pop
+        if exchange_interval and (gen + 1) % exchange_interval == 0 and len(islands) > 1:
+            elite_map = {k: pareto_front(p)[:2] for k, p in islands.items()}
+            for k, island_pop in islands.items():
+                others = [ind for ok, e in elite_map.items() if ok != k for ind in e]
+                for ind in others:
+                    repl = rng.randrange(len(island_pop))
+                    island_pop[repl] = Individual(list(ind.genome))
+                evaluate(island_pop, fn)
 
-    return pop
+    return islands[key]
 
 
 def pareto_front(pop: Population) -> Population:

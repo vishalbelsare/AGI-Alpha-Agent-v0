@@ -14,6 +14,7 @@ import contextlib
 import importlib
 import json
 import os
+import hashlib
 import secrets
 import time
 from collections import OrderedDict, deque
@@ -284,12 +285,24 @@ if app is not None:
             x, y = genome
             return x**2, y**2, (x + y) ** 2
 
-        pop = mats.run_evolution(
-            eval_fn,
-            2,
-            population_size=cfg.pop_size,
-            generations=cfg.generations,
-        )
+        scenario = hashlib.sha1(sim_id.encode()).hexdigest()
+        orch = getattr(app_f.state, "orchestrator", None)
+        if orch is not None:
+            pop = orch.evolve(
+                scenario,
+                eval_fn,
+                2,
+                population_size=cfg.pop_size,
+                generations=cfg.generations,
+            )
+        else:
+            pop = mats.run_evolution(
+                eval_fn,
+                2,
+                population_size=cfg.pop_size,
+                generations=cfg.generations,
+                scenario_hash=scenario,
+            )
 
         pop_data = [
             PopulationMember(
