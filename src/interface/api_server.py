@@ -556,6 +556,18 @@ async def _background_run(sim_id: str, cfg: SimRequest) -> None:
     )
     _save_result(result)
 
+    try:
+        from src.snark import publish_score_proof
+        from src.archive.db import ArchiveDB
+
+        threshold = float(os.getenv("PROOF_THRESHOLD", "0.5"))
+        score_a = traj[-1].capability if traj else 0.0
+        score_b = pop_data[0].effectiveness if pop_data else 0.0
+        db = ArchiveDB(Path(os.getenv("ARCHIVE_DB", "archive.db")))
+        publish_score_proof(_results_dir / f"{sim_id}.json", sim_id, [score_a, score_b], threshold, db)
+    except Exception as exc:  # pragma: no cover - best effort
+        _log.debug("Proof generation failed: %s", exc)
+
 
 if app is not None:
 
