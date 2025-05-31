@@ -12,6 +12,15 @@ from __future__ import annotations
 import random
 from dataclasses import dataclass
 from typing import Callable, List, Tuple
+import numpy as np
+
+__all__ = [
+    "Individual",
+    "Population",
+    "evaluate",
+    "pareto_front",
+    "run_evolution",
+]
 
 
 @dataclass(slots=True)
@@ -174,3 +183,20 @@ def run_evolution(
         )
 
     return pop
+
+
+def pareto_front(pop: Population) -> Population:
+    """Return the non-dominated set ranked by crowding distance."""
+
+    if not pop:
+        return []
+
+    fits = np.asarray([ind.fitness for ind in pop], dtype=float)
+    dominated = np.zeros(len(pop), dtype=bool)
+    for i, fi in enumerate(fits):
+        dom = np.all(fi <= fits, axis=1) & np.any(fi < fits, axis=1)
+        dominated |= dom
+        dominated[i] = False
+    front = [ind for ind, d in zip(pop, dominated) if not d]
+    _crowding(front)
+    return sorted(front, key=lambda x: -x.crowd)
