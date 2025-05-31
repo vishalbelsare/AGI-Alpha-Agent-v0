@@ -483,6 +483,8 @@ push; only green builds are released to GHCR.
 * **Encrypted transport** – all agent traffic uses mTLS.
 * **Immutable ledger** – every A2A envelope hashed with BLAKE3; Merkle root
   pinned hourly to a public chain for tamper-evidence.
+* **Secure tar extraction** – the `/mutate` endpoint validates archive members to
+  block path traversal.
 
 ---
 
