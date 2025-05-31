@@ -288,12 +288,13 @@ if app is not None:
         scenario = hashlib.sha1(sim_id.encode()).hexdigest()
         orch = getattr(app_f.state, "orchestrator", None)
         if orch is not None:
-            pop = orch.evolve(
+            pop = await orch.evolve(
                 scenario,
                 eval_fn,
                 2,
                 population_size=cfg.pop_size,
                 generations=cfg.generations,
+                experiment_id=sim_id,
             )
         else:
             pop = mats.run_evolution(
