@@ -71,6 +71,24 @@ if Counter is not None and Gauge is not None:
         "Lineage depth of the archive",
         [],
     )
+    dgm_gpu_hours_total = get_metric(
+        Counter,
+        "dgm_gpu_hours_total",
+        "Total GPU hours consumed",
+        [],
+    )
+    dgm_fitness_gain_total = get_metric(
+        Counter,
+        "dgm_fitness_gain_total",
+        "Total fitness gain observed",
+        [],
+    )
+    dgm_gpu_hours_per_gain = get_metric(
+        Gauge,
+        "dgm_gpu_hours_per_gain",
+        "GPU hours per unit fitness gain",
+        [],
+    )
 else:  # pragma: no cover - prometheus not installed
 
     class _N:
@@ -83,4 +101,16 @@ else:  # pragma: no cover - prometheus not installed
 
     dgm_tokens_total = dgm_cost_usd_total = dgm_children_total = dgm_parents_selected_total = (
         dgm_children_admitted_total
-    ) = dgm_revives_total = dgm_best_score = dgm_archive_mean = dgm_lineage_depth = _N()
+    ) = (
+        dgm_revives_total
+    ) = (
+        dgm_best_score
+    ) = (
+        dgm_archive_mean
+    ) = (
+        dgm_lineage_depth
+    ) = (
+        dgm_gpu_hours_total
+    ) = (
+        dgm_fitness_gain_total
+    ) = dgm_gpu_hours_per_gain = _N()
