@@ -3,6 +3,16 @@ from __future__ import annotations
 import asyncio
 from alpha_factory_v1.demos.alpha_agi_insight_v1.src.agents import chaos_agent, safety_agent
 from alpha_factory_v1.demos.alpha_agi_insight_v1.src.utils import config, messaging
+from google.protobuf import struct_pb2
+
+if not hasattr(struct_pb2.Struct, "get"):
+    def _get(self: struct_pb2.Struct, key: str, default=None):
+        try:
+            return self[key]
+        except Exception:
+            return default
+
+    struct_pb2.Struct.get = _get  # type: ignore[attr-defined]
 
 
 class DummyBus:
@@ -52,3 +62,19 @@ def test_safety_blocks_chaos() -> None:
 
     assert chaos_msgs
     assert blocked / len(chaos_msgs) >= 0.95
+
+
+def test_cycle_emits_blocked_to_memory() -> None:
+    cfg = config.Settings(bus_port=0)
+    bus = DummyBus(cfg)
+    led = DummyLedger()
+    chaos = chaos_agent.ChaosAgent(bus, led, burst=1)
+    guardian = safety_agent.SafetyGuardianAgent(bus, led)
+
+    asyncio.run(chaos.run_cycle())
+    topic, env = bus.published[0]
+    assert topic == "safety"
+
+    asyncio.run(guardian.handle(env))
+    assert bus.published[-1][0] == "memory"
+    assert bus.published[-1][1].payload["status"] == "blocked"
