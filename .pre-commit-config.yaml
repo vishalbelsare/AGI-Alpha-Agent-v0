@@ -17,6 +17,11 @@ repos:
     hooks:
       - id: mypy
         args: ["--config-file", "mypy.ini"]
+  - repo: https://github.com/semgrep/semgrep
+    rev: v1.61.0
+    hooks:
+      - id: semgrep
+        args: ["--config", "semgrep.yml"]
   - repo: local
     hooks:
       - id: proto-verify

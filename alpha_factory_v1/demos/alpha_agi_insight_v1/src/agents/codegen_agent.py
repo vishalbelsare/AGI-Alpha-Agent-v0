@@ -17,6 +17,8 @@ from google.protobuf import struct_pb2
 import tempfile
 import time
 from src.self_edit.safety import is_code_safe
+from src.utils.opa_policy import violates_finance_policy
+from src.utils.secure_run import secure_run
 
 
 from .base_agent import BaseAgent
@@ -48,6 +50,9 @@ class CodeGenAgent(BaseAgent):
                         code = await with_retry(self.oai_ctx.run)(prompt=str(analysis))
                 except Exception:
                     pass
+            if violates_finance_policy(code):
+                await self.emit("safety", {"code": code, "status": "blocked"})
+                return
             if is_code_safe(code):
                 self.execute_in_sandbox(code)
             await self.emit("safety", {"code": code})
@@ -97,22 +102,10 @@ class CodeGenAgent(BaseAgent):
         helper_path = helper.name
         helper.close()
 
-        firejail = shutil.which("firejail")
         cmd = [sys.executable, helper_path, code_path]
-        if firejail:
-            cmd = [firejail, "--quiet", "--net=none", "--private", *cmd]
-            pre_fn = None
-        else:
-            pre_fn = _apply_limits if os.name == "posix" else None
 
         try:
-            proc = subprocess.run(
-                cmd,
-                text=True,
-                capture_output=True,
-                timeout=3,
-                preexec_fn=pre_fn,
-            )
+            proc = secure_run(cmd)
             try:
                 data = json.loads(proc.stdout or "{}")
                 out = data.get("stdout", "")
