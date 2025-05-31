@@ -7,6 +7,7 @@ export interface PopulationMember {
   risk: number;
   complexity: number;
   rank: number;
+  impact: number;
 }
 
 interface Props {
@@ -25,7 +26,7 @@ export default function Pareto3D({ data }: Props) {
           z: data.map((p) => p.complexity),
           mode: 'markers',
           type: 'scatter3d',
-          marker: { color: data.map((p) => p.rank), size: 3 },
+          marker: { color: data.map((p) => p.impact), size: 3 },
         },
       ],
       {
