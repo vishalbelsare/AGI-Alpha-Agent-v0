@@ -14,6 +14,8 @@ from dataclasses import dataclass
 from typing import Callable, List, Tuple
 import numpy as np
 
+from src.evaluators.novelty import NoveltyIndex
+
 __all__ = [
     "Individual",
     "Population",
@@ -37,11 +39,21 @@ class Individual:
 Population = List[Individual]
 
 
-def evaluate(pop: Population, fn: Callable[[List[float]], Tuple[float, ...]]) -> None:
-    """Assign fitness scores using ``fn``."""
+def evaluate(
+    pop: Population,
+    fn: Callable[[List[float]], Tuple[float, ...]],
+    novelty: NoveltyIndex | None = None,
+) -> None:
+    """Assign fitness scores using ``fn`` and optional novelty."""
 
     for ind in pop:
-        ind.fitness = fn(ind.genome)
+        base = fn(ind.genome)
+        if novelty is not None:
+            spec = ",".join(f"{g:.3f}" for g in ind.genome)
+            div = novelty.divergence(spec)
+            ind.fitness = base + (div,)
+        else:
+            ind.fitness = base
 
 
 def _crowding(pop: Population) -> None:
@@ -117,10 +129,11 @@ def _evolve_step(
     rng: random.Random,
     mutation_rate: float,
     crossover_rate: float,
+    novelty: NoveltyIndex | None = None,
 ) -> Population:
     """Return the next generation from ``pop`` using NSGA‑II."""
 
-    evaluate(pop, fn)
+    evaluate(pop, fn, novelty)
     mu = len(pop)
     genome_length = len(pop[0].genome)
     offspring: Population = []
@@ -135,7 +148,7 @@ def _evolve_step(
             idx = rng.randrange(genome_length)
             child_genome[idx] += rng.uniform(-1, 1)
         offspring.append(Individual(child_genome))
-    evaluate(offspring, fn)
+    evaluate(offspring, fn, novelty)
     union = pop + offspring
     fronts = _non_dominated_sort(union)
     new_pop: Population = []
@@ -160,6 +173,7 @@ def run_evolution(
     scenario_hash: str | None = None,
     populations: dict[str, Population] | None = None,
     exchange_interval: int = 5,
+    novelty_index: NoveltyIndex | None = None,
 ) -> Population:
     """Run an NSGA-II optimisation.
 
@@ -182,6 +196,7 @@ def run_evolution(
     rng = random.Random(seed)
     islands = populations if populations is not None else ISLANDS
     key = scenario_hash or "default"
+    novelty = novelty_index or NoveltyIndex()
 
     pop = islands.get(key)
     if pop is None:
@@ -195,6 +210,7 @@ def run_evolution(
             rng=rng,
             mutation_rate=mutation_rate,
             crossover_rate=crossover_rate,
+            novelty=novelty,
         )
         islands[key] = pop
         if exchange_interval and (gen + 1) % exchange_interval == 0 and len(islands) > 1:
@@ -204,7 +220,7 @@ def run_evolution(
                 for ind in others:
                     repl = rng.randrange(len(island_pop))
                     island_pop[repl] = Individual(list(ind.genome))
-                evaluate(island_pop, fn)
+                evaluate(island_pop, fn, novelty)
 
     return islands[key]
 

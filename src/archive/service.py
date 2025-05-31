@@ -12,6 +12,8 @@ import time
 from pathlib import Path
 from typing import Any, Iterable, Mapping, List
 
+from src.evaluators.novelty import NoveltyIndex
+
 try:
     from blake3 import blake3
 except Exception:  # pragma: no cover - fallback
@@ -76,6 +78,14 @@ class ArchiveService:
         self.wallet = wallet
         self.broadcast = broadcast
         self._task: asyncio.Task[None] | None = None
+        self.novelty = NoveltyIndex()
+        try:
+            cur = self.conn.execute("SELECT spec FROM entries")
+            for (spec_text,) in cur.fetchall():
+                if isinstance(spec_text, str):
+                    self.novelty.add(spec_text)
+        except Exception:  # pragma: no cover - index load errors
+            _log.debug("Failed to rebuild novelty index", exc_info=True)
 
     def last_hash(self) -> str | None:
         cur = self.conn.execute("SELECT hash FROM entries ORDER BY id DESC LIMIT 1")
@@ -109,6 +119,10 @@ class ArchiveService:
                 "INSERT INTO entries(parent, spec, scores, hash, ts) VALUES(?,?,?,?,?)",
                 (parent, json.dumps(spec), json.dumps(record["scores"]), digest, time.time()),
             )
+        try:
+            self.novelty.add(json.dumps(spec))
+        except Exception:  # pragma: no cover - embed errors
+            _log.debug("Failed to add spec to novelty index", exc_info=True)
         return self.compute_merkle_root()
 
     async def broadcast_merkle_root(self) -> None:
