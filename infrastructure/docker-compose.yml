@@ -31,6 +31,24 @@ services:
       <<: *default_healthcheck
       test: ["CMD", "curl", "-sf", "http://localhost:8000/healthz"]
 
+  evolution_worker:
+    build:
+      context: ..
+      dockerfile: infrastructure/evolution_worker.Dockerfile
+    image: evolution-worker:latest
+    env_file:
+      - ../.env
+    environment:
+      GPU_TYPE: ${GPU_TYPE:-cpu}
+      MAX_GENERATIONS: ${MAX_GENERATIONS:-10}
+      STORAGE_PATH: ${STORAGE_PATH:-/tmp/evolution}
+    ports:
+      - "7865:8000"
+    restart: unless-stopped
+    healthcheck:
+      <<: *default_healthcheck
+      test: ["CMD", "curl", "-sf", "http://localhost:8000/healthz"]
+
   agents:
     image: alpha-demo:latest             # reuse the demo image
     env_file:
