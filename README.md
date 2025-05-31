@@ -753,6 +753,10 @@ Install the project in editable mode so tests resolve imports:
 pip install -e .
 ```
 
+The suite includes `tests/test_api_rate_limit.py` which spins up
+`api_server.app` with `API_RATE_LIMIT=2` and verifies that exceeding the
+limit returns HTTP `429`.
+
 <a name="62-marketplace-demo-example"></a>
 ### 6.2 · Marketplace Demo Example 🛒
 A minimal snippet queues the sample job once the orchestrator is running:
