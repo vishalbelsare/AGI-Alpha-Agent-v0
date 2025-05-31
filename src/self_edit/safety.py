@@ -4,7 +4,9 @@
 from __future__ import annotations
 
 import ast
+import math
 import re
+from collections import Counter
 
 # Regex patterns quickly catching obviously dangerous code
 _DENY_PATTERNS = [
@@ -22,6 +24,12 @@ _BANNED_CALLS = {
     "subprocess.check_output",
     "subprocess.check_call",
 }
+
+# Maximum allowable patch size
+_LINE_LIMIT = 2000
+
+# Minimum Shannon entropy (bits/char) for added lines
+_MIN_ENTROPY = 3.0
 
 
 def _full_name(node: ast.AST) -> str:
@@ -60,9 +68,29 @@ def is_code_safe(code: str) -> bool:
 
 def is_patch_safe(diff: str) -> bool:
     """Check added lines in ``diff`` for malicious code."""
+
+    lines = diff.splitlines()
+    if len(lines) > _LINE_LIMIT:
+        return False
+
     added: list[str] = []
-    for line in diff.splitlines():
+    for line in lines:
         if line.startswith("+") and not line.startswith("+++"):
             added.append(line[1:])
+
     snippet = "\n".join(added)
-    return is_code_safe(snippet) if added else True
+    if not added:
+        return True
+
+    if _shannon_entropy(snippet) < _MIN_ENTROPY:
+        return False
+
+    return is_code_safe(snippet)
+
+
+def _shannon_entropy(text: str) -> float:
+    if not text:
+        return 0.0
+    freq = Counter(text)
+    total = len(text)
+    return -sum((n / total) * math.log2(n / total) for n in freq.values())
