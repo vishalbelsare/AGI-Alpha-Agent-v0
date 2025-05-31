@@ -4,7 +4,13 @@
 from .config import CFG, get_secret
 from .visual import plot_pareto
 from .file_ops import view, str_replace
-from .snark import generate_proof, publish_proof, verify_proof
+from .snark import (
+    generate_proof,
+    publish_proof,
+    verify_proof,
+    aggregate_proof,
+    verify_aggregate_proof,
+)
 
 __all__ = [
     "CFG",
@@ -15,4 +21,6 @@ __all__ = [
     "generate_proof",
     "publish_proof",
     "verify_proof",
+    "aggregate_proof",
+    "verify_aggregate_proof",
 ]
