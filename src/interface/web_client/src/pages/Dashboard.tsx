@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 import React, { useEffect, useState, FormEvent } from 'react';
 import Plotly from 'plotly.js-dist';
-import LineageTree, { LineageNode } from '../LineageTree';
+import D3LineageTree, { LineageNode } from '../D3LineageTree';
 
 interface SectorData {
   name: string;
@@ -212,7 +212,7 @@ export default function Dashboard() {
       <div id="sectors" style={{ width: '100%', height: 300 }} />
       <div id="capability" style={{ width: '100%', height: 300 }} />
       <div id="pareto" style={{ width: '100%', height: 400 }} />
-      <LineageTree data={lineage} />
+      <D3LineageTree data={lineage} />
     </div>
   );
 }
