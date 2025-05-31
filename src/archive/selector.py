@@ -39,3 +39,24 @@ def select_parent(population: Sequence[Any], beta: float = 1.0, gamma: float = 0
     index = int(np.random.choice(len(population), p=probs))
     metrics.dgm_parents_selected_total.inc()
     return population[index]
+
+
+def select_parent_weighted(population: Sequence[Any]) -> Any:
+    """Return a parent weighted by fitness × children-with-edit-ability."""
+    if not population:
+        raise ValueError("population is empty")
+    weights = []
+    for ind in population:
+        fitness = float(getattr(ind, "fitness", getattr(ind, "score", 0.0)))
+        edits = float(getattr(ind, "edit_children_count", 0.0))
+        weights.append(max(fitness * edits, 0.0))
+    total = sum(weights)
+    if total <= 0:
+        index = int(np.random.choice(len(population)))
+    else:
+        probs = np.asarray(weights, dtype=float) / total
+        index = int(np.random.choice(len(population), p=probs))
+    metrics.dgm_parents_selected_total.inc()
+    return population[index]
+
+__all__ = ["select_parent", "select_parent_weighted"]
