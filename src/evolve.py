@@ -11,6 +11,8 @@ from dataclasses import dataclass
 from enum import Enum, auto
 from typing import Any, Callable, Sequence, Awaitable, Optional
 
+from src.agents.reviewer_agent import ReviewerAgent
+
 from src.simulation.mats_ops import backtrack_boost
 from src.monitoring import metrics
 
@@ -63,6 +65,7 @@ async def evolve(
     beta: float = 1.0,
     gamma: float = 0.0,
     phase_hook: Optional[Callable[[Phase], None]] = None,
+    reviewer: ReviewerAgent | None = None,
 ) -> None:
     """Run the self-modification phase followed by task solving."""
 
@@ -76,6 +79,7 @@ async def evolve(
         beta=beta,
         gamma=gamma,
         phase_hook=phase_hook,
+        reviewer=reviewer,
     )
     await task_solve_phase(
         operator,
@@ -87,6 +91,7 @@ async def evolve(
         beta=beta,
         gamma=gamma,
         phase_hook=phase_hook,
+        reviewer=reviewer,
     )
 
 
@@ -102,6 +107,7 @@ async def _phase_loop(
     beta: float = 1.0,
     gamma: float = 0.0,
     phase_hook: Optional[Callable[[Phase], None]] = None,
+    reviewer: ReviewerAgent | None = None,
 ) -> None:
     if not archive.all():
         await archive.accept(Candidate(genome=0.0, fitness=0.0, novelty=1.0, cost=0.0))
@@ -122,8 +128,9 @@ async def _phase_loop(
             phase_hook(phase)
         fitness, cost = await evaluate(genome)
         child = Candidate(genome=genome, fitness=fitness, novelty=random.random(), cost=cost)
-        await archive.accept(child)
-        metrics.dgm_children_total.inc()
+        if reviewer is None or reviewer.critique(str(genome)) >= 0.7:
+            await archive.accept(child)
+            metrics.dgm_children_total.inc()
         spent += cost
 
 
@@ -138,6 +145,7 @@ async def self_mod_phase(
     beta: float = 1.0,
     gamma: float = 0.0,
     phase_hook: Optional[Callable[[Phase], None]] = None,
+    reviewer: ReviewerAgent | None = None,
 ) -> None:
     await _phase_loop(
         operator,
@@ -150,6 +158,7 @@ async def self_mod_phase(
         beta=beta,
         gamma=gamma,
         phase_hook=phase_hook,
+        reviewer=reviewer,
     )
 
 
@@ -164,6 +173,7 @@ async def task_solve_phase(
     beta: float = 1.0,
     gamma: float = 0.0,
     phase_hook: Optional[Callable[[Phase], None]] = None,
+    reviewer: ReviewerAgent | None = None,
 ) -> None:
     await _phase_loop(
         operator,
@@ -176,6 +186,7 @@ async def task_solve_phase(
         beta=beta,
         gamma=gamma,
         phase_hook=phase_hook,
+        reviewer=reviewer,
     )
 
 
