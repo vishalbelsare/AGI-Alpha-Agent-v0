@@ -6,6 +6,10 @@ All notable changes to this project are documented in this file.
 - Synced `openai`, `openai-agents` and `uvicorn` pins across requirements files
   and clarified why `requests` and `rich` differ between layers.
 - Added [`src/tools/analyse_backtrack.py`](../src/tools/analyse_backtrack.py) for visualising archive backtracks.
+- Added CI workflow running lint, type checks, tests and Docker build with
+  automated image deployment on tags and rollback on failure. Metrics are
+  exported via OpenTelemetry and can be viewed in Grafana or the Streamlit
+  dashboard.
 
 ## [1.1.0] - 2025-07-15
 ### Added
