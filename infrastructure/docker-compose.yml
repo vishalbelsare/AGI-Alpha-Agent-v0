@@ -64,6 +64,9 @@ services:
       AGI_INSIGHT_OFFLINE: ${AGI_INSIGHT_OFFLINE:-0} # set 1 for local models
       AGI_INSIGHT_BUS_PORT: ${AGI_INSIGHT_BUS_PORT:-6006} # gRPC event bus port
       AGI_INSIGHT_LEDGER_PATH: ${AGI_INSIGHT_LEDGER_PATH:-./ledger/audit.db} # audit ledger path
+    mem_limit: 8g
+    pids_limit: 512
+    network_mode: none
     depends_on:
       - orchestrator                     # wait for orchestrator
 
