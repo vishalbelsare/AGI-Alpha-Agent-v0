@@ -10,6 +10,8 @@ from dataclasses import dataclass
 from enum import Enum, auto
 from pathlib import Path
 
+from src.monitoring import metrics
+
 
 class State(Enum):
     """Execution state."""
@@ -84,6 +86,7 @@ def run_loop(
                         revived = rng.choice(inactive)
                         agents[revived] = True
                         revive_count += 1
+                        metrics.dgm_revives_total.inc()
                         state = State.SELF_MOD
                         continue
                 state = State.SELECT
@@ -92,9 +95,7 @@ def run_loop(
                 if wallclock is not None and time.time() - start >= wallclock:
                     break
     except KeyboardInterrupt:  # pragma: no cover - interactive
-        Path(state_file).write_text(
-            json.dumps({"state": state.name, "cycles": cycles, "cost": cost_spent})
-        )
+        Path(state_file).write_text(json.dumps({"state": state.name, "cycles": cycles, "cost": cost_spent}))
         return Result(state=state, cycles=cycles, cost=cost_spent, revives=revive_count)
 
     return Result(state=state, cycles=cycles, cost=cost_spent, revives=revive_count)

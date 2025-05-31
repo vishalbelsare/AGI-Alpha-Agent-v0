@@ -10,6 +10,7 @@ from pathlib import Path
 
 from src.eval.preflight import run_preflight
 from src.self_edit.tools import REPO_ROOT, edit, undo_last_edit
+from src.monitoring import metrics
 
 from .db import ArchiveDB, ArchiveEntry
 
@@ -46,7 +47,6 @@ class PatchManager:
         h = hashlib.sha1(diff.encode()).hexdigest()
         entry = json.dumps({"diff": diff, "parent": parent})
         self.db.set_state(f"patch:{h}", entry)
-        self.db.add(
-            ArchiveEntry(hash=h, parent=parent, score=0.0, novelty=0.0, is_live=True, ts=time.time())
-        )
+        self.db.add(ArchiveEntry(hash=h, parent=parent, score=0.0, novelty=0.0, is_live=True, ts=time.time()))
+        metrics.dgm_children_admitted_total.inc()
         return True
