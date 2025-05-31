@@ -27,7 +27,9 @@ def test_improve_repo(tmp_path: Path) -> None:
     patch_file.write_text(patch)
     log_file = tmp_path / "log.json"
 
-    delta, clone = self_improver.improve_repo(str(repo_dir), str(patch_file), "metric.txt", str(log_file))
+    delta, clone = self_improver.improve_repo(
+        str(repo_dir), str(patch_file), "metric.txt", str(log_file), cleanup=False
+    )
 
     assert delta == 1
     assert (clone / "metric.txt").read_text().strip() == "2"
@@ -48,6 +50,24 @@ def test_improve_repo_invalid_patch(tmp_path: Path) -> None:
         self_improver.improve_repo(
             str(repo_dir), str(patch_file), "metric.txt", str(log_file)
         )
+
+
+def test_improve_repo_cleanup(tmp_path: Path) -> None:
+    repo_dir = tmp_path / "repo"
+    repo_dir.mkdir()
+    _init_repo(repo_dir)
+
+    patch = """--- a/metric.txt\n+++ b/metric.txt\n@@\n-1\n+2\n"""
+    patch_file = tmp_path / "patch.diff"
+    patch_file.write_text(patch)
+    log_file = tmp_path / "log.json"
+
+    delta, clone = self_improver.improve_repo(
+        str(repo_dir), str(patch_file), "metric.txt", str(log_file), cleanup=True
+    )
+
+    assert delta == 1
+    assert not clone.exists()
 
 
 def test_improve_repo_requires_git(monkeypatch, tmp_path: Path) -> None:
