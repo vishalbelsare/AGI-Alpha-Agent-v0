@@ -9,10 +9,12 @@ for the market agent. It can optionally leverage a local or remote LLM during
 from __future__ import annotations
 
 from .base_agent import BaseAgent
-from ..utils import messaging
+from ..utils import messaging, logging as insight_logging
 from ..utils.logging import Ledger
 from ..utils.retry import with_retry
 from ..utils.tracing import span
+
+log = insight_logging.logging.getLogger(__name__)
 
 
 class StrategyAgent(BaseAgent):
@@ -43,12 +45,12 @@ class StrategyAgent(BaseAgent):
 
                     with span("local_llm.chat"):
                         strat["action"] = with_retry(local_llm.chat)(str(val), self.bus.settings)
-                except Exception:  # pragma: no cover - model optional
-                    pass
+                except Exception as exc:  # pragma: no cover - model optional
+                    log.warning("local_llm.chat failed: %s", exc)
             elif self.oai_ctx:
                 try:  # pragma: no cover
                     with span("openai.run"):
                         strat["action"] = await with_retry(self.oai_ctx.run)(prompt=str(val))
-                except Exception:
-                    pass
+                except Exception as exc:
+                    log.warning("openai.run failed: %s", exc)
             await self.emit("market", {"strategy": strat})
