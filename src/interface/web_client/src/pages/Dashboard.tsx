@@ -1,7 +1,9 @@
 // SPDX-License-Identifier: Apache-2.0
-import React, { useEffect, useState, FormEvent } from 'react';
+import React, { useEffect, useState, FormEvent, useRef } from 'react';
 import Plotly from 'plotly.js-dist';
 import D3LineageTree, { LineageNode } from '../D3LineageTree';
+import Pareto3D, { PopulationMember } from '../Pareto3D';
+import LineageTimeline from '../LineageTimeline';
 
 interface SectorData {
   name: string;
@@ -13,13 +15,6 @@ interface ForecastPoint {
   year: number;
   capability: number;
   sectors?: SectorData[];
-}
-
-interface PopulationMember {
-  effectiveness: number;
-  risk: number;
-  complexity: number;
-  rank: number;
 }
 
 export default function Dashboard() {
@@ -34,6 +29,8 @@ export default function Dashboard() {
   const [timeline, setTimeline] = useState<ForecastPoint[]>([]);
   const [population, setPopulation] = useState<PopulationMember[]>([]);
   const [lineage, setLineage] = useState<LineageNode[]>([]);
+  const buffer = useRef<ForecastPoint[]>([]);
+  const flushRef = useRef<number | null>(null);
 
   const API_BASE = (import.meta.env.VITE_API_BASE_URL ?? '').replace(/\/$/, '');
   const TOKEN = import.meta.env.VITE_API_TOKEN ?? '';
@@ -112,6 +109,7 @@ export default function Dashboard() {
     setProgress(0);
     setTimeline([]);
     setPopulation([]);
+    buffer.current = [];
 
     const res = await fetch(`${API_BASE}/simulate`, {
       method: 'POST',
@@ -140,12 +138,24 @@ export default function Dashboard() {
         const msg = JSON.parse(ev.data);
         if (msg.id === id && horizon) {
           setProgress(msg.year / horizon);
+          buffer.current.push({ year: msg.year, capability: msg.capability });
+          if (flushRef.current === null) {
+            flushRef.current = window.setTimeout(() => {
+              setTimeline([...buffer.current]);
+              flushRef.current = null;
+            }, 50);
+          }
         }
       } catch {
         // ignore non-JSON messages
       }
     };
     ws.onclose = () => {
+      if (flushRef.current !== null) {
+        clearTimeout(flushRef.current);
+        flushRef.current = null;
+      }
+      setTimeline([...buffer.current]);
       fetchResults(id).catch(() => null);
       fetchPopulation(id).catch(() => null);
     };
@@ -212,6 +222,8 @@ export default function Dashboard() {
       <div id="sectors" style={{ width: '100%', height: 300 }} />
       <div id="capability" style={{ width: '100%', height: 300 }} />
       <div id="pareto" style={{ width: '100%', height: 400 }} />
+      <Pareto3D data={population} />
+      <LineageTimeline data={lineage} />
       <D3LineageTree data={lineage} />
     </div>
   );
