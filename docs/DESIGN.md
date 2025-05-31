@@ -85,8 +85,10 @@ and returns the resulting child genome.
 
 Typical usage is to run the container and POST agent source code to `/mutate`.
 The returned genome can seed another agent or be stored for analysis. A
-`_safe_extract` helper guards against path traversal attacks during tar
-extraction.
+`_safe_extract` validates each archive member before extraction. Symlinks and
+hard links are rejected and paths are normalised so absolute or parent
+directories cannot be written outside the target directory. Verified members are
+then extracted individually to avoid surprises.
 
 ## Security considerations
 

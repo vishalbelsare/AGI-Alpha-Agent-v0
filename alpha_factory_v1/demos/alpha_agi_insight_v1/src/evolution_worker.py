@@ -25,10 +25,18 @@ def _safe_extract(tf: tarfile.TarFile, target_dir: Path) -> None:
     """Safely extract tar members inside ``target_dir``."""
     base = target_dir.resolve()
     for member in tf.getmembers():
-        dest = (base / member.name).resolve()
+        if member.issym() or member.islnk():
+            raise HTTPException(status_code=400, detail="Unsafe link in archive")
+
+        name = os.path.normpath(member.name)
+        if os.path.isabs(name) or ".." in Path(name).parts:
+            raise HTTPException(status_code=400, detail="Unsafe path in archive")
+
+        dest = (base / name).resolve()
         if not str(dest).startswith(str(base)):
             raise HTTPException(status_code=400, detail="Unsafe path in archive")
-    tf.extractall(base)
+
+        tf.extract(member, base)
 
 
 GPU_TYPE = os.getenv("GPU_TYPE", "cpu")
