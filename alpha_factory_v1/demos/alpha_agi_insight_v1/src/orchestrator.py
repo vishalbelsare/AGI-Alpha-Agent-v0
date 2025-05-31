@@ -32,6 +32,7 @@ from .utils.tracing import agent_cycle_seconds
 from .utils import alerts
 from .utils.logging import Ledger
 from src.archive.service import ArchiveService
+from src.archive.solution_archive import SolutionArchive
 from .agents.base_agent import BaseAgent
 from src.governance.stake_registry import StakeRegistry
 from .simulation import mats
@@ -124,6 +125,9 @@ class Orchestrator:
             wallet=self.settings.solana_wallet,
             broadcast=self.settings.broadcast,
         )
+        self.solution_archive = SolutionArchive(
+            os.getenv("SOLUTION_ARCHIVE_PATH", "solutions.duckdb")
+        )
         self.registry = StakeRegistry()
         self.island_pops: Dict[str, mats.Population] = {}
         self.island_backends: Dict[str, str] = dict(self.settings.island_backends)
@@ -170,6 +174,8 @@ class Orchestrator:
         scenario_hash: str,
         fn: Callable[[list[float]], tuple[float, ...]],
         genome_length: int,
+        sector: str = "generic",
+        approach: str = "ga",
         **kwargs: object,
     ) -> mats.Population:
         """Run evolution for ``scenario_hash`` using persistent islands."""
@@ -182,6 +188,13 @@ class Orchestrator:
             **kwargs,
         )
         self.island_pops[scenario_hash] = pop
+        for ind in pop:
+            self.solution_archive.add(
+                sector,
+                approach,
+                ind.score,
+                {"genome": ind.genome},
+            )
         return pop
 
     def _record_restart(self, runner: AgentRunner) -> None:
@@ -281,6 +294,7 @@ class Orchestrator:
             await self.archive.stop_merkle_task()
             self.ledger.close()
             self.archive.close()
+            self.solution_archive.close()
 
 
 async def _main() -> None:  # pragma: no cover - CLI helper
