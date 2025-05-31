@@ -16,7 +16,15 @@ import sys
 from google.protobuf import struct_pb2
 import tempfile
 import time
+
+try:  # pragma: no cover - optional openai dependency
+    from openai.agents import tool  # type: ignore
+except Exception:  # pragma: no cover - offline stub
+
+    def tool(fn=None, **_):  # type: ignore
+        return (lambda f: f)(fn) if fn else lambda f: f
 from src.self_edit.safety import is_code_safe
+from src.tools.diff_mutation import propose_diff as generate_diff
 from src.utils.opa_policy import violates_finance_policy
 from src.utils.secure_run import secure_run
 
@@ -56,6 +64,10 @@ class CodeGenAgent(BaseAgent):
             if is_code_safe(code):
                 self.execute_in_sandbox(code)
             await self.emit("safety", {"code": code})
+
+    @tool(description="Propose a minimal diff implementing the given goal")
+    def propose_diff(self, file_path: str, goal: str) -> str:  # noqa: D401
+        return generate_diff(file_path, goal)
 
     def execute_in_sandbox(self, code: str) -> tuple[str, str]:
         """Run ``code`` inside a subprocess with resource limits."""
