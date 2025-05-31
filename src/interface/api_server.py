@@ -12,9 +12,12 @@ import os
 import secrets
 import time
 import logging
+import shutil
 from collections import OrderedDict, deque
 from pathlib import Path
 from typing import Any, List, TYPE_CHECKING, cast, Set
+import smtplib
+from email.message import EmailMessage
 
 from cachetools import TTLCache
 
@@ -234,6 +237,7 @@ if app is not None:
         app_f.state.orchestrator = orch_mod.Orchestrator()
         app_f.state.orch_task = asyncio.create_task(app_f.state.orchestrator.run_forever())
         _load_results()
+        asyncio.create_task(_static_analysis_task())
 
     @app.on_event("shutdown")
     async def _stop() -> None:
@@ -257,6 +261,18 @@ _results_dir = Path(
 )
 _max_results = int(os.getenv("MAX_RESULTS", "100"))
 _results_dir.mkdir(parents=True, exist_ok=True, mode=0o700)
+
+# Kill-switch multisig tokens
+_kill_tokens = {
+    t
+    for t in (
+        os.getenv("KILL_TOKEN_A"),
+        os.getenv("KILL_TOKEN_B"),
+        os.getenv("KILL_TOKEN_C"),
+    )
+    if t
+}
+_pending_votes: TTLCache[str, float] = TTLCache(maxsize=3, ttl=300)
 
 
 def _load_results() -> None:
@@ -296,6 +312,50 @@ def _save_result(result: ResultsResponse) -> None:
             (_results_dir / f"{old_id}.json").unlink()
     global _latest_id
     _latest_id = result.id
+
+
+def _send_analysis_email(report: str) -> None:
+    recipients = [e.strip() for e in os.getenv("MAINTAINERS_EMAILS", "").split(",") if e.strip()]
+    if not recipients:
+        return
+    msg = EmailMessage()
+    msg["Subject"] = "Weekly Static Analysis Report"
+    msg["From"] = os.getenv("SMTP_FROM", "noreply@alpha-factory.local")
+    msg["To"] = ", ".join(recipients)
+    msg.set_content(report)
+    server = os.getenv("SMTP_SERVER", "localhost")
+    port = int(os.getenv("SMTP_PORT", "25"))
+    user = os.getenv("SMTP_USER")
+    password = os.getenv("SMTP_PASSWORD")
+    try:
+        with smtplib.SMTP(server, port) as s:
+            if user and password:
+                s.login(user, password)
+            s.send_message(msg)
+    except Exception as exc:  # pragma: no cover - SMTP errors
+        _log.warning("static analysis email failed: %s", exc)
+
+
+async def _static_analysis_task() -> None:
+    interval = int(os.getenv("STATIC_ANALYSIS_INTERVAL", str(7 * 24 * 3600)))
+    semgrep = shutil.which("semgrep")
+    if not semgrep:
+        _log.warning("semgrep not installed – static analysis disabled")
+        return
+    await asyncio.sleep(interval)
+    while True:
+        try:
+            proc = await asyncio.create_subprocess_exec(
+                semgrep,
+                "--config",
+                "semgrep.yml",
+                stdout=asyncio.subprocess.PIPE,
+            )
+            out, _ = await proc.communicate()
+            _send_analysis_email(out.decode())
+        except Exception as exc:  # pragma: no cover - semgrep errors
+            _log.warning("static analysis failed: %s", exc)
+        await asyncio.sleep(interval)
 
 
 class SectorSpec(BaseModel):
@@ -609,6 +669,28 @@ if app is not None:
             AgentStatus(name=r.agent.name, last_beat=r.last_beat, restarts=r.restarts) for r in orch.runners.values()
         ]
         return StatusResponse(agents=items)
+
+    @app.post("/kill-switch")
+    async def kill_switch(request: Request, _: None = Depends(verify_token)) -> dict[str, str]:
+        token = request.headers.get("X-Kill-Token")
+        if token is None:
+            data = await request.json()
+            token = data.get("token")
+        if token not in _kill_tokens:
+            raise HTTPException(status_code=403, detail="Invalid kill token")
+        _pending_votes[token] = time.time()
+        if len(_pending_votes) >= 2:
+            task = getattr(app_f.state, "orch_task", None)
+            if task:
+                task.cancel()
+                with contextlib.suppress(asyncio.CancelledError):
+                    await task
+                app_f.state.orch_task = None
+                app_f.state.orchestrator = None
+            alerts.send_alert("Kill-switch activated – orchestrator disabled")
+            _pending_votes.clear()
+            return {"status": "disabled"}
+        return {"status": f"{len(_pending_votes)}/2 confirmations"}
 
     @app.post("/insight", response_model=InsightResponse)
     async def insight(req: InsightRequest, _: None = Depends(verify_token)) -> InsightResponse | JSONResponse:

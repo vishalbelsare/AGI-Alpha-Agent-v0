@@ -103,6 +103,9 @@ from backend.agents import (
     start_background_tasks,
 )  # auto-disc helpers
 from alpha_factory_v1.utils.env import _env_int
+from src.monitoring import metrics
+from collections import deque
+from alpha_factory_v1.demos.alpha_agi_insight_v1.src.utils import alerts
 
 # Memory fabric is optional → graceful stub when absent
 try:
@@ -483,6 +486,31 @@ async def _hb_watch(runners: Dict[str, AgentRunner]) -> None:
         await asyncio.sleep(5)
 
 
+# ──────────────────── Metric regression guard ───────────────────────
+async def _regression_guard(runners: Dict[str, AgentRunner]) -> None:
+    history: deque[float] = deque(maxlen=3)
+    while True:
+        await asyncio.sleep(1)
+        try:
+            sample = metrics.dgm_best_score.collect()[0].samples[0]
+            score = float(sample.value)
+        except Exception:  # pragma: no cover - metrics optional
+            continue
+        history.append(score)
+        if (
+            len(history) == 3
+            and history[1] <= history[0] * 0.8
+            and history[2] <= history[1] * 0.8
+        ):
+            runner = runners.get("aiga_evolver")
+            if runner and runner.task:
+                runner.task.cancel()
+                with contextlib.suppress(asyncio.CancelledError):
+                    await runner.task
+            alerts.send_alert("Evolution paused due to metric regression")
+            history.clear()
+
+
 # ───────────────────────────── main() ────────────────────────────────
 async def _main() -> None:
     # ─── Basic startup checks ───────────────────────────────────────
@@ -512,6 +540,7 @@ async def _main() -> None:
         log.info("REST UI →  http://localhost:%d/docs", PORT)
 
     # ─── Kick off auxiliary subsystems ───────────────────────────────
+    asyncio.create_task(_regression_guard(runners))
     await asyncio.gather(_serve_grpc(runners), _adk_register(), _hb_watch(runners))
 
     # ─── Graceful shutdown handling ──────────────────────────────────
