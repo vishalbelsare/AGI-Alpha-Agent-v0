@@ -859,6 +859,10 @@ docker compose up -d
 # Dashboard available at <http://localhost:8080>
 ```
 
+The Compose stack restricts the agents worker using Docker resource limits. The
+`agents` service runs with `mem_limit: 8g`, `pids_limit: 512` and
+`network_mode: none` to prevent outbound traffic.
+
 The Helm chart under `infrastructure/helm-chart` mirrors this Compose
 setup:
 
