@@ -31,6 +31,7 @@ from .utils import config, messaging, logging as insight_logging
 from .utils.tracing import agent_cycle_seconds
 from .utils import alerts
 from .utils.logging import Ledger
+from src.archive.service import ArchiveService
 from .agents.base_agent import BaseAgent
 from src.governance.stake_registry import StakeRegistry
 
@@ -115,6 +116,12 @@ class Orchestrator:
             wallet=self.settings.solana_wallet,
             broadcast=self.settings.broadcast,
             db=self.settings.db_type,
+        )
+        self.archive = ArchiveService(
+            os.getenv("ARCHIVE_PATH", "archive.db"),
+            rpc_url=self.settings.solana_rpc_url,
+            wallet=self.settings.solana_wallet,
+            broadcast=self.settings.broadcast,
         )
         self.registry = StakeRegistry()
         self.runners: Dict[str, AgentRunner] = {}
@@ -222,6 +229,7 @@ class Orchestrator:
     async def run_forever(self) -> None:
         await self.bus.start()
         self.ledger.start_merkle_task(3600)
+        self.archive.start_merkle_task(86_400)
         for r in self.runners.values():
             proposal = f"promote:{r.agent.name}"
             if self.registry.accepted(proposal):
@@ -244,7 +252,9 @@ class Orchestrator:
                         await r.task
             await self.bus.stop()
             await self.ledger.stop_merkle_task()
+            await self.archive.stop_merkle_task()
             self.ledger.close()
+            self.archive.close()
 
 
 async def _main() -> None:  # pragma: no cover - CLI helper
