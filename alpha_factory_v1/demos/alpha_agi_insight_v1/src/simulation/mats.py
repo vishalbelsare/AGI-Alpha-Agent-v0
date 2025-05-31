@@ -15,6 +15,7 @@ from typing import Callable, List, Tuple
 import numpy as np
 
 from src.evaluators.novelty import NoveltyIndex
+from src.simulation import surrogate_fitness
 
 __all__ = [
     "Individual",
@@ -34,6 +35,7 @@ class Individual:
     fitness: Tuple[float, ...] | None = None
     crowd: float = 0.0
     rank: int = 0
+    score: float = 0.0
 
 
 Population = List[Individual]
@@ -54,6 +56,11 @@ def evaluate(
             ind.fitness = base + (div,)
         else:
             ind.fitness = base
+
+    fits = [ind.fitness or () for ind in pop]
+    scores = surrogate_fitness.aggregate(fits)
+    for ind, sc in zip(pop, scores):
+        ind.score = sc
 
 
 def _crowding(pop: Population) -> None:
