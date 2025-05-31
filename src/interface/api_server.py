@@ -560,7 +560,7 @@ async def _background_run(sim_id: str, cfg: SimRequest) -> None:
 if app is not None:
 
     @app.post("/simulate", response_model=SimStartResponse)
-    async def simulate(req: SimRequest, _: None = Depends(verify_token)) -> SimStartResponse | JSONResponse:
+    async def simulate(req: SimRequest, _: None = Depends(verify_token)) -> Any:
         """Start a simulation and return its identifier."""
 
         start = time.perf_counter()
@@ -577,7 +577,7 @@ if app is not None:
             REQ_LAT.labels("POST", "/simulate").observe(time.perf_counter() - start)
 
     @app.get("/results/{sim_id}", response_model=ResultsResponse)
-    async def get_results(sim_id: str, _: None = Depends(verify_token)) -> ResultsResponse | JSONResponse:
+    async def get_results(sim_id: str, _: None = Depends(verify_token)) -> Any:
         """Return final forecast data for ``sim_id`` if available."""
 
         start = time.perf_counter()
@@ -596,7 +596,7 @@ if app is not None:
             REQ_LAT.labels("GET", "/results/{sim_id}").observe(time.perf_counter() - start)
 
     @app.get("/results", response_model=ResultsResponse)
-    async def get_latest(_: None = Depends(verify_token)) -> ResultsResponse | JSONResponse:
+    async def get_latest(_: None = Depends(verify_token)) -> Any:
         """Return the most recently completed simulation."""
 
         start = time.perf_counter()
@@ -618,7 +618,7 @@ if app is not None:
             REQ_LAT.labels("GET", "/results").observe(time.perf_counter() - start)
 
     @app.get("/population/{sim_id}", response_model=PopulationResponse)
-    async def get_population(sim_id: str, _: None = Depends(verify_token)) -> PopulationResponse | JSONResponse:
+    async def get_population(sim_id: str, _: None = Depends(verify_token)) -> Any:
         """Return the final population for ``sim_id`` if available."""
 
         start = time.perf_counter()
@@ -716,7 +716,7 @@ if app is not None:
         return {"status": f"{len(_pending_votes)}/2 confirmations"}
 
     @app.post("/stake", response_model=StakeResponse)
-    async def set_stake(req: StakeRequest, _: None = Depends(verify_token)) -> StakeResponse | JSONResponse:
+    async def set_stake(req: StakeRequest, _: None = Depends(verify_token)) -> Any:
         """Register ``req.agent_id`` with ``req.amount`` tokens."""
 
         start = time.perf_counter()
@@ -735,7 +735,7 @@ if app is not None:
             REQ_LAT.labels("POST", "/stake").observe(time.perf_counter() - start)
 
     @app.post("/dispatch")
-    async def trigger_dispatch(_: None = Depends(verify_token)) -> dict[str, str] | JSONResponse:
+    async def trigger_dispatch(_: None = Depends(verify_token)) -> Any:
         """Trigger a GitHub workflow dispatch."""
 
         start = time.perf_counter()
@@ -760,7 +760,7 @@ if app is not None:
             REQ_LAT.labels("POST", "/dispatch").observe(time.perf_counter() - start)
 
     @app.get("/proof/{agent_id}", response_model=ProofResponse)
-    async def get_proof(agent_id: str, _: None = Depends(verify_token)) -> ProofResponse | JSONResponse:
+    async def get_proof(agent_id: str, _: None = Depends(verify_token)) -> Any:
         """Return stored proof CID for ``agent_id`` if present."""
 
         start = time.perf_counter()
@@ -781,7 +781,7 @@ if app is not None:
             REQ_LAT.labels("GET", "/proof/{agent_id}").observe(time.perf_counter() - start)
 
     @app.post("/insight", response_model=InsightResponse)
-    async def insight(req: InsightRequest, _: None = Depends(verify_token)) -> InsightResponse | JSONResponse:
+    async def insight(req: InsightRequest, _: None = Depends(verify_token)) -> Any:
         """Return aggregated forecast data across runs."""
 
         try:
