@@ -20,6 +20,17 @@ from pydantic import BaseModel
 
 from .simulation import mats
 
+
+def _safe_extract(tf: tarfile.TarFile, target_dir: Path) -> None:
+    """Safely extract tar members inside ``target_dir``."""
+    base = target_dir.resolve()
+    for member in tf.getmembers():
+        dest = (base / member.name).resolve()
+        if not str(dest).startswith(str(base)):
+            raise HTTPException(status_code=400, detail="Unsafe path in archive")
+    tf.extractall(base)
+
+
 GPU_TYPE = os.getenv("GPU_TYPE", "cpu")
 MAX_GENERATIONS = int(os.getenv("MAX_GENERATIONS", "10"))
 STORAGE_PATH = Path(os.getenv("STORAGE_PATH", "/tmp/evolution"))
@@ -51,7 +62,7 @@ async def mutate(
     try:
         if tar is not None:
             with tarfile.open(fileobj=tar.file) as tf:
-                tf.extractall(tmp_path)
+                _safe_extract(tf, tmp_path)
         if repo_url:
             (tmp_path / "repo.txt").write_text(repo_url)
 
