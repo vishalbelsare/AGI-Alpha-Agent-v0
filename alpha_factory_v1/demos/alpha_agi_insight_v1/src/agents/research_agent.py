@@ -12,10 +12,12 @@ import random
 
 from .base_agent import BaseAgent
 from ..simulation import forecast, sector
-from ..utils import messaging
+from ..utils import messaging, logging as insight_logging
 from ..utils.logging import Ledger
 from ..utils.retry import with_retry
 from ..utils.tracing import span
+
+log = insight_logging.logging.getLogger(__name__)
 
 
 class ResearchAgent(BaseAgent):
@@ -42,8 +44,8 @@ class ResearchAgent(BaseAgent):
                         self.adk.heartbeat()
                     with span("adk.list_packages"):
                         _ = len(self.adk.list_packages())
-                except Exception:
-                    pass
+                except Exception as exc:
+                    log.warning("adk interaction failed: %s", exc)
             if self.mcp:
                 try:  # pragma: no cover - optional
                     with span("mcp.heartbeat"):
@@ -51,12 +53,13 @@ class ResearchAgent(BaseAgent):
                     with span("mcp.invoke"):
                         try:
                             result = await self.mcp.invoke_tool("noop", {})
-                        except Exception:
+                        except Exception as exc:
+                            log.warning("mcp.invoke_tool failed: %s", exc)
                             result = None
                     if result is not None:
                         await self.emit("memory", {"noop": result})
-                except Exception:
-                    pass
+                except Exception as exc:
+                    log.warning("mcp interaction failed: %s", exc)
             await self.emit("strategy", {"research": traj[0].capability})
 
     async def handle(self, env: messaging.Envelope) -> None:
@@ -68,6 +71,6 @@ class ResearchAgent(BaseAgent):
                 try:  # pragma: no cover
                     with span("openai.run"):
                         cap = float(await with_retry(self.oai_ctx.run)(prompt=str(plan)))
-                except Exception:
-                    pass
+                except Exception as exc:
+                    log.warning("openai.run failed: %s", exc)
             await self.emit("strategy", {"research": cap})

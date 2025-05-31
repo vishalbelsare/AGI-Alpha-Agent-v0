@@ -9,11 +9,13 @@ of stored items back to the orchestrator.
 from __future__ import annotations
 
 from .base_agent import BaseAgent
-from ..utils import messaging
+from ..utils import messaging, logging as insight_logging
 from ..utils.logging import Ledger
 from ..utils.tracing import span
 import json
 from pathlib import Path
+
+log = insight_logging.logging.getLogger(__name__)
 
 
 class MemoryAgent(BaseAgent):
@@ -38,8 +40,8 @@ class MemoryAgent(BaseAgent):
                     continue
                 try:
                     self.records.append(json.loads(line))
-                except Exception:  # noqa: BLE001 - ignore bad records
-                    pass
+                except Exception as exc:  # noqa: BLE001 - ignore bad records
+                    log.warning("invalid record: %s", exc)
 
     async def run_cycle(self) -> None:
         """Periodically report memory size."""

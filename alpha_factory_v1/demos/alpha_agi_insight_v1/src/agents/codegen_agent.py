@@ -33,10 +33,12 @@ from src.utils.secure_run import secure_run
 
 
 from .base_agent import BaseAgent
-from ..utils import messaging
+from ..utils import messaging, logging as insight_logging
 from ..utils.logging import Ledger
 from ..utils.retry import with_retry
 from ..utils.tracing import span
+
+log = insight_logging.logging.getLogger(__name__)
 
 
 class CodeGenAgent(BaseAgent):
@@ -66,8 +68,8 @@ class CodeGenAgent(BaseAgent):
                 try:  # pragma: no cover
                     with span("openai.run"):
                         code = await with_retry(self.oai_ctx.run)(prompt=str(analysis))
-                except Exception:
-                    pass
+                except Exception as exc:
+                    log.warning("openai.run failed: %s", exc)
             if violates_finance_policy(code):
                 await self.emit("safety", {"code": code, "status": "blocked"})
                 return
@@ -94,8 +96,8 @@ class CodeGenAgent(BaseAgent):
 
                 resource.setrlimit(resource.RLIMIT_CPU, (cpu_sec, cpu_sec))
                 resource.setrlimit(resource.RLIMIT_AS, (mem_bytes, mem_bytes))
-            except Exception:
-                pass
+            except Exception as exc:
+                log.warning("resource limits failed: %s", exc)
 
         with tempfile.NamedTemporaryFile("w", suffix=".py", delete=False) as fh:
             fh.write(code)

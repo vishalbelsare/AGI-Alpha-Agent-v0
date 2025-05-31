@@ -9,10 +9,12 @@ passed to the :class:`CodeGenAgent`.
 from __future__ import annotations
 
 from .base_agent import BaseAgent
-from ..utils import messaging
+from ..utils import messaging, logging as insight_logging
 from ..utils.logging import Ledger
 from ..utils.retry import with_retry
 from ..utils.tracing import span
+
+log = insight_logging.logging.getLogger(__name__)
 
 
 class MarketAgent(BaseAgent):
@@ -42,6 +44,6 @@ class MarketAgent(BaseAgent):
                 try:  # pragma: no cover
                     with span("openai.run"):
                         analysis = await with_retry(self.oai_ctx.run)(prompt=str(strategy))
-                except Exception:
-                    pass
+                except Exception as exc:
+                    log.warning("openai.run failed: %s", exc)
             await self.emit("codegen", {"analysis": analysis})
