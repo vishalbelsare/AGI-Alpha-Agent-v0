@@ -115,6 +115,8 @@ Start a new simulation. Send a JSON payload with the following fields:
 - `horizon` – forecast horizon in years
 - `pop_size` – number of individuals per generation
 - `generations` – number of evolutionary steps
+- `mut_rate` – probability of mutating a gene
+- `xover_rate` – probability of performing crossover
 - `curve` – capability growth curve (`logistic`, `linear`, `exponential`)
 - `k` – optional growth curve steepness
 - `x0` – optional growth curve midpoint
@@ -130,6 +132,8 @@ to the `--energy` and `--entropy` CLI options.
   "horizon": 5,
   "pop_size": 6,
   "generations": 3,
+  "mut_rate": 0.1,
+  "xover_rate": 0.5,
   "curve": "logistic",
   "k": 10.0,
   "x0": 0.0,

@@ -191,6 +191,8 @@ if app is not None:
         horizon: int = 5
         pop_size: int = 6
         generations: int = 3
+        mut_rate: float = 0.1
+        xover_rate: float = 0.5
         curve: str = "logistic"
         k: float | None = None
         x0: float | None = None
@@ -270,7 +272,12 @@ if app is not None:
                     sec.energy *= 1.0 + sec.growth
                     if forecast.thermodynamic_trigger(sec, cap):
                         sec.disrupted = True
-                        sec.energy += forecast._innovation_gain(cfg.pop_size, cfg.generations)
+                        sec.energy += forecast._innovation_gain(
+                            cfg.pop_size,
+                            cfg.generations,
+                            mut_rate=cfg.mut_rate,
+                            xover_rate=cfg.xover_rate,
+                        )
             snapshot = [sector.Sector(s.name, s.energy, s.entropy, s.growth, s.disrupted) for s in secs]
             point = forecast.TrajectoryPoint(year, cap, snapshot)
             traj.append(point)

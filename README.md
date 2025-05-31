@@ -118,6 +118,7 @@ AGI_INSIGHT_OFFLINE=1 AGI_INSIGHT_BROADCAST=0 \
 python -m alpha_factory_v1.demos.alpha_agi_insight_v1.src.interface.cli simulate \
   --curve linear --k 8 --x0 0.0 --llama-model-path "$LLAMA_MODEL_PATH" \
   --offline --energy 2.0 --entropy 0.5 \
+  --mut-rate 0.1 --xover-rate 0.5 \
   --sectors-file alpha_factory_v1/demos/alpha_agi_insight_v1/docs/sectors.sample.json
 ```
 
@@ -240,7 +241,7 @@ Once the API server is running you can launch a simulation:
 curl -X POST http://localhost:8000/simulate \
   -H "Authorization: Bearer $API_TOKEN" \
   -H "Content-Type: application/json" \
-  -d '{"horizon": 5, "pop_size": 6, "generations": 3, "curve": "linear", "energy": 1.0, "entropy": 1.0}'
+  -d '{"horizon": 5, "pop_size": 6, "generations": 3, "mut_rate": 0.1, "xover_rate": 0.5, "curve": "linear", "energy": 1.0, "entropy": 1.0}'
 ```
 
 ## Disclaimer
@@ -281,6 +282,7 @@ See [AGENTS.md](AGENTS.md) for the full contributor guide.
       AGI_INSIGHT_OFFLINE=1 AGI_INSIGHT_BROADCAST=0
         python -m alpha_factory_v1.demos.alpha_agi_insight_v1.src.interface.cli
         simulate --offline --energy 2.0 --entropy 0.5 \
+        --mut-rate 0.1 --xover-rate 0.5 \
         --llama-model-path "$LLAMA_MODEL_PATH"
       ```
 7. [Deployment Recipes 🍳](#7-deployment-recipes)
