@@ -18,8 +18,15 @@ from ..utils.tracing import span
 class PlanningAgent(BaseAgent):
     """Generate research plans for downstream agents."""
 
-    def __init__(self, bus: messaging.A2ABus, ledger: "Ledger") -> None:
-        super().__init__("planning", bus, ledger)
+    def __init__(
+        self,
+        bus: messaging.A2ABus,
+        ledger: "Ledger",
+        *,
+        backend: str = "gpt-4o",
+        island: str = "default",
+    ) -> None:
+        super().__init__("planning", bus, ledger, backend=backend, island=island)
 
     async def run_cycle(self) -> None:
         """Emit a high level research request."""

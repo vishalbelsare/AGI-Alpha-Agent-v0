@@ -11,7 +11,7 @@ from __future__ import annotations
 import logging
 import os
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any, Optional, Dict
 
 from alpha_factory_v1.utils.config_common import (
     SettingsBase,
@@ -65,9 +65,22 @@ class Settings(SettingsBase):
     context_window: int = Field(default=8192, alias="AGI_CONTEXT_WINDOW")
     json_logs: bool = Field(default=False, alias="AGI_INSIGHT_JSON_LOGS")
     db_type: str = Field(default="sqlite", alias="AGI_INSIGHT_DB")
+    island_backends: Dict[str, str] = Field(
+        default_factory=lambda: {"default": "gpt-4o"},
+        alias="AGI_ISLAND_BACKENDS",
+    )
 
     def __init__(self, **data: Any) -> None:  # pragma: no cover - exercised in tests
         super().__init__(**data)
+        raw = os.getenv("AGI_ISLAND_BACKENDS")
+        if raw and not data.get("island_backends"):
+            mapping = {}
+            for part in raw.split(","):
+                if "=" in part:
+                    k, v = part.split("=", 1)
+                    mapping[k.strip()] = v.strip()
+            if mapping:
+                self.island_backends = mapping
         if not self.openai_api_key:
             _log.warning("OPENAI_API_KEY missing – offline mode enabled")
             self.offline = True

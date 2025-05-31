@@ -18,8 +18,15 @@ from ..utils.tracing import span
 class StrategyAgent(BaseAgent):
     """Turn research output into actionable strategy."""
 
-    def __init__(self, bus: messaging.A2ABus, ledger: "Ledger") -> None:
-        super().__init__("strategy", bus, ledger)
+    def __init__(
+        self,
+        bus: messaging.A2ABus,
+        ledger: "Ledger",
+        *,
+        backend: str = "gpt-4o",
+        island: str = "default",
+    ) -> None:
+        super().__init__("strategy", bus, ledger, backend=backend, island=island)
 
     async def run_cycle(self) -> None:
         """No-op periodic loop."""

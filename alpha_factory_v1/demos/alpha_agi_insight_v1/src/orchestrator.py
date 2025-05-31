@@ -126,6 +126,7 @@ class Orchestrator:
         )
         self.registry = StakeRegistry()
         self.island_pops: Dict[str, mats.Population] = {}
+        self.island_backends: Dict[str, str] = dict(self.settings.island_backends)
         self.runners: Dict[str, AgentRunner] = {}
         self.bus.subscribe("orch", self._on_orch)
         for agent in self._init_agents():
@@ -135,16 +136,20 @@ class Orchestrator:
         self._monitor_task: asyncio.Task[None] | None = None
 
     def _init_agents(self) -> List[BaseAgent]:
-        agents = [
-            planning_agent.PlanningAgent(self.bus, self.ledger),
-            research_agent.ResearchAgent(self.bus, self.ledger),
-            adk_summariser_agent.ADKSummariserAgent(self.bus, self.ledger),
-            strategy_agent.StrategyAgent(self.bus, self.ledger),
-            market_agent.MarketAgent(self.bus, self.ledger),
-            codegen_agent.CodeGenAgent(self.bus, self.ledger),
-            safety_agent.SafetyGuardianAgent(self.bus, self.ledger),
-            memory_agent.MemoryAgent(self.bus, self.ledger, self.settings.memory_path),
-        ]
+        agents: List[BaseAgent] = []
+        for island, backend in self.settings.island_backends.items():
+            agents.extend(
+                [
+                    planning_agent.PlanningAgent(self.bus, self.ledger, backend=backend, island=island),
+                    research_agent.ResearchAgent(self.bus, self.ledger, backend=backend, island=island),
+                    adk_summariser_agent.ADKSummariserAgent(self.bus, self.ledger, backend=backend, island=island),
+                    strategy_agent.StrategyAgent(self.bus, self.ledger, backend=backend, island=island),
+                    market_agent.MarketAgent(self.bus, self.ledger, backend=backend, island=island),
+                    codegen_agent.CodeGenAgent(self.bus, self.ledger, backend=backend, island=island),
+                    safety_agent.SafetyGuardianAgent(self.bus, self.ledger, backend=backend, island=island),
+                    memory_agent.MemoryAgent(self.bus, self.ledger, self.settings.memory_path, backend=backend, island=island),
+                ]
+            )
         return agents
 
     def _register(self, runner: AgentRunner) -> None:

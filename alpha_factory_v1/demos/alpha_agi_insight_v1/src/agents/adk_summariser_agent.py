@@ -11,8 +11,15 @@ from ..utils.tracing import span
 class ADKSummariserAgent(BaseAgent):
     """Collect research updates and produce a summary using ADK."""
 
-    def __init__(self, bus: messaging.A2ABus, ledger: "Ledger") -> None:
-        super().__init__("summariser", bus, ledger)
+    def __init__(
+        self,
+        bus: messaging.A2ABus,
+        ledger: "Ledger",
+        *,
+        backend: str = "gpt-4o",
+        island: str = "default",
+    ) -> None:
+        super().__init__("summariser", bus, ledger, backend=backend, island=island)
         self._records: list[str] = []
 
     async def run_cycle(self) -> None:
