@@ -122,3 +122,13 @@ class ArchiveDB:
         with Session(self.engine) as session:
             session.merge(_StateRow(key=key, value=value))
             session.commit()
+
+    # snark helpers -----------------------------------------------------
+
+    def set_proof_cid(self, agent_hash: str, cid: str) -> None:
+        """Store the IPFS CID of the SNARK proof for ``agent_hash``."""
+        self.set_state(f"snark:{agent_hash}", cid)
+
+    def get_proof_cid(self, agent_hash: str) -> str | None:
+        """Return the stored proof CID for ``agent_hash`` if present."""
+        return self.get_state(f"snark:{agent_hash}")
