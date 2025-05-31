@@ -26,6 +26,7 @@ except Exception:  # pragma: no cover - optional dependency missing
 
 from alpha_factory_v1.demos.self_healing_repo.patcher_core import apply_patch
 from src.eval.fitness import compute_fitness
+from src.eval.preflight import run_preflight
 
 ROOT = Path(__file__).resolve().parents[2]
 PATCH_DIR = ROOT / "benchmarks" / "patch_library"
@@ -72,6 +73,7 @@ def _evaluate_patch(patch: Path) -> Dict[str, float]:
         repo = Path(tmp)
         _clone_repo(repo)
         apply_patch(patch.read_text(), repo_path=tmp)
+        run_preflight(repo)
         base_flags = {n: True for n in INNOVATIONS}
         baseline = _run_bench(repo, base_flags)
         scores["baseline"] = baseline

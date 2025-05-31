@@ -14,6 +14,7 @@ from pathlib import Path
 from typing import Tuple
 
 from src.utils.patch_guard import is_patch_valid
+from src.eval.preflight import run_preflight
 
 try:
     import git
@@ -55,6 +56,8 @@ def improve_repo(repo_url: str, patch_file: str, metric_file: str, log_file: str
     repo.git.apply(patch_file)
     repo.index.add([metric_file])
     repo.index.commit("apply patch")
+    # run basic checks before scoring
+    run_preflight(repo_dir)
     new_score = _evaluate(repo_dir, metric_file)
     delta = new_score - baseline
     _log_delta(delta, Path(log_file))
