@@ -20,6 +20,14 @@ from pathlib import Path
 import pandas as pd
 import plotly.express as px
 from src.utils.visual import plot_pareto
+from alpha_factory_v1.demos.alpha_agi_insight_v1.src.utils.tracing import (
+    agent_cycle_seconds,
+    span,
+)
+try:
+    import prometheus_client
+except Exception:  # pragma: no cover - optional
+    prometheus_client = None
 
 try:  # pragma: no cover - optional dependency
     import streamlit as st
@@ -117,13 +125,15 @@ def _run_simulation(
     log_box = st.empty()
     progress = st.progress(0.0)
 
-    traj = forecast.forecast_disruptions(
-        secs,
-        horizon,
-        curve,
-        pop_size=pop_size,
-        generations=generations,
-    )
+    start_time = time.perf_counter()
+    with span("run_simulation"):
+        traj = forecast.forecast_disruptions(
+            secs,
+            horizon,
+            curve,
+            pop_size=pop_size,
+            generations=generations,
+        )
 
     timeline_rows: list[dict[str, Any]] = []
     total_steps = horizon + generations
@@ -201,6 +211,7 @@ def _run_simulation(
     )
     csv_bytes = pd.DataFrame(timeline_rows).to_csv(index=False).encode()
     st.download_button("Download timeline (CSV)", csv_bytes, file_name="timeline.csv")
+    agent_cycle_seconds.labels("streamlit").observe(time.perf_counter() - start_time)
 
 
 def main(argv: list[str] | None = None) -> None:  # pragma: no cover - entry point
@@ -232,6 +243,11 @@ def main(argv: list[str] | None = None) -> None:  # pragma: no cover - entry poi
             entropy,
             save_plots=args.save_plots,
         )
+    if st.sidebar.checkbox("Show metrics"):
+        if prometheus_client is not None:
+            st.code(prometheus_client.generate_latest().decode(), language="text")
+        else:
+            st.write("prometheus_client not installed")
 
 
 if __name__ == "__main__":  # pragma: no cover - script entry

@@ -1,19 +1,15 @@
 # 🌐 Alpha-AGI Insight CI — GitHub Actions Workflow
 #
 # Validates the demo with lint, type checks, unit tests and Docker build.
-# Runs **solely** when triggered via the GitHub UI or CLI
-# (workflow_dispatch). No automatic execution on push or pull-request.
-#
-name: "🚀 CI — Insight Demo"
+# Automatically runs on pushes and pull requests.
+# Tagged releases deploy a Docker image with rollback on failure.
+name: "🚀 CI"
 
 on:
-  workflow_dispatch:
-    inputs:
-      confirm:
-        description: "Type RUN to start the CI pipeline"
-        required: true
-        default: ""
-        type: string
+  push:
+    branches: ["main"]
+    tags: ["v*"]
+  pull_request:
 
 permissions:
   contents: read
@@ -31,7 +27,6 @@ env:
 jobs:
   lint-type:
     name: "🧹 Ruff + 🏷️ Mypy"
-    if: ${{ github.event.inputs.confirm == 'RUN' }}
     runs-on: ubuntu-latest
     environment: ci-on-demand        # ⇦ optional: add reviewers in repo Settings → Environments
     strategy:
@@ -54,7 +49,6 @@ jobs:
 
   tests:
     name: "✅ Pytest"
-    if: ${{ github.event.inputs.confirm == 'RUN' }}
     needs: lint-type
     runs-on: ubuntu-latest
     environment: ci-on-demand
@@ -114,7 +108,6 @@ PY
 
   docker:
     name: "🐳 Docker build"
-    if: ${{ github.event.inputs.confirm == 'RUN' }}
     needs: tests
     runs-on: ubuntu-latest
     environment: ci-on-demand
@@ -136,3 +129,36 @@ PY
       - name: Smoke test image
         run: |
           docker run --rm -e RUN_MODE=cli $DOCKER_IMAGE:ci simulate --horizon 1 --offline
+
+  deploy:
+    name: "📦 Deploy"
+    if: startsWith(github.ref, 'refs/tags/')
+    needs: docker
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Login to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Pull previous image
+        run: docker pull ghcr.io/${{ github.repository_owner }}/$DOCKER_IMAGE:latest || true
+      - name: Tag previous
+        run: docker tag ghcr.io/${{ github.repository_owner }}/$DOCKER_IMAGE:latest ghcr.io/${{ github.repository_owner }}/$DOCKER_IMAGE:previous || true
+      - name: Push previous tag
+        run: docker push ghcr.io/${{ github.repository_owner }}/$DOCKER_IMAGE:previous || true
+      - name: Push new image
+        run: |
+          docker tag $DOCKER_IMAGE:ci ghcr.io/${{ github.repository_owner }}/$DOCKER_IMAGE:${{ github.ref_name }}
+          docker tag $DOCKER_IMAGE:ci ghcr.io/${{ github.repository_owner }}/$DOCKER_IMAGE:latest
+          docker push ghcr.io/${{ github.repository_owner }}/$DOCKER_IMAGE:${{ github.ref_name }}
+          docker push ghcr.io/${{ github.repository_owner }}/$DOCKER_IMAGE:latest
+      - name: Rollback on failure
+        if: failure()
+        run: |
+          echo "Rolling back to previous image"
+          docker pull ghcr.io/${{ github.repository_owner }}/$DOCKER_IMAGE:previous || exit 0
+          docker tag ghcr.io/${{ github.repository_owner }}/$DOCKER_IMAGE:previous ghcr.io/${{ github.repository_owner }}/$DOCKER_IMAGE:latest
+          docker push ghcr.io/${{ github.repository_owner }}/$DOCKER_IMAGE:latest
