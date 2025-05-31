@@ -78,6 +78,7 @@ feedparser>=6.0
 neo4j>=5.19
 psycopg2-binary>=2.9
 networkx>=3.3           # in-process fallback graph
+SQLAlchemy>=2.0
 
 # ─────────── Scientific / domain-specific libs ─────────────────────────
 noaa-sdk==0.1.21
