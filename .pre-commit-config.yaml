@@ -58,3 +58,8 @@ repos:
         entry: python tools/check_env_table.py
         language: python
         pass_filenames: false
+      - id: dp-scrub
+        name: Detect private text in commit
+        entry: python scripts/dp_scrubber.py
+        language: python
+        pass_filenames: false
