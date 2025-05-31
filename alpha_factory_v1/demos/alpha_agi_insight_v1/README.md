@@ -413,6 +413,9 @@ local development or customization. See the
 | `MAX_RESULTS` | Number of results to keep on disk | `100` |
 | `BUSINESS_HOST` | Base orchestrator URL for bridges | `"http://localhost:8000"` |
 | `API_TOKEN` | Bearer token required by the REST API | `REPLACE_ME_TOKEN` |
+| `API_RATE_LIMIT` | Requests allowed per minute for the API server | `60` |
+| `AGI_ISLAND_BACKENDS` | Comma-separated mapping of island names to LLM backends | `default=gpt-4o` |
+| `ALERT_WEBHOOK_URL` | Optional URL for orchestrator alert messages | _unset_ |
 
 `BUSINESS_HOST` sets the orchestrator URL used by helper commands to reach the REST API.
 
