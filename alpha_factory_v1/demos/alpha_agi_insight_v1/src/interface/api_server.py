@@ -16,9 +16,11 @@ import json
 import os
 import secrets
 import time
-from collections import OrderedDict
+from collections import OrderedDict, deque
 from pathlib import Path
 from typing import Any, List, Set, TYPE_CHECKING
+
+from cachetools import TTLCache
 
 if TYPE_CHECKING:  # pragma: no cover - typing only
     from typing import Protocol
@@ -97,21 +99,25 @@ if app is not None:
             super().__init__(app)
             self.limit = int(os.getenv("API_RATE_LIMIT", str(limit)))
             self.window = window
-            self.counters: dict[str, tuple[int, float]] = {}
+            # Use TTLCache so inactive IP entries expire automatically.
+            self.counters: TTLCache[str, deque[float]] = TTLCache(maxsize=1024, ttl=window)
             self.lock = asyncio.Lock()
 
         async def dispatch(self, request: Request, call_next: RequestResponseEndpoint) -> Response:
             ip = request.client.host if request.client else "unknown"
             now = time.time()
             async with self.lock:
-                count, start = self.counters.get(ip, (0, now))
-                if now - start > self.window:
-                    count = 0
-                    start = now
-                count += 1
-                self.counters[ip] = (count, start)
-                if count > self.limit:
+                dq = self.counters.get(ip)
+                if dq is None:
+                    dq = deque()
+                while dq and now - dq[0] > self.window:
+                    dq.popleft()
+                if len(dq) >= self.limit:
+                    dq.append(now)
+                    self.counters[ip] = dq
                     return Response("Too Many Requests", status_code=429)
+                dq.append(now)
+                self.counters[ip] = dq
             return await call_next(request)
 
     async def verify_token(

@@ -3,6 +3,7 @@ import importlib
 import os
 import time
 from typing import Any, cast
+from collections import deque
 
 import pytest
 
@@ -16,6 +17,7 @@ os.environ.setdefault("API_RATE_LIMIT", "1000")
 def test_throttle_alert(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setenv("API_RATE_LIMIT", "1")
     from src.interface import api_server as mod
+
     api = importlib.reload(mod)
 
     sent: list[str] = []
@@ -31,7 +33,7 @@ def test_throttle_alert(monkeypatch: pytest.MonkeyPatch) -> None:
     metrics = stack.app.app
     limiter = metrics.app
     metrics.window_start = time.time() - 61
-    limiter.counters["testclient"] = (0, time.time())
+    limiter.counters["testclient"] = deque()
 
     client.get("/runs", headers=headers)
 
