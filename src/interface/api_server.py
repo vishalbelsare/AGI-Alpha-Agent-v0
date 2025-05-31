@@ -21,7 +21,7 @@ from email.message import EmailMessage
 
 from cachetools import TTLCache
 
-from src.archive import Archive
+from src.archive import Archive, ArchiveDB
 from alpha_factory_v1.demos.alpha_agi_insight_v1.src.utils import alerts
 from src.utils.config import init_config
 from src.monitoring import metrics
@@ -38,6 +38,9 @@ __all__ = [
     "SimStartResponse",
     "LineageNode",
     "StatusResponse",
+    "StakeRequest",
+    "StakeResponse",
+    "ProofResponse",
     "main",
 ]
 
@@ -468,6 +471,26 @@ class StatusResponse(BaseModel):
     agents: list[AgentStatus]
 
 
+class StakeRequest(BaseModel):
+    """Payload registering a stake amount."""
+
+    agent_id: str
+    amount: float
+
+
+class StakeResponse(BaseModel):
+    """Simple acknowledgement for ``/stake``."""
+
+    status: str
+
+
+class ProofResponse(BaseModel):
+    """CID and proof string for ``/proof``."""
+
+    cid: str
+    proof: str | None = None
+
+
 async def _background_run(sim_id: str, cfg: SimRequest) -> None:
     """Execute one simulation in the background.
 
@@ -691,6 +714,71 @@ if app is not None:
             _pending_votes.clear()
             return {"status": "disabled"}
         return {"status": f"{len(_pending_votes)}/2 confirmations"}
+
+    @app.post("/stake", response_model=StakeResponse)
+    async def set_stake(req: StakeRequest, _: None = Depends(verify_token)) -> StakeResponse | JSONResponse:
+        """Register ``req.agent_id`` with ``req.amount`` tokens."""
+
+        start = time.perf_counter()
+        status = "200"
+        try:
+            orch = cast(Any, app_f.state.orchestrator)
+            if orch is None:
+                raise HTTPException(status_code=503, detail="Orchestrator not running")
+            orch.registry.set_stake(req.agent_id, req.amount)
+            return StakeResponse(status="ok")
+        except HTTPException as exc:
+            status = str(exc.status_code)
+            return problem_response(exc)
+        finally:
+            REQ_COUNT.labels("POST", "/stake", status).inc()
+            REQ_LAT.labels("POST", "/stake").observe(time.perf_counter() - start)
+
+    @app.post("/dispatch")
+    async def trigger_dispatch(_: None = Depends(verify_token)) -> dict[str, str] | JSONResponse:
+        """Trigger a GitHub workflow dispatch."""
+
+        start = time.perf_counter()
+        status = "200"
+        try:
+            url = os.getenv("DISPATCH_URL")
+            token = os.getenv("DISPATCH_TOKEN")
+            if not url or not token:
+                raise HTTPException(status_code=503, detail="dispatch not configured")
+            httpx = importlib.import_module("httpx")
+            r = httpx.post(url, json={}, headers={"Authorization": f"Bearer {token}"}, timeout=10)
+            r.raise_for_status()
+            return {"status": "ok"}
+        except HTTPException as exc:
+            status = str(exc.status_code)
+            return problem_response(exc)
+        except Exception as exc:  # pragma: no cover - network failures
+            status = "502"
+            return problem_response(HTTPException(status_code=502, detail=str(exc)))
+        finally:
+            REQ_COUNT.labels("POST", "/dispatch", status).inc()
+            REQ_LAT.labels("POST", "/dispatch").observe(time.perf_counter() - start)
+
+    @app.get("/proof/{agent_id}", response_model=ProofResponse)
+    async def get_proof(agent_id: str, _: None = Depends(verify_token)) -> ProofResponse | JSONResponse:
+        """Return stored proof CID for ``agent_id`` if present."""
+
+        start = time.perf_counter()
+        status = "200"
+        try:
+            path = Path(os.getenv("ARCHIVE_PATH", "archive.db"))
+            db = ArchiveDB(path)
+            cid = db.get_proof_cid(agent_id)
+            if cid is None:
+                raise HTTPException(status_code=404)
+            proof = db.get_state(f"proof:{agent_id}")
+            return ProofResponse(cid=cid, proof=proof)
+        except HTTPException as exc:
+            status = str(exc.status_code)
+            return problem_response(exc)
+        finally:
+            REQ_COUNT.labels("GET", "/proof/{agent_id}", status).inc()
+            REQ_LAT.labels("GET", "/proof/{agent_id}").observe(time.perf_counter() - start)
 
     @app.post("/insight", response_model=InsightResponse)
     async def insight(req: InsightRequest, _: None = Depends(verify_token)) -> InsightResponse | JSONResponse:
