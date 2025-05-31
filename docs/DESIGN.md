@@ -70,6 +70,24 @@ The system exposes both a command line interface and a REST/WS API. The CLI is s
 
 The repository includes container and infrastructure templates for Docker Compose, Helm and Terraform. Each mode deploys the orchestrator together with optional agents and the web UI. Environment variables configured in `.env` control credentials, ports and runtime options. When running in Kubernetes, the Helm chart maps these variables to pod environment settings. The Terraform examples show how to provision equivalent services on AWS Fargate or Google Cloud Run.
 
+## Evolution worker
+
+`src/evolution_worker.py` provides a tiny FastAPI service that performs a single
+NSGA‑II mutation step. It accepts either an uploaded tarball or a repository URL
+and returns the resulting child genome.
+
+### Endpoints
+
+- `POST /mutate` – upload a `tar` file or send `repo_url` form data. All archive
+  members are validated and extracted to a temporary directory before running
+  the mutation step. The JSON response contains the new genome.
+- `GET /healthz` – simple liveness probe returning `"ok"`.
+
+Typical usage is to run the container and POST agent source code to `/mutate`.
+The returned genome can seed another agent or be stored for analysis. A
+`_safe_extract` helper guards against path traversal attacks during tar
+extraction.
+
 ## Security considerations
 
 The demo runs with minimal privileges and avoids hard-coded secrets. All credentials are loaded from `.env` or the host environment. Tests disable network access via `PYTEST_NET_OFF=true` to ensure deterministic behaviour.

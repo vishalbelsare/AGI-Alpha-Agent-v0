@@ -640,6 +640,10 @@ docker run --pull=always -p 8000:8000 ghcr.io/montrealai/alpha-factory:latest
 python alpha_factory_v1/demos/alpha_agi_business_3_v1/alpha_agi_business_3_v1.py --loglevel info
 ```
 
+For evolutionary experiments you can run the optional
+[evolution worker](docs/DESIGN.md#evolution-worker) container and POST a tarball
+of agent code to `/mutate`.
+
 ## Quick Start with Docker
 docker compose up --build
 # browse http://localhost:8080
