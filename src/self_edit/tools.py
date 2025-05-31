@@ -51,13 +51,23 @@ except ModuleNotFoundError:  # pragma: no cover - stub fallbacks
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 
+_EDIT_HISTORY: list[tuple[Path, str]] = []
+
 __all__ = [
     "view",
     "edit",
     "replace",
+    "view_lines",
+    "replace_str",
+    "insert_after",
+    "undo_last_edit",
     "view_tool",
     "edit_tool",
     "replace_tool",
+    "view_lines_tool",
+    "replace_str_tool",
+    "insert_after_tool",
+    "undo_tool",
     "FileToolsADK",
 ]
 
@@ -67,6 +77,11 @@ def _safe_path(path: str | Path) -> Path:
     if REPO_ROOT not in p.parents and p != REPO_ROOT:
         raise PermissionError(f"path '{p}' outside repository root")
     return p
+
+
+def _record_history(p: Path) -> None:
+    """Save the current contents of ``p`` for undo."""
+    _EDIT_HISTORY.append((p, p.read_text(encoding="utf-8", errors="replace")))
 
 
 # ---------------------------------------------------------------------------
@@ -83,6 +98,7 @@ def view(path: str | Path, start: int = 0, end: Optional[int] = None) -> str:
 def edit(path: str | Path, start: int, end: Optional[int], new_code: str) -> None:
     """Replace lines ``start:end`` in ``path`` with ``new_code``."""
     p = _safe_path(path)
+    _record_history(p)
     lines = p.read_text(encoding="utf-8", errors="replace").splitlines()
     new_lines = new_code.splitlines()
     if end is None:
@@ -97,8 +113,49 @@ def replace(path: str | Path, pattern: str, repl: str) -> int:
     text = p.read_text(encoding="utf-8", errors="replace")
     new_text, n = re.subn(pattern, repl, text, flags=re.MULTILINE)
     if n:
+        _record_history(p)
         p.write_text(new_text, encoding="utf-8")
     return n
+
+
+def view_lines(path: str | Path, start: int, end: Optional[int]) -> str:
+    """Return lines ``start`` through ``end`` (1-indexed, inclusive)."""
+    s = max(0, start - 1)
+    return view(path, s, end)
+
+
+def replace_str(path: str | Path, old: str, new: str) -> int:
+    """Replace occurrences of ``old`` with ``new`` inside ``path``."""
+    p = _safe_path(path)
+    text = p.read_text(encoding="utf-8", errors="replace")
+    count = text.count(old)
+    if count:
+        _record_history(p)
+        p.write_text(text.replace(old, new), encoding="utf-8")
+    return count
+
+
+def insert_after(path: str | Path, anchor: str, code: str) -> None:
+    """Insert ``code`` after the first line containing ``anchor``."""
+    p = _safe_path(path)
+    lines = p.read_text(encoding="utf-8", errors="replace").splitlines()
+    for idx, line in enumerate(lines):
+        if anchor in line:
+            _record_history(p)
+            insert_lines = code.splitlines()
+            lines[idx + 1 : idx + 1] = insert_lines
+            p.write_text("\n".join(lines), encoding="utf-8")
+            return
+    raise ValueError(f"anchor '{anchor}' not found in {p}")
+
+
+def undo_last_edit() -> bool:
+    """Revert the last edit operation if possible."""
+    if not _EDIT_HISTORY:
+        return False
+    p, text = _EDIT_HISTORY.pop()
+    p.write_text(text, encoding="utf-8")
+    return True
 
 
 # ---------------------------------------------------------------------------
@@ -119,6 +176,23 @@ def _replace_tool(ctx: RunContextWrapper | dict, path: str, pattern: str, repl: 
     return replace(path, pattern, repl)
 
 
+def _view_lines_tool(ctx: RunContextWrapper | dict, path: str, start: int, end: Optional[int]) -> str:
+    return view_lines(path, start, end)
+
+
+def _replace_str_tool(ctx: RunContextWrapper | dict, path: str, old: str, new: str) -> int:
+    return replace_str(path, old, new)
+
+
+def _insert_after_tool(ctx: RunContextWrapper | dict, path: str, anchor: str, code: str) -> str:
+    insert_after(path, anchor, code)
+    return "ok"
+
+
+def _undo_tool(ctx: RunContextWrapper | dict) -> bool:
+    return undo_last_edit()
+
+
 if _HAVE_AGENTS:  # pragma: no cover - thin wrapper
     view_tool = function_tool(
         name_override="view_file",
@@ -137,10 +211,34 @@ if _HAVE_AGENTS:  # pragma: no cover - thin wrapper
         description_override="Regex search/replace inside a repository file",
         strict_mode=False,
     )(_replace_tool)
+    view_lines_tool = function_tool(
+        name_override="view_lines",
+        description_override="Return inclusive line range from a file",
+        strict_mode=False,
+    )(_view_lines_tool)
+    replace_str_tool = function_tool(
+        name_override="replace_string",
+        description_override="Simple text replacement inside a repository file",
+        strict_mode=False,
+    )(_replace_str_tool)
+    insert_after_tool = function_tool(
+        name_override="insert_after",
+        description_override="Insert text after an anchor line in a repository file",
+        strict_mode=False,
+    )(_insert_after_tool)
+    undo_tool = function_tool(
+        name_override="undo_last_edit",
+        description_override="Undo the last file edit operation",
+        strict_mode=False,
+    )(_undo_tool)
 else:  # pragma: no cover - simple alias
     view_tool = _view_tool
     edit_tool = _edit_tool
     replace_tool = _replace_tool
+    view_lines_tool = _view_lines_tool
+    replace_str_tool = _replace_str_tool
+    insert_after_tool = _insert_after_tool
+    undo_tool = _undo_tool
 
 
 # ---------------------------------------------------------------------------
@@ -214,3 +312,74 @@ class FileToolsADK(adk.Agent):
     )
     def replace_task(self, *, path: str, pattern: str, repl: str) -> dict[str, int]:
         return {"count": replace(path, pattern, repl)}
+
+    @adk.task(
+        name="view_lines",
+        description="Return inclusive line range from a repository file",
+        input_schema=adk.JsonSchema(
+            {
+                "type": "object",
+                "properties": {
+                    "path": {"type": "string"},
+                    "start": {"type": "integer"},
+                    "end": {"type": ["integer", "null"]},
+                },
+                "required": ["path", "start"],
+            }
+        ),
+        output_schema=adk.JsonSchema(
+            {"type": "object", "properties": {"text": {"type": "string"}}, "required": ["text"]}
+        ),
+    )
+    def view_lines_task(self, *, path: str, start: int, end: Optional[int] = None) -> dict[str, str]:
+        return {"text": view_lines(path, start, end)}
+
+    @adk.task(
+        name="replace_str",
+        description="Simple text replacement inside a repository file",
+        input_schema=adk.JsonSchema(
+            {
+                "type": "object",
+                "properties": {
+                    "path": {"type": "string"},
+                    "old": {"type": "string"},
+                    "new": {"type": "string"},
+                },
+                "required": ["path", "old", "new"],
+            }
+        ),
+        output_schema=adk.JsonSchema(
+            {"type": "object", "properties": {"count": {"type": "integer"}}, "required": ["count"]}
+        ),
+    )
+    def replace_str_task(self, *, path: str, old: str, new: str) -> dict[str, int]:
+        return {"count": replace_str(path, old, new)}
+
+    @adk.task(
+        name="insert_after",
+        description="Insert text after an anchor line in a repository file",
+        input_schema=adk.JsonSchema(
+            {
+                "type": "object",
+                "properties": {
+                    "path": {"type": "string"},
+                    "anchor": {"type": "string"},
+                    "code": {"type": "string"},
+                },
+                "required": ["path", "anchor", "code"],
+            }
+        ),
+        output_schema=adk.JsonSchema({"type": "object", "properties": {"ok": {"type": "boolean"}}, "required": ["ok"]}),
+    )
+    def insert_after_task(self, *, path: str, anchor: str, code: str) -> dict[str, bool]:
+        insert_after(path, anchor, code)
+        return {"ok": True}
+
+    @adk.task(
+        name="undo_last_edit",
+        description="Undo the last file edit operation",
+        input_schema=adk.JsonSchema({"type": "object", "properties": {}}),
+        output_schema=adk.JsonSchema({"type": "object", "properties": {"ok": {"type": "boolean"}}, "required": ["ok"]}),
+    )
+    def undo_task(self) -> dict[str, bool]:
+        return {"ok": undo_last_edit()}
