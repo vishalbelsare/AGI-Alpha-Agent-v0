@@ -386,7 +386,7 @@ class CyberThreatAgent(AgentBase):
                 model="gpt-4o", messages=[{"role": "user", "content": prompt}], max_tokens=300
             )
             return json.loads(resp.choices[0].message.content)
-        except Exception as exc:  # noqa: BLE001
+        except (openai.OpenAIError, json.JSONDecodeError) as exc:
             logger.warning("OpenAI mitigation synthesis failed: %s", exc)
             return []
 

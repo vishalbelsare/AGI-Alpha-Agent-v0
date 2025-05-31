@@ -61,6 +61,7 @@ except Exception:  # pragma: no cover
 
 try:  # -- Kafka producer for heart-beats
     from kafka import KafkaProducer  # type: ignore
+    from kafka.errors import KafkaError
 except ModuleNotFoundError:  # pragma: no cover
     KafkaProducer = None  # type: ignore
 
@@ -135,7 +136,7 @@ def _kafka_producer() -> Optional[KafkaProducer]:
             ),
             linger_ms=250,
         )
-    except Exception:  # noqa: BLE001
+    except KafkaError:
         _logger.exception("Failed to bootstrap Kafka producer")
         return None
 
@@ -254,7 +255,7 @@ class AgentBase(abc.ABC):
         ok = True
         try:
             await self.step()
-        except Exception as exc:  # noqa: BLE001
+        except Exception as exc:  # noqa: BLE001 - step() may raise anything
             ok = False
             if self._metrics_err:
                 self._metrics_err.inc()
