@@ -11,7 +11,7 @@ import subprocess
 import sys
 import tempfile
 from pathlib import Path
-from typing import Dict, Iterable
+from typing import Dict
 
 try:  # graceful fallback when matplotlib is unavailable
     import matplotlib

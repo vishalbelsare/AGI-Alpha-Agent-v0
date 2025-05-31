@@ -34,11 +34,19 @@ Design pillars
 from __future__ import annotations
 
 # ───────────────────────── stdlib ──────────────────────────
-import asyncio, contextlib, dataclasses, functools, hashlib, json, logging
-import os, pathlib, sqlite3, time
+import asyncio
+import dataclasses
+import functools
+import hashlib
+import json
+import logging
+import os
+import pathlib
+import sqlite3
+import time
 from collections import OrderedDict
 from types import GeneratorType
-from typing import Any, Dict, Generator, Iterable, List, Optional, Sequence
+from typing import Any, Dict, Generator, List, Optional, Sequence
 
 from src.monitoring import metrics
 
@@ -241,7 +249,6 @@ def _install(name: str, prov_cls: type[_Provider]) -> None:
 
 
 # -------- built-ins -------------------------------------------------------
-from importlib import import_module
 
 
 def _maybe(env: str):
@@ -587,7 +594,8 @@ class LLMProvider:
 
 # --------------------------- CLI smoke test -----------------------------
 if __name__ == "__main__":
-    import argparse, textwrap
+    import argparse
+    import textwrap
 
     ap = argparse.ArgumentParser(description="LLMProvider smoke-test")
     ap.add_argument("--prompt", required=True)

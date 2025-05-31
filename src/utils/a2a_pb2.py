@@ -12,16 +12,16 @@ from google.protobuf import symbol_database as _symbol_database
 _sym_db = _symbol_database.Default()
 
 
-from google.protobuf import struct_pb2 as google_dot_protobuf_dot_struct__pb2
 
 
 DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\ta2a.proto\x12\x05utils\x1a\x1cgoogle/protobuf/struct.proto\"c\n\x08\x45nvelope\x12\x0e\n\x06sender\x18\x01 \x01(\t\x12\x11\n\trecipient\x18\x02 \x01(\t\x12(\n\x07payload\x18\x03 \x01(\x0b\x32\x17.google.protobuf.Struct\x12\n\n\x02ts\x18\x04 \x01(\x01\x62\x06proto3')
 
+
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, globals())
 _builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'a2a_pb2', globals())
-if _descriptor._USE_C_DESCRIPTORS == False:
+if not _descriptor._USE_C_DESCRIPTORS:
 
   DESCRIPTOR._options = None
-  _ENVELOPE._serialized_start=50
-  _ENVELOPE._serialized_end=149
+  _ENVELOPE._serialized_start = 50  # noqa: F821
+  _ENVELOPE._serialized_end = 149  # noqa: F821
 # @@protoc_insertion_point(module_scope)
