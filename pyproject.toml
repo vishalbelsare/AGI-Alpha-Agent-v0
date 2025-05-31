@@ -59,6 +59,11 @@ line-length = 120
 [tool.ruff]
 line-length = 120
 target-version = "py311"
+exclude = [
+    "alpha_factory_v1/demos/*",
+    "alpha_factory_v1/tests/*",
+    "*.ipynb",
+]
 
 [tool.flake8]
 max-line-length = 120
