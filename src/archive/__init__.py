@@ -13,6 +13,7 @@ from typing import Any, List
 from src.monitoring import metrics
 
 from .db import ArchiveDB, ArchiveEntry
+from .manager import PatchManager
 
 
 @dataclass(slots=True)
@@ -69,4 +70,4 @@ class Archive:
         return chosen
 
 
-__all__ = ["Agent", "Archive", "ArchiveDB", "ArchiveEntry"]
+__all__ = ["Agent", "Archive", "ArchiveDB", "ArchiveEntry", "PatchManager"]
