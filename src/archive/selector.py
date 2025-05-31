@@ -5,6 +5,8 @@ from __future__ import annotations
 
 from typing import Any, Sequence
 
+from src.monitoring import metrics
+
 import numpy as np
 
 
@@ -35,4 +37,5 @@ def select_parent(population: Sequence[Any], beta: float = 1.0, gamma: float = 0
     probs = weights / weights.sum()
 
     index = int(np.random.choice(len(population), p=probs))
+    metrics.dgm_parents_selected_total.inc()
     return population[index]
