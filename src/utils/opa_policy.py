@@ -25,9 +25,29 @@ def _load_banned_hosts() -> set[str]:
 _BANNED_HOSTS = _load_banned_hosts()
 
 
+def _load_insider_patterns() -> list[str]:
+    policy_path = _POLICY_DIR / "deny_insider.rego"
+    try:
+        text = policy_path.read_text(encoding="utf-8")
+    except FileNotFoundError:
+        return []
+    return re.findall(r're_match\("([^"]+)",\s*input.text\)', text)
+
+
+_INSIDER_RE = [re.compile(pat, re.IGNORECASE) for pat in _load_insider_patterns()]
+
+
 def violates_finance_policy(code: str) -> bool:
     """Return ``True`` if ``code`` references a banned finance API host."""
     for host in _BANNED_HOSTS:
         if host in code:
+            return True
+    return False
+
+
+def violates_insider_policy(text: str) -> bool:
+    """Return ``True`` if ``text`` matches the insider trading policy."""
+    for pat in _INSIDER_RE:
+        if pat.search(text):
             return True
     return False
