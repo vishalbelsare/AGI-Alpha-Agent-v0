@@ -70,6 +70,8 @@ import {initI18n,t} from './src/ui/i18n.js';
 import {chat as llmChat} from './src/utils/llm.js';
 import { initTelemetry } from '../../../../src/telemetry.js';
 import { lcg } from './src/utils/rng.js';
+import { Archive } from './src/archive.ts';
+import { initEvolutionPanel } from './src/ui/EvolutionPanel.js';
 
 let panel,pauseBtn,exportBtn,dropZone
 let criticPanel,logicCritic,feasCritic
@@ -77,6 +79,7 @@ let current,rand,pop,gen,svg,view,info,running=true
 let worker
 let telemetry
 let fpsStarted=false;
+let archive,evolutionPanel;
 function toast(msg) {
   const t = document.getElementById('toast');
   t.textContent = msg;
@@ -160,6 +163,7 @@ function selectPoint(d, elem){
 function step(){
   info.text(`gen ${gen}`)
   renderFrontier(view.node ? view.node() : view,pop,selectPoint)
+  archive.add(gen,current,pop).then(()=>evolutionPanel.render()).catch(()=>{})
   if(!running)return
   if(gen++>=current.gen){worker.terminate();return}
   telemetry.recordRun(1)
@@ -228,6 +232,11 @@ function apply(p){location.hash=toHash(p)}
 
 window.addEventListener('DOMContentLoaded',async()=>{
   telemetry = initTelemetry();
+  archive = new Archive();
+  await archive.open();
+  evolutionPanel = initEvolutionPanel(archive);
+  await evolutionPanel.render();
+  window.archive = archive;
   await initI18n()
   loadTheme()
   const ex=await loadCriticExamples()
