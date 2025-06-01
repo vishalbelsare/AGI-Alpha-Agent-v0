@@ -15,17 +15,17 @@ export function parseHash(h=window.location.hash){
       }
     }catch{}
   }
-  const q=new URLSearchParams(h.replace(/^#/,''));
+  const q=new URLSearchParams(h.replace(/^#\/?/,''));
   return{
-    seed:+q.get('seed')||defaults.seed,
-    pop:+q.get('pop')||defaults.pop,
-    gen:+q.get('gen')||defaults.gen,
-    mutations:(q.get('mut')||defaults.mutations.join(',')).split(',').filter(Boolean)
+    seed:+q.get('s')||defaults.seed,
+    pop:+q.get('p')||defaults.pop,
+    gen:+q.get('g')||defaults.gen,
+    mutations:(q.get('m')||defaults.mutations.join(',')).split(',').filter(Boolean)
   };
 }
 export function toHash(p){
   const q=new URLSearchParams();
-  q.set('seed',p.seed);q.set('pop',p.pop);q.set('gen',p.gen);
-  if(p.mutations) q.set('mut',p.mutations.join(','));
-  return'#'+q.toString();
+  q.set('s',p.seed);q.set('p',p.pop);q.set('g',p.gen);
+  if(p.mutations) q.set('m',p.mutations.join(','));
+  return'#/'+q.toString();
 }
