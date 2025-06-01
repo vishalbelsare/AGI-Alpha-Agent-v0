@@ -4,6 +4,7 @@ A zero-backend Pareto explorer lives in
 
 ## Prerequisites
 - **Node.js ≥20** must be installed.
+- **Python ≥3.11** is required when using `manual_build.py`.
 
 ## Build & Run
 ```bash
@@ -51,6 +52,8 @@ The script requires Python ≥3.11 and writes the bundled output to `dist/`.
 `dist/index.html` loads `dist/app.js`, `bundle.esm.min.js` and
 `pyodide.js` with integrity hashes. Any `wasm/` or `wasm_llm/` directories
 are copied as-is so the demo can run fully offline.
+Run `python ../../../scripts/fetch_assets.py` beforehand to download the
+Pyodide runtime and GPT‑2 WASM model when building without internet access.
 Serve the folder with `npm start` or open `dist/index.html` directly.
 
 ## Toolbar & Controls
@@ -62,5 +65,20 @@ Serve the folder with `npm start` or open `dist/index.html` directly.
 
 Drag a previously exported JSON state onto the drop zone to restore a
 simulation.
+
+## Darwin-Archive
+Every completed run is stored locally using IndexedDB. The **Evolution** panel
+lists archived runs with their score and novelty. Click **Re-spawn** next to a
+row to restart the simulation using that seed.
+
+## Running a Simulation
+Use the **Simulator** panel to launch a full run. Adjust the seed list, population
+size and number of generations, then press **Start**. When `PINNER_TOKEN` is set,
+the resulting `replay.json` is pinned to Web3.Storage and the CID appears once
+the run finishes. Keep this CID handy to share or reload the simulation later.
+
+## Load via CID
+Append `#/cid=&lt;CID&gt;` to the URL (or use the **Share** permalink) to replay a
+previous run. The simulator fetches the JSON from IPFS and populates the chart.
 
 Environment variables can be configured in `.env` (see `.env.sample`).

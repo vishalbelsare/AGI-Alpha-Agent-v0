@@ -205,6 +205,10 @@ template). The sample file now lists every variable with its default value.
 | `AF_LLM_CACHE_SIZE` | Maximum in-memory LLM cache entries | `1024` |
 | `AF_PING_INTERVAL` | Ping frequency in seconds (min 5) | `60` |
 | `AF_DISABLE_PING_AGENT` | Set to `true` to disable the ping agent | _(none)_ |
+| `ARCHIVE_PATH` | Darwin‑Archive SQLite file | `archive.db` |
+| `ARCHIVE_DB` | API server results database | `archive.db` |
+| `SOLUTION_ARCHIVE_PATH` | Path to solution archive | `solutions.duckdb` |
+| `PROOF_THRESHOLD` | Minimum score to generate SNARK proof | `0.5` |
 
 ## Coding Style
 - Use Python 3.11 or 3.12 (**Python ≥3.11 and <3.13**) and include type hints for public APIs.
