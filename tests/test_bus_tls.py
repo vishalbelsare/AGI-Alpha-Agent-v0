@@ -73,7 +73,7 @@ def test_bus_tls_accept(tmp_path: Path) -> None:
             creds = grpc.ssl_channel_credentials(root_certificates=ca)
             async with grpc.aio.secure_channel(f"localhost:{port}", creds) as ch:
                 stub = ch.unary_unary("/bus.Bus/Send")
-                await stub(b"proto_schema=1")
+                await stub(f"{messaging.A2ABus.PROTO_VERSION} n1".encode())
                 payload = {
                     "sender": "a",
                     "recipient": "b",
@@ -100,7 +100,7 @@ def test_bus_tls_reject_bad_token(tmp_path: Path) -> None:
             creds = grpc.ssl_channel_credentials(root_certificates=ca)
             async with grpc.aio.secure_channel(f"localhost:{port}", creds) as ch:
                 stub = ch.unary_unary("/bus.Bus/Send")
-                await stub(b"proto_schema=1")
+                await stub(f"{messaging.A2ABus.PROTO_VERSION} n2".encode())
                 payload = {
                     "sender": "a",
                     "recipient": "b",

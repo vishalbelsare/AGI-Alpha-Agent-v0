@@ -14,6 +14,7 @@ import logging
 from pathlib import Path
 import contextlib
 from typing import Any, Awaitable, Callable, Dict, List, Optional
+from cachetools import TTLCache
 
 from .config import Settings
 from .tracing import span, bus_messages_total
@@ -41,12 +42,16 @@ class A2ABus:
 
     PROTO_VERSION = "proto_schema=1"
 
+    HANDSHAKE_TTL = 60
+
     def __init__(self, settings: Settings) -> None:
         self.settings = settings
         self._subs: Dict[str, List[Callable[[Envelope], Awaitable[None] | None]]] = {}
         self._server: "grpc.aio.Server | None" = None
         self._producer: Optional[AIOKafkaProducer] = None
         self._handshake_peers: set[str] = set()
+        self._handshake_failures: TTLCache[str, int] = TTLCache(maxsize=1024, ttl=self.HANDSHAKE_TTL)
+        self._handshake_nonces: TTLCache[str, None] = TTLCache(maxsize=1024, ttl=self.HANDSHAKE_TTL)
 
     async def __aenter__(self) -> "A2ABus":
         """Start the bus when entering an async context."""
@@ -96,14 +101,29 @@ class A2ABus:
                         topic,
                     )
 
+    async def _fail_handshake(self, peer: str, context: Any) -> bytes:
+        """Record a handshake failure and abort if the limit is exceeded."""
+        count = self._handshake_failures.get(peer, 0) + 1
+        self._handshake_failures[peer] = count
+        if count >= self.settings.bus_fail_limit:
+            if grpc:
+                await context.abort(grpc.StatusCode.PERMISSION_DENIED, "too many handshake failures")
+            return b"denied"
+        if grpc:
+            await context.abort(grpc.StatusCode.FAILED_PRECONDITION, "handshake required")
+        return b"handshake required"
+
     async def _handle_rpc(self, request: bytes, context: Any) -> bytes:
         text = request.decode()
         peer = context.peer() if grpc else ""
         if peer not in self._handshake_peers:
-            if text.strip() != self.PROTO_VERSION:
-                if grpc:
-                    await context.abort(grpc.StatusCode.FAILED_PRECONDITION, "handshake required")
-                return b"handshake required"
+            parts = text.strip().split()
+            if len(parts) != 2 or parts[0] != self.PROTO_VERSION:
+                return await self._fail_handshake(peer, context)
+            nonce = parts[1]
+            if nonce in self._handshake_nonces:
+                return await self._fail_handshake(peer, context)
+            self._handshake_nonces[nonce] = None
             self._handshake_peers.add(peer)
             if grpc and hasattr(context, "add_callback"):
                 context.add_callback(lambda: self._handshake_peers.discard(peer))
@@ -133,6 +153,8 @@ class A2ABus:
             self.settings.broker_url or "disabled",
         )
         self._handshake_peers.clear()
+        self._handshake_failures.clear()
+        self._handshake_nonces.clear()
         if self.settings.broker_url and AIOKafkaProducer:
             self._producer = AIOKafkaProducer(bootstrap_servers=self.settings.broker_url)
             await self._producer.start()
@@ -172,3 +194,5 @@ class A2ABus:
             await self._producer.stop()
             self._producer = None
         self._handshake_peers.clear()
+        self._handshake_failures.clear()
+        self._handshake_nonces.clear()

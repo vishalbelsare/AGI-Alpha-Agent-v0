@@ -54,6 +54,7 @@ class Settings(SettingsBase):
     bus_token: Optional[str] = Field(default=None, alias="AGI_INSIGHT_BUS_TOKEN")
     bus_cert: Optional[str] = Field(default=None, alias="AGI_INSIGHT_BUS_CERT")
     bus_key: Optional[str] = Field(default=None, alias="AGI_INSIGHT_BUS_KEY")
+    bus_fail_limit: int = Field(default=3, alias="AGI_INSIGHT_BUS_FAIL_LIMIT")
     alert_webhook_url: Optional[str] = Field(default=None, alias="ALERT_WEBHOOK_URL")
     allow_insecure: bool = Field(default=False, alias="AGI_INSIGHT_ALLOW_INSECURE")
     broadcast: bool = Field(default=True, alias="AGI_INSIGHT_BROADCAST")
