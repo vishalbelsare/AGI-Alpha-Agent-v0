@@ -5,6 +5,8 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parents[4]))
 
 from click.testing import CliRunner
+import click
+import pytest
 
 from alpha_factory_v1.demos.alpha_agi_insight_v1.src.interface import cli
 from alpha_factory_v1.demos.alpha_agi_insight_v1.src.utils import logging, messaging
@@ -73,3 +75,69 @@ def test_agents_status_outputs_names() -> None:
         result = runner.invoke(cli.main, ["agents-status"])
     assert result.exit_code == 0
     assert "AgentZ" in result.output
+
+
+def test_archive_ls_outputs_entries(tmp_path: Path) -> None:
+    runner = CliRunner()
+    from unittest.mock import patch
+
+    class DummyArchive:
+        def __init__(self, path: str) -> None:
+            self.path = path
+
+        def list_entries(self) -> list[tuple[int, str, str, int]]:
+            return [(1, "foo.tar", "deadbeef", 1)]
+
+    with patch.object(cli, "HashArchive", return_value=DummyArchive("db")):
+        result = runner.invoke(cli.main, ["archive", "ls", "--db", str(tmp_path / "a.db")])
+
+    assert result.exit_code == 0
+    assert "deadbeef" in result.output
+
+
+def test_self_improver_invokes(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
+    patch_file = tmp_path / "p.diff"
+    patch_file.write_text("", encoding="utf-8")
+
+    def fake_improve(repo_url: str, p_file: str, metric_file: str, log_file: str):
+        click.echo("score delta: 1.0")
+        return 1.0, tmp_path
+
+    monkeypatch.setattr(cli.self_improver, "improve_repo", fake_improve)
+
+    runner = CliRunner()
+    result = runner.invoke(
+        cli.main,
+        ["self-improver", "--repo", "dummy", "--patch", str(patch_file)],
+    )
+
+    assert result.exit_code == 0
+    assert "score delta" in result.output
+
+
+def test_evolve_invokes(monkeypatch: pytest.MonkeyPatch) -> None:
+    called = {}
+
+    async def fake_evolve(*args: object, **kwargs: object) -> None:
+        called["ok"] = True
+
+    monkeypatch.setattr(cli.asyncio, "run", lambda coro: None)
+    monkeypatch.setattr("src.evolve.evolve", fake_evolve)
+
+    runner = CliRunner()
+    result = runner.invoke(cli.main, ["evolve"])
+
+    assert result.exit_code == 0
+    assert called.get("ok") is True
+
+
+def test_transfer_test_runs(monkeypatch: pytest.MonkeyPatch) -> None:
+    def fake_run(models: list[str], top_n: int) -> None:
+        click.echo(f"models:{','.join(models)} top:{top_n}")
+
+    monkeypatch.setattr("src.tools.transfer_test.run_transfer_test", fake_run)
+    runner = CliRunner()
+    result = runner.invoke(cli.main, ["transfer-test"])
+
+    assert result.exit_code == 0
+    assert "models:claude-3.7,gpt-4o top:3" in result.output
