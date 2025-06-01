@@ -72,3 +72,8 @@ for src, dest in [
 ]:
     if (ROOT / src).exists():
         (dist_dir / dest).write_bytes((ROOT / src).read_bytes())
+
+if (ROOT / 'wasm_llm').exists():
+    (dist_dir / 'wasm_llm').mkdir(exist_ok=True)
+    for f in (ROOT / 'wasm_llm').iterdir():
+        (dist_dir / 'wasm_llm' / f.name).write_bytes(f.read_bytes())

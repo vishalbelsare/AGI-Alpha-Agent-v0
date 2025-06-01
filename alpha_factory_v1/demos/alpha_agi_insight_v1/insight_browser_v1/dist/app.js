@@ -8,7 +8,7 @@ function Web3Storage(){ throw new Error('web3.storage not bundled'); }
 // SPDX-License-Identifier: Apache-2.0
 const defaults={seed:42,pop:80,gen:60,mutations:['gaussian']};
 function parseHash(h=window.location.hash){
-  if(!h||h==='#'){
+  if(!h || h==='#'){
     try{
       const stored=localStorage.getItem('insightParams');
       if(stored){
@@ -38,18 +38,42 @@ function toHash(p){
 }
 
 // SPDX-License-Identifier: Apache-2.0
+let strings={};
+let currentLanguage='en';
+async function initI18n(){
+  const saved=localStorage.getItem('lang');
+  const lang=(saved||navigator.language||'en').slice(0,2);
+  currentLanguage=lang.startsWith('fr')?'fr':'en';
+  const res=await fetch(`src/i18n/${currentLanguage}.json`);
+  strings=await res.json();
+}
+async function setLanguage(lang){
+  currentLanguage=lang;
+  localStorage.setItem('lang',lang);
+  const res=await fetch(`src/i18n/${lang}.json`);
+  strings=await res.json();
+}
+function t(key){
+  return strings[key]||key;
+}
+
+// SPDX-License-Identifier: Apache-2.0
 function initControls(params,onChange){
   const root=document.getElementById('controls');
-  root.innerHTML=`<label>Seed <input id="seed" type="number" min="0"></label>
-<label>Population <input id="pop" type="number" min="1"></label>
-<label>Generations <input id="gen" type="number" min="1"></label>
-<label><input id="gaussian" type="checkbox"> gaussian</label>
-<label><input id="swap" type="checkbox"> swap</label>
-<label><input id="jump" type="checkbox"> jump</label>
-<label><input id="scramble" type="checkbox"> scramble</label>
-<button id="pause">Pause</button>
-<button id="export">Export</button>
-<div id="drop">Drop JSON here</div>`;
+  root.innerHTML=`<label>${t('seed')} <input id="seed" type="number" min="0" aria-label="${t('seed')}" tabindex="1"></label>
+<label>${t('population')} <input id="pop" type="number" min="1" aria-label="${t('population')}" tabindex="2"></label>
+<label>${t('generations')} <input id="gen" type="number" min="1" aria-label="${t('generations')}" tabindex="3"></label>
+<label><input id="gaussian" type="checkbox" aria-label="${t('gaussian')}" tabindex="4"> ${t('gaussian')}</label>
+<label><input id="swap" type="checkbox" aria-label="${t('swap')}" tabindex="5"> ${t('swap')}</label>
+<label><input id="jump" type="checkbox" aria-label="${t('jump')}" tabindex="6"> ${t('jump')}</label>
+<label><input id="scramble" type="checkbox" aria-label="${t('scramble')}" tabindex="7"> ${t('scramble')}</label>
+<button id="pause" role="button" aria-label="${t('pause')}" tabindex="8">${t('pause')}</button>
+<button id="export" role="button" aria-label="${t('export')}" tabindex="9">${t('export')}</button>
+<div id="drop" role="button" aria-label="${t('drop')}" tabindex="10">${t('drop')}</div>
+<select id="lang" tabindex="11">
+  <option value="en">English</option>
+  <option value="fr">Français</option>
+</select>`;
   const seed=root.querySelector('#seed'),
         pop=root.querySelector('#pop'),
         gen=root.querySelector('#gen'),
@@ -83,7 +107,10 @@ function initControls(params,onChange){
   scramble.addEventListener('change',emit);
   const pause=root.querySelector('#pause'),
         exportBtn=root.querySelector('#export'),
-        drop=root.querySelector('#drop');
+        drop=root.querySelector('#drop'),
+        langSel=root.querySelector('#lang');
+  langSel.value=currentLanguage;
+  langSel.addEventListener('change',async()=>{await setLanguage(langSel.value);location.reload();});
   return{setValues:update,pauseBtn:pause,exportBtn,dropZone:drop};
 }
 
@@ -411,6 +438,76 @@ function initGestures(svg, view) {
   });
 }
 
+// SPDX-License-Identifier: Apache-2.0
+function initFpsMeter(isRunning) {
+  if (document.getElementById('fps-meter')) return;
+  const el = document.createElement('div');
+  el.id = 'fps-meter';
+  Object.assign(el.style, {
+    position: 'fixed',
+    right: '4px',
+    bottom: '4px',
+    background: 'rgba(0,0,0,0.6)',
+    color: '#0f0',
+    fontFamily: 'monospace',
+    fontSize: '12px',
+    padding: '2px 4px',
+    zIndex: 1000
+  });
+  document.body.appendChild(el);
+  let last = 0;
+  function frame(ts) {
+    if (isRunning()) {
+      if (last) {
+        const fps = 1000 / (ts - last);
+        el.textContent = `${fps.toFixed(1)} fps`;
+      }
+      last = ts;
+    } else {
+      last = ts;
+    }
+    requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
+}
+
+// SPDX-License-Identifier: Apache-2.0
+let localModel;
+
+async function loadLocal() {
+  if (!localModel) {
+    try {
+      const { pipeline } = await import('../lib/bundle.esm.min.js');
+      localModel = await pipeline('text-generation', './wasm_llm/');
+    } catch (err) {
+      localModel = async (p) => `[offline] ${p}`;
+    }
+  }
+  return localModel;
+}
+async function chat(prompt) {
+  const key = localStorage.getItem('OPENAI_API_KEY');
+  if (key) {
+    const resp = await fetch('https://api.openai.com/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${key}`,
+      },
+      body: JSON.stringify({
+        model: 'gpt-3.5-turbo',
+        messages: [{ role: 'user', content: prompt }],
+      }),
+    });
+    const data = await resp.json();
+    return data.choices[0].message.content.trim();
+  }
+  const model = await loadLocal();
+  const out = await model(prompt);
+  return typeof out === 'string' ? out : out[0]?.generated_text?.trim();
+}
+
+
 
 function lcg(seed){
   function rand(){
@@ -425,8 +522,10 @@ function lcg(seed){
 let panel,pauseBtn,exportBtn,dropZone
 let current,rand,pop,gen,svg,view,x,y,info,running=true
 let worker
+let fpsStarted=false
 function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');clearTimeout(toast.id);toast.id=setTimeout(()=>t.classList.remove('show'),2e3)}
 window.toast=toast;
+window.llmChat=llmChat;
 
 function applyTheme(t){
   document.documentElement.dataset.theme=t;
@@ -480,6 +579,7 @@ function start(p){
   gen=0
   running=true
   setupView()
+  if(!fpsStarted){initFpsMeter(() => running);fpsStarted=true;}
   updateLegend(p.mutations)
   if(worker) worker.terminate()
   worker=new Worker('./worker/evolver.js',{type:'module'})
@@ -497,7 +597,7 @@ function step(){
 
 function togglePause(){
   running=!running
-  pauseBtn.textContent=running?'Pause':'Resume'
+  pauseBtn.textContent=running?t('pause'):t('resume')
   if(running)requestAnimationFrame(step)
 }
 
@@ -537,20 +637,21 @@ function loadState(text){
     gen=s.gen
     rand=lcg(0);rand.set(s.rngState)
     running=true
-    pauseBtn.textContent='Pause'
+    pauseBtn.textContent=t('pause')
     setupView()
     updateLegend(current.mutations)
     if(worker) worker.terminate()
     worker=new Worker('./worker/evolver.js',{type:'module'})
     worker.onmessage=ev=>{pop=ev.data.pop;rand.set(ev.data.rngState);requestAnimationFrame(step)}
     step()
-    toast('state loaded')
-  }catch{toast('invalid file')}
+    toast(t('state_loaded'))
+  }catch{toast(t('invalid_file'))}
 }
 
 function apply(p){location.hash=toHash(p)}
 
-window.addEventListener('DOMContentLoaded',()=>{
+window.addEventListener('DOMContentLoaded',async()=>{
+  await initI18n()
   loadTheme()
   panel=initControls(parseHash(),apply)
   pauseBtn=panel.pauseBtn
@@ -558,13 +659,13 @@ window.addEventListener('DOMContentLoaded',()=>{
   dropZone=panel.dropZone
   const tb=document.getElementById("toolbar");
   const csvBtn=document.createElement("button");
-  csvBtn.textContent="CSV";
+  csvBtn.textContent=t('csv');
   const pngBtn=document.createElement("button");
-  pngBtn.textContent="PNG";
+  pngBtn.textContent=t('png');
   const shareBtn=document.createElement("button");
-  shareBtn.textContent="Share";
+  shareBtn.textContent=t('share');
   const themeBtn=document.createElement("button");
-  themeBtn.textContent="Theme";
+  themeBtn.textContent=t('theme');
   tb.appendChild(csvBtn);
   tb.appendChild(pngBtn);
   tb.appendChild(shareBtn);
@@ -575,7 +676,7 @@ window.addEventListener('DOMContentLoaded',()=>{
     const snippet=`<iframe src="${location.origin+location.pathname+location.hash}"></iframe>`;
     if(navigator.clipboard){
       try{await navigator.clipboard.writeText(snippet);}catch{}}
-    toast('iframe snippet copied');
+    toast(t('iframe_copied'));
     if(window.PINNER_TOKEN){
       const file=new File([snippet],"snippet.html",{type:"text/html"});
       await pinFiles([file]);
@@ -587,6 +688,6 @@ window.addEventListener('DOMContentLoaded',()=>{
   initDragDrop(dropZone,loadState)
   window.dispatchEvent(new HashChangeEvent('hashchange'))
 })
-window.addEventListener('hashchange',()=>{const p=parseHash();panel.setValues(p);start(p);toast('simulation restarted')})
+window.addEventListener('hashchange',()=>{const p=parseHash();panel.setValues(p);start(p);toast(t('simulation_restarted'))})
 
 })();
