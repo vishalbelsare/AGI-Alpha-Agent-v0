@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 import { build } from 'esbuild';
 import { promises as fs } from 'fs';
+import { execSync } from 'child_process';
 import gzipSize from 'gzip-size';
 import { Web3Storage, File } from 'web3.storage';
 
@@ -19,7 +20,10 @@ async function bundle() {
     .replace(match[0], '<script src="app.js"></script>')
     .replace('src/ui/controls.css', 'controls.css');
   await fs.writeFile(`${OUT_DIR}/index.html`, outHtml);
-  await fs.copyFile('style.css', `${OUT_DIR}/style.css`);
+  execSync(
+    `npx tailwindcss -i style.css -o ${OUT_DIR}/style.css --minify`,
+    { stdio: 'inherit' }
+  );
   await fs.copyFile('src/ui/controls.css', `${OUT_DIR}/controls.css`);
   await fs.copyFile('d3.v7.min.js', `${OUT_DIR}/d3.v7.min.js`);
   await fs.copyFile('lib/bundle.esm.min.js', `${OUT_DIR}/bundle.esm.min.js`);
