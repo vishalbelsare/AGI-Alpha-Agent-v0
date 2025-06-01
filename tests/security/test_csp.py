@@ -25,6 +25,8 @@ def test_csp_no_violations() -> None:
             page.on("pageerror", lambda err: violations.append(str(err)))
             page.goto(url)
             page.wait_for_selector("#controls")
+            policy = page.get_attribute("meta[http-equiv='Content-Security-Policy']", "content")
+            assert "https://api.openai.com" in policy
             assert not any("Content Security Policy" in v for v in violations)
             browser.close()
     except PlaywrightError as exc:
