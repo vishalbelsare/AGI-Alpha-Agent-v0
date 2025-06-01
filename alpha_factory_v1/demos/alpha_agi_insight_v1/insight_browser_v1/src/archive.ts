@@ -58,7 +58,19 @@ export class Archive {
       novelty,
       timestamp: Date.now(),
     };
-    await set(id, run, this.store);
+    try {
+      await set(id, run, this.store);
+    } catch (err: any) {
+      if (err?.name === 'QuotaExceededError') {
+        await this.prune();
+        if (typeof (window as any).toast === 'function') {
+          (window as any).toast('Archive full; oldest runs pruned');
+        }
+        await set(id, run, this.store);
+      } else {
+        throw err;
+      }
+    }
     await this.prune(500);
     return id;
   }
