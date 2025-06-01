@@ -16,7 +16,10 @@
     "plotly.js-dist": "^2.24.2",
     "react-router-dom": "^6.17.0",
     "vue": "^3.3.4",
-    "d3": "^7.9.0"
+    "d3": "^7.9.0",
+    "@opentelemetry/api": "^1.8.0",
+    "@opentelemetry/sdk-trace-web": "^1.8.0",
+    "@opentelemetry/exporter-trace-otlp-http": "^1.8.0"
   },
   "devDependencies": {
     "@types/react": "^18.2.0",

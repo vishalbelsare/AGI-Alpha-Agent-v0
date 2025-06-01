@@ -5,6 +5,7 @@ import D3LineageTree, { LineageNode } from '../D3LineageTree';
 import Pareto3D, { PopulationMember } from '../Pareto3D';
 import LineageTimeline from '../LineageTimeline';
 import { useI18n } from '../IntlContext';
+import telemetry from '../Telemetry';
 
 interface SectorData {
   name: string;
@@ -132,6 +133,7 @@ export default function Dashboard() {
     const body = await res.json();
     const id = body.id as string;
     setRunId(id);
+    telemetry.recordRun(Number(generations));
 
     const wsBase = API_BASE.replace(/^http/, 'ws');
     const ws = new WebSocket(`${wsBase}/ws/progress?token=${TOKEN}`);
@@ -161,6 +163,16 @@ export default function Dashboard() {
       fetchResults(id).catch(() => null);
       fetchPopulation(id).catch(() => null);
     };
+  }
+
+  function share() {
+    telemetry.recordShare();
+    if (navigator.share) {
+      navigator.share({ title: 'AGI Dashboard', url: window.location.href }).catch(() => null);
+    } else if (navigator.clipboard) {
+      navigator.clipboard.writeText(window.location.href).catch(() => null);
+      window.alert('URL copied to clipboard');
+    }
   }
 
   return (
@@ -216,7 +228,12 @@ export default function Dashboard() {
         </select>
         <button type="submit">{t('button.run')}</button>
       </form>
-      {runId && <p>{t('label.runId')}: {runId}</p>}
+      {runId && (
+        <p>
+          {t('label.runId')}: {runId}{' '}
+          <button type="button" onClick={share}>Share</button>
+        </p>
+      )}
       <progress
         aria-label={t('aria.progress')}
         value={progress}
