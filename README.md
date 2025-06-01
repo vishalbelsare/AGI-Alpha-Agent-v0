@@ -649,9 +649,28 @@ For evolutionary experiments you can run the optional
 [evolution worker](docs/DESIGN.md#evolution-worker) container and POST a tarball
 of agent code to `/mutate`.
 
-## Quick Start with Docker
+## Docker Quickstart
+Start the full stack using Docker Compose:
+```bash
 docker compose up --build
-# browse http://localhost:8080
+```
+Browse the dashboard at <http://localhost:8080>.
+
+The same configuration can be installed via Helm:
+```bash
+helm upgrade --install alpha-demo ./infrastructure/helm-chart \
+  --values ./infrastructure/helm-chart/values.yaml \
+  --set env.RUN_MODE=web
+```
+This deploys the services to your local Kubernetes cluster.
+
+Generate TLS certificates for the gRPC bus using the bundled helper:
+```bash
+./infrastructure/gen_bus_certs.sh > .env.bus
+source .env.bus
+```
+The script prints `AGI_INSIGHT_BUS_CERT`, `AGI_INSIGHT_BUS_KEY` and
+`AGI_INSIGHT_BUS_TOKEN` which you can append to your `.env` file.
 
 ### .env Setup & Security
 Before running the orchestrator, copy `alpha_factory_v1/.env.sample` to `.env` and
