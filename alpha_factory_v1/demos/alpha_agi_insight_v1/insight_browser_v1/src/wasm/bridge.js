@@ -4,7 +4,12 @@ import { loadPyodide } from '../lib/pyodide.js';
 let pyodideReady;
 async function initPy() {
   if (!pyodideReady) {
-    pyodideReady = loadPyodide({ indexURL: './wasm/' });
+    try {
+      pyodideReady = await loadPyodide({ indexURL: './wasm/' });
+    } catch (err) {
+      toast('Pyodide failed to load');
+      return Promise.reject(err);
+    }
   }
   return pyodideReady;
 }
