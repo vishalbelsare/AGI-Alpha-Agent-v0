@@ -68,6 +68,7 @@ import {initGestures} from './src/ui/gestures.js';
 import {initFpsMeter} from './src/ui/fpsMeter.js';
 import {initI18n,t} from './src/ui/i18n.js';
 import {chat as llmChat} from './src/utils/llm.js';
+import { initTelemetry } from '../../../../src/telemetry.js';
 
 function lcg(seed){
   function rand(){
@@ -83,6 +84,7 @@ let panel,pauseBtn,exportBtn,dropZone
 let criticPanel,logicCritic,feasCritic
 let current,rand,pop,gen,svg,view,info,running=true
 let worker
+let telemetry
 let fpsStarted=false;
 function toast(msg) {
   const t = document.getElementById('toast');
@@ -169,6 +171,7 @@ function step(){
   renderFrontier(view.node ? view.node() : view,pop,selectPoint)
   if(!running)return
   if(gen++>=current.gen){worker.terminate();return}
+  telemetry.recordRun(1)
   worker.postMessage({pop,rngState:rand.state(),mutations:current.mutations,popSize:current.pop})
 }
 
@@ -233,6 +236,7 @@ function loadState(text){
 function apply(p){location.hash=toHash(p)}
 
 window.addEventListener('DOMContentLoaded',async()=>{
+  telemetry = initTelemetry();
   await initI18n()
   loadTheme()
   const ex=await loadCriticExamples()
@@ -259,6 +263,7 @@ window.addEventListener('DOMContentLoaded',async()=>{
   csvBtn.addEventListener("click",()=>exportCSV(pop));
   pngBtn.addEventListener("click",exportPNG);
   shareBtn.addEventListener("click", async () => {
+    telemetry.recordShare();
     const url = location.origin + location.pathname + location.hash;
     let pinned = null;
     if (window.PINNER_TOKEN) {
