@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: Apache-2.0
 import { Simulator } from '../simulator.ts';
-import { save } from '../state/serializer.js';
+import { save, load } from '../state/serializer.js';
 import { pinFiles } from '../ipfs/pinner.js';
-import { paretoFront } from '../utils/pareto.js';
+import { renderFrontier } from '../render/frontier.js';
 
 export function initSimulatorPanel(archive) {
   const panel = document.createElement('div');
@@ -27,6 +27,7 @@ export function initSimulatorPanel(archive) {
     <button id="sim-start">Start</button>
     <button id="sim-cancel">Cancel</button>
     <progress id="sim-progress" value="0" max="1" style="width:100%"></progress>
+    <input id="sim-frame" type="range" min="0" value="0" step="1" style="width:100%">
     <div id="sim-status"></div>
   `;
   document.body.appendChild(panel);
@@ -39,9 +40,24 @@ export function initSimulatorPanel(archive) {
   const startBtn = panel.querySelector('#sim-start');
   const cancelBtn = panel.querySelector('#sim-cancel');
   const progress = panel.querySelector('#sim-progress');
+  const frameInput = panel.querySelector('#sim-frame');
   const status = panel.querySelector('#sim-status');
 
   let sim = null;
+  let frames = [];
+
+  function showFrame(i) {
+    const f = frames[i];
+    if (!f) return;
+    pop = f;
+    gen = i;
+    renderFrontier(view.node ? view.node() : view, pop, selectPoint);
+    info.textContent = `gen ${i}`;
+  }
+
+  frameInput.addEventListener('input', () => {
+    showFrame(Number(frameInput.value));
+  });
 
   startBtn.addEventListener('click', async () => {
     if (sim && typeof sim.return === 'function') await sim.return();
@@ -56,13 +72,18 @@ export function initSimulatorPanel(archive) {
     });
     let lastPop = [];
     let count = 0;
+    frames = [];
     for await (const g of sim) {
       lastPop = g.population;
+      frames.push(structuredClone(g.population));
       count = g.gen;
       progress.value = count / Number(genInput.value);
       status.textContent = `gen ${count} front ${g.fronts.length}`;
       await archive.add(seeds[0] ?? 1, { popSize: Number(popInput.value) }, g.fronts).catch(() => {});
     }
+    frameInput.max = Math.max(0, frames.length - 1);
+    frameInput.value = String(frames.length - 1);
+    showFrame(frames.length - 1);
     const json = save(lastPop, 0);
     const file = new File([json], 'replay.json', { type: 'application/json' });
     const out = await pinFiles([file]);
@@ -80,8 +101,16 @@ export function initSimulatorPanel(archive) {
       .then((r) => r.text())
       .then((txt) => {
         status.textContent = 'replaying...';
-        const data = JSON.parse(txt);
-        console.log('Replay', data);
+        frames = [];
+        try {
+          const s = load(txt);
+          frames.push(structuredClone(s.pop));
+          frameInput.max = '0';
+          frameInput.value = '0';
+          loadState(txt);
+        } catch {
+          /* ignore */
+        }
       })
       .catch(() => {});
   }

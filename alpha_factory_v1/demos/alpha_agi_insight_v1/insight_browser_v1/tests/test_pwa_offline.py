@@ -26,6 +26,11 @@ def test_offline_pwa_and_share() -> None:
         page.wait_for_function("navigator.serviceWorker && navigator.serviceWorker.controller || navigator.serviceWorker.ready")
 
         # Go offline and reload
+        context.route("https://ipfs.io/**", lambda route: route.fulfill(
+            status=200,
+            content_type="application/json",
+            body='{"gen":0,"pop":[{"logic":0,"feasible":0,"front":false,"strategy":"base"}],"rngState":0}',
+        ))
         context.route("**", lambda route: route.abort())
         page.reload()
         page.wait_for_selector("#controls")
@@ -42,5 +47,10 @@ def test_offline_pwa_and_share() -> None:
         page.click("text=Share")
         page.wait_for_selector("#toast.show")
         assert CID in page.inner_text("#toast")
+
+        # verify CID playback
+        page.goto(url + f"#cid={CID}")
+        page.wait_for_selector("#simulator-panel")
+        page.wait_for_function("window.pop && window.pop.length > 0")
         browser.close()
 
