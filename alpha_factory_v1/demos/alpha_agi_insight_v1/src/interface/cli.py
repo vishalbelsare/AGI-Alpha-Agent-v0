@@ -478,6 +478,10 @@ def agents_status(watch: bool) -> None:
     base = os.getenv("BUSINESS_HOST", "http://localhost:8000").rstrip("/")
     token = os.getenv("API_TOKEN", "")
 
+    if not token:
+        click.echo("API_TOKEN not configured")
+        raise SystemExit(1)
+
     def _fetch() -> list[dict[str, object]]:
         resp = requests.get(
             f"{base}/status",

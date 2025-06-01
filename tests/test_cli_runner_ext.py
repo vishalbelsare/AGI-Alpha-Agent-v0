@@ -2,11 +2,14 @@
 """Additional CLI tests using click CliRunner."""
 
 import csv
+import os
 from io import StringIO
 from unittest.mock import patch
 from click.testing import CliRunner
 
 from alpha_factory_v1.demos.alpha_agi_insight_v1.src.interface import cli
+
+os.environ.setdefault("API_TOKEN", "test-token")
 
 SAMPLE_LEDGER_ROW = {"ts": 1.0, "sender": "a", "recipient": "b", "payload": {"x": 1}}
 
