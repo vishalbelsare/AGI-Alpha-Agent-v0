@@ -14,6 +14,8 @@ from click.testing import CliRunner
 from alpha_factory_v1.demos.alpha_agi_insight_v1.src.interface import cli  # noqa: E402
 from alpha_factory_v1.demos.alpha_agi_insight_v1.src.utils import logging, messaging  # noqa: E402
 
+os.environ.setdefault("API_TOKEN", "test-token")
+
 
 def test_simulate_without_flag_does_not_start() -> None:
     runner = CliRunner()
@@ -92,6 +94,15 @@ def test_agents_status_lists_all_agents(tmp_path) -> None:
     get.assert_called_once()
     assert "AgentA" in result.output and "AgentB" in result.output
     assert "last_beat" in result.output
+
+
+def test_agents_status_requires_token(monkeypatch) -> None:
+    monkeypatch.delenv("API_TOKEN", raising=False)
+    with patch.object(cli.requests, "get") as get:
+        res = CliRunner().invoke(cli.main, ["agents-status"])
+    get.assert_not_called()
+    assert res.exit_code == 1
+    assert "API_TOKEN not configured" in res.output
 
 
 def test_plain_table_handles_no_rows() -> None:

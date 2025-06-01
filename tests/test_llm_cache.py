@@ -1,9 +1,15 @@
 # SPDX-License-Identifier: Apache-2.0
 import os
 import unittest
+from prometheus_client import CollectorRegistry
+import prometheus_client
+import importlib
 
+prometheus_client.REGISTRY = CollectorRegistry()
+prometheus_client.REGISTRY._names_to_collectors.clear()
 os.environ.setdefault("OPENAI_API_KEY", "stub")
-from alpha_factory_v1.backend.utils import llm_provider as llm
+import alpha_factory_v1.backend.utils.llm_provider as llm
+llm = importlib.reload(llm)
 
 
 class TestLLMCacheLRU(unittest.TestCase):
