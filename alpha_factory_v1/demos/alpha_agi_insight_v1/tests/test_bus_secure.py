@@ -79,6 +79,15 @@ def test_bus_secure(tmp_path: Path) -> None:
                 with pytest.raises(grpc.aio.AioRpcError):
                     await stub(f"{messaging.A2ABus.PROTO_VERSION} n1".encode())
             await asyncio.sleep(0.05)
+
+            # after the cache TTL the same nonce should still be rejected
+            await asyncio.sleep(messaging.A2ABus.HANDSHAKE_TTL + 0.1)
+            async with grpc.aio.secure_channel(f"localhost:{port}", creds) as ch:
+                stub = ch.unary_unary("/bus.Bus/Send")
+                with pytest.raises(grpc.aio.AioRpcError) as excinfo:
+                    await stub(f"{messaging.A2ABus.PROTO_VERSION} n1".encode())
+                assert excinfo.value.code() == grpc.StatusCode.PERMISSION_DENIED
+            await asyncio.sleep(0.05)
         shutil.rmtree(tmp_path / "certs", ignore_errors=True)
 
     asyncio.run(run())
