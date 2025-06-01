@@ -5,6 +5,7 @@ import { promises as fs } from 'fs';
 import { execSync } from 'child_process';
 import gzipSize from 'gzip-size';
 import { Web3Storage, File } from 'web3.storage';
+import { injectManifest } from 'workbox-build';
 
 const OUT_DIR = 'dist';
 
@@ -36,6 +37,20 @@ async function bundle() {
   for await (const f of await fs.readdir('wasm_llm')) {
     await fs.copyFile(`wasm_llm/${f}`, `${OUT_DIR}/wasm_llm/${f}`);
   }
+  await injectManifest({
+    swSrc: 'sw.js',
+    swDest: `${OUT_DIR}/sw.js`,
+    globDirectory: OUT_DIR,
+    globPatterns: [
+      'index.html',
+      'app.js',
+      'style.css',
+      'd3.v7.min.js',
+      'pyodide.*',
+      'wasm_llm/*',
+      'wasm/*',
+    ],
+  });
   const size = await gzipSize.file(`${OUT_DIR}/app.js`);
   if (size > 180 * 1024) {
     throw new Error(`gzip size ${size} bytes exceeds limit`);

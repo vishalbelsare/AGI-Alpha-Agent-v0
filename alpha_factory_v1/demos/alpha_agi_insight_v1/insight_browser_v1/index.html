@@ -43,6 +43,13 @@
       integrity="sha384-QqrLqBpBJfpJ/24ZmCV87BPpk+Sj9GkH5DzKZdwS4d47ZojhpdfvBiF+BgWe8zX8"
       crossorigin="anonymous"
     ></script>
+    <script>
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('sw.js');
+        });
+      }
+    </script>
 <script type="module">
 import {parseHash,toHash} from './src/config/params.js';
 import {initControls} from './src/ui/ControlsPanel.js';
