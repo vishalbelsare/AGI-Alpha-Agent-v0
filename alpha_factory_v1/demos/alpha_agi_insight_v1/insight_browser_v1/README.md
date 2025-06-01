@@ -9,6 +9,10 @@ A zero-backend Pareto explorer lives in
 ```bash
 npm install
 npm run build    # compile to dist/
+```
+Place the Pyodide 0.25 files in `wasm/` before building. The script copies them
+to `dist/wasm` so the demo can run offline.
+```bash
 PINNER_TOKEN=<token> npm start
 ```
 `npm start` serves the `dist/` folder on `http://localhost:3000` by default.

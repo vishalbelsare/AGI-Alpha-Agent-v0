@@ -28,8 +28,9 @@ async function bundle() {
   await fs.copyFile('d3.v7.min.js', `${OUT_DIR}/d3.v7.min.js`);
   await fs.copyFile('lib/bundle.esm.min.js', `${OUT_DIR}/bundle.esm.min.js`);
   await fs.copyFile('lib/pyodide.js', `${OUT_DIR}/pyodide.js`);
+  await fs.mkdir(`${OUT_DIR}/wasm`, { recursive: true });
   for (const f of await fs.readdir('wasm')) {
-    await fs.copyFile(`wasm/${f}`, `${OUT_DIR}/${f}`);
+    await fs.copyFile(`wasm/${f}`, `${OUT_DIR}/wasm/${f}`);
   }
   await fs.mkdir(`${OUT_DIR}/wasm_llm`, { recursive: true }).catch(() => {});
   for await (const f of await fs.readdir('wasm_llm')) {
