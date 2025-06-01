@@ -1,0 +1,13 @@
+{
+  "name": "α-AGI Insight",
+  "short_name": "Insight",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "icons": [
+    {
+      "src": "favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ]
+}
