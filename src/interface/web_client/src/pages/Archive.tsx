@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 import React, { useEffect, useState } from 'react';
+import { useI18n } from '../IntlContext';
 
 interface Agent {
   hash: string;
@@ -15,6 +16,7 @@ interface TimelinePoint {
 const API_BASE = (import.meta.env.VITE_API_BASE_URL ?? '').replace(/\/$/, '');
 
 export default function Archive() {
+  const { t } = useI18n();
   const [agents, setAgents] = useState<Agent[]>([]);
   const [diff, setDiff] = useState('');
   const [timeline, setTimeline] = useState<TimelinePoint[]>([]);
@@ -45,22 +47,22 @@ export default function Archive() {
 
   return (
     <div>
-      <h1>Agent Archive</h1>
+      <h1>{t('title.archive')}</h1>
       <ul>
         {agents.map((a) => (
           <li key={a.hash} className="agent-row">
             <button type="button" onClick={() => select(a)}>{a.hash}</button>
             <a href={`${API_BASE}/archive/${a.hash}/diff`} download>
-              download
+              {t('label.download')}
             </a>
           </li>
         ))}
       </ul>
       {diff && (
         <div>
-          <pre className="diff">{diff}</pre>
+          <pre className="diff" style={{ color: '#000', backgroundColor: '#fff' }}>{diff}</pre>
           {parent && (
-            <a href={`/archive/${parent}`} className="parent-link">Parent</a>
+            <a href={`/archive/${parent}`} className="parent-link">{t('label.parent')}</a>
           )}
           <ul>
             {timeline.map((t) => (

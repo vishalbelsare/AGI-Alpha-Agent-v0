@@ -1,0 +1,23 @@
+{
+  "nav.dashboard": "Dashboard",
+  "nav.archive": "Archive",
+  "title.dashboard": "AGI Simulation Dashboard",
+  "title.archive": "Agent Archive",
+  "label.horizon": "Horizon",
+  "label.population": "Population size",
+  "label.generations": "Generations",
+  "label.energy": "Initial energy",
+  "label.entropy": "Initial entropy",
+  "label.curve": "Curve",
+  "option.logistic": "logistic",
+  "option.linear": "linear",
+  "option.exponential": "exponential",
+  "button.run": "Run",
+  "label.runId": "Run ID",
+  "label.download": "download",
+  "label.parent": "Parent",
+  "aria.language": "Language selector",
+  "aria.progress": "Simulation progress",
+  "label.refresh": "Refresh summaries",
+  "heading.lastRuns": "Last 20 simulations"
+}
