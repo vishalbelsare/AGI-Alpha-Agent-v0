@@ -6,6 +6,7 @@ export interface InsightRun {
   seed: number;
   params: any;
   paretoFront: any[];
+  parents: number[];
   score: number;
   novelty: number;
   timestamp: number;
@@ -52,6 +53,7 @@ export class Archive {
       seed,
       params,
       paretoFront,
+      parents,
       score,
       novelty,
       timestamp: Date.now(),
