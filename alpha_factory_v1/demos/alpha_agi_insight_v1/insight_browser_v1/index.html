@@ -22,6 +22,7 @@ import {svg2png} from './src/render/svg2png.js';
 import {strategyColors} from './src/render/colors.js';
 import {pinFiles} from './src/ipfs/pinner.js';
 import {initGestures} from './src/ui/gestures.js';
+import {initFpsMeter} from './src/ui/fpsMeter.js';
 
 function lcg(seed){
   function rand(){
@@ -36,6 +37,7 @@ function lcg(seed){
 let panel,pauseBtn,exportBtn,dropZone
 let current,rand,pop,gen,svg,view,x,y,info,running=true
 let worker
+let fpsStarted=false
 function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');clearTimeout(toast.id);toast.id=setTimeout(()=>t.classList.remove('show'),2e3)}
 window.toast=toast;
 
@@ -91,6 +93,7 @@ function start(p){
   gen=0
   running=true
   setupView()
+  if(!fpsStarted){initFpsMeter(() => running);fpsStarted=true;}
   updateLegend(p.mutations)
   if(worker) worker.terminate()
   worker=new Worker('./worker/evolver.js',{type:'module'})
