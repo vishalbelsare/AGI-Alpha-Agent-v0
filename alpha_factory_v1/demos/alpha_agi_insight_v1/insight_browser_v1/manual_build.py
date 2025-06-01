@@ -2,6 +2,11 @@
 import os, re, sys, hashlib, base64
 from pathlib import Path
 
+
+def sha384(path: Path) -> str:
+    digest = hashlib.sha384(path.read_bytes()).digest()
+    return "sha384-" + base64.b64encode(digest).decode()
+
 ROOT = Path(__file__).resolve().parent
 index_html = ROOT / 'index.html'
 dist_dir = ROOT / 'dist'
