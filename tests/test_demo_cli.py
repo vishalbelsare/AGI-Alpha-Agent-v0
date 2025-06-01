@@ -245,6 +245,17 @@ def test_simulate_invalid_option() -> None:
     assert "Invalid value for '--export'" in res.output
 
 
+def test_simulate_invalid_values() -> None:
+    """Invalid numeric options should exit with an error."""
+    res = CliRunner().invoke(cli.main, ["simulate", "--pop-size", "0"])
+    assert res.exit_code != 0
+    assert "Invalid value for '--pop-size'" in res.output
+
+    res = CliRunner().invoke(cli.main, ["simulate", "--mut-rate", "1.5"])
+    assert res.exit_code != 0
+    assert "Invalid value for '--mut-rate'" in res.output
+
+
 def test_simulate_dry_run_mut_rate() -> None:
     """Running simulate with --dry-run and custom mutation rate should succeed."""
     runner = CliRunner()
