@@ -287,6 +287,35 @@ python -m alpha_factory_v1.demos.alpha_agi_insight_v1.src.interface.cli simulate
   --offline --llama-model-path "$LLAMA_MODEL_PATH"
 ```
 
+### 4.1 Self-improver
+
+`self-improver` evaluates a patch and merges it when the score in
+`metric.txt` improves. It runs the `SelfImproverAgent` used by the
+orchestrator.
+
+```bash
+python -m alpha_factory_v1.demos.alpha_agi_insight_v1.src.interface.cli self-improver \
+  --repo ../../.. \
+  --patch ../../../benchmarks/patch_library/task004_increment.diff
+```
+
+Set the following variables to load the agent automatically:
+
+* `AGI_SELF_IMPROVE_PATCH` – unified diff file.
+* `AGI_SELF_IMPROVE_REPO` – repository path.
+* `AGI_SELF_IMPROVE_ALLOW` – comma-separated globs of allowed files.
+
+Example:
+
+```bash
+export AGI_SELF_IMPROVE_PATCH=../../../benchmarks/patch_library/task004_increment.diff
+export AGI_SELF_IMPROVE_REPO=../../..
+export AGI_SELF_IMPROVE_ALLOW="**"
+
+python -m alpha_factory_v1.demos.alpha_agi_insight_v1.src.interface.cli self-improver \
+  --repo "$AGI_SELF_IMPROVE_REPO" --patch "$AGI_SELF_IMPROVE_PATCH"
+```
+
 ---
 
 ## 5 Web UI
