@@ -1,18 +1,39 @@
 <!DOCTYPE html>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>α-AGI Insight – in-browser Pareto explorer</title>
-<link rel="icon" href="favicon.svg" type="image/svg+xml" />
-<link rel="manifest" href="manifest.json" />
-<link rel="stylesheet" href="src/style/theme.css" />
-<link rel="stylesheet" href="style.css" />
-<link rel="stylesheet" href="src/ui/controls.css" />
-
-<div id="controls"></div>
-<div id="toast"></div>
-<div id="toolbar"></div>
-<div id="legend"></div>
-<script src="d3.v7.min.js"></script>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>α-AGI Insight – in-browser Pareto explorer</title>
+    <link rel="icon" href="favicon.svg" type="image/svg+xml" />
+    <link rel="manifest" href="manifest.json" />
+    <link rel="stylesheet" href="src/style/theme.css" />
+    <link rel="stylesheet" href="style.css" />
+    <link rel="stylesheet" href="src/ui/controls.css" />
+  </head>
+  <body class="min-h-screen flex flex-col">
+    <header class="hero relative py-16">
+      <div class="parallax absolute inset-0 -z-10">
+        <div class="stars"></div>
+        <div class="stars2"></div>
+      </div>
+      <div class="hero-content text-center">
+        <h1
+          class="text-5xl font-bold bg-gradient-to-r from-purple-400 via-pink-500 to-red-500 \
+          bg-clip-text text-transparent animate-gradient"
+        >
+          α‑AGI Insight
+        </h1>
+      </div>
+    </header>
+    <div class="flex flex-1 overflow-hidden">
+      <aside id="controls" class="w-64 bg-base-100/70 backdrop-blur-md p-4 overflow-y-auto"></aside>
+      <main id="canvas" class="flex-1 relative overflow-hidden"></main>
+      <aside id="log" class="w-80 bg-base-100/70 backdrop-blur-md p-4 overflow-y-auto" aria-label="Log"></aside>
+    </div>
+    <div id="toast"></div>
+    <div id="toolbar"></div>
+    <div id="legend"></div>
+    <script src="d3.v7.min.js"></script>
 <script type="module">
 import {parseHash,toHash} from './src/config/params.js';
 import {initControls} from './src/ui/ControlsPanel.js';
@@ -41,9 +62,15 @@ function lcg(seed){
 let panel,pauseBtn,exportBtn,dropZone
 let current,rand,pop,gen,svg,view,info,running=true
 let worker
-let fpsStarted=false
-function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');clearTimeout(toast.id);toast.id=setTimeout(()=>t.classList.remove('show'),2e3)}
-window.toast=toast;
+let fpsStarted=false;
+function toast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(toast.id);
+  toast.id = setTimeout(() => t.classList.remove('show'), 2000);
+}
+window.toast = toast;
 window.llmChat=llmChat;
 
 function applyTheme(t){
@@ -62,8 +89,8 @@ function toggleTheme(){
 }
 
 function setupView(){
-  d3.select('svg').remove();
-  svg=d3.select('body').append('svg')
+  d3.select('#canvas').select('svg').remove();
+  svg=d3.select('#canvas').append('svg')
         .attr('viewBox','0 0 500 500')
         .style('touch-action','none');
   view=svg.append('g');
@@ -204,5 +231,12 @@ window.addEventListener('DOMContentLoaded',async()=>{
   initDragDrop(dropZone,loadState)
   window.dispatchEvent(new HashChangeEvent('hashchange'))
 })
-window.addEventListener('hashchange',()=>{const p=parseHash();panel.setValues(p);start(p);toast(t('simulation_restarted'))})
+window.addEventListener('hashchange', () => {
+  const p = parseHash();
+  panel.setValues(p);
+  start(p);
+  toast(t('simulation_restarted'));
+});
 </script>
+  </body>
+</html>
