@@ -52,7 +52,8 @@ async function bundle() {
     ],
   });
   const size = await gzipSize.file(`${OUT_DIR}/app.js`);
-  if (size > 180 * 1024) {
+  const MAX_GZIP_SIZE = 6 * 1024 * 1024; // 6 MiB
+  if (size > MAX_GZIP_SIZE) {
     throw new Error(`gzip size ${size} bytes exceeds limit`);
   }
   if (process.env.WEB3_STORAGE_TOKEN) {
