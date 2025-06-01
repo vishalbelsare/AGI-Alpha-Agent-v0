@@ -1,5 +1,8 @@
 import time
 from pathlib import Path
+import shutil
+import subprocess
+import sys
 
 import pytest
 
@@ -87,4 +90,22 @@ def test_llm_openai_path() -> None:
 
         out = page.evaluate("window.llmChat('hi')")
         assert out == 'pong'
+        browser.close()
+
+
+@pytest.mark.skipif(shutil.which("npm") is None, reason="npm not installed")
+def test_env_value_injected(tmp_path: Path) -> None:
+    browser_dir = Path(__file__).resolve().parents[1]
+    target = tmp_path / "browser"
+    shutil.copytree(browser_dir, target)
+    (target / ".env").write_text("PINNER_TOKEN=test123\n")
+    subprocess.check_call(["npm", "run", "build"], cwd=target)
+
+    url = (target / "dist" / "index.html").as_uri()
+    with sync_playwright() as p:
+        browser = p.chromium.launch()
+        page = browser.new_page()
+        page.goto(url)
+        page.wait_for_selector("#controls")
+        assert page.evaluate("window.PINNER_TOKEN") == "test123"
         browser.close()

@@ -7,6 +7,9 @@ import { createHash } from 'crypto';
 import gzipSize from 'gzip-size';
 import { Web3Storage, File } from 'web3.storage';
 import { injectManifest } from 'workbox-build';
+import dotenv from 'dotenv';
+
+dotenv.config();
 
 const OUT_DIR = 'dist';
 
@@ -38,10 +41,19 @@ async function bundle() {
   const bundleSri = await sha384('bundle.esm.min.js');
   const pyodideSri = await sha384('pyodide.js');
 
+  const envScript = `<script>window.PINNER_TOKEN=${JSON.stringify(
+    process.env.PINNER_TOKEN || ''
+  )};window.OPENAI_API_KEY=${JSON.stringify(
+    process.env.OPENAI_API_KEY || ''
+  )};window.OTEL_ENDPOINT=${JSON.stringify(
+    process.env.OTEL_ENDPOINT || ''
+  )};</script>`;
+
   outHtml = outHtml.replace(
     '</body>',
     `<script src="bundle.esm.min.js" integrity="${bundleSri}" crossorigin="anonymous"></script>\n` +
-    `<script src="pyodide.js" integrity="${pyodideSri}" crossorigin="anonymous"></script>\n</body>`
+    `<script src="pyodide.js" integrity="${pyodideSri}" crossorigin="anonymous"></script>\n` +
+    `${envScript}\n</body>`
   );
   await fs.writeFile(`${OUT_DIR}/index.html`, outHtml);
   await fs.mkdir(`${OUT_DIR}/wasm`, { recursive: true });
