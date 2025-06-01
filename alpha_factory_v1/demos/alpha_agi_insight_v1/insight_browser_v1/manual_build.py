@@ -1,4 +1,4 @@
-import os, re, sys
+import os, re, sys, hashlib, base64
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent
@@ -61,7 +61,6 @@ dist_dir.mkdir(exist_ok=True)
 
 out_html = re.sub(r'<script type="module">([\s\S]*?)</script>', '<script src="app.js"></script>', html)
 out_html = out_html.replace('src/ui/controls.css', 'controls.css')
-(dist_dir / 'index.html').write_text(out_html)
 
 # copy assets
 for src, dest in [
@@ -69,9 +68,19 @@ for src, dest in [
     ('src/ui/controls.css', 'controls.css'),
     ('d3.v7.min.js', 'd3.v7.min.js'),
     ('lib/bundle.esm.min.js', 'bundle.esm.min.js'),
+    ('lib/pyodide.js', 'pyodide.js'),
 ]:
     if (ROOT / src).exists():
         (dist_dir / dest).write_bytes((ROOT / src).read_bytes())
+
+bundle_sri = sha384(dist_dir / 'bundle.esm.min.js')
+pyodide_sri = sha384(dist_dir / 'pyodide.js')
+out_html = out_html.replace(
+    '</body>',
+    f'<script src="bundle.esm.min.js" integrity="{bundle_sri}" crossorigin="anonymous"></script>\n'
+    f'<script src="pyodide.js" integrity="{pyodide_sri}" crossorigin="anonymous"></script>\n</body>'
+)
+(dist_dir / 'index.html').write_text(out_html)
 
 if (ROOT / 'wasm').exists():
     (dist_dir / 'wasm').mkdir(exist_ok=True)

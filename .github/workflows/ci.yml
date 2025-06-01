@@ -74,6 +74,8 @@ jobs:
         run: npm install -g pnpm
       - name: Install web dependencies
         run: pnpm --dir src/interface/web_client install
+      - name: Audit web dependencies
+        run: npm --prefix src/interface/web_client audit --production --audit-level=high
       - name: Cypress E2E tests with Percy
         env:
           PERCY_TOKEN: ${{ secrets.PERCY_TOKEN }}
