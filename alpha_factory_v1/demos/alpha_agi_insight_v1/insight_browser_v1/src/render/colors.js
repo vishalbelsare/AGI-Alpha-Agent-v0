@@ -7,3 +7,9 @@ export const strategyColors = {
   front: '#00afff',
   base: '#666',
 };
+
+export function credibilityColor(v) {
+  const clamped = Math.max(0, Math.min(1, v ?? 0));
+  const hue = 120 * clamped; // red -> green
+  return `hsl(${hue},70%,50%)`;
+}

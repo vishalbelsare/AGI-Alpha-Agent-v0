@@ -172,6 +172,12 @@ const strategyColors = {
   base: '#666',
 };
 
+function credibilityColor(v){
+  const clamped=Math.max(0,Math.min(1,v??0));
+  const hue=120*clamped;
+  return`hsl(${hue},70%,50%)`;
+}
+
 // SPDX-License-Identifier: Apache-2.0
 function ensureLayer(parent) {
   const node = parent.node ? parent.node() : parent;
@@ -221,61 +227,14 @@ function addGlow(svg) {
   merge.append('feMergeNode').attr('in', 'blur');
   merge.append('feMergeNode').attr('in', 'SourceGraphic');
 }
-function renderFrontier(svg, pop, x, y) {
+function renderFrontier(container, pop) {
   const front = paretoFront(pop).sort((a, b) => a.logic - b.logic);
-
-  const area = d3
-    .area()
-    .x((d) => x(d.logic))
-    .y0(y.range()[0])
-    .y1((d) => y(d.feasible));
-
-  let g = svg.select('g#frontier');
-  if (g.empty()) g = svg.append('g').attr('id', 'frontier');
-
-  g.selectAll('path')
-    .data([front])
-    .join('path')
-    .attr('fill', 'rgba(0,175,255,0.2)')
-    .attr('stroke', 'none')
-    .attr('d', area);
-
-  let dots = svg.select('g#dots');
-  if (dots.empty()) dots = svg.append('g').attr('id', 'dots');
-
-  if (pop.length > 5000) {
-    dots.selectAll('circle').remove();
-    const frontSet = new Set(front);
-    drawPoints(dots, pop, x, y, (d) => {
-      if (frontSet.has(d)) return strategyColors.front;
-      return strategyColors[d.strategy] || strategyColors.base;
-    });
-  } else {
-    const node = dots.node();
-    const fo = node.querySelector('foreignObject#canvas-layer');
-    if (fo) fo.remove();
-
-    dots
-      .selectAll('circle')
-      .data(pop)
-      .join('circle')
-      .attr('cx', (d) => x(d.logic))
-      .attr('cy', (d) => y(d.feasible))
-      .attr('r', 3)
-      .attr('fill', (d) => {
-        if (front.includes(d)) return strategyColors.front;
-        return strategyColors[d.strategy] || strategyColors.base;
-      })
-      .attr('filter', (d) => (front.includes(d) ? 'url(#glow)' : null))
-      .on('mousemove', (ev, d) =>
-        showTooltip(
-          ev.pageX + 6,
-          ev.pageY + 6,
-          `logic: ${d.logic.toFixed(2)}\nfeas: ${d.feasible.toFixed(2)}`
-        )
-      )
-      .on('mouseleave', hideTooltip);
-  }
+  const dotOpts = {x: 'logic', y: 'feasible', r: 3, fill: d => credibilityColor(d.insightCredibility ?? 0), title: d => `${d.summary ?? ''}\n${d.critic ?? ''}`};
+  const marks = [Plot.areaY(front,{x:'logic',y:'feasible',fill:'rgba(0,175,255,0.2)',stroke:null})];
+  marks.push(pop.length>1e4?plotCanvas(Plot.dot(pop,dotOpts)):Plot.dot(pop,dotOpts));
+  const plot = Plot.plot({width:500,height:500,x:{domain:[0,1]},y:{domain:[0,1]},marks});
+  container.innerHTML='';
+  container.append(plot);
 }
 
 // SPDX-License-Identifier: Apache-2.0
@@ -520,7 +479,7 @@ function lcg(seed){
 }
 
 let panel,pauseBtn,exportBtn,dropZone
-let current,rand,pop,gen,svg,view,x,y,info,running=true
+let current,rand,pop,gen,svg,view,info,running=true
 let worker
 let fpsStarted=false
 function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');clearTimeout(toast.id);toast.id=setTimeout(()=>t.classList.remove('show'),2e3)}
@@ -548,9 +507,6 @@ function setupView(){
         .attr('viewBox','0 0 500 500')
         .style('touch-action','none');
   view=svg.append('g');
-  x=d3.scaleLinear().domain([0,1]).range([40,460])
-  y=d3.scaleLinear().domain([0,1]).range([460,40])
-  addGlow(svg)
   info=svg.append('text').attr('x',20).attr('y',30).attr('fill','#fff')
   initGestures(svg.node(), view.node ? view.node() : view)
 }
@@ -589,7 +545,7 @@ function start(p){
 
 function step(){
   info.text(`gen ${gen}`)
-  renderFrontier(view,pop,x,y)
+  renderFrontier(view,pop)
   if(!running)return
   if(gen++>=current.gen){worker.terminate();return}
   worker.postMessage({pop,rngState:rand.state(),mutations:current.mutations,popSize:current.pop})
