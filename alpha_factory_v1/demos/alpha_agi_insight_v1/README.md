@@ -416,6 +416,9 @@ local development or customization. See the
 | `API_RATE_LIMIT` | Requests allowed per minute for the API server | `60` |
 | `AGI_ISLAND_BACKENDS` | Comma-separated mapping of island names to LLM backends | `default=gpt-4o` |
 | `ALERT_WEBHOOK_URL` | Optional URL for orchestrator alert messages | _unset_ |
+| `AGENT_ERR_THRESHOLD` | Consecutive errors before restart | `3` |
+| `AGENT_BACKOFF_EXP_AFTER` | Restarts before exponential backoff | `3` |
+| `PROMOTION_THRESHOLD` | Stake needed to auto-promote an agent | `0` |
 
 `BUSINESS_HOST` sets the orchestrator URL used by helper commands to reach the REST API.
 
@@ -426,6 +429,13 @@ To secure the gRPC bus provide `AGI_INSIGHT_BUS_CERT`,
 `AGI_INSIGHT_BUS_KEY` and `AGI_INSIGHT_BUS_TOKEN`. When these are omitted set
 `AGI_INSIGHT_ALLOW_INSECURE=1` to run without TLS. See
 [docs/bus_tls.md](docs/bus_tls.md) for detailed setup.
+
+Agents restart automatically when they fail or stop sending heartbeats.
+`AGENT_ERR_THRESHOLD` controls how many consecutive errors trigger a restart.
+Once an agent has restarted more than `AGENT_BACKOFF_EXP_AFTER` times,
+the orchestrator doubles the delay before each subsequent attempt. The
+`PROMOTION_THRESHOLD` value determines the stake needed for an agent to
+start without manual approval at boot time.
 
 ### 6.1 Securing the A2A bus
 
