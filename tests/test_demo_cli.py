@@ -13,6 +13,7 @@ from click.testing import CliRunner
 
 from alpha_factory_v1.demos.alpha_agi_insight_v1.src.interface import cli  # noqa: E402
 from alpha_factory_v1.demos.alpha_agi_insight_v1.src.utils import logging, messaging  # noqa: E402
+from src.eval.foresight import evaluate as foresight_evaluate  # noqa: E402
 
 os.environ.setdefault("API_TOKEN", "test-token")
 
@@ -337,3 +338,10 @@ def test_simulate_seed_reproducible(tmp_path: Path) -> None:
     digest1 = hashlib.sha256(res1.output.encode()).hexdigest()
     digest2 = hashlib.sha256(res2.output.encode()).hexdigest()
     assert digest1 == digest2
+
+
+def test_foresight_evaluate_nonzero_metrics() -> None:
+    repo = Path(__file__).resolve().parents[1]
+    scores = foresight_evaluate(repo)
+    assert scores["rmse"] > 0
+    assert scores["lead_time"] != 0
