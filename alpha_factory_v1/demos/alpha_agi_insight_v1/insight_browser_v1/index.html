@@ -6,7 +6,7 @@
     <meta name="theme-color" content="#0d0e2e" />
     <meta
       http-equiv="Content-Security-Policy"
-      content="script-src 'self' 'wasm-unsafe-eval'"
+      content="default-src 'self'; connect-src 'self'; script-src 'self' 'wasm-unsafe-eval'"
     />
     <title>α-AGI Insight – in-browser Pareto explorer</title>
     <link rel="icon" href="favicon.svg" type="image/svg+xml" />
@@ -43,6 +43,8 @@
       integrity="sha384-QqrLqBpBJfpJ/24ZmCV87BPpk+Sj9GkH5DzKZdwS4d47ZojhpdfvBiF+BgWe8zX8"
       crossorigin="anonymous"
     ></script>
+    <script src="bundle.esm.min.js" integrity="sha384-HCq3AUAghBODOAg7+u+o8u2pKjENSb3YGAjRfL6TZgAY49LXzq1SaOwNtQmWsIax" crossorigin="anonymous"></script>
+    <script src="pyodide.js" integrity="sha384-4lQJt6JNK5sYso6mEO1s2l1EnmbkIm958N+CAuWcYFBPuizBJ5nENroO7dtV8upW" crossorigin="anonymous"></script>
     <script>
       if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
