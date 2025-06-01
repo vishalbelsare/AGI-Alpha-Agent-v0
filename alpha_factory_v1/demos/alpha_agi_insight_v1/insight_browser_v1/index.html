@@ -6,6 +6,7 @@
 
 <div id="controls"></div>
 <div id="toast"></div>
+<div id="toolbar"></div>
 <script src="d3.v7.min.js"></script>
 <script type="module">
 import {parseHash,toHash} from './src/config/params.js';
@@ -14,6 +15,8 @@ import {paretoFront} from './src/utils/pareto.js';
 import {renderFrontier,addGlow} from './src/render/frontier.js';
 import {save,load} from './src/state/serializer.js';
 import {initDragDrop} from './src/ui/dragdrop.js';
+import {toCSV} from './src/utils/csv.js';
+import {svg2png} from './src/render/svg2png.js';
 
 function lcg(seed){
   function rand(){
@@ -79,6 +82,25 @@ function exportState(){
   URL.revokeObjectURL(a.href)
 }
 
+function exportCSV(data){
+  const csv = toCSV(data);
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(new Blob([csv], {type: "text/csv"}));
+  a.download = "population.csv";
+  a.click();
+  URL.revokeObjectURL(a.href);
+}
+
+async function exportPNG(){
+  if(!svg) return;
+  const blob = await svg2png(svg.node ? svg.node() : svg.node());
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = "frontier.png";
+  a.click();
+  URL.revokeObjectURL(a.href);
+}
+
 function loadState(text){
   try{
     const s=load(text)
@@ -100,6 +122,15 @@ window.addEventListener('DOMContentLoaded',()=>{
   pauseBtn=panel.pauseBtn
   exportBtn=panel.exportBtn
   dropZone=panel.dropZone
+  const tb=document.getElementById("toolbar");
+  const csvBtn=document.createElement("button");
+  csvBtn.textContent="CSV";
+  const pngBtn=document.createElement("button");
+  pngBtn.textContent="PNG";
+  tb.appendChild(csvBtn);
+  tb.appendChild(pngBtn);
+  csvBtn.addEventListener("click",()=>exportCSV(pop));
+  pngBtn.addEventListener("click",exportPNG);
   pauseBtn.addEventListener('click',togglePause)
   exportBtn.addEventListener('click',exportState)
   initDragDrop(dropZone,loadState)
