@@ -15,7 +15,15 @@ Copy `.env.sample` to `.env` and fill in variables like `PINNER_TOKEN` and
 The build script reads `.env` automatically and writes `window.PINNER_TOKEN`,
 `window.OPENAI_API_KEY` and `window.OTEL_ENDPOINT` to `dist/index.html`.
 Place the Pyodide 0.25 files in `wasm/` before building. The script copies them
-to `dist/wasm` so the demo can run offline.
+to `dist/wasm` so the demo can run offline. When preparing the environment
+offline run:
+
+```bash
+python ../../../scripts/fetch_assets.py
+```
+
+This downloads the Pyodide runtime and `wasm-gpt2` model from IPFS into
+`wasm/` and `wasm_llm/`.
 ```bash
 PINNER_TOKEN=<token> npm start
 ```
