@@ -2,6 +2,7 @@
 import { Simulator } from '../simulator.ts';
 import { save } from '../state/serializer.js';
 import { pinFiles } from '../ipfs/pinner.js';
+import { paretoFront } from '../utils/pareto.js';
 
 export function initSimulatorPanel(archive) {
   const panel = document.createElement('div');
@@ -47,7 +48,8 @@ export function initSimulatorPanel(archive) {
       lastPop = g.pop;
       count = g.gen;
       progress.value = count / sim.opts.generations;
-      await archive.add(g.gen, { popSize: sim.opts.popSize }, g.pop).catch(() => {});
+      const front = paretoFront(g.pop);
+      await archive.add(sim.opts.seed ?? 1, { popSize: sim.opts.popSize }, front).catch(() => {});
     }
     if (!sim.cancelled) {
       const json = save(lastPop, 0);
