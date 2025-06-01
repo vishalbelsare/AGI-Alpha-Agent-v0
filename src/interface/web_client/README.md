@@ -11,6 +11,9 @@ pnpm dev        # start the development server
 pnpm build      # build production assets in `dist/`
 ```
 
+The build step uses Workbox to generate `service-worker.js` and precache the
+site's assets so the demo can load offline.
+
 Set `VITE_API_BASE_URL` to change the API path prefix and `VITE_API_TOKEN` to
 embed the API bearer token at build time:
 

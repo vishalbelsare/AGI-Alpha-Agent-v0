@@ -45,14 +45,6 @@ ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
 
 telemetry.requestConsent();
 
-if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('/sw.js').catch((err) => {
-      console.error('SW registration failed', err);
-    });
-  });
-}
-
 window.addEventListener('beforeinstallprompt', (e) => {
   e.preventDefault();
   const promptEvent = e as any;
