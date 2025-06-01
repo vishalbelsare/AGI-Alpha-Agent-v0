@@ -3,73 +3,64 @@ import { lcg } from './utils/rng.js';
 import { mutate } from './evolve/mutate.js';
 import { paretoFront } from './utils/pareto.js';
 
-export interface SimulatorOptions {
+export interface SimulatorConfig {
   popSize: number;
   generations: number;
   mutations?: string[];
-  seed?: number;
+  seeds?: number[];
   workerUrl?: string;
+  critic?: 'llm' | 'none';
 }
 
 export interface Generation {
   gen: number;
-  pop: any[];
+  population: any[];
+  fronts: any[];
+  metrics: { avgLogic: number; avgFeasible: number; frontSize: number };
 }
-
 export class Simulator {
-  public readonly opts: SimulatorOptions;
-  private rand: ReturnType<typeof lcg>;
-  private worker: Worker | null = null;
-  private _cancelled = false;
-
-  constructor(opts: SimulatorOptions) {
-    this.opts = { mutations: ['gaussian'], seed: 1, ...opts };
-    this.rand = lcg(this.opts.seed ?? 1);
-  }
-
-  get cancelled(): boolean {
-    return this._cancelled;
-  }
-
-  cancel() {
-    this._cancelled = true;
-    if (this.worker) {
-      this.worker.terminate();
-      this.worker = null;
-    }
-  }
-
-  async *run(): AsyncGenerator<Generation> {
-    let pop = Array.from({ length: this.opts.popSize }, () => ({
-      logic: this.rand(),
-      feasible: this.rand(),
+  static async *run(opts: SimulatorConfig): AsyncGenerator<Generation> {
+    const options = { mutations: ['gaussian'], seeds: [1], critic: 'none', ...opts };
+    const rand = lcg(options.seeds![0]);
+    let worker: Worker | null = null;
+    let pop = Array.from({ length: options.popSize }, () => ({
+      logic: rand(),
+      feasible: rand(),
       strategy: 'base',
     }));
-    for (let gen = 0; gen < this.opts.generations && !this._cancelled; gen++) {
-      if (this.opts.workerUrl && typeof Worker !== 'undefined') {
-        if (!this.worker) {
-          this.worker = new Worker(this.opts.workerUrl, { type: 'module' });
-        }
+    for (let gen = 0; gen < options.generations; gen++) {
+      let front: any[] = [];
+      let metrics = { avgLogic: 0, avgFeasible: 0, frontSize: 0 };
+      if (options.workerUrl && typeof Worker !== 'undefined') {
+        if (!worker) worker = new Worker(options.workerUrl, { type: 'module' });
         const result: any = await new Promise((resolve) => {
-          if (!this.worker) return resolve({ pop, rngState: this.rand.state() });
-          this.worker.onmessage = (ev) => resolve(ev.data);
-          this.worker.postMessage({
+          if (!worker) return resolve({ pop, rngState: rand.state(), front: [], metrics });
+          worker.onmessage = (ev) => resolve(ev.data);
+          worker.postMessage({
             pop,
-            rngState: this.rand.state(),
-            mutations: this.opts.mutations,
-            popSize: this.opts.popSize,
+            rngState: rand.state(),
+            mutations: options.mutations,
+            popSize: options.popSize,
+            critic: options.critic,
           });
         });
         pop = result.pop;
-        this.rand.set(result.rngState);
+        rand.set(result.rngState);
+        front = result.front;
+        metrics = result.metrics;
       } else {
-        pop = mutate(pop, this.rand, this.opts.mutations ?? ['gaussian']);
-        const front = paretoFront(pop);
+        pop = mutate(pop, rand, options.mutations ?? ['gaussian']);
+        front = paretoFront(pop);
         pop.forEach((d) => (d.front = front.includes(d)));
-        pop = front.concat(pop.slice(0, this.opts.popSize - 10));
+        pop = front.concat(pop.slice(0, options.popSize - 10));
+        metrics = {
+          avgLogic: pop.reduce((s, d) => s + (d.logic ?? 0), 0) / pop.length,
+          avgFeasible: pop.reduce((s, d) => s + (d.feasible ?? 0), 0) / pop.length,
+          frontSize: front.length,
+        };
       }
-      yield { gen: gen + 1, pop };
+      yield { gen: gen + 1, population: pop, fronts: front, metrics };
     }
-    this.cancel();
+    if (worker) worker.terminate();
   }
 }
