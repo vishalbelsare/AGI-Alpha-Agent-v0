@@ -85,4 +85,10 @@ the run finishes. Keep this CID handy to share or reload the simulation later.
 Append `#/cid=&lt;CID&gt;` to the URL (or use the **Share** permalink) to replay a
 previous run. The simulator fetches the JSON from IPFS and populates the chart.
 
+## Privacy
+Anonymous telemetry is optional. On first use a random ID is generated and
+hashed with SHA-256 using the static salt `"insight"`. Only this salted hash and
+basic usage metrics are sent to the OTLP endpoint. Clearing browser storage
+resets the identifier.
+
 Environment variables can be configured in `.env` (see `.env.sample`).

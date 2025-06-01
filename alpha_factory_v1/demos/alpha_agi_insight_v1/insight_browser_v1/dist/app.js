@@ -613,6 +613,15 @@ async function chat(prompt) {
  * Lightweight telemetry helper.
  * Prompts for user consent and sends anonymous metrics to the OTLP endpoint.
  */
+async function hashSession(id) {
+  const buf = await crypto.subtle.digest(
+    'SHA-256',
+    new TextEncoder().encode('insight' + id),
+  );
+  return Array.from(new Uint8Array(buf))
+    .map((b) => b.toString(16).padStart(2, '0'))
+    .join('');
+}
 function initTelemetry() {
   const endpoint =
     (typeof process !== 'undefined' && process.env.OTEL_ENDPOINT) ||
@@ -632,13 +641,43 @@ function initTelemetry() {
   }
 
   const enabled = consent === 'true';
-  const metrics = { ts: Date.now(), generations: 0, shares: 0 };
+  const queueKey = 'telemetryQueue';
+  const metrics = { ts: Date.now(), session: '', generations: 0, shares: 0 };
+  const queue = JSON.parse(localStorage.getItem(queueKey) || '[]');
+
+  const ready = (async () => {
+    let sid = localStorage.getItem('telemetrySession');
+    if (!sid) {
+      sid = await hashSession(crypto.randomUUID());
+      localStorage.setItem('telemetrySession', sid);
+    }
+    metrics.session = sid;
+  })();
+
+  async function sendQueue() {
+    if (!enabled) return;
+    await ready;
+    while (queue.length && navigator.onLine) {
+      const payload = queue[0];
+      if (navigator.sendBeacon(endpoint, JSON.stringify(payload))) {
+        queue.shift();
+      } else {
+        break;
+      }
+    }
+    localStorage.setItem(queueKey, JSON.stringify(queue));
+  }
 
   function flush() {
     if (!enabled) return;
-    navigator.sendBeacon(endpoint, JSON.stringify(metrics));
+    metrics.ts = Date.now();
+    queue.push({ ...metrics });
+    localStorage.setItem(queueKey, JSON.stringify(queue));
+    void sendQueue();
   }
   window.addEventListener('beforeunload', flush);
+  window.addEventListener('online', () => void sendQueue());
+  void sendQueue();
 
   return {
     recordRun(n) {

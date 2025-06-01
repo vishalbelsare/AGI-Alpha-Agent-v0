@@ -53,6 +53,38 @@ def test_session_id_hashed() -> None:
         browser.close()
 
 
+def test_session_id_deterministic() -> None:
+    dist = Path(__file__).resolve().parents[1] / "dist" / "index.html"
+    url = dist.as_uri()
+
+    with sync_playwright() as p:
+        browser = p.chromium.launch()
+        page = browser.new_page()
+        page.goto(url)
+        page.evaluate(
+            "window.OTEL_ENDPOINT='https://example.com';"
+            "window.confirm=() => true;"
+            "navigator.sendBeacon=(...a)=>{window.beacon=a;return true;}"
+        )
+        page.reload()
+        page.wait_for_selector("#controls")
+        page.click("text=Share")
+        page.evaluate("window.dispatchEvent(new Event('beforeunload'))")
+        first = page.evaluate("window.beacon[1]")
+        page.reload()
+        page.evaluate(
+            "navigator.sendBeacon=(...a)=>{window.beacon=a;return true;}"
+        )
+        page.wait_for_selector("#controls")
+        page.click("text=Share")
+        page.evaluate("window.dispatchEvent(new Event('beforeunload'))")
+        second = page.evaluate("window.beacon[1]")
+        import json
+
+        assert json.loads(first)["session"] == json.loads(second)["session"]
+        browser.close()
+
+
 def test_offline_queue_flushes_on_reconnect() -> None:
     dist = Path(__file__).resolve().parents[1] / "dist" / "index.html"
     url = dist.as_uri()
