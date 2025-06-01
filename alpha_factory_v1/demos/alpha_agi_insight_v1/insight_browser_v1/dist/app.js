@@ -755,7 +755,19 @@ class Archive {
       novelty,
       timestamp: Date.now(),
     };
-    await set(id, run, this.store);
+    try {
+      await set(id, run, this.store);
+    } catch (err) {
+      if ((err == null ? void 0 : err.name) === "QuotaExceededError") {
+        await this.prune();
+        if (typeof window.toast === "function") {
+          window.toast("Archive full; oldest runs pruned");
+        }
+        await set(id, run, this.store);
+      } else {
+        throw err;
+      }
+    }
     await this.prune(500);
     return id;
   }
