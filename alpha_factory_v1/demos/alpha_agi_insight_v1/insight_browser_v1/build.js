@@ -23,6 +23,10 @@ async function bundle() {
   await fs.copyFile('src/ui/controls.css', `${OUT_DIR}/controls.css`);
   await fs.copyFile('d3.v7.min.js', `${OUT_DIR}/d3.v7.min.js`);
   await fs.copyFile('lib/bundle.esm.min.js', `${OUT_DIR}/bundle.esm.min.js`);
+  await fs.copyFile('lib/pyodide.js', `${OUT_DIR}/pyodide.js`);
+  for (const f of await fs.readdir('wasm')) {
+    await fs.copyFile(`wasm/${f}`, `${OUT_DIR}/${f}`);
+  }
   const size = await gzipSize.file(`${OUT_DIR}/app.js`);
   if (size > 180 * 1024) {
     throw new Error(`gzip size ${size} bytes exceeds limit`);
