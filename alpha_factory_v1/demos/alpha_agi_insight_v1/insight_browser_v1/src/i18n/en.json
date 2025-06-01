@@ -1,0 +1,21 @@
+{
+  "seed": "Seed",
+  "population": "Population",
+  "generations": "Generations",
+  "gaussian": "gaussian",
+  "swap": "swap",
+  "jump": "jump",
+  "scramble": "scramble",
+  "pause": "Pause",
+  "resume": "Resume",
+  "export": "Export",
+  "drop": "Drop JSON here",
+  "csv": "CSV",
+  "png": "PNG",
+  "share": "Share",
+  "theme": "Theme",
+  "iframe_copied": "iframe snippet copied",
+  "state_loaded": "state loaded",
+  "invalid_file": "invalid file",
+  "simulation_restarted": "simulation restarted"
+}

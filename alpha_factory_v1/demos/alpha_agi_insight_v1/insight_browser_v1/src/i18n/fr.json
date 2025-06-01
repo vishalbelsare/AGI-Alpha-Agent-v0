@@ -1,0 +1,21 @@
+{
+  "seed": "Graine",
+  "population": "Population",
+  "generations": "Générations",
+  "gaussian": "gaussienne",
+  "swap": "échange",
+  "jump": "saut",
+  "scramble": "mélange",
+  "pause": "Pause",
+  "resume": "Reprendre",
+  "export": "Exporter",
+  "drop": "Déposer le JSON ici",
+  "csv": "CSV",
+  "png": "PNG",
+  "share": "Partager",
+  "theme": "Thème",
+  "iframe_copied": "extrait d'iframe copié",
+  "state_loaded": "état chargé",
+  "invalid_file": "fichier invalide",
+  "simulation_restarted": "simulation redémarrée"
+}

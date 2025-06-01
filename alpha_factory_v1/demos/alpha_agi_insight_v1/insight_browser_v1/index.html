@@ -23,6 +23,7 @@ import {strategyColors} from './src/render/colors.js';
 import {pinFiles} from './src/ipfs/pinner.js';
 import {initGestures} from './src/ui/gestures.js';
 import {initFpsMeter} from './src/ui/fpsMeter.js';
+import {initI18n,t} from './src/ui/i18n.js';
 
 function lcg(seed){
   function rand(){
@@ -111,7 +112,7 @@ function step(){
 
 function togglePause(){
   running=!running
-  pauseBtn.textContent=running?'Pause':'Resume'
+  pauseBtn.textContent=running?t('pause'):t('resume')
   if(running)requestAnimationFrame(step)
 }
 
@@ -151,20 +152,21 @@ function loadState(text){
     gen=s.gen
     rand=lcg(0);rand.set(s.rngState)
     running=true
-    pauseBtn.textContent='Pause'
+    pauseBtn.textContent=t('pause')
     setupView()
     updateLegend(current.mutations)
     if(worker) worker.terminate()
     worker=new Worker('./worker/evolver.js',{type:'module'})
     worker.onmessage=ev=>{pop=ev.data.pop;rand.set(ev.data.rngState);requestAnimationFrame(step)}
     step()
-    toast('state loaded')
-  }catch{toast('invalid file')}
+    toast(t('state_loaded'))
+  }catch{toast(t('invalid_file'))}
 }
 
 function apply(p){location.hash=toHash(p)}
 
-window.addEventListener('DOMContentLoaded',()=>{
+window.addEventListener('DOMContentLoaded',async()=>{
+  await initI18n()
   loadTheme()
   panel=initControls(parseHash(),apply)
   pauseBtn=panel.pauseBtn
@@ -172,13 +174,13 @@ window.addEventListener('DOMContentLoaded',()=>{
   dropZone=panel.dropZone
   const tb=document.getElementById("toolbar");
   const csvBtn=document.createElement("button");
-  csvBtn.textContent="CSV";
+  csvBtn.textContent=t('csv');
   const pngBtn=document.createElement("button");
-  pngBtn.textContent="PNG";
+  pngBtn.textContent=t('png');
   const shareBtn=document.createElement("button");
-  shareBtn.textContent="Share";
+  shareBtn.textContent=t('share');
   const themeBtn=document.createElement("button");
-  themeBtn.textContent="Theme";
+  themeBtn.textContent=t('theme');
   tb.appendChild(csvBtn);
   tb.appendChild(pngBtn);
   tb.appendChild(shareBtn);
@@ -189,7 +191,7 @@ window.addEventListener('DOMContentLoaded',()=>{
     const snippet=`<iframe src="${location.origin+location.pathname+location.hash}"></iframe>`;
     if(navigator.clipboard){
       try{await navigator.clipboard.writeText(snippet);}catch{}}
-    toast('iframe snippet copied');
+    toast(t('iframe_copied'));
     if(window.PINNER_TOKEN){
       const file=new File([snippet],"snippet.html",{type:"text/html"});
       await pinFiles([file]);
@@ -201,5 +203,5 @@ window.addEventListener('DOMContentLoaded',()=>{
   initDragDrop(dropZone,loadState)
   window.dispatchEvent(new HashChangeEvent('hashchange'))
 })
-window.addEventListener('hashchange',()=>{const p=parseHash();panel.setValues(p);start(p);toast('simulation restarted')})
+window.addEventListener('hashchange',()=>{const p=parseHash();panel.setValues(p);start(p);toast(t('simulation_restarted'))})
 </script>
