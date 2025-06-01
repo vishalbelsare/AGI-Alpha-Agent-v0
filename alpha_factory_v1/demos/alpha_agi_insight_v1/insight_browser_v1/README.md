@@ -7,7 +7,7 @@ A zero-backend Pareto explorer lives in
 
 ## Build & Run
 ```bash
-npm install
+npm ci           # deterministic install
 npm run build    # compile to dist/
 ```
 Place the Pyodide 0.25 files in `wasm/` before building. The script copies them
