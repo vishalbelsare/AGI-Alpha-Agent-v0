@@ -33,10 +33,16 @@ def evaluate(repo_path: Path) -> dict[str, float]:
     leads: list[float] = []
     for path in sorted(ds_dir.glob("*.json")):
         data = json.loads(path.read_text())
-        truth_caps = data.get("capabilities", [])
-        truth_shocks = data.get("shocks", [])
-        pred_caps = truth_caps[:]  # deterministic baseline
-        pred_shocks = truth_shocks[:]
+        truth_caps = [float(v) for v in data.get("capabilities", [])]
+        truth_shocks = [bool(v) for v in data.get("shocks", [])]
+
+        preds = data.get("predictions", {})
+        pred_caps = preds.get("capabilities", data.get("pred_capabilities", truth_caps))
+        pred_shocks = preds.get("shocks", data.get("pred_shocks", truth_shocks))
+
+        pred_caps = [float(v) for v in pred_caps]
+        pred_shocks = [bool(v) for v in pred_shocks]
+
         rmses.append(_rmse(truth_caps, pred_caps))
         leads.append(_lead_time(truth_shocks, pred_shocks))
     if not rmses:
