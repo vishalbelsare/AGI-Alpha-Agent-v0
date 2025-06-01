@@ -77,7 +77,13 @@ def main() -> None:
 
 
 @main.command()
-@click.option("--horizon", default=5, show_default=True, type=int, help="Forecast horizon in years")
+@click.option(
+    "--horizon",
+    default=5,
+    show_default=True,
+    type=click.IntRange(min=1),
+    help="Forecast horizon in years (>=1)",
+)
 @click.option("--curve", default="logistic", show_default=True, help="Capability growth curve")
 @click.option("--k", type=float, help="Curve steepness parameter")
 @click.option("--x0", type=float, help="Curve midpoint shift")
@@ -87,7 +93,7 @@ def main() -> None:
 @click.option("--llama-model-path", type=click.Path(), help="Path to local Llama model")
 @click.option("--model", "model_name", help="Model name for AgentContext/local models")
 @click.option("--temperature", type=float, help="Model temperature")
-@click.option("--context-window", type=int, help="Context window size")
+@click.option("--context-window", type=click.IntRange(min=1), help="Context window size (>=1)")
 @click.option(
     "--import-dgm",
     "import_dgm",
@@ -95,7 +101,13 @@ def main() -> None:
     help="Import DGM logs before simulation",
 )
 @click.option("--sectors-file", type=click.Path(exists=True), help="JSON file with sector definitions")
-@click.option("--sectors", default=6, show_default=True, type=int, help="Number of sectors")
+@click.option(
+    "--sectors",
+    default=6,
+    show_default=True,
+    type=click.IntRange(min=1),
+    help="Number of sectors (>=1)",
+)
 @click.option(
     "--energy",
     default=1.0,
@@ -110,21 +122,33 @@ def main() -> None:
     type=float,
     help="Initial sector entropy (also configurable via the web UI)",
 )
-@click.option("--pop-size", default=6, show_default=True, type=int, help="MATS population size")
-@click.option("--generations", default=3, show_default=True, type=int, help="Evolution steps")
+@click.option(
+    "--pop-size",
+    default=6,
+    show_default=True,
+    type=click.IntRange(min=1),
+    help="MATS population size (>=1)",
+)
+@click.option(
+    "--generations",
+    default=3,
+    show_default=True,
+    type=click.IntRange(min=1),
+    help="Evolution steps (>=1)",
+)
 @click.option(
     "--mut-rate",
     default=0.1,
     show_default=True,
-    type=float,
-    help="Mutation rate during crossover",
+    type=click.FloatRange(0.0, 1.0),
+    help="Mutation rate during crossover (0-1)",
 )
 @click.option(
     "--xover-rate",
     default=0.5,
     show_default=True,
-    type=float,
-    help="Crossover rate",
+    type=click.FloatRange(0.0, 1.0),
+    help="Crossover rate (0-1)",
 )
 @click.option(
     "--backtrack-rate",
@@ -341,7 +365,13 @@ def simulate(
 
 
 @main.command("show-results")
-@click.option("--limit", default=10, show_default=True, type=int, help="Entries to display")
+@click.option(
+    "--limit",
+    default=10,
+    show_default=True,
+    type=click.IntRange(min=1),
+    help="Entries to display (>=1)",
+)
 @click.option("--export", type=click.Choice(["json", "csv"]), help="Export results format")
 def show_results(limit: int, export: str | None) -> None:
     """Show recent ledger entries.
@@ -392,7 +422,13 @@ def show_results(limit: int, export: str | None) -> None:
 
 
 @main.command("show-memory")
-@click.option("--limit", default=10, show_default=True, type=int, help="Entries to display")
+@click.option(
+    "--limit",
+    default=10,
+    show_default=True,
+    type=click.IntRange(min=1),
+    help="Entries to display (>=1)",
+)
 @click.option("--export", type=click.Choice(["json", "csv"]), help="Export results format")
 def show_memory(limit: int, export: str | None) -> None:
     """Display stored memory entries."""
@@ -481,7 +517,7 @@ def agents_status(watch: bool) -> None:
 @click.option("--verbose", is_flag=True, help="Verbose output")
 @click.option("--model", "model_name", help="Model name for AgentContext/local models")
 @click.option("--temperature", type=float, help="Model temperature")
-@click.option("--context-window", type=int, help="Context window size")
+@click.option("--context-window", type=click.IntRange(min=1), help="Context window size (>=1)")
 def run_orchestrator(
     verbose: bool, model_name: str | None, temperature: float | None, context_window: int | None
 ) -> None:
@@ -506,10 +542,10 @@ def run_orchestrator(
 @click.option("--host", default="0.0.0.0", show_default=True, help="Bind host")
 @click.option(
     "--port",
-    type=int,
+    type=click.IntRange(min=1, max=65535),
     default=8000,
     show_default=True,
-    help="Bind port",
+    help="Bind port (1-65535)",
 )
 def api_server_cmd(host: str, port: int) -> None:
     """Launch the FastAPI backend server."""
@@ -540,8 +576,8 @@ def self_improver_cmd(repo_url: str, patch_file: str, metric_file: str, log_file
 
 @main.command()
 @click.option("--jobs", "jobs_file", type=click.Path(exists=True), required=True, help="JSON file with jobs")
-@click.option("--token-quota", type=int, help="Maximum tokens to consume")
-@click.option("--time-quota", type=int, help="Maximum runtime in seconds")
+@click.option("--token-quota", type=click.IntRange(min=1), help="Maximum tokens to consume (>=1)")
+@click.option("--time-quota", type=click.IntRange(min=1), help="Maximum runtime in seconds (>=1)")
 def explore(jobs_file: str, token_quota: int | None, time_quota: int | None) -> None:
     """Run self-improvement jobs under quota limits."""
 
@@ -553,7 +589,7 @@ def explore(jobs_file: str, token_quota: int | None, time_quota: int | None) -> 
 
 @main.command()
 @click.option("--since", type=float, help="Replay events newer than timestamp")
-@click.option("--count", type=int, help="Number of events to replay")
+@click.option("--count", type=click.IntRange(min=1), help="Number of events to replay (>=1)")
 def replay(since: float | None, count: int | None) -> None:
     """Replay ledger events with a short delay.
 
@@ -661,7 +697,13 @@ def evolve_cmd(
     show_default=True,
     help="Comma-separated list of models",
 )
-@click.option("--top-n", default=3, show_default=True, type=int, help="Number of top agents")
+@click.option(
+    "--top-n",
+    default=3,
+    show_default=True,
+    type=click.IntRange(min=1),
+    help="Number of top agents (>=1)",
+)
 def transfer_test_cmd(models: str, top_n: int) -> None:
     """Replay top agents on alternate models and store results."""
     model_list = [m.strip() for m in models.split(",") if m.strip()]
