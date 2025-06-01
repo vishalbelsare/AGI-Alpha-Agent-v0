@@ -7,6 +7,7 @@
 <div id="controls"></div>
 <div id="toast"></div>
 <div id="toolbar"></div>
+<div id="legend"></div>
 <script src="d3.v7.min.js"></script>
 <script type="module">
 import {parseHash,toHash} from './src/config/params.js';
@@ -17,6 +18,8 @@ import {save,load} from './src/state/serializer.js';
 import {initDragDrop} from './src/ui/dragdrop.js';
 import {toCSV} from './src/utils/csv.js';
 import {svg2png} from './src/render/svg2png.js';
+import {mutate} from './src/evolve/mutate.js';
+import {strategyColors} from './src/render/colors.js';
 
 function lcg(seed){
   function rand(){
@@ -41,13 +44,31 @@ function setupView(){
   info=svg.append('text').attr('x',20).attr('y',30).attr('fill','#fff')
 }
 
+function updateLegend(strats){
+  const legend=document.getElementById('legend');
+  legend.innerHTML='';
+  for(const s of strats){
+    const span=document.createElement('span');
+    const sw=document.createElement('i');
+    sw.style.background=strategyColors[s];
+    sw.style.display='inline-block';
+    sw.style.width='10px';
+    sw.style.height='10px';
+    sw.style.marginRight='4px';
+    span.appendChild(sw);
+    span.append(s);
+    legend.appendChild(span);
+  }
+}
+
 function start(p){
   current=p
   rand=lcg(p.seed)
-  pop=Array.from({length:p.pop},()=>({logic:rand(),feasible:rand()}))
+  pop=Array.from({length:p.pop},()=>({logic:rand(),feasible:rand(),strategy:'base'}))
   gen=0
   running=true
   setupView()
+  updateLegend(p.mutations)
   step()
 }
 
@@ -56,10 +77,7 @@ function step(){
   renderFrontier(svg,pop,x,y)
   if(!running){requestAnimationFrame(step);return}
   if(gen++>=current.gen)return
-  pop=pop.concat(pop.map(d=>({
-    logic:Math.min(1,Math.max(0,d.logic+(rand()-.5)*.12)),
-    feasible:Math.min(1,Math.max(0,d.feasible+(rand()-.5)*.12))
-  })))
+  pop=mutate(pop,rand,current.mutations)
   const front=paretoFront(pop)
   pop.forEach(d=>d.front=front.includes(d))
   pop=front.concat(d3.shuffle(pop).slice(0,current.pop-10))
