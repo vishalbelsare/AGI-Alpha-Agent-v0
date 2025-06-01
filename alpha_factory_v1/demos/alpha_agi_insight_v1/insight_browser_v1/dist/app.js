@@ -635,9 +635,21 @@ window.addEventListener('DOMContentLoaded',async()=>{
   pngBtn.addEventListener("click",exportPNG);
   shareBtn.addEventListener("click",async()=>{
     const url=location.origin+location.pathname+location.hash;
-    if(navigator.clipboard){
-      try{await navigator.clipboard.writeText(url);}catch{}}
-    toast(t('link_copied'));
+    let pinned=null;
+    if(window.PINNER_TOKEN){
+      const json=save(pop,rand.state());
+      const file=new File([json],"state.json",{type:"application/json"});
+      pinned=await pinFiles([file]);
+    }
+    if(pinned&&pinned.url){
+      if(navigator.clipboard){
+        try{await navigator.clipboard.writeText(pinned.url);}catch{}}
+      toast(`pinned ${pinned.cid}`);
+    }else{
+      if(navigator.clipboard){
+        try{await navigator.clipboard.writeText(url);}catch{}}
+      toast(t('link_copied'));
+    }
   });
   themeBtn.addEventListener("click",toggleTheme);
   pauseBtn.addEventListener('click',togglePause)
