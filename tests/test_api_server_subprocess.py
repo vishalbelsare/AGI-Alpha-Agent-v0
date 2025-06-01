@@ -100,6 +100,19 @@ def _start_server(port: int, env: dict[str, str] | None = None) -> subprocess.Po
     return subprocess.Popen(cmd, env=env or os.environ.copy())
 
 
+def _start_demo_server(port: int, env: dict[str, str] | None = None) -> subprocess.Popen[bytes]:
+    cmd = [
+        sys.executable,
+        "-m",
+        "alpha_factory_v1.demos.alpha_agi_insight_v1.src.interface.api_server",
+        "--host",
+        "127.0.0.1",
+        "--port",
+        str(port),
+    ]
+    return subprocess.Popen(cmd, env=env or os.environ.copy())
+
+
 def _wait_running(url: str, headers: dict[str, str]) -> None:
     for _ in range(100):
         try:
@@ -235,6 +248,31 @@ def test_insight_endpoint_subprocess() -> None:
         )
         assert r_insight.status_code == 200
         assert r_insight.json()["forecast"] == results["forecast"]
+    finally:
+        proc.terminate()
+        proc.wait(timeout=5)
+
+
+def test_invalid_sim_request_returns_422() -> None:
+    port = _free_port()
+    proc = _start_demo_server(port)
+    url = f"http://127.0.0.1:{port}"
+    headers = {"Authorization": "Bearer test-token"}
+    try:
+        _wait_running(url, headers)
+        r = httpx.post(
+            f"{url}/simulate",
+            json={
+                "horizon": 0,
+                "pop_size": 2,
+                "generations": 1,
+                "mut_rate": 0.1,
+                "xover_rate": 0.5,
+                "curve": "linear",
+            },
+            headers=headers,
+        )
+        assert r.status_code == 422
     finally:
         proc.terminate()
         proc.wait(timeout=5)
