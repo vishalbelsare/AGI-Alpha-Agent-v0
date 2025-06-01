@@ -13,13 +13,11 @@
 <script type="module">
 import {parseHash,toHash} from './src/config/params.js';
 import {initControls} from './src/ui/ControlsPanel.js';
-import {paretoFront} from './src/utils/pareto.js';
 import {renderFrontier,addGlow} from './src/render/frontier.js';
 import {save,load} from './src/state/serializer.js';
 import {initDragDrop} from './src/ui/dragdrop.js';
 import {toCSV} from './src/utils/csv.js';
 import {svg2png} from './src/render/svg2png.js';
-import {mutate} from './src/evolve/mutate.js';
 import {strategyColors} from './src/render/colors.js';
 import {pinFiles} from './src/ipfs/pinner.js';
 import {initGestures} from './src/ui/gestures.js';
@@ -36,6 +34,7 @@ function lcg(seed){
 
 let panel,pauseBtn,exportBtn,dropZone
 let current,rand,pop,gen,svg,view,x,y,info,running=true
+let worker
 function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');clearTimeout(toast.id);toast.id=setTimeout(()=>t.classList.remove('show'),2e3)}
 window.toast=toast;
 
@@ -92,19 +91,18 @@ function start(p){
   running=true
   setupView()
   updateLegend(p.mutations)
+  if(worker) worker.terminate()
+  worker=new Worker('./worker/evolver.js',{type:'module'})
+  worker.onmessage=ev=>{pop=ev.data.pop;rand.set(ev.data.rngState);requestAnimationFrame(step)}
   step()
 }
 
 function step(){
   info.text(`gen ${gen}`)
   renderFrontier(view,pop,x,y)
-  if(!running){requestAnimationFrame(step);return}
-  if(gen++>=current.gen)return
-  pop=mutate(pop,rand,current.mutations)
-  const front=paretoFront(pop)
-  pop.forEach(d=>d.front=front.includes(d))
-  pop=front.concat(d3.shuffle(pop).slice(0,current.pop-10))
-  requestAnimationFrame(step)
+  if(!running)return
+  if(gen++>=current.gen){worker.terminate();return}
+  worker.postMessage({pop,rngState:rand.state(),mutations:current.mutations,popSize:current.pop})
 }
 
 function togglePause(){
@@ -151,6 +149,10 @@ function loadState(text){
     running=true
     pauseBtn.textContent='Pause'
     setupView()
+    updateLegend(current.mutations)
+    if(worker) worker.terminate()
+    worker=new Worker('./worker/evolver.js',{type:'module'})
+    worker.onmessage=ev=>{pop=ev.data.pop;rand.set(ev.data.rngState);requestAnimationFrame(step)}
     step()
     toast('state loaded')
   }catch{toast('invalid file')}
