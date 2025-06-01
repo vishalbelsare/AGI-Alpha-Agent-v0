@@ -31,10 +31,13 @@ jobs:
         id: size
         run: echo "bytes=$(npm run --silent size)" >> "$GITHUB_OUTPUT"
       - name: Fail if oversized
-        if: ${{ steps.size.outputs.bytes > '184320' }}
         run: |
-          echo "Build too large: ${{ steps.size.outputs.bytes }} bytes"
-          exit 1
+          bytes=${{ steps.size.outputs.bytes }}
+          echo "Bundle size: $bytes bytes"
+          if [ "$bytes" -gt 180000 ]; then
+            echo "Build too large: $bytes bytes"
+            exit 1
+          fi
       - name: Show CID
         if: ${{ secrets.WEB3_STORAGE_TOKEN != '' }}
         run: cat dist/CID.txt
