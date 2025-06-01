@@ -21,13 +21,26 @@ async function bundle() {
   await fs.mkdir(OUT_DIR, { recursive: true });
   await build({ entryPoints: ['tmp.js'], bundle: true, minify: true, outfile: `${OUT_DIR}/app.js` });
   await fs.unlink('tmp.js');
-  let outHtml = html
-    .replace(match[0], '<script src="app.js"></script>')
-    .replace('src/ui/controls.css', 'controls.css');
   execSync(
     `npx tailwindcss -i style.css -o ${OUT_DIR}/style.css --minify`,
     { stdio: 'inherit' }
   );
+  const sha384 = async (file) => {
+    const data = await fs.readFile(`${OUT_DIR}/${file}`);
+    return 'sha384-' + createHash('sha384').update(data).digest('base64');
+  };
+  const appSri = await sha384('app.js');
+  const styleSri = await sha384('style.css');
+  let outHtml = html
+    .replace(
+      match[0],
+      `<script src="app.js" integrity="${appSri}" crossorigin="anonymous"></script>`
+    )
+    .replace(
+      'href="style.css"',
+      `href="style.css" integrity="${styleSri}" crossorigin="anonymous"`
+    )
+    .replace('src/ui/controls.css', 'controls.css');
   await fs.copyFile('src/ui/controls.css', `${OUT_DIR}/controls.css`);
   await fs.copyFile('d3.v7.min.js', `${OUT_DIR}/d3.v7.min.js`);
   await fs.copyFile('lib/bundle.esm.min.js', `${OUT_DIR}/bundle.esm.min.js`);
@@ -36,12 +49,6 @@ async function bundle() {
   await fs.copyFile('worker/evolver.js', `${OUT_DIR}/worker/evolver.js`);
   await fs.mkdir(`${OUT_DIR}/src/utils`, { recursive: true });
   await fs.copyFile('src/utils/rng.js', `${OUT_DIR}/src/utils/rng.js`);
-
-  const sha384 = async (file) => {
-    const data = await fs.readFile(`${OUT_DIR}/${file}`);
-    return 'sha384-' + createHash('sha384').update(data).digest('base64');
-  };
-
   const bundleSri = await sha384('bundle.esm.min.js');
   const pyodideSri = await sha384('pyodide.js');
 
