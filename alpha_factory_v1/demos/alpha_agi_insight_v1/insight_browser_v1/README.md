@@ -31,6 +31,20 @@ Open `index.html` directly in your browser or pin the folder to IPFS
 (`ipfs add -r insight_browser_v1`) and share the CID.
 The URL fragment encodes parameters such as `#/s=42&p=120&g=80`.
 
+## Manual Build
+When Node.js or network access isn't available, run `manual_build.py`
+instead of `npm run build`:
+
+```bash
+python manual_build.py
+```
+
+The script requires Python ≥3.11 and writes the bundled output to `dist/`.
+`dist/index.html` loads `dist/app.js`, `bundle.esm.min.js` and
+`pyodide.js` with integrity hashes. Any `wasm/` or `wasm_llm/` directories
+are copied as-is so the demo can run fully offline.
+Serve the folder with `npm start` or open `dist/index.html` directly.
+
 ## Toolbar & Controls
 - **CSV** – export the current population as `population.csv`.
 - **PNG** – download a `frontier.png` screenshot of the chart.
