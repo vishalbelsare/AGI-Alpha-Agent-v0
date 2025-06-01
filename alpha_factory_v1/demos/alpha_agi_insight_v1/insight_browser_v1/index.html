@@ -20,6 +20,7 @@ import {toCSV} from './src/utils/csv.js';
 import {svg2png} from './src/render/svg2png.js';
 import {mutate} from './src/evolve/mutate.js';
 import {strategyColors} from './src/render/colors.js';
+import {pinFiles} from './src/ipfs/pinner.js';
 
 function lcg(seed){
   function rand(){
@@ -34,6 +35,7 @@ function lcg(seed){
 let panel,pauseBtn,exportBtn,dropZone
 let current,rand,pop,gen,svg,x,y,info,running=true
 function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');clearTimeout(toast.id);toast.id=setTimeout(()=>t.classList.remove('show'),2e3)}
+window.toast=toast;
 
 function setupView(){
   d3.select('svg').remove();
@@ -145,10 +147,23 @@ window.addEventListener('DOMContentLoaded',()=>{
   csvBtn.textContent="CSV";
   const pngBtn=document.createElement("button");
   pngBtn.textContent="PNG";
+  const shareBtn=document.createElement("button");
+  shareBtn.textContent="Share";
   tb.appendChild(csvBtn);
   tb.appendChild(pngBtn);
+  tb.appendChild(shareBtn);
   csvBtn.addEventListener("click",()=>exportCSV(pop));
   pngBtn.addEventListener("click",exportPNG);
+  shareBtn.addEventListener("click",async()=>{
+    const snippet=`<iframe src="${location.origin+location.pathname+location.hash}"></iframe>`;
+    if(navigator.clipboard){
+      try{await navigator.clipboard.writeText(snippet);}catch{}}
+    toast('iframe snippet copied');
+    if(window.PINNER_TOKEN){
+      const file=new File([snippet],"snippet.html",{type:"text/html"});
+      await pinFiles([file]);
+    }
+  });
   pauseBtn.addEventListener('click',togglePause)
   exportBtn.addEventListener('click',exportState)
   initDragDrop(dropZone,loadState)
