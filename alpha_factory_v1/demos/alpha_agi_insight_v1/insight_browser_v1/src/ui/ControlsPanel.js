@@ -1,16 +1,16 @@
 // SPDX-License-Identifier: Apache-2.0
 export function initControls(params,onChange){
   const root=document.getElementById('controls');
-  root.innerHTML=`<label>Seed <input id="seed" type="number" min="0"></label>
-<label>Population <input id="pop" type="number" min="1"></label>
-<label>Generations <input id="gen" type="number" min="1"></label>
-<label><input id="gaussian" type="checkbox"> gaussian</label>
-<label><input id="swap" type="checkbox"> swap</label>
-<label><input id="jump" type="checkbox"> jump</label>
-<label><input id="scramble" type="checkbox"> scramble</label>
-<button id="pause">Pause</button>
-<button id="export">Export</button>
-<div id="drop">Drop JSON here</div>`;
+  root.innerHTML=`<label>Seed <input id="seed" type="number" min="0" aria-label="Seed value" tabindex="1"></label>
+<label>Population <input id="pop" type="number" min="1" aria-label="Population size" tabindex="2"></label>
+<label>Generations <input id="gen" type="number" min="1" aria-label="Number of generations" tabindex="3"></label>
+<label><input id="gaussian" type="checkbox" aria-label="Enable gaussian mutation" tabindex="4"> gaussian</label>
+<label><input id="swap" type="checkbox" aria-label="Enable swap mutation" tabindex="5"> swap</label>
+<label><input id="jump" type="checkbox" aria-label="Enable jump mutation" tabindex="6"> jump</label>
+<label><input id="scramble" type="checkbox" aria-label="Enable scramble mutation" tabindex="7"> scramble</label>
+<button id="pause" role="button" aria-label="Pause simulation" tabindex="8">Pause</button>
+<button id="export" role="button" aria-label="Export data" tabindex="9">Export</button>
+<div id="drop" role="button" aria-label="Drop JSON here" tabindex="10">Drop JSON here</div>`;
   const seed=root.querySelector('#seed'),
         pop=root.querySelector('#pop'),
         gen=root.querySelector('#gen'),

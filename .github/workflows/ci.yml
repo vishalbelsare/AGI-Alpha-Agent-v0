@@ -124,6 +124,15 @@ PY
         run: |
           make build_web
           test -f src/interface/web_client/dist/index.html
+      - name: Accessibility audit
+        run: |
+          npx --yes @axe-core/cli src/interface/web_client/dist/index.html --score > axe.json
+          score=$(jq '.score' axe.json)
+          echo "a11y score: $score"
+          if [ "$score" -lt 90 ]; then
+            cat axe.json
+            exit 1
+          fi
       - name: Build image
         run: |
           docker build -t $DOCKER_IMAGE:ci \
