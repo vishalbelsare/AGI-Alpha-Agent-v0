@@ -1,5 +1,6 @@
 # Summary
 - Provide a concise description of your changes.
+<!-- Reminder: keep the Insight Browser bundle under 180&nbsp;KB -->
 
 # Checks
 - [ ] I ran `pre-commit run --files <paths>`
