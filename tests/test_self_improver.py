@@ -82,3 +82,54 @@ def test_improve_repo_requires_git(monkeypatch, tmp_path: Path) -> None:
         self_improver.improve_repo(
             str(repo_dir), str(patch_file), "metric.txt", str(log_file)
         )
+
+from alpha_factory_v1.demos.alpha_agi_insight_v1.src.utils import config, messaging
+from src.agents.self_improver_agent import SelfImproverAgent
+from prometheus_client import REGISTRY
+
+class DummyLedger:
+    def log(self, _env) -> None:
+        pass
+    def start_merkle_task(self, *_a, **_kw) -> None:
+        pass
+    async def stop_merkle_task(self) -> None:
+        pass
+    def close(self) -> None:
+        pass
+
+@pytest.mark.asyncio
+async def test_self_improver_agent_apply(tmp_path: Path) -> None:
+    repo_dir = tmp_path / "repo"
+    repo_dir.mkdir()
+    _init_repo(repo_dir)
+    patch = """--- a/metric.txt\n+++ b/metric.txt\n@@\n-1\n+2\n"""
+    patch_file = tmp_path / "p.diff"
+    patch_file.write_text(patch)
+    bus = messaging.A2ABus(config.Settings(bus_port=0))
+    agent = SelfImproverAgent(bus, DummyLedger(), str(repo_dir), str(patch_file), allowed=["metric.txt"])
+    await agent.run_cycle()
+    assert (repo_dir / "metric.txt").read_text().strip() == "2"
+    REGISTRY._names_to_collectors.clear()
+    REGISTRY._collector_to_names.clear()
+
+
+@pytest.mark.asyncio
+async def test_self_improver_agent_rollback(monkeypatch, tmp_path: Path) -> None:
+    repo_dir = tmp_path / "repo"
+    repo_dir.mkdir()
+    _init_repo(repo_dir)
+    patch = """--- a/metric.txt\n+++ b/metric.txt\n@@\n-1\n+2\n"""
+    patch_file = tmp_path / "p.diff"
+    patch_file.write_text(patch)
+    bus = messaging.A2ABus(config.Settings(bus_port=0))
+    agent = SelfImproverAgent(bus, DummyLedger(), str(repo_dir), str(patch_file), allowed=["metric.txt"])
+    orig_commit = git.Repo(repo_dir).head.commit.hexsha
+    def fail_commit(self, *a, **k):
+        raise RuntimeError("boom")
+    monkeypatch.setattr(git.index.base.IndexFile, "commit", fail_commit)
+    with pytest.raises(RuntimeError):
+        await agent.run_cycle()
+    assert git.Repo(repo_dir).head.commit.hexsha == orig_commit
+    assert (repo_dir / "metric.txt").read_text().strip() == "1"
+    REGISTRY._names_to_collectors.clear()
+    REGISTRY._collector_to_names.clear()

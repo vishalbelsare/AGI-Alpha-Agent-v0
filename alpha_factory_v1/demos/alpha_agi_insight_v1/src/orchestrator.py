@@ -14,6 +14,7 @@ import time
 import contextlib
 import os
 import random
+from pathlib import Path
 from typing import Callable, Dict, List
 from google.protobuf import struct_pb2
 
@@ -27,6 +28,7 @@ from .agents import (
     memory_agent,
     adk_summariser_agent,
 )
+from src.agents.self_improver_agent import SelfImproverAgent
 from .utils import config, messaging, logging as insight_logging
 from .utils.tracing import agent_cycle_seconds
 from .utils import alerts
@@ -166,6 +168,20 @@ class Orchestrator:
                     memory_agent.MemoryAgent(self.bus, self.ledger, self.settings.memory_path, backend=backend, island=island),
                 ]
             )
+        if os.getenv("AGI_SELF_IMPROVE") == "1":
+            patch = os.getenv("AGI_SELF_IMPROVE_PATCH")
+            repo = os.getenv("AGI_SELF_IMPROVE_REPO", str(Path.cwd()))
+            allow = [p.strip() for p in os.getenv("AGI_SELF_IMPROVE_ALLOW", "**").split(",") if p.strip()]
+            if patch:
+                agents.append(
+                    SelfImproverAgent(
+                        self.bus,
+                        self.ledger,
+                        repo,
+                        patch,
+                        allowed=allow or ["**"],
+                    )
+                )
         return agents
 
     def _register(self, runner: AgentRunner) -> None:
