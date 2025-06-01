@@ -41,3 +41,19 @@ ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
     <App />
   </IntlProvider>,
 );
+
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/sw.js').catch((err) => {
+      console.error('SW registration failed', err);
+    });
+  });
+}
+
+window.addEventListener('beforeinstallprompt', (e) => {
+  e.preventDefault();
+  const promptEvent = e as any;
+  if (window.confirm('Add to Home Screen?')) {
+    promptEvent.prompt();
+  }
+});
