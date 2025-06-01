@@ -34,9 +34,9 @@ The α‑AGI Insight demo ships with an offline‑friendly command line interfac
 After installation, launch the official demo via:
 
 ```bash
-alpha-agi-beyond-foresight --episodes 5
-# Shorter alias
-alpha-agi-bhf --episodes 5
+alpha-agi-insight-v1 --episodes 5
+# Or run directly from the package
+python -m alpha_factory_v1.demos.alpha_agi_insight_v1 --episodes 5
 ```
 
 When API keys are configured the program automatically uses the OpenAI Agents
@@ -48,7 +48,7 @@ checks the environment, selects the best runtime and optionally starts the
 Google ADK gateway:
 
 ```bash
-alpha-agi-insight-final --episodes 5
+alpha-agi-insight-v1 --episodes 5
 ```
 
 This wrapper transparently falls back to the offline Meta‑Agentic Tree
@@ -57,11 +57,10 @@ Search when API credentials are absent, ensuring the demo runs anywhere.
 For a guaranteed offline run without external dependencies, use:
 
 ```bash
-alpha-agi-insight-offline --episodes 5
+AGI_INSIGHT_OFFLINE=1 alpha-agi-insight-v1 --episodes 5
 ```
 
-This wrapper sets ``ALPHA_AGI_OFFLINE=true`` before delegating to the production
-demo so the search loop never attempts network access.
+Setting ``AGI_INSIGHT_OFFLINE=1`` ensures the search loop never attempts network access.
 
 <a name="63-offline-mode"></a>
 ### Offline Mode
@@ -525,7 +524,7 @@ sequenceDiagram
 |11|`muzero_planning`|♟|MuZero in 60 s; online world‑model with MCTS.|Distills planning research into a one‑command demo.|`./alpha_factory_v1/demos/muzero_planning/run_muzero_demo.sh`|
 |12|`self_healing_repo`|🩹|CI fails → agent crafts patch ⇒ PR green again.|Maintains pipeline uptime alpha.|`docker compose -f demos/docker-compose.selfheal.yml up`|
 |13|`meta_agentic_tree_search_v0`|🌳|Recursive agent rewrites via best‑first search.|Rapidly surfaces AGI-driven trading alpha.|`cd alpha_factory_v1/demos/meta_agentic_tree_search_v0 && python run_demo.py --episodes 10`|
-|14|`alpha_agi_insight_v0`|👁️|Zero‑data search ranking AGI‑disrupted sectors.|Forecasts sectors primed for AGI transformation.|`alpha-agi-beyond-foresight --episodes 5` or `alpha-agi-bhf --episodes 5`|
+|14|`alpha_agi_insight_v1`|👁️|Zero‑data search ranking AGI‑disrupted sectors.|Forecasts sectors primed for AGI transformation.|`alpha-agi-insight-v1 --episodes 5`|
 
 > **Colab?** Each folder ships an `*.ipynb` that mirrors the Docker flow with free GPUs.
 
