@@ -19,7 +19,7 @@ import secrets
 import time
 from collections import OrderedDict, deque
 from pathlib import Path
-from typing import Any, List, Set, TYPE_CHECKING
+from typing import Any, List, Set, TYPE_CHECKING, Literal
 
 from cachetools import TTLCache
 
@@ -52,7 +52,7 @@ try:
     from starlette.responses import Response, PlainTextResponse, JSONResponse
     from fastapi.staticfiles import StaticFiles
     from fastapi.middleware.cors import CORSMiddleware
-    from pydantic import BaseModel
+    from pydantic import BaseModel, Field
     import uvicorn
     from .problem_json import problem_response
 except Exception as exc:  # pragma: no cover - optional
@@ -188,12 +188,12 @@ if app is not None:
     class SimRequest(BaseModel):
         """Payload for the ``/simulate`` endpoint."""
 
-        horizon: int = 5
-        pop_size: int = 6
-        generations: int = 3
-        mut_rate: float = 0.1
-        xover_rate: float = 0.5
-        curve: str = "logistic"
+        horizon: int = Field(5, ge=1)
+        pop_size: int = Field(6, ge=1)
+        generations: int = Field(3, ge=1)
+        mut_rate: float = Field(0.1, ge=0.0, le=1.0)
+        xover_rate: float = Field(0.5, ge=0.0, le=1.0)
+        curve: Literal["logistic", "linear", "exponential"] = "logistic"
         k: float | None = None
         x0: float | None = None
 
