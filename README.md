@@ -963,6 +963,9 @@ as **Jaeger**, set ``OTEL_EXPORTER_OTLP_ENDPOINT`` and start Jaeger locally:
 docker run -p 16686:16686 -p 4317:4317 jaegertracing/all-in-one
 ```
 
+Set ``OTEL_ENDPOINT`` to enable anonymous dashboard telemetry. Users are
+prompted for consent before any metrics are sent.
+
 ---
 
 <a name="10-safety--security"></a>
