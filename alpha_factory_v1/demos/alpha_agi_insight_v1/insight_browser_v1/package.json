@@ -1,0 +1,19 @@
+{
+  "name": "insight-browser-v1",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "lint": "eslint src --ext .js",
+    "build": "node build.js",
+    "size": "gzip-size-cli dist/app.js --bytes",
+    "start": "npx serve dist"
+  },
+  "devDependencies": {
+    "esbuild": "^0.20.0",
+    "eslint": "^8.57.0",
+    "gzip-size-cli": "^5.1.1",
+    "serve": "^14.2.0",
+    "web3.storage": "^5.1.0"
+  }
+}
