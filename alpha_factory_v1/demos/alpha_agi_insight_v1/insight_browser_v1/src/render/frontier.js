@@ -2,16 +2,17 @@
 import * as Plot from '@observablehq/plot';
 import { plotCanvas } from '@observablehq/plot-canvas';
 import { paretoFront } from '../utils/pareto.js';
-import { credibilityColor } from './colors.js';
+import { depthColor } from './colors.js';
 
 export function renderFrontier(container, pop, onSelect) {
   const front = paretoFront(pop).sort((a, b) => a.logic - b.logic);
 
+  const maxDepth = pop.reduce((m, d) => Math.max(m, d.depth ?? 0), 0);
   const dotOptions = {
     x: 'logic',
     y: 'feasible',
     r: 3,
-    fill: (d) => credibilityColor(d.insightCredibility ?? 0),
+    fill: (d) => depthColor(d.depth ?? 0, maxDepth),
     title: (d) => `${d.summary ?? ''}\n${d.critic ?? ''}`,
   };
 

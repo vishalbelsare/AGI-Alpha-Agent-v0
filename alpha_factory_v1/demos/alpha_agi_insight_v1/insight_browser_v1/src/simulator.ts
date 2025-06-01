@@ -27,6 +27,7 @@ export class Simulator {
       logic: rand(),
       feasible: rand(),
       strategy: 'base',
+      depth: 0,
     }));
     for (let gen = 0; gen < options.generations; gen++) {
       let front: any[] = [];
@@ -42,6 +43,7 @@ export class Simulator {
             mutations: options.mutations,
             popSize: options.popSize,
             critic: options.critic,
+            gen: gen + 1,
           });
         });
         pop = result.pop;
@@ -49,7 +51,7 @@ export class Simulator {
         front = result.front;
         metrics = result.metrics;
       } else {
-        pop = mutate(pop, rand, options.mutations ?? ['gaussian']);
+        pop = mutate(pop, rand, options.mutations ?? ['gaussian'], gen + 1);
         front = paretoFront(pop);
         pop.forEach((d) => (d.front = front.includes(d)));
         pop = front.concat(pop.slice(0, options.popSize - 10));

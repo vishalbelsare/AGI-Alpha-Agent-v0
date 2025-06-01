@@ -13,3 +13,9 @@ export function credibilityColor(v) {
   const hue = 120 * clamped; // red -> green
   return `hsl(${hue},70%,50%)`;
 }
+
+export function depthColor(depth, maxDepth) {
+  const md = Math.max(1, maxDepth ?? depth ?? 1);
+  const ratio = 1 - Math.min(depth ?? 0, md) / md;
+  return `rgba(0,175,255,${ratio})`;
+}
