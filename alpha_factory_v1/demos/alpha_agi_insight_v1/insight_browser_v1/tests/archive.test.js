@@ -34,3 +34,12 @@ test('selectParents returns entries', async () => {
   expect(parents.length).toBe(1);
   expect([1,2]).toContain(parents[0].seed);
 });
+
+test('parents saved and retrieved', async () => {
+  const a = new Archive('jest');
+  await a.open();
+  const id = await a.add(3, {}, [], [1, 2]);
+  const runs = await a.list();
+  const run = runs.find((r) => r.id === id);
+  expect(run.parents).toEqual([1, 2]);
+});

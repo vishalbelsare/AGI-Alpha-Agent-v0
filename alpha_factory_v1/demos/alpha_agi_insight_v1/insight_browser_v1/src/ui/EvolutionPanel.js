@@ -49,21 +49,29 @@ export function initEvolutionPanel(archive) {
 
   function drawTree(runs) {
     svg.innerHTML = '';
+    const pos = new Map();
     runs.forEach((r, i) => {
       const x = 20 + i * 20;
       const y = 20;
+      pos.set(r.id, { x, y });
       const c = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
       c.setAttribute('cx', String(x));
       c.setAttribute('cy', String(y));
       c.setAttribute('r', '4');
       c.setAttribute('fill', 'white');
       svg.appendChild(c);
-      if (i > 0) {
+    });
+    runs.forEach((r) => {
+      const child = pos.get(r.id);
+      if (!child) return;
+      for (const p of r.parents || []) {
+        const parent = pos.get(p);
+        if (!parent) continue;
         const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-        line.setAttribute('x1', String(20 + (i - 1) * 20));
-        line.setAttribute('y1', String(y));
-        line.setAttribute('x2', String(x));
-        line.setAttribute('y2', String(y));
+        line.setAttribute('x1', String(parent.x));
+        line.setAttribute('y1', String(parent.y));
+        line.setAttribute('x2', String(child.x));
+        line.setAttribute('y2', String(child.y));
         line.setAttribute('stroke', 'white');
         svg.appendChild(line);
       }
