@@ -3,9 +3,6 @@
 
 **Out‑learn · Out‑think · Out‑design · Out‑strategise · Out‑execute**
 
-![CI](https://github.com/AGI-Factory/AGI-Alpha-Agent-v0/actions/workflows/ci.yml/badge.svg)
-![Release](https://github.com/AGI-Factory/AGI-Alpha-Agent-v0/actions/workflows/ci.yml/badge.svg)
-
 ---
 
 # 🚀 [ 🎖️ α‑AGI Ascension 🌌 ]
