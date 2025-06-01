@@ -10,6 +10,8 @@ A zero-backend Pareto explorer lives in
 npm ci           # deterministic install
 npm run build    # compile to dist/
 ```
+Copy `.env.sample` to `.env` and fill in variables like `PINNER_TOKEN` and
+`OTEL_ENDPOINT` before building or running.
 Place the Pyodide 0.25 files in `wasm/` before building. The script copies them
 to `dist/wasm` so the demo can run offline.
 ```bash
