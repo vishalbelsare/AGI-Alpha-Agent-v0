@@ -56,6 +56,8 @@
 import {parseHash,toHash} from './src/config/params.js';
 import {initControls} from './src/ui/ControlsPanel.js';
 import {renderFrontier} from './src/render/frontier.js';
+import {initCriticPanel} from './src/ui/CriticPanel.js';
+import {loadExamples as loadCriticExamples, LogicCritic, FeasibilityCritic} from './src/wasm/critics.js';
 import {save,load} from './src/state/serializer.js';
 import {initDragDrop} from './src/ui/dragdrop.js';
 import {toCSV} from './src/utils/csv.js';
@@ -78,6 +80,7 @@ function lcg(seed){
 }
 
 let panel,pauseBtn,exportBtn,dropZone
+let criticPanel,logicCritic,feasCritic
 let current,rand,pop,gen,svg,view,info,running=true
 let worker
 let fpsStarted=false;
@@ -148,9 +151,22 @@ function start(p){
   step()
 }
 
+function selectPoint(d, elem){
+  const scores={
+    logic:d.logic??0,
+    feasible:d.feasible??0
+  };
+  if(logicCritic&&feasCritic){
+    scores.logicCritic=logicCritic.score(`${d.logic}`);
+    scores.feasCritic=feasCritic.score(`${d.feasible}`);
+    scores.average=(scores.logicCritic+scores.feasCritic)/2;
+  }
+  if(criticPanel) criticPanel.show(scores,elem);
+}
+
 function step(){
   info.text(`gen ${gen}`)
-  renderFrontier(view.node ? view.node() : view,pop)
+  renderFrontier(view.node ? view.node() : view,pop,selectPoint)
   if(!running)return
   if(gen++>=current.gen){worker.terminate();return}
   worker.postMessage({pop,rngState:rand.state(),mutations:current.mutations,popSize:current.pop})
@@ -219,6 +235,10 @@ function apply(p){location.hash=toHash(p)}
 window.addEventListener('DOMContentLoaded',async()=>{
   await initI18n()
   loadTheme()
+  const ex=await loadCriticExamples()
+  logicCritic=new LogicCritic(ex)
+  feasCritic=new FeasibilityCritic(ex)
+  criticPanel=initCriticPanel()
   panel=initControls(parseHash(),apply)
   pauseBtn=panel.pauseBtn
   exportBtn=panel.exportBtn

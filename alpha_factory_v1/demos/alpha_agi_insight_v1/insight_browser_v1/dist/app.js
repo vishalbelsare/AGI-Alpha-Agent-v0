@@ -478,7 +478,33 @@ function lcg(seed){
   return rand;
 }
 
+async function loadCriticExamples(url='../data/critics/innovations.txt'){
+  try{const r=await fetch(url);if(!r.ok)return[];return (await r.text()).split(/\n/).map(l=>l.trim()).filter(Boolean);}catch{return[];}
+}
+class LogicCritic{
+  constructor(ex=[]){this.examples=ex;this.index={};ex.forEach((e,i)=>{this.index[e.toLowerCase()]=i;});this.scale=Math.max(ex.length-1,1);}
+  score(g){const k=String(g).toLowerCase();const p=this.index[k]??-1;const b=p>=0?(p+1)/(this.scale+1):0;const n=Math.random()*0.001;const v=b+n;return Math.min(1,Math.max(0,v));}
+}
+class FeasibilityCritic{
+  constructor(ex=[]){this.examples=ex;}
+  static j(a,b){const sa=new Set(a),sb=new Set(b);if(!sa.size||!sb.size)return 0;let i=0;for(const x of sa)if(sb.has(x))i++;const u=new Set([...a,...b]).size;return i/u;}
+  score(g){const t=String(g).toLowerCase().split(/\s+/);let best=0;for(const ex of this.examples){const s=FeasibilityCritic.j(t,ex.toLowerCase().split(/\s+/));if(s>best)best=s;}const n=Math.random()*0.001;const v=best+n;return Math.min(1,Math.max(0,v));}
+}
+function initCriticPanel(){
+  const root=document.createElement('div');
+  root.id='critic-panel';
+  Object.assign(root.style,{position:'fixed',top:'10px',right:'10px',background:'rgba(0,0,0,0.7)',color:'#fff',padding:'8px',font:'14px sans-serif',display:'none',zIndex:1000});
+  const svg=document.createElementNS('http://www.w3.org/2000/svg','svg');
+  svg.setAttribute('width','200');svg.setAttribute('height','200');svg.id='critic-chart';
+  const table=document.createElement('table');table.id='critic-table';table.style.marginTop='4px';table.style.fontSize='12px';
+  root.appendChild(svg);root.appendChild(table);document.body.appendChild(root);
+  let highlighted=null;
+  function draw(scores){const labels=Object.keys(scores),vals=Object.values(scores),c=100,r=80,step=Math.PI*2/labels.length;svg.innerHTML='';const pts=[];labels.forEach((lb,i)=>{const ang=i*step-Math.PI/2;const rr=r*(vals[i]??0);const x=c+rr*Math.cos(ang);const y=c+rr*Math.sin(ang);pts.push(`${x},${y}`);const lx=c+r*Math.cos(ang);const ly=c+r*Math.sin(ang);const tx=c+(r+12)*Math.cos(ang);const ty=c+(r+12)*Math.sin(ang);const line=document.createElementNS('http://www.w3.org/2000/svg','line');line.setAttribute('x1',c);line.setAttribute('y1',c);line.setAttribute('x2',lx);line.setAttribute('y2',ly);line.setAttribute('stroke','#ccc');svg.appendChild(line);const text=document.createElementNS('http://www.w3.org/2000/svg','text');text.setAttribute('x',tx);text.setAttribute('y',ty);text.setAttribute('font-size','10');text.setAttribute('text-anchor','middle');text.setAttribute('dominant-baseline','middle');text.textContent=lb;svg.appendChild(text);});const poly=document.createElementNS('http://www.w3.org/2000/svg','polygon');poly.setAttribute('points',pts.join(' '));poly.setAttribute('fill','rgba(0,100,250,0.3)');poly.setAttribute('stroke','blue');svg.appendChild(poly);}
+  return{show:(scores,el)=>{if(highlighted)highlighted.removeAttribute('stroke');if(el){el.setAttribute('stroke','yellow');highlighted=el;}draw(scores);table.innerHTML=Object.entries(scores).map(([k,v])=>`<tr><th>${k}</th><td>${v.toFixed(2)}</td></tr>`).join('');root.style.display='block';}};
+}
+
 let panel,pauseBtn,exportBtn,dropZone
+let criticPanel,logicCritic,feasCritic
 let current,rand,pop,gen,svg,view,info,running=true
 let worker
 let fpsStarted=false
@@ -528,6 +554,16 @@ function updateLegend(strats){
   }
 }
 
+function selectPoint(d,elem){
+  const scores={logic:d.logic??0,feasible:d.feasible??0};
+  if(logicCritic&&feasCritic){
+    scores.logicCritic=logicCritic.score(`${d.logic}`);
+    scores.feasCritic=feasCritic.score(`${d.feasible}`);
+    scores.average=(scores.logicCritic+scores.feasCritic)/2;
+  }
+  criticPanel&&criticPanel.show(scores,elem);
+}
+
 function start(p){
   current=p
   rand=lcg(p.seed)
@@ -545,7 +581,7 @@ function start(p){
 
 function step(){
   info.text(`gen ${gen}`)
-  renderFrontier(view,pop)
+  renderFrontier(view,pop,selectPoint)
   if(!running)return
   if(gen++>=current.gen){worker.terminate();return}
   worker.postMessage({pop,rngState:rand.state(),mutations:current.mutations,popSize:current.pop})
@@ -614,6 +650,10 @@ function apply(p){location.hash=toHash(p)}
 window.addEventListener('DOMContentLoaded',async()=>{
   await initI18n()
   loadTheme()
+  const ex=await loadCriticExamples()
+  logicCritic=new LogicCritic(ex)
+  feasCritic=new FeasibilityCritic(ex)
+  criticPanel=initCriticPanel()
   panel=initControls(parseHash(),apply)
   pauseBtn=panel.pauseBtn
   exportBtn=panel.exportBtn

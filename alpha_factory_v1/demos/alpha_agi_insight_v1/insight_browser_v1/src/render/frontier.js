@@ -4,7 +4,7 @@ import { plotCanvas } from '@observablehq/plot-canvas';
 import { paretoFront } from '../utils/pareto.js';
 import { credibilityColor } from './colors.js';
 
-export function renderFrontier(container, pop) {
+export function renderFrontier(container, pop, onSelect) {
   const front = paretoFront(pop).sort((a, b) => a.logic - b.logic);
 
   const dotOptions = {
@@ -38,4 +38,9 @@ export function renderFrontier(container, pop) {
 
   container.innerHTML = '';
   container.append(plot);
+  if (onSelect) {
+    d3.select(plot).selectAll('circle').on('click', function (_, d) {
+      onSelect(d, this);
+    });
+  }
 }
