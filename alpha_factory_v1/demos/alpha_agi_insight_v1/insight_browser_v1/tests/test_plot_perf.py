@@ -9,7 +9,7 @@ from playwright.sync_api import sync_playwright
 
 def test_frontier_60fps() -> None:
     dist = Path(__file__).resolve().parents[1] / "dist" / "index.html"
-    url = dist.as_uri() + "#seed=1&pop=5000&gen=1"
+    url = dist.as_uri() + "#seed=1&pop=12000&gen=1"
 
     with sync_playwright() as p:
         browser = p.chromium.launch()
