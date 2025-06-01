@@ -109,3 +109,23 @@ def test_env_value_injected(tmp_path: Path) -> None:
         page.wait_for_selector("#controls")
         assert page.evaluate("window.PINNER_TOKEN") == "test123"
         browser.close()
+
+
+def test_runs_persist_after_reload() -> None:
+    src = Path(__file__).resolve().parents[1] / "index.html"
+    url = src.as_uri() + "#s=1&p=10&g=2"
+
+    with sync_playwright() as p:
+        browser = p.chromium.launch()
+        page = browser.new_page()
+        page.goto(url)
+        page.wait_for_selector("#controls")
+        page.wait_for_function("window.archive !== undefined")
+        page.wait_for_timeout(1000)
+        count_before = page.evaluate("window.archive.list().then(r=>r.length)")
+        page.reload()
+        page.wait_for_selector("#controls")
+        page.wait_for_function("window.archive !== undefined")
+        count_after = page.evaluate("window.archive.list().then(r=>r.length)")
+        assert count_before == count_after and count_before > 0
+        browser.close()
