@@ -14,32 +14,80 @@ export function initEvolutionPanel(archive) {
     maxHeight: '40vh',
     overflowY: 'auto',
   });
-  const list = document.createElement('ul');
+  const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+  svg.setAttribute('width', '200');
+  svg.setAttribute('height', '100');
   const table = document.createElement('table');
-  panel.appendChild(list);
+  const header = document.createElement('tr');
+  header.innerHTML =
+    '<th data-k="seed">Seed</th><th data-k="score">Score</th><th data-k="novelty">Novelty</th><th data-k="timestamp">Time</th><th></th>';
+  table.appendChild(header);
+  panel.appendChild(svg);
   panel.appendChild(table);
   document.body.appendChild(panel);
 
-  async function render() {
-    const runs = await archive.list();
-    list.innerHTML = '';
-    runs.forEach((r, idx) => {
-      const li = document.createElement('li');
-      li.textContent = `run ${idx + 1} gen ${r.gen}`;
-      li.style.cursor = 'pointer';
-      li.onclick = () => show(r);
-      list.appendChild(li);
+  let sortKey = 'timestamp';
+  let desc = true;
+  header.querySelectorAll('th[data-k]').forEach((th) => {
+    th.style.cursor = 'pointer';
+    th.onclick = () => {
+      const k = th.dataset.k;
+      if (sortKey === k) desc = !desc;
+      else {
+        sortKey = k;
+        desc = true;
+      }
+      render();
+    };
+  });
+
+  function respawn(seed) {
+    const q = new URLSearchParams(window.location.hash.replace(/^#\/?/, ''));
+    q.set('s', seed);
+    window.location.hash = '#/' + q.toString();
+  }
+
+  function drawTree(runs) {
+    svg.innerHTML = '';
+    runs.forEach((r, i) => {
+      const x = 20 + i * 20;
+      const y = 20;
+      const c = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+      c.setAttribute('cx', String(x));
+      c.setAttribute('cy', String(y));
+      c.setAttribute('r', '4');
+      c.setAttribute('fill', 'white');
+      svg.appendChild(c);
+      if (i > 0) {
+        const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+        line.setAttribute('x1', String(20 + (i - 1) * 20));
+        line.setAttribute('y1', String(y));
+        line.setAttribute('x2', String(x));
+        line.setAttribute('y2', String(y));
+        line.setAttribute('stroke', 'white');
+        svg.appendChild(line);
+      }
     });
   }
 
-  function show(run) {
-    table.innerHTML = '<tr><th>logic</th><th>feasible</th><th>strategy</th></tr>';
-    for (const d of run.pop) {
+  async function render() {
+    const runs = await archive.list();
+    runs.sort((a, b) => (desc ? b[sortKey] - a[sortKey] : a[sortKey] - b[sortKey]));
+    table.querySelectorAll('tr').forEach((tr, i) => { if (i) tr.remove(); });
+    runs.forEach((r) => {
       const tr = document.createElement('tr');
-      tr.innerHTML = `<td>${d.logic}</td><td>${d.feasible}</td><td>${d.strategy}</td>`;
+      const time = new Date(r.timestamp).toLocaleTimeString();
+      tr.innerHTML = `<td>${r.seed}</td><td>${r.score.toFixed(2)}</td><td>${r.novelty.toFixed(2)}</td><td>${time}</td>`;
+      const td = document.createElement('td');
+      const btn = document.createElement('button');
+      btn.textContent = 'Re-spawn';
+      btn.onclick = () => respawn(r.seed);
+      td.appendChild(btn);
+      tr.appendChild(td);
       table.appendChild(tr);
-    }
+    });
+    drawTree(runs);
   }
 
-  return { render, show };
+  return { render };
 }
