@@ -507,6 +507,7 @@ let panel,pauseBtn,exportBtn,dropZone
 let criticPanel,logicCritic,feasCritic
 let current,rand,pop,gen,svg,view,info,running=true
 let worker
+let telemetry={recordRun(){},recordShare(){}}
 let fpsStarted=false
 function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');clearTimeout(toast.id);toast.id=setTimeout(()=>t.classList.remove('show'),2e3)}
 window.toast=toast;
@@ -584,6 +585,7 @@ function step(){
   renderFrontier(view,pop,selectPoint)
   if(!running)return
   if(gen++>=current.gen){worker.terminate();return}
+  telemetry.recordRun(1)
   worker.postMessage({pop,rngState:rand.state(),mutations:current.mutations,popSize:current.pop})
 }
 
@@ -648,6 +650,7 @@ function loadState(text){
 function apply(p){location.hash=toHash(p)}
 
 window.addEventListener('DOMContentLoaded',async()=>{
+  telemetry=window.telemetry||telemetry;
   await initI18n()
   loadTheme()
   const ex=await loadCriticExamples()
@@ -674,6 +677,7 @@ window.addEventListener('DOMContentLoaded',async()=>{
   csvBtn.addEventListener("click",()=>exportCSV(pop));
   pngBtn.addEventListener("click",exportPNG);
   shareBtn.addEventListener("click",async()=>{
+    telemetry.recordShare();
     const url=location.origin+location.pathname+location.hash;
     let pinned=null;
     if(window.PINNER_TOKEN){

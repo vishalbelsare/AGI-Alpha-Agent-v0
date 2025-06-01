@@ -17,3 +17,7 @@
 <script src="bundle.esm.min.js" integrity="sha384-HCq3AUAghBODOAg7+u+o8u2pKjENSb3YGAjRfL6TZgAY49LXzq1SaOwNtQmWsIax" crossorigin="anonymous"></script>
 <script src="pyodide.js" integrity="sha384-4lQJt6JNK5sYso6mEO1s2l1EnmbkIm958N+CAuWcYFBPuizBJ5nENroO7dtV8upW" crossorigin="anonymous"></script>
 <script src="app.js"></script>
+<script type="module">
+import { initTelemetry } from '../../../../../src/telemetry.js';
+window.telemetry = initTelemetry();
+</script>
