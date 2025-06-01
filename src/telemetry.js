@@ -23,13 +23,42 @@ export function initTelemetry() {
   }
 
   const enabled = consent === 'true';
-  const metrics = { ts: Date.now(), generations: 0, shares: 0 };
+  const queueKey = 'telemetryQueue';
+  const metrics = { ts: Date.now(), session: '', generations: 0, shares: 0 };
+  const queue = JSON.parse(localStorage.getItem(queueKey) || '[]');
+
+  const ready = crypto.subtle
+    .digest('SHA-256', new TextEncoder().encode(crypto.randomUUID()))
+    .then((buf) => {
+      metrics.session = Array.from(new Uint8Array(buf))
+        .map((b) => b.toString(16).padStart(2, '0'))
+        .join('');
+    });
+
+  async function sendQueue() {
+    if (!enabled) return;
+    await ready;
+    while (queue.length && navigator.onLine) {
+      const payload = queue[0];
+      if (navigator.sendBeacon(endpoint, JSON.stringify(payload))) {
+        queue.shift();
+      } else {
+        break;
+      }
+    }
+    localStorage.setItem(queueKey, JSON.stringify(queue));
+  }
 
   function flush() {
     if (!enabled) return;
-    navigator.sendBeacon(endpoint, JSON.stringify(metrics));
+    metrics.ts = Date.now();
+    queue.push({ ...metrics });
+    localStorage.setItem(queueKey, JSON.stringify(queue));
+    void sendQueue();
   }
   window.addEventListener('beforeunload', flush);
+  window.addEventListener('online', () => void sendQueue());
+  void sendQueue();
 
   return {
     recordRun(n) {
