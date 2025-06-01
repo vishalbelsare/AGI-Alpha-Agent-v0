@@ -102,6 +102,7 @@ async function bundle() {
       'pyodide.*',
       'wasm_llm/*',
       'wasm/*',
+      'worker/*',
     ],
   });
   const size = await gzipSize.file(`${OUT_DIR}/app.js`);

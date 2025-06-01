@@ -72,6 +72,7 @@ import { initTelemetry } from '../../../../src/telemetry.js';
 import { lcg } from './src/utils/rng.js';
 import { Archive } from './src/archive.ts';
 import { initEvolutionPanel } from './src/ui/EvolutionPanel.js';
+import { initSimulatorPanel } from './src/ui/SimulatorPanel.js';
 
 let panel,pauseBtn,exportBtn,dropZone
 let criticPanel,logicCritic,feasCritic
@@ -235,6 +236,7 @@ window.addEventListener('DOMContentLoaded',async()=>{
   archive = new Archive();
   await archive.open();
   evolutionPanel = initEvolutionPanel(archive);
+  initSimulatorPanel(archive);
   await evolutionPanel.render();
   window.archive = archive;
   await initI18n()
