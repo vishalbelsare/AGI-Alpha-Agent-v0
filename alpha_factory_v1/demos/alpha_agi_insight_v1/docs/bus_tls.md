@@ -25,6 +25,19 @@ AGI_INSIGHT_BUS_KEY=/path/to/certs/bus.key
 AGI_INSIGHT_BUS_TOKEN=change_this_token
 ```
 
+### Windows (PowerShell)
+
+Install the [OpenSSL Windows binaries](https://slproweb.com/products/Win32OpenSSL.html) and run the equivalent commands:
+
+```powershell
+New-Item -ItemType Directory -Force -Path certs
+openssl req -x509 -newkey rsa:4096 -nodes `
+  -keyout certs/bus.key `
+  -out certs/bus.crt `
+  -days 365 `
+  -subj "/CN=localhost"
+```
+
 ## Docker and Docker Compose
 
 Place `bus.crt` and `bus.key` under `./certs` next to `docker-compose.yml` and mount the directory:
