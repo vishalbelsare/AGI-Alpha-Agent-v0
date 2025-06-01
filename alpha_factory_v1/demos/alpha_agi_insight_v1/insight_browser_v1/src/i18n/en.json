@@ -15,6 +15,7 @@
   "share": "Share",
   "theme": "Theme",
   "iframe_copied": "iframe snippet copied",
+  "link_copied": "permalink copied",
   "state_loaded": "state loaded",
   "invalid_file": "invalid file",
   "simulation_restarted": "simulation restarted"

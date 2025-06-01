@@ -22,19 +22,19 @@ function parseHash(h=window.location.hash){
       }
     }catch{}
   }
-  const q=new URLSearchParams(h.replace(/^#/,''));
+  const q=new URLSearchParams(h.replace(/^#\/?/,''));
   return{
-    seed:+q.get('seed')||defaults.seed,
-    pop:+q.get('pop')||defaults.pop,
-    gen:+q.get('gen')||defaults.gen,
-    mutations:(q.get('mut')||defaults.mutations.join(',')).split(',').filter(Boolean)
+    seed:+q.get('s')||defaults.seed,
+    pop:+q.get('p')||defaults.pop,
+    gen:+q.get('g')||defaults.gen,
+    mutations:(q.get('m')||defaults.mutations.join(',')).split(',').filter(Boolean)
   };
 }
 function toHash(p){
   const q=new URLSearchParams();
-  q.set('seed',p.seed);q.set('pop',p.pop);q.set('gen',p.gen);
-  if(p.mutations) q.set('mut',p.mutations.join(','));
-  return'#'+q.toString();
+  q.set('s',p.seed);q.set('p',p.pop);q.set('g',p.gen);
+  if(p.mutations) q.set('m',p.mutations.join(','));
+  return'#/'+q.toString();
 }
 
 // SPDX-License-Identifier: Apache-2.0
@@ -557,14 +557,19 @@ function togglePause(){
   if(running)requestAnimationFrame(step)
 }
 
-function exportState(){
+async function exportState(){
   pop.gen=gen
   const json=save(pop,rand.state())
+  const blob=new Blob([json],{type:'application/json'})
   const a=document.createElement('a')
-  a.href=URL.createObjectURL(new Blob([json],{type:'application/json'}))
+  a.href=URL.createObjectURL(blob)
   a.download='state.json'
   a.click()
   URL.revokeObjectURL(a.href)
+  if(window.PINNER_TOKEN){
+    const file=new File([json],'state.json',{type:'application/json'})
+    await pinFiles([file])
+  }
 }
 
 function exportCSV(data){
@@ -629,14 +634,10 @@ window.addEventListener('DOMContentLoaded',async()=>{
   csvBtn.addEventListener("click",()=>exportCSV(pop));
   pngBtn.addEventListener("click",exportPNG);
   shareBtn.addEventListener("click",async()=>{
-    const snippet=`<iframe src="${location.origin+location.pathname+location.hash}"></iframe>`;
+    const url=location.origin+location.pathname+location.hash;
     if(navigator.clipboard){
-      try{await navigator.clipboard.writeText(snippet);}catch{}}
-    toast(t('iframe_copied'));
-    if(window.PINNER_TOKEN){
-      const file=new File([snippet],"snippet.html",{type:"text/html"});
-      await pinFiles([file]);
-    }
+      try{await navigator.clipboard.writeText(url);}catch{}}
+    toast(t('link_copied'));
   });
   themeBtn.addEventListener("click",toggleTheme);
   pauseBtn.addEventListener('click',togglePause)
