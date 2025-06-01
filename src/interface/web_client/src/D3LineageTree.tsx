@@ -1,6 +1,10 @@
 // SPDX-License-Identifier: Apache-2.0
 import React, { useEffect, useRef, useState } from 'react';
 import * as d3 from 'd3';
+import SpiderChart from './SpiderChart';
+import RationaleModal from './RationaleModal';
+import { LogicCritic, loadExamples as loadLogicExamples } from './critics/logic';
+import { FeasibilityCritic } from './critics/feas';
 
 export interface LineageNode {
   id: number;
@@ -15,7 +19,19 @@ interface Props {
 
 export default function D3LineageTree({ data }: Props) {
   const ref = useRef<SVGSVGElement | null>(null);
-  const [selected, setSelected] = useState<string | null>(null);
+  const [selected, setSelected] = useState<LineageNode | null>(null);
+  const [open, setOpen] = useState(false);
+  const [modalOpen, setModalOpen] = useState(false);
+  const [logic, setLogic] = useState<LogicCritic | null>(null);
+  const [feas, setFeas] = useState<FeasibilityCritic | null>(null);
+  const [scores, setScores] = useState<{ logic: number; feas: number }>({ logic: 0, feas: 0 });
+
+  useEffect(() => {
+    loadLogicExamples().then((ex) => {
+      setLogic(new LogicCritic(ex));
+      setFeas(new FeasibilityCritic(ex));
+    });
+  }, []);
 
   useEffect(() => {
     const svg = d3.select(ref.current);
@@ -53,18 +69,66 @@ export default function D3LineageTree({ data }: Props) {
       .attr('r', 4)
       .attr('fill', (d) => d3.interpolateBlues(d.data.pass_rate))
       .style('cursor', 'pointer')
-      .on('click', (event, d) => setSelected(d.data.diff ?? null));
+      .on('click', (_, d) => {
+        setSelected(d.data);
+        setOpen((o) => !o);
+      });
 
     node.append('title').text((d) => `pass=${d.data.pass_rate}`);
   }, [data]);
+
+  useEffect(() => {
+    if (!selected || !logic || !feas) return;
+    const diff = selected.diff ?? '';
+    setScores({ logic: logic.score(diff), feas: feas.score(diff) });
+  }, [selected, logic, feas]);
 
   return (
     <div>
       <svg ref={ref} width={840} height={440} />
       {selected && (
-        <pre className="diff" style={{ color: '#000', backgroundColor: '#fff' }}>
-          {selected}
-        </pre>
+        <div>
+          <button type="button" onClick={() => setOpen((o) => !o)}>
+            {open ? 'Hide' : 'Show'} details
+          </button>
+          {open && (
+            <div>
+              <SpiderChart
+                labels={['pass', 'logic', 'feas']}
+                values={[selected.pass_rate, scores.logic, scores.feas]}
+              />
+              <table className="critic-lattice">
+                <tbody>
+                  <tr>
+                    <th>pass</th>
+                    <td>{selected.pass_rate.toFixed(2)}</td>
+                  </tr>
+                  <tr>
+                    <th>logic</th>
+                    <td>{scores.logic.toFixed(2)}</td>
+                  </tr>
+                  <tr>
+                    <th>feas</th>
+                    <td>{scores.feas.toFixed(2)}</td>
+                  </tr>
+                </tbody>
+              </table>
+              {selected.diff && (
+                <pre className="diff" style={{ color: '#000', backgroundColor: '#fff' }}>
+                  {selected.diff}
+                </pre>
+              )}
+              <button type="button" onClick={() => setModalOpen(true)}>
+                Learn more
+              </button>
+              <RationaleModal
+                open={modalOpen}
+                onClose={() => setModalOpen(false)}
+                docUrl="/alpha_factory_v1/docs/alpha_agi_agent.md"
+              />
+            </div>
+          )}
+        </div>
       )}
     </div>
   );
