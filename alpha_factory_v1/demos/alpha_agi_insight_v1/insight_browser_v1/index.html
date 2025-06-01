@@ -38,6 +38,7 @@
     <div id="toast"></div>
     <div id="toolbar"></div>
     <div id="legend"></div>
+    <div id="depth-legend"></div>
     <script
       src="d3.v7.min.js"
       integrity="sha384-QqrLqBpBJfpJ/24ZmCV87BPpk+Sj9GkH5DzKZdwS4d47ZojhpdfvBiF+BgWe8zX8"
@@ -134,10 +135,18 @@ function updateLegend(strats){
   }
 }
 
+function updateDepthLegend(max){
+  const dl=document.getElementById('depth-legend');
+  dl.innerHTML='depth';
+  const bar=document.createElement('div');
+  bar.className='bar';
+  dl.appendChild(bar);
+}
+
 function start(p){
   current=p
   rand=lcg(p.seed)
-  pop=Array.from({length:p.pop},()=>({logic:rand(),feasible:rand(),strategy:'base'}))
+  pop=Array.from({length:p.pop},()=>({logic:rand(),feasible:rand(),strategy:'base',depth:0}))
   gen=0
   running=true
   setupView()
@@ -166,11 +175,13 @@ function step(){
   info.text(`gen ${gen}`)
   const front = paretoFront(pop)
   renderFrontier(view.node ? view.node() : view,pop,selectPoint)
+  const md = Math.max(...pop.map(d=>d.depth||0))
+  updateDepthLegend(md)
   archive.add(current.seed, current, front).then(()=>evolutionPanel.render()).catch(()=>{})
   if(!running)return
   if(gen++>=current.gen){worker.terminate();return}
   telemetry.recordRun(1)
-  worker.postMessage({pop,rngState:rand.state(),mutations:current.mutations,popSize:current.pop})
+  worker.postMessage({pop,rngState:rand.state(),mutations:current.mutations,popSize:current.pop,gen})
 }
 
 function togglePause(){

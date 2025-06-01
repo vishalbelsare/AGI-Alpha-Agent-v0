@@ -11,6 +11,13 @@ svg {
 #legend {
   @apply text-base-content fixed bottom-4 right-4 text-sm;
 }
+#depth-legend {
+  @apply text-base-content fixed bottom-12 right-4 text-sm flex items-center;
+}
+#depth-legend .bar {
+  @apply ml-2 h-2 w-16 rounded;
+  background: linear-gradient(to right, rgba(0,175,255,1), rgba(0,175,255,0));
+}
 #tooltip {
   @apply absolute hidden pointer-events-none bg-black/70 text-white px-1 py-0.5 rounded text-sm;
 }
