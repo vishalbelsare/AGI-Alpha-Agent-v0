@@ -61,7 +61,11 @@ export default function D3LineageTree({ data }: Props) {
   return (
     <div>
       <svg ref={ref} width={840} height={440} />
-      {selected && <pre className="diff">{selected}</pre>}
+      {selected && (
+        <pre className="diff" style={{ color: '#000', backgroundColor: '#fff' }}>
+          {selected}
+        </pre>
+      )}
     </div>
   );
 }

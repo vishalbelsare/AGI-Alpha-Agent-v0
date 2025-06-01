@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 import React, { useEffect, useState, FormEvent } from 'react';
 import Plotly from 'plotly.js-dist';
+import { useI18n } from './IntlContext';
 
 interface SectorData {
   name: string;
@@ -31,6 +32,7 @@ interface RunsResponse {
 }
 
 export default function App() {
+  const { t } = useI18n();
   const [horizon, setHorizon] = useState(5);
   const [popSize, setPopSize] = useState(6);
   const [generations, setGenerations] = useState(3);
@@ -141,39 +143,36 @@ export default function App() {
 
   return (
     <div>
-      <h1>AGI Simulation Dashboard</h1>
+      <h1>{t('title.dashboard')}</h1>
       <form onSubmit={onSubmit}>
-        <label>
-          Horizon
-          <input
-            type="number"
-            value={horizon}
-            onChange={(e) => setHorizon(Number(e.target.value))}
-          />
-        </label>
-        <label>
-          Population
-          <input
-            type="number"
-            value={popSize}
-            onChange={(e) => setPopSize(Number(e.target.value))}
-          />
-        </label>
-        <label>
-          Generations
-          <input
-            type="number"
-            value={generations}
-            onChange={(e) => setGenerations(Number(e.target.value))}
-          />
-        </label>
-        <button type="submit">Run simulation</button>
+        <label htmlFor="horizon-input-app">{t('label.horizon')}</label>
+        <input
+          id="horizon-input-app"
+          type="number"
+          value={horizon}
+          onChange={(e) => setHorizon(Number(e.target.value))}
+        />
+        <label htmlFor="pop-input-app">{t('label.population')}</label>
+        <input
+          id="pop-input-app"
+          type="number"
+          value={popSize}
+          onChange={(e) => setPopSize(Number(e.target.value))}
+        />
+        <label htmlFor="gen-input-app">{t('label.generations')}</label>
+        <input
+          id="gen-input-app"
+          type="number"
+          value={generations}
+          onChange={(e) => setGenerations(Number(e.target.value))}
+        />
+        <button type="submit">{t('button.run')}</button>
       </form>
-      <button type="button" onClick={refreshRuns}>Refresh summaries</button>
-      <div id="sectors" style={{ width: '100%', height: 300 }} />
-      <div id="capability" style={{ width: '100%', height: 300 }} />
-      <div id="pareto" style={{ width: '100%', height: 400 }} />
-      <h2>Last 20 simulations</h2>
+      <button type="button" onClick={refreshRuns}>{t('label.refresh')}</button>
+      <div id="sectors" role="img" aria-label="sectors" style={{ width: '100%', height: 300 }} />
+      <div id="capability" role="img" aria-label="capability" style={{ width: '100%', height: 300 }} />
+      <div id="pareto" role="img" aria-label="pareto" style={{ width: '100%', height: 400 }} />
+      <h2>{t('heading.lastRuns')}</h2>
       <ul>
         {runs.map((r) => (
           <li key={r}>{r}</li>

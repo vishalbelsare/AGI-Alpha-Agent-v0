@@ -4,13 +4,30 @@ import ReactDOM from 'react-dom/client';
 import { BrowserRouter, Routes, Route, Link } from 'react-router-dom';
 import Dashboard from './pages/Dashboard';
 import Archive from './pages/Archive';
+import { IntlProvider, useI18n } from './IntlContext';
+
+function Nav() {
+  const { lang, setLang, t } = useI18n();
+  return (
+    <nav>
+      <Link to="/">{t('nav.dashboard')}</Link> |{' '}
+      <Link to="/archive">{t('nav.archive')}</Link>{' '}
+      <select
+        aria-label={t('aria.language')}
+        value={lang}
+        onChange={(e) => setLang(e.target.value)}
+      >
+        <option value="en">English</option>
+        <option value="fr">Français</option>
+      </select>
+    </nav>
+  );
+}
 
 function App() {
   return (
     <BrowserRouter>
-      <nav>
-        <Link to="/">Dashboard</Link> | <Link to="/archive">Archive</Link>
-      </nav>
+      <Nav />
       <Routes>
         <Route path="/" element={<Dashboard />} />
         <Route path="/archive" element={<Archive />} />
@@ -20,5 +37,7 @@ function App() {
 }
 
 ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
-  <App />,
+  <IntlProvider>
+    <App />
+  </IntlProvider>,
 );

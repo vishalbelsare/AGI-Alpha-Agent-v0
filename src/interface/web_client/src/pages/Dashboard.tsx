@@ -4,6 +4,7 @@ import Plotly from 'plotly.js-dist';
 import D3LineageTree, { LineageNode } from '../D3LineageTree';
 import Pareto3D, { PopulationMember } from '../Pareto3D';
 import LineageTimeline from '../LineageTimeline';
+import { useI18n } from '../IntlContext';
 
 interface SectorData {
   name: string;
@@ -18,6 +19,7 @@ interface ForecastPoint {
 }
 
 export default function Dashboard() {
+  const { t } = useI18n();
   const [horizon, setHorizon] = useState(5);
   const [popSize, setPopSize] = useState(6);
   const [generations, setGenerations] = useState(3);
@@ -163,65 +165,67 @@ export default function Dashboard() {
 
   return (
     <div>
-      <h1>AGI Simulation Dashboard</h1>
+      <h1>{t('title.dashboard')}</h1>
       <form onSubmit={onSubmit}>
-        <label>
-          Horizon
-          <input
-            type="number"
-            value={horizon}
-            onChange={(e) => setHorizon(Number(e.target.value))}
-          />
-        </label>
-        <label>
-          Population size
-          <input
-            type="number"
-            value={popSize}
-            onChange={(e) => setPopSize(Number(e.target.value))}
-          />
-        </label>
-        <label>
-          Generations
-          <input
-            type="number"
-            value={generations}
-            onChange={(e) => setGenerations(Number(e.target.value))}
-          />
-        </label>
-        <label>
-          Initial energy
-          <input
-            type="number"
-            step="any"
-            value={energy}
-            onChange={(e) => setEnergy(Number(e.target.value))}
-          />
-        </label>
-        <label>
-          Initial entropy
-          <input
-            type="number"
-            step="any"
-            value={entropy}
-            onChange={(e) => setEntropy(Number(e.target.value))}
-          />
-        </label>
-        <label>
-          Curve
-          <select value={curve} onChange={(e) => setCurve(e.target.value)}>
-            <option value="logistic">logistic</option>
-            <option value="linear">linear</option>
-            <option value="exponential">exponential</option>
-          </select>
-        </label>
-        <button type="submit">Run</button>
+        <label htmlFor="horizon-input">{t('label.horizon')}</label>
+        <input
+          id="horizon-input"
+          type="number"
+          value={horizon}
+          onChange={(e) => setHorizon(Number(e.target.value))}
+        />
+        <label htmlFor="pop-input">{t('label.population')}</label>
+        <input
+          id="pop-input"
+          type="number"
+          value={popSize}
+          onChange={(e) => setPopSize(Number(e.target.value))}
+        />
+        <label htmlFor="gen-input">{t('label.generations')}</label>
+        <input
+          id="gen-input"
+          type="number"
+          value={generations}
+          onChange={(e) => setGenerations(Number(e.target.value))}
+        />
+        <label htmlFor="energy-input">{t('label.energy')}</label>
+        <input
+          id="energy-input"
+          type="number"
+          step="any"
+          value={energy}
+          onChange={(e) => setEnergy(Number(e.target.value))}
+        />
+        <label htmlFor="entropy-input">{t('label.entropy')}</label>
+        <input
+          id="entropy-input"
+          type="number"
+          step="any"
+          value={entropy}
+          onChange={(e) => setEntropy(Number(e.target.value))}
+        />
+        <label htmlFor="curve-select">{t('label.curve')}</label>
+        <select
+          id="curve-select"
+          value={curve}
+          onChange={(e) => setCurve(e.target.value)}
+        >
+          <option value="logistic">{t('option.logistic')}</option>
+          <option value="linear">{t('option.linear')}</option>
+          <option value="exponential">{t('option.exponential')}</option>
+        </select>
+        <button type="submit">{t('button.run')}</button>
       </form>
-      {runId && <p>Run ID: {runId}</p>}
-      <progress value={progress} max={1} style={{ width: '100%' }} />
-      <div id="sectors" style={{ width: '100%', height: 300 }} />
-      <div id="capability" style={{ width: '100%', height: 300 }} />
-      <div id="pareto" style={{ width: '100%', height: 400 }} />
+      {runId && <p>{t('label.runId')}: {runId}</p>}
+      <progress
+        aria-label={t('aria.progress')}
+        value={progress}
+        max={1}
+        style={{ width: '100%' }}
+      />
+      <div id="sectors" role="img" aria-label="sectors" style={{ width: '100%', height: 300 }} />
+      <div id="capability" role="img" aria-label="capability" style={{ width: '100%', height: 300 }} />
+      <div id="pareto" role="img" aria-label="pareto" style={{ width: '100%', height: 400 }} />
       <Pareto3D data={population} />
       <LineageTimeline data={lineage} />
       <D3LineageTree data={lineage} />
