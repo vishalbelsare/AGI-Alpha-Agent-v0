@@ -31,7 +31,9 @@ export function initControls(params,onChange){
   update(params);
   function emit(){
     const muts=[gauss,swap,jump,scramble].filter(c=>c.checked).map(c=>c.id);
-    onChange({seed:+seed.value,pop:+pop.value,gen:+gen.value,mutations:muts});
+    const p={seed:+seed.value,pop:+pop.value,gen:+gen.value,mutations:muts};
+    try{localStorage.setItem('insightParams',JSON.stringify(p));}catch{}
+    onChange(p);
   }
   seed.addEventListener('change',emit);
   pop.addEventListener('change',emit);

@@ -8,6 +8,20 @@ function Web3Storage(){ throw new Error('web3.storage not bundled'); }
 // SPDX-License-Identifier: Apache-2.0
 const defaults={seed:42,pop:80,gen:60,mutations:['gaussian']};
 function parseHash(h=window.location.hash){
+  if(!h||h==='#'){
+    try{
+      const stored=localStorage.getItem('insightParams');
+      if(stored){
+        const p=JSON.parse(stored);
+        return{
+          seed:p.seed??defaults.seed,
+          pop:p.pop??defaults.pop,
+          gen:p.gen??defaults.gen,
+          mutations:p.mutations??defaults.mutations
+        };
+      }
+    }catch{}
+  }
   const q=new URLSearchParams(h.replace(/^#/,''));
   return{
     seed:+q.get('seed')||defaults.seed,
@@ -56,7 +70,9 @@ function initControls(params,onChange){
   update(params);
   function emit(){
     const muts=[gauss,swap,jump,scramble].filter(c=>c.checked).map(c=>c.id);
-    onChange({seed:+seed.value,pop:+pop.value,gen:+gen.value,mutations:muts});
+    const p={seed:+seed.value,pop:+pop.value,gen:+gen.value,mutations:muts};
+    try{localStorage.setItem('insightParams',JSON.stringify(p));}catch{}
+    onChange(p);
   }
   seed.addEventListener('change',emit);
   pop.addEventListener('change',emit);

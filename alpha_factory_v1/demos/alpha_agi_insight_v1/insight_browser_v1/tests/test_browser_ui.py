@@ -28,3 +28,25 @@ def test_slider_updates_hash_and_restarts() -> None:
         page.wait_for_selector("#toast.show")
         assert "restarted" in page.inner_text("#toast")
         browser.close()
+
+
+def test_reload_restores_settings() -> None:
+    dist = Path(__file__).resolve().parents[1] / "dist" / "index.html"
+    url = dist.as_uri()
+
+    with sync_playwright() as p:
+        browser = p.chromium.launch()
+        page = browser.new_page()
+        page.goto(url)
+        page.wait_for_selector("#controls")
+
+        seed_input = page.locator("#seed")
+        seed_input.fill("321")
+        seed_input.dispatch_event("change")
+        page.wait_for_function("location.hash.includes('seed=321')")
+
+        page.evaluate("location.hash = ''")
+        page.reload()
+        page.wait_for_selector("#controls")
+        assert page.input_value("#seed") == "321"
+        browser.close()
