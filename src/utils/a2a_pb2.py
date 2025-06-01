@@ -7,6 +7,7 @@ from google.protobuf.internal import builder as _builder
 from google.protobuf import descriptor as _descriptor
 from google.protobuf import descriptor_pool as _descriptor_pool
 from google.protobuf import symbol_database as _symbol_database
+from google.protobuf import struct_pb2 as _struct_pb2  # noqa: F401
 # @@protoc_insertion_point(imports)
 
 _sym_db = _symbol_database.Default()

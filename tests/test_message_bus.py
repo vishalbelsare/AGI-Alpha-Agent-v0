@@ -81,7 +81,7 @@ def test_publish_grpc() -> None:
         async with bus:
             async with grpc.aio.insecure_channel(f"localhost:{port}") as ch:
                 stub = ch.unary_unary("/bus.Bus/Send")
-                await stub(b"proto_schema=1")
+                await stub(f"{messaging.A2ABus.PROTO_VERSION} n1".encode())
                 payload = {
                     "sender": "a",
                     "recipient": "x",
@@ -136,7 +136,7 @@ def test_new_connection_requires_handshake() -> None:
             # first client performs handshake and sends message
             async with grpc.aio.insecure_channel(f"localhost:{port}") as ch1:
                 stub1 = ch1.unary_unary("/bus.Bus/Send")
-                await stub1(b"proto_schema=1")
+                await stub1(f"{messaging.A2ABus.PROTO_VERSION} n1".encode())
                 payload = {
                     "sender": "a",
                     "recipient": "x",

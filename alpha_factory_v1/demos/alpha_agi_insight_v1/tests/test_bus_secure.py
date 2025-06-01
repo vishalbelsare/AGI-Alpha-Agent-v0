@@ -11,6 +11,7 @@ import shutil
 from pathlib import Path
 
 import grpc
+import pytest
 from alpha_factory_v1.demos.alpha_agi_insight_v1.src.utils import config, messaging
 
 
@@ -51,6 +52,7 @@ def test_bus_secure(tmp_path: Path) -> None:
             creds = grpc.ssl_channel_credentials(root_certificates=ca)
             async with grpc.aio.secure_channel(f"localhost:{port}", creds) as ch:
                 stub = ch.unary_unary("/bus.Bus/Send")
+                await stub(f"{messaging.A2ABus.PROTO_VERSION} n1".encode())
                 payload = {
                     "sender": "a",
                     "recipient": "b",
@@ -64,13 +66,18 @@ def test_bus_secure(tmp_path: Path) -> None:
             # second connection with invalid token should be rejected
             async with grpc.aio.secure_channel(f"localhost:{port}", creds) as ch:
                 stub = ch.unary_unary("/bus.Bus/Send")
+                await stub(f"{messaging.A2ABus.PROTO_VERSION} n2".encode())
                 payload["token"] = "bad"
-                try:
-                    resp = await stub(json.dumps(payload).encode())
-                except grpc.aio.AioRpcError as exc:
-                    assert exc.code() == grpc.StatusCode.PERMISSION_DENIED
-                else:
-                    assert resp == b"denied"
+                with pytest.raises(grpc.aio.AioRpcError) as excinfo:
+                    await stub(json.dumps(payload).encode())
+                assert excinfo.value.code() == grpc.StatusCode.PERMISSION_DENIED
+            await asyncio.sleep(0.05)
+
+            # replayed handshake should be rejected
+            async with grpc.aio.secure_channel(f"localhost:{port}", creds) as ch:
+                stub = ch.unary_unary("/bus.Bus/Send")
+                with pytest.raises(grpc.aio.AioRpcError):
+                    await stub(f"{messaging.A2ABus.PROTO_VERSION} n1".encode())
             await asyncio.sleep(0.05)
         shutil.rmtree(tmp_path / "certs", ignore_errors=True)
 
