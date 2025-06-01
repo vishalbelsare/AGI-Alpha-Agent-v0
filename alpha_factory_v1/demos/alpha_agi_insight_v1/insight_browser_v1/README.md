@@ -49,11 +49,14 @@ python manual_build.py
 ```
 
 The script requires Python ≥3.11 and writes the bundled output to `dist/`.
-`dist/index.html` loads `dist/app.js`, `bundle.esm.min.js` and
-`pyodide.js` with integrity hashes. Any `wasm/` or `wasm_llm/` directories
-are copied as-is so the demo can run fully offline.
-Run `python ../../../scripts/fetch_assets.py` beforehand to download the
-Pyodide runtime and GPT‑2 WASM model when building without internet access.
+`dist/index.html` includes SHA‑384 integrity hashes for `app.js`, `style.css`,
+`bundle.esm.min.js` and `pyodide.js`. It also embeds
+`window.PINNER_TOKEN`, `window.OPENAI_API_KEY` and `window.OTEL_ENDPOINT`
+from the environment just like `npm run build`.
+Any `wasm/` or `wasm_llm/` directories are copied as-is so the demo can
+run fully offline. Run `python ../../../scripts/fetch_assets.py` beforehand
+to download the Pyodide runtime and GPT‑2 WASM model when building
+without internet access.
 Serve the folder with `npm start` or open `dist/index.html` directly.
 
 ## Toolbar & Controls

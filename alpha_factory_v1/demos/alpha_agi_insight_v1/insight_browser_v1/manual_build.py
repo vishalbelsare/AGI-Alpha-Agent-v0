@@ -1,5 +1,10 @@
 # SPDX-License-Identifier: Apache-2.0
-import os, re, sys, hashlib, base64
+import os
+import re
+import sys
+import hashlib
+import base64
+import json
 from pathlib import Path
 
 
@@ -65,7 +70,14 @@ bundle = '(function() {\n' + '\n'.join(processed[p] for p in order) + '\n' + ent
 dist_dir.mkdir(exist_ok=True)
 (dist_dir / 'app.js').write_text(bundle)
 
-out_html = re.sub(r'<script type="module">([\s\S]*?)</script>', '<script src="app.js"></script>', html)
+# replace inline module with external script and telemetry init
+app_sri_placeholder = '<script type="module" src="app.js" crossorigin="anonymous"></script>'
+out_html = re.sub(
+    r'<script type="module">([\s\S]*?)</script>',
+    app_sri_placeholder
+    + '\n<script type="module">import { initTelemetry } from "./app.js"; window.telemetry = initTelemetry();</script>',
+    html,
+)
 out_html = out_html.replace('src/ui/controls.css', 'controls.css')
 
 # copy assets
@@ -84,12 +96,27 @@ for src, dest in [
         target.parent.mkdir(parents=True, exist_ok=True)
         target.write_bytes(src_path.read_bytes())
 
+app_sri = sha384(dist_dir / 'app.js')
+style_sri = sha384(dist_dir / 'style.css')
 bundle_sri = sha384(dist_dir / 'bundle.esm.min.js')
 pyodide_sri = sha384(dist_dir / 'pyodide.js')
+out_html = out_html.replace(app_sri_placeholder, f'<script type="module" src="app.js" integrity="{app_sri}" crossorigin="anonymous"></script>')
+out_html = out_html.replace(
+    'href="style.css"',
+    f'href="style.css" integrity="{style_sri}" crossorigin="anonymous"',
+)
+env_script = (
+    '<script>'
+    f'window.PINNER_TOKEN={json.dumps(os.getenv("PINNER_TOKEN", ""))};'
+    f'window.OPENAI_API_KEY={json.dumps(os.getenv("OPENAI_API_KEY", ""))};'
+    f'window.OTEL_ENDPOINT={json.dumps(os.getenv("OTEL_ENDPOINT", ""))};'
+    '</script>'
+)
 out_html = out_html.replace(
     '</body>',
     f'<script src="bundle.esm.min.js" integrity="{bundle_sri}" crossorigin="anonymous"></script>\n'
-    f'<script src="pyodide.js" integrity="{pyodide_sri}" crossorigin="anonymous"></script>\n</body>'
+    f'<script src="pyodide.js" integrity="{pyodide_sri}" crossorigin="anonymous"></script>\n'
+    f'{env_script}\n</body>'
 )
 (dist_dir / 'index.html').write_text(out_html)
 
