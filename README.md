@@ -888,7 +888,7 @@ like `--cycle`, `--loglevel` and `--version`.
 Build the demo containers locally:
 
 ```bash
-cp .env.sample .env
+cp .env.sample .env  # fill in NEO4J_PASSWORD, API_TOKEN and optional PINNER_TOKEN
 cd infrastructure
 docker build -t alpha-demo .
 docker compose up -d
