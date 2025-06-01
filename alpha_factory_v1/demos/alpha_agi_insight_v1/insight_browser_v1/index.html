@@ -26,6 +26,7 @@ import {pinFiles} from './src/ipfs/pinner.js';
 import {initGestures} from './src/ui/gestures.js';
 import {initFpsMeter} from './src/ui/fpsMeter.js';
 import {initI18n,t} from './src/ui/i18n.js';
+import {chat as llmChat} from './src/utils/llm.js';
 
 function lcg(seed){
   function rand(){
@@ -43,6 +44,7 @@ let worker
 let fpsStarted=false
 function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');clearTimeout(toast.id);toast.id=setTimeout(()=>t.classList.remove('show'),2e3)}
 window.toast=toast;
+window.llmChat=llmChat;
 
 function applyTheme(t){
   document.documentElement.dataset.theme=t;

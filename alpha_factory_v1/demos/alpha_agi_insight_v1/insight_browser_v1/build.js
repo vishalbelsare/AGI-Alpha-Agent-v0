@@ -27,6 +27,10 @@ async function bundle() {
   for (const f of await fs.readdir('wasm')) {
     await fs.copyFile(`wasm/${f}`, `${OUT_DIR}/${f}`);
   }
+  await fs.mkdir(`${OUT_DIR}/wasm_llm`, { recursive: true }).catch(() => {});
+  for await (const f of await fs.readdir('wasm_llm')) {
+    await fs.copyFile(`wasm_llm/${f}`, `${OUT_DIR}/wasm_llm/${f}`);
+  }
   const size = await gzipSize.file(`${OUT_DIR}/app.js`);
   if (size > 180 * 1024) {
     throw new Error(`gzip size ${size} bytes exceeds limit`);
