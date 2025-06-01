@@ -1,6 +1,5 @@
 
-# **META-AGENTIC** α‑AGI 👁️✨ 
-[![Replay Bench](https://github.com/MontrealAI/AGI-Alpha-Agent-v0/actions/workflows/bench.yml/badge.svg)](https://github.com/MontrealAI/AGI-Alpha-Agent-v0/actions/workflows/bench.yml)
+# **META-AGENTIC** α‑AGI 👁️✨
 
 **Out‑learn · Out‑think · Out‑design · Out‑strategise · Out‑execute**
 
