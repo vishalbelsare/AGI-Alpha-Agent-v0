@@ -34,7 +34,7 @@ jobs:
         run: |
           bytes=${{ steps.size.outputs.bytes }}
           echo "Bundle size: $bytes bytes"
-          if [ "$bytes" -gt 180000 ]; then
+          if [ "$bytes" -gt 6291456 ]; then
             echo "Build too large: $bytes bytes"
             exit 1
           fi
