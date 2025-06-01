@@ -15,9 +15,12 @@ async function bundle() {
   await fs.mkdir(OUT_DIR, { recursive: true });
   await build({ entryPoints: ['tmp.js'], bundle: true, minify: true, outfile: `${OUT_DIR}/app.js` });
   await fs.unlink('tmp.js');
-  const outHtml = html.replace(match[0], '<script src="app.js"></script>');
+  const outHtml = html
+    .replace(match[0], '<script src="app.js"></script>')
+    .replace('src/ui/controls.css', 'controls.css');
   await fs.writeFile(`${OUT_DIR}/index.html`, outHtml);
   await fs.copyFile('style.css', `${OUT_DIR}/style.css`);
+  await fs.copyFile('src/ui/controls.css', `${OUT_DIR}/controls.css`);
   await fs.copyFile('d3.v7.min.js', `${OUT_DIR}/d3.v7.min.js`);
   const size = await gzipSize.file(`${OUT_DIR}/app.js`);
   if (size > 180 * 1024) {
