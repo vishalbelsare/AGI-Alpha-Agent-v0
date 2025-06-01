@@ -6,3 +6,7 @@
 #toast{position:fixed;bottom:10px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,.8);color:#fff;padding:4px 8px;opacity:0;transition:opacity .3s}
 #toast.show{opacity:1}
 @media(prefers-color-scheme:light){#controls{background:rgba(255,255,255,.9);color:#000}#toast{background:rgba(238,238,238,.9);color:#000}#drop{border-color:#aaa}#drop.drag{background:rgba(0,0,0,.05)}}
+:root[data-theme="light"] #controls{background:rgba(255,255,255,.9);color:#000}
+:root[data-theme="light"] #toast{background:rgba(238,238,238,.9);color:#000}
+:root[data-theme="light"] #drop{border-color:#aaa}
+:root[data-theme="light"] #drop.drag{background:rgba(0,0,0,.05)}
