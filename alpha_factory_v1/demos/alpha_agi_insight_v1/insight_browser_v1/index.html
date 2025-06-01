@@ -12,39 +12,98 @@ import {parseHash,toHash} from './src/config/params.js';
 import {initControls} from './src/ui/ControlsPanel.js';
 import {paretoFront} from './src/utils/pareto.js';
 import {renderFrontier,addGlow} from './src/render/frontier.js';
+import {save,load} from './src/state/serializer.js';
+import {initDragDrop} from './src/ui/dragdrop.js';
 
-function lcg(seed){return()=>((seed=Math.imul(1664525,seed)+1013904223)>>>0)/2**32}
+function lcg(seed){
+  function rand(){
+    seed=Math.imul(1664525,seed)+1013904223>>>0;
+    return seed/2**32;
+  }
+  rand.state=()=>seed;
+  rand.set=s=>{seed=s>>>0;};
+  return rand;
+}
 
-let panel
+let panel,pauseBtn,exportBtn,dropZone
+let current,rand,pop,gen,svg,x,y,info,running=true
 function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');clearTimeout(toast.id);toast.id=setTimeout(()=>t.classList.remove('show'),2e3)}
 
-function start(p){
-  const rand=lcg(p.seed)
-  let pop=Array.from({length:p.pop},()=>({logic:rand(),feasible:rand()}))
-  const svg=d3.select('body').append('svg').attr('viewBox','0 0 500 500')
-  const x=d3.scaleLinear().domain([0,1]).range([40,460]),
-        y=d3.scaleLinear().domain([0,1]).range([460,40])
+function setupView(){
+  d3.select('svg').remove();
+  svg=d3.select('body').append('svg').attr('viewBox','0 0 500 500')
+  x=d3.scaleLinear().domain([0,1]).range([40,460])
+  y=d3.scaleLinear().domain([0,1]).range([460,40])
   addGlow(svg)
-  const info=svg.append('text').attr('x',20).attr('y',30).attr('fill','#fff')
-  let gen=0
-  const step=()=>{
-    info.text(`gen ${gen}`)
-    renderFrontier(svg,pop,x,y)
-    if(gen++>=p.gen)return
-    pop=pop.concat(pop.map(d=>({
-      logic:Math.min(1,Math.max(0,d.logic+(rand()-.5)*.12)),
-      feasible:Math.min(1,Math.max(0,d.feasible+(rand()-.5)*.12))
-    })))
-    const front=paretoFront(pop)
-    pop.forEach(d=>d.front=front.includes(d))
-    pop=front.concat(d3.shuffle(pop).slice(0,p.pop-10))
-    requestAnimationFrame(step)
-  }
+  info=svg.append('text').attr('x',20).attr('y',30).attr('fill','#fff')
+}
+
+function start(p){
+  current=p
+  rand=lcg(p.seed)
+  pop=Array.from({length:p.pop},()=>({logic:rand(),feasible:rand()}))
+  gen=0
+  running=true
+  setupView()
   step()
+}
+
+function step(){
+  info.text(`gen ${gen}`)
+  renderFrontier(svg,pop,x,y)
+  if(!running){requestAnimationFrame(step);return}
+  if(gen++>=current.gen)return
+  pop=pop.concat(pop.map(d=>({
+    logic:Math.min(1,Math.max(0,d.logic+(rand()-.5)*.12)),
+    feasible:Math.min(1,Math.max(0,d.feasible+(rand()-.5)*.12))
+  })))
+  const front=paretoFront(pop)
+  pop.forEach(d=>d.front=front.includes(d))
+  pop=front.concat(d3.shuffle(pop).slice(0,current.pop-10))
+  requestAnimationFrame(step)
+}
+
+function togglePause(){
+  running=!running
+  pauseBtn.textContent=running?'Pause':'Resume'
+  if(running)requestAnimationFrame(step)
+}
+
+function exportState(){
+  pop.gen=gen
+  const json=save(pop,rand.state())
+  const a=document.createElement('a')
+  a.href=URL.createObjectURL(new Blob([json],{type:'application/json'}))
+  a.download='state.json'
+  a.click()
+  URL.revokeObjectURL(a.href)
+}
+
+function loadState(text){
+  try{
+    const s=load(text)
+    pop=s.pop
+    gen=s.gen
+    rand=lcg(0);rand.set(s.rngState)
+    running=true
+    pauseBtn.textContent='Pause'
+    setupView()
+    step()
+    toast('state loaded')
+  }catch{toast('invalid file')}
 }
 
 function apply(p){location.hash=toHash(p)}
 
-window.addEventListener('DOMContentLoaded',()=>{panel=initControls(parseHash(),apply);window.dispatchEvent(new HashChangeEvent('hashchange'))})
-window.addEventListener('hashchange',()=>{const p=parseHash();panel.setValues(p);d3.select('svg').remove();start(p);toast('simulation restarted')})
+window.addEventListener('DOMContentLoaded',()=>{
+  panel=initControls(parseHash(),apply)
+  pauseBtn=panel.pauseBtn
+  exportBtn=panel.exportBtn
+  dropZone=panel.dropZone
+  pauseBtn.addEventListener('click',togglePause)
+  exportBtn.addEventListener('click',exportState)
+  initDragDrop(dropZone,loadState)
+  window.dispatchEvent(new HashChangeEvent('hashchange'))
+})
+window.addEventListener('hashchange',()=>{const p=parseHash();panel.setValues(p);start(p);toast('simulation restarted')})
 </script>
