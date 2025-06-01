@@ -1,20 +1,20 @@
 // SPDX-License-Identifier: Apache-2.0
 export function paretoFront(pop) {
+  if (pop.length === 0) return [];
+
+  // Sort by logic (desc) then feasible (desc) and scan once.
+  const sorted = [...pop].sort(
+    (a, b) => b.logic - a.logic || b.feasible - a.feasible,
+  );
+
   const front = [];
-  for (const a of pop) {
-    let dominated = false;
-    for (const b of pop) {
-      if (a === b) continue;
-      if (
-        b.logic >= a.logic &&
-        b.feasible >= a.feasible &&
-        (b.logic > a.logic || b.feasible > a.feasible)
-      ) {
-        dominated = true;
-        break;
-      }
+  let bestFeasible = -Infinity;
+  for (const p of sorted) {
+    if (p.feasible >= bestFeasible) {
+      front.push(p);
+      bestFeasible = p.feasible;
     }
-    if (!dominated) front.push(a);
   }
+
   return front;
 }
