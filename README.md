@@ -3,6 +3,9 @@
 
 **Out‑learn · Out‑think · Out‑design · Out‑strategise · Out‑execute**
 
+![CI](https://github.com/AGI-Factory/AGI-Alpha-Agent-v0/actions/workflows/ci.yml/badge.svg)
+![Release](https://github.com/AGI-Factory/AGI-Alpha-Agent-v0/actions/workflows/ci.yml/badge.svg)
+
 ---
 
 # 🚀 [ 🎖️ α‑AGI Ascension 🌌 ]
@@ -1028,6 +1031,12 @@ Our **AGI ALPHA AGENT**, fuelled by the strictly‑utility **$AGIALPHA** token
 This project is distributed under the [Apache 2.0](LICENSE) license.
 All community members are expected to follow our [Code of Conduct](CODE_OF_CONDUCT.md).
 Please report security issues via the process outlined in our [Security Policy](SECURITY.md).
+
+### Release Tweet
+
+```
+🚀 New Alpha-Factory release! Offline dashboard, responsive UI and automated visual tests powered by Percy.
+```
 
 <a name="16-final-note"></a>
 ## 16 · Final Note

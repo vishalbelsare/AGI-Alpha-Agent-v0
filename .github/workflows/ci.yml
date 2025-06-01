@@ -66,6 +66,19 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.lock
           pip install pytest pytest-cov pytest-benchmark mutmut
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'pnpm'
+      - name: Install pnpm
+        run: npm install -g pnpm
+      - name: Install web dependencies
+        run: pnpm --dir src/interface/web_client install
+      - name: Cypress E2E tests with Percy
+        env:
+          PERCY_TOKEN: ${{ secrets.PERCY_TOKEN }}
+          PERCY_TOKEN_E2E: ${{ secrets.PERCY_TOKEN }}
+        run: pnpm --dir src/interface/web_client run percy:cypress
       - name: Install Playwright browsers
         run: playwright install chromium
       - name: Install proto compiler
@@ -166,6 +179,20 @@ PY
           docker tag $DOCKER_IMAGE:ci ghcr.io/${{ github.repository_owner }}/$DOCKER_IMAGE:latest
           docker push ghcr.io/${{ github.repository_owner }}/$DOCKER_IMAGE:${{ github.ref_name }}
           docker push ghcr.io/${{ github.repository_owner }}/$DOCKER_IMAGE:latest
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'pnpm'
+      - name: Install pnpm
+        run: npm install -g pnpm
+      - name: Build web client
+        run: make build_web
+      - name: Pack release assets
+        run: tar -czf web-client.tar.gz -C src/interface/web_client/dist .
+      - name: Upload release assets
+        uses: softprops/action-gh-release@v1
+        with:
+          files: web-client.tar.gz
       - name: Rollback on failure
         if: failure()
         run: |
