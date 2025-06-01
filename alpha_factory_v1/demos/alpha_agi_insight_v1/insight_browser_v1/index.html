@@ -16,7 +16,7 @@
 <script type="module">
 import {parseHash,toHash} from './src/config/params.js';
 import {initControls} from './src/ui/ControlsPanel.js';
-import {renderFrontier,addGlow} from './src/render/frontier.js';
+import {renderFrontier} from './src/render/frontier.js';
 import {save,load} from './src/state/serializer.js';
 import {initDragDrop} from './src/ui/dragdrop.js';
 import {toCSV} from './src/utils/csv.js';
@@ -39,7 +39,7 @@ function lcg(seed){
 }
 
 let panel,pauseBtn,exportBtn,dropZone
-let current,rand,pop,gen,svg,view,x,y,info,running=true
+let current,rand,pop,gen,svg,view,info,running=true
 let worker
 let fpsStarted=false
 function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');clearTimeout(toast.id);toast.id=setTimeout(()=>t.classList.remove('show'),2e3)}
@@ -67,9 +67,6 @@ function setupView(){
         .attr('viewBox','0 0 500 500')
         .style('touch-action','none');
   view=svg.append('g');
-  x=d3.scaleLinear().domain([0,1]).range([40,460])
-  y=d3.scaleLinear().domain([0,1]).range([460,40])
-  addGlow(svg)
   info=svg.append('text').attr('x',20).attr('y',30).attr('fill','#fff')
   initGestures(svg.node(), view.node ? view.node() : view)
 }
@@ -108,7 +105,7 @@ function start(p){
 
 function step(){
   info.text(`gen ${gen}`)
-  renderFrontier(view,pop,x,y)
+  renderFrontier(view.node ? view.node() : view,pop)
   if(!running)return
   if(gen++>=current.gen){worker.terminate();return}
   worker.postMessage({pop,rngState:rand.state(),mutations:current.mutations,popSize:current.pop})
