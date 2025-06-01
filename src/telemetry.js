@@ -4,6 +4,16 @@
  * Prompts for user consent and sends anonymous metrics to the OTLP endpoint.
  */
 
+export async function hashSession(id) {
+  const buf = await crypto.subtle.digest(
+    'SHA-256',
+    new TextEncoder().encode('insight' + id),
+  );
+  return Array.from(new Uint8Array(buf))
+    .map((b) => b.toString(16).padStart(2, '0'))
+    .join('');
+}
+
 export function initTelemetry() {
   const endpoint =
     (typeof process !== 'undefined' && process.env.OTEL_ENDPOINT) ||
@@ -27,13 +37,14 @@ export function initTelemetry() {
   const metrics = { ts: Date.now(), session: '', generations: 0, shares: 0 };
   const queue = JSON.parse(localStorage.getItem(queueKey) || '[]');
 
-  const ready = crypto.subtle
-    .digest('SHA-256', new TextEncoder().encode(crypto.randomUUID()))
-    .then((buf) => {
-      metrics.session = Array.from(new Uint8Array(buf))
-        .map((b) => b.toString(16).padStart(2, '0'))
-        .join('');
-    });
+  const ready = (async () => {
+    let sid = localStorage.getItem('telemetrySession');
+    if (!sid) {
+      sid = await hashSession(crypto.randomUUID());
+      localStorage.setItem('telemetrySession', sid);
+    }
+    metrics.session = sid;
+  })();
 
   async function sendQueue() {
     if (!enabled) return;
