@@ -115,50 +115,23 @@ function initControls(params,onChange){
 }
 
 // SPDX-License-Identifier: Apache-2.0
-function showTooltip(x, y, text) {
-  let tip = document.getElementById('tooltip');
-  if (!tip) {
-    tip = document.createElement('div');
-    tip.id = 'tooltip';
-    tip.style.position = 'absolute';
-    tip.style.pointerEvents = 'none';
-    tip.style.background = 'rgba(0,0,0,0.7)';
-    tip.style.color = '#fff';
-    tip.style.padding = '2px 4px';
-    tip.style.borderRadius = '3px';
-    tip.style.fontSize = '12px';
-    document.body.appendChild(tip);
-  }
-  tip.style.left = `${x}px`;
-  tip.style.top = `${y}px`;
-  tip.textContent = text;
-  tip.style.display = 'block';
-}
-function hideTooltip() {
-  const tip = document.getElementById('tooltip');
-  if (tip) {
-    tip.style.display = 'none';
-  }
-}
-
-// SPDX-License-Identifier: Apache-2.0
 function paretoFront(pop) {
+  if (pop.length === 0) return [];
+
+  // Sort by logic (desc) then feasible (desc) and scan once.
+  const sorted = [...pop].sort(
+    (a, b) => b.logic - a.logic || b.feasible - a.feasible,
+  );
+
   const front = [];
-  for (const a of pop) {
-    let dominated = false;
-    for (const b of pop) {
-      if (a === b) continue;
-      if (
-        b.logic >= a.logic &&
-        b.feasible >= a.feasible &&
-        (b.logic > a.logic || b.feasible > a.feasible)
-      ) {
-        dominated = true;
-        break;
-      }
+  let bestFeasible = -Infinity;
+  for (const p of sorted) {
+    if (p.feasible >= bestFeasible) {
+      front.push(p);
+      bestFeasible = p.feasible;
     }
-    if (!dominated) front.push(a);
   }
+
   return front;
 }
 
@@ -171,70 +144,206 @@ const strategyColors = {
   front: '#00afff',
   base: '#666',
 };
-
-function credibilityColor(v){
-  const clamped=Math.max(0,Math.min(1,v??0));
-  const hue=120*clamped;
-  return`hsl(${hue},70%,50%)`;
+function credibilityColor(v) {
+  const clamped = Math.max(0, Math.min(1, v ?? 0));
+  const hue = 120 * clamped; // red -> green
+  return `hsl(${hue},70%,50%)`;
+}
+function depthColor(depth, maxDepth) {
+  const md = Math.max(1, maxDepth ?? depth ?? 1);
+  const ratio = 1 - Math.min(depth ?? 0, md) / md;
+  return `rgba(0,175,255,${ratio})`;
 }
 
 // SPDX-License-Identifier: Apache-2.0
-function ensureLayer(parent) {
-  const node = parent.node ? parent.node() : parent;
-  let fo = node.querySelector('foreignObject#canvas-layer');
-  if (!fo) {
-    const svg = node.ownerSVGElement || node;
-    const vb = svg.viewBox?.baseVal;
-    const width = vb && vb.width ? vb.width : svg.clientWidth;
-    const height = vb && vb.height ? vb.height : svg.clientHeight;
-    fo = document.createElementNS('http://www.w3.org/2000/svg', 'foreignObject');
-    fo.setAttribute('id', 'canvas-layer');
-    fo.setAttribute('x', 0);
-    fo.setAttribute('y', 0);
-    fo.setAttribute('width', width);
-    fo.setAttribute('height', height);
-    fo.style.pointerEvents = 'none';
-    fo.style.overflow = 'visible';
-    const canvas = document.createElement('canvas');
-    canvas.width = width;
-    canvas.height = height;
-    fo.appendChild(canvas);
-    node.appendChild(fo);
-    return canvas.getContext('2d');
-  }
-  const canvas = fo.querySelector('canvas');
-  return canvas.getContext('2d');
-}
-function drawPoints(parent, pop, x, y, colorFn) {
-  const ctx = ensureLayer(parent);
-  ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
-  const getColor = typeof colorFn === 'function' ? colorFn : () => colorFn;
-  for (const d of pop) {
-    ctx.fillStyle = getColor(d);
-    ctx.beginPath();
-    ctx.arc(x(d.logic), y(d.feasible), 3, 0, 2 * Math.PI);
-    ctx.fill();
-  }
-  return ctx;
-}
-
-// SPDX-License-Identifier: Apache-2.0
-function addGlow(svg) {
-  const defs = svg.append('defs');
-  const filter = defs.append('filter').attr('id', 'glow');
-  filter.append('feGaussianBlur').attr('stdDeviation', 2).attr('result', 'blur');
-  const merge = filter.append('feMerge');
-  merge.append('feMergeNode').attr('in', 'blur');
-  merge.append('feMergeNode').attr('in', 'SourceGraphic');
-}
-function renderFrontier(container, pop) {
+function renderFrontier(container, pop, onSelect) {
   const front = paretoFront(pop).sort((a, b) => a.logic - b.logic);
-  const dotOpts = {x: 'logic', y: 'feasible', r: 3, fill: d => credibilityColor(d.insightCredibility ?? 0), title: d => `${d.summary ?? ''}\n${d.critic ?? ''}`};
-  const marks = [Plot.areaY(front,{x:'logic',y:'feasible',fill:'rgba(0,175,255,0.2)',stroke:null})];
-  marks.push(pop.length>1e4?plotCanvas(Plot.dot(pop,dotOpts)):Plot.dot(pop,dotOpts));
-  const plot = Plot.plot({width:500,height:500,x:{domain:[0,1]},y:{domain:[0,1]},marks});
-  container.innerHTML='';
+
+  const maxDepth = pop.reduce((m, d) => Math.max(m, d.depth ?? 0), 0);
+  const dotOptions = {
+    x: 'logic',
+    y: 'feasible',
+    r: 3,
+    fill: (d) => depthColor(d.depth ?? 0, maxDepth),
+    title: (d) => `${d.summary ?? ''}\n${d.critic ?? ''}`,
+  };
+
+  const marks = [
+    Plot.areaY(front, {
+      x: 'logic',
+      y: 'feasible',
+      fill: 'rgba(0,175,255,0.2)',
+      stroke: null,
+    }),
+  ];
+
+  marks.push(
+    pop.length > 10000 ? plotCanvas(Plot.dot(pop, dotOptions)) : Plot.dot(pop, dotOptions),
+  );
+
+  const plot = Plot.plot({
+    width: 500,
+    height: 500,
+    x: { domain: [0, 1] },
+    y: { domain: [0, 1] },
+    marks,
+  });
+
+  container.innerHTML = '';
   container.append(plot);
+  if (onSelect) {
+    d3.select(plot).selectAll('circle').on('click', function (_, d) {
+      onSelect(d, this);
+    });
+  }
+}
+
+// SPDX-License-Identifier: Apache-2.0
+function initCriticPanel() {
+  const root = document.createElement('div');
+  root.id = 'critic-panel';
+  Object.assign(root.style, {
+    position: 'fixed',
+    top: '10px',
+    right: '10px',
+    background: 'rgba(0,0,0,0.7)',
+    color: '#fff',
+    padding: '8px',
+    font: '14px sans-serif',
+    display: 'none',
+    zIndex: 1000,
+  });
+
+  const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+  svg.setAttribute('width', '200');
+  svg.setAttribute('height', '200');
+  svg.id = 'critic-chart';
+
+  const table = document.createElement('table');
+  table.id = 'critic-table';
+  table.style.marginTop = '4px';
+  table.style.fontSize = '12px';
+
+  root.appendChild(svg);
+  root.appendChild(table);
+  document.body.appendChild(root);
+
+  let highlighted = null;
+
+  function drawSpider(scores) {
+    const labels = Object.keys(scores);
+    const values = Object.values(scores);
+    const size = 200;
+    const center = size / 2;
+    const radius = center - 20;
+    const step = (Math.PI * 2) / labels.length;
+    svg.innerHTML = '';
+    const pts = [];
+    labels.forEach((label, i) => {
+      const angle = i * step - Math.PI / 2;
+      const r = radius * (values[i] ?? 0);
+      const x = center + r * Math.cos(angle);
+      const y = center + r * Math.sin(angle);
+      pts.push(`${x},${y}`);
+      const lx = center + radius * Math.cos(angle);
+      const ly = center + radius * Math.sin(angle);
+      const tx = center + (radius + 12) * Math.cos(angle);
+      const ty = center + (radius + 12) * Math.sin(angle);
+      const line = document.createElementNS('http://www.w3.org/2000/svg','line');
+      line.setAttribute('x1', center);
+      line.setAttribute('y1', center);
+      line.setAttribute('x2', lx);
+      line.setAttribute('y2', ly);
+      line.setAttribute('stroke', '#ccc');
+      svg.appendChild(line);
+      const text = document.createElementNS('http://www.w3.org/2000/svg','text');
+      text.setAttribute('x', tx);
+      text.setAttribute('y', ty);
+      text.setAttribute('font-size', '10');
+      text.setAttribute('text-anchor', 'middle');
+      text.setAttribute('dominant-baseline', 'middle');
+      text.textContent = label;
+      svg.appendChild(text);
+    });
+    const poly = document.createElementNS('http://www.w3.org/2000/svg','polygon');
+    poly.setAttribute('points', pts.join(' '));
+    poly.setAttribute('fill', 'rgba(0,100,250,0.3)');
+    poly.setAttribute('stroke', 'blue');
+    svg.appendChild(poly);
+  }
+
+  function show(scores, element) {
+    if (highlighted) highlighted.removeAttribute('stroke');
+    if (element) {
+      element.setAttribute('stroke', 'yellow');
+      highlighted = element;
+    }
+    drawSpider(scores);
+    table.innerHTML = Object.entries(scores)
+      .map(([k,v]) => `<tr><th>${k}</th><td>${v.toFixed(2)}</td></tr>`) 
+      .join('');
+    root.style.display = 'block';
+  }
+
+  return { show };
+}
+
+// SPDX-License-Identifier: Apache-2.0
+async function loadExamples(url = '../data/critics/innovations.txt') {
+  try {
+    const res = await fetch(url);
+    if (!res.ok) return [];
+    const text = await res.text();
+    return text.split(/\n/).map(l => l.trim()).filter(Boolean);
+  } catch {
+    return [];
+  }
+}
+class LogicCritic {
+  constructor(examples = []) {
+    this.examples = examples;
+    this.index = {};
+    this.examples.forEach((e, i) => {
+      this.index[e.toLowerCase()] = i;
+    });
+    this.scale = Math.max(this.examples.length - 1, 1);
+  }
+
+  score(genome) {
+    const key = String(genome).toLowerCase();
+    const pos = this.index[key] ?? -1;
+    const base = pos >= 0 ? (pos + 1) / (this.scale + 1) : 0;
+    const noise = Math.random() * 0.001;
+    const val = base + noise;
+    return Math.min(1, Math.max(0, val));
+  }
+}
+class FeasibilityCritic {
+  constructor(examples = []) {
+    this.examples = examples;
+  }
+
+  static jaccard(a, b) {
+    const sa = new Set(a);
+    const sb = new Set(b);
+    if (!sa.size || !sb.size) return 0;
+    let inter = 0;
+    for (const x of sa) if (sb.has(x)) inter++;
+    const union = new Set([...a, ...b]).size;
+    return inter / union;
+  }
+
+  score(genome) {
+    const tokens = String(genome).toLowerCase().split(/\s+/);
+    let best = 0;
+    for (const ex of this.examples) {
+      const sim = FeasibilityCritic.jaccard(tokens, ex.toLowerCase().split(/\s+/));
+      if (sim > best) best = sim;
+    }
+    const noise = Math.random() * 0.001;
+    const val = best + noise;
+    return Math.min(1, Math.max(0, val));
+  }
 }
 
 // SPDX-License-Identifier: Apache-2.0
@@ -252,16 +361,48 @@ function save(pop, rngState) {
   return JSON.stringify(data);
 }
 function load(json) {
-  const data = JSON.parse(json);
+  let data;
+  try {
+    data = JSON.parse(json);
+  } catch (err) {
+    throw new Error(`Malformed JSON: ${err.message}`);
+  }
+
+  if (data === null || typeof data !== 'object') {
+    throw new Error('Invalid data');
+  }
+
+  const allowedRoot = new Set(['gen', 'pop', 'rngState']);
+  for (const key of Object.keys(data)) {
+    if (!allowedRoot.has(key)) {
+      throw new Error(`Unexpected key: ${key}`);
+    }
+  }
+
   if (!Array.isArray(data.pop)) throw new Error('Invalid population');
-  const pop = data.pop.map((d) => ({
-    logic: d.logic,
-    feasible: d.feasible,
-    front: d.front,
-    strategy: d.strategy,
-  }));
-  pop.gen = data.gen ?? 0;
-  return { pop, rngState: data.rngState, gen: data.gen ?? 0 };
+
+  const allowedItem = new Set(['logic', 'feasible', 'front', 'strategy']);
+  const pop = data.pop.map((d) => {
+    if (d === null || typeof d !== 'object') {
+      throw new Error('Invalid population item');
+    }
+    for (const key of Object.keys(d)) {
+      if (!allowedItem.has(key)) {
+        throw new Error(`Invalid key in population item: ${key}`);
+      }
+    }
+    if (typeof d.logic !== 'number' || typeof d.feasible !== 'number') {
+      throw new Error('Population items require numeric logic and feasible');
+    }
+    return {
+      logic: d.logic,
+      feasible: d.feasible,
+      front: d.front,
+      strategy: d.strategy,
+    };
+  });
+  pop.gen = typeof data.gen === 'number' ? data.gen : 0;
+  return { pop, rngState: data.rngState, gen: pop.gen };
 }
 
 // SPDX-License-Identifier: Apache-2.0
@@ -467,50 +608,516 @@ async function chat(prompt) {
 }
 
 
+// SPDX-License-Identifier: Apache-2.0
+/**
+ * Lightweight telemetry helper.
+ * Prompts for user consent and sends anonymous metrics to the OTLP endpoint.
+ */
+function initTelemetry() {
+  const endpoint =
+    (typeof process !== 'undefined' && process.env.OTEL_ENDPOINT) ||
+    (typeof window !== 'undefined' && window.OTEL_ENDPOINT) ||
+    (typeof import.meta !== 'undefined' && import.meta.env.VITE_OTEL_ENDPOINT);
 
-function lcg(seed){
-  function rand(){
-    seed=Math.imul(1664525,seed)+1013904223>>>0;
-    return seed/2**32;
+  if (!endpoint) {
+    return { recordRun() {}, recordShare() {} };
   }
-  rand.state=()=>seed;
-  rand.set=s=>{seed=s>>>0;};
+
+  const consentKey = 'telemetryConsent';
+  let consent = localStorage.getItem(consentKey);
+  if (consent === null) {
+    const allow = window.confirm('Allow anonymous telemetry?');
+    consent = allow ? 'true' : 'false';
+    localStorage.setItem(consentKey, consent);
+  }
+
+  const enabled = consent === 'true';
+  const metrics = { ts: Date.now(), generations: 0, shares: 0 };
+
+  function flush() {
+    if (!enabled) return;
+    navigator.sendBeacon(endpoint, JSON.stringify(metrics));
+  }
+  window.addEventListener('beforeunload', flush);
+
+  return {
+    recordRun(n) {
+      if (enabled) metrics.generations += n;
+    },
+    recordShare() {
+      if (enabled) metrics.shares += 1;
+    },
+  };
+}
+
+// SPDX-License-Identifier: Apache-2.0
+function lcg(seed) {
+  function rand() {
+    seed = Math.imul(1664525, seed) + 1013904223 >>> 0;
+    return seed / 2 ** 32;
+  }
+  rand.state = () => seed;
+  rand.set = (s) => { seed = s >>> 0; };
   return rand;
 }
 
-async function loadCriticExamples(url='../data/critics/innovations.txt'){
-  try{const r=await fetch(url);if(!r.ok)return[];return (await r.text()).split(/\n/).map(l=>l.trim()).filter(Boolean);}catch{return[];}
+// SPDX-License-Identifier: Apache-2.0
+function createStore(dbName, storeName) {
+  const dbp = new Promise((resolve, reject) => {
+    const req = indexedDB.open(dbName, 1);
+    req.onupgradeneeded = () => req.result.createObjectStore(storeName);
+    req.onsuccess = () => resolve(req.result);
+    req.onerror = () => reject(req.error);
+  });
+  return { dbp, storeName };
 }
-class LogicCritic{
-  constructor(ex=[]){this.examples=ex;this.index={};ex.forEach((e,i)=>{this.index[e.toLowerCase()]=i;});this.scale=Math.max(ex.length-1,1);}
-  score(g){const k=String(g).toLowerCase();const p=this.index[k]??-1;const b=p>=0?(p+1)/(this.scale+1):0;const n=Math.random()*0.001;const v=b+n;return Math.min(1,Math.max(0,v));}
+
+async function withStore(type, store, fn) {
+  const db = await store.dbp;
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction(store.storeName, type);
+    const st = tx.objectStore(store.storeName);
+    const req = fn(st);
+    tx.oncomplete = () => resolve(req?.result);
+    tx.onerror = () => reject(tx.error);
+  });
 }
-class FeasibilityCritic{
-  constructor(ex=[]){this.examples=ex;}
-  static j(a,b){const sa=new Set(a),sb=new Set(b);if(!sa.size||!sb.size)return 0;let i=0;for(const x of sa)if(sb.has(x))i++;const u=new Set([...a,...b]).size;return i/u;}
-  score(g){const t=String(g).toLowerCase().split(/\s+/);let best=0;for(const ex of this.examples){const s=FeasibilityCritic.j(t,ex.toLowerCase().split(/\s+/));if(s>best)best=s;}const n=Math.random()*0.001;const v=best+n;return Math.min(1,Math.max(0,v));}
+function get(key, store) {
+  return withStore('readonly', store, (s) => s.get(key));
 }
-function initCriticPanel(){
-  const root=document.createElement('div');
-  root.id='critic-panel';
-  Object.assign(root.style,{position:'fixed',top:'10px',right:'10px',background:'rgba(0,0,0,0.7)',color:'#fff',padding:'8px',font:'14px sans-serif',display:'none',zIndex:1000});
-  const svg=document.createElementNS('http://www.w3.org/2000/svg','svg');
-  svg.setAttribute('width','200');svg.setAttribute('height','200');svg.id='critic-chart';
-  const table=document.createElement('table');table.id='critic-table';table.style.marginTop='4px';table.style.fontSize='12px';
-  root.appendChild(svg);root.appendChild(table);document.body.appendChild(root);
-  let highlighted=null;
-  function draw(scores){const labels=Object.keys(scores),vals=Object.values(scores),c=100,r=80,step=Math.PI*2/labels.length;svg.innerHTML='';const pts=[];labels.forEach((lb,i)=>{const ang=i*step-Math.PI/2;const rr=r*(vals[i]??0);const x=c+rr*Math.cos(ang);const y=c+rr*Math.sin(ang);pts.push(`${x},${y}`);const lx=c+r*Math.cos(ang);const ly=c+r*Math.sin(ang);const tx=c+(r+12)*Math.cos(ang);const ty=c+(r+12)*Math.sin(ang);const line=document.createElementNS('http://www.w3.org/2000/svg','line');line.setAttribute('x1',c);line.setAttribute('y1',c);line.setAttribute('x2',lx);line.setAttribute('y2',ly);line.setAttribute('stroke','#ccc');svg.appendChild(line);const text=document.createElementNS('http://www.w3.org/2000/svg','text');text.setAttribute('x',tx);text.setAttribute('y',ty);text.setAttribute('font-size','10');text.setAttribute('text-anchor','middle');text.setAttribute('dominant-baseline','middle');text.textContent=lb;svg.appendChild(text);});const poly=document.createElementNS('http://www.w3.org/2000/svg','polygon');poly.setAttribute('points',pts.join(' '));poly.setAttribute('fill','rgba(0,100,250,0.3)');poly.setAttribute('stroke','blue');svg.appendChild(poly);}
-  return{show:(scores,el)=>{if(highlighted)highlighted.removeAttribute('stroke');if(el){el.setAttribute('stroke','yellow');highlighted=el;}draw(scores);table.innerHTML=Object.entries(scores).map(([k,v])=>`<tr><th>${k}</th><td>${v.toFixed(2)}</td></tr>`).join('');root.style.display='block';}};
+function set(key, val, store) {
+  return withStore('readwrite', store, (s) => s.put(val, key));
 }
+function del(key, store) {
+  return withStore('readwrite', store, (s) => s.delete(key));
+}
+function keys(store) {
+  return withStore('readonly', store, (s) => s.getAllKeys());
+}
+function values(store) {
+  return withStore('readonly', store, (s) => s.getAll());
+}
+
+// SPDX-License-Identifier: Apache-2.0
+interface InsightRun {
+  id: number;
+  seed: number;
+  params: any;
+  paretoFront: any[];
+  score: number;
+  novelty: number;
+  timestamp: number;
+}
+class Archive {
+  private store;
+  constructor(private name = 'insight-archive') {
+    this.store = createStore(this.name, 'runs');
+  }
+
+  async open(): Promise<void> {
+    await this.store.dbp;
+  }
+
+  private _vector(front: any[]): [number, number] {
+    if (!front.length) return [0, 0];
+    const l = front.reduce((s, d) => s + (d.logic ?? 0), 0) / front.length;
+    const f = front.reduce((s, d) => s + (d.feasible ?? 0), 0) / front.length;
+    return [l, f];
+  }
+
+  private _dist(a: [number, number], b: [number, number]): number {
+    return Math.hypot(a[0] - b[0], a[1] - b[1]);
+  }
+
+  private async _novelty(vec: [number, number], k = 5): Promise<number> {
+    const runs = await this.list();
+    if (!runs.length) return 0;
+    const dists = runs.map((r) => this._dist(vec, this._vector(r.paretoFront)));
+    dists.sort((a, b) => a - b);
+    const n = Math.min(k, dists.length);
+    return dists.slice(0, n).reduce((s, d) => s + d, 0) / n;
+  }
+
+  async add(seed: number, params: any, paretoFront: any[], parents: number[] = []): Promise<number> {
+    await this.open();
+    const vec = this._vector(paretoFront);
+    const score = (vec[0] + vec[1]) / 2;
+    const novelty = await this._novelty(vec);
+    const id = Date.now();
+    const run: InsightRun = {
+      id,
+      seed,
+      params,
+      paretoFront,
+      score,
+      novelty,
+      timestamp: Date.now(),
+    };
+    await set(id, run, this.store);
+    await this.prune(500);
+    return id;
+  }
+
+  async list(): Promise<InsightRun[]> {
+    await this.open();
+    const runs = (await values(this.store)) as InsightRun[];
+    runs.sort((a, b) => a.timestamp - b.timestamp);
+    return runs;
+  }
+
+  async prune(max = 500): Promise<void> {
+    const runs = await this.list();
+    if (runs.length <= max) return;
+    runs.sort((a, b) => a.score + a.novelty - (b.score + b.novelty));
+    const remove = runs.slice(0, runs.length - max);
+    await Promise.all(remove.map((r) => del(r.id, this.store)));
+  }
+
+  async selectParents(count: number, beta = 1, gamma = 1): Promise<InsightRun[]> {
+    const runs = await this.list();
+    if (!runs.length) return [];
+    const scoreW = runs.map((r) => Math.exp(beta * r.score));
+    const novW = runs.map((r) => Math.exp(gamma * r.novelty));
+    const sumS = scoreW.reduce((a, b) => a + b, 0);
+    const sumN = novW.reduce((a, b) => a + b, 0);
+    const weights = runs.map((_, i) => (scoreW[i] / sumS) * (novW[i] / sumN));
+    const selected: InsightRun[] = [];
+    for (let i = 0; i < Math.min(count, runs.length); i++) {
+      let r = Math.random();
+      let idx = 0;
+      for (; idx < weights.length; idx++) {
+        if (r < weights[idx]) break;
+        r -= weights[idx];
+      }
+      selected.push(runs[idx]);
+    }
+    return selected;
+  }
+}
+
+// SPDX-License-Identifier: Apache-2.0
+function initEvolutionPanel(archive) {
+  const panel = document.createElement('div');
+  panel.id = 'evolution-panel';
+  Object.assign(panel.style, {
+    position: 'fixed',
+    bottom: '10px',
+    left: '10px',
+    background: 'rgba(0,0,0,0.7)',
+    color: '#fff',
+    padding: '8px',
+    fontSize: '12px',
+    zIndex: 1000,
+    maxHeight: '40vh',
+    overflowY: 'auto',
+  });
+  const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+  svg.setAttribute('width', '200');
+  svg.setAttribute('height', '100');
+  const table = document.createElement('table');
+  const header = document.createElement('tr');
+  header.innerHTML =
+    '<th data-k="seed">Seed</th><th data-k="score">Score</th><th data-k="novelty">Novelty</th><th data-k="timestamp">Time</th><th></th>';
+  table.appendChild(header);
+  panel.appendChild(svg);
+  panel.appendChild(table);
+  document.body.appendChild(panel);
+
+  let sortKey = 'timestamp';
+  let desc = true;
+  header.querySelectorAll('th[data-k]').forEach((th) => {
+    th.style.cursor = 'pointer';
+    th.onclick = () => {
+      const k = th.dataset.k;
+      if (sortKey === k) desc = !desc;
+      else {
+        sortKey = k;
+        desc = true;
+      }
+      render();
+    };
+  });
+
+  function respawn(seed) {
+    const q = new URLSearchParams(window.location.hash.replace(/^#\/?/, ''));
+    q.set('s', seed);
+    window.location.hash = '#/' + q.toString();
+  }
+
+  function drawTree(runs) {
+    svg.innerHTML = '';
+    runs.forEach((r, i) => {
+      const x = 20 + i * 20;
+      const y = 20;
+      const c = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+      c.setAttribute('cx', String(x));
+      c.setAttribute('cy', String(y));
+      c.setAttribute('r', '4');
+      c.setAttribute('fill', 'white');
+      svg.appendChild(c);
+      if (i > 0) {
+        const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+        line.setAttribute('x1', String(20 + (i - 1) * 20));
+        line.setAttribute('y1', String(y));
+        line.setAttribute('x2', String(x));
+        line.setAttribute('y2', String(y));
+        line.setAttribute('stroke', 'white');
+        svg.appendChild(line);
+      }
+    });
+  }
+
+  async function render() {
+    const runs = await archive.list();
+    runs.sort((a, b) => (desc ? b[sortKey] - a[sortKey] : a[sortKey] - b[sortKey]));
+    table.querySelectorAll('tr').forEach((tr, i) => { if (i) tr.remove(); });
+    runs.forEach((r) => {
+      const tr = document.createElement('tr');
+      const time = new Date(r.timestamp).toLocaleTimeString();
+      tr.innerHTML = `<td>${r.seed}</td><td>${r.score.toFixed(2)}</td><td>${r.novelty.toFixed(2)}</td><td>${time}</td>`;
+      const td = document.createElement('td');
+      const btn = document.createElement('button');
+      btn.textContent = 'Re-spawn';
+      btn.onclick = () => respawn(r.seed);
+      td.appendChild(btn);
+      tr.appendChild(td);
+      table.appendChild(tr);
+    });
+    drawTree(runs);
+  }
+
+  return { render };
+}
+
+// SPDX-License-Identifier: Apache-2.0
+function mutate(pop, rand, strategies, gen = 0) {
+  const clamp = (v) => Math.min(1, Math.max(0, v));
+  const mutants = [];
+  for (const d of pop) {
+    for (const s of strategies) {
+      switch (s) {
+        case 'gaussian':
+          mutants.push({
+            logic: clamp(d.logic + (rand() - 0.5) * 0.12),
+            feasible: clamp(d.feasible + (rand() - 0.5) * 0.12),
+            strategy: s,
+            depth: gen,
+          });
+          break;
+        case 'swap': {
+          const other = pop[Math.floor(rand() * pop.length)];
+          mutants.push({ logic: other.logic, feasible: d.feasible, strategy: s, depth: gen });
+          break;
+        }
+        case 'jump':
+          mutants.push({ logic: rand(), feasible: rand(), strategy: s, depth: gen });
+          break;
+        case 'scramble': {
+          const other = pop[Math.floor(rand() * pop.length)];
+          mutants.push({ logic: d.logic, feasible: other.feasible, strategy: s, depth: gen });
+          break;
+        }
+      }
+    }
+  }
+  return pop.concat(mutants);
+}
+
+// SPDX-License-Identifier: Apache-2.0
+interface SimulatorConfig {
+  popSize: number;
+  generations: number;
+  mutations?: string[];
+  seeds?: number[];
+  workerUrl?: string;
+  critic?: 'llm' | 'none';
+}
+interface Generation {
+  gen: number;
+  population: any[];
+  fronts: any[];
+  metrics: { avgLogic: number; avgFeasible: number; frontSize: number };
+}
+class Simulator {
+  static async *run(opts: SimulatorConfig): AsyncGenerator<Generation> {
+    const options = { mutations: ['gaussian'], seeds: [1], critic: 'none', ...opts };
+    const rand = lcg(options.seeds![0]);
+    let worker: Worker | null = null;
+    let pop = Array.from({ length: options.popSize }, () => ({
+      logic: rand(),
+      feasible: rand(),
+      strategy: 'base',
+      depth: 0,
+    }));
+    for (let gen = 0; gen < options.generations; gen++) {
+      let front: any[] = [];
+      let metrics = { avgLogic: 0, avgFeasible: 0, frontSize: 0 };
+      if (options.workerUrl && typeof Worker !== 'undefined') {
+        if (!worker) worker = new Worker(options.workerUrl, { type: 'module' });
+        const result: any = await new Promise((resolve) => {
+          if (!worker) return resolve({ pop, rngState: rand.state(), front: [], metrics });
+          worker.onmessage = (ev) => resolve(ev.data);
+          worker.postMessage({
+            pop,
+            rngState: rand.state(),
+            mutations: options.mutations,
+            popSize: options.popSize,
+            critic: options.critic,
+            gen: gen + 1,
+          });
+        });
+        pop = result.pop;
+        rand.set(result.rngState);
+        front = result.front;
+        metrics = result.metrics;
+      } else {
+        pop = mutate(pop, rand, options.mutations ?? ['gaussian'], gen + 1);
+        front = paretoFront(pop);
+        pop.forEach((d) => (d.front = front.includes(d)));
+        pop = front.concat(pop.slice(0, options.popSize - 10));
+        metrics = {
+          avgLogic: pop.reduce((s, d) => s + (d.logic ?? 0), 0) / pop.length,
+          avgFeasible: pop.reduce((s, d) => s + (d.feasible ?? 0), 0) / pop.length,
+          frontSize: front.length,
+        };
+      }
+      yield { gen: gen + 1, population: pop, fronts: front, metrics };
+    }
+    if (worker) worker.terminate();
+  }
+}
+
+// SPDX-License-Identifier: Apache-2.0
+function initSimulatorPanel(archive) {
+  const panel = document.createElement('div');
+  panel.id = 'simulator-panel';
+  Object.assign(panel.style, {
+    position: 'fixed',
+    bottom: '10px',
+    right: '10px',
+    background: 'rgba(0,0,0,0.7)',
+    color: '#fff',
+    padding: '8px',
+    fontSize: '12px',
+    zIndex: 1000,
+  });
+
+  panel.innerHTML = `
+    <label>Seeds <input id="sim-seeds" value="1"></label>
+    <label>Pop <input id="sim-pop" type="number" min="1" value="50"></label>
+    <label>Gen <input id="sim-gen" type="number" min="1" value="10"></label>
+    <label>Rate <input id="sim-rate" type="number" step="0.01" value="1"></label>
+    <label>Heuristic <select id="sim-heur"><option value="none">none</option><option value="llm">llm</option></select></label>
+    <button id="sim-start">Start</button>
+    <button id="sim-cancel">Cancel</button>
+    <progress id="sim-progress" value="0" max="1" style="width:100%"></progress>
+    <input id="sim-frame" type="range" min="0" value="0" step="1" style="width:100%">
+    <div id="sim-status"></div>
+  `;
+  document.body.appendChild(panel);
+
+  const seedsInput = panel.querySelector('#sim-seeds');
+  const popInput = panel.querySelector('#sim-pop');
+  const genInput = panel.querySelector('#sim-gen');
+  const rateInput = panel.querySelector('#sim-rate');
+  const heurSel = panel.querySelector('#sim-heur');
+  const startBtn = panel.querySelector('#sim-start');
+  const cancelBtn = panel.querySelector('#sim-cancel');
+  const progress = panel.querySelector('#sim-progress');
+  const frameInput = panel.querySelector('#sim-frame');
+  const status = panel.querySelector('#sim-status');
+
+  let sim = null;
+  let frames = [];
+
+  function showFrame(i) {
+    const f = frames[i];
+    if (!f) return;
+    pop = f;
+    gen = i;
+    renderFrontier(view.node ? view.node() : view, pop, selectPoint);
+    info.textContent = `gen ${i}`;
+  }
+
+  frameInput.addEventListener('input', () => {
+    showFrame(Number(frameInput.value));
+  });
+
+  startBtn.addEventListener('click', async () => {
+    if (sim && typeof sim.return === 'function') await sim.return();
+    const seeds = seedsInput.value.split(',').map((s) => Number(s.trim())).filter(Boolean);
+    sim = Simulator.run({
+      popSize: Number(popInput.value),
+      generations: Number(genInput.value),
+      mutations: ['gaussian'],
+      seeds,
+      workerUrl: './worker/evolver.js',
+      critic: heurSel.value,
+    });
+    let lastPop = [];
+    let count = 0;
+    frames = [];
+    for await (const g of sim) {
+      lastPop = g.population;
+      frames.push(structuredClone(g.population));
+      count = g.gen;
+      progress.value = count / Number(genInput.value);
+      status.textContent = `gen ${count} front ${g.fronts.length}`;
+      await archive.add(seeds[0] ?? 1, { popSize: Number(popInput.value) }, g.fronts).catch(() => {});
+    }
+    frameInput.max = Math.max(0, frames.length - 1);
+    frameInput.value = String(frames.length - 1);
+    showFrame(frames.length - 1);
+    const json = save(lastPop, 0);
+    const file = new File([json], 'replay.json', { type: 'application/json' });
+    const out = await pinFiles([file]);
+    if (out) status.textContent = `CID: ${out.cid}`;
+  });
+
+  cancelBtn.addEventListener('click', () => {
+    if (sim && typeof sim.return === 'function') sim.return();
+  });
+
+  const q = new URLSearchParams(window.location.hash.replace(/^#\/?/, ''));
+  const cid = q.get('cid');
+  if (cid) {
+    fetch(`https://ipfs.io/ipfs/${cid}`)
+      .then((r) => r.text())
+      .then((txt) => {
+        status.textContent = 'replaying...';
+        frames = [];
+        try {
+          const s = load(txt);
+          frames.push(structuredClone(s.pop));
+          frameInput.max = '0';
+          frameInput.value = '0';
+          loadState(txt);
+        } catch {
+          /* ignore */
+        }
+      })
+      .catch(() => {});
+  }
+
+  return panel;
+}
+
 
 let panel,pauseBtn,exportBtn,dropZone
 let criticPanel,logicCritic,feasCritic
 let current,rand,pop,gen,svg,view,info,running=true
 let worker
-let telemetry={recordRun(){},recordShare(){}}
-let fpsStarted=false
-function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');clearTimeout(toast.id);toast.id=setTimeout(()=>t.classList.remove('show'),2e3)}
-window.toast=toast;
+let telemetry
+let fpsStarted=false;
+let archive,evolutionPanel;
+function toast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(toast.id);
+  toast.id = setTimeout(() => t.classList.remove('show'), 2000);
+}
+window.toast = toast;
 window.llmChat=llmChat;
 
 function applyTheme(t){
@@ -529,8 +1136,8 @@ function toggleTheme(){
 }
 
 function setupView(){
-  d3.select('svg').remove();
-  svg=d3.select('body').append('svg')
+  d3.select('#canvas').select('svg').remove();
+  svg=d3.select('#canvas').append('svg')
         .attr('viewBox','0 0 500 500')
         .style('touch-action','none');
   view=svg.append('g');
@@ -555,20 +1162,18 @@ function updateLegend(strats){
   }
 }
 
-function selectPoint(d,elem){
-  const scores={logic:d.logic??0,feasible:d.feasible??0};
-  if(logicCritic&&feasCritic){
-    scores.logicCritic=logicCritic.score(`${d.logic}`);
-    scores.feasCritic=feasCritic.score(`${d.feasible}`);
-    scores.average=(scores.logicCritic+scores.feasCritic)/2;
-  }
-  criticPanel&&criticPanel.show(scores,elem);
+function updateDepthLegend(max){
+  const dl=document.getElementById('depth-legend');
+  dl.innerHTML='depth';
+  const bar=document.createElement('div');
+  bar.className='bar';
+  dl.appendChild(bar);
 }
 
 function start(p){
   current=p
   rand=lcg(p.seed)
-  pop=Array.from({length:p.pop},()=>({logic:rand(),feasible:rand(),strategy:'base'}))
+  pop=Array.from({length:p.pop},()=>({logic:rand(),feasible:rand(),strategy:'base',depth:0}))
   gen=0
   running=true
   setupView()
@@ -580,13 +1185,30 @@ function start(p){
   step()
 }
 
+function selectPoint(d, elem){
+  const scores={
+    logic:d.logic??0,
+    feasible:d.feasible??0
+  };
+  if(logicCritic&&feasCritic){
+    scores.logicCritic=logicCritic.score(`${d.logic}`);
+    scores.feasCritic=feasCritic.score(`${d.feasible}`);
+    scores.average=(scores.logicCritic+scores.feasCritic)/2;
+  }
+  if(criticPanel) criticPanel.show(scores,elem);
+}
+
 function step(){
   info.text(`gen ${gen}`)
-  renderFrontier(view,pop,selectPoint)
+  const front = paretoFront(pop)
+  renderFrontier(view.node ? view.node() : view,pop,selectPoint)
+  const md = Math.max(...pop.map(d=>d.depth||0))
+  updateDepthLegend(md)
+  archive.add(current.seed, current, front).then(()=>evolutionPanel.render()).catch(()=>{})
   if(!running)return
   if(gen++>=current.gen){worker.terminate();return}
   telemetry.recordRun(1)
-  worker.postMessage({pop,rngState:rand.state(),mutations:current.mutations,popSize:current.pop})
+  worker.postMessage({pop,rngState:rand.state(),mutations:current.mutations,popSize:current.pop,gen})
 }
 
 function togglePause(){
@@ -650,7 +1272,13 @@ function loadState(text){
 function apply(p){location.hash=toHash(p)}
 
 window.addEventListener('DOMContentLoaded',async()=>{
-  telemetry=window.telemetry||telemetry;
+  telemetry = initTelemetry();
+  archive = new Archive();
+  await archive.open();
+  evolutionPanel = initEvolutionPanel(archive);
+  initSimulatorPanel(archive);
+  await evolutionPanel.render();
+  window.archive = archive;
   await initI18n()
   loadTheme()
   const ex=await loadCriticExamples()
@@ -676,22 +1304,24 @@ window.addEventListener('DOMContentLoaded',async()=>{
   tb.appendChild(themeBtn);
   csvBtn.addEventListener("click",()=>exportCSV(pop));
   pngBtn.addEventListener("click",exportPNG);
-  shareBtn.addEventListener("click",async()=>{
+  shareBtn.addEventListener("click", async () => {
     telemetry.recordShare();
-    const url=location.origin+location.pathname+location.hash;
-    let pinned=null;
-    if(window.PINNER_TOKEN){
-      const json=save(pop,rand.state());
-      const file=new File([json],"state.json",{type:"application/json"});
-      pinned=await pinFiles([file]);
+    const url = location.origin + location.pathname + location.hash;
+    let pinned = null;
+    if (window.PINNER_TOKEN) {
+      const json = save(pop, rand.state());
+      const file = new File([json], "state.json", { type: "application/json" });
+      pinned = await pinFiles([file]);
     }
-    if(pinned&&pinned.url){
-      if(navigator.clipboard){
-        try{await navigator.clipboard.writeText(pinned.url);}catch{}}
+    if (pinned && pinned.url) {
+      if (navigator.clipboard) {
+        try { await navigator.clipboard.writeText(pinned.url); } catch {}
+      }
       toast(`pinned ${pinned.cid}`);
-    }else{
-      if(navigator.clipboard){
-        try{await navigator.clipboard.writeText(url);}catch{}}
+    } else {
+      if (navigator.clipboard) {
+        try { await navigator.clipboard.writeText(url); } catch {}
+      }
       toast(t('link_copied'));
     }
   });
@@ -701,6 +1331,11 @@ window.addEventListener('DOMContentLoaded',async()=>{
   initDragDrop(dropZone,loadState)
   window.dispatchEvent(new HashChangeEvent('hashchange'))
 })
-window.addEventListener('hashchange',()=>{const p=parseHash();panel.setValues(p);start(p);toast(t('simulation_restarted'))})
+window.addEventListener('hashchange', () => {
+  const p = parseHash();
+  panel.setValues(p);
+  start(p);
+  toast(t('simulation_restarted'));
+});
 
 })();
