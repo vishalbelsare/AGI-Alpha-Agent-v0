@@ -1,5 +1,5 @@
 /* SPDX-License-Identifier: Apache-2.0 */
-import { Web3Storage } from 'https://cdn.jsdelivr.net/npm/web3.storage/dist/bundle.esm.min.js';
+import { Web3Storage } from '../lib/bundle.esm.min.js';
 
 export async function pinFiles(files) {
   if (!window.PINNER_TOKEN) return null;

@@ -22,6 +22,7 @@ async function bundle() {
   await fs.copyFile('style.css', `${OUT_DIR}/style.css`);
   await fs.copyFile('src/ui/controls.css', `${OUT_DIR}/controls.css`);
   await fs.copyFile('d3.v7.min.js', `${OUT_DIR}/d3.v7.min.js`);
+  await fs.copyFile('lib/bundle.esm.min.js', `${OUT_DIR}/bundle.esm.min.js`);
   const size = await gzipSize.file(`${OUT_DIR}/app.js`);
   if (size > 180 * 1024) {
     throw new Error(`gzip size ${size} bytes exceeds limit`);
@@ -29,7 +30,7 @@ async function bundle() {
   if (process.env.WEB3_STORAGE_TOKEN) {
     const client = new Web3Storage({ token: process.env.WEB3_STORAGE_TOKEN });
     const files = await Promise.all([
-      'index.html', 'app.js', 'style.css', 'd3.v7.min.js'
+      'index.html', 'app.js', 'style.css', 'd3.v7.min.js', 'bundle.esm.min.js'
     ].map(async f => new File([await fs.readFile(`${OUT_DIR}/${f}`)], f)));
     const cid = await client.put(files, { wrapWithDirectory: false });
     await fs.writeFile(`${OUT_DIR}/CID.txt`, cid);
