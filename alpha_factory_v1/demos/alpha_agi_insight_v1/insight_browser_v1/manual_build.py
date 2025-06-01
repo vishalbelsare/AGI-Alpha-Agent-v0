@@ -69,9 +69,14 @@ for src, dest in [
     ('d3.v7.min.js', 'd3.v7.min.js'),
     ('lib/bundle.esm.min.js', 'bundle.esm.min.js'),
     ('lib/pyodide.js', 'pyodide.js'),
+    ('worker/evolver.js', 'worker/evolver.js'),
+    ('src/utils/rng.js', 'src/utils/rng.js'),
 ]:
-    if (ROOT / src).exists():
-        (dist_dir / dest).write_bytes((ROOT / src).read_bytes())
+    src_path = ROOT / src
+    if src_path.exists():
+        target = dist_dir / dest
+        target.parent.mkdir(parents=True, exist_ok=True)
+        target.write_bytes(src_path.read_bytes())
 
 bundle_sri = sha384(dist_dir / 'bundle.esm.min.js')
 pyodide_sri = sha384(dist_dir / 'pyodide.js')

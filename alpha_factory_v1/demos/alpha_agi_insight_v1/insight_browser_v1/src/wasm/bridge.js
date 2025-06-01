@@ -1,16 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 import { loadPyodide } from '../lib/pyodide.js';
-
-// simple linear congruential generator
-function lcg(seed) {
-  function rand() {
-    seed = Math.imul(1664525, seed) + 1013904223 >>> 0;
-    return seed / 2 ** 32;
-  }
-  rand.state = () => seed;
-  rand.set = (s) => { seed = s >>> 0; };
-  return rand;
-}
+import { lcg } from '../utils/rng.js';
 
 let pyodideReady;
 async function initPy() {
