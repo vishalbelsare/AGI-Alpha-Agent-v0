@@ -59,6 +59,7 @@ ALIAS_TARGET = repo_root / "src"
 index_html = ROOT / "index.html"
 dist_dir = ROOT / "dist"
 lib_dir = ROOT / "lib"
+quickstart_pdf = repo_root / "docs" / "insight_browser_quickstart.pdf"
 
 bundle_path = lib_dir / "bundle.esm.min.js"
 try:
@@ -207,6 +208,10 @@ for src, dest in [
         target = dist_dir / dest
         target.parent.mkdir(parents=True, exist_ok=True)
         target.write_bytes(src_path.read_bytes())
+
+# include quickstart PDF
+if quickstart_pdf.exists():
+    (dist_dir / quickstart_pdf.name).write_bytes(quickstart_pdf.read_bytes())
 
 # copy translations
 translations = ROOT / "src" / "i18n"
