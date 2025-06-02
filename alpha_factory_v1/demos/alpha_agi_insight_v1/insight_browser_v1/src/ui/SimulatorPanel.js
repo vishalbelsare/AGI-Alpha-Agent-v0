@@ -32,10 +32,10 @@ export async function initSimulatorPanel(archive, power) {
     <button id="sim-pause">Pause</button>
     <button id="sim-fork">Fork</button>
     <button id="sim-cancel">Cancel</button>
-    <progress id="sim-progress" value="0" max="1" style="width:100%"></progress>
-    <input id="sim-frame" type="range" min="0" value="0" step="1" style="width:100%">
+    <progress id="sim-progress" value="0" max="1" class="w-full"></progress>
+    <input id="sim-frame" type="range" min="0" value="0" step="1" class="w-full">
     <div id="sim-status"></div>
-    <pre id="sim-inspect" style="max-height:100px;overflow:auto"></pre>
+    <pre id="sim-inspect" class="max-h-[40vh] overflow-auto"></pre>
   `;
   document.body.appendChild(panel);
 

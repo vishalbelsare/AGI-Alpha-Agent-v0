@@ -46,5 +46,5 @@ export default function LineageTree({ data }: Props) {
     );
   }, [data]);
 
-  return <div id="lineage-tree" style={{ width: '100%', height: 400 }} />;
+  return <div id="lineage-tree" className="w-full h-[400px]" />;
 }

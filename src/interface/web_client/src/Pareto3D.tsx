@@ -40,5 +40,5 @@ export default function Pareto3D({ data }: Props) {
     );
   }, [data]);
 
-  return <div id="pareto3d" style={{ width: '100%', height: 400 }} />;
+  return <div id="pareto3d" className="w-full h-[400px]" />;
 }

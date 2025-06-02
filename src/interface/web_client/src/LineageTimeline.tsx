@@ -77,5 +77,5 @@ export default function LineageTimeline({ data }: Props) {
     });
   }, [data]);
 
-  return <div id="lineage-timeline" style={{ width: '100%', height: 400 }} />;
+  return <div id="lineage-timeline" className="w-full h-[400px]" />;
 }

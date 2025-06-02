@@ -174,9 +174,9 @@ export default function App() {
         <button type="submit">{t('button.run')}</button>
       </form>
       <button type="button" onClick={refreshRuns}>{t('label.refresh')}</button>
-      <div id="sectors" role="img" aria-label="sectors" style={{ width: '100%', height: 300 }} />
-      <div id="capability" role="img" aria-label="capability" style={{ width: '100%', height: 300 }} />
-      <div id="pareto" role="img" aria-label="pareto" style={{ width: '100%', height: 400 }} />
+      <div id="sectors" role="img" aria-label="sectors" className="w-full h-[300px]" />
+      <div id="capability" role="img" aria-label="capability" className="w-full h-[300px]" />
+      <div id="pareto" role="img" aria-label="pareto" className="w-full h-[400px]" />
       <h2>{t('heading.lastRuns')}</h2>
       <ul>
         {runs.map((r) => (
