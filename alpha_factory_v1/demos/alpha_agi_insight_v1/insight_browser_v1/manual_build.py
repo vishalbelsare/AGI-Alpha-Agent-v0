@@ -30,6 +30,20 @@ def _require_node_20() -> None:
 
 _require_node_20()
 
+# load environment variables
+env_file = Path(__file__).resolve().parent / ".env"
+if not env_file.is_file():
+    sys.exit(
+        ".env not found. Copy .env.sample to .env and populate the required values."
+    )
+try:
+    from alpha_factory_v1.utils.env import _load_env_file
+
+    for key, val in _load_env_file(env_file).items():
+        os.environ.setdefault(key, val)
+except Exception as exc:  # pragma: no cover - optional dep
+    print(f"[manual_build] failed to load .env: {exc}", file=sys.stderr)
+
 
 def sha384(path: Path) -> str:
     digest = hashlib.sha384(path.read_bytes()).digest()

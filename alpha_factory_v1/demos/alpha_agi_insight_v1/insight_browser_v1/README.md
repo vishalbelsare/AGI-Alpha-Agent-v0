@@ -80,15 +80,15 @@ Use `manual_build.py` for air‑gapped environments:
 1. `cp .env.sample .env` and edit the values if you haven't already.
 2. `python ../../../scripts/fetch_assets.py` to fetch Pyodide and the GPT‑2 model.
    The build scripts verify these files no longer contain the word `"placeholder"`.
-3. Confirm `node --version` reports **v20** or newer.
-4. `python manual_build.py` – bundles the app and generates `dist/sw.js`.
+3. Confirm `node --version` reports **v20** or newer. `manual_build.py` exits if
+   Node.js is missing or too old.
+4. `python manual_build.py` – bundles the app, generates `dist/sw.js` and embeds
+   your `.env` settings.
 5. `npm start` or open `dist/index.html` directly to run the demo.
 
-The script requires Python ≥3.11 and uses **Node.js** to invoke Workbox. When
-`node` is missing, offline PWA features are skipped. `dist/index.html` contains
-SHA‑384 integrity hashes and embeds `window.PINNER_TOKEN`, `window.OPENAI_API_KEY`,
-`window.IPFS_GATEWAY` and `window.OTEL_ENDPOINT` from `.env` just like
-`npm run build`.
+The script requires Python ≥3.11. It loads `.env` automatically and injects
+`PINNER_TOKEN`, `OPENAI_API_KEY`, `IPFS_GATEWAY` and `OTEL_ENDPOINT` into
+`dist/index.html`, mirroring `npm run build`.
 
 ## Toolbar & Controls
 - **CSV** – export the current population as `population.csv`.
