@@ -18,8 +18,11 @@ export function initAnalyticsPanel() {
   panel.appendChild(canvas);
   document.body.appendChild(panel);
   const ctx = canvas.getContext('2d');
-  function update(pop, gen) {
+  const hist = [];
+  function update(pop, gen, entropy) {
     if (!ctx) return;
+    hist.push(entropy);
+    if (hist.length > canvas.width) hist.shift();
     const bins = new Map();
     for (const d of pop) {
       const h = Math.round(d.horizonYears || 0);
@@ -39,6 +42,16 @@ export function initAnalyticsPanel() {
     });
     ctx.fillStyle = '#fff';
     ctx.fillText(`gen ${gen}`, 4, 10);
+    ctx.beginPath();
+    ctx.strokeStyle = 'yellow';
+    const maxEnt = Math.log2(100);
+    hist.forEach((e, i) => {
+      const x = (i / (hist.length - 1 || 1)) * canvas.width;
+      const y = canvas.height - 15 - (e / maxEnt) * (canvas.height - 20);
+      if (i) ctx.lineTo(x, y);
+      else ctx.moveTo(x, y);
+    });
+    ctx.stroke();
   }
   return { update };
 }
