@@ -216,8 +216,8 @@ window.addEventListener('DOMContentLoaded',async()=>{
   archive = new Archive();
   await archive.open();
   evolutionPanel = initEvolutionPanel(archive);
-  await initSimulatorPanel(archive, powerPanel);
   powerPanel = initPowerPanel();
+  await initSimulatorPanel(archive, powerPanel);
   analyticsPanel = initAnalyticsPanel();
   arenaPanel = initArenaPanel((pt) => {
     debateTarget = pt;
