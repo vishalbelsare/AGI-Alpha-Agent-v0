@@ -17,7 +17,10 @@ def sha384(path: Path) -> str:
 
 ROOT = Path(__file__).resolve().parent
 ALIAS_PREFIX = "@insight-src/"
-ALIAS_TARGET = ROOT.parents[3] / "src"
+repo_root = Path(__file__).resolve()
+for _ in range(4):
+    repo_root = repo_root.parent
+ALIAS_TARGET = repo_root / "src"
 index_html = ROOT / "index.html"
 dist_dir = ROOT / "dist"
 lib_dir = ROOT / "lib"

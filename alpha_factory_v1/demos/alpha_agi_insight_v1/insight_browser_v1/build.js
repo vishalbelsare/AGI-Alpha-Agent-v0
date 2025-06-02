@@ -13,8 +13,9 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const aliasRoot = path.join(__dirname, '../../../..', 'src');
+const scriptPath = fileURLToPath(import.meta.url);
+const repoRoot = path.resolve(path.dirname(scriptPath), '..', '..', '..', '..');
+const aliasRoot = path.join(repoRoot, 'src');
 const aliasPlugin = {
   name: 'alias',
   setup(build) {
