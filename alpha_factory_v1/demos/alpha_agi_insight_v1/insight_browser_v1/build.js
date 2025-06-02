@@ -1,17 +1,25 @@
 #!/usr/bin/env node
 // SPDX-License-Identifier: Apache-2.0
-import { build } from 'esbuild';
 import { promises as fs } from 'fs';
 import fsSync from 'fs';
 import { execSync } from 'child_process';
 import { createHash } from 'crypto';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import gzipSize from 'gzip-size';
-import { Web3Storage, File } from 'web3.storage';
-import { injectManifest } from 'workbox-build';
-import dotenv from 'dotenv';
 
+const [major] = process.versions.node.split('.').map(Number);
+if (major < 20) {
+  console.error(
+    `Node.js 20+ is required. Current version: ${process.versions.node}`
+  );
+  process.exit(1);
+}
+
+const { build } = await import('esbuild');
+const gzipSize = (await import('gzip-size')).default;
+const { Web3Storage, File } = await import('web3.storage');
+const { injectManifest } = await import('workbox-build');
+const dotenv = (await import('dotenv')).default;
 dotenv.config();
 
 try {
