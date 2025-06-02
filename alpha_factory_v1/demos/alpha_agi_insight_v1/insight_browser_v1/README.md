@@ -37,9 +37,10 @@ python ../../../scripts/fetch_assets.py
 
 This downloads the Pyodide runtime and `wasm-gpt2` model from IPFS into
 `wasm/` and `wasm_llm/`.
-It also retrieves `lib/bundle.esm.min.js` from the mirror. The build scripts
-abort when this file still contains the placeholder comment, so run
-`scripts/fetch_assets.py` if you encounter that error.
+It also retrieves `lib/bundle.esm.min.js` from the mirror. The build and
+`manual_build.py` scripts scan every downloaded asset for the word
+`"placeholder"` and abort when any file still contains that marker.
+Run `scripts/fetch_assets.py` if you encounter this error.
 ```bash
 PINNER_TOKEN=<token> npm start
 ```
@@ -60,6 +61,7 @@ Use `manual_build.py` for air‑gapped environments:
 
 1. `cp .env.sample .env` and edit the values if you haven't already.
 2. `python ../../../scripts/fetch_assets.py` to fetch Pyodide and the GPT‑2 model.
+   The build scripts verify these files no longer contain the word `"placeholder"`.
 3. `python manual_build.py` – bundles the app and generates `dist/sw.js`.
 4. `npm start` or open `dist/index.html` directly to run the demo.
 

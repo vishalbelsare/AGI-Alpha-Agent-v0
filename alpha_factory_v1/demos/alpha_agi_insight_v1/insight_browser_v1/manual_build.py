@@ -8,6 +8,8 @@ import subprocess
 import sys
 from pathlib import Path
 from urllib.parse import urlparse
+import ast
+import json
 
 
 def sha384(path: Path) -> str:
@@ -37,6 +39,23 @@ if "Placeholder for web3.storage bundle.esm.min.js" in data:
     sys.exit(
         "lib/bundle.esm.min.js is a placeholder. Run scripts/fetch_assets.py to download assets."
     )
+
+def _asset_paths() -> list[str]:
+    fetch = repo_root / 'scripts' / 'fetch_assets.py'
+    tree = ast.parse(fetch.read_text())
+    assets = {}
+    for node in tree.body:
+        if isinstance(node, ast.Assign):
+            for t in node.targets:
+                if getattr(t, 'id', None) == 'ASSETS':
+                    assets = ast.literal_eval(node.value)
+                    break
+    return list(assets)
+
+for rel in _asset_paths():
+    p = ROOT / rel
+    if p.exists() and 'placeholder' in p.read_text(errors='ignore').lower():
+        sys.exit(f"{rel} contains placeholder text. Run scripts/fetch_assets.py to download assets.")
 
 html = index_html.read_text()
 entry = (ROOT / "app.js").read_text()
