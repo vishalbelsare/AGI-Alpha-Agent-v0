@@ -25,7 +25,6 @@ ALIAS_TARGET = repo_root / "src"
 index_html = ROOT / "index.html"
 dist_dir = ROOT / "dist"
 lib_dir = ROOT / "lib"
-src_dir = ROOT / "src"
 
 bundle_path = lib_dir / "bundle.esm.min.js"
 try:
