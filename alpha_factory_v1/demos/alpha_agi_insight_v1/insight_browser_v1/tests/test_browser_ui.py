@@ -70,6 +70,25 @@ def test_llm_offline() -> None:
         browser.close()
 
 
+@pytest.mark.skipif(
+    not (Path(__file__).resolve().parents[1] / "wasm_llm" / "wasm-gpt2.tar").exists(),
+    reason="wasm model missing",
+)
+def test_llm_offline_pipeline() -> None:
+    dist = Path(__file__).resolve().parents[1] / "dist" / "index.html"
+    url = dist.as_uri()
+
+    with sync_playwright() as p:
+        browser = p.chromium.launch()
+        page = browser.new_page()
+        page.goto(url)
+        page.wait_for_selector("#controls")
+
+        out = page.evaluate("window.llmChat('hello')")
+        assert not out.startswith('[offline]')
+        browser.close()
+
+
 def test_llm_openai_path() -> None:
     dist = Path(__file__).resolve().parents[1] / "dist" / "index.html"
     url = dist.as_uri()

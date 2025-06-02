@@ -162,3 +162,9 @@ $PYTHON check_env.py --auto-install "${check_env_opts[@]}"
 # Verify all dependencies are satisfied and abort on issues
 $PYTHON -m pip check
 
+# Fetch browser demo assets
+if [[ "${FETCH_BROWSER_ASSETS:-1}" != "0" ]]; then
+  echo "Fetching Insight browser assets..."
+  $PYTHON scripts/fetch_assets.py
+fi
+
