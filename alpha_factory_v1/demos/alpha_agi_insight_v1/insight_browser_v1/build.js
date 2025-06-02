@@ -192,29 +192,22 @@ async function bundle() {
     process.env.IPFS_GATEWAY || ''
   )};</script>`;
 
+  const wasmBase64 = fsSync.readFileSync('wasm/pyodide.asm.wasm').toString('base64');
+  let gpt2Base64 = '';
+  try {
+    gpt2Base64 = fsSync.readFileSync('wasm_llm/wasm-gpt2.tar').toString('base64');
+  } catch {}
+  const bundlePath = `${OUT_DIR}/insight.bundle.js`;
+  let bundleText = await fs.readFile(bundlePath, 'utf8');
+  bundleText = `window.PYODIDE_WASM_BASE64='${wasmBase64}';window.GPT2_MODEL_BASE64='${gpt2Base64}';\n` + bundleText;
+  await fs.writeFile(bundlePath, bundleText);
   outHtml = outHtml.replace(
     '</body>',
     `<script src="bundle.esm.min.js" integrity="${bundleSri}" crossorigin="anonymous"></script>\n` +
     `<script src="pyodide.js" integrity="${pyodideSri}" crossorigin="anonymous"></script>\n` +
     `${envScript}\n</body>`
   );
-  await fs.mkdir(`${OUT_DIR}/wasm`, { recursive: true });
-  for (const f of await fs.readdir('wasm')) {
-    await fs.copyFile(`wasm/${f}`, `${OUT_DIR}/wasm/${f}`);
-  }
-  const wasmSri = await sha384('wasm/pyodide.asm.wasm');
-  if (checksums['pyodide.asm.wasm'] && checksums['pyodide.asm.wasm'] !== wasmSri) {
-    throw new Error('Checksum mismatch for pyodide.asm.wasm');
-  }
-  outHtml = outHtml.replace(
-    '</head>',
-    `<link rel="preload" href="wasm/pyodide.asm.wasm" as="fetch" type="application/wasm" integrity="${wasmSri}" crossorigin="anonymous" />\n</head>`
-  );
   await fs.writeFile(`${OUT_DIR}/index.html`, outHtml);
-  await fs.mkdir(`${OUT_DIR}/wasm_llm`, { recursive: true }).catch(() => {});
-  for await (const f of await fs.readdir('wasm_llm')) {
-    await fs.copyFile(`wasm_llm/${f}`, `${OUT_DIR}/wasm_llm/${f}`);
-  }
   await injectManifest({
     swSrc: 'sw.js',
     swDest: `${OUT_DIR}/sw.js`,
@@ -224,8 +217,6 @@ async function bundle() {
       'insight.bundle.js',
       'd3.v7.min.js',
       'pyodide.*',
-      'wasm_llm/*',
-      'wasm/*',
       'data/critics/*',
       'src/i18n/*.json',
     ],
