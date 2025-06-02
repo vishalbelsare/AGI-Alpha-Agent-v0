@@ -91,6 +91,16 @@ The script requires Python ≥3.11. It loads `.env` automatically and injects
 `PINNER_TOKEN`, `OPENAI_API_KEY`, `IPFS_GATEWAY` and `OTEL_ENDPOINT` into
 `dist/index.html`, mirroring `npm run build`.
 
+### Offline Build Steps
+
+When building without internet access:
+
+1. Ensure `.env` defines `WEB3_STORAGE_TOKEN`, `PINNER_TOKEN`, `IPFS_GATEWAY`
+   and `OTEL_ENDPOINT`.
+2. Run `python ../../../scripts/fetch_assets.py` to download the wasm assets.
+3. Execute `python manual_build.py` to generate the PWA in `dist/`.
+4. Launch with `npm start` or open `dist/index.html` directly in your browser.
+
 ## Toolbar & Controls
 - **CSV** – export the current population as `population.csv`.
 - **PNG** – download a `frontier.png` screenshot of the chart.
