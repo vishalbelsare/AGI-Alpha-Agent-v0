@@ -173,6 +173,10 @@ async function bundle() {
   await fs.copyFile('worker/arenaWorker.js', `${OUT_DIR}/worker/arenaWorker.js`);
   await fs.mkdir(`${OUT_DIR}/src/utils`, { recursive: true });
   await fs.copyFile('src/utils/rng.js', `${OUT_DIR}/src/utils/rng.js`);
+  await fs.mkdir(`${OUT_DIR}/src/i18n`, { recursive: true });
+  for (const f of await fs.readdir('src/i18n')) {
+    await fs.copyFile(`src/i18n/${f}`, `${OUT_DIR}/src/i18n/${f}`);
+  }
   await fs.copyFile('sw.js', `${OUT_DIR}/sw.js`).catch(() => {});
   await fs.copyFile('manifest.json', `${OUT_DIR}/manifest.json`).catch(() => {});
   await fs.copyFile('favicon.svg', `${OUT_DIR}/favicon.svg`).catch(() => {});
@@ -235,6 +239,7 @@ async function bundle() {
       'wasm/*',
       'worker/*',
       'data/critics/*',
+      'src/i18n/*.json',
     ],
   });
   const size = await gzipSize.file(`${OUT_DIR}/app.js`);
