@@ -107,3 +107,10 @@ basic usage metrics are sent to the OTLP endpoint. Clearing browser storage
 resets the identifier.
 
 See **Environment Setup** above for the list of supported variables.
+
+## Safari/iOS Support
+Pyodide is disabled on Safari and iOS devices because the runtime fails to load
+reliably. The demo automatically falls back to the JavaScript engine instead of
+executing Python code in the browser. Expect noticeably slower performance for
+LLM tasks and the absence of features that rely on the Python bridge, such as
+the local GPT‑2 critic.
