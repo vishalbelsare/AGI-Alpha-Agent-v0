@@ -209,7 +209,11 @@ function loadState(text){
   }catch{toast(t('invalid_file'))}
 }
 
-function apply(p){location.hash=toHash(p)}
+function apply(p, info = {}){
+  if(info.popClamped) toast('max population is 500');
+  if(info.genClamped) toast('max generations is 500');
+  location.hash=toHash(p);
+}
 
 window.addEventListener('DOMContentLoaded',async()=>{
   telemetry = initTelemetry();

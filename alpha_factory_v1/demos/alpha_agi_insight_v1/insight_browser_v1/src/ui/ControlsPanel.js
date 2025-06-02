@@ -1,10 +1,11 @@
 // SPDX-License-Identifier: Apache-2.0
 import {t,setLanguage,currentLanguage} from './i18n.js';
+const MAX_VAL = 500;
 export function initControls(params,onChange){
   const root=document.getElementById('controls');
   root.innerHTML=`<label>${t('seed')} <input id="seed" type="number" min="0" aria-label="${t('seed')}" tabindex="1"></label>
-<label>${t('population')} <input id="pop" type="number" min="1" aria-label="${t('population')}" tabindex="2"></label>
-<label>${t('generations')} <input id="gen" type="number" min="1" aria-label="${t('generations')}" tabindex="3"></label>
+<label>${t('population')} <input id="pop" type="number" min="1" max="${MAX_VAL}" aria-label="${t('population')}" tabindex="2"></label>
+<label>${t('generations')} <input id="gen" type="number" min="1" max="${MAX_VAL}" aria-label="${t('generations')}" tabindex="3"></label>
 <label><input id="gaussian" type="checkbox" aria-label="${t('gaussian')}" tabindex="4"> ${t('gaussian')}</label>
 <label><input id="swap" type="checkbox" aria-label="${t('swap')}" tabindex="5"> ${t('swap')}</label>
 <label><input id="jump" type="checkbox" aria-label="${t('jump')}" tabindex="6"> ${t('jump')}</label>
@@ -27,8 +28,8 @@ export function initControls(params,onChange){
         adaptive=root.querySelector('#adaptive');
   function update(p){
     seed.value=p.seed;
-    pop.value=p.pop;
-    gen.value=p.gen;
+    pop.value=Math.min(p.pop,MAX_VAL);
+    gen.value=Math.min(p.gen,MAX_VAL);
     const set=new Set(p.mutations||[]);
     gauss.checked=set.has('gaussian');
     swap.checked=set.has('swap');
@@ -39,9 +40,14 @@ export function initControls(params,onChange){
   update(params);
   function emit(){
     const muts=[gauss,swap,jump,scramble].filter(c=>c.checked).map(c=>c.id);
-    const p={seed:+seed.value,pop:+pop.value,gen:+gen.value,mutations:muts,adaptive:adaptive.checked};
+    let popVal=Math.min(+pop.value,MAX_VAL);
+    let genVal=Math.min(+gen.value,MAX_VAL);
+    const info={popClamped:popVal!==+pop.value,genClamped:genVal!==+gen.value};
+    pop.value=popVal;
+    gen.value=genVal;
+    const p={seed:+seed.value,pop:popVal,gen:genVal,mutations:muts,adaptive:adaptive.checked};
     try{localStorage.setItem('insightParams',JSON.stringify(p));}catch{}
-    onChange(p);
+    onChange(p,info);
   }
   seed.addEventListener('change',emit);
   pop.addEventListener('change',emit);
