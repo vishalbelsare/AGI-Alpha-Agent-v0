@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
-export async function loadExamples(url = '../data/critics/innovations.txt') {
+export async function loadExamples(url = './data/critics/innovations.txt') {
   try {
     const res = await fetch(url);
     if (!res.ok) return [];
