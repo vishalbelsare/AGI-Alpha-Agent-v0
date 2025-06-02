@@ -3,7 +3,11 @@
   "private": true,
   "version": "0.1.0",
   "type": "module",
+  "engines": {
+    "node": ">=20"
+  },
   "scripts": {
+    "preinstall": "node -e \"const m=parseInt(process.versions.node); if(m<20){console.error('Node.js 20+ is required. Current version: '+process.versions.node); process.exit(1);} \"",
     "lint": "eslint --config .eslintrc.cjs src --ext .js,.ts",
     "build": "node build.js",
     "size": "gzip-size-cli dist/app.js --bytes",
