@@ -105,7 +105,8 @@ export function initSimulatorPanel(archive, power) {
   const q = new URLSearchParams(window.location.hash.replace(/^#\/?/, ''));
   const cid = q.get('cid');
   if (cid) {
-    fetch(`https://ipfs.io/ipfs/${cid}`)
+    const gateway = (window.IPFS_GATEWAY || 'https://ipfs.io/ipfs').replace(/\/$/, '');
+    fetch(`${gateway}/${cid}`)
       .then((r) => r.text())
       .then((txt) => {
         status.textContent = 'replaying...';

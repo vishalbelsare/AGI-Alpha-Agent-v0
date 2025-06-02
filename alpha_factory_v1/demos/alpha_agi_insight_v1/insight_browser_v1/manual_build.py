@@ -6,6 +6,7 @@ import base64
 import json
 import subprocess
 from pathlib import Path
+from urllib.parse import urlparse
 
 
 def sha384(path: Path) -> str:
@@ -74,6 +75,25 @@ dist_dir.mkdir(exist_ok=True)
 
 app_sri_placeholder = '<script type="module" src="app.js" crossorigin="anonymous"></script>'
 out_html = html.replace("src/ui/controls.css", "controls.css")
+ipfs_origin = os.getenv("IPFS_GATEWAY")
+if ipfs_origin:
+    p = urlparse(ipfs_origin)
+    ipfs_origin = f"{p.scheme}://{p.netloc}"
+otel_origin = os.getenv("OTEL_ENDPOINT")
+if otel_origin:
+    p = urlparse(otel_origin)
+    otel_origin = f"{p.scheme}://{p.netloc}"
+csp = "default-src 'self'; connect-src 'self' https://api.openai.com"
+if ipfs_origin:
+    csp += f" {ipfs_origin}"
+if otel_origin:
+    csp += f" {otel_origin}"
+csp += "; script-src 'self' 'wasm-unsafe-eval'"
+out_html = re.sub(
+    r'<meta[^>]*http-equiv="Content-Security-Policy"[^>]*>',
+    f'<meta http-equiv="Content-Security-Policy" content="{csp}" />',
+    out_html,
+)
 
 # copy assets
 for src, dest in [
@@ -107,6 +127,7 @@ env_script = (
     f'window.PINNER_TOKEN={json.dumps(os.getenv("PINNER_TOKEN", ""))};'
     f'window.OPENAI_API_KEY={json.dumps(os.getenv("OPENAI_API_KEY", ""))};'
     f'window.OTEL_ENDPOINT={json.dumps(os.getenv("OTEL_ENDPOINT", ""))};'
+    f'window.IPFS_GATEWAY={json.dumps(os.getenv("IPFS_GATEWAY", ""))};'
     "</script>"
 )
 out_html = out_html.replace(

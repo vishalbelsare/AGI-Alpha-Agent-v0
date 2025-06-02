@@ -6,7 +6,8 @@ export async function pinFiles(files) {
   try {
     const client = new Web3Storage({ token: window.PINNER_TOKEN });
     const cid = await client.put(files);
-    const url = `https://ipfs.io/ipfs/${cid}`;
+    const gateway = (window.IPFS_GATEWAY || 'https://ipfs.io/ipfs').replace(/\/$/, '');
+    const url = `${gateway}/${cid}`;
     if (navigator.clipboard) {
       try {
         await navigator.clipboard.writeText(url);
