@@ -3,4 +3,5 @@ module.exports = {
   globPatterns: ['**/*.{js,css,html,wasm,woff2,svg,webmanifest,json}'],
   swSrc: 'src/sw.js',
   swDest: 'dist/service-worker.js',
+  importWorkboxFrom: 'disabled',
 };

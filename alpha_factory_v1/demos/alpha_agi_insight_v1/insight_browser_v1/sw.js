@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 /* eslint-env serviceworker */
+importScripts('workbox-sw.js');
 import {precacheAndRoute} from 'workbox-precaching';
 
 // include translation JSON files in the precache
