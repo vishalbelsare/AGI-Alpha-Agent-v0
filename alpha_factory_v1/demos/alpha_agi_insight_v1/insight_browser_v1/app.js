@@ -203,7 +203,7 @@ window.addEventListener('DOMContentLoaded',async()=>{
   archive = new Archive();
   await archive.open();
   evolutionPanel = initEvolutionPanel(archive);
-  initSimulatorPanel(archive, powerPanel);
+  await initSimulatorPanel(archive, powerPanel);
   powerPanel = initPowerPanel();
   analyticsPanel = initAnalyticsPanel();
   await evolutionPanel.render();
