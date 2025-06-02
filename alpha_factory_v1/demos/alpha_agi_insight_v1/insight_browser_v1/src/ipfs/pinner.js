@@ -21,6 +21,9 @@ export async function pinFiles(files) {
     return { cid, url };
   } catch (err) {
     console.error('pinFiles failed', err);
+    if (typeof window.toast === 'function') {
+      window.toast('pin failed');
+    }
     return null;
   }
 }
