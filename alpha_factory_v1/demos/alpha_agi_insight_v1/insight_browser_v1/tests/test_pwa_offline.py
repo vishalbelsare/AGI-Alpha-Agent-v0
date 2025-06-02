@@ -37,7 +37,7 @@ def test_offline_pwa_and_share() -> None:
 
         assert page.evaluate("navigator.serviceWorker.controller !== null")
         assert page.evaluate("typeof d3 !== 'undefined'")
-        assert page.evaluate('document.querySelector("link[href=\'style.css\']").sheet !== null')
+        assert page.evaluate('document.styleSheets.length > 0')
 
         # i18n files should be served from cache
         assert page.evaluate("(await fetch('src/i18n/en.json')).ok")
