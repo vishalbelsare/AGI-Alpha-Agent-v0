@@ -26,6 +26,18 @@ dist_dir = ROOT / "dist"
 lib_dir = ROOT / "lib"
 src_dir = ROOT / "src"
 
+bundle_path = lib_dir / "bundle.esm.min.js"
+try:
+    data = bundle_path.read_text()
+except FileNotFoundError:
+    sys.exit(
+        "lib/bundle.esm.min.js missing. Run scripts/fetch_assets.py to download assets."
+    )
+if "Placeholder for web3.storage bundle.esm.min.js" in data:
+    sys.exit(
+        "lib/bundle.esm.min.js is a placeholder. Run scripts/fetch_assets.py to download assets."
+    )
+
 html = index_html.read_text()
 entry = (ROOT / "app.js").read_text()
 

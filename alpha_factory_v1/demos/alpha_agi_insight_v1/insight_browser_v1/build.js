@@ -25,10 +25,25 @@ const aliasPlugin = {
   },
 };
 
+async function ensureWeb3Bundle() {
+  const bundlePath = path.join('lib', 'bundle.esm.min.js');
+  const data = await fs.readFile(bundlePath, 'utf8').catch(() => {
+    throw new Error(
+      'lib/bundle.esm.min.js missing. Run scripts/fetch_assets.py to download assets.'
+    );
+  });
+  if (data.includes('Placeholder for web3.storage bundle.esm.min.js')) {
+    throw new Error(
+      'lib/bundle.esm.min.js is a placeholder. Run scripts/fetch_assets.py to download assets.'
+    );
+  }
+}
+
 const OUT_DIR = 'dist';
 
 async function bundle() {
   const html = await fs.readFile('index.html', 'utf8');
+  await ensureWeb3Bundle();
   const ipfsOrigin = process.env.IPFS_GATEWAY
     ? new URL(process.env.IPFS_GATEWAY).origin
     : '';
