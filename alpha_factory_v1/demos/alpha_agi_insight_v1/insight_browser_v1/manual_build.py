@@ -57,6 +57,8 @@ for rel in _asset_paths():
     if p.exists() and 'placeholder' in p.read_text(errors='ignore').lower():
         sys.exit(f"{rel} contains placeholder text. Run scripts/fetch_assets.py to download assets.")
 
+subprocess.run(["tsc", "--noEmit"], check=True)
+
 html = index_html.read_text()
 entry = (ROOT / "app.js").read_text()
 
