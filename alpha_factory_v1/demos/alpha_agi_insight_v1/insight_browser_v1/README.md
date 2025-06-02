@@ -13,7 +13,8 @@ Verify your Node.js version before running the build script:
 node --version
 ```
 The output must start with `v20` or higher. Only run `manual_build.py` when this
-requirement is met.
+requirement is met. The `package.json` also enforces Node.js 20 or newer via the
+`engines` field.
 
 ## Environment Setup
 Copy [`.env.sample`](.env.sample) to `.env` then review the variables:
