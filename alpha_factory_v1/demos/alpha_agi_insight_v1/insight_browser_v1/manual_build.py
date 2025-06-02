@@ -9,7 +9,6 @@ import sys
 from pathlib import Path
 from urllib.parse import urlparse
 import ast
-import json
 
 
 def sha384(path: Path) -> str:
@@ -51,6 +50,19 @@ def _asset_paths() -> list[str]:
                     assets = ast.literal_eval(node.value)
                     break
     return list(assets)
+
+
+def _expected_checksums() -> dict[str, str]:
+    fetch = repo_root / 'scripts' / 'fetch_assets.py'
+    tree = ast.parse(fetch.read_text())
+    checks: dict[str, str] = {}
+    for node in tree.body:
+        if isinstance(node, ast.Assign):
+            for t in node.targets:
+                if getattr(t, 'id', None) == 'CHECKSUMS':
+                    checks = ast.literal_eval(node.value)
+                    break
+    return checks
 
 for rel in _asset_paths():
     p = ROOT / rel
@@ -172,6 +184,7 @@ app_sri = sha384(dist_dir / "app.js")
 style_sri = sha384(dist_dir / "style.css")
 bundle_sri = sha384(dist_dir / "bundle.esm.min.js")
 pyodide_sri = sha384(dist_dir / "pyodide.js")
+checksums = _expected_checksums()
 out_html = out_html.replace(
     app_sri_placeholder, f'<script type="module" src="app.js" integrity="{app_sri}" crossorigin="anonymous"></script>'
 )
@@ -193,12 +206,22 @@ out_html = out_html.replace(
     f'<script src="pyodide.js" integrity="{pyodide_sri}" crossorigin="anonymous"></script>\n'
     f"{env_script}\n</body>",
 )
-(dist_dir / "index.html").write_text(out_html)
 
 if (ROOT / "wasm").exists():
     (dist_dir / "wasm").mkdir(exist_ok=True)
     for f in (ROOT / "wasm").iterdir():
         (dist_dir / "wasm" / f.name).write_bytes(f.read_bytes())
+    wasm_sri = sha384(dist_dir / "wasm" / "pyodide.asm.wasm")
+    expected = checksums.get("pyodide.asm.wasm")
+    if expected and expected != wasm_sri:
+        sys.exit("Checksum mismatch for pyodide.asm.wasm")
+    out_html = out_html.replace(
+        "</head>",
+        f'<link rel="preload" href="wasm/pyodide.asm.wasm" as="fetch" type="application/wasm" integrity="{wasm_sri}" crossorigin="anonymous" />\n</head>',
+    )
+else:
+    wasm_sri = None
+(dist_dir / "index.html").write_text(out_html)
 
 if (ROOT / "wasm_llm").exists():
     (dist_dir / "wasm_llm").mkdir(exist_ok=True)
