@@ -68,3 +68,21 @@ def test_offline_pwa_and_share() -> None:
         page.wait_for_function("window.pop && window.pop.length > 0")
         browser.close()
 
+
+def test_service_worker_registration_failure_toast() -> None:
+    dist = Path(__file__).resolve().parents[1] / "dist" / "index.html"
+    url = dist.as_uri()
+
+    with sync_playwright() as p:
+        browser = p.chromium.launch()
+        page = browser.new_page()
+        page.add_init_script(
+            "navigator.serviceWorker.register = () => Promise.reject('fail')"
+        )
+        page.goto(url)
+        page.wait_for_selector("#controls")
+        page.wait_for_function(
+            "document.getElementById('toast').textContent.includes('offline mode disabled')"
+        )
+        browser.close()
+
