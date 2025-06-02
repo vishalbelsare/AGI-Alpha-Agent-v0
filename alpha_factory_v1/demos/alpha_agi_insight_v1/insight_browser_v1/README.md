@@ -7,16 +7,23 @@ A zero-backend Pareto explorer lives in
   to generate the service worker.
 - **Python ≥3.11** is required when using `manual_build.py`.
 
+## Environment Setup
+Copy `.env.sample` to `.env` then review the variables:
+
+- `PINNER_TOKEN` – Web3.Storage token used to pin results.
+- `OPENAI_API_KEY` – optional OpenAI key for chat prompts.
+- `IPFS_GATEWAY` – base URL of the IPFS gateway.
+- `OTEL_ENDPOINT` – anonymous telemetry endpoint.
+- `WEB3_STORAGE_TOKEN` – build script token consumed by `npm run build`.
+
 ## Build & Run
 ```bash
 npm ci           # deterministic install
 npm run build    # compile to dist/ and embed env vars
 ```
-Copy `.env.sample` to `.env` and fill in variables like `PINNER_TOKEN`,
-`IPFS_GATEWAY` and `OTEL_ENDPOINT` before building or running.
-The build script reads `.env` automatically and writes `window.PINNER_TOKEN`,
-`window.OPENAI_API_KEY`, `window.IPFS_GATEWAY` and `window.OTEL_ENDPOINT` to
-`dist/index.html`.
+The build script reads `.env` automatically and writes
+`window.PINNER_TOKEN`, `window.OPENAI_API_KEY`, `window.IPFS_GATEWAY` and
+`window.OTEL_ENDPOINT` to `dist/index.html`.
 Place the Pyodide 0.25 files in `wasm/` before building. The script copies them
 to `dist/wasm` so the demo can run offline. When preparing the environment
 offline run:
@@ -43,26 +50,17 @@ Open `index.html` directly in your browser or pin the folder to IPFS
 The URL fragment encodes parameters such as `#/s=42&p=120&g=80`.
 
 ## Manual Build
-When network access isn't available, run `manual_build.py` instead of
-`npm run build`. The script uses **Node.js** to invoke Workbox and
-generate the service worker. If `node` isn't installed, this step is
-skipped and offline PWA features are disabled:
+Use `manual_build.py` for air‑gapped environments:
 
-```bash
-python manual_build.py
-```
+1. `cp .env.sample .env` and edit the values if you haven't already.
+2. `python ../../../scripts/fetch_assets.py` to fetch Pyodide and the GPT‑2 model.
+3. `python manual_build.py` – bundles the app and generates `dist/sw.js`.
+4. `npm start` or open `dist/index.html` directly to run the demo.
 
-The script requires Python ≥3.11 and writes the bundled output to `dist/`.
-`dist/index.html` includes SHA‑384 integrity hashes for `app.js`, `style.css`,
-`bundle.esm.min.js` and `pyodide.js`. It also embeds
-`window.PINNER_TOKEN`, `window.OPENAI_API_KEY` and `window.OTEL_ENDPOINT`
-from the environment just like `npm run build`.
-It additionally generates `dist/sw.js` with Workbox so the demo can run offline.
-Any `wasm/` or `wasm_llm/` directories are copied as-is so the demo can
-run fully offline. Run `python ../../../scripts/fetch_assets.py` beforehand
-to download the Pyodide runtime and GPT‑2 WASM model when building
-without internet access.
-Serve the folder with `npm start` or open `dist/index.html` directly.
+The script requires Python ≥3.11 and uses **Node.js** to invoke Workbox. When
+`node` is missing, offline PWA features are skipped. `dist/index.html` contains
+SHA‑384 integrity hashes and embeds `window.PINNER_TOKEN`, `window.OPENAI_API_KEY`
+and `window.OTEL_ENDPOINT` from `.env` just like `npm run build`.
 
 ## Toolbar & Controls
 - **CSV** – export the current population as `population.csv`.
@@ -78,6 +76,11 @@ simulation.
 Every completed run is stored locally using IndexedDB. The **Evolution** panel
 lists archived runs with their score and novelty. Click **Re-spawn** next to a
 row to restart the simulation using that seed.
+
+## Arena & Meme Cloud
+The **Arena panel** allows quick debates between roles on any candidate in the
+frontier. Results appear ranked within the panel. The **Meme Cloud** below the
+archive table visualizes common strategy transitions across runs.
 
 ## Running a Simulation
 Use the **Simulator** panel to launch a full run. Adjust the seed list, population
@@ -95,4 +98,4 @@ hashed with SHA-256 using the static salt `"insight"`. Only this salted hash and
 basic usage metrics are sent to the OTLP endpoint. Clearing browser storage
 resets the identifier.
 
-Environment variables can be configured in `.env` (see `.env.sample`).
+See **Environment Setup** above for the list of supported variables.
