@@ -15,26 +15,14 @@ const OUT_DIR = 'dist';
 
 async function bundle() {
   const html = await fs.readFile('index.html', 'utf8');
-  const match = html.match(/<script type="module">([\s\S]*?)<\/script>/);
-  if (!match) throw new Error('inline script not found');
-
-  let script = match[1]
-    .replace(
-      /telemetry\s*=\s*initTelemetry\(\);/,
-      'telemetry = window.telemetry || telemetry;'
-    ) +
-    "\nexport { initTelemetry } from '../../../../src/telemetry.js';";
-
-  await fs.writeFile('tmp.js', script);
   await fs.mkdir(OUT_DIR, { recursive: true });
   await build({
-    entryPoints: ['tmp.js'],
+    entryPoints: ['app.js'],
     bundle: true,
     minify: true,
     format: 'esm',
     outfile: `${OUT_DIR}/app.js`,
   });
-  await fs.unlink('tmp.js');
   execSync(
     `npx tailwindcss -i style.css -o ${OUT_DIR}/style.css --minify`,
     { stdio: 'inherit' }
@@ -47,9 +35,8 @@ async function bundle() {
   const styleSri = await sha384('style.css');
   let outHtml = html
     .replace(
-      match[0],
-      `<script type="module" src="app.js" integrity="${appSri}" crossorigin="anonymous"></script>\n` +
-        `<script type="module">import { initTelemetry } from './app.js'; window.telemetry = initTelemetry();</script>`
+      '<script type="module" src="app.js" crossorigin="anonymous"></script>',
+      `<script type="module" src="app.js" integrity="${appSri}" crossorigin="anonymous"></script>`
     )
     .replace(
       'href="style.css"',
