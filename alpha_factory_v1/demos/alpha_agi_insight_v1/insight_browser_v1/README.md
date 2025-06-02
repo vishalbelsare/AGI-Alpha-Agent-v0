@@ -3,9 +3,17 @@ A zero-backend Pareto explorer lives in
 `demos/alpha_agi_insight_v1/insight_browser_v1/`.
 
 ## Prerequisites
-- **Node.js ≥20** is required for offline PWA support and by `manual_build.py`
+- **Node.js ≥20** is required for offline PWA support and by `manual_build.py`  
   to generate the service worker.
 - **Python ≥3.11** is required when using `manual_build.py`.
+
+Verify your Node.js version before running the build script:
+
+```bash
+node --version
+```
+The output must start with `v20` or higher. Only run `manual_build.py` when this
+requirement is met.
 
 ## Environment Setup
 Copy [`.env.sample`](.env.sample) to `.env` then review the variables:
@@ -64,8 +72,9 @@ Use `manual_build.py` for air‑gapped environments:
 1. `cp .env.sample .env` and edit the values if you haven't already.
 2. `python ../../../scripts/fetch_assets.py` to fetch Pyodide and the GPT‑2 model.
    The build scripts verify these files no longer contain the word `"placeholder"`.
-3. `python manual_build.py` – bundles the app and generates `dist/sw.js`.
-4. `npm start` or open `dist/index.html` directly to run the demo.
+3. Confirm `node --version` reports **v20** or newer.
+4. `python manual_build.py` – bundles the app and generates `dist/sw.js`.
+5. `npm start` or open `dist/index.html` directly to run the demo.
 
 The script requires Python ≥3.11 and uses **Node.js** to invoke Workbox. When
 `node` is missing, offline PWA features are skipped. `dist/index.html` contains

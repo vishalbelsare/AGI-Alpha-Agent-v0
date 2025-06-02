@@ -6,22 +6,26 @@ import base64
 import json
 import subprocess
 import sys
+import shutil
 from pathlib import Path
 from urllib.parse import urlparse
 import ast
 
 
 def _require_node_20() -> None:
+    """Exit when Node.js is missing or too old."""
+    if not shutil.which("node"):
+        sys.exit(
+            "Node.js 20+ is required. Install Node.js and ensure 'node' is in your PATH."
+        )
     try:
-        out = subprocess.check_output(
-            ["node", "-e", "console.log(process.versions.node)"],
-            text=True,
-        ).strip()
-    except FileNotFoundError:
-        sys.exit("Node.js 20+ is required. 'node' not found.")
-    major = int(out.split(".")[0])
+        out = subprocess.check_output(["node", "--version"], text=True).strip()
+    except subprocess.CalledProcessError:
+        sys.exit("Failed to execute 'node --version'. Is Node.js installed correctly?")
+    version = out.lstrip("v")
+    major = int(version.split(".")[0])
     if major < 20:
-        sys.exit(f"Node.js 20+ is required. Current version: {out}")
+        sys.exit(f"Node.js 20+ is required. Current version: {version}")
 
 
 _require_node_20()
