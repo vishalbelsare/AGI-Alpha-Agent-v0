@@ -5,7 +5,14 @@ async function loadLocal() {
   if (!localModel) {
     try {
       const { pipeline } = await import('../lib/bundle.esm.min.js');
-      localModel = await pipeline('text-generation', './wasm_llm/');
+      if (window.GPT2_MODEL_BASE64) {
+        const bytes = Uint8Array.from(atob(window.GPT2_MODEL_BASE64), c => c.charCodeAt(0));
+        const blob = new Blob([bytes]);
+        const url = URL.createObjectURL(blob);
+        localModel = await pipeline('text-generation', url);
+      } else {
+        localModel = await pipeline('text-generation', './wasm_llm/');
+      }
     } catch (err) {
       localModel = async (p) => `[offline] ${p}`;
     }
