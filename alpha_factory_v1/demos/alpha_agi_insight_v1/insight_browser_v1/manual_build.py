@@ -5,6 +5,7 @@ import hashlib
 import base64
 import json
 import subprocess
+import sys
 from pathlib import Path
 from urllib.parse import urlparse
 
@@ -181,4 +182,9 @@ injectManifest({{
   ],
 }}).catch(err => {{console.error(err); process.exit(1);}});
 """
-subprocess.run(["node", "-e", node_script], check=True)
+try:
+    subprocess.run(["node", "-e", node_script], check=True)
+except FileNotFoundError:
+    print("[manual_build] node not found; skipping service worker generation", file=sys.stderr)
+except subprocess.CalledProcessError as exc:
+    print(f"[manual_build] workbox build failed: {exc}; offline features disabled", file=sys.stderr)

@@ -3,7 +3,8 @@ A zero-backend Pareto explorer lives in
 `demos/alpha_agi_insight_v1/insight_browser_v1/`.
 
 ## Prerequisites
-- **Node.js ≥20** must be installed.
+- **Node.js ≥20** is required for offline PWA support and by `manual_build.py`
+  to generate the service worker.
 - **Python ≥3.11** is required when using `manual_build.py`.
 
 ## Build & Run
@@ -42,8 +43,10 @@ Open `index.html` directly in your browser or pin the folder to IPFS
 The URL fragment encodes parameters such as `#/s=42&p=120&g=80`.
 
 ## Manual Build
-When Node.js or network access isn't available, run `manual_build.py`
-instead of `npm run build`:
+When network access isn't available, run `manual_build.py` instead of
+`npm run build`. The script uses **Node.js** to invoke Workbox and
+generate the service worker. If `node` isn't installed, this step is
+skipped and offline PWA features are disabled:
 
 ```bash
 python manual_build.py
