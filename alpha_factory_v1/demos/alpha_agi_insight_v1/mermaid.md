@@ -1,4 +1,93 @@
 ```mermaid
+%% Alpha-AGI Insight v1 — Parts 11-35 system map
+%% Legend: 🔵 Darwinian layer  🔶 Semantic/Temporal layer  🟣 Reflexive layer  🟢 Strategic-economic layer
+graph TD
+  %% ---------- Darwinian Search backbone ----------
+  subgraph C-A 🔵 Darwinian Search
+    A11[11 Darwin-Archive Engine 💾]
+    A12[12 Evolution Run Simulator ⚙️]
+    A13[13 Recursive Evaluator Evolution 🧬]
+    A11 -->|parents| A12 -->|executes| A13
+  end
+
+  %% ---------- Semantic / Temporal topology ----------
+  subgraph C-B 🔶 Semantic & Temporal Terrain
+    B14[14 Self-Generating Taxonomies 🗂️]
+    B15[15 Horizon-Adaptive Mutation ⏳]
+    B16[16 Semantic Terrain & Auto-Curriculum 🗺️]
+    A12 --> B14
+    B14 --> B16
+    A13 --> B15
+    B15 --> B16
+  end
+
+  %% ---------- Reflexive evaluation ----------
+  subgraph C-C 🟣 Reflexive Evaluation & Debate
+    C17[17 Memory-Augmented Oracles 📚]
+    C18[18 Meta-Generative Replay 🔄]
+    C19[19 Discourse Arena 🗣️]
+    A13 --> C17
+    C17 --> C18 --> C19
+  end
+
+  %% ---------- Memetic / Strategic abstraction ----------
+  subgraph C-D 🟢 Memetic & Strategy Layer
+    D20[20 Meta-Memetic Emergence 🧩]
+    D21[21 Frontier Entropy Optimisers ♒]
+    C18 --> D20
+    D20 --> D21
+  end
+
+  %% ---------- Crypto / Privacy ----------
+  E22[22 ZK Proofs of Insight 🔐]
+  C17 --> E22
+
+  %% ---------- Meta-infrastructure ----------
+  F23[23 Infrastructure Co-Evolution 🏗️]
+  A11 --> F23
+  C17 --> F23
+
+  %% ---------- Foresight→Action fusion ----------
+  subgraph C-G 🟢 Fusion & Execution
+    G24[24 Insight × Sovereign Fusion 🔗]
+    G25[25 Economic Memory Crystals 💎]
+    G26[26 Latent Loop Harvesting 🌱]
+    D20 --> G24
+    G24 --> G25 --> G26
+    G26 --reinforces--> A11
+  end
+
+  %% ---------- Ontological & institutional emergence ----------
+  subgraph C-H 🟢 Ontology & Institution
+    H27[27 Ontological Fusion Engine 🌐]
+    H28[28 Autopoietic Economic Agencies 🧬]
+    H29[29 Adaptive AGI Firms 🏢]
+    H30[30 Onto-Economic Gravity Wells 🌀]
+    G25 --> H27
+    H27 --> H28 --> H29 --> H30
+  end
+
+  %% ---------- Civilization-scale coordination ----------
+  subgraph C-I 🟢 Civilization-Scale
+    I31[31 AGI-First Civilization Simulation 🌍]
+    I32[32 Multimodal Treaty Genesis 🤝]
+    I33[33 Treaty Cascades ↘]
+    I34[34 Autonomic Foresight Mesh 🕸️]
+    I35[35 Self-Reflective Treaty Loops 🔄⚖️]
+    H30 --> I31
+    I31 --> I32 --> I33 --> I34 --> I35
+    I35 --constraint feedback--> A13
+  end
+
+  %% ---------- Cross-cluster feedbacks ----------
+  D21 --entropy hints--> A12
+  B16 --curriculum signals--> A12
+  C19 --debate outcomes--> A13
+  E22 -.privacy proofs.- A11
+```
+
+
+```mermaid
 %% 🎖️ α‑AGI Insight 👁️✨ — Beyond Human Foresight — Official Demo
 %% Comprehensive architecture & workflow diagram (ZERO‑DATA)
 
