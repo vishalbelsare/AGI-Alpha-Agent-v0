@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 const { mutateEvaluator } = require('../src/evaluator_genome.ts');
 const { lcg } = require('../src/utils/rng.js');
 
