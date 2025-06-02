@@ -1,7 +1,6 @@
 # SPDX-License-Identifier: Apache-2.0
 import os
 import re
-import sys
 import hashlib
 import base64
 import json
@@ -21,10 +20,7 @@ lib_dir = ROOT / "lib"
 src_dir = ROOT / "src"
 
 html = index_html.read_text()
-match = re.search(r'<script type="module">([\s\S]*?)</script>', html)
-if not match:
-    sys.exit("inline module not found")
-entry = match.group(1)
+entry = (ROOT / "app.js").read_text()
 
 
 def find_deps(code):
@@ -76,15 +72,8 @@ bundle = "(function() {\n" + "\n".join(processed[p] for p in order) + "\n" + ent
 dist_dir.mkdir(exist_ok=True)
 (dist_dir / "app.js").write_text(bundle)
 
-# replace inline module with external script and telemetry init
 app_sri_placeholder = '<script type="module" src="app.js" crossorigin="anonymous"></script>'
-out_html = re.sub(
-    r'<script type="module">([\s\S]*?)</script>',
-    app_sri_placeholder
-    + '\n<script type="module">import { initTelemetry } from "./app.js"; window.telemetry = initTelemetry();</script>',
-    html,
-)
-out_html = out_html.replace("src/ui/controls.css", "controls.css")
+out_html = html.replace("src/ui/controls.css", "controls.css")
 
 # copy assets
 for src, dest in [
