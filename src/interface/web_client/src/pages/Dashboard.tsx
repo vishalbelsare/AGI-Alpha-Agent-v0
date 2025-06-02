@@ -6,6 +6,7 @@ import Pareto3D, { PopulationMember } from '../Pareto3D';
 import LineageTimeline from '../LineageTimeline';
 import { useI18n } from '../IntlContext';
 import telemetry from '../Telemetry';
+import MemeCloud from '../MemeCloud';
 
 interface SectorData {
   name: string;
@@ -34,6 +35,7 @@ export default function Dashboard() {
   const [population, setPopulation] = useState<PopulationMember[]>([]);
   const [lineage, setLineage] = useState<LineageNode[]>([]);
   const [debate, setDebate] = useState<{ role: string; text: string }[]>([]);
+  const [memeUsage, setMemeUsage] = useState<Record<string, number>>({});
   const workerRef = useRef<Worker | null>(null);
   const buffer = useRef<ForecastPoint[]>([]);
   const flushRef = useRef<number | null>(null);
@@ -61,6 +63,7 @@ export default function Dashboard() {
 
   useEffect(() => {
     fetchLineage().catch(() => null);
+    fetchMemes().catch(() => null);
   }, []);
 
   useEffect(() => {
@@ -132,6 +135,17 @@ export default function Dashboard() {
     setLineage(body);
   }
 
+  async function fetchMemes() {
+    try {
+      const res = await fetch(`${API_BASE}/memes`, { headers: HEADERS });
+      if (!res.ok) return;
+      const body = await res.json();
+      setMemeUsage(body);
+    } catch {
+      // ignore
+    }
+  }
+
   async function onSubmit(e: FormEvent) {
     e.preventDefault();
     setProgress(0);
@@ -187,6 +201,7 @@ export default function Dashboard() {
       setTimeline([...buffer.current]);
       fetchResults(id).catch(() => null);
       fetchPopulation(id).catch(() => null);
+      fetchMemes().catch(() => null);
     };
   }
 
@@ -298,6 +313,7 @@ export default function Dashboard() {
       </details>
       <LineageTimeline data={lineage} />
       <D3LineageTree data={lineage} />
+      <MemeCloud counts={memeUsage} />
     </div>
   );
 }
