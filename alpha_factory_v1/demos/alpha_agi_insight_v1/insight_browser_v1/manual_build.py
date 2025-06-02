@@ -11,6 +11,22 @@ from urllib.parse import urlparse
 import ast
 
 
+def _require_node_20() -> None:
+    try:
+        out = subprocess.check_output(
+            ["node", "-e", "console.log(process.versions.node)"],
+            text=True,
+        ).strip()
+    except FileNotFoundError:
+        sys.exit("Node.js 20+ is required. 'node' not found.")
+    major = int(out.split(".")[0])
+    if major < 20:
+        sys.exit(f"Node.js 20+ is required. Current version: {out}")
+
+
+_require_node_20()
+
+
 def sha384(path: Path) -> str:
     digest = hashlib.sha384(path.read_bytes()).digest()
     return "sha384-" + base64.b64encode(digest).decode()
