@@ -4,6 +4,7 @@ import { save, load } from '../state/serializer.js';
 import { mutateEvaluator } from '../evaluator_genome.ts';
 import { pinFiles } from '../ipfs/pinner.js';
 import { renderFrontier } from '../render/frontier.js';
+import { detectColdZone } from '../utils/cluster.js';
 
 export function initSimulatorPanel(archive, power) {
   const panel = document.createElement('div');
@@ -53,6 +54,7 @@ export function initSimulatorPanel(archive, power) {
     if (!f) return;
     pop = f;
     gen = i;
+    window.pop = pop;
     renderFrontier(view.node ? view.node() : view, pop, selectPoint);
     info.textContent = `gen ${i}`;
   }
@@ -70,6 +72,7 @@ export function initSimulatorPanel(archive, power) {
       mutations: ['gaussian'],
       seeds,
       workerUrl: './worker/evolver.js',
+      umapWorkerUrl: './worker/umapWorker.js',
       critic: heurSel.value,
     });
     let lastPop = [];
@@ -80,6 +83,11 @@ export function initSimulatorPanel(archive, power) {
       lastPop = g.population;
       frames.push(structuredClone(g.population));
       count = g.gen;
+      window.pop = g.population;
+      if (g.population[0] && g.population[0].umap) {
+        const pts = g.population.map((p) => p.umap);
+        window.coldZone = detectColdZone(pts);
+      }
       progress.value = count / Number(genInput.value);
       status.textContent = `gen ${count} front ${g.fronts.length}`;
       await archive

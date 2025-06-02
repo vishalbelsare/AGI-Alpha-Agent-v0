@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 import { createStore, set, get, del, values } from './utils/keyval.js';
 import type { EvaluatorGenome } from './evaluator_genome.ts';
+import { detectColdZone } from './utils/cluster.js';
 
 export interface InsightRun {
   id: number;
@@ -135,7 +136,17 @@ export class Archive {
     const novW = runs.map((r) => Math.exp(gamma * r.novelty));
     const sumS = scoreW.reduce((a, b) => a + b, 0);
     const sumN = novW.reduce((a, b) => a + b, 0);
-    const weights = runs.map((_, i) => (scoreW[i] / sumS) * (novW[i] / sumN));
+    const points = runs.map((r) => this._vector(r.paretoFront));
+    const cz = detectColdZone(points);
+    const bins = 10;
+    const factors = points.map(([x, y]) => {
+      const cx = Math.floor(x * bins);
+      const cy = Math.floor(y * bins);
+      return cx === cz.x && cy === cz.y ? 2 : 1;
+    });
+    const weights = runs.map((_, i) => (scoreW[i] / sumS) * (novW[i] / sumN) * factors[i]);
+    const wSum = weights.reduce((a, b) => a + b, 0);
+    for (let i = 0; i < weights.length; i++) weights[i] /= wSum;
     const selected: InsightRun[] = [];
     for (let i = 0; i < Math.min(count, runs.length); i++) {
       let r = Math.random();

@@ -39,3 +39,27 @@ export function drawPoints(parent, pop, x, y, colorFn) {
   }
   return ctx;
 }
+
+export function drawHeatmap(parent, pop, x, y) {
+  const ctx = ensureLayer(parent);
+  ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+  const bins = 20;
+  const grid = Array.from({ length: bins }, () => Array(bins).fill(0));
+  for (const d of pop) {
+    const gx = Math.max(0, Math.min(bins - 1, Math.floor((x(d.logic) / ctx.canvas.width) * bins)));
+    const gy = Math.max(0, Math.min(bins - 1, Math.floor((y(d.feasible) / ctx.canvas.height) * bins)));
+    grid[gy][gx] += 1;
+  }
+  const max = Math.max(...grid.flat(), 1);
+  const cw = ctx.canvas.width / bins;
+  const ch = ctx.canvas.height / bins;
+  for (let i = 0; i < bins; i++) {
+    for (let j = 0; j < bins; j++) {
+      const v = grid[i][j];
+      if (!v) continue;
+      ctx.fillStyle = `rgba(255,0,0,${(v / max) * 0.3})`;
+      ctx.fillRect(j * cw, i * ch, cw, ch);
+    }
+  }
+  return ctx;
+}
