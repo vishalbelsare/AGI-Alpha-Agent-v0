@@ -15,7 +15,7 @@ jest.mock('@insight-src/memeplex.ts', () => ({
   saveMemes: async () => {},
 }));
 
-jest.mock('../src/ipfs/pinner.js', () => ({
+jest.mock('../src/ipfs/pinner.ts', () => ({
   pinFiles: async () => null,
 }));
 

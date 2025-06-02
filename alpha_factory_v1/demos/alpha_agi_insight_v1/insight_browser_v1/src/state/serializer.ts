@@ -1,5 +1,19 @@
 // SPDX-License-Identifier: Apache-2.0
-export function save(pop, rngState) {
+export interface Individual {
+  logic: number;
+  feasible: number;
+  front?: boolean;
+  strategy?: string;
+  [key: string]: any;
+}
+
+export interface SavedState {
+  pop: Individual[] & { gen?: number };
+  rngState: unknown;
+  gen: number;
+}
+
+export function save(pop: Individual[] & { gen?: number }, rngState: unknown): string {
   const data = {
     gen: pop.gen ?? 0,
     pop: Array.from(pop, (d) => ({
@@ -13,11 +27,11 @@ export function save(pop, rngState) {
   return JSON.stringify(data);
 }
 
-export function load(json) {
-  let data;
+export function load(json: string): SavedState {
+  let data: any;
   try {
     data = JSON.parse(json);
-  } catch (err) {
+  } catch (err: any) {
     throw new Error(`Malformed JSON: ${err.message}`);
   }
 
@@ -35,7 +49,7 @@ export function load(json) {
   if (!Array.isArray(data.pop)) throw new Error('Invalid population');
 
   const allowedItem = new Set(['logic', 'feasible', 'front', 'strategy']);
-  const pop = data.pop.map((d) => {
+  const pop: Individual[] & { gen?: number } = data.pop.map((d: any) => {
     if (d === null || typeof d !== 'object') {
       throw new Error('Invalid population item');
     }
@@ -54,6 +68,7 @@ export function load(json) {
       strategy: d.strategy,
     };
   });
-  pop.gen = typeof data.gen === 'number' ? data.gen : 0;
-  return { pop, rngState: data.rngState, gen: pop.gen };
+  const gen = typeof data.gen === 'number' ? data.gen : 0;
+  (pop as { gen: number }).gen = gen;
+  return { pop: pop as Individual[] & { gen: number }, rngState: data.rngState, gen };
 }

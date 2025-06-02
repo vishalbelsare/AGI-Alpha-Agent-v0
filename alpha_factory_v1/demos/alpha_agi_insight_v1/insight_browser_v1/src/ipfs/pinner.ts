@@ -1,7 +1,19 @@
 /* SPDX-License-Identifier: Apache-2.0 */
 import { Web3Storage } from '../lib/bundle.esm.min.js';
 
-export async function pinFiles(files) {
+declare global {
+  interface Window {
+    PINNER_TOKEN?: string;
+    IPFS_GATEWAY?: string;
+    toast?: (msg: string) => void;
+  }
+}
+
+export interface PinResult {
+  cid: string;
+  url: string;
+}
+export async function pinFiles(files: File[]): Promise<PinResult | null> {
   if (!window.PINNER_TOKEN) return null;
   try {
     const client = new Web3Storage({ token: window.PINNER_TOKEN });
