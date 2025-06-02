@@ -14,7 +14,7 @@ import {initGestures} from './src/ui/gestures.js';
 import {initFpsMeter} from './src/ui/fpsMeter.js';
 import {initI18n,t} from './src/ui/i18n.js';
 import {chat as llmChat} from './src/utils/llm.js';
-import { initTelemetry } from '../../../../src/telemetry.js';
+import { initTelemetry } from '@insight-src/telemetry.js';
 import { lcg } from './src/utils/rng.js';
 import { paretoFront } from './src/utils/pareto.js';
 import { paretoEntropy } from './src/utils/entropy.ts';

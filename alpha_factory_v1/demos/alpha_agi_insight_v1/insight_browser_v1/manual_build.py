@@ -16,6 +16,8 @@ def sha384(path: Path) -> str:
 
 
 ROOT = Path(__file__).resolve().parent
+ALIAS_PREFIX = "@insight-src/"
+ALIAS_TARGET = ROOT.parents[3] / "src"
 index_html = ROOT / "index.html"
 dist_dir = ROOT / "dist"
 lib_dir = ROOT / "lib"
@@ -28,7 +30,7 @@ entry = (ROOT / "app.js").read_text()
 def find_deps(code):
     deps = []
     for imp in re.findall(r"import[^'\"]*['\"](.*?)['\"]", code):
-        if imp.startswith("."):  # relative
+        if imp.startswith(ALIAS_PREFIX) or imp.startswith("."):
             deps.append(imp)
     return deps
 
@@ -43,9 +45,12 @@ def process_module(path):
         return
     code = path.read_text()
     for dep in find_deps(code):
-        dep_path = (path.parent / dep).resolve()
-        if not dep_path.exists():
-            dep_path = (ROOT / dep.lstrip("./")).resolve()
+        if dep.startswith(ALIAS_PREFIX):
+            dep_path = (ALIAS_TARGET / dep[len(ALIAS_PREFIX):]).resolve()
+        else:
+            dep_path = (path.parent / dep).resolve()
+            if not dep_path.exists():
+                dep_path = (ROOT / dep.lstrip("./")).resolve()
         if dep_path.exists():
             process_module(dep_path)
     # strip import lines
@@ -57,7 +62,10 @@ def process_module(path):
 
 
 for dep in find_deps(entry):
-    dep_path = (ROOT / dep).resolve()
+    if dep.startswith(ALIAS_PREFIX):
+        dep_path = (ALIAS_TARGET / dep[len(ALIAS_PREFIX):]).resolve()
+    else:
+        dep_path = (ROOT / dep).resolve()
     process_module(dep_path)
 
 # process lib/bundle.esm.min.js if referenced

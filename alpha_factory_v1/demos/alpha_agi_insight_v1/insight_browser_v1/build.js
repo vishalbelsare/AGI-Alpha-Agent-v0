@@ -4,12 +4,25 @@ import { build } from 'esbuild';
 import { promises as fs } from 'fs';
 import { execSync } from 'child_process';
 import { createHash } from 'crypto';
+import path from 'path';
+import { fileURLToPath } from 'url';
 import gzipSize from 'gzip-size';
 import { Web3Storage, File } from 'web3.storage';
 import { injectManifest } from 'workbox-build';
 import dotenv from 'dotenv';
 
 dotenv.config();
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const aliasRoot = path.join(__dirname, '../../../..', 'src');
+const aliasPlugin = {
+  name: 'alias',
+  setup(build) {
+    build.onResolve({ filter: /^@insight-src\// }, args => ({
+      path: path.join(aliasRoot, args.path.slice('@insight-src/'.length)),
+    }));
+  },
+};
 
 const OUT_DIR = 'dist';
 
@@ -28,6 +41,7 @@ async function bundle() {
     minify: true,
     format: 'esm',
     outfile: `${OUT_DIR}/app.js`,
+    plugins: [aliasPlugin],
   });
   execSync(
     `npx tailwindcss -i style.css -o ${OUT_DIR}/style.css --minify`,

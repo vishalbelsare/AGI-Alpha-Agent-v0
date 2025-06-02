@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: Apache-2.0
 import { Simulator } from '../simulator.ts';
 import { save, load } from '../state/serializer.js';
-import { ReplayDB } from '../../../../../src/replay.ts';
-import { mineMemes, saveMemes } from '../../../../../src/memeplex.ts';
+import { ReplayDB } from '@insight-src/replay.ts';
+import { mineMemes, saveMemes } from '@insight-src/memeplex.ts';
 import { mutateEvaluator } from '../evaluator_genome.ts';
 import { pinFiles } from '../ipfs/pinner.js';
 import { renderFrontier } from '../render/frontier.js';
