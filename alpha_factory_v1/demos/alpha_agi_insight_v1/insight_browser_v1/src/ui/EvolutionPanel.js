@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
-import { loadTaxonomy } from '../../../../../src/taxonomy.ts';
-import { loadMemes } from '../../../../../src/memeplex.ts';
+import { loadTaxonomy } from '@insight-src/taxonomy.ts';
+import { loadMemes } from '@insight-src/memeplex.ts';
 
 export function initEvolutionPanel(archive) {
   const panel = document.createElement('div');

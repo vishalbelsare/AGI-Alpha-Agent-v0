@@ -1,5 +1,5 @@
 const { Simulator } = require('../src/simulator.ts');
-const { mineMemes, saveMemes, loadMemes } = require('../../../../src/memeplex.ts');
+const { mineMemes, saveMemes, loadMemes } = require('@insight-src/memeplex.ts');
 
 beforeEach(() => {
   indexedDB.deleteDatabase('memeplex');
