@@ -10,13 +10,9 @@ interface Props {
 export default function RationaleModal({ open, onClose, docUrl }: Props) {
   if (!open) return null;
   return (
-    <div
-      className="modal-overlay"
-      style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)' }}
-    >
+    <div className="modal-overlay fixed inset-0 bg-black/50 flex justify-center pt-[10%]">
       <div
-        className="modal-content"
-        style={{ background: '#fff', margin: '10% auto', padding: 20, maxWidth: 400 }}
+        className="modal-content bg-white dark:bg-neutral-900 p-5 max-w-[400px] w-80 sm:w-64 max-h-[40vh] overflow-y-auto"
       >
         <p>
           See <a href={docUrl} target="_blank" rel="noopener noreferrer">documentation</a>{' '}
