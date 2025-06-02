@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 import { build } from 'esbuild';
 import { promises as fs } from 'fs';
+import fsSync from 'fs';
 import { execSync } from 'child_process';
 import { createHash } from 'crypto';
 import path from 'path';
@@ -39,11 +40,38 @@ async function ensureWeb3Bundle() {
   }
 }
 
+function assetPaths() {
+  const py = `import ast, json, pathlib
+txt = pathlib.Path('scripts/fetch_assets.py').read_text()
+tree = ast.parse(txt)
+assets = {}
+for node in tree.body:
+    if isinstance(node, ast.Assign):
+        for t in node.targets:
+            if getattr(t, 'id', None) == 'ASSETS':
+                assets = ast.literal_eval(node.value)
+print(json.dumps(list(assets.keys())))`;
+  const out = execSync('python', ['-'], { input: py, cwd: repoRoot, encoding: 'utf8' });
+  return JSON.parse(out.trim());
+}
+
+function ensureAssets() {
+  for (const rel of assetPaths()) {
+    const p = path.join(path.dirname(scriptPath), rel);
+    if (!fsSync.existsSync(p)) continue;
+    const data = fsSync.readFileSync(p, 'utf8');
+    if (data.includes('placeholder')) {
+      throw new Error(`${rel} contains placeholder text. Run scripts/fetch_assets.py to download assets.`);
+    }
+  }
+}
+
 const OUT_DIR = 'dist';
 
 async function bundle() {
   const html = await fs.readFile('index.html', 'utf8');
   await ensureWeb3Bundle();
+  ensureAssets();
   const ipfsOrigin = process.env.IPFS_GATEWAY
     ? new URL(process.env.IPFS_GATEWAY).origin
     : '';
