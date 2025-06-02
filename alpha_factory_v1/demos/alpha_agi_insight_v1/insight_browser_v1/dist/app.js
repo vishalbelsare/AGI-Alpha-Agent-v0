@@ -3,6 +3,7 @@
    The actual file should be downloaded from:
    https://cdn.jsdelivr.net/npm/web3.storage/dist/bundle.esm.min.js
 */
+function clonePolyfill(o){if(o===null||typeof o!=='object')return o;if(o instanceof Date)return new Date(o.getTime());if(Array.isArray(o))return o.map(i=>clonePolyfill(i));const r={};for(const k of Object.keys(o))r[k]=clonePolyfill(o[k]);return r;}const clone=globalThis.structuredClone?((v)=>globalThis.structuredClone(v)):clonePolyfill;
 function Web3Storage(){ throw new Error('web3.storage not bundled'); }
 
 // SPDX-License-Identifier: Apache-2.0
@@ -1202,7 +1203,7 @@ function initSimulatorPanel(archive) {
     frames = [];
     for await (const g of sim) {
       lastPop = g.population;
-      frames.push(structuredClone(g.population));
+      frames.push(clone(g.population));
       count = g.gen;
       progress.value = count / Number(genInput.value);
       status.textContent = `gen ${count} front ${g.fronts.length}`;
@@ -1231,7 +1232,7 @@ function initSimulatorPanel(archive) {
         frames = [];
         try {
           const s = load(txt);
-          frames.push(structuredClone(s.pop));
+          frames.push(clone(s.pop));
           frameInput.max = '0';
           frameInput.value = '0';
           loadState(txt);

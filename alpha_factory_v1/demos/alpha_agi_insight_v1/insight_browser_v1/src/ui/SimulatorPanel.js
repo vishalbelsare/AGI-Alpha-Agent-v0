@@ -7,6 +7,7 @@ import { mutateEvaluator } from '../evaluator_genome.ts';
 import { pinFiles } from '../ipfs/pinner.ts';
 import { renderFrontier } from '../render/frontier.js';
 import { detectColdZone } from '../utils/cluster.js';
+import clone from '../../../../../../src/utils/clone.js';
 
 export async function initSimulatorPanel(archive, power) {
   const panel = document.createElement('div');
@@ -104,7 +105,7 @@ export async function initSimulatorPanel(archive, power) {
       const edges = g.population.map((p) => ({ from: p.strategy || 'x', to: p.strategy || 'x' }));
       memeRuns.push({ edges });
       await saveMemes(mineMemes(memeRuns));
-      frames.push(structuredClone(g.population));
+      frames.push(clone(g.population));
       const fid = await replay.addFrame(frameIds[frameIds.length - 1] || null, { population: g.population, gen: g.gen });
       frameIds.push(fid);
       count = g.gen;
