@@ -37,6 +37,7 @@ export function initTelemetry(t) {
   const queueKey = 'telemetryQueue';
   const metrics = { ts: Date.now(), session: '', generations: 0, shares: 0 };
   const queue = JSON.parse(localStorage.getItem(queueKey) || '[]');
+  const MAX_QUEUE_SIZE = 100;
 
   const ready = (async () => {
     let sid = localStorage.getItem('telemetrySession');
@@ -55,7 +56,16 @@ export function initTelemetry(t) {
       if (navigator.sendBeacon(endpoint, JSON.stringify(payload))) {
         queue.shift();
       } else {
-        break;
+        try {
+          await fetch(endpoint, {
+            method: 'POST',
+            mode: 'no-cors',
+            body: JSON.stringify(payload),
+          });
+          queue.shift();
+        } catch {
+          break;
+        }
       }
     }
     localStorage.setItem(queueKey, JSON.stringify(queue));
@@ -64,6 +74,9 @@ export function initTelemetry(t) {
   function flush() {
     if (!enabled) return;
     metrics.ts = Date.now();
+    if (queue.length >= MAX_QUEUE_SIZE) {
+      queue.shift();
+    }
     queue.push({ ...metrics });
     localStorage.setItem(queueKey, JSON.stringify(queue));
     void sendQueue();
