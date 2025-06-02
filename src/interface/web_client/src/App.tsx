@@ -2,6 +2,7 @@
 import React, { useEffect, useState, FormEvent } from 'react';
 import Plotly from 'plotly.js-dist';
 import { useI18n } from './IntlContext';
+import telemetry from './Telemetry';
 
 interface SectorData {
   name: string;
@@ -41,6 +42,10 @@ export default function App() {
   const [runs, setRuns] = useState<string[]>([]);
   const API_BASE = (import.meta.env.VITE_API_BASE_URL ?? '').replace(/\/$/, '');
   const TOKEN = import.meta.env.VITE_API_TOKEN ?? '';
+
+  useEffect(() => {
+    telemetry.requestConsent(t('telemetry_consent'));
+  }, [t]);
 
   useEffect(() => {
     refreshRuns();

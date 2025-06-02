@@ -14,7 +14,7 @@ export async function hashSession(id) {
     .join('');
 }
 
-export function initTelemetry() {
+export function initTelemetry(t) {
   const endpoint =
     (typeof process !== 'undefined' && process.env.OTEL_ENDPOINT) ||
     (typeof window !== 'undefined' && window.OTEL_ENDPOINT) ||
@@ -27,7 +27,8 @@ export function initTelemetry() {
   const consentKey = 'telemetryConsent';
   let consent = localStorage.getItem(consentKey);
   if (consent === null) {
-    const allow = window.confirm('Allow anonymous telemetry?');
+    const prompt = typeof t === 'function' ? t('telemetry_consent') : 'Allow anonymous telemetry?';
+    const allow = window.confirm(prompt);
     consent = allow ? 'true' : 'false';
     localStorage.setItem(consentKey, consent);
   }

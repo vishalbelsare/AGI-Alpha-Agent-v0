@@ -5,7 +5,6 @@ import { BrowserRouter, Routes, Route, Link } from 'react-router-dom';
 import Dashboard from './pages/Dashboard';
 import Archive from './pages/Archive';
 import { IntlProvider, useI18n } from './IntlContext';
-import telemetry from './Telemetry';
 
 function Nav() {
   const { lang, setLang, t } = useI18n();
@@ -43,7 +42,6 @@ ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
   </IntlProvider>,
 );
 
-telemetry.requestConsent();
 
 window.addEventListener('beforeinstallprompt', (e) => {
   e.preventDefault();
