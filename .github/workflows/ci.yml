@@ -82,7 +82,7 @@ jobs:
           PERCY_TOKEN_E2E: ${{ secrets.PERCY_TOKEN }}
         run: pnpm --dir src/interface/web_client run percy:cypress
       - name: Install Playwright browsers
-        run: playwright install chromium
+        run: playwright install chromium webkit
       - name: Install proto compiler
         run: pip install grpcio-tools
       - name: Verify protobuf
