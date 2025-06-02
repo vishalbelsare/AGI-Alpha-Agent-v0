@@ -4,19 +4,19 @@ import type { EvaluatorGenome } from './evaluator_genome.ts';
 import { detectColdZone } from './utils/cluster.js';
 
 export interface InsightRun {
-  id: number;
+  id: string;
   seed: number;
   params: any;
   paretoFront: any[];
-  parents: number[];
-  evalId: number;
+  parents: string[];
+  evalId: string;
   score: number;
   novelty: number;
   timestamp: number;
 }
 
 export interface EvaluatorRecord {
-  id: number;
+  id: string;
   genome: EvaluatorGenome;
 }
 
@@ -57,14 +57,16 @@ export class Archive {
     seed: number,
     params: any,
     paretoFront: any[],
-    parents: number[] = [],
-    evalId: number = 0
-  ): Promise<number> {
+    parents: string[] = [],
+    evalId: string = ''
+  ): Promise<string> {
     await this.open();
     const vec = this._vector(paretoFront);
     const score = (vec[0] + vec[1]) / 2;
     const novelty = await this._novelty(vec);
-    const id = Date.now();
+    const id = typeof crypto.randomUUID === 'function'
+      ? crypto.randomUUID()
+      : String(Date.now());
     const run: InsightRun = {
       id,
       seed,
@@ -100,9 +102,11 @@ export class Archive {
     return runs;
   }
 
-  async addEvaluator(genome: EvaluatorGenome): Promise<number> {
+  async addEvaluator(genome: EvaluatorGenome): Promise<string> {
     await this.open();
-    const id = Date.now() + Math.floor(Math.random() * 1000);
+    const id = typeof crypto.randomUUID === 'function'
+      ? crypto.randomUUID()
+      : String(Date.now());
     const rec: EvaluatorRecord = { id, genome };
     await set(id, rec, this.evalStore);
     return id;
