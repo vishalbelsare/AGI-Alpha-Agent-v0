@@ -2,14 +2,33 @@
 import { mutate } from '../src/evolve/mutate.js';
 import { paretoFront } from '../src/utils/pareto.js';
 import { lcg } from '../src/utils/rng.js';
+
+const ua = self.navigator?.userAgent ?? '';
+const isSafari = /Safari/.test(ua) && !/Chrome|Chromium|Edge/.test(ua);
+const isIOS = /(iPad|iPhone|iPod)/.test(ua);
 let pyReady;
+let warned = false;
+let pySupported = !(isSafari || isIOS);
+
 async function loadPy() {
+  if (!pySupported) {
+    if (!warned) {
+      self.postMessage({ toast: 'Pyodide unavailable; using JS only' });
+      warned = true;
+    }
+    return null;
+  }
   if (!pyReady) {
     try {
       const mod = await import('../src/wasm/bridge.js');
       pyReady = mod.initPy ? mod.initPy() : null;
     } catch {
       pyReady = null;
+      pySupported = false;
+      if (!warned) {
+        self.postMessage({ toast: 'Pyodide failed to load; using JS only' });
+        warned = true;
+      }
     }
   }
   return pyReady;
