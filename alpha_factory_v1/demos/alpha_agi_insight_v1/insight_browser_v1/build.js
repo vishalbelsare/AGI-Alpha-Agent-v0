@@ -15,6 +15,12 @@ const OUT_DIR = 'dist';
 
 async function bundle() {
   const html = await fs.readFile('index.html', 'utf8');
+  const ipfsOrigin = process.env.IPFS_GATEWAY
+    ? new URL(process.env.IPFS_GATEWAY).origin
+    : '';
+  const otelOrigin = process.env.OTEL_ENDPOINT
+    ? new URL(process.env.OTEL_ENDPOINT).origin
+    : '';
   await fs.mkdir(OUT_DIR, { recursive: true });
   await build({
     entryPoints: ['app.js'],
@@ -43,6 +49,15 @@ async function bundle() {
       `href="style.css" integrity="${styleSri}" crossorigin="anonymous"`
     )
     .replace('src/ui/controls.css', 'controls.css');
+  const csp =
+    "default-src 'self'; connect-src 'self' https://api.openai.com" +
+    (ipfsOrigin ? ` ${ipfsOrigin}` : '') +
+    (otelOrigin ? ` ${otelOrigin}` : '') +
+    "; script-src 'self' 'wasm-unsafe-eval'";
+  outHtml = outHtml.replace(
+    /<meta[^>]*http-equiv="Content-Security-Policy"[^>]*>/,
+    `<meta http-equiv="Content-Security-Policy" content="${csp}" />`
+  );
   await fs.copyFile('src/ui/controls.css', `${OUT_DIR}/controls.css`);
   await fs.copyFile('d3.v7.min.js', `${OUT_DIR}/d3.v7.min.js`);
   await fs.copyFile('lib/bundle.esm.min.js', `${OUT_DIR}/bundle.esm.min.js`);
@@ -60,6 +75,8 @@ async function bundle() {
     process.env.OPENAI_API_KEY || ''
   )};window.OTEL_ENDPOINT=${JSON.stringify(
     process.env.OTEL_ENDPOINT || ''
+  )};window.IPFS_GATEWAY=${JSON.stringify(
+    process.env.IPFS_GATEWAY || ''
   )};</script>`;
 
   outHtml = outHtml.replace(
