@@ -9,6 +9,7 @@ export interface SimulatorConfig {
   mutations?: string[];
   seeds?: number[];
   workerUrl?: string;
+  umapWorkerUrl?: string;
   critic?: 'llm' | 'none';
   adaptive?: boolean;
   horizonYears?: number;
@@ -25,6 +26,7 @@ export class Simulator {
     const options = { mutations: ['gaussian'], seeds: [1], critic: 'none', ...opts };
     const rand = lcg(options.seeds![0]);
     let worker: Worker | null = null;
+    let umapWorker: Worker | null = null;
     const horizon = options.horizonYears ?? options.generations;
     let pop = Array.from({ length: options.popSize }, () => ({
       logic: rand(),
@@ -65,8 +67,17 @@ export class Simulator {
           frontSize: front.length,
         };
       }
+      if (options.umapWorkerUrl && typeof Worker !== 'undefined' && (gen + 1) % 3 === 0) {
+        if (!umapWorker) umapWorker = new Worker(options.umapWorkerUrl, { type: 'module' });
+        pop = await new Promise((resolve) => {
+          if (!umapWorker) return resolve(pop);
+          umapWorker.onmessage = (ev) => resolve(ev.data);
+          umapWorker.postMessage({ population: pop });
+        });
+      }
       yield { gen: gen + 1, population: pop, fronts: front, metrics };
     }
     if (worker) worker.terminate();
+    if (umapWorker) umapWorker.terminate();
   }
 }
