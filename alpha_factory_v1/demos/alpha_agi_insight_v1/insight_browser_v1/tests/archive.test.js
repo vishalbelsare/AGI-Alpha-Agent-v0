@@ -43,3 +43,13 @@ test('parents saved and retrieved', async () => {
   const run = runs.find((r) => r.id === id);
   expect(run.parents).toEqual([1, 2]);
 });
+
+test('prune removes unused evaluators', async () => {
+  const a = new Archive('jest');
+  await a.open();
+  const evalId = await a.addEvaluator({ weights: { logic: 0.5, feasible: 0.5 }, prompt: 'x' });
+  await a.add(1, {}, [{logic:0.1,feasible:0.1}], [], evalId);
+  await a.prune(0);
+  const evals = await a.listEvaluators();
+  expect(evals.length).toBe(0);
+});

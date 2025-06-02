@@ -1,10 +1,11 @@
 // SPDX-License-Identifier: Apache-2.0
 import { Simulator } from '../simulator.ts';
 import { save, load } from '../state/serializer.js';
+import { mutateEvaluator } from '../evaluator_genome.ts';
 import { pinFiles } from '../ipfs/pinner.js';
 import { renderFrontier } from '../render/frontier.js';
 
-export function initSimulatorPanel(archive) {
+export function initSimulatorPanel(archive, power) {
   const panel = document.createElement('div');
   panel.id = 'simulator-panel';
   Object.assign(panel.style, {
@@ -45,6 +46,7 @@ export function initSimulatorPanel(archive) {
 
   let sim = null;
   let frames = [];
+  let evaluator = { weights: { logic: 0.5, feasible: 0.5 }, prompt: 'score idea' };
 
   function showFrame(i) {
     const f = frames[i];
@@ -73,13 +75,19 @@ export function initSimulatorPanel(archive) {
     let lastPop = [];
     let count = 0;
     frames = [];
+    let evalId = await archive.addEvaluator(evaluator);
     for await (const g of sim) {
       lastPop = g.population;
       frames.push(structuredClone(g.population));
       count = g.gen;
       progress.value = count / Number(genInput.value);
       status.textContent = `gen ${count} front ${g.fronts.length}`;
-      await archive.add(seeds[0] ?? 1, { popSize: Number(popInput.value) }, g.fronts).catch(() => {});
+      await archive
+        .add(seeds[0] ?? 1, { popSize: Number(popInput.value) }, g.fronts, [], evalId)
+        .catch(() => {});
+      power.update(evaluator);
+      evaluator = mutateEvaluator(evaluator);
+      evalId = await archive.addEvaluator(evaluator);
     }
     frameInput.max = Math.max(0, frames.length - 1);
     frameInput.value = String(frames.length - 1);
