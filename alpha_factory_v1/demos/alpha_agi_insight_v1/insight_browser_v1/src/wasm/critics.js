@@ -1,4 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
+import { createStore, set, values } from '../utils/keyval.js';
+
 export async function loadExamples(url = './data/critics/innovations.txt') {
   try {
     const res = await fetch(url);
@@ -11,8 +13,9 @@ export async function loadExamples(url = './data/critics/innovations.txt') {
 }
 
 export class LogicCritic {
-  constructor(examples = []) {
+  constructor(examples = [], prompt = 'judge logic') {
     this.examples = examples;
+    this.prompt = prompt;
     this.index = {};
     this.examples.forEach((e, i) => {
       this.index[e.toLowerCase()] = i;
@@ -31,8 +34,9 @@ export class LogicCritic {
 }
 
 export class FeasibilityCritic {
-  constructor(examples = []) {
+  constructor(examples = [], prompt = 'judge feasibility') {
     this.examples = examples;
+    this.prompt = prompt;
   }
 
   static jaccard(a, b) {
@@ -56,4 +60,80 @@ export class FeasibilityCritic {
     const val = best + noise;
     return Math.min(1, Math.max(0, val));
   }
+}
+
+export class JudgmentDB {
+  constructor(name = 'critic-judgments') {
+    this.store = createStore(name, 'judgments');
+  }
+
+  async add(genome, scores) {
+    await set(Date.now() + Math.random(), { genome, scores }, this.store);
+  }
+
+  async querySimilar(genome) {
+    const all = await values(this.store);
+    const tokens = String(genome).toLowerCase().split(/\s+/);
+    let best = null;
+    let bestSim = -1;
+    for (const rec of all) {
+      const sim = FeasibilityCritic.jaccard(tokens, rec.genome.toLowerCase().split(/\s+/));
+      if (sim > bestSim) {
+        bestSim = sim;
+        best = rec;
+      }
+    }
+    return best;
+  }
+}
+
+export function mutatePrompt(prompt, rand = Math.random) {
+  const words = ['insightful', 'detailed', 'robust', 'novel'];
+  const tokens = prompt.split(/\s+/);
+  if (rand() < 0.5 && tokens.length > 1) {
+    tokens.splice(Math.floor(rand() * tokens.length), 1);
+  } else {
+    const w = words[Math.floor(rand() * words.length)];
+    tokens.splice(Math.floor(rand() * (tokens.length + 1)), 0, w);
+  }
+  return tokens.join(' ');
+}
+
+export function consilience(scores) {
+  const vals = Object.values(scores);
+  const avg = vals.reduce((s, v) => s + v, 0) / vals.length;
+  const sd = Math.sqrt(vals.reduce((s, v) => s + (v - avg) ** 2, 0) / vals.length);
+  return 1 - sd;
+}
+
+export async function scoreGenome(genome, critics, db, threshold = 0.6) {
+  const scores = {};
+  for (const c of critics) {
+    scores[c.constructor.name] = c.score(genome);
+  }
+  const past = db ? await db.querySimilar(genome) : null;
+  if (past) {
+    for (const k of Object.keys(scores)) {
+      if (past.scores[k] !== undefined) {
+        scores[k] = (scores[k] + past.scores[k]) / 2;
+      }
+    }
+  }
+  if (db) await db.add(genome, scores);
+  const cons = consilience(scores);
+  if (cons < threshold) {
+    for (const c of critics) if (c.prompt) c.prompt = mutatePrompt(c.prompt);
+    if (typeof window !== 'undefined') {
+      window.recordedPrompts = critics.map(c => c.prompt);
+    }
+  }
+  return { scores, cons };
+}
+
+if (typeof window !== 'undefined') {
+  window.JudgmentDB = JudgmentDB;
+  window.consilience = consilience;
+  window.scoreGenome = scoreGenome;
+  window.LogicCritic = LogicCritic;
+  window.FeasibilityCritic = FeasibilityCritic;
 }
