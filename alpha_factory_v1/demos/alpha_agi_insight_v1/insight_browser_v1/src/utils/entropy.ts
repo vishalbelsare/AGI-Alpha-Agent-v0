@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 export interface Point { logic: number; feasible: number; }
 
 export function paretoEntropy(points: Point[], bins = 10): number {
