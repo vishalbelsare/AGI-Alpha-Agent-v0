@@ -104,6 +104,9 @@ function start(p){
   updateLegend(p.mutations)
   if(worker) worker.terminate()
   worker=new Worker('./worker/evolver.js',{type:'module'})
+  if(navigator.gpu){
+    worker.postMessage({type:'gpu', available: window.USE_GPU !== false})
+  }
   worker.onmessage=ev=>{
     if(ev.data.toast){toast(ev.data.toast);return}
     pop=ev.data.pop;rand.set(ev.data.rngState);requestAnimationFrame(step)
@@ -200,6 +203,9 @@ function loadState(text){
     updateLegend(current.mutations)
     if(worker) worker.terminate()
     worker=new Worker('./worker/evolver.js',{type:'module'})
+    if(navigator.gpu){
+      worker.postMessage({type:'gpu', available: window.USE_GPU !== false})
+    }
     worker.onmessage=ev=>{
       if(ev.data.toast){toast(ev.data.toast);return}
       pop=ev.data.pop;rand.set(ev.data.rngState);requestAnimationFrame(step)
@@ -221,6 +227,7 @@ window.addEventListener('DOMContentLoaded',async()=>{
   await archive.open();
   evolutionPanel = initEvolutionPanel(archive);
   powerPanel = initPowerPanel();
+  powerPanel.update({ gpu: !!navigator.gpu, use: window.USE_GPU });
   await initSimulatorPanel(archive, powerPanel);
   analyticsPanel = initAnalyticsPanel();
   arenaPanel = initArenaPanel((pt) => {

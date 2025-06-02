@@ -1,17 +1,43 @@
 // SPDX-License-Identifier: Apache-2.0
 let localModel;
+let useGpu = true;
+
+try {
+  const saved = localStorage.getItem('USE_GPU');
+  if (saved !== null) {
+    useGpu = saved !== '0';
+  }
+} catch {}
+
+export function setUseGpu(flag) {
+  useGpu = !!flag;
+  try {
+    localStorage.setItem('USE_GPU', useGpu ? '1' : '0');
+  } catch {}
+  localModel = null;
+}
+
+export function gpuBackend() {
+  return useGpu && typeof navigator !== 'undefined' && navigator.gpu
+    ? 'webgpu'
+    : 'wasm-simd';
+}
 
 async function loadLocal() {
   if (!localModel) {
     try {
       const { pipeline } = await import('../lib/bundle.esm.min.js');
+      const backend = gpuBackend();
+      if (typeof window !== 'undefined') {
+        window.LLM_BACKEND = backend;
+      }
       if (window.GPT2_MODEL_BASE64) {
         const bytes = Uint8Array.from(atob(window.GPT2_MODEL_BASE64), c => c.charCodeAt(0));
         const blob = new Blob([bytes]);
         const url = URL.createObjectURL(blob);
-        localModel = await pipeline('text-generation', url);
+        localModel = await pipeline('text-generation', url, { backend });
       } else {
-        localModel = await pipeline('text-generation', './wasm_llm/');
+        localModel = await pipeline('text-generation', './wasm_llm/', { backend });
       }
     } catch (err) {
       localModel = async (p) => `[offline] ${p}`;
