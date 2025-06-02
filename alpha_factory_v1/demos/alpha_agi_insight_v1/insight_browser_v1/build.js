@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 import { promises as fs } from 'fs';
 import fsSync from 'fs';
-import { execSync } from 'child_process';
+import { execSync, spawnSync } from 'child_process';
 import { createHash } from 'crypto';
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -67,8 +67,16 @@ for node in tree.body:
             if getattr(t, 'id', None) == 'ASSETS':
                 assets = ast.literal_eval(node.value)
 print(json.dumps(list(assets.keys())))`;
-  const out = execSync('python', ['-'], { input: py, cwd: repoRoot, encoding: 'utf8' });
-  return JSON.parse(out.trim());
+  const proc = spawnSync('python', ['-'], {
+    input: py,
+    cwd: repoRoot,
+    encoding: 'utf8',
+  });
+  if (proc.error) throw proc.error;
+  if (proc.status !== 0) {
+    throw new Error(proc.stderr);
+  }
+  return JSON.parse(proc.stdout.trim());
 }
 
 function expectedChecksums() {
@@ -82,8 +90,16 @@ for node in tree.body:
             if getattr(t, 'id', None) == 'CHECKSUMS':
                 checks = ast.literal_eval(node.value)
 print(json.dumps(checks))`;
-  const out = execSync('python', ['-'], { input: py, cwd: repoRoot, encoding: 'utf8' });
-  return JSON.parse(out.trim());
+  const proc = spawnSync('python', ['-'], {
+    input: py,
+    cwd: repoRoot,
+    encoding: 'utf8',
+  });
+  if (proc.error) throw proc.error;
+  if (proc.status !== 0) {
+    throw new Error(proc.stderr);
+  }
+  return JSON.parse(proc.stdout.trim());
 }
 
 function ensureAssets() {
