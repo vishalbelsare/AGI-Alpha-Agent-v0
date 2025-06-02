@@ -14,6 +14,12 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 
+try {
+  execSync('tsc --noEmit', { stdio: 'inherit' });
+} catch (err) {
+  process.exit(1);
+}
+
 const scriptPath = fileURLToPath(import.meta.url);
 const repoRoot = path.resolve(path.dirname(scriptPath), '..', '..', '..', '..');
 const aliasRoot = path.join(repoRoot, 'src');
