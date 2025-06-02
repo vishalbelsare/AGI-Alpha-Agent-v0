@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
-import { createStore, set, get, del, keys, values } from './utils/keyval.js';
+import { createStore, set, get, del, values } from './utils/keyval.js';
+import type { EvaluatorGenome } from './evaluator_genome.ts';
 
 export interface InsightRun {
   id: number;
@@ -7,19 +8,28 @@ export interface InsightRun {
   params: any;
   paretoFront: any[];
   parents: number[];
+  evalId: number;
   score: number;
   novelty: number;
   timestamp: number;
 }
 
+export interface EvaluatorRecord {
+  id: number;
+  genome: EvaluatorGenome;
+}
+
 export class Archive {
-  private store;
+  private runStore;
+  private evalStore;
   constructor(private name = 'insight-archive') {
-    this.store = createStore(this.name, 'runs');
+    this.runStore = createStore(this.name, 'runs');
+    this.evalStore = createStore(this.name, 'evals');
   }
 
   async open(): Promise<void> {
-    await this.store.dbp;
+    await this.runStore.dbp;
+    await this.evalStore.dbp;
   }
 
   private _vector(front: any[]): [number, number] {
@@ -42,7 +52,13 @@ export class Archive {
     return dists.slice(0, n).reduce((s, d) => s + d, 0) / n;
   }
 
-  async add(seed: number, params: any, paretoFront: any[], parents: number[] = []): Promise<number> {
+  async add(
+    seed: number,
+    params: any,
+    paretoFront: any[],
+    parents: number[] = [],
+    evalId: number = 0
+  ): Promise<number> {
     await this.open();
     const vec = this._vector(paretoFront);
     const score = (vec[0] + vec[1]) / 2;
@@ -54,19 +70,20 @@ export class Archive {
       params,
       paretoFront,
       parents,
+      evalId,
       score,
       novelty,
       timestamp: Date.now(),
     };
     try {
-      await set(id, run, this.store);
+      await set(id, run, this.runStore);
     } catch (err: any) {
       if (err?.name === 'QuotaExceededError') {
         await this.prune();
         if (typeof (window as any).toast === 'function') {
           (window as any).toast('Archive full; oldest runs pruned');
         }
-        await set(id, run, this.store);
+        await set(id, run, this.runStore);
       } else {
         throw err;
       }
@@ -77,9 +94,23 @@ export class Archive {
 
   async list(): Promise<InsightRun[]> {
     await this.open();
-    const runs = (await values(this.store)) as InsightRun[];
+    const runs = (await values(this.runStore)) as InsightRun[];
     runs.sort((a, b) => a.timestamp - b.timestamp);
     return runs;
+  }
+
+  async addEvaluator(genome: EvaluatorGenome): Promise<number> {
+    await this.open();
+    const id = Date.now() + Math.floor(Math.random() * 1000);
+    const rec: EvaluatorRecord = { id, genome };
+    await set(id, rec, this.evalStore);
+    return id;
+  }
+
+  async listEvaluators(): Promise<EvaluatorRecord[]> {
+    await this.open();
+    const evals = (await values(this.evalStore)) as EvaluatorRecord[];
+    return evals;
   }
 
   async prune(max = 500): Promise<void> {
@@ -87,7 +118,14 @@ export class Archive {
     if (runs.length <= max) return;
     runs.sort((a, b) => a.score + a.novelty - (b.score + b.novelty));
     const remove = runs.slice(0, runs.length - max);
-    await Promise.all(remove.map((r) => del(r.id, this.store)));
+    await Promise.all(remove.map((r) => del(r.id, this.runStore)));
+    const keepIds = new Set(runs.slice(runs.length - max).map((r) => r.evalId));
+    const evals = (await values(this.evalStore)) as EvaluatorRecord[];
+    await Promise.all(
+      evals
+        .filter((e) => !keepIds.has(e.id))
+        .map((e) => del(e.id, this.evalStore))
+    );
   }
 
   async selectParents(count: number, beta = 1, gamma = 1): Promise<InsightRun[]> {
