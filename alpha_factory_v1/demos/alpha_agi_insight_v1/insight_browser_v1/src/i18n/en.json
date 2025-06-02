@@ -19,5 +19,6 @@
   "link_copied": "permalink copied",
   "state_loaded": "state loaded",
   "invalid_file": "invalid file",
-  "simulation_restarted": "simulation restarted"
+  "simulation_restarted": "simulation restarted",
+  "telemetry_consent": "Allow anonymous telemetry?"
 }
