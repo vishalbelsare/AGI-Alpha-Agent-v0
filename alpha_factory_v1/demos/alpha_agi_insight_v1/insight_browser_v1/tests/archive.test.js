@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 const { Archive } = require('../src/archive.ts');
 
 beforeEach(async () => {

@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 const { Simulator } = require('../src/simulator.ts');
 const { mineMemes, saveMemes, loadMemes } = require('@insight-src/memeplex.ts');
 

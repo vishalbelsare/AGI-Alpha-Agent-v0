@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 const { Simulator } = require('../src/simulator.ts');
 
 jest.setTimeout(10000);

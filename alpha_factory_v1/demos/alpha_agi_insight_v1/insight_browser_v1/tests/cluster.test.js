@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 const { detectColdZone } = require('../src/utils/cluster.js');
 
 test('detect coldest cell', () => {
