@@ -205,6 +205,15 @@ for src, dest in [
         target.parent.mkdir(parents=True, exist_ok=True)
         target.write_bytes(src_path.read_bytes())
 
+# copy translations
+translations = ROOT / "src" / "i18n"
+if translations.exists():
+    for f in translations.iterdir():
+        if f.is_file():
+            target = dist_dir / "src" / "i18n" / f.name
+            target.parent.mkdir(parents=True, exist_ok=True)
+            target.write_bytes(f.read_bytes())
+
 # copy critic examples
 critics_src = ROOT.parents[3] / "data" / "critics"
 critics_dst = dist_dir / "data" / "critics"
@@ -280,6 +289,7 @@ injectManifest({{
     'wasm/*',
     'worker/*',
     'data/critics/*',
+    'src/i18n/*.json',
   ],
 }}).catch(err => {{console.error(err); process.exit(1);}});
 """
