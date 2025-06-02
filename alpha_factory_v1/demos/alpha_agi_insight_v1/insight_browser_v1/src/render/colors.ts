@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
-export const strategyColors = {
+export const strategyColors: Record<string, string> = {
   gaussian: '#ff7f0e',
   swap: '#2ca02c',
   jump: '#d62728',
@@ -8,13 +8,13 @@ export const strategyColors = {
   base: '#666',
 };
 
-export function credibilityColor(v) {
+export function credibilityColor(v?: number): string {
   const clamped = Math.max(0, Math.min(1, v ?? 0));
   const hue = 120 * clamped; // red -> green
   return `hsl(${hue},70%,50%)`;
 }
 
-export function depthColor(depth, maxDepth) {
+export function depthColor(depth?: number, maxDepth?: number): string {
   const md = Math.max(1, maxDepth ?? depth ?? 1);
   const ratio = 1 - Math.min(depth ?? 0, md) / md;
   return `rgba(0,175,255,${ratio})`;
