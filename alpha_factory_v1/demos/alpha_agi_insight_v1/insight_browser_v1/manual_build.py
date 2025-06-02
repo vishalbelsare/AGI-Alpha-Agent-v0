@@ -104,6 +104,7 @@ for src, dest in [
     ("lib/bundle.esm.min.js", "bundle.esm.min.js"),
     ("lib/pyodide.js", "pyodide.js"),
     ("worker/evolver.js", "worker/evolver.js"),
+    ("worker/arenaWorker.js", "worker/arenaWorker.js"),
     ("src/utils/rng.js", "src/utils/rng.js"),
     ("sw.js", "sw.js"),
     ("manifest.json", "manifest.json"),
