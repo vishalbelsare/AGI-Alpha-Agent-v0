@@ -66,6 +66,14 @@ async function bundle() {
   await fs.copyFile('worker/evolver.js', `${OUT_DIR}/worker/evolver.js`);
   await fs.mkdir(`${OUT_DIR}/src/utils`, { recursive: true });
   await fs.copyFile('src/utils/rng.js', `${OUT_DIR}/src/utils/rng.js`);
+  await fs.copyFile('sw.js', `${OUT_DIR}/sw.js`).catch(() => {});
+  await fs.copyFile('manifest.json', `${OUT_DIR}/manifest.json`).catch(() => {});
+  await fs.copyFile('favicon.svg', `${OUT_DIR}/favicon.svg`).catch(() => {});
+  await fs.mkdir(`${OUT_DIR}/data/critics`, { recursive: true });
+  await fs
+    .copyFile('../../../../data/critics/innovations.txt',
+      `${OUT_DIR}/data/critics/innovations.txt`)
+    .catch(() => {});
   const bundleSri = await sha384('bundle.esm.min.js');
   const pyodideSri = await sha384('pyodide.js');
 

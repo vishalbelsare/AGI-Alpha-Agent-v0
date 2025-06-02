@@ -104,8 +104,12 @@ for src, dest in [
     ("lib/pyodide.js", "pyodide.js"),
     ("worker/evolver.js", "worker/evolver.js"),
     ("src/utils/rng.js", "src/utils/rng.js"),
+    ("sw.js", "sw.js"),
+    ("manifest.json", "manifest.json"),
+    ("favicon.svg", "favicon.svg"),
+    (ROOT.parents[3] / "data" / "critics" / "innovations.txt", "data/critics/innovations.txt"),
 ]:
-    src_path = ROOT / src
+    src_path = ROOT / src if isinstance(src, str) else src
     if src_path.exists():
         target = dist_dir / dest
         target.parent.mkdir(parents=True, exist_ok=True)
