@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 import { loadTaxonomy } from '../../../../../src/taxonomy.ts';
+import { loadMemes } from '../../../../../src/memeplex.ts';
 
 export function initEvolutionPanel(archive) {
   const panel = document.createElement('div');
@@ -26,9 +27,12 @@ export function initEvolutionPanel(archive) {
   header.innerHTML =
     '<th data-k="seed">Seed</th><th data-k="score">Score</th><th data-k="novelty">Novelty</th><th data-k="timestamp">Time</th><th></th>';
   table.appendChild(header);
+  const memeDiv = document.createElement('div');
+  memeDiv.id = 'meme-cloud';
   panel.appendChild(tree);
   panel.appendChild(svg);
   panel.appendChild(table);
+  panel.appendChild(memeDiv);
   document.body.appendChild(panel);
 
   let sortKey = 'timestamp';
@@ -132,6 +136,11 @@ export function initEvolutionPanel(archive) {
       table.appendChild(tr);
     });
     drawTree(runs);
+    const memes = await loadMemes();
+    memeDiv.innerHTML = memes
+      .sort((a, b) => b.count - a.count)
+      .map((m) => `<span style="font-size:${10 + m.count * 2}px;margin-right:4px;">${m.edges[0].from}->${m.edges[0].to} (${m.count})</span>`)
+      .join(' ');
   }
 
   renderTaxonomy();

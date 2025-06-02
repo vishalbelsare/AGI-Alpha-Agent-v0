@@ -2,6 +2,7 @@
 import { Simulator } from '../simulator.ts';
 import { save, load } from '../state/serializer.js';
 import { ReplayDB } from '../../../../../src/replay.ts';
+import { mineMemes, saveMemes } from '../../../../../src/memeplex.ts';
 import { mutateEvaluator } from '../evaluator_genome.ts';
 import { pinFiles } from '../ipfs/pinner.js';
 import { renderFrontier } from '../render/frontier.js';
@@ -58,6 +59,7 @@ export async function initSimulatorPanel(archive, power) {
   let paused = false;
   const replay = new ReplayDB('sim-replay');
   await replay.open();
+  let memeRuns = [];
   let evaluator = { weights: { logic: 0.5, feasible: 0.5 }, prompt: 'score idea' };
 
   function showFrame(i) {
@@ -78,6 +80,7 @@ export async function initSimulatorPanel(archive, power) {
   startBtn.addEventListener('click', async () => {
     if (sim && typeof sim.return === 'function') await sim.return();
     const seeds = seedsInput.value.split(',').map((s) => Number(s.trim())).filter(Boolean);
+    memeRuns = [];
     sim = Simulator.run({
       popSize: Number(popInput.value),
       generations: Number(genInput.value),
@@ -98,6 +101,9 @@ export async function initSimulatorPanel(archive, power) {
         await new Promise((r) => setTimeout(r, 100));
       }
       lastPop = g.population;
+      const edges = g.population.map((p) => ({ from: p.strategy || 'x', to: p.strategy || 'x' }));
+      memeRuns.push({ edges });
+      await saveMemes(mineMemes(memeRuns));
       frames.push(structuredClone(g.population));
       const fid = await replay.addFrame(frameIds[frameIds.length - 1] || null, { population: g.population, gen: g.gen });
       frameIds.push(fid);
