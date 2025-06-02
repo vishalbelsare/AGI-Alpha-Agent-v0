@@ -23,6 +23,7 @@ import { initEvolutionPanel } from './src/ui/EvolutionPanel.js';
 import { initSimulatorPanel } from './src/ui/SimulatorPanel.js';
 import { initPowerPanel } from './src/ui/PowerPanel.js';
 import { initAnalyticsPanel } from './src/ui/AnalyticsPanel.js';
+import { initArenaPanel } from './src/ui/ArenaPanel.js';
 
 let panel,pauseBtn,exportBtn,dropZone
 let criticPanel,logicCritic,feasCritic
@@ -31,6 +32,7 @@ let worker
 let telemetry
 let fpsStarted=false;
 let archive,evolutionPanel,powerPanel,analyticsPanel;
+let arenaPanel,debateWorker,debateTarget;
 function toast(msg) {
   const t = document.getElementById('toast');
   t.textContent = msg;
@@ -128,6 +130,7 @@ function step(){
   const entropy = paretoEntropy(front)
   window.entropy = entropy
   renderFrontier(view.node ? view.node() : view,pop,selectPoint)
+  if(arenaPanel) arenaPanel.render(front)
   const md = Math.max(...pop.map(d=>d.depth||0))
   updateDepthLegend(md)
   if(analyticsPanel) analyticsPanel.update(pop, gen, entropy)
@@ -216,6 +219,21 @@ window.addEventListener('DOMContentLoaded',async()=>{
   await initSimulatorPanel(archive, powerPanel);
   powerPanel = initPowerPanel();
   analyticsPanel = initAnalyticsPanel();
+  arenaPanel = initArenaPanel((pt) => {
+    debateTarget = pt;
+    const hypo = pt.summary || `logic ${pt.logic}`;
+    debateWorker.postMessage({ hypothesis: hypo });
+  });
+  debateWorker = new Worker('./worker/arenaWorker.js', { type: 'module' });
+  debateWorker.onmessage = (ev) => {
+    const { messages, score } = ev.data;
+    if (debateTarget) {
+      debateTarget.rank = (debateTarget.rank || 0) + score;
+      pop.sort((a, b) => (a.rank || 0) - (b.rank || 0));
+    }
+    arenaPanel.show(messages, score);
+    arenaPanel.render(paretoFront(pop));
+  };
   await evolutionPanel.render();
   window.archive = archive;
   await initI18n()

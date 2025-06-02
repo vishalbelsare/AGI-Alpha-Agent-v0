@@ -64,6 +64,7 @@ async function bundle() {
   await fs.copyFile('lib/pyodide.js', `${OUT_DIR}/pyodide.js`);
   await fs.mkdir(`${OUT_DIR}/worker`, { recursive: true });
   await fs.copyFile('worker/evolver.js', `${OUT_DIR}/worker/evolver.js`);
+  await fs.copyFile('worker/arenaWorker.js', `${OUT_DIR}/worker/arenaWorker.js`);
   await fs.mkdir(`${OUT_DIR}/src/utils`, { recursive: true });
   await fs.copyFile('src/utils/rng.js', `${OUT_DIR}/src/utils/rng.js`);
   await fs.copyFile('sw.js', `${OUT_DIR}/sw.js`).catch(() => {});

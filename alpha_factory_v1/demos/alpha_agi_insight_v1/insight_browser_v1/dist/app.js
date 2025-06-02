@@ -1239,6 +1239,34 @@ function initSimulatorPanel(archive) {
   return panel;
 }
 
+function initArenaPanel(onDebate){
+  const root=document.createElement('details');
+  root.id='arena-panel';
+  Object.assign(root.style,{position:'fixed',bottom:'10px',right:'220px',background:'rgba(0,0,0,0.7)',color:'#fff',padding:'8px',fontSize:'12px',zIndex:1000,maxHeight:'40vh',overflowY:'auto'});
+  const summary=document.createElement('summary');
+  summary.textContent='Debate Arena';
+  const ranking=document.createElement('ul');
+  ranking.id='ranking';
+  const panel=document.createElement('div');
+  panel.id='debate-panel';
+  const msgs=document.createElement('ul');
+  panel.appendChild(msgs);
+  root.appendChild(summary);
+  root.appendChild(ranking);
+  root.appendChild(panel);
+  document.body.appendChild(root);
+  function render(front){
+    ranking.innerHTML='';
+    const sorted=[...front].sort((a,b)=>(b.rank||0)-(a.rank||0));
+    sorted.forEach(p=>{const li=document.createElement('li');li.textContent=`Rank ${(p.rank||0).toFixed(1)} `;const btn=document.createElement('button');btn.textContent='Debate';btn.addEventListener('click',()=>onDebate&&onDebate(p));li.appendChild(btn);ranking.appendChild(li);});
+  }
+  function show(messages,score){
+    msgs.innerHTML=messages.map(m=>`<li><strong>${m.role}:</strong> ${m.text}</li>`).join('');
+    const li=document.createElement('li');li.textContent=`Score: ${score}`;msgs.appendChild(li);root.open=true;
+  }
+  return{render,show};
+}
+
 
 let panel,pauseBtn,exportBtn,dropZone
 let criticPanel,logicCritic,feasCritic
@@ -1247,6 +1275,7 @@ let worker
 let telemetry
 let fpsStarted=false;
 let archive,evolutionPanel;
+let arenaPanel,debateWorker,debateTarget;
 function toast(msg) {
   const t = document.getElementById('toast');
   t.textContent = msg;
@@ -1339,6 +1368,7 @@ function step(){
   info.text(`gen ${gen}`)
   const front = paretoFront(pop)
   renderFrontier(view.node ? view.node() : view,pop,selectPoint)
+  if(arenaPanel) arenaPanel.render(front)
   const md = Math.max(...pop.map(d=>d.depth||0))
   updateDepthLegend(md)
   archive.add(current.seed, current, front).then(()=>evolutionPanel.render()).catch(()=>{})
@@ -1414,6 +1444,9 @@ window.addEventListener('DOMContentLoaded',async()=>{
   await archive.open();
   evolutionPanel = initEvolutionPanel(archive);
   initSimulatorPanel(archive);
+  arenaPanel = initArenaPanel(pt => {debateTarget=pt;const hypo=pt.summary||`logic ${pt.logic}`;debateWorker.postMessage({hypothesis:hypo});});
+  debateWorker = new Worker('./worker/arenaWorker.js',{type:'module'});
+  debateWorker.onmessage=ev=>{const {messages,score}=ev.data;if(debateTarget){debateTarget.rank=(debateTarget.rank||0)+score;pop.sort((a,b)=>(a.rank||0)-(b.rank||0));}arenaPanel.show(messages,score);arenaPanel.render(paretoFront(pop));};
   await evolutionPanel.render();
   window.archive = archive;
   await initI18n()
