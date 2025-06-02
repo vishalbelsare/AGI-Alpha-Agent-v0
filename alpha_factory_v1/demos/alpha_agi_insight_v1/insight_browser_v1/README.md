@@ -24,6 +24,9 @@ npm run build    # compile to dist/ and embed env vars
 The build script reads `.env` automatically and writes
 `window.PINNER_TOKEN`, `window.OPENAI_API_KEY`, `window.IPFS_GATEWAY` and
 `window.OTEL_ENDPOINT` to `dist/index.html`.
+The unbuilt `index.html` falls back to `'self'` for the IPFS and telemetry
+origins, but running `npm run build` (or `python manual_build.py`) replaces
+these defaults with the real values from `.env`.
 Place the Pyodide 0.25 files in `wasm/` before building. The script copies them
 to `dist/wasm` so the demo can run offline. When preparing the environment
 offline run:
