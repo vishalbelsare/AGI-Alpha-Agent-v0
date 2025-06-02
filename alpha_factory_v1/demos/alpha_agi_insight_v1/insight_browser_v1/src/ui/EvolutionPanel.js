@@ -1,4 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
+import { loadTaxonomy } from '../../../../../src/taxonomy.ts';
+
 export function initEvolutionPanel(archive) {
   const panel = document.createElement('div');
   panel.id = 'evolution-panel';
@@ -17,17 +19,22 @@ export function initEvolutionPanel(archive) {
   const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
   svg.setAttribute('width', '200');
   svg.setAttribute('height', '100');
+  const tree = document.createElement('div');
+  tree.id = 'taxonomy-tree';
   const table = document.createElement('table');
   const header = document.createElement('tr');
   header.innerHTML =
     '<th data-k="seed">Seed</th><th data-k="score">Score</th><th data-k="novelty">Novelty</th><th data-k="timestamp">Time</th><th></th>';
   table.appendChild(header);
+  panel.appendChild(tree);
   panel.appendChild(svg);
   panel.appendChild(table);
   document.body.appendChild(panel);
 
   let sortKey = 'timestamp';
   let desc = true;
+  let taxonomy = null;
+  let selectedNode = null;
   header.querySelectorAll('th[data-k]').forEach((th) => {
     th.style.cursor = 'pointer';
     th.onclick = () => {
@@ -78,8 +85,38 @@ export function initEvolutionPanel(archive) {
     });
   }
 
+  async function renderTaxonomy() {
+    taxonomy = await loadTaxonomy();
+    tree.innerHTML = '';
+    const nodes = taxonomy.nodes || {};
+    function makeList(parent) {
+      const children = Object.values(nodes).filter((n) => n.parent === parent);
+      if (!children.length) return null;
+      const ul = document.createElement('ul');
+      for (const c of children) {
+        const li = document.createElement('li');
+        const btn = document.createElement('button');
+        btn.textContent = c.id;
+        btn.onclick = () => {
+          selectedNode = c.id;
+          render();
+        };
+        li.appendChild(btn);
+        const child = makeList(c.id);
+        if (child) li.appendChild(child);
+        ul.appendChild(li);
+      }
+      return ul;
+    }
+    const root = makeList(null);
+    if (root) tree.appendChild(root);
+  }
+
   async function render() {
-    const runs = await archive.list();
+    let runs = await archive.list();
+    if (selectedNode) {
+      runs = runs.filter((r) => r.params?.sector === selectedNode);
+    }
     runs.sort((a, b) => (desc ? b[sortKey] - a[sortKey] : a[sortKey] - b[sortKey]));
     table.querySelectorAll('tr').forEach((tr, i) => { if (i) tr.remove(); });
     runs.forEach((r) => {
@@ -97,5 +134,6 @@ export function initEvolutionPanel(archive) {
     drawTree(runs);
   }
 
+  renderTaxonomy();
   return { render };
 }
