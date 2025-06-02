@@ -99,7 +99,10 @@ function start(p){
   updateLegend(p.mutations)
   if(worker) worker.terminate()
   worker=new Worker('./worker/evolver.js',{type:'module'})
-  worker.onmessage=ev=>{pop=ev.data.pop;rand.set(ev.data.rngState);requestAnimationFrame(step)}
+  worker.onmessage=ev=>{
+    if(ev.data.toast){toast(ev.data.toast);return}
+    pop=ev.data.pop;rand.set(ev.data.rngState);requestAnimationFrame(step)
+  }
   step()
 }
 
@@ -181,7 +184,10 @@ function loadState(text){
     updateLegend(current.mutations)
     if(worker) worker.terminate()
     worker=new Worker('./worker/evolver.js',{type:'module'})
-    worker.onmessage=ev=>{pop=ev.data.pop;rand.set(ev.data.rngState);requestAnimationFrame(step)}
+    worker.onmessage=ev=>{
+      if(ev.data.toast){toast(ev.data.toast);return}
+      pop=ev.data.pop;rand.set(ev.data.rngState);requestAnimationFrame(step)
+    }
     step()
     toast(t('state_loaded'))
   }catch{toast(t('invalid_file'))}
