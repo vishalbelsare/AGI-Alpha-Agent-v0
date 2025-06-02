@@ -4,7 +4,7 @@ export let currentLanguage='en';
 export async function initI18n(){
   const saved=localStorage.getItem('lang');
   const lang=(saved||navigator.language||'en').slice(0,2);
-  currentLanguage=lang.startsWith('fr')?'fr':'en';
+  currentLanguage=lang.startsWith('fr')?'fr':lang.startsWith('es')?'es':'en';
   const res=await fetch(`src/i18n/${currentLanguage}.json`);
   strings=await res.json();
 }
