@@ -36,7 +36,7 @@ python ../../../scripts/fetch_assets.py
 
 Once the wasm files are in place run:
 ```bash
-npm ci           # deterministic install
+npm install
 npm run build    # compile to dist/ and embed env vars
 ```
 The build script reads `.env` automatically and injects the values into
