@@ -19,5 +19,6 @@
   "aria.language": "Sélecteur de langue",
   "aria.progress": "Progression de la simulation",
   "label.refresh": "Rafraîchir les résumés",
-  "heading.lastRuns": "20 dernières simulations"
+  "heading.lastRuns": "20 dernières simulations",
+  "telemetry_consent": "Autoriser la télémétrie anonyme ?"
 }

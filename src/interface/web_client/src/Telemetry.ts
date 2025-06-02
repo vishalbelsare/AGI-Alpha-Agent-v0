@@ -9,8 +9,8 @@ interface Recorder {
 class Telemetry {
   private rec: Recorder = { recordRun() {}, recordShare() {} };
 
-  requestConsent(): void {
-    this.rec = initTelemetry();
+  requestConsent(msg: string): void {
+    this.rec = initTelemetry(() => msg);
   }
 
   recordRun(generations: number): void {
