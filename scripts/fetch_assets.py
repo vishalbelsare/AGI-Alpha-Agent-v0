@@ -1,12 +1,14 @@
 #!/usr/bin/env python
 # SPDX-License-Identifier: Apache-2.0
-"""Download Pyodide and wasm-gpt2 assets from IPFS."""
+"""Download browser demo assets from IPFS or a mirror."""
 from __future__ import annotations
 
 import sys
 from pathlib import Path
 import requests
 from requests.adapters import HTTPAdapter, Retry
+import hashlib
+import base64
 
 GATEWAY = "https://ipfs.io/ipfs"
 
@@ -18,6 +20,12 @@ ASSETS = {
     "wasm/packages.json": "bafybeib44a4x7jgqhkgzo5wmgyslyqi1aocsswcdpsnmqkhmvqchwdcql4",
     # wasm-gpt2 model archive
     "wasm_llm/wasm-gpt2.tar": "bafybeihdwdcefgh4dqkjv67uzcmw7ojee6xedzdetojuzjevtenxquvyku",
+    # Web3.Storage bundle
+    "lib/bundle.esm.min.js": "bafybeibundlecidreplace",
+}
+
+CHECKSUMS = {
+    "lib/bundle.esm.min.js": "sha384-HCq3AUAghBODOAg7+u+o8u2pKjENSb3YGAjRfL6TZgAY49LXzq1SaOwNtQmWsIax",
 }
 
 
@@ -30,12 +38,25 @@ def _session() -> requests.Session:
     return s
 
 
-def download(cid: str, path: Path) -> None:
+def download(cid: str, path: Path, fallback: str | None = None) -> None:
     url = f"{GATEWAY}/{cid}"
     path.parent.mkdir(parents=True, exist_ok=True)
-    with _session().get(url, timeout=60) as resp:
-        resp.raise_for_status()
-        path.write_bytes(resp.content)
+    try:
+        with _session().get(url, timeout=60) as resp:
+            resp.raise_for_status()
+            data = resp.content
+    except Exception:
+        if not fallback:
+            raise
+        with _session().get(fallback, timeout=60) as resp:
+            resp.raise_for_status()
+            data = resp.content
+    path.write_bytes(data)
+    expected = CHECKSUMS.get(path.name)
+    if expected:
+        digest = base64.b64encode(hashlib.sha384(data).digest()).decode()
+        if not expected.endswith(digest):
+            raise RuntimeError(f"Checksum mismatch for {path.name}")
 
 
 def main() -> None:
@@ -44,7 +65,10 @@ def main() -> None:
     for rel, cid in ASSETS.items():
         dest = base / rel
         print(f"Fetching {rel} from {cid}...")
-        download(cid, dest)
+        fallback = None
+        if rel == "lib/bundle.esm.min.js":
+            fallback = "https://cdn.jsdelivr.net/npm/web3.storage/dist/bundle.esm.min.js"
+        download(cid, dest, fallback)
 
 
 if __name__ == "__main__":
