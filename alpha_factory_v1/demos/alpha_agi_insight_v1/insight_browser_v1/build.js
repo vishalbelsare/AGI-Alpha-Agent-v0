@@ -161,6 +161,7 @@ async function bundle() {
   await fs.copyFile('d3.v7.min.js', `${OUT_DIR}/d3.v7.min.js`);
   await fs.copyFile('lib/bundle.esm.min.js', `${OUT_DIR}/bundle.esm.min.js`);
   await fs.copyFile('lib/pyodide.js', `${OUT_DIR}/pyodide.js`);
+  await fs.copyFile('lib/workbox-sw.js', `${OUT_DIR}/workbox-sw.js`);
   await fs.mkdir(`${OUT_DIR}/src/utils`, { recursive: true });
   await fs.copyFile('src/utils/rng.js', `${OUT_DIR}/src/utils/rng.js`);
   await fs.mkdir(`${OUT_DIR}/src/i18n`, { recursive: true });
@@ -216,6 +217,7 @@ async function bundle() {
     swSrc: 'sw.js',
     swDest: `${OUT_DIR}/sw.js`,
     globDirectory: OUT_DIR,
+    importWorkboxFrom: 'disabled',
     globPatterns: [
       'index.html',
       'insight.bundle.js',

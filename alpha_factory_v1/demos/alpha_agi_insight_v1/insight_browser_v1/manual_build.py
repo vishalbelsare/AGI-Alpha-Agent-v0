@@ -198,6 +198,7 @@ for src, dest in [
     ("d3.v7.min.js", "d3.v7.min.js"),
     ("lib/bundle.esm.min.js", "bundle.esm.min.js"),
     ("lib/pyodide.js", "pyodide.js"),
+    ("lib/workbox-sw.js", "workbox-sw.js"),
     ("src/utils/rng.js", "src/utils/rng.js"),
     ("sw.js", "sw.js"),
     ("manifest.json", "manifest.json"),
@@ -283,6 +284,7 @@ injectManifest({{
   swSrc: {json.dumps(str(sw_src))},
   swDest: {json.dumps(str(sw_dest))},
   globDirectory: {json.dumps(str(dist_dir))},
+  importWorkboxFrom: 'disabled',
   globPatterns: [
     'index.html',
     'insight.bundle.js',

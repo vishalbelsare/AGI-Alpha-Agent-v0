@@ -1,4 +1,5 @@
 /* eslint-disable no-restricted-globals */
+importScripts('workbox-sw.js');
 import {precacheAndRoute} from 'workbox-precaching';
 import {registerRoute} from 'workbox-routing';
 import {CacheFirst} from 'workbox-strategies';
