@@ -61,6 +61,21 @@ print(json.dumps(list(assets.keys())))`;
   return JSON.parse(out.trim());
 }
 
+function expectedChecksums() {
+  const py = `import ast, json, pathlib
+txt = pathlib.Path('scripts/fetch_assets.py').read_text()
+tree = ast.parse(txt)
+checks = {}
+for node in tree.body:
+    if isinstance(node, ast.Assign):
+        for t in node.targets:
+            if getattr(t, 'id', None) == 'CHECKSUMS':
+                checks = ast.literal_eval(node.value)
+print(json.dumps(checks))`;
+  const out = execSync('python', ['-'], { input: py, cwd: repoRoot, encoding: 'utf8' });
+  return JSON.parse(out.trim());
+}
+
 function ensureAssets() {
   for (const rel of assetPaths()) {
     const p = path.join(path.dirname(scriptPath), rel);
@@ -78,6 +93,7 @@ async function bundle() {
   const html = await fs.readFile('index.html', 'utf8');
   await ensureWeb3Bundle();
   ensureAssets();
+  const checksums = expectedChecksums();
   const ipfsOrigin = process.env.IPFS_GATEWAY
     ? new URL(process.env.IPFS_GATEWAY).origin
     : '';
@@ -162,11 +178,19 @@ async function bundle() {
     `<script src="pyodide.js" integrity="${pyodideSri}" crossorigin="anonymous"></script>\n` +
     `${envScript}\n</body>`
   );
-  await fs.writeFile(`${OUT_DIR}/index.html`, outHtml);
   await fs.mkdir(`${OUT_DIR}/wasm`, { recursive: true });
   for (const f of await fs.readdir('wasm')) {
     await fs.copyFile(`wasm/${f}`, `${OUT_DIR}/wasm/${f}`);
   }
+  const wasmSri = await sha384('wasm/pyodide.asm.wasm');
+  if (checksums['pyodide.asm.wasm'] && checksums['pyodide.asm.wasm'] !== wasmSri) {
+    throw new Error('Checksum mismatch for pyodide.asm.wasm');
+  }
+  outHtml = outHtml.replace(
+    '</head>',
+    `<link rel="preload" href="wasm/pyodide.asm.wasm" as="fetch" type="application/wasm" integrity="${wasmSri}" crossorigin="anonymous" />\n</head>`
+  );
+  await fs.writeFile(`${OUT_DIR}/index.html`, outHtml);
   await fs.mkdir(`${OUT_DIR}/wasm_llm`, { recursive: true }).catch(() => {});
   for await (const f of await fs.readdir('wasm_llm')) {
     await fs.copyFile(`wasm_llm/${f}`, `${OUT_DIR}/wasm_llm/${f}`);
