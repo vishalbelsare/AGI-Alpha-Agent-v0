@@ -81,7 +81,7 @@ try:
     from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
     from starlette.middleware.base import BaseHTTPMiddleware, RequestResponseEndpoint
     from fastapi.middleware.cors import CORSMiddleware
-    from starlette.responses import Response, PlainTextResponse, JSONResponse
+    from starlette.responses import Response, PlainTextResponse
     from fastapi.staticfiles import StaticFiles
     from pydantic import BaseModel
     import uvicorn
@@ -257,6 +257,7 @@ if app is not None:
 _simulations: OrderedDict[str, ResultsResponse] = OrderedDict()
 _progress_ws: Set[WebSocket] = set()
 _latest_id: str | None = None
+_meme_usage: dict[str, int] = {}
 _results_dir = Path(
     os.getenv(
         "SIM_RESULTS_DIR",
@@ -662,6 +663,11 @@ if app is not None:
     async def list_runs(_: None = Depends(verify_token)) -> RunsResponse:
         """Return identifiers for all stored runs."""
         return RunsResponse(ids=list(_simulations.keys()))
+
+    @app.get("/memes")
+    async def meme_usage(_: None = Depends(verify_token)) -> dict[str, int]:
+        """Return meme usage counts."""
+        return _meme_usage
 
     @app.get("/lineage", response_model=list[LineageNode])
     async def lineage(_: None = Depends(verify_token)) -> list[LineageNode]:

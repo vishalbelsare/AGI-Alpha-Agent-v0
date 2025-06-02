@@ -9,6 +9,8 @@ import ast
 from src.self_edit.safety import is_code_safe
 from src.simulation.selector import select_parent
 
+MEME_USAGE: dict[str, int] = {}
+
 
 class GaussianParam:
     """Add Gaussian noise to numeric genomes within bounds."""
@@ -51,15 +53,42 @@ class CodePatch:
 
 
 class SelfRewriteOperator:
-    """Apply ``PromptRewrite`` multiple times."""
+    """Apply ``PromptRewrite`` multiple times.
 
-    def __init__(self, steps: int = 2, rng: random.Random | None = None) -> None:
+    Parameters
+    ----------
+    steps:
+        Number of rewrite iterations to perform.
+    rng:
+        Optional random generator for deterministic behaviour.
+    templates:
+        Optional list of meme templates reused during mutation.
+    reuse_rate:
+        Probability of selecting a meme template instead of rewriting.
+    """
+
+    def __init__(
+        self,
+        steps: int = 2,
+        rng: random.Random | None = None,
+        *,
+        templates: list[str] | None = None,
+        reuse_rate: float = 0.0,
+    ) -> None:
         self.steps = steps
         self.rng = rng or random.Random()
+        self.templates = templates or []
+        self.reuse_rate = reuse_rate
+        self.reuse_count = 0
         self._op = PromptRewrite(rng=self.rng)
 
     def __call__(self, text: str) -> str:
         for _ in range(self.steps):
+            if self.templates and self.rng.random() < self.reuse_rate:
+                text = self.rng.choice(self.templates)
+                self.reuse_count += 1
+                MEME_USAGE[text] = MEME_USAGE.get(text, 0) + 1
+                continue
             candidate = self._op(text)
             safe = is_code_safe(candidate)
             if not safe:
