@@ -22,6 +22,8 @@ const { injectManifest } = await import('workbox-build');
 const dotenv = (await import('dotenv')).default;
 dotenv.config();
 
+const verbose = process.argv.includes('--verbose');
+
 try {
   execSync('tsc --noEmit', { stdio: 'inherit' });
 } catch (err) {
@@ -231,7 +233,9 @@ async function bundle() {
     ].map(async f => new File([await fs.readFile(`${OUT_DIR}/${f}`)], f)));
     const cid = await client.put(files, { wrapWithDirectory: false });
     await fs.writeFile(`${OUT_DIR}/CID.txt`, cid);
-    console.log('Pinned CID:', cid);
+    if (verbose) {
+      console.log('Pinned CID:', cid);
+    }
   }
 }
 
