@@ -515,6 +515,26 @@ pytest -m e2e      # full 5-year forecast smoke-test
 CI (GitHub Actions) runs lint, safety scan, and a headless simulation on every
 push; only green builds are released to GHCR.
 
+### 8.1 Offline test setup
+
+Build wheels for all dependencies on a machine with connectivity:
+
+```bash
+mkdir -p /media/wheels
+pip wheel -r requirements.txt -w /media/wheels
+pip wheel -r requirements-dev.txt -w /media/wheels
+```
+
+Set the wheelhouse before running the environment check and tests:
+
+```bash
+WHEELHOUSE=/media/wheels python check_env.py --auto-install
+WHEELHOUSE=/media/wheels pytest -q
+```
+
+`playwright` and other heavy packages must exist in the wheelhouse for tests to
+pass offline.
+
 ---
 
 ## 9 Safety & Security
