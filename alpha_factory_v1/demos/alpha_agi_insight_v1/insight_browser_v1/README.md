@@ -8,22 +8,24 @@ A zero-backend Pareto explorer lives in
 - **Python ≥3.11** is required when using `manual_build.py`.
 
 ## Environment Setup
-Copy `.env.sample` to `.env` then review the variables:
+Copy [`.env.sample`](.env.sample) to `.env` then review the variables:
 
 - `PINNER_TOKEN` – Web3.Storage token used to pin results.
 - `OPENAI_API_KEY` – optional OpenAI key for chat prompts.
-- `IPFS_GATEWAY` – base URL of the IPFS gateway.
-- `OTEL_ENDPOINT` – anonymous telemetry endpoint.
+- `IPFS_GATEWAY` – base URL of the IPFS gateway used to fetch pinned runs.
+- `OTEL_ENDPOINT` – OTLP/HTTP endpoint for anonymous telemetry (leave blank to disable).
 - `WEB3_STORAGE_TOKEN` – build script token consumed by `npm run build`.
+
+See [`.env.sample`](.env.sample) for the full list of supported variables.
 
 ## Build & Run
 ```bash
 npm ci           # deterministic install
 npm run build    # compile to dist/ and embed env vars
 ```
-The build script reads `.env` automatically and writes
-`window.PINNER_TOKEN`, `window.OPENAI_API_KEY`, `window.IPFS_GATEWAY` and
-`window.OTEL_ENDPOINT` to `dist/index.html`.
+The build script reads `.env` automatically and injects the values into
+`dist/index.html` as `window.PINNER_TOKEN`, `window.OPENAI_API_KEY`,
+`window.IPFS_GATEWAY` and `window.OTEL_ENDPOINT`.
 The unbuilt `index.html` falls back to `'self'` for the IPFS and telemetry
 origins, but running `npm run build` (or `python manual_build.py`) replaces
 these defaults with the real values from `.env`.
@@ -67,8 +69,9 @@ Use `manual_build.py` for air‑gapped environments:
 
 The script requires Python ≥3.11 and uses **Node.js** to invoke Workbox. When
 `node` is missing, offline PWA features are skipped. `dist/index.html` contains
-SHA‑384 integrity hashes and embeds `window.PINNER_TOKEN`, `window.OPENAI_API_KEY`
-and `window.OTEL_ENDPOINT` from `.env` just like `npm run build`.
+SHA‑384 integrity hashes and embeds `window.PINNER_TOKEN`, `window.OPENAI_API_KEY`,
+`window.IPFS_GATEWAY` and `window.OTEL_ENDPOINT` from `.env` just like
+`npm run build`.
 
 ## Toolbar & Controls
 - **CSV** – export the current population as `population.csv`.
