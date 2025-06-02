@@ -1,88 +1,90 @@
 ```mermaid
-%% α-AGI Insight • Parts 11–35 System Map
+%% α-AGI Insight • Parts 11-35 • High-Level System Graph
+%% Palette — C-A:red; C-B:orange; C-C:gold; C-D:yellowgreen; C-E:cyan; 
+%% C-F:cornflowerblue; C-G:violet; C-H:mediumpurple; C-I:magenta
+
 flowchart TD
-  %% --- Evolutionary Core ---
-  subgraph "Evolutionary Core"
-    style Evolutionary Core fill:#1f2937,stroke-width:0,color:#fff
-    A11[11 • Darwin-Archive] --> A12[12 • Evolution Run Simulator]
-    A12 --> A13[13 • Recursive Evaluator Evolution]
+  %% ❖  Darwinian Search (C-A)
+  subgraph C-A[Darwinian Search 💡]
+    style C-A fill:#ffdddd,stroke:#ff5544,stroke-width:2px
+    P11["11 Darwin-Archive\nEngine"]
+    P12["12 Evolution\nRun Simulator"]
+    P13["13 Recursive\nEvaluator Evolution"]
+    P11 --> P12 --> P13
   end
-
-  %% --- Cognitive Topology ---
-  subgraph "Cognitive Topology"
-    style Cognitive Topology fill:#374151,stroke-width:0,color:#fff
-    B14[14 • Auto-Taxonomies]
-    B15[15 • Horizon-Adaptive Mutation]
-    B16[16 • Semantic Terrain]
-    A13 --> B14
-    B14 --> B15 --> B16
+  
+  %% ❖  Semantic / Temporal Topology (C-B)
+  subgraph C-B[Semantic-Temporal Topology 🌐]
+    style C-B fill:#ffebcc,stroke:#ff9944,stroke-width:2px
+    P14["14 Self-Gen\nTaxonomies"]
+    P15["15 Horizon-Adaptive\nMutation"]
+    P16["16 Semantic Terrain\n+ Auto-Curriculum"]
   end
-
-  %% --- Reflexive Evaluation Stack ---
-  subgraph "Reflexive Evaluation"
-    style Reflexive Evaluation fill:#4b5563,stroke-width:0,color:#fff
-    C17[17 • Memory Oracles]
-    C18[18 • Meta-Generative Replay]
-    C19[19 • Discourse Arena]
-    B16 --> C17 --> C18 --> C19
+  
+  %% ❖  Reflexive Evaluation (C-C)
+  subgraph C-C[Reflexive Evaluation 🔍]
+    style C-C fill:#fff8d6,stroke:#d4a017,stroke-width:2px
+    P17["17 Memory-Aug Oracles"]
+    P18["18 Meta-Generative\nReplay"]
+    P19["19 Discourse Arena\n(MARDA)"]
   end
-
-  %% --- Entropy & Privacy Layer ---
-  subgraph "Entropy / Privacy"
-    style Entropy / Privacy fill:#6b7280,stroke-width:0,color:#fff
-    D20[20 • Memeplex Emergence]
-    D21[21 • Entropy Optimizer]
-    D22[22 • ZK Proofs]
-    C19 --> D20 --> D21
-    D20 --> D22
+  
+  %% ❖  Memetic Strategy (C-D)
+  subgraph C-D[Memetic Strategy 🧬]
+    style C-D fill:#d8f6d6,stroke:#66bb66,stroke-width:2px
+    P20["20 Meta-Memetic\nEmergence"]
+    P21["21 Frontier Entropy\nOptimiser"]
   end
-
-  %% --- Meta-Infrastructure & Fusion ---
-  subgraph "Meta-Infrastructure"
-    style Meta-Infrastructure fill:#047857,stroke-width:0,color:#fff
-    E23[23 • Infra Co-Evolution]
-    E24[24 • Insight × Sovereign Fusion]
-    D21 --> E23 --> E24
+  
+  %% ❖  Crypto / Privacy (C-E)
+  subgraph C-E[Zero-Knowledge Trust 🔐]
+    style C-E fill:#d6ffff,stroke:#00bcbc,stroke-width:2px
+    P22["22 ZK Proofs\nof Insight"]
   end
-
-  %% --- Economic Memory & Loops ---
-  subgraph "Economic Memory"
-    style Economic Memory fill:#065f46,stroke-width:0,color:#fff
-    F25[25 • Memory Crystals]
-    F26[26 • Loop Harvesting]
-    E24 --> F25 --> F26
+  
+  %% ❖  Meta-Infrastructure (C-F)
+  subgraph C-F[Meta-Infrastructure 🔧]
+    style C-F fill:#d6e8ff,stroke:#5b8def,stroke-width:2px
+    P23["23 Infrastructure\nSelf-Mod"]
   end
-
-  %% --- Ontological & Institutional Emergence ---
-  subgraph "Ontological / Institutional"
-    style Ontological / Institutional fill:#4338ca,stroke-width:0,color:#fff
-    G27[27 • Fusion Engine]
-    G28[28 • Autopoietic Agencies]
-    G29[29 • Adaptive Firms]
-    G30[30 • Gravity Wells]
-    F26 --> G27 --> G28 --> G29 --> G30
+  
+  %% ❖  Foresight → Action Fusion (C-G)
+  subgraph C-G[Foresight→Action 🎯]
+    style C-G fill:#eed6ff,stroke:#aa55ff,stroke-width:2px
+    P24["24 Insight×Sovereign\nFusion"]
+    P25["25 Economic Memory\nCrystals"]
+    P26["26 Latent Loop\nHarvesting"]
   end
-
-  %% --- Civilization-Scale Coordination ---
-  subgraph "Civilization Coordination"
-    style Civilization Coordination fill:#7c3aed,stroke-width:0,color:#fff
-    H31[31 • Civilization Simulation]
-    H32[32 • Treaty Genesis]
-    H33[33 • Treaty Cascades]
-    G30 --> H31 --> H32 --> H33
+  
+  %% ❖  Ontological & Institutional (C-H)
+  subgraph C-H[Ontological & Institutional 🏛️]
+    style C-H fill:#e5d6ff,stroke:#8666ff,stroke-width:2px
+    P27["27 Ontological\nFusion Engine"]
+    P28["28 Autopoietic\nAgencies"]
+    P29["29 Adaptive\nAGI Firms"]
+    P30["30 Onto-Economic\nGravity Wells"]
   end
-
-  %% --- Distributed Simulocracy ---
-  subgraph "Distributed Simulocracy"
-    style Distributed Simulocracy fill:#a21caf,stroke-width:0,color:#fff
-    I34[34 • Foresight Mesh]
-    I35[35 • Self-Reflective Treaty Loops]
-    H33 --> I34 --> I35
+  
+  %% ❖  Civilization-Scale (C-I)
+  subgraph C-I[Civilization-Scale 🌏]
+    style C-I fill:#ffd6ff,stroke:#ff44cc,stroke-width:2px
+    P31["31 AGI-First\nCivilization Sim"]
+    P32["32 Treaty Genesis"]
+    P33["33 Treaty Cascades"]
+    P34["34 Autonomic\nForesight Mesh"]
+    P35["35 Self-Reflective\nTreaty Loops"]
   end
-
-  %% Legend
-  classDef core fill:#1f2937,color:#fff
-
+  
+  %% ⤷  Cross-Cluster Edges (simplified)
+  P13 --> P17
+  P16 --> P17
+  P17 --> P18 --> P20
+  P21 --> P24
+  P22 -. privacy .- P24
+  P24 --> P25 --> P26 --> P27
+  P27 --> P28 --> P29 --> P30 --> P31
+  P31 --> P32 --> P33 --> P34 --> P35
+  P35 -.feedback.- P17
 ```
 
 
