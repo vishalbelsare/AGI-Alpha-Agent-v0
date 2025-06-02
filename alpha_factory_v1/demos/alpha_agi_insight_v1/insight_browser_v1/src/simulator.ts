@@ -17,9 +17,18 @@ export interface SimulatorConfig {
 
 export interface Generation {
   gen: number;
-  population: any[];
-  fronts: any[];
+  population: Individual[];
+  fronts: Individual[];
   metrics: { avgLogic: number; avgFeasible: number; frontSize: number };
+}
+
+interface Individual {
+  logic: number;
+  feasible: number;
+  strategy: string;
+  depth: number;
+  horizonYears: number;
+  front: boolean;
 }
 export class Simulator {
   static async *run(opts: SimulatorConfig): AsyncGenerator<Generation> {
@@ -28,15 +37,16 @@ export class Simulator {
     let worker: Worker | null = null;
     let umapWorker: Worker | null = null;
     const horizon = options.horizonYears ?? options.generations;
-    let pop = Array.from({ length: options.popSize }, () => ({
+    let pop: Individual[] = Array.from({ length: options.popSize }, () => ({
       logic: rand(),
       feasible: rand(),
       strategy: 'base',
       depth: 0,
       horizonYears: horizon,
+      front: false,
     }));
     for (let gen = 0; gen < options.generations; gen++) {
-      let front: any[] = [];
+      let front: Individual[] = [];
       let metrics = { avgLogic: 0, avgFeasible: 0, frontSize: 0 };
       if (options.workerUrl && typeof Worker !== 'undefined') {
         if (!worker) worker = new Worker(options.workerUrl, { type: 'module' });

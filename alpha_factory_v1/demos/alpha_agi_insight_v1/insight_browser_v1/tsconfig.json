@@ -1,7 +1,14 @@
 {
   "compilerOptions": {
     "target": "ES2022",
-    "module": "esnext"
+    "module": "esnext",
+    "strict": true,
+    "moduleResolution": "node",
+    "baseUrl": "./",
+    "paths": {
+      "@insight-src/*": ["src/*"]
+    },
+    "allowJs": true
   },
   "include": ["src/**/*.ts"]
 }
