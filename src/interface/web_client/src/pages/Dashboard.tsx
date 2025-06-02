@@ -27,6 +27,7 @@ export default function Dashboard() {
   const [curve, setCurve] = useState('logistic');
   const [energy, setEnergy] = useState(1);
   const [entropy, setEntropy] = useState(1);
+  const [adaptive, setAdaptive] = useState(false);
   const [progress, setProgress] = useState(0);
   const [runId, setRunId] = useState<string | null>(null);
   const [timeline, setTimeline] = useState<ForecastPoint[]>([]);
@@ -42,6 +43,11 @@ export default function Dashboard() {
   useEffect(() => {
     fetchLineage().catch(() => null);
   }, []);
+
+  useEffect(() => {
+    if (adaptive) document.body.setAttribute('data-adaptive', 'true');
+    else document.body.removeAttribute('data-adaptive');
+  }, [adaptive]);
 
   useEffect(() => {
     if (!timeline.length) return;
@@ -226,6 +232,15 @@ export default function Dashboard() {
           <option value="linear">{t('option.linear')}</option>
           <option value="exponential">{t('option.exponential')}</option>
         </select>
+        <label htmlFor="adaptive">
+          <input
+            id="adaptive"
+            type="checkbox"
+            checked={adaptive}
+            onChange={(e) => setAdaptive(e.target.checked)}
+          />
+          Adaptive
+        </label>
         <button type="submit">{t('button.run')}</button>
       </form>
       {runId && (

@@ -21,6 +21,7 @@ import { Archive } from './src/archive.ts';
 import { initEvolutionPanel } from './src/ui/EvolutionPanel.js';
 import { initSimulatorPanel } from './src/ui/SimulatorPanel.js';
 import { initPowerPanel } from './src/ui/PowerPanel.js';
+import { initAnalyticsPanel } from './src/ui/AnalyticsPanel.js';
 
 let panel,pauseBtn,exportBtn,dropZone
 let criticPanel,logicCritic,feasCritic
@@ -28,7 +29,7 @@ let current,rand,pop,gen,svg,view,info,running=true
 let worker
 let telemetry
 let fpsStarted=false;
-let archive,evolutionPanel,powerPanel;
+let archive,evolutionPanel,powerPanel,analyticsPanel;
 function toast(msg) {
   const t = document.getElementById('toast');
   t.textContent = msg;
@@ -92,7 +93,7 @@ function updateDepthLegend(max){
 function start(p){
   current=p
   rand=lcg(p.seed)
-  pop=Array.from({length:p.pop},()=>({logic:rand(),feasible:rand(),strategy:'base',depth:0}))
+  pop=Array.from({length:p.pop},()=>({logic:rand(),feasible:rand(),strategy:'base',depth:0,horizonYears:p.gen}))
   gen=0
   running=true
   setupView()
@@ -126,11 +127,12 @@ function step(){
   renderFrontier(view.node ? view.node() : view,pop,selectPoint)
   const md = Math.max(...pop.map(d=>d.depth||0))
   updateDepthLegend(md)
+  if(analyticsPanel) analyticsPanel.update(pop, gen)
   archive.add(current.seed, current, front, [], 0).then(()=>evolutionPanel.render()).catch(()=>{})
   if(!running)return
   if(gen++>=current.gen){worker.terminate();return}
   telemetry.recordRun(1)
-  worker.postMessage({pop,rngState:rand.state(),mutations:current.mutations,popSize:current.pop,gen})
+  worker.postMessage({pop,rngState:rand.state(),mutations:current.mutations,popSize:current.pop,gen,adaptive:current.adaptive})
 }
 
 function togglePause(){
@@ -203,6 +205,7 @@ window.addEventListener('DOMContentLoaded',async()=>{
   evolutionPanel = initEvolutionPanel(archive);
   initSimulatorPanel(archive, powerPanel);
   powerPanel = initPowerPanel();
+  analyticsPanel = initAnalyticsPanel();
   await evolutionPanel.render();
   window.archive = archive;
   await initI18n()

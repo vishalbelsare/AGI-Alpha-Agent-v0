@@ -6,6 +6,7 @@
   "swap": "swap",
   "jump": "jump",
   "scramble": "scramble",
+  "adaptive": "Adaptive",
   "pause": "Pause",
   "resume": "Resume",
   "export": "Export",

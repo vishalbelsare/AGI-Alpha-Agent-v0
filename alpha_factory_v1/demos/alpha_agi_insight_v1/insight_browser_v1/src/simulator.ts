@@ -10,6 +10,8 @@ export interface SimulatorConfig {
   seeds?: number[];
   workerUrl?: string;
   critic?: 'llm' | 'none';
+  adaptive?: boolean;
+  horizonYears?: number;
 }
 
 export interface Generation {
@@ -23,11 +25,13 @@ export class Simulator {
     const options = { mutations: ['gaussian'], seeds: [1], critic: 'none', ...opts };
     const rand = lcg(options.seeds![0]);
     let worker: Worker | null = null;
+    const horizon = options.horizonYears ?? options.generations;
     let pop = Array.from({ length: options.popSize }, () => ({
       logic: rand(),
       feasible: rand(),
       strategy: 'base',
       depth: 0,
+      horizonYears: horizon,
     }));
     for (let gen = 0; gen < options.generations; gen++) {
       let front: any[] = [];
@@ -51,7 +55,7 @@ export class Simulator {
         front = result.front;
         metrics = result.metrics;
       } else {
-        pop = mutate(pop, rand, options.mutations ?? ['gaussian'], gen + 1);
+        pop = mutate(pop, rand, options.mutations ?? ['gaussian'], gen + 1, options.adaptive);
         front = paretoFront(pop);
         pop.forEach((d) => (d.front = front.includes(d)));
         pop = front.concat(pop.slice(0, options.popSize - 10));
