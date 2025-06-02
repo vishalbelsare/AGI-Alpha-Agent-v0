@@ -70,10 +70,14 @@ async function bundle() {
   await fs.copyFile('manifest.json', `${OUT_DIR}/manifest.json`).catch(() => {});
   await fs.copyFile('favicon.svg', `${OUT_DIR}/favicon.svg`).catch(() => {});
   await fs.mkdir(`${OUT_DIR}/data/critics`, { recursive: true });
-  await fs
-    .copyFile('../../../../data/critics/innovations.txt',
-      `${OUT_DIR}/data/critics/innovations.txt`)
-    .catch(() => {});
+  try {
+    for (const f of await fs.readdir('../../../../data/critics')) {
+      await fs.copyFile(
+        `../../../../data/critics/${f}`,
+        `${OUT_DIR}/data/critics/${f}`
+      );
+    }
+  } catch {}
   const bundleSri = await sha384('bundle.esm.min.js');
   const pyodideSri = await sha384('pyodide.js');
 
@@ -115,6 +119,7 @@ async function bundle() {
       'wasm_llm/*',
       'wasm/*',
       'worker/*',
+      'data/critics/*',
     ],
   });
   const size = await gzipSize.file(`${OUT_DIR}/app.js`);

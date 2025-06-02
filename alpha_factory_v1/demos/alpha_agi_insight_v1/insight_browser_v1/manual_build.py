@@ -107,13 +107,20 @@ for src, dest in [
     ("sw.js", "sw.js"),
     ("manifest.json", "manifest.json"),
     ("favicon.svg", "favicon.svg"),
-    (ROOT.parents[3] / "data" / "critics" / "innovations.txt", "data/critics/innovations.txt"),
 ]:
     src_path = ROOT / src if isinstance(src, str) else src
     if src_path.exists():
         target = dist_dir / dest
         target.parent.mkdir(parents=True, exist_ok=True)
         target.write_bytes(src_path.read_bytes())
+
+# copy critic examples
+critics_src = ROOT.parents[3] / "data" / "critics"
+critics_dst = dist_dir / "data" / "critics"
+if critics_src.exists():
+    critics_dst.mkdir(parents=True, exist_ok=True)
+    for f in critics_src.iterdir():
+        (critics_dst / f.name).write_bytes(f.read_bytes())
 
 app_sri = sha384(dist_dir / "app.js")
 style_sri = sha384(dist_dir / "style.css")
@@ -170,6 +177,7 @@ injectManifest({{
     'wasm_llm/*',
     'wasm/*',
     'worker/*',
+    'data/critics/*',
   ],
 }}).catch(err => {{console.error(err); process.exit(1);}});
 """

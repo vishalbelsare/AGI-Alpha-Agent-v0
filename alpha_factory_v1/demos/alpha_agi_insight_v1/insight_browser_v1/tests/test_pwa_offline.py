@@ -39,6 +39,10 @@ def test_offline_pwa_and_share() -> None:
         assert page.evaluate("typeof d3 !== 'undefined'")
         assert page.evaluate('document.querySelector("link[href=\'style.css\']").sheet !== null')
 
+        # critic examples should be available offline
+        text = page.evaluate("async () => await (await fetch('./data/critics/innovations.txt')).text()")
+        assert 'Wheel' in text
+
         # Stub Web3Storage to avoid network
         page.evaluate(
             f"window.PINNER_TOKEN='tok'; window.Web3Storage = class {{ async put() {{ return '{CID}'; }} }}"
