@@ -37,6 +37,9 @@ python ../../../scripts/fetch_assets.py
 
 This downloads the Pyodide runtime and `wasm-gpt2` model from IPFS into
 `wasm/` and `wasm_llm/`.
+It also retrieves `lib/bundle.esm.min.js` from the mirror. The build scripts
+abort when this file still contains the placeholder comment, so run
+`scripts/fetch_assets.py` if you encounter that error.
 ```bash
 PINNER_TOKEN=<token> npm start
 ```
