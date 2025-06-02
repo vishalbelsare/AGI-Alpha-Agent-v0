@@ -54,3 +54,13 @@ test('prune removes unused evaluators', async () => {
   const evals = await a.listEvaluators();
   expect(evals.length).toBe(0);
 });
+
+test('add generates unique ids', async () => {
+  const a = new Archive('jest');
+  await a.open();
+  const id1 = await a.add(1, {}, []);
+  const id2 = await a.add(2, {}, []);
+  expect(id1).not.toBe(id2);
+  const runs = await a.list();
+  expect(runs.length).toBe(2);
+});
