@@ -14,3 +14,4 @@ Alternatively install the package in editable mode first:
 pip install -e .
 pytest -q
 ```
+- Playwright test `test_umap_fallback.py` ensures the simulator uses random UMAP coordinates when Pyodide is blocked.
