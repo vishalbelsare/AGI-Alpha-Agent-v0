@@ -158,12 +158,19 @@ if (lib_dir / "bundle.esm.min.js").exists():
 
 entry_code = re.sub(r"^\s*import[^\n]*\n", "", entry, flags=re.MULTILINE)
 
-bundle = "(function() {\n" + "\n".join(processed[p] for p in order) + "\n" + entry_code + "\n})();\n"
+css = (
+    (ROOT / "src" / "style" / "theme.css").read_text()
+    + (ROOT / "dist" / "style.css").read_text()
+    + (ROOT / "src" / "ui" / "controls.css").read_text()
+)
+evolver = (ROOT / "worker" / "evolver.js").read_text()
+arena = (ROOT / "worker" / "arenaWorker.js").read_text()
+bundle = "(function() {\nconst style=" + repr(css) + ";\nconst s=document.createElement('style');s.textContent=style;document.head.appendChild(s);\nconst EVOLVER_URL=URL.createObjectURL(new Blob([" + repr(evolver) + "],{type:'text/javascript'}));\nconst ARENA_URL=URL.createObjectURL(new Blob([" + repr(arena) + "],{type:'text/javascript'}));\n" + "\n".join(processed[p] for p in order) + "\n" + entry_code + "\n})();\n"
 
 dist_dir.mkdir(exist_ok=True)
-(dist_dir / "app.js").write_text(bundle)
+(dist_dir / "insight.bundle.js").write_text(bundle)
 
-app_sri_placeholder = '<script type="module" src="app.js" crossorigin="anonymous"></script>'
+app_sri_placeholder = '<script type="module" src="insight.bundle.js" crossorigin="anonymous"></script>'
 out_html = html.replace("src/ui/controls.css", "controls.css")
 ipfs_origin = os.getenv("IPFS_GATEWAY")
 if ipfs_origin:
@@ -187,13 +194,9 @@ out_html = re.sub(
 
 # copy assets
 for src, dest in [
-    ("style.css", "style.css"),
-    ("src/ui/controls.css", "controls.css"),
     ("d3.v7.min.js", "d3.v7.min.js"),
     ("lib/bundle.esm.min.js", "bundle.esm.min.js"),
     ("lib/pyodide.js", "pyodide.js"),
-    ("worker/evolver.js", "worker/evolver.js"),
-    ("worker/arenaWorker.js", "worker/arenaWorker.js"),
     ("src/utils/rng.js", "src/utils/rng.js"),
     ("sw.js", "sw.js"),
     ("manifest.json", "manifest.json"),
@@ -222,17 +225,13 @@ if critics_src.exists():
     for f in critics_src.iterdir():
         (critics_dst / f.name).write_bytes(f.read_bytes())
 
-app_sri = sha384(dist_dir / "app.js")
-style_sri = sha384(dist_dir / "style.css")
+app_sri = sha384(dist_dir / "insight.bundle.js")
 bundle_sri = sha384(dist_dir / "bundle.esm.min.js")
 pyodide_sri = sha384(dist_dir / "pyodide.js")
 checksums = _expected_checksums()
 out_html = out_html.replace(
-    app_sri_placeholder, f'<script type="module" src="app.js" integrity="{app_sri}" crossorigin="anonymous"></script>'
-)
-out_html = out_html.replace(
-    'href="style.css"',
-    f'href="style.css" integrity="{style_sri}" crossorigin="anonymous"',
+    app_sri_placeholder,
+    f'<script type="module" src="insight.bundle.js" integrity="{app_sri}" crossorigin="anonymous"></script>',
 )
 env_script = (
     "<script>"
@@ -281,13 +280,11 @@ injectManifest({{
   globDirectory: {json.dumps(str(dist_dir))},
   globPatterns: [
     'index.html',
-    'app.js',
-    'style.css',
+    'insight.bundle.js',
     'd3.v7.min.js',
     'pyodide.*',
     'wasm_llm/*',
     'wasm/*',
-    'worker/*',
     'data/critics/*',
     'src/i18n/*.json',
   ],

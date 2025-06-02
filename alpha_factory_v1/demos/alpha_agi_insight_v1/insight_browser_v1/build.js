@@ -132,7 +132,8 @@ async function bundle() {
     bundle: true,
     minify: true,
     format: 'esm',
-    outfile: `${OUT_DIR}/app.js`,
+    target: 'es2020',
+    outfile: `${OUT_DIR}/insight.bundle.js`,
     plugins: [aliasPlugin],
   });
   execSync(
@@ -143,18 +144,11 @@ async function bundle() {
     const data = await fs.readFile(`${OUT_DIR}/${file}`);
     return 'sha384-' + createHash('sha384').update(data).digest('base64');
   };
-  const appSri = await sha384('app.js');
-  const styleSri = await sha384('style.css');
-  let outHtml = html
-    .replace(
-      '<script type="module" src="app.js" crossorigin="anonymous"></script>',
-      `<script type="module" src="app.js" integrity="${appSri}" crossorigin="anonymous"></script>`
-    )
-    .replace(
-      'href="style.css"',
-      `href="style.css" integrity="${styleSri}" crossorigin="anonymous"`
-    )
-    .replace('src/ui/controls.css', 'controls.css');
+  const appSri = await sha384('insight.bundle.js');
+  let outHtml = html.replace(
+      '<script type="module" src="insight.bundle.js" crossorigin="anonymous"></script>',
+      `<script type="module" src="insight.bundle.js" integrity="${appSri}" crossorigin="anonymous"></script>`
+    );
   const csp =
     "default-src 'self'; connect-src 'self' https://api.openai.com" +
     (ipfsOrigin ? ` ${ipfsOrigin}` : '') +
@@ -164,13 +158,9 @@ async function bundle() {
     /<meta[^>]*http-equiv="Content-Security-Policy"[^>]*>/,
     `<meta http-equiv="Content-Security-Policy" content="${csp}" />`
   );
-  await fs.copyFile('src/ui/controls.css', `${OUT_DIR}/controls.css`);
   await fs.copyFile('d3.v7.min.js', `${OUT_DIR}/d3.v7.min.js`);
   await fs.copyFile('lib/bundle.esm.min.js', `${OUT_DIR}/bundle.esm.min.js`);
   await fs.copyFile('lib/pyodide.js', `${OUT_DIR}/pyodide.js`);
-  await fs.mkdir(`${OUT_DIR}/worker`, { recursive: true });
-  await fs.copyFile('worker/evolver.js', `${OUT_DIR}/worker/evolver.js`);
-  await fs.copyFile('worker/arenaWorker.js', `${OUT_DIR}/worker/arenaWorker.js`);
   await fs.mkdir(`${OUT_DIR}/src/utils`, { recursive: true });
   await fs.copyFile('src/utils/rng.js', `${OUT_DIR}/src/utils/rng.js`);
   await fs.mkdir(`${OUT_DIR}/src/i18n`, { recursive: true });
@@ -231,18 +221,16 @@ async function bundle() {
     globDirectory: OUT_DIR,
     globPatterns: [
       'index.html',
-      'app.js',
-      'style.css',
+      'insight.bundle.js',
       'd3.v7.min.js',
       'pyodide.*',
       'wasm_llm/*',
       'wasm/*',
-      'worker/*',
       'data/critics/*',
       'src/i18n/*.json',
     ],
   });
-  const size = await gzipSize.file(`${OUT_DIR}/app.js`);
+  const size = await gzipSize.file(`${OUT_DIR}/insight.bundle.js`);
   const MAX_GZIP_SIZE = 6 * 1024 * 1024; // 6 MiB
   if (size > MAX_GZIP_SIZE) {
     throw new Error(`gzip size ${size} bytes exceeds limit`);
@@ -250,7 +238,7 @@ async function bundle() {
   if (process.env.WEB3_STORAGE_TOKEN) {
     const client = new Web3Storage({ token: process.env.WEB3_STORAGE_TOKEN });
     const files = await Promise.all([
-      'index.html', 'app.js', 'style.css', 'd3.v7.min.js', 'bundle.esm.min.js'
+      'index.html', 'insight.bundle.js', 'd3.v7.min.js', 'bundle.esm.min.js'
     ].map(async f => new File([await fs.readFile(`${OUT_DIR}/${f}`)], f)));
     const cid = await client.put(files, { wrapWithDirectory: false });
     await fs.writeFile(`${OUT_DIR}/CID.txt`, cid);
