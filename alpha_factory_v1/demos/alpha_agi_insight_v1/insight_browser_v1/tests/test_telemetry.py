@@ -113,3 +113,38 @@ def test_offline_queue_flushes_on_reconnect() -> None:
         page.wait_for_function("window.sent && window.sent.length > 0")
         assert page.evaluate("localStorage.getItem('telemetryQueue')") == "[]"
         browser.close()
+
+
+def test_queue_limit_and_fetch_fallback() -> None:
+    dist = Path(__file__).resolve().parents[1] / "dist" / "index.html"
+    url = dist.as_uri()
+
+    with sync_playwright() as p:
+        browser = p.chromium.launch()
+        page = browser.new_page()
+        page.goto(url)
+        page.evaluate(
+            "window.OTEL_ENDPOINT='https://example.com';"
+            "window.confirm=() => true;"
+            "navigator.sendBeacon=()=>false;"
+            "Object.defineProperty(navigator,'onLine',{get:()=>false,configurable:true});"
+            "localStorage.setItem('telemetryQueue',JSON.stringify(Array.from({length:100},()=>({}))))"
+        )
+        page.reload()
+        page.wait_for_selector("#controls")
+        page.click("text=Share")
+        page.evaluate("window.dispatchEvent(new Event('beforeunload'))")
+        assert (
+            page.evaluate(
+                "JSON.parse(localStorage.getItem('telemetryQueue')).length"
+            )
+            == 100
+        )
+        page.evaluate(
+            "window.fetch=(...a)=>{window.fetchArgs=a;return Promise.resolve({status:200});};"
+            "Object.defineProperty(navigator,'onLine',{get:()=>true});"
+            "window.dispatchEvent(new Event('online'));"
+        )
+        page.wait_for_function("window.fetchArgs !== undefined")
+        assert page.evaluate("localStorage.getItem('telemetryQueue')") == "[]"
+        browser.close()
