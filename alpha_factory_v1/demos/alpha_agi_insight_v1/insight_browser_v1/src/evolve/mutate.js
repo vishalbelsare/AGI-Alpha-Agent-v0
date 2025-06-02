@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
-export function mutate(pop, rand, strategies, gen = 0, adaptive = false) {
+export function mutate(pop, rand, strategies, gen = 0, adaptive = false, scale = 1) {
   const clamp = (v) => Math.min(1, Math.max(0, v));
   const mutants = [];
   function converged() {
@@ -16,7 +16,7 @@ export function mutate(pop, rand, strategies, gen = 0, adaptive = false) {
       switch (s) {
         case 'gaussian':
           {
-            let sigma = 0.12 * Math.log1p(d.horizonYears || 0);
+            let sigma = 0.12 * Math.log1p(d.horizonYears || 0) * scale;
             if (isConv) sigma *= 0.5;
             mutants.push({
               logic: clamp(d.logic + (rand() - 0.5) * sigma),

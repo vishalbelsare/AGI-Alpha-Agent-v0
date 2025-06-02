@@ -17,6 +17,7 @@ import {chat as llmChat} from './src/utils/llm.js';
 import { initTelemetry } from '../../../../src/telemetry.js';
 import { lcg } from './src/utils/rng.js';
 import { paretoFront } from './src/utils/pareto.js';
+import { paretoEntropy } from './src/utils/entropy.ts';
 import { Archive } from './src/archive.ts';
 import { initEvolutionPanel } from './src/ui/EvolutionPanel.js';
 import { initSimulatorPanel } from './src/ui/SimulatorPanel.js';
@@ -124,15 +125,24 @@ function selectPoint(d, elem){
 function step(){
   info.text(`gen ${gen}`)
   const front = paretoFront(pop)
+  const entropy = paretoEntropy(front)
+  window.entropy = entropy
   renderFrontier(view.node ? view.node() : view,pop,selectPoint)
   const md = Math.max(...pop.map(d=>d.depth||0))
   updateDepthLegend(md)
-  if(analyticsPanel) analyticsPanel.update(pop, gen)
+  if(analyticsPanel) analyticsPanel.update(pop, gen, entropy)
   archive.add(current.seed, current, front, [], 0).then(()=>evolutionPanel.render()).catch(()=>{})
   if(!running)return
   if(gen++>=current.gen){worker.terminate();return}
+  const LOW=1.5, HIGH=2.5
+  let scale=1
+  if(entropy<LOW){
+    for(let i=0;i<5;i++)pop.push({logic:rand(),feasible:rand(),strategy:'rand',depth:gen,horizonYears:current.gen})
+  } else if(entropy>HIGH){
+    scale=0.5
+  }
   telemetry.recordRun(1)
-  worker.postMessage({pop,rngState:rand.state(),mutations:current.mutations,popSize:current.pop,gen,adaptive:current.adaptive})
+  worker.postMessage({pop,rngState:rand.state(),mutations:current.mutations,popSize:current.pop,gen,adaptive:current.adaptive,sigmaScale:scale})
 }
 
 function togglePause(){

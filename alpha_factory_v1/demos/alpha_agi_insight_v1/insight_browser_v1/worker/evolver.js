@@ -42,10 +42,10 @@ function shuffle(arr, rand) {
 }
 
 self.onmessage = async (ev) => {
-  const { pop, rngState, mutations, popSize, critic, gen, adaptive } = ev.data;
+  const { pop, rngState, mutations, popSize, critic, gen, adaptive, sigmaScale = 1 } = ev.data;
   const rand = lcg(0);
   rand.set(rngState);
-  let next = mutate(pop, rand, mutations, gen, adaptive);
+  let next = mutate(pop, rand, mutations, gen, adaptive, sigmaScale);
   const front = paretoFront(next);
   next.forEach((d) => (d.front = front.includes(d)));
   if (critic === 'llm') {
