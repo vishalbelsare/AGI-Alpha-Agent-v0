@@ -27,6 +27,14 @@ Copy [`.env.sample`](.env.sample) to `.env` then review the variables:
 See [`.env.sample`](.env.sample) for the full list of supported variables.
 
 ## Build & Run
+Before running the build script you **must** replace the placeholder
+WebAssembly artifacts. Fetch the real assets with:
+
+```bash
+python ../../../scripts/fetch_assets.py
+```
+
+Once the wasm files are in place run:
 ```bash
 npm ci           # deterministic install
 npm run build    # compile to dist/ and embed env vars
