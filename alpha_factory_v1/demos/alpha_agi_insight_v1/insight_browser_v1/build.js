@@ -170,6 +170,10 @@ async function bundle() {
   await fs.copyFile('sw.js', `${OUT_DIR}/sw.js`).catch(() => {});
   await fs.copyFile('manifest.json', `${OUT_DIR}/manifest.json`).catch(() => {});
   await fs.copyFile('favicon.svg', `${OUT_DIR}/favicon.svg`).catch(() => {});
+  const pdfSrc = path.join(repoRoot, 'docs', 'insight_browser_quickstart.pdf');
+  if (fsSync.existsSync(pdfSrc)) {
+    await fs.copyFile(pdfSrc, `${OUT_DIR}/insight_browser_quickstart.pdf`);
+  }
   await fs.mkdir(`${OUT_DIR}/data/critics`, { recursive: true });
   try {
     for (const f of await fs.readdir('../../../../data/critics')) {
