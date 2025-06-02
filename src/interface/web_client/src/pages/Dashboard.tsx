@@ -33,12 +33,31 @@ export default function Dashboard() {
   const [timeline, setTimeline] = useState<ForecastPoint[]>([]);
   const [population, setPopulation] = useState<PopulationMember[]>([]);
   const [lineage, setLineage] = useState<LineageNode[]>([]);
+  const [debate, setDebate] = useState<{ role: string; text: string }[]>([]);
+  const workerRef = useRef<Worker | null>(null);
   const buffer = useRef<ForecastPoint[]>([]);
   const flushRef = useRef<number | null>(null);
 
   const API_BASE = (import.meta.env.VITE_API_BASE_URL ?? '').replace(/\/$/, '');
   const TOKEN = import.meta.env.VITE_API_TOKEN ?? '';
   const HEADERS = TOKEN ? { Authorization: `Bearer ${TOKEN}` } : {};
+
+  useEffect(() => {
+    workerRef.current = new Worker(new URL('../../arenaWorker.js', import.meta.url), { type: 'module' });
+    workerRef.current.onmessage = (ev) => {
+      const { messages, score } = ev.data;
+      setDebate(messages);
+      setPopulation((pop) => {
+        const updated = pop.map((p) => ({ ...p, rank: p.rank + score }));
+        updated.sort((a, b) => a.rank - b.rank);
+        return updated;
+      });
+    };
+    return () => {
+      workerRef.current?.terminate();
+      workerRef.current = null;
+    };
+  }, []);
 
   useEffect(() => {
     fetchLineage().catch(() => null);
@@ -259,6 +278,24 @@ export default function Dashboard() {
       <div id="capability" role="img" aria-label="capability" style={{ width: '100%', height: 300 }} />
       <div id="pareto" role="img" aria-label="pareto" style={{ width: '100%', height: 400 }} />
       <Pareto3D data={population} />
+      <ul id="ranking">
+        {population.map((p, i) => (
+          <li key={i}>Rank {p.rank.toFixed(1)}</li>
+        ))}
+      </ul>
+      <button id="start-debate" type="button" onClick={() => workerRef.current?.postMessage({ hypothesis: 'the proposal' })}>
+        Start Debate
+      </button>
+      <details id="debate-panel">
+        <summary>Debate</summary>
+        <ul>
+          {debate.map((m, i) => (
+            <li key={i}>
+              <strong>{m.role}:</strong> {m.text}
+            </li>
+          ))}
+        </ul>
+      </details>
       <LineageTimeline data={lineage} />
       <D3LineageTree data={lineage} />
     </div>
