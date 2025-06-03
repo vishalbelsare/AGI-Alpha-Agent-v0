@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 import { promises as fs } from 'fs';
 import fsSync from 'fs';
-import { execSync } from 'child_process';
+import { execSync, spawnSync } from 'child_process';
 import { createHash } from 'crypto';
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -61,14 +61,44 @@ async function ensureWeb3Bundle() {
   }
 }
 
-function ensureAssets() {
-  for (const rel of manifest.assets) {
-    const p = path.join(path.dirname(scriptPath), rel);
-    if (!fsSync.existsSync(p)) continue;
-    const data = fsSync.readFileSync(p, 'utf8');
-    if (data.includes('placeholder')) {
-      throw new Error(`${rel} contains placeholder text. Run scripts/fetch_assets.py to download assets.`);
+function collectFiles(dir) {
+  let out = [];
+  if (!fsSync.existsSync(dir)) return out;
+  for (const entry of fsSync.readdirSync(dir, { withFileTypes: true })) {
+    const p = path.join(dir, entry.name);
+    if (entry.isDirectory()) out = out.concat(collectFiles(p));
+    else out.push(p);
+  }
+  return out;
+}
+
+function placeholderFiles() {
+  const files = [];
+  for (const sub of ['wasm', 'wasm_llm']) {
+    const root = path.join(path.dirname(scriptPath), sub);
+    for (const f of collectFiles(root)) {
+      const data = fsSync.readFileSync(f, 'utf8');
+      if (data.toLowerCase().includes('placeholder')) files.push(f);
     }
+  }
+  return files;
+}
+
+function runFetch() {
+  const script = path.join(repoRoot, 'scripts', 'fetch_assets.py');
+  const res = spawnSync('python', [script], { stdio: 'inherit' });
+  if (res.status !== 0) process.exit(res.status ?? 1);
+}
+
+function ensureAssets() {
+  let placeholders = placeholderFiles();
+  if (placeholders.length) {
+    console.log('Detected placeholder assets, running fetch_assets.py...');
+    runFetch();
+    placeholders = placeholderFiles();
+  }
+  if (placeholders.length) {
+    throw new Error(`placeholder found in ${placeholders[0]}`);
   }
 }
 
