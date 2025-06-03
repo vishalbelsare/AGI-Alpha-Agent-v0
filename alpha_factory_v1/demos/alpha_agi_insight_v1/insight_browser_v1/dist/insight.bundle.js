@@ -1,4 +1,5 @@
 (function(){
+function createIframeWorker(url){return new Promise(r=>{const html="<script>let w;window.addEventListener('message',e=>{if(e.data.type==='start'){w=new Worker(e.data.url,{type:'module'});w.onmessage=d=>parent.postMessage(d.data,'*')}else if(w){w.postMessage(e.data)}});<\/script>";const f=document.createElement('iframe');f.sandbox='allow-scripts';f.style.display='none';f.src=URL.createObjectURL(new Blob([html],{type:'text/html'}));document.body.appendChild(f);const o={postMessage:m=>f.contentWindow.postMessage(m,'*'),terminate(){f.remove();URL.revokeObjectURL(f.src);},onmessage:null};const h=e=>{if(e.source===f.contentWindow&&o.onmessage)o.onmessage(e)};window.addEventListener('message',h);f.onload=()=>{f.contentWindow.postMessage({type:'start',url},'*');r(o);};});
 const style='/* SPDX-License-Identifier: Apache-2.0 */\n:root {\n  --color-bg: #111;\n  --color-bg-alt: #181818;\n  --color-text: #eee;\n  --color-border: #333;\n  --size-xs: 2px;\n  --size-s: 4px;\n  --size-m: 10px;\n  --size-l: 12px;\n}\n\n[data-theme="light"] {\n  --color-bg: #fff;\n  --color-bg-alt: #fafafa;\n  --color-text: #000;\n  --color-border: #ccc;\n}\n\n@media (prefers-color-scheme: light) {\n  :root:not([data-theme]) {\n    --color-bg: #fff;\n    --color-bg-alt: #fafafa;\n    --color-text: #000;\n    --color-border: #ccc;\n  }\n}\nbody{margin:0;font-family:Inter,Helvetica,Arial,sans-serif;background:#111;color:#eee}\nsvg{display:block;margin:auto;background:#181818;border:1px solid #333;touch-action:none}\n@media(prefers-color-scheme:light){\n  body{background:#fff;color:#000}\n  svg{background:#fafafa;border-color:#ccc}\n  #legend{color:#000}\n}\n#legend{color:#eee}\n:root[data-theme="light"] body{background:#fff;color:#000}\n:root[data-theme="light"] svg{background:#fafafa;border-color:#ccc}\n:root[data-theme="light"] #legend{color:#000}\n#tooltip{position:absolute;display:none;pointer-events:none;background:rgba(0,0,0,0.7);color:#fff;padding:2px 4px;border-radius:3px;font-size:12px}\n#toolbar{position:fixed;bottom:10px;left:10px}\n#toolbar button{margin-right:4px}\n#legend{position:fixed;bottom:10px;right:10px;font-size:12px}\n#legend span{margin-left:6px}\n/* SPDX-License-Identifier: Apache-2.0 */\n#controls{position:fixed;top:10px;right:10px;background:rgba(0,0,0,.7);padding:8px;color:#fff;font:14px sans-serif}\n#controls label{display:block;margin-bottom:4px}\n#controls button{margin-right:4px;margin-top:4px}\n#controls input:focus,#controls button:focus,#drop:focus{outline:2px solid #ff0;outline-offset:2px}\n#drop{margin-top:4px;padding:10px;border:1px dashed #888;text-align:center;font-size:12px}\n#drop.drag{background:rgba(255,255,255,.1)}\n#toast{position:fixed;bottom:10px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,.8);color:#fff;padding:4px 8px;opacity:0;transition:opacity .3s}\n#toast.show{opacity:1}\n@media(prefers-color-scheme:light){#controls{background:rgba(255,255,255,.9);color:#000}#toast{background:rgba(238,238,238,.9);color:#000}#drop{border-color:#aaa}#drop.drag{background:rgba(0,0,0,.05)}}\n:root[data-theme="light"] #controls{background:rgba(255,255,255,.9);color:#000}\n:root[data-theme="light"] #toast{background:rgba(238,238,238,.9);color:#000}\n:root[data-theme="light"] #drop{border-color:#aaa}\n:root[data-theme="light"] #drop.drag{background:rgba(0,0,0,.05)}\n';
 const s=document.createElement('style');s.textContent=style;document.head.appendChild(s);
 const EVOLVER_URL=URL.createObjectURL(new Blob(["// SPDX-License-Identifier: Apache-2.0\nimport { mutate } from '../src/evolve/mutate.js';\nimport { paretoFront } from '../src/utils/pareto.js';\nimport { lcg } from '../src/utils/rng.js';\n\nconst ua = self.navigator?.userAgent ?? '';\nconst isSafari = /Safari/.test(ua) && !/Chrome|Chromium|Edge/.test(ua);\nconst isIOS = /(iPad|iPhone|iPod)/.test(ua);\nlet pyReady;\nlet warned = false;\nlet pySupported = !(isSafari || isIOS);\n\nasync function loadPy() {\n  if (!pySupported) {\n    if (!warned) {\n      self.postMessage({ toast: 'Pyodide unavailable; using JS only' });\n      warned = true;\n    }\n    return null;\n  }\n  if (!pyReady) {\n    try {\n      const mod = await import('../src/wasm/bridge.js');\n      pyReady = mod.initPy ? mod.initPy() : null;\n    } catch {\n      pyReady = null;\n      pySupported = false;\n      if (!warned) {\n        self.postMessage({ toast: 'Pyodide failed to load; using JS only' });\n        warned = true;\n      }\n    }\n  }\n  return pyReady;\n}\n\nfunction shuffle(arr, rand) {\n  for (let i = arr.length - 1; i > 0; i--) {\n    const j = Math.floor(rand() * (i + 1));\n    [arr[i], arr[j]] = [arr[j], arr[i]];\n  }\n}\n\nself.onmessage = async (ev) => {\n  const { pop, rngState, mutations, popSize, critic, gen, adaptive, sigmaScale = 1 } = ev.data;\n  const rand = lcg(0);\n  rand.set(rngState);\n  let next = mutate(pop, rand, mutations, gen, adaptive, sigmaScale);\n  const front = paretoFront(next);\n  next.forEach((d) => (d.front = front.includes(d)));\n  if (critic === 'llm') {\n    await loadPy();\n  }\n  shuffle(next, rand);\n  next = front.concat(next.slice(0, popSize - 10));\n  const metrics = {\n    avgLogic: next.reduce((s, d) => s + (d.logic ?? 0), 0) / next.length,\n    avgFeasible: next.reduce((s, d) => s + (d.feasible ?? 0), 0) / next.length,\n    frontSize: front.length,\n  };\n  self.postMessage({ pop: next, rngState: rand.state(), front, metrics });\n};\n"],{type:'text/javascript'}));
@@ -1348,7 +1349,7 @@ function updateDepthLegend(max){
   dl.appendChild(bar);
 }
 
-function start(p){
+async function start(p){
   current=p
   rand=lcg(p.seed)
   pop=Array.from({length:p.pop},()=>({logic:rand(),feasible:rand(),strategy:'base',depth:0}))
@@ -1358,7 +1359,7 @@ function start(p){
   if(!fpsStarted){initFpsMeter(() => running);fpsStarted=true;}
   updateLegend(p.mutations)
   if(worker) worker.terminate()
-  worker=new Worker(EVOLVER_URL,{type:'module'})
+  worker=await createIframeWorker(EVOLVER_URL)
   worker.onmessage=ev=>{pop=ev.data.pop;rand.set(ev.data.rngState);requestAnimationFrame(step)}
   step()
 }
@@ -1430,7 +1431,7 @@ async function exportPNG(){
   URL.revokeObjectURL(a.href);
 }
 
-function loadState(text){
+async function loadState(text){
   try{
     const s=load(text)
     pop=s.pop
@@ -1441,7 +1442,7 @@ function loadState(text){
     setupView()
     updateLegend(current.mutations)
     if(worker) worker.terminate()
-    worker=new Worker(EVOLVER_URL,{type:'module'})
+    worker=await createIframeWorker(EVOLVER_URL)
     worker.onmessage=ev=>{pop=ev.data.pop;rand.set(ev.data.rngState);requestAnimationFrame(step)}
     step()
     toast(t('state_loaded'))
@@ -1457,7 +1458,7 @@ window.addEventListener('DOMContentLoaded',async()=>{
   evolutionPanel = initEvolutionPanel(archive);
   initSimulatorPanel(archive);
   arenaPanel = initArenaPanel(pt => {debateTarget=pt;const hypo=pt.summary||`logic ${pt.logic}`;debateWorker.postMessage({hypothesis:hypo});});
-  debateWorker = new Worker(ARENA_URL,{type:'module'});
+  debateWorker = await createIframeWorker(ARENA_URL);
   debateWorker.onmessage=ev=>{const {messages,score}=ev.data;if(debateTarget){debateTarget.rank=(debateTarget.rank||0)+score;pop.sort((a,b)=>(a.rank||0)-(b.rank||0));}arenaPanel.show(messages,score);arenaPanel.render(paretoFront(pop));};
   await evolutionPanel.render();
   window.archive = archive;

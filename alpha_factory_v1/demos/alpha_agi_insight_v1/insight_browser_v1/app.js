@@ -35,6 +35,21 @@ let fpsStarted=false;
 let workerStart=0;
 let archive,evolutionPanel,powerPanel,analyticsPanel;
 let arenaPanel,debateWorker,debateTarget;
+
+async function createIframeWorker(url){
+  return new Promise(resolve=>{
+    const html="<script>let w;window.addEventListener('message',e=>{if(e.data.type==='start'){w=new Worker(e.data.url,{type:'module'});w.onmessage=d=>parent.postMessage(d.data,'*')}else if(w){w.postMessage(e.data)}});<\/script>";
+    const iframe=document.createElement('iframe');
+    iframe.sandbox='allow-scripts';
+    iframe.style.display='none';
+    iframe.src=URL.createObjectURL(new Blob([html],{type:'text/html'}));
+    document.body.appendChild(iframe);
+    const obj={postMessage:m=>iframe.contentWindow.postMessage(m,'*'),terminate(){iframe.remove();URL.revokeObjectURL(iframe.src);},onmessage:null};
+    const handler=e=>{if(e.source===iframe.contentWindow&&obj.onmessage)obj.onmessage(e);};
+    window.addEventListener('message',handler);
+    iframe.onload=()=>{iframe.contentWindow.postMessage({type:'start',url},'*');resolve(obj);};
+  });
+}
 function toast(msg) {
   const t = document.getElementById('toast');
   t.textContent = msg;
@@ -95,7 +110,7 @@ function updateDepthLegend(max){
   dl.appendChild(bar);
 }
 
-function start(p){
+async function start(p){
   current=p
   rand=lcg(p.seed)
   pop=Array.from({length:p.pop},()=>({logic:rand(),feasible:rand(),strategy:'base',depth:0,horizonYears:p.gen}))
@@ -105,7 +120,7 @@ function start(p){
   if(!fpsStarted){initFpsMeter(() => running);fpsStarted=true;}
   updateLegend(p.mutations)
   if(worker) worker.terminate()
-  worker=new Worker('./worker/evolver.js',{type:'module'})
+  worker=await createIframeWorker('./worker/evolver.js')
   if(navigator.gpu){
     worker.postMessage({type:'gpu', available: window.USE_GPU !== false})
   }
@@ -203,7 +218,7 @@ async function exportPNG(){
   URL.revokeObjectURL(a.href);
 }
 
-function loadState(text){
+async function loadState(text){
   try{
     const s=load(text)
     pop=s.pop
@@ -214,7 +229,7 @@ function loadState(text){
     setupView()
     updateLegend(current.mutations)
     if(worker) worker.terminate()
-    worker=new Worker('./worker/evolver.js',{type:'module'})
+    worker=await createIframeWorker('./worker/evolver.js')
     if(navigator.gpu){
       worker.postMessage({type:'gpu', available: window.USE_GPU !== false})
     }
@@ -249,7 +264,7 @@ window.addEventListener('DOMContentLoaded',async()=>{
     const hypo = pt.summary || `logic ${pt.logic}`;
     debateWorker.postMessage({ hypothesis: hypo });
   });
-  debateWorker = new Worker('./worker/arenaWorker.js', { type: 'module' });
+  debateWorker = await createIframeWorker('./worker/arenaWorker.js');
   debateWorker.onmessage = (ev) => {
     const { messages, score } = ev.data;
     if (debateTarget) {
