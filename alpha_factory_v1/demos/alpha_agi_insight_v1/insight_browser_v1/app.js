@@ -44,7 +44,7 @@ async function createIframeWorker(url){
     iframe.style.display='none';
     iframe.src=URL.createObjectURL(new Blob([html],{type:'text/html'}));
     document.body.appendChild(iframe);
-    const obj={postMessage:m=>iframe.contentWindow.postMessage(m,'*'),terminate(){iframe.remove();URL.revokeObjectURL(iframe.src);},onmessage:null};
+    const obj={postMessage:m=>iframe.contentWindow.postMessage(m,'*'),terminate(){iframe.remove();URL.revokeObjectURL(iframe.src);window.removeEventListener('message',handler);},onmessage:null};
     const handler=e=>{if(e.source===iframe.contentWindow&&obj.onmessage)obj.onmessage(e);};
     window.addEventListener('message',handler);
     iframe.onload=()=>{iframe.contentWindow.postMessage({type:'start',url},'*');resolve(obj);};
