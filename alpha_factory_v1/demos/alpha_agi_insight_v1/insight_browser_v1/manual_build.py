@@ -125,10 +125,25 @@ if "Placeholder for web3.storage bundle.esm.min.js" in data:
         "lib/bundle.esm.min.js is a placeholder. Run scripts/fetch_assets.py to download assets."
     )
 
-for rel in manifest["assets"]:
-    p = ROOT / rel
-    if p.exists() and 'placeholder' in p.read_text(errors='ignore').lower():
-        sys.exit(f"{rel} contains placeholder text. Run scripts/fetch_assets.py to download assets.")
+def _placeholder_files() -> list[Path]:
+    paths: list[Path] = []
+    for sub in ("wasm", "wasm_llm"):
+        root = ROOT / sub
+        if root.exists():
+            for p in root.rglob("*"):
+                if p.is_file() and "placeholder" in p.read_text(errors="ignore").lower():
+                    paths.append(p)
+    return paths
+
+
+placeholders = _placeholder_files()
+if placeholders:
+    print("Detected placeholder assets, running fetch_assets.py...")
+    subprocess.run([sys.executable, str(repo_root / "scripts/fetch_assets.py")], check=True)
+    placeholders = _placeholder_files()
+    if placeholders:
+        sys.exit(f"Placeholder text found in {placeholders[0]}")
+
 
 subprocess.run(["tsc", "--noEmit"], check=True)
 
