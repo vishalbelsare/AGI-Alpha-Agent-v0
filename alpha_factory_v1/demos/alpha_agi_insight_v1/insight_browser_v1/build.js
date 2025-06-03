@@ -131,6 +131,7 @@ async function bundle() {
     entryPoints: ['app.js'],
     bundle: true,
     minify: true,
+    treeShaking: true,
     format: 'esm',
     target: 'es2020',
     outfile: `${OUT_DIR}/insight.bundle.js`,
@@ -228,7 +229,7 @@ async function bundle() {
     ],
   });
   const size = await gzipSize.file(`${OUT_DIR}/insight.bundle.js`);
-  const MAX_GZIP_SIZE = 6 * 1024 * 1024; // 6 MiB
+  const MAX_GZIP_SIZE = 2 * 1024 * 1024; // 2 MiB
   if (size > MAX_GZIP_SIZE) {
     throw new Error(`gzip size ${size} bytes exceeds limit`);
   }

@@ -10,6 +10,7 @@ import shutil
 from pathlib import Path
 from urllib.parse import urlparse
 import ast
+import gzip
 
 
 def _require_node_20() -> None:
@@ -303,3 +304,8 @@ except FileNotFoundError:
     print("[manual_build] node not found; skipping service worker generation", file=sys.stderr)
 except subprocess.CalledProcessError as exc:
     print(f"[manual_build] workbox build failed: {exc}; offline features disabled", file=sys.stderr)
+
+compressed = gzip.compress((dist_dir / "insight.bundle.js").read_bytes())
+MAX_GZIP_SIZE = 2 * 1024 * 1024  # 2 MiB
+if len(compressed) > MAX_GZIP_SIZE:
+    sys.exit(f"gzip size {len(compressed)} bytes exceeds limit")
