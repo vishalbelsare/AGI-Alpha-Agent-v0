@@ -149,3 +149,20 @@ def test_runs_persist_after_reload() -> None:
         count_after = page.evaluate("window.archive.list().then(r=>r.length)")
         assert count_before == count_after and count_before > 0
         browser.close()
+
+
+def test_workers_in_sandbox_iframes() -> None:
+    dist = Path(__file__).resolve().parents[1] / "dist" / "index.html"
+    url = dist.as_uri()
+
+    with sync_playwright() as p:
+        browser = p.chromium.launch()
+        page = browser.new_page()
+        page.goto(url)
+        page.wait_for_selector("#controls")
+        page.wait_for_function("document.querySelectorAll('iframe[sandbox]').length >= 2")
+        frames = page.query_selector_all("iframe[sandbox]")
+        assert len(frames) >= 2
+        for f in frames:
+            assert f.get_attribute("sandbox") == "allow-scripts"
+        browser.close()
