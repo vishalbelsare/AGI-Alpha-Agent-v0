@@ -131,11 +131,11 @@ export function clusterKeywords(
   runs: Array<{ keywords: string[] }>,
   thresh = 0.6,
 ): string[][] {
-  const kwRuns: Record<string, Set<number>> = {};
+  const kwRuns: Record<string, Set<string>> = {};
   runs.forEach((r, i) => {
     for (const k of r.keywords || []) {
       kwRuns[k] = kwRuns[k] || new Set();
-      kwRuns[k].add(i);
+      kwRuns[k].add(String(i));
     }
   });
   const keys = Object.keys(kwRuns);
@@ -161,7 +161,9 @@ export function clusterKeywords(
 
 export async function validateLabel(name: string): Promise<boolean> {
   try {
-    const { chat } = await import('./utils/llm.js');
+    const { chat } = await import(
+      '../alpha_factory_v1/demos/alpha_agi_insight_v1/insight_browser_v1/src/utils/llm.js'
+    );
     const resp = await chat(`Does '${name}' denote a distinct economic activity?`);
     return /^yes/i.test(String(resp).trim());
   } catch {

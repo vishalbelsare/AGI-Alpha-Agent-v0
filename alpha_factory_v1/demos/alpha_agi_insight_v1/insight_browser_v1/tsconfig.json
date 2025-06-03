@@ -3,7 +3,7 @@
     "target": "ES2022",
     "module": "esnext",
     "strict": true,
-    "noImplicitAny": false,
+    "noImplicitAny": true,
     "moduleResolution": "node",
     "baseUrl": "./",
     "paths": {
