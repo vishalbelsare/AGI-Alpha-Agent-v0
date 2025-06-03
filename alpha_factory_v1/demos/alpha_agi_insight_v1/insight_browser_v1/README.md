@@ -141,6 +141,9 @@ extraction for a brief walkthrough.
   `{type:'gpu', available:<flag>}` message to the evolver worker which
   forwards the flag to mutation functions.
 
+  Set `localStorage.setItem('USE_GPU','1')` to force the GPU backend when
+  WebGPU is available.
+
 Drag a previously exported JSON state onto the drop zone to restore a
 simulation.
 
@@ -171,6 +174,8 @@ Anonymous telemetry is optional. On first use a random ID is generated and
 hashed with SHA-256 using the static salt `"insight"`. Only this salted hash and
 basic usage metrics are sent to the OTLP endpoint. Clearing browser storage
 resets the identifier.
+
+Use the **Analytics** panel to enable or disable telemetry at any time.
 
 See **Environment Setup** above for the list of supported variables.
 
