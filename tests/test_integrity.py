@@ -39,3 +39,15 @@ def test_workbox_sri() -> None:
     sri = integrity.group(1)
     expected = json.loads((BROWSER / "build_assets.json").read_text())["checksums"]["lib/workbox-sw.js"]
     assert sri == expected and "placeholder" not in sri.lower(), "integrity mismatch"
+
+
+def test_csp_meta_tag() -> None:
+    index_file = BROWSER / "dist/index.html"
+    html = index_file.read_text()
+    match = re.search(r'<meta[^>]*http-equiv=["\']Content-Security-Policy["\'][^>]*>', html)
+    assert match, "Content Security Policy meta tag missing"
+    tag = match.group(0)
+    content = re.search(r'content="([^"]+)"', tag)
+    assert content, "content attribute missing"
+    policy = content.group(1)
+    assert "script-src 'self' 'wasm-unsafe-eval'" in policy, "CSP missing script-src 'self' 'wasm-unsafe-eval'"
