@@ -985,6 +985,24 @@ docker run -p 16686:16686 -p 4317:4317 jaegertracing/all-in-one
 Set ``OTEL_ENDPOINT`` to enable anonymous dashboard telemetry. Users are
 prompted for consent before any metrics are sent.
 
+### Telemetry Queue
+Anonymous usage metrics are buffered in the browser under the
+`telemetryQueue` key in `localStorage`. Each record includes:
+
+- `ts` – the timestamp when the entry was recorded.
+- `session` – a deterministic SHA‑256 hash identifying the session.
+- `generations` – how many runs were executed.
+- `shares` – how many times results were shared.
+
+When the browser is online the queue is flushed to ``OTEL_ENDPOINT`` using
+`navigator.sendBeacon` with a `fetch` fallback. The queue holds at most 100
+entries and is persisted across page loads until sent. No personal data or IP
+addresses are stored.
+
+Telemetry can be disabled from the Analytics panel by clicking **Disable
+telemetry**. Clearing the `telemetryConsent` and `telemetryQueue` entries in
+browser storage also stops all transmissions.
+
 ---
 
 <a name="10-safety--security"></a>
