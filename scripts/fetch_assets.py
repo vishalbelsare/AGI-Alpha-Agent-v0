@@ -23,12 +23,13 @@ ASSETS = {
     # Web3.Storage bundle
     "lib/bundle.esm.min.js": "bafybeibundlecidreplace",
     # Workbox runtime
-    "lib/workbox-sw.js": "bafybeiwbxplaceholder",
+    "lib/workbox-sw.js": "https://storage.googleapis.com/workbox-cdn/releases/6.5.4/workbox-sw.js",
 }
 
 CHECKSUMS = {
     "lib/bundle.esm.min.js": "sha384-HCq3AUAghBODOAg7+u+o8u2pKjENSb3YGAjRfL6TZgAY49LXzq1SaOwNtQmWsIax",
-    "lib/workbox-sw.js": "sha384-LWo7skrGueg8Fa4y2Vpe1KB4g0SifqKfDr2gWFRmzZF9n9F1bQVo1F0dUurlkBJo",
+    # TODO: replace with actual SHA-384 digest of Workbox 6.5.4
+    "lib/workbox-sw.js": "sha384-REPLACE_WITH_REAL_DIGEST",
     "pyodide.asm.wasm": "sha384-kdvSehcoFMjX55sjg+o5JHaLhOx3HMkaLOwwMFmwH+bmmtvfeJ7zFEMWaqV9+wqo",
 }
 
@@ -43,7 +44,7 @@ def _session() -> requests.Session:
 
 
 def download(cid: str, path: Path, fallback: str | None = None) -> None:
-    url = f"{GATEWAY}/{cid}"
+    url = cid if cid.startswith("http") else f"{GATEWAY}/{cid}"
     path.parent.mkdir(parents=True, exist_ok=True)
     try:
         with _session().get(url, timeout=60) as resp:

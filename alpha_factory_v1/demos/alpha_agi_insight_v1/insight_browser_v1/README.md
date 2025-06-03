@@ -59,6 +59,8 @@ This downloads the Pyodide runtime and `wasm-gpt2` model from IPFS into
 It also retrieves `lib/bundle.esm.min.js` from the mirror. The build and
 `manual_build.py` scripts scan every downloaded asset for the word
 `"placeholder"` and abort when any file still contains that marker.
+`scripts/fetch_assets.py` also downloads `lib/workbox-sw.js` from
+Workbox 6.5.4 so the service worker can operate offline.
 Run `scripts/fetch_assets.py` if you encounter this error.
 ```bash
 PINNER_TOKEN=<token> npm start
