@@ -110,6 +110,14 @@ Follow these steps when building without internet access:
 
 Failing to replace placeholders will break offline mode.
 
+### Offline build checklist
+
+1. Run `python ../../../scripts/fetch_assets.py`.
+2. Confirm no placeholder text remains in `lib/` or `wasm*/`.
+3. Execute `npm run build` or `python manual_build.py`.
+
+Failing to run the fetch script leaves offline mode disabled.
+
 ### Fetching Assets Offline
 
 Set `WEB3_STORAGE_TOKEN` before running the helper script:
