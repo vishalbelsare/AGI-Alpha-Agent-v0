@@ -247,14 +247,14 @@ if wasm_llm_dir.exists():
 # generate service worker
 sw_src = ROOT / "sw.js"
 sw_dest = dist_dir / "sw.js"
-node_script = f"""
+  node_script = f"""
 const {{injectManifest}} = require('workbox-build');
 injectManifest({{
   swSrc: {json.dumps(str(sw_src))},
   swDest: {json.dumps(str(sw_dest))},
   globDirectory: {json.dumps(str(dist_dir))},
   importWorkboxFrom: 'disabled',
-  globPatterns: {json.dumps(manifest["precache"])},
+  globPatterns: {json.dumps(manifest["precache"] + ["insight_browser_quickstart.pdf"])},
 }}).catch(err => {{console.error(err); process.exit(1);}});
 """
 try:
