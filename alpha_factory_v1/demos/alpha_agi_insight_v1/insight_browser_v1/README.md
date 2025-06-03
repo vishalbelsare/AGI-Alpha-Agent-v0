@@ -73,11 +73,11 @@ If `OPENAI_API_KEY` is saved in `localStorage`, the demo uses the OpenAI API for
 chat prompts. When the key is absent a lightweight GPT‑2 model under
 `wasm_llm/` runs locally.
 
-Open `index.html` directly in your browser or pin the folder to IPFS
-(`ipfs add -r insight_browser_v1`) and share the CID.
+Open `index.html` directly or pin the built `dist/` directory to IPFS
+(`ipfs add -r dist`) and share the CID.
 The URL fragment encodes parameters such as `#/s=42&p=120&g=80`.
 
-See `docs/insight_browser_quickstart.pdf` for a short walkthrough. The
+See [docs/insight_browser_quickstart.pdf](docs/insight_browser_quickstart.pdf) for a short walkthrough. The
 build script copies this file to `dist/insight_browser_quickstart.pdf` so
 the guide is available alongside `dist/index.html`.
 
@@ -87,6 +87,7 @@ Use `manual_build.py` for air‑gapped environments:
 1. `cp .env.sample .env` and edit the values if you haven't already.
 2. `python ../../../scripts/fetch_assets.py` to fetch Pyodide and the GPT‑2 model.
    The build scripts verify these files no longer contain the word `"placeholder"`.
+   Failing to replace placeholders will break offline mode.
 3. Confirm `node --version` reports **v20** or newer. `manual_build.py` exits if
    Node.js is missing or too old.
 4. `python manual_build.py` – bundles the app, generates `dist/sw.js` and embeds
@@ -97,15 +98,17 @@ The script requires Python ≥3.11. It loads `.env` automatically and injects
 `PINNER_TOKEN`, `OPENAI_API_KEY`, `IPFS_GATEWAY` and `OTEL_ENDPOINT` into
 `dist/index.html`, mirroring `npm run build`.
 
-### Offline Build Steps
+### Offline Build
 
-When building without internet access:
+Follow these steps when building without internet access:
 
-1. Ensure `.env` defines `WEB3_STORAGE_TOKEN`, `PINNER_TOKEN`, `IPFS_GATEWAY`
-   and `OTEL_ENDPOINT`.
-2. Run `python ../../../scripts/fetch_assets.py` to download the wasm assets.
-3. Execute `python manual_build.py` to generate the PWA in `dist/`.
-4. Launch with `npm start` or open `dist/index.html` directly in your browser.
+1. Run `python ../../../scripts/fetch_assets.py`.
+2. Verify checksums match `build_assets.json`.
+3. Confirm no files under `wasm/` or `lib/` contain the word "placeholder".
+4. Execute `python manual_build.py` to generate the PWA in `dist/`.
+5. Launch with `npm start` or pin the directory with `ipfs add -r dist`.
+
+Failing to replace placeholders will break offline mode.
 
 ### Fetching Assets Offline
 
