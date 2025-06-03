@@ -2,10 +2,14 @@
 // SPDX-License-Identifier: Apache-2.0
 import { promises as fs } from 'fs';
 import fsSync from 'fs';
-import { execSync, spawnSync } from 'child_process';
+import { execSync } from 'child_process';
 import { createHash } from 'crypto';
 import path from 'path';
 import { fileURLToPath } from 'url';
+
+const manifest = JSON.parse(
+  fsSync.readFileSync(new URL('./build_assets.json', import.meta.url), 'utf8')
+);
 
 const [major] = process.versions.node.split('.').map(Number);
 if (major < 20) {
@@ -56,54 +60,8 @@ async function ensureWeb3Bundle() {
   }
 }
 
-function assetPaths() {
-  const py = `import ast, json, pathlib
-txt = pathlib.Path('scripts/fetch_assets.py').read_text()
-tree = ast.parse(txt)
-assets = {}
-for node in tree.body:
-    if isinstance(node, ast.Assign):
-        for t in node.targets:
-            if getattr(t, 'id', None) == 'ASSETS':
-                assets = ast.literal_eval(node.value)
-print(json.dumps(list(assets.keys())))`;
-  const proc = spawnSync('python', ['-'], {
-    input: py,
-    cwd: repoRoot,
-    encoding: 'utf8',
-  });
-  if (proc.error) throw proc.error;
-  if (proc.status !== 0) {
-    throw new Error(proc.stderr);
-  }
-  return JSON.parse(proc.stdout.trim());
-}
-
-function expectedChecksums() {
-  const py = `import ast, json, pathlib
-txt = pathlib.Path('scripts/fetch_assets.py').read_text()
-tree = ast.parse(txt)
-checks = {}
-for node in tree.body:
-    if isinstance(node, ast.Assign):
-        for t in node.targets:
-            if getattr(t, 'id', None) == 'CHECKSUMS':
-                checks = ast.literal_eval(node.value)
-print(json.dumps(checks))`;
-  const proc = spawnSync('python', ['-'], {
-    input: py,
-    cwd: repoRoot,
-    encoding: 'utf8',
-  });
-  if (proc.error) throw proc.error;
-  if (proc.status !== 0) {
-    throw new Error(proc.stderr);
-  }
-  return JSON.parse(proc.stdout.trim());
-}
-
 function ensureAssets() {
-  for (const rel of assetPaths()) {
+  for (const rel of manifest.assets) {
     const p = path.join(path.dirname(scriptPath), rel);
     if (!fsSync.existsSync(p)) continue;
     const data = fsSync.readFileSync(p, 'utf8');
@@ -119,7 +77,6 @@ async function bundle() {
   const html = await fs.readFile('index.html', 'utf8');
   await ensureWeb3Bundle();
   ensureAssets();
-  const checksums = expectedChecksums();
   const ipfsOrigin = process.env.IPFS_GATEWAY
     ? new URL(process.env.IPFS_GATEWAY).origin
     : '';
@@ -159,29 +116,30 @@ async function bundle() {
     /<meta[^>]*http-equiv="Content-Security-Policy"[^>]*>/,
     `<meta http-equiv="Content-Security-Policy" content="${csp}" />`
   );
-  await fs.copyFile('d3.v7.min.js', `${OUT_DIR}/d3.v7.min.js`);
-  await fs.copyFile('lib/bundle.esm.min.js', `${OUT_DIR}/bundle.esm.min.js`);
-  await fs.copyFile('lib/pyodide.js', `${OUT_DIR}/pyodide.js`);
-  await fs.copyFile('lib/workbox-sw.js', `${OUT_DIR}/workbox-sw.js`);
-  await fs.mkdir(`${OUT_DIR}/src/utils`, { recursive: true });
-  await fs.copyFile('src/utils/rng.js', `${OUT_DIR}/src/utils/rng.js`);
-  await fs.mkdir(`${OUT_DIR}/src/i18n`, { recursive: true });
-  for (const f of await fs.readdir('src/i18n')) {
-    await fs.copyFile(`src/i18n/${f}`, `${OUT_DIR}/src/i18n/${f}`);
+  for (const rel of manifest.files) {
+    const dest = path.join(OUT_DIR, rel);
+    await fs.mkdir(path.dirname(dest), { recursive: true });
+    await fs.copyFile(rel, dest).catch(() => {});
   }
-  await fs.copyFile('sw.js', `${OUT_DIR}/sw.js`).catch(() => {});
-  await fs.copyFile('manifest.json', `${OUT_DIR}/manifest.json`).catch(() => {});
-  await fs.copyFile('favicon.svg', `${OUT_DIR}/favicon.svg`).catch(() => {});
-  const pdfSrc = path.join(repoRoot, 'docs', 'insight_browser_quickstart.pdf');
+  const pdfSrc = path.join(repoRoot, manifest.quickstart_pdf);
   if (fsSync.existsSync(pdfSrc)) {
-    await fs.copyFile(pdfSrc, `${OUT_DIR}/insight_browser_quickstart.pdf`);
+    await fs.copyFile(pdfSrc, path.join(OUT_DIR, path.basename(pdfSrc)));
   }
-  await fs.mkdir(`${OUT_DIR}/data/critics`, { recursive: true });
+  const i18nDir = manifest.dirs.translations;
+  await fs.mkdir(path.join(OUT_DIR, i18nDir), { recursive: true });
+  for (const f of await fs.readdir(i18nDir)) {
+    await fs.copyFile(
+      path.join(i18nDir, f),
+      path.join(OUT_DIR, i18nDir, f)
+    );
+  }
+  const criticsSrc = path.join(repoRoot, manifest.dirs.critics);
+  await fs.mkdir(path.join(OUT_DIR, manifest.dirs.critics), { recursive: true });
   try {
-    for (const f of await fs.readdir('../../../../data/critics')) {
+    for (const f of await fs.readdir(criticsSrc)) {
       await fs.copyFile(
-        `../../../../data/critics/${f}`,
-        `${OUT_DIR}/data/critics/${f}`
+        path.join(criticsSrc, f),
+        path.join(OUT_DIR, manifest.dirs.critics, f)
       );
     }
   } catch {}
@@ -198,7 +156,17 @@ async function bundle() {
     process.env.IPFS_GATEWAY || ''
   )};</script>`;
 
-  const wasmBase64 = fsSync.readFileSync('wasm/pyodide.asm.wasm').toString('base64');
+  const wasmPath = 'wasm/pyodide.asm.wasm';
+  const wasmBuf = fsSync.readFileSync(wasmPath);
+  const wasmBase64 = wasmBuf.toString('base64');
+  const expected = manifest.checksums['pyodide.asm.wasm'];
+  if (expected) {
+    const actual =
+      'sha384-' + createHash('sha384').update(wasmBuf).digest('base64');
+    if (actual !== expected) {
+      throw new Error('Checksum mismatch for pyodide.asm.wasm');
+    }
+  }
   let gpt2Base64 = '';
   try {
     gpt2Base64 = fsSync.readFileSync('wasm_llm/wasm-gpt2.tar').toString('base64');
@@ -213,20 +181,22 @@ async function bundle() {
     `<script src="pyodide.js" integrity="${pyodideSri}" crossorigin="anonymous"></script>\n` +
     `${envScript}\n</body>`
   );
+  for (const dirKey of ['wasm', 'wasm_llm']) {
+    const dir = manifest.dirs[dirKey];
+    if (fsSync.existsSync(dir)) {
+      await fs.mkdir(path.join(OUT_DIR, dir), { recursive: true });
+      for (const f of await fs.readdir(dir)) {
+        await fs.copyFile(path.join(dir, f), path.join(OUT_DIR, dir, f));
+      }
+    }
+  }
   await fs.writeFile(`${OUT_DIR}/index.html`, outHtml);
   await injectManifest({
     swSrc: 'sw.js',
     swDest: `${OUT_DIR}/sw.js`,
     globDirectory: OUT_DIR,
     importWorkboxFrom: 'disabled',
-    globPatterns: [
-      'index.html',
-      'insight.bundle.js',
-      'd3.v7.min.js',
-      'pyodide.*',
-      'data/critics/*',
-      'src/i18n/*.json',
-    ],
+    globPatterns: manifest.precache,
   });
   const size = await gzipSize.file(`${OUT_DIR}/insight.bundle.js`);
   const MAX_GZIP_SIZE = 2 * 1024 * 1024; // 2 MiB

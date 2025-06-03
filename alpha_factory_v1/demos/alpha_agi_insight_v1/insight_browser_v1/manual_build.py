@@ -9,7 +9,6 @@ import sys
 import shutil
 from pathlib import Path
 from urllib.parse import urlparse
-import ast
 import gzip
 
 
@@ -54,13 +53,14 @@ def sha384(path: Path) -> str:
 ROOT = Path(__file__).resolve().parent
 ALIAS_PREFIX = "@insight-src/"
 repo_root = Path(__file__).resolve()
-for _ in range(4):
+for _ in range(5):
     repo_root = repo_root.parent
 ALIAS_TARGET = repo_root / "src"
 index_html = ROOT / "index.html"
 dist_dir = ROOT / "dist"
 lib_dir = ROOT / "lib"
-quickstart_pdf = repo_root / "docs" / "insight_browser_quickstart.pdf"
+manifest = json.loads((ROOT / "build_assets.json").read_text())
+quickstart_pdf = repo_root / manifest["quickstart_pdf"]
 
 bundle_path = lib_dir / "bundle.esm.min.js"
 try:
@@ -74,32 +74,7 @@ if "Placeholder for web3.storage bundle.esm.min.js" in data:
         "lib/bundle.esm.min.js is a placeholder. Run scripts/fetch_assets.py to download assets."
     )
 
-def _asset_paths() -> list[str]:
-    fetch = repo_root / 'scripts' / 'fetch_assets.py'
-    tree = ast.parse(fetch.read_text())
-    assets = {}
-    for node in tree.body:
-        if isinstance(node, ast.Assign):
-            for t in node.targets:
-                if getattr(t, 'id', None) == 'ASSETS':
-                    assets = ast.literal_eval(node.value)
-                    break
-    return list(assets)
-
-
-def _expected_checksums() -> dict[str, str]:
-    fetch = repo_root / 'scripts' / 'fetch_assets.py'
-    tree = ast.parse(fetch.read_text())
-    checks: dict[str, str] = {}
-    for node in tree.body:
-        if isinstance(node, ast.Assign):
-            for t in node.targets:
-                if getattr(t, 'id', None) == 'CHECKSUMS':
-                    checks = ast.literal_eval(node.value)
-                    break
-    return checks
-
-for rel in _asset_paths():
+for rel in manifest["assets"]:
     p = ROOT / rel
     if p.exists() and 'placeholder' in p.read_text(errors='ignore').lower():
         sys.exit(f"{rel} contains placeholder text. Run scripts/fetch_assets.py to download assets.")
@@ -195,19 +170,10 @@ out_html = re.sub(
 )
 
 # copy assets
-for src, dest in [
-    ("d3.v7.min.js", "d3.v7.min.js"),
-    ("lib/bundle.esm.min.js", "bundle.esm.min.js"),
-    ("lib/pyodide.js", "pyodide.js"),
-    ("lib/workbox-sw.js", "workbox-sw.js"),
-    ("src/utils/rng.js", "src/utils/rng.js"),
-    ("sw.js", "sw.js"),
-    ("manifest.json", "manifest.json"),
-    ("favicon.svg", "favicon.svg"),
-]:
-    src_path = ROOT / src if isinstance(src, str) else src
+for rel in manifest["files"]:
+    src_path = ROOT / rel
     if src_path.exists():
-        target = dist_dir / dest
+        target = dist_dir / rel
         target.parent.mkdir(parents=True, exist_ok=True)
         target.write_bytes(src_path.read_bytes())
 
@@ -216,17 +182,17 @@ if quickstart_pdf.exists():
     (dist_dir / quickstart_pdf.name).write_bytes(quickstart_pdf.read_bytes())
 
 # copy translations
-translations = ROOT / "src" / "i18n"
+translations = ROOT / manifest["dirs"]["translations"]
 if translations.exists():
     for f in translations.iterdir():
         if f.is_file():
-            target = dist_dir / "src" / "i18n" / f.name
+            target = dist_dir / manifest["dirs"]["translations"] / f.name
             target.parent.mkdir(parents=True, exist_ok=True)
             target.write_bytes(f.read_bytes())
 
 # copy critic examples
-critics_src = ROOT.parents[3] / "data" / "critics"
-critics_dst = dist_dir / "data" / "critics"
+critics_src = repo_root / manifest["dirs"]["critics"]
+critics_dst = dist_dir / manifest["dirs"]["critics"]
 if critics_src.exists():
     critics_dst.mkdir(parents=True, exist_ok=True)
     for f in critics_src.iterdir():
@@ -235,7 +201,7 @@ if critics_src.exists():
 app_sri = sha384(dist_dir / "insight.bundle.js")
 bundle_sri = sha384(dist_dir / "bundle.esm.min.js")
 pyodide_sri = sha384(dist_dir / "pyodide.js")
-checksums = _expected_checksums()
+checksums = manifest["checksums"]
 out_html = out_html.replace(
     app_sri_placeholder,
     f'<script type="module" src="insight.bundle.js" integrity="{app_sri}" crossorigin="anonymous"></script>',
@@ -255,26 +221,28 @@ out_html = out_html.replace(
     f"{env_script}\n</body>",
 )
 
-if (ROOT / "wasm").exists():
-    (dist_dir / "wasm").mkdir(exist_ok=True)
-    for f in (ROOT / "wasm").iterdir():
-        (dist_dir / "wasm" / f.name).write_bytes(f.read_bytes())
-    wasm_sri = sha384(dist_dir / "wasm" / "pyodide.asm.wasm")
+wasm_dir = ROOT / manifest["dirs"]["wasm"]
+if wasm_dir.exists():
+    (dist_dir / manifest["dirs"]["wasm"]).mkdir(exist_ok=True)
+    for f in wasm_dir.iterdir():
+        (dist_dir / manifest["dirs"]["wasm"] / f.name).write_bytes(f.read_bytes())
+    wasm_sri = sha384(dist_dir / manifest["dirs"]["wasm"] / "pyodide.asm.wasm")
     expected = checksums.get("pyodide.asm.wasm")
     if expected and expected != wasm_sri:
         sys.exit("Checksum mismatch for pyodide.asm.wasm")
     out_html = out_html.replace(
         "</head>",
-        f'<link rel="preload" href="wasm/pyodide.asm.wasm" as="fetch" type="application/wasm" integrity="{wasm_sri}" crossorigin="anonymous" />\n</head>',
+        f'<link rel="preload" href="{manifest["dirs"]["wasm"]}/pyodide.asm.wasm" as="fetch" type="application/wasm" integrity="{wasm_sri}" crossorigin="anonymous" />\n</head>',
     )
 else:
     wasm_sri = None
 (dist_dir / "index.html").write_text(out_html)
 
-if (ROOT / "wasm_llm").exists():
-    (dist_dir / "wasm_llm").mkdir(exist_ok=True)
-    for f in (ROOT / "wasm_llm").iterdir():
-        (dist_dir / "wasm_llm" / f.name).write_bytes(f.read_bytes())
+wasm_llm_dir = ROOT / manifest["dirs"]["wasm_llm"]
+if wasm_llm_dir.exists():
+    (dist_dir / manifest["dirs"]["wasm_llm"]).mkdir(exist_ok=True)
+    for f in wasm_llm_dir.iterdir():
+        (dist_dir / manifest["dirs"]["wasm_llm"] / f.name).write_bytes(f.read_bytes())
 
 # generate service worker
 sw_src = ROOT / "sw.js"
@@ -286,16 +254,7 @@ injectManifest({{
   swDest: {json.dumps(str(sw_dest))},
   globDirectory: {json.dumps(str(dist_dir))},
   importWorkboxFrom: 'disabled',
-  globPatterns: [
-    'index.html',
-    'insight.bundle.js',
-    'd3.v7.min.js',
-    'pyodide.*',
-    'wasm_llm/*',
-    'wasm/*',
-    'data/critics/*',
-    'src/i18n/*.json',
-  ],
+  globPatterns: {json.dumps(manifest["precache"])},
 }}).catch(err => {{console.error(err); process.exit(1);}});
 """
 try:
