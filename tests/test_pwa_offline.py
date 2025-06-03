@@ -49,3 +49,29 @@ def test_quickstart_pdf_offline() -> None:
     finally:
         server.shutdown()
         thread.join()
+
+
+def test_cache_cleanup_on_activate() -> None:
+    repo = Path(__file__).resolve().parents[1]
+    dist = repo / "alpha_factory_v1/demos/alpha_agi_insight_v1/insight_browser_v1/dist"
+
+    server, thread = _start_server(dist)
+    host, port = server.server_address
+    url = f"http://{host}:{port}"
+    try:
+        with sync_playwright() as p:
+            browser = p.chromium.launch()
+            context = browser.new_context()
+            context.add_init_script("caches.open('legacy-cache')")
+            page = context.new_page()
+            page.goto(url + "/index.html")
+            page.wait_for_selector("#controls")
+            page.wait_for_function("navigator.serviceWorker.controller !== null")
+            names = page.evaluate("caches.keys()")
+            assert "legacy-cache" not in names
+            browser.close()
+    except PlaywrightError as exc:
+        pytest.skip(f"Playwright browser not installed: {exc}")
+    finally:
+        server.shutdown()
+        thread.join()
