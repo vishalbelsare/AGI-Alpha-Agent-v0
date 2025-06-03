@@ -293,10 +293,13 @@ else:
 # generate service worker
 sw_src = ROOT / "sw.js"
 sw_dest = dist_dir / "sw.js"
+pkg_version = json.loads((ROOT / "package.json").read_text())["version"]
+temp_sw = dist_dir / "sw.build.js"
+temp_sw.write_text(sw_src.read_text().replace("__CACHE_VERSION__", pkg_version))
 node_script = f"""
 const {{injectManifest}} = require('workbox-build');
 injectManifest({{
-  swSrc: {json.dumps(str(sw_src))},
+  swSrc: {json.dumps(str(temp_sw))},
   swDest: {json.dumps(str(sw_dest))},
   globDirectory: {json.dumps(str(dist_dir))},
   importWorkboxFrom: 'disabled',
@@ -313,6 +316,8 @@ except subprocess.CalledProcessError as exc:
         f"[manual_build] workbox build failed: {exc}; offline features disabled",
         file=sys.stderr,
     )
+finally:
+    temp_sw.unlink(missing_ok=True)
 
 check_gzip_size(dist_dir / "insight.bundle.js")
 
