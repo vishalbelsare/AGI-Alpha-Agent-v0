@@ -50,6 +50,53 @@ def sha384(path: Path) -> str:
     return "sha384-" + base64.b64encode(digest).decode()
 
 
+def copy_assets(manifest: dict, repo_root: Path, dist_dir: Path) -> None:
+    for rel in manifest["files"]:
+        src_path = ROOT / rel
+        if src_path.exists():
+            target = dist_dir / rel
+            target.parent.mkdir(parents=True, exist_ok=True)
+            target.write_bytes(src_path.read_bytes())
+
+    quickstart_pdf = repo_root / manifest["quickstart_pdf"]
+    if quickstart_pdf.exists():
+        (dist_dir / quickstart_pdf.name).write_bytes(quickstart_pdf.read_bytes())
+
+    translations = ROOT / manifest["dirs"]["translations"]
+    if translations.exists():
+        for f in translations.iterdir():
+            if f.is_file():
+                target = dist_dir / manifest["dirs"]["translations"] / f.name
+                target.parent.mkdir(parents=True, exist_ok=True)
+                target.write_bytes(f.read_bytes())
+
+    critics_src = repo_root / manifest["dirs"]["critics"]
+    critics_dst = dist_dir / manifest["dirs"]["critics"]
+    if critics_src.exists():
+        critics_dst.mkdir(parents=True, exist_ok=True)
+        for f in critics_src.iterdir():
+            (critics_dst / f.name).write_bytes(f.read_bytes())
+
+    for key in ("wasm", "wasm_llm"):
+        d = ROOT / manifest["dirs"][key]
+        if d.exists():
+            target_dir = dist_dir / manifest["dirs"][key]
+            target_dir.mkdir(exist_ok=True)
+            for f in d.iterdir():
+                (target_dir / f.name).write_bytes(f.read_bytes())
+
+
+def inject_env() -> str:
+    return (
+        "<script>"
+        f'window.PINNER_TOKEN={json.dumps(os.getenv("PINNER_TOKEN", ""))};'
+        f'window.OPENAI_API_KEY={json.dumps(os.getenv("OPENAI_API_KEY", ""))};'
+        f'window.OTEL_ENDPOINT={json.dumps(os.getenv("OTEL_ENDPOINT", ""))};'
+        f'window.IPFS_GATEWAY={json.dumps(os.getenv("IPFS_GATEWAY", ""))};'
+        "</script>"
+    )
+
+
 ROOT = Path(__file__).resolve().parent
 ALIAS_PREFIX = "@insight-src/"
 repo_root = Path(__file__).resolve()
@@ -169,34 +216,7 @@ out_html = re.sub(
     out_html,
 )
 
-# copy assets
-for rel in manifest["files"]:
-    src_path = ROOT / rel
-    if src_path.exists():
-        target = dist_dir / rel
-        target.parent.mkdir(parents=True, exist_ok=True)
-        target.write_bytes(src_path.read_bytes())
-
-# include quickstart PDF
-if quickstart_pdf.exists():
-    (dist_dir / quickstart_pdf.name).write_bytes(quickstart_pdf.read_bytes())
-
-# copy translations
-translations = ROOT / manifest["dirs"]["translations"]
-if translations.exists():
-    for f in translations.iterdir():
-        if f.is_file():
-            target = dist_dir / manifest["dirs"]["translations"] / f.name
-            target.parent.mkdir(parents=True, exist_ok=True)
-            target.write_bytes(f.read_bytes())
-
-# copy critic examples
-critics_src = repo_root / manifest["dirs"]["critics"]
-critics_dst = dist_dir / manifest["dirs"]["critics"]
-if critics_src.exists():
-    critics_dst.mkdir(parents=True, exist_ok=True)
-    for f in critics_src.iterdir():
-        (critics_dst / f.name).write_bytes(f.read_bytes())
+copy_assets(manifest, repo_root, dist_dir)
 
 app_sri = sha384(dist_dir / "insight.bundle.js")
 bundle_sri = sha384(dist_dir / "bundle.esm.min.js")
@@ -206,14 +226,7 @@ out_html = out_html.replace(
     app_sri_placeholder,
     f'<script type="module" src="insight.bundle.js" integrity="{app_sri}" crossorigin="anonymous"></script>',
 )
-env_script = (
-    "<script>"
-    f'window.PINNER_TOKEN={json.dumps(os.getenv("PINNER_TOKEN", ""))};'
-    f'window.OPENAI_API_KEY={json.dumps(os.getenv("OPENAI_API_KEY", ""))};'
-    f'window.OTEL_ENDPOINT={json.dumps(os.getenv("OTEL_ENDPOINT", ""))};'
-    f'window.IPFS_GATEWAY={json.dumps(os.getenv("IPFS_GATEWAY", ""))};'
-    "</script>"
-)
+env_script = inject_env()
 out_html = out_html.replace(
     "</body>",
     f'<script src="bundle.esm.min.js" integrity="{bundle_sri}" crossorigin="anonymous"></script>\n'
@@ -223,9 +236,6 @@ out_html = out_html.replace(
 
 wasm_dir = ROOT / manifest["dirs"]["wasm"]
 if wasm_dir.exists():
-    (dist_dir / manifest["dirs"]["wasm"]).mkdir(exist_ok=True)
-    for f in wasm_dir.iterdir():
-        (dist_dir / manifest["dirs"]["wasm"] / f.name).write_bytes(f.read_bytes())
     wasm_sri = sha384(dist_dir / manifest["dirs"]["wasm"] / "pyodide.asm.wasm")
     expected = checksums.get("pyodide.asm.wasm")
     if expected and expected != wasm_sri:
@@ -238,11 +248,7 @@ else:
     wasm_sri = None
 (dist_dir / "index.html").write_text(out_html)
 
-wasm_llm_dir = ROOT / manifest["dirs"]["wasm_llm"]
-if wasm_llm_dir.exists():
-    (dist_dir / manifest["dirs"]["wasm_llm"]).mkdir(exist_ok=True)
-    for f in wasm_llm_dir.iterdir():
-        (dist_dir / manifest["dirs"]["wasm_llm"] / f.name).write_bytes(f.read_bytes())
+
 
 # generate service worker
 sw_src = ROOT / "sw.js"
