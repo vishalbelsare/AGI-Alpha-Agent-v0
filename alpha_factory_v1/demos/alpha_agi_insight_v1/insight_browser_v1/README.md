@@ -119,7 +119,9 @@ Drag a previously exported JSON state onto the drop zone to restore a
 simulation.
 
 ## Darwin-Archive
-Every completed run is stored locally using IndexedDB. The **Evolution** panel
+Every completed run is stored locally using IndexedDB. When storage access is
+unavailable, the archive falls back to an in-memory store and data is lost on
+refresh. The **Evolution** panel
 lists archived runs with their score and novelty. Click **Re-spawn** next to a
 row to restart the simulation using that seed.
 

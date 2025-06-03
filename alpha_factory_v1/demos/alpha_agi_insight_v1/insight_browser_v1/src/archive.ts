@@ -23,6 +23,7 @@ export interface EvaluatorRecord {
 export class Archive {
   private runStore;
   private evalStore;
+  private disabled = false;
   constructor(private name = 'insight-archive') {
     this.runStore = createStore(this.name, 'runs');
     this.evalStore = createStore(this.name, 'evals');
@@ -31,6 +32,12 @@ export class Archive {
   async open(): Promise<void> {
     await this.runStore.dbp;
     await this.evalStore.dbp;
+    if (!this.disabled && (this.runStore.memory || this.evalStore.memory)) {
+      this.disabled = true;
+      if (typeof (window as any).toast === 'function') {
+        (window as any).toast('Archive disabled (no storage access)');
+      }
+    }
   }
 
   private _vector(front: any[]): [number, number] {
