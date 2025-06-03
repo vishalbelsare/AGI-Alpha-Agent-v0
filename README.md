@@ -29,6 +29,11 @@ Strategic Edge:
 
 ### Running the Insight Demo
 
+For the browser-based version, see
+[insight_browser_v1/README.md](alpha_factory_v1/demos/alpha_agi_insight_v1/insight_browser_v1/README.md).
+It requires **Node.js ≥20** and building the static assets with
+`npm run build` before launching.
+
 The α‑AGI Insight demo ships with an offline‑friendly command line interface.
 After installation, launch the official demo via:
 
