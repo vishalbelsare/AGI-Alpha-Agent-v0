@@ -261,6 +261,7 @@ injectManifest({{
   globDirectory: {json.dumps(str(dist_dir))},
   importWorkboxFrom: 'disabled',
   globPatterns: {json.dumps(manifest["precache"] + ["insight_browser_quickstart.pdf"])},
+  injectionPoint: 'self.__WB_MANIFEST',
 }}).catch(err => {{console.error(err); process.exit(1);}});
 """
 try:

@@ -154,6 +154,7 @@ async function bundle() {
     globDirectory: OUT_DIR,
     importWorkboxFrom: 'disabled',
     globPatterns: [...manifest.precache, 'insight_browser_quickstart.pdf'],
+    injectionPoint: 'self.__WB_MANIFEST',
   });
   const size = await gzipSize.file(`${OUT_DIR}/insight.bundle.js`);
   const MAX_GZIP_SIZE = 2 * 1024 * 1024; // 2 MiB
