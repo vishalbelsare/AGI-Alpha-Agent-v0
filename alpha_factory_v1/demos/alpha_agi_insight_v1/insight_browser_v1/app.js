@@ -31,6 +31,7 @@ let current,rand,pop,gen,svg,view,info,running=true
 let worker
 let telemetry
 let fpsStarted=false;
+let workerStart=0;
 let archive,evolutionPanel,powerPanel,analyticsPanel;
 let arenaPanel,debateWorker,debateTarget;
 function toast(msg) {
@@ -109,6 +110,7 @@ function start(p){
   }
   worker.onmessage=ev=>{
     if(ev.data.toast){toast(ev.data.toast);return}
+    if(analyticsPanel) analyticsPanel.recordWorkerTime(performance.now()-workerStart)
     pop=ev.data.pop;rand.set(ev.data.rngState);requestAnimationFrame(step)
   }
   step()
@@ -148,6 +150,7 @@ function step(){
     scale=0.5
   }
   telemetry.recordRun(1)
+  workerStart=performance.now()
   worker.postMessage({pop,rngState:rand.state(),mutations:current.mutations,popSize:current.pop,gen,adaptive:current.adaptive,sigmaScale:scale})
 }
 
@@ -208,6 +211,7 @@ function loadState(text){
     }
     worker.onmessage=ev=>{
       if(ev.data.toast){toast(ev.data.toast);return}
+      if(analyticsPanel) analyticsPanel.recordWorkerTime(performance.now()-workerStart)
       pop=ev.data.pop;rand.set(ev.data.rngState);requestAnimationFrame(step)
     }
     step()
