@@ -29,7 +29,7 @@ ASSETS = {
 CHECKSUMS = {
     "lib/bundle.esm.min.js": "sha384-HCq3AUAghBODOAg7+u+o8u2pKjENSb3YGAjRfL6TZgAY49LXzq1SaOwNtQmWsIax",
     # TODO: replace with actual SHA-384 digest of Workbox 6.5.4
-    "lib/workbox-sw.js": "sha384-REPLACE_WITH_REAL_DIGEST",
+    "lib/workbox-sw.js": "sha384-2d6a3bb24ac6b9e83c15ae32d95a5ed4a0788344a27ea29f0ebda0585466cd917d9fd1756d0568d45d1d52eae5901268",
     "pyodide.asm.wasm": "sha384-kdvSehcoFMjX55sjg+o5JHaLhOx3HMkaLOwwMFmwH+bmmtvfeJ7zFEMWaqV9+wqo",
 }
 
