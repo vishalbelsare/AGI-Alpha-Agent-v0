@@ -51,7 +51,10 @@ def generate_proof(transcript_path: str | Path, agent_hash: str, score: Sequence
     if not _find_entry(transcript, agent_hash, score):
         raise ValueError("entry not found in transcript")
     transcript_hash = hashlib.sha256(transcript.read_bytes()).hexdigest()
-    blob = json.dumps({"hash": agent_hash, "score": list(score), "transcript": transcript_hash}, separators=(",", ":")).encode()
+    blob = json.dumps(
+        {"hash": agent_hash, "score": list(score), "transcript": transcript_hash},
+        separators=(",", ":"),
+    ).encode()
     return hashlib.sha256(blob).hexdigest()
 
 

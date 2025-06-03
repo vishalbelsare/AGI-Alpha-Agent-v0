@@ -38,7 +38,8 @@ def main() -> int:
             if wheelhouse:
                 extra = f"--no-index --find-links {wheelhouse} "
             sys.stderr.write(
-                f"requirements.lock is outdated. Run 'pip-compile {extra}--quiet requirements.txt -o requirements.lock'\n"
+                f"requirements.lock is outdated. Run 'pip-compile {extra}--quiet "
+                "requirements.txt -o requirements.lock'\n"
             )
             return 1
     return 0

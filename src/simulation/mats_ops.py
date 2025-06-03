@@ -15,7 +15,12 @@ MEME_USAGE: dict[str, int] = {}
 class GaussianParam:
     """Add Gaussian noise to numeric genomes within bounds."""
 
-    def __init__(self, std: float = 0.1, bounds: tuple[float, float] = (-1.0, 1.0), rng: random.Random | None = None) -> None:
+    def __init__(
+        self,
+        std: float = 0.1,
+        bounds: tuple[float, float] = (-1.0, 1.0),
+        rng: random.Random | None = None,
+    ) -> None:
         self.std = std
         self.bounds = bounds
         self.rng = rng or random.Random()

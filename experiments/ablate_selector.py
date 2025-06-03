@@ -56,7 +56,11 @@ def _run(strategy: str, iterations: int, *, seed: int) -> Tuple[float, float]:
     return best, mean
 
 
-def run(seed: int = 18, iterations: int = 50, csv_path: str | Path = "selector_ablation.csv") -> Dict[str, Tuple[float, float]]:
+def run(
+    seed: int = 18,
+    iterations: int = 50,
+    csv_path: str | Path = "selector_ablation.csv",
+) -> Dict[str, Tuple[float, float]]:
     results = {
         "v2": _run("v2", iterations, seed=seed),
         "greedy": _run("greedy", iterations, seed=seed),

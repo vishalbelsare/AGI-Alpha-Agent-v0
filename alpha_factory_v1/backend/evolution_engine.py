@@ -309,7 +309,14 @@ class EvolutionEngine:
         self.toolbox.register("mate", tools.cxTwoPoint)
         self.toolbox.register("mutate", tools.mutGaussian, mu=0, sigma=0.2, indpb=0.2)
         self.toolbox.register("select", tools.selTournament, tournsize=self.cfg.tournament_k)
-        self.toolbox.register("evaluate", lambda ind: ( -self.task.evaluate(ind) if self.task.minimize                                                          else self.task.evaluate(ind),))
+        self.toolbox.register(
+            "evaluate",
+            lambda ind: (
+                -self.task.evaluate(ind)
+                if self.task.minimize
+                else self.task.evaluate(ind)
+            ),
+        )
 
     # ---------------------------------------------------------------- Evolution
 

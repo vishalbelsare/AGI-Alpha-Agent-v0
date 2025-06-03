@@ -151,7 +151,15 @@ function step(){
   }
   telemetry.recordRun(1)
   workerStart=performance.now()
-  worker.postMessage({pop,rngState:rand.state(),mutations:current.mutations,popSize:current.pop,gen,adaptive:current.adaptive,sigmaScale:scale})
+  worker.postMessage({
+    pop,
+    rngState: rand.state(),
+    mutations: current.mutations,
+    popSize: current.pop,
+    gen,
+    adaptive: current.adaptive,
+    sigmaScale: scale,
+  })
 }
 
 function togglePause(){

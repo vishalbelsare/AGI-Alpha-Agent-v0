@@ -165,7 +165,13 @@ class Orchestrator:
                     market_agent.MarketAgent(self.bus, self.ledger, backend=backend, island=island),
                     codegen_agent.CodeGenAgent(self.bus, self.ledger, backend=backend, island=island),
                     safety_agent.SafetyGuardianAgent(self.bus, self.ledger, backend=backend, island=island),
-                    memory_agent.MemoryAgent(self.bus, self.ledger, self.settings.memory_path, backend=backend, island=island),
+                    memory_agent.MemoryAgent(
+                        self.bus,
+                        self.ledger,
+                        self.settings.memory_path,
+                        backend=backend,
+                        island=island,
+                    ),
                 ]
             )
         if os.getenv("AGI_SELF_IMPROVE") == "1":

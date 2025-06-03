@@ -241,7 +241,10 @@ class CyberThreatAgent(AgentBase):
         return loop.run_until_complete(self._risk_snapshot())
 
     @tool(
-        description="Generate JSON patch/mitigation plan sequence ordered to maximise risk‑reduction under change‑window constraints."
+        description=(
+            "Generate JSON patch/mitigation plan sequence ordered to "
+            "maximise risk‑reduction under change‑window constraints."
+        )
     )
     def patch_plan(self) -> str:  # noqa: D401
         loop = asyncio.get_event_loop()

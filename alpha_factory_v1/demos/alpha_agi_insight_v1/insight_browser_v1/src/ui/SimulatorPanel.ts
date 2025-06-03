@@ -51,7 +51,13 @@ export async function initSimulatorPanel(
     <label>Pop <input id="sim-pop" type="number" min="1" value="50"></label>
     <label>Gen <input id="sim-gen" type="number" min="1" value="10"></label>
     <label>Rate <input id="sim-rate" type="number" step="0.01" value="1"></label>
-    <label>Heuristic <select id="sim-heur"><option value="none">none</option><option value="llm">llm</option></select></label>
+    <label>
+      Heuristic
+      <select id="sim-heur">
+        <option value="none">none</option>
+        <option value="llm">llm</option>
+      </select>
+    </label>
     <button id="sim-start">Start</button>
     <button id="sim-pause">Pause</button>
     <button id="sim-fork">Fork</button>
@@ -132,7 +138,10 @@ export async function initSimulatorPanel(
       memeRuns.push({ edges });
       await saveMemes(mineMemes(memeRuns));
       frames.push(clone(g.population));
-      const fid = await replay.addFrame(frameIds[frameIds.length - 1] || null, { population: g.population, gen: g.gen });
+      const fid = await replay.addFrame(frameIds[frameIds.length - 1] || null, {
+        population: g.population,
+        gen: g.gen,
+      });
       frameIds.push(fid);
       count = g.gen;
       window.pop = g.population;

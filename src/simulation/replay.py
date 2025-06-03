@@ -156,7 +156,12 @@ def _append_metrics(path: Path, name: str, f1: float, auc: float, lead: float) -
         writer.writerow([name, f1, auc, lead])
 
 
-def score_trajectory(name: str, traj: list[forecast.TrajectoryPoint], *, csv_path: str | Path = "replay_metrics.csv") -> dict[str, float]:
+def score_trajectory(
+    name: str,
+    traj: list[forecast.TrajectoryPoint],
+    *,
+    csv_path: str | Path = "replay_metrics.csv",
+) -> dict[str, float]:
     """Compute metrics for ``traj`` and append them to ``csv_path``."""
     truth: list[bool] = []
     scores: list[float] = []

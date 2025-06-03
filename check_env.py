@@ -104,7 +104,8 @@ def main(argv: Optional[List[str]] = None) -> int:
                 print("Automatic install failed with code", exc.returncode)
                 if any(kw in stderr.lower() for kw in ["connection", "temporary failure", "network", "resolve"]):
                     print(
-                        "Network failure detected. Re-run with '--wheelhouse <path>' or set WHEELHOUSE to install offline packages."
+                        "Network failure detected. Re-run with '--wheelhouse <path>' "
+                        "or set WHEELHOUSE to install offline packages."
                     )
                 return 1
             else:

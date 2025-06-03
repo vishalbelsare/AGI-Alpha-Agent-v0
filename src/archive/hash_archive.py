@@ -14,7 +14,8 @@ from typing import Iterable, List, Tuple
 def _ensure_db(path: Path) -> None:
     with sqlite3.connect(path) as cx:
         cx.execute(
-            "CREATE TABLE IF NOT EXISTS tarballs(id INTEGER PRIMARY KEY AUTOINCREMENT,path TEXT,cid TEXT,pinned INTEGER,ts REAL)"
+            "CREATE TABLE IF NOT EXISTS tarballs("
+            "id INTEGER PRIMARY KEY AUTOINCREMENT,path TEXT,cid TEXT,pinned INTEGER,ts REAL)"
         )
         cx.execute(
             "CREATE TABLE IF NOT EXISTS merkle(date TEXT PRIMARY KEY,root TEXT)"
@@ -66,7 +67,13 @@ class HashArchive:
     def merkle_root(self, date: str | None = None) -> str:
         with sqlite3.connect(self.db_path) as cx:
             if date:
-                rows = [r[0] for r in cx.execute("SELECT cid FROM tarballs WHERE DATE(ts,'unixepoch')=? ORDER BY cid", (date,))]
+                rows = [
+                    r[0]
+                    for r in cx.execute(
+                        "SELECT cid FROM tarballs WHERE DATE(ts,'unixepoch')=? ORDER BY cid",
+                        (date,),
+                    )
+                ]
             else:
                 rows = [r[0] for r in cx.execute("SELECT cid FROM tarballs ORDER BY cid")]
         return self._compute_root(rows)

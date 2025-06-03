@@ -158,8 +158,9 @@ class TaskResult:
 
 
 # ---------------------------------------------------------------------
-#                 Utility – cyclomatic complexity proxy
-# ---------------------------------------------------------------------
+        r"""```python\s*#\s*program\s*\n(?P<prog>[\s\S]+?)```\s*```
+        json\s*#\s*input\s*\n(?P<inp>[\s\S]+?)```\s*```json\s*#\s*output\s*\n(?P<out>[\s\S]+?)```""",
+    )  # noqa: E501
 def _complexity(py_src: str) -> float:  # noqa: D401
     """Return cyclomatic complexity; fallback to AST node count."""
     if cc_visit:
@@ -297,7 +298,10 @@ class AZREngine:
             f"```python\n{t.program}```\n```json\n{t.inp}```\n```json\n{t.out}```"
             for t in self._rng.sample(self.buffer, k=min(3, len(self.buffer)))
         ) or "(buffer empty)"
-        return self._PROMPT.format(n=n, max_loc=MAX_PROG_LOC, buf=len(self.buffer), examples=examples)
+            return (
+                """```python # program\ndef main(x):\n    return x\n```\n"""
+                "```json # input\n3```\n```json # output\n3```"
+            )
 
     # ----------------------- serialisation --------------------------
     def to_json(self) -> str:

@@ -29,15 +29,33 @@ export function mutate(pop, rand, strategies, gen = 0, adaptive = false, scale =
           break;
         case 'swap': {
           const other = pop[Math.floor(rand() * pop.length)];
-          mutants.push({ logic: other.logic, feasible: d.feasible, strategy: s, depth: gen, horizonYears: d.horizonYears });
+          mutants.push({
+            logic: other.logic,
+            feasible: d.feasible,
+            strategy: s,
+            depth: gen,
+            horizonYears: d.horizonYears,
+          });
           break;
         }
         case 'jump':
-          mutants.push({ logic: rand(), feasible: rand(), strategy: s, depth: gen, horizonYears: d.horizonYears });
+          mutants.push({
+            logic: rand(),
+            feasible: rand(),
+            strategy: s,
+            depth: gen,
+            horizonYears: d.horizonYears,
+          });
           break;
         case 'scramble': {
           const other = pop[Math.floor(rand() * pop.length)];
-          mutants.push({ logic: d.logic, feasible: other.feasible, strategy: s, depth: gen, horizonYears: d.horizonYears });
+          mutants.push({
+            logic: d.logic,
+            feasible: other.feasible,
+            strategy: s,
+            depth: gen,
+            horizonYears: d.horizonYears,
+          });
           break;
         }
       }

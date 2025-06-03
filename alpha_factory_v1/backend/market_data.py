@@ -79,7 +79,12 @@ class PolygonMarketData(BaseMarketData):
             self._session = aiohttp.ClientSession(timeout=timeout, headers=headers)
         return self._session
 
-    @backoff.on_exception(backoff.expo, (aiohttp.ClientError, asyncio.TimeoutError), max_tries=5, jitter=backoff.full_jitter)
+    @backoff.on_exception(
+        backoff.expo,
+        (aiohttp.ClientError, asyncio.TimeoutError),
+        max_tries=5,
+        jitter=backoff.full_jitter,
+    )
     async def price(self, symbol: str) -> float:
         symbol = symbol.upper()
         url = self._BASE.format(symbol=symbol, key=self._key)
@@ -121,7 +126,12 @@ class BinanceMarketData(BaseMarketData):
             self._session = aiohttp.ClientSession(timeout=timeout, headers=headers)
         return self._session
 
-    @backoff.on_exception(backoff.expo, (aiohttp.ClientError, asyncio.TimeoutError), max_tries=5, jitter=backoff.full_jitter)
+    @backoff.on_exception(
+        backoff.expo,
+        (aiohttp.ClientError, asyncio.TimeoutError),
+        max_tries=5,
+        jitter=backoff.full_jitter,
+    )
     async def price(self, symbol: str) -> float:
         # Binance expects e.g. BTCUSDT without slash
         symbol = symbol.replace("/", "").upper()
