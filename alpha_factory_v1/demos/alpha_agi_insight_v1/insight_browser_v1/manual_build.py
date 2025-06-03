@@ -266,9 +266,9 @@ out_html = out_html.replace(
     f'<script type="module" src="insight.bundle.js" integrity="{app_sri}" crossorigin="anonymous"></script>',
 )
 env_script = inject_env()
-out_html = re.sub(r'<script[^>]*d3.v7.min.js[^>]*>\s*</script>\n?', '', out_html)
-out_html = re.sub(r'<script[^>]*bundle.esm.min.js[^>]*>\s*</script>\n?', '', out_html)
-out_html = re.sub(r'<script[^>]*pyodide.js[^>]*>\s*</script>\n?', '', out_html)
+out_html = re.sub(r'<script[\s\S]*?d3\.v7\.min\.js[\s\S]*?</script>\s*', '', out_html)
+out_html = re.sub(r'<script[\s\S]*?bundle\.esm\.min\.js[\s\S]*?</script>\s*', '', out_html)
+out_html = re.sub(r'<script[\s\S]*?pyodide\.js[\s\S]*?</script>\s*', '', out_html)
 out_html = out_html.replace(
     "</body>",
     f"{env_script}\n</body>",
