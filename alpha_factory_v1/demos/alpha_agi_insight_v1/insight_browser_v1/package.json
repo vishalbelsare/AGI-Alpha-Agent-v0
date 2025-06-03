@@ -13,7 +13,7 @@
     "size": "gzip-size-cli dist/app.js --bytes",
     "start": "npx serve dist",
     "typecheck": "tsc --noEmit",
-    "test": "node --loader ts-node/register --test tests/entropy.test.js"
+    "test": "node --loader ts-node/register --test tests/entropy.test.js tests/replay_cid.test.js"
   },
   "devDependencies": {
     "esbuild": "^0.20.0",
