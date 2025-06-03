@@ -64,3 +64,16 @@ test('add generates unique ids', async () => {
   const runs = await a.list();
   expect(runs.length).toBe(2);
 });
+
+test('in-memory fallback triggers toast', async () => {
+  const orig = global.indexedDB;
+  delete global.indexedDB;
+  window.toast = jest.fn();
+  const a = new Archive('jest');
+  await a.open();
+  expect(window.toast).toHaveBeenCalledWith('Archive disabled (no storage access)');
+  await a.add(3, {}, []);
+  const runs = await a.list();
+  expect(runs.length).toBe(1);
+  global.indexedDB = orig;
+});
