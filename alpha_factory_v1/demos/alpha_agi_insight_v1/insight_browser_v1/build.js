@@ -151,9 +151,9 @@ async function bundle() {
   bundleText = `${d3Code}\n${web3Code}\n${pyCode}\nwindow.PYODIDE_WASM_BASE64='${wasmBase64}';window.GPT2_MODEL_BASE64='${gpt2Base64}';\n` + bundleText;
   await fs.writeFile(bundlePath, bundleText);
   outHtml = outHtml
-    .replace(/<script[^>]*d3.v7.min.js[^>]*>\s*<\/script>\n?/,'')
-    .replace(/<script[^>]*bundle.esm.min.js[^>]*>\s*<\/script>\n?/,'')
-    .replace(/<script[^>]*pyodide.js[^>]*>\s*<\/script>\n?/,'')
+    .replace(/<script[\s\S]*?d3\.v7\.min\.js[\s\S]*?<\/script>\s*/g, '')
+    .replace(/<script[\s\S]*?bundle\.esm\.min\.js[\s\S]*?<\/script>\s*/g, '')
+    .replace(/<script[\s\S]*?pyodide\.js[\s\S]*?<\/script>\s*/g, '')
     .replace('</body>', `${envScript}\n</body>`);
   await fs.writeFile(`${OUT_DIR}/index.html`, outHtml);
   const pkg = JSON.parse(fsSync.readFileSync('package.json', 'utf8'));
