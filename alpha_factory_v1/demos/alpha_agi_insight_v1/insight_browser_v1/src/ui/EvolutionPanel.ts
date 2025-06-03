@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 import { loadTaxonomy, saveTaxonomy, proposeSectorNodes } from '@insight-src/taxonomy.ts';
 import { loadMemes } from '@insight-src/memeplex.ts';
+import { t } from './i18n.js';
 import type { HyperGraph } from '@insight-src/taxonomy.ts';
 import type { Archive, InsightRun } from '../archive.ts';
 
@@ -34,10 +35,10 @@ export function initEvolutionPanel(archive: Archive): EvolutionPanel {
   const table = document.createElement('table');
   const header = document.createElement('tr');
   header.innerHTML =
-    '<th data-k="seed">Seed</th>' +
-    '<th data-k="score">Score</th>' +
-    '<th data-k="novelty">Novelty</th>' +
-    '<th data-k="timestamp">Time</th>' +
+    `<th data-k="seed">${t('seed')}</th>` +
+    `<th data-k="score">${t('score')}</th>` +
+    `<th data-k="novelty">${t('novelty')}</th>` +
+    `<th data-k="timestamp">${t('time')}</th>` +
     '<th></th>';
   table.appendChild(header);
   const memeDiv = document.createElement('div');
@@ -160,7 +161,7 @@ export function initEvolutionPanel(archive: Archive): EvolutionPanel {
       tr.innerHTML = `<td>${r.seed}</td><td>${r.score.toFixed(2)}</td><td>${r.novelty.toFixed(2)}</td><td>${time}</td>`;
       const td = document.createElement('td');
       const btn = document.createElement('button');
-      btn.textContent = 'Re-spawn';
+      btn.textContent = t('respawn');
       btn.onclick = () => respawn(r.seed);
       td.appendChild(btn);
       tr.appendChild(td);
