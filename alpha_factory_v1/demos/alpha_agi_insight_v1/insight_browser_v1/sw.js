@@ -5,7 +5,8 @@ import {precacheAndRoute} from 'workbox-precaching';
 import {registerRoute} from 'workbox-routing';
 import {CacheFirst} from 'workbox-strategies';
 
-const CACHE_VERSION = 'insight-v1';
+// replaced during build
+const CACHE_VERSION = '__CACHE_VERSION__';
 workbox.core.setCacheNameDetails({prefix: CACHE_VERSION});
 
 // include translation JSON files in the precache

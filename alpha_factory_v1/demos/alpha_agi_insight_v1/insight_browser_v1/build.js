@@ -156,14 +156,19 @@ async function bundle() {
     .replace(/<script[^>]*pyodide.js[^>]*>\s*<\/script>\n?/,'')
     .replace('</body>', `${envScript}\n</body>`);
   await fs.writeFile(`${OUT_DIR}/index.html`, outHtml);
+  const pkg = JSON.parse(fsSync.readFileSync('package.json', 'utf8'));
+  const swTemplate = await fs.readFile('sw.js', 'utf8');
+  const swTemp = path.join(OUT_DIR, 'sw.build.js');
+  await fs.writeFile(swTemp, swTemplate.replace('__CACHE_VERSION__', pkg.version));
   await injectManifest({
-    swSrc: 'sw.js',
+    swSrc: swTemp,
     swDest: `${OUT_DIR}/sw.js`,
     globDirectory: OUT_DIR,
     importWorkboxFrom: 'disabled',
     globPatterns: manifest.precache,
     injectionPoint: 'self.__WB_MANIFEST',
   });
+  await fs.unlink(swTemp);
   const size = await gzipSize.file(`${OUT_DIR}/insight.bundle.js`);
   const MAX_GZIP_SIZE = 2 * 1024 * 1024; // 2 MiB
   if (size > MAX_GZIP_SIZE) {
