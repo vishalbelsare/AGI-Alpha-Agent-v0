@@ -122,8 +122,6 @@ async function bundle() {
   if (fsSync.existsSync(pdf)) {
     await fs.copyFile(pdf, path.join(OUT_DIR, 'insight_browser_quickstart.pdf'));
   }
-  const bundleSri = await sha384('bundle.esm.min.js');
-  const pyodideSri = await sha384('pyodide.js');
   const envScript = injectEnv(process.env);
 
   const wasmPath = 'wasm/pyodide.asm.wasm';
@@ -143,14 +141,20 @@ async function bundle() {
   } catch {}
   const bundlePath = `${OUT_DIR}/insight.bundle.js`;
   let bundleText = await fs.readFile(bundlePath, 'utf8');
-  bundleText = `window.PYODIDE_WASM_BASE64='${wasmBase64}';window.GPT2_MODEL_BASE64='${gpt2Base64}';\n` + bundleText;
+  const d3Code = await fs.readFile('d3.v7.min.js', 'utf8');
+  let web3Code = await fs.readFile(path.join('lib', 'bundle.esm.min.js'), 'utf8');
+  web3Code = web3Code.replace(/export\s+/g, '');
+  web3Code += '\nwindow.Web3Storage=Web3Storage;';
+  let pyCode = await fs.readFile(path.join('lib', 'pyodide.js'), 'utf8');
+  pyCode = pyCode.replace(/export\s+/g, '');
+  pyCode += '\nwindow.loadPyodide=loadPyodide;';
+  bundleText = `${d3Code}\n${web3Code}\n${pyCode}\nwindow.PYODIDE_WASM_BASE64='${wasmBase64}';window.GPT2_MODEL_BASE64='${gpt2Base64}';\n` + bundleText;
   await fs.writeFile(bundlePath, bundleText);
-  outHtml = outHtml.replace(
-    '</body>',
-    `<script src="bundle.esm.min.js" integrity="${bundleSri}" crossorigin="anonymous"></script>\n` +
-    `<script src="pyodide.js" integrity="${pyodideSri}" crossorigin="anonymous"></script>\n` +
-    `${envScript}\n</body>`
-  );
+  outHtml = outHtml
+    .replace(/<script[^>]*d3.v7.min.js[^>]*>\s*<\/script>\n?/,'')
+    .replace(/<script[^>]*bundle.esm.min.js[^>]*>\s*<\/script>\n?/,'')
+    .replace(/<script[^>]*pyodide.js[^>]*>\s*<\/script>\n?/,'')
+    .replace('</body>', `${envScript}\n</body>`);
   await fs.writeFile(`${OUT_DIR}/index.html`, outHtml);
   await injectManifest({
     swSrc: 'sw.js',
