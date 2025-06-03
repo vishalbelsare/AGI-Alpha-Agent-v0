@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: Apache-2.0
-// @ts-nocheck
 import { loadTaxonomy } from '@insight-src/taxonomy.ts';
 import { loadMemes } from '@insight-src/memeplex.ts';
-import type { Archive } from '../archive.ts';
+import type { HyperGraph } from '@insight-src/taxonomy.ts';
+import type { Archive, InsightRun } from '../archive.ts';
 
 export interface EvolutionPanel {
   render(): Promise<void>;
@@ -42,30 +42,32 @@ export function initEvolutionPanel(archive: Archive): EvolutionPanel {
 
   let sortKey = 'timestamp';
   let desc = true;
-  let taxonomy = null;
-  let selectedNode = null;
-  header.querySelectorAll('th[data-k]').forEach((th) => {
-    th.style.cursor = 'pointer';
-    th.onclick = () => {
-      const k = th.dataset.k;
-      if (sortKey === k) desc = !desc;
-      else {
-        sortKey = k;
-        desc = true;
-      }
-      render();
-    };
-  });
+  let taxonomy: HyperGraph | null = null;
+  let selectedNode: string | null = null;
+  header
+    .querySelectorAll<HTMLTableHeaderCellElement>('th[data-k]')
+    .forEach((th) => {
+      th.style.cursor = 'pointer';
+      th.onclick = () => {
+        const k = th.dataset.k ?? '';
+        if (sortKey === k) desc = !desc;
+        else {
+          sortKey = k;
+          desc = true;
+        }
+        render();
+      };
+    });
 
-  function respawn(seed) {
+  function respawn(seed: number): void {
     const q = new URLSearchParams(window.location.hash.replace(/^#\/?/, ''));
-    q.set('s', seed);
+    q.set('s', String(seed));
     window.location.hash = '#/' + q.toString();
   }
 
-  function drawTree(runs) {
+  function drawTree(runs: InsightRun[]): void {
     svg.innerHTML = '';
-    const pos = new Map();
+    const pos = new Map<string, { x: number; y: number }>();
     runs.forEach((r, i) => {
       const x = 20 + i * 20;
       const y = 20;
@@ -94,11 +96,11 @@ export function initEvolutionPanel(archive: Archive): EvolutionPanel {
     });
   }
 
-  async function renderTaxonomy() {
+  async function renderTaxonomy(): Promise<void> {
     taxonomy = await loadTaxonomy();
     tree.innerHTML = '';
-    const nodes = taxonomy.nodes || {};
-    function makeList(parent) {
+    const nodes = taxonomy?.nodes ?? {};
+    function makeList(parent: string | null): HTMLUListElement | null {
       const children = Object.values(nodes).filter((n) => n.parent === parent);
       if (!children.length) return null;
       const ul = document.createElement('ul');
@@ -121,7 +123,7 @@ export function initEvolutionPanel(archive: Archive): EvolutionPanel {
     if (root) tree.appendChild(root);
   }
 
-  async function render() {
+  async function render(): Promise<void> {
     let runs = await archive.list();
     if (selectedNode) {
       runs = runs.filter((r) => r.params?.sector === selectedNode);

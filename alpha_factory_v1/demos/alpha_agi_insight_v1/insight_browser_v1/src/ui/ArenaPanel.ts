@@ -1,5 +1,4 @@
 // SPDX-License-Identifier: Apache-2.0
-// @ts-nocheck
 import { t } from './i18n.js';
 import type { Individual } from '../state/serializer.ts';
 
