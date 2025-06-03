@@ -1,4 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
+import { t } from './i18n.js';
+
 export function initArenaPanel(onDebate) {
   const root = document.createElement('details');
   root.id = 'arena-panel';
@@ -15,7 +17,7 @@ export function initArenaPanel(onDebate) {
     overflowY: 'auto',
   });
   const summary = document.createElement('summary');
-  summary.textContent = 'Debate Arena';
+  summary.textContent = t('summary.debateArena');
   const ranking = document.createElement('ul');
   ranking.id = 'ranking';
   const panel = document.createElement('div');
@@ -35,9 +37,9 @@ export function initArenaPanel(onDebate) {
     const sorted = [...front].sort((a, b) => (b.rank ?? 0) - (a.rank ?? 0));
     sorted.forEach((p) => {
       const li = document.createElement('li');
-      li.textContent = `Rank ${(p.rank ?? 0).toFixed(1)} `;
+      li.textContent = `${t('label.rank')} ${(p.rank ?? 0).toFixed(1)} `;
       const btn = document.createElement('button');
-      btn.textContent = 'Debate';
+      btn.textContent = t('summary.debate');
       btn.addEventListener('click', () => onDebate?.(p));
       li.appendChild(btn);
       ranking.appendChild(li);
@@ -49,7 +51,7 @@ export function initArenaPanel(onDebate) {
       .map((m) => `<li><strong>${m.role}:</strong> ${m.text}</li>`)
       .join('');
     const li = document.createElement('li');
-    li.textContent = `Score: ${score}`;
+    li.textContent = `${t('label.score')}: ${score}`;
     msgs.appendChild(li);
     root.open = true;
   }

@@ -20,5 +20,9 @@
   "state_loaded": "état chargé",
   "invalid_file": "fichier invalide",
   "simulation_restarted": "simulation redémarrée",
-  "telemetry_consent": "Autoriser la télémétrie anonyme\u00a0?"
+  "telemetry_consent": "Autoriser la télémétrie anonyme\u00a0?",
+  "summary.debateArena": "Arène de débat",
+  "summary.debate": "Débat",
+  "label.rank": "Rang",
+  "label.score": "Score"
 }

@@ -15,3 +15,19 @@ test('rationale panel fits mobile viewport', async ({ page }) => {
   const box = await page.locator('.modal-content').boundingBox();
   expect(box?.width).toBeLessThanOrEqual(375);
 });
+
+test('shows Spanish labels', async ({ page }) => {
+  await page.addInitScript(() => {
+    Object.defineProperty(navigator, 'language', { get: () => 'es' });
+  });
+  await page.goto('/');
+  await expect(page.locator('text=Panel de simulación AGI')).toBeVisible();
+});
+
+test('shows French labels', async ({ page }) => {
+  await page.addInitScript(() => {
+    Object.defineProperty(navigator, 'language', { get: () => 'fr' });
+  });
+  await page.goto('/');
+  await expect(page.locator('text=Tableau de bord de simulation AGI')).toBeVisible();
+});
