@@ -1,8 +1,12 @@
 // SPDX-License-Identifier: Apache-2.0
-import { loadTaxonomy } from '@insight-src/taxonomy.ts';
+import { loadTaxonomy, saveTaxonomy, proposeSectorNodes } from '@insight-src/taxonomy.ts';
 import { loadMemes } from '@insight-src/memeplex.ts';
 import type { HyperGraph } from '@insight-src/taxonomy.ts';
 import type { Archive, InsightRun } from '../archive.ts';
+
+function tokenize(text: string): string[] {
+  return text.toLowerCase().split(/[^a-z0-9]+/).filter((t) => t);
+}
 
 export interface EvolutionPanel {
   render(): Promise<void>;
@@ -102,6 +106,12 @@ export function initEvolutionPanel(archive: Archive): EvolutionPanel {
 
   async function renderTaxonomy(): Promise<void> {
     taxonomy = await loadTaxonomy();
+    const runs = await archive.list();
+    await proposeSectorNodes(
+      runs.map((r) => ({ keywords: r.params?.keywords || tokenize(r.params?.sector || '') })),
+      taxonomy,
+    );
+    await saveTaxonomy(taxonomy);
     tree.innerHTML = '';
     const nodes = taxonomy?.nodes ?? {};
     function makeList(parent: string | null): HTMLUListElement | null {
@@ -130,7 +140,12 @@ export function initEvolutionPanel(archive: Archive): EvolutionPanel {
   async function render(): Promise<void> {
     let runs = await archive.list();
     if (selectedNode) {
-      runs = runs.filter((r) => r.params?.sector === selectedNode);
+      const parts = tokenize(selectedNode);
+      runs = runs.filter((r) => {
+        if (r.params?.sector === selectedNode) return true;
+        const kws: string[] = r.params?.keywords || [];
+        return parts.every((p) => kws.includes(p));
+      });
     }
     runs.sort((a, b) => (desc ? b[sortKey] - a[sortKey] : a[sortKey] - b[sortKey]));
     table.querySelectorAll('tr').forEach((tr, i) => { if (i) tr.remove(); });
