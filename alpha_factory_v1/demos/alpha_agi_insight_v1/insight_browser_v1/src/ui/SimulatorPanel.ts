@@ -1,5 +1,4 @@
 // SPDX-License-Identifier: Apache-2.0
-// @ts-nocheck
 import { Simulator } from '../simulator.ts';
 import type { Individual } from '../state/serializer.ts';
 import { save, load } from '../state/serializer.ts';
@@ -106,7 +105,7 @@ export async function initSimulatorPanel(
   });
 
   startBtn.addEventListener('click', async () => {
-    if (sim && typeof sim.return === 'function') await sim.return();
+    if (sim && typeof sim.return === 'function') await sim.return(undefined);
     const seeds = seedsInput.value.split(',').map((s) => Number(s.trim())).filter(Boolean);
     memeRuns = [];
     sim = Simulator.run({
@@ -160,7 +159,7 @@ export async function initSimulatorPanel(
   });
 
   cancelBtn.addEventListener('click', () => {
-    if (sim && typeof sim.return === 'function') sim.return();
+    if (sim && typeof sim.return === 'function') void sim.return(undefined);
   });
 
   pauseBtn.addEventListener('click', () => {
