@@ -1484,6 +1484,11 @@ window.addEventListener('DOMContentLoaded',async()=>{
   tb.appendChild(pngBtn);
   tb.appendChild(shareBtn);
   tb.appendChild(themeBtn);
+  const installBtn=document.getElementById("install-btn");
+  let deferredPrompt=null;
+  window.addEventListener("beforeinstallprompt",e=>{e.preventDefault();deferredPrompt=e;installBtn.hidden=false;});
+  installBtn.addEventListener("click",async()=>{if(!deferredPrompt)return;installBtn.hidden=true;deferredPrompt.prompt();try{await deferredPrompt.userChoice;}catch{}deferredPrompt=null;});
+  window.addEventListener("appinstalled",()=>{installBtn.hidden=true;deferredPrompt=null;});
   csvBtn.addEventListener("click",()=>exportCSV(pop));
   pngBtn.addEventListener("click",exportPNG);
   shareBtn.addEventListener("click", async () => {
