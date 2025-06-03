@@ -6,6 +6,7 @@ import { execSync } from 'child_process';
 import { createHash } from 'crypto';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import { copyAssets, injectEnv } from './build/common.js';
 
 const manifest = JSON.parse(
   fsSync.readFileSync(new URL('./build_assets.json', import.meta.url), 'utf8')
@@ -116,45 +117,10 @@ async function bundle() {
     /<meta[^>]*http-equiv="Content-Security-Policy"[^>]*>/,
     `<meta http-equiv="Content-Security-Policy" content="${csp}" />`
   );
-  for (const rel of manifest.files) {
-    const dest = path.join(OUT_DIR, rel);
-    await fs.mkdir(path.dirname(dest), { recursive: true });
-    await fs.copyFile(rel, dest).catch(() => {});
-  }
-  const pdfSrc = path.join(repoRoot, manifest.quickstart_pdf);
-  if (fsSync.existsSync(pdfSrc)) {
-    await fs.copyFile(pdfSrc, path.join(OUT_DIR, path.basename(pdfSrc)));
-  }
-  const i18nDir = manifest.dirs.translations;
-  await fs.mkdir(path.join(OUT_DIR, i18nDir), { recursive: true });
-  for (const f of await fs.readdir(i18nDir)) {
-    await fs.copyFile(
-      path.join(i18nDir, f),
-      path.join(OUT_DIR, i18nDir, f)
-    );
-  }
-  const criticsSrc = path.join(repoRoot, manifest.dirs.critics);
-  await fs.mkdir(path.join(OUT_DIR, manifest.dirs.critics), { recursive: true });
-  try {
-    for (const f of await fs.readdir(criticsSrc)) {
-      await fs.copyFile(
-        path.join(criticsSrc, f),
-        path.join(OUT_DIR, manifest.dirs.critics, f)
-      );
-    }
-  } catch {}
+  await copyAssets(manifest, repoRoot, OUT_DIR);
   const bundleSri = await sha384('bundle.esm.min.js');
   const pyodideSri = await sha384('pyodide.js');
-
-  const envScript = `<script>window.PINNER_TOKEN=${JSON.stringify(
-    process.env.PINNER_TOKEN || ''
-  )};window.OPENAI_API_KEY=${JSON.stringify(
-    process.env.OPENAI_API_KEY || ''
-  )};window.OTEL_ENDPOINT=${JSON.stringify(
-    process.env.OTEL_ENDPOINT || ''
-  )};window.IPFS_GATEWAY=${JSON.stringify(
-    process.env.IPFS_GATEWAY || ''
-  )};</script>`;
+  const envScript = injectEnv(process.env);
 
   const wasmPath = 'wasm/pyodide.asm.wasm';
   const wasmBuf = fsSync.readFileSync(wasmPath);
@@ -181,15 +147,6 @@ async function bundle() {
     `<script src="pyodide.js" integrity="${pyodideSri}" crossorigin="anonymous"></script>\n` +
     `${envScript}\n</body>`
   );
-  for (const dirKey of ['wasm', 'wasm_llm']) {
-    const dir = manifest.dirs[dirKey];
-    if (fsSync.existsSync(dir)) {
-      await fs.mkdir(path.join(OUT_DIR, dir), { recursive: true });
-      for (const f of await fs.readdir(dir)) {
-        await fs.copyFile(path.join(dir, f), path.join(OUT_DIR, dir, f));
-      }
-    }
-  }
   await fs.writeFile(`${OUT_DIR}/index.html`, outHtml);
   await injectManifest({
     swSrc: 'sw.js',
