@@ -9,6 +9,7 @@ const isIOS = /(iPad|iPhone|iPod)/.test(ua);
 let pyReady;
 let warned = false;
 let pySupported = !(isSafari || isIOS);
+let gpuAvailable = false;
 
 async function loadPy() {
   if (!pySupported) {
@@ -42,10 +43,14 @@ function shuffle(arr, rand) {
 }
 
 self.onmessage = async (ev) => {
+  if (ev.data?.type === 'gpu') {
+    gpuAvailable = !!ev.data.available;
+    return;
+  }
   const { pop, rngState, mutations, popSize, critic, gen, adaptive, sigmaScale = 1 } = ev.data;
   const rand = lcg(0);
   rand.set(rngState);
-  let next = mutate(pop, rand, mutations, gen, adaptive, sigmaScale);
+  let next = mutate(pop, rand, mutations, gen, adaptive, sigmaScale, gpuAvailable);
   const front = paretoFront(next);
   next.forEach((d) => (d.front = front.includes(d)));
   if (critic === 'llm') {

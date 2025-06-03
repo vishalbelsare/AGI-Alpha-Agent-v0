@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
-export function mutate(pop, rand, strategies, gen = 0, adaptive = false, scale = 1) {
+export function mutate(pop, rand, strategies, gen = 0, adaptive = false, scale = 1, gpu = false) {
   const clamp = (v) => Math.min(1, Math.max(0, v));
   const mutants = [];
   function converged() {

@@ -111,6 +111,9 @@ When building without internet access:
 - **Share** – copy a permalink to the clipboard. When `PINNER_TOKEN` is set,
   exported JSON is pinned to Web3.Storage and the CID appears in a toast.
 - **Theme** – toggle between light and dark mode.
+- **GPU** – enable or disable WebGPU acceleration. The app sends a
+  `{type:'gpu', available:<flag>}` message to the evolver worker which
+  forwards the flag to mutation functions.
 
 Drag a previously exported JSON state onto the drop zone to restore a
 simulation.
