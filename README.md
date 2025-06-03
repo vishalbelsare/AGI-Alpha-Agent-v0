@@ -650,8 +650,15 @@ docker run --pull=always -p 8000:8000 ghcr.io/montrealai/alpha-factory:latest
 python alpha_factory_v1/demos/alpha_agi_business_3_v1/alpha_agi_business_3_v1.py --loglevel info
 ```
 
-See `docs/insight_browser_quickstart.pdf` for a brief guide on opening
-`dist/index.html` and sharing pinned runs from the browser demo.
+
+### Insight Browser Demo
+
+A browser-only Pareto explorer lives under
+`alpha_factory_v1/demos/alpha_agi_insight_v1/insight_browser_v1`.
+Build the PWA and open `dist/index.html` to run the demo locally.
+The quick-start guide `docs/insight_browser_quickstart.pdf` is copied to
+`dist/insight_browser_quickstart.pdf` during the build so it is available
+alongside the compiled assets.
 
 For evolutionary experiments you can run the optional
 [evolution worker](docs/DESIGN.md#evolution-worker) container and POST a tarball
