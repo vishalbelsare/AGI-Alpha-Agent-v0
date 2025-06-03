@@ -26,7 +26,10 @@ class EmbeddingOrthogonaliser:
 
     def _new_projection(self):
         if np is not None:
-            mat = np.asarray([[self._rng.gauss(0.0, 1.0) for _ in range(self.dim)] for _ in range(self.dim)], dtype="float32")
+            mat = np.asarray(
+                [[self._rng.gauss(0.0, 1.0) for _ in range(self.dim)] for _ in range(self.dim)],
+                dtype="float32",
+            )
             q, _ = np.linalg.qr(mat)
             return q
         mat = [[self._rng.gauss(0.0, 1.0) for _ in range(self.dim)] for _ in range(self.dim)]

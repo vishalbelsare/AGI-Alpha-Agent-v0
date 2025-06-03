@@ -229,7 +229,11 @@ class ManufacturingAgent(AgentBase):
     # ------------------------------------------------------------------
 
     @tool(
-        description='Optimise a production schedule. Arg JSON {"jobs": [...], "due_dates": [...], "energy_rate": {m: kwh_per_min}, "maintenance": [{"machine":str, "start":int, "end":int}]}'
+        description=(
+            'Optimise a production schedule. Arg JSON '
+            '{"jobs": [...], "due_dates": [...], "energy_rate": {m: kwh_per_min}, '
+            '"maintenance": [{"machine": str, "start": int, "end": int}]}'
+        )
     )
     def build_schedule(self, req_json: str) -> str:  # noqa: D401
         req = json.loads(req_json)
@@ -237,7 +241,10 @@ class ManufacturingAgent(AgentBase):
         return loop.run_until_complete(self._build_async(req))
 
     @tool(
-        description='Repair an existing schedule with new job set. Arg JSON {"baseline": {...}, "jobs_add": [...], "due_dates": [...]} '
+        description=(
+            'Repair an existing schedule with new job set. '
+            'Arg JSON {"baseline": {...}, "jobs_add": [...], "due_dates": [...]} '
+        )
     )
     def reschedule_delta(self, req_json: str) -> str:  # noqa: D401
         req = json.loads(req_json)

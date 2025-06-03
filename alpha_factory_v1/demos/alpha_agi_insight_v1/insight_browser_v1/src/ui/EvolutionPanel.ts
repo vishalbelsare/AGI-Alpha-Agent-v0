@@ -30,7 +30,11 @@ export function initEvolutionPanel(archive: Archive): EvolutionPanel {
   const table = document.createElement('table');
   const header = document.createElement('tr');
   header.innerHTML =
-    '<th data-k="seed">Seed</th><th data-k="score">Score</th><th data-k="novelty">Novelty</th><th data-k="timestamp">Time</th><th></th>';
+    '<th data-k="seed">Seed</th>' +
+    '<th data-k="score">Score</th>' +
+    '<th data-k="novelty">Novelty</th>' +
+    '<th data-k="timestamp">Time</th>' +
+    '<th></th>';
   table.appendChild(header);
   const memeDiv = document.createElement('div');
   memeDiv.id = 'meme-cloud';
@@ -146,7 +150,10 @@ export function initEvolutionPanel(archive: Archive): EvolutionPanel {
     const memes = await loadMemes();
     memeDiv.innerHTML = memes
       .sort((a, b) => b.count - a.count)
-      .map((m) => `<span style="font-size:${10 + m.count * 2}px;margin-right:4px;">${m.edges[0].from}->${m.edges[0].to} (${m.count})</span>`)
+      .map(
+        (m) =>
+          `<span style="font-size:${10 + m.count * 2}px;margin-right:4px;">${m.edges[0].from}->${m.edges[0].to} (${m.count})</span>`
+      )
       .join(' ');
   }
 

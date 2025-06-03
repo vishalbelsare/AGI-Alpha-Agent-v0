@@ -57,7 +57,9 @@ if _TORCH:
             value = self.value_head(state)
             return state, value, policy
 
-        def recurrent(self, state: torch.Tensor, action: int) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor, torch.Tensor]:
+        def recurrent(
+            self, state: torch.Tensor, action: int
+        ) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor, torch.Tensor]:
             a = F.one_hot(torch.tensor(action), num_classes=self.action_dim).float()
             x = torch.cat([state, a], dim=-1)
             out = self.dyn(x)

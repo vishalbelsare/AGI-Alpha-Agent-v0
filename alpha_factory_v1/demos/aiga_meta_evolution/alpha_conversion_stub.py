@@ -75,7 +75,11 @@ def main(argv: list[str] | None = None) -> None:  # pragma: no cover - CLI wrapp
     p = argparse.ArgumentParser(description=__doc__)
     p.add_argument("--alpha", default="Generic opportunity", help="text description of the opportunity")
     p.add_argument("--ledger", help="path to ledger JSON file")
-    p.add_argument("--model", default=os.getenv("ALPHA_CONVERSION_MODEL", "gpt-4o-mini"), help="OpenAI model when API key present")
+    p.add_argument(
+        "--model",
+        default=os.getenv("ALPHA_CONVERSION_MODEL", "gpt-4o-mini"),
+        help="OpenAI model when API key present",
+    )
     p.add_argument("--no-log", action="store_true", help="do not write ledger file")
     args = p.parse_args(argv)
 
