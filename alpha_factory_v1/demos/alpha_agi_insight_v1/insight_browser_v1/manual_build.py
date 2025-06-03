@@ -12,6 +12,12 @@ from urllib.parse import urlparse
 import gzip
 
 
+def _require_python_311() -> None:
+    major, minor = sys.version_info[:2]
+    if (major, minor) < (3, 11):
+        sys.exit(f"Python ≥3.11 required. Current version: {sys.version}")
+
+
 def _require_node_20() -> None:
     """Exit when Node.js is missing or too old."""
     if not shutil.which("node"):
@@ -28,6 +34,7 @@ def _require_node_20() -> None:
         sys.exit(f"Node.js 20+ is required. Current version: {version}")
 
 
+_require_python_311()
 _require_node_20()
 
 # load environment variables
