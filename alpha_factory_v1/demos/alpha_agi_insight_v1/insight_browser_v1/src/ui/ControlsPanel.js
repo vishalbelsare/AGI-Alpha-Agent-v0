@@ -18,6 +18,7 @@ export function initControls(params,onChange){
     <select id="lang" tabindex="11">
       <option value="en">English</option>
       <option value="fr">Français</option>
+      <option value="es">Español</option>
     </select>`;
   const seed=root.querySelector('#seed'),
         pop=root.querySelector('#pop'),
