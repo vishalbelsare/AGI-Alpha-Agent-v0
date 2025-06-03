@@ -9,10 +9,6 @@ export async function copyAssets(manifest, repoRoot, outDir) {
     await fs.mkdir(path.dirname(dest), { recursive: true });
     await fs.copyFile(rel, dest).catch(() => {});
   }
-  const pdfSrc = path.join(repoRoot, manifest.quickstart_pdf);
-  if (fsSync.existsSync(pdfSrc)) {
-    await fs.copyFile(pdfSrc, path.join(outDir, path.basename(pdfSrc)));
-  }
   const i18nDir = manifest.dirs.translations;
   if (fsSync.existsSync(i18nDir)) {
     await fs.mkdir(path.join(outDir, i18nDir), { recursive: true });
