@@ -1,15 +1,39 @@
 // SPDX-License-Identifier: Apache-2.0
+// @ts-nocheck
 import { Simulator } from '../simulator.ts';
+import type { Individual } from '../state/serializer.ts';
 import { save, load } from '../state/serializer.ts';
 import { ReplayDB } from '@insight-src/replay.ts';
 import { mineMemes, saveMemes } from '@insight-src/memeplex.ts';
+import type { EvaluatorGenome } from '../evaluator_genome.ts';
 import { mutateEvaluator } from '../evaluator_genome.ts';
 import { pinFiles } from '../ipfs/pinner.ts';
 import { renderFrontier } from '../render/frontier.js';
 import { detectColdZone } from '../utils/cluster.js';
 import clone from '../../../../../../src/utils/clone.js';
+import type { Archive } from '../archive.ts';
 
-export async function initSimulatorPanel(archive, power) {
+export interface PowerPanel {
+  update(genome: EvaluatorGenome): void;
+}
+
+declare const view: any;
+declare function selectPoint(d: any, elem?: HTMLElement): void;
+declare let pop: any[];
+declare let gen: number;
+declare const info: HTMLElement & { text?: (s: string) => void };
+
+declare global {
+  interface Window {
+    pop?: any;
+    coldZone?: unknown;
+  }
+}
+
+export async function initSimulatorPanel(
+  archive: Archive,
+  power: PowerPanel
+): Promise<HTMLDivElement> {
   const panel = document.createElement('div');
   panel.id = 'simulator-panel';
   Object.assign(panel.style, {
@@ -40,28 +64,31 @@ export async function initSimulatorPanel(archive, power) {
   `;
   document.body.appendChild(panel);
 
-  const seedsInput = panel.querySelector('#sim-seeds');
-  const popInput = panel.querySelector('#sim-pop');
-  const genInput = panel.querySelector('#sim-gen');
-  const rateInput = panel.querySelector('#sim-rate');
-  const heurSel = panel.querySelector('#sim-heur');
-  const startBtn = panel.querySelector('#sim-start');
-  const pauseBtn = panel.querySelector('#sim-pause');
-  const forkBtn = panel.querySelector('#sim-fork');
-  const cancelBtn = panel.querySelector('#sim-cancel');
-  const progress = panel.querySelector('#sim-progress');
-  const frameInput = panel.querySelector('#sim-frame');
-  const status = panel.querySelector('#sim-status');
-  const inspectPre = panel.querySelector('#sim-inspect');
+  const seedsInput = panel.querySelector<HTMLInputElement>('#sim-seeds')!;
+  const popInput = panel.querySelector<HTMLInputElement>('#sim-pop')!;
+  const genInput = panel.querySelector<HTMLInputElement>('#sim-gen')!;
+  const rateInput = panel.querySelector<HTMLInputElement>('#sim-rate')!;
+  const heurSel = panel.querySelector<HTMLSelectElement>('#sim-heur')!;
+  const startBtn = panel.querySelector<HTMLButtonElement>('#sim-start')!;
+  const pauseBtn = panel.querySelector<HTMLButtonElement>('#sim-pause')!;
+  const forkBtn = panel.querySelector<HTMLButtonElement>('#sim-fork')!;
+  const cancelBtn = panel.querySelector<HTMLButtonElement>('#sim-cancel')!;
+  const progress = panel.querySelector<HTMLProgressElement>('#sim-progress')!;
+  const frameInput = panel.querySelector<HTMLInputElement>('#sim-frame')!;
+  const status = panel.querySelector<HTMLDivElement>('#sim-status')!;
+  const inspectPre = panel.querySelector<HTMLPreElement>('#sim-inspect');
 
-  let sim = null;
-  let frames = [];
-  let frameIds = [];
+  let sim: AsyncGenerator<any> | null = null;
+  let frames: Individual[][] = [];
+  let frameIds: number[] = [];
   let paused = false;
   const replay = new ReplayDB('sim-replay');
   await replay.open();
-  let memeRuns = [];
-  let evaluator = { weights: { logic: 0.5, feasible: 0.5 }, prompt: 'score idea' };
+  let memeRuns: any[] = [];
+  let evaluator: EvaluatorGenome = {
+    weights: { logic: 0.5, feasible: 0.5 },
+    prompt: 'score idea',
+  };
 
   function showFrame(i) {
     const f = frames[i];
@@ -89,7 +116,7 @@ export async function initSimulatorPanel(archive, power) {
       seeds,
       workerUrl: './worker/evolver.js',
       umapWorkerUrl: './worker/umapWorker.js',
-      critic: heurSel.value,
+      critic: heurSel.value as 'none' | 'llm',
     });
     let lastPop = [];
     let count = 0;
@@ -123,7 +150,7 @@ export async function initSimulatorPanel(archive, power) {
       evaluator = mutateEvaluator(evaluator);
       evalId = await archive.addEvaluator(evaluator);
     }
-    frameInput.max = Math.max(0, frames.length - 1);
+    frameInput.max = String(Math.max(0, frames.length - 1));
     frameInput.value = String(frames.length - 1);
     showFrame(frames.length - 1);
     const share = await replay.share(frameIds[frameIds.length - 1]);

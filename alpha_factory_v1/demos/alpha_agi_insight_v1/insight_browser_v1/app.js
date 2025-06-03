@@ -19,11 +19,11 @@ import { lcg } from './src/utils/rng.js';
 import { paretoFront } from './src/utils/pareto.js';
 import { paretoEntropy } from './src/utils/entropy.ts';
 import { Archive } from './src/archive.ts';
-import { initEvolutionPanel } from './src/ui/EvolutionPanel.js';
-import { initSimulatorPanel } from './src/ui/SimulatorPanel.js';
+import { initEvolutionPanel } from './src/ui/EvolutionPanel.ts';
+import { initSimulatorPanel } from './src/ui/SimulatorPanel.ts';
 import { initPowerPanel } from './src/ui/PowerPanel.js';
 import { initAnalyticsPanel } from './src/ui/AnalyticsPanel.js';
-import { initArenaPanel } from './src/ui/ArenaPanel.js';
+import { initArenaPanel } from './src/ui/ArenaPanel.ts';
 
 let panel,pauseBtn,exportBtn,dropZone
 let criticPanel,logicCritic,feasCritic

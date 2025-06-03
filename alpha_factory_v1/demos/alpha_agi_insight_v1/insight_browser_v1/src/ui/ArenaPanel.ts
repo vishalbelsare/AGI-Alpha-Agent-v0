@@ -1,7 +1,20 @@
 // SPDX-License-Identifier: Apache-2.0
+// @ts-nocheck
 import { t } from './i18n.js';
+import type { Individual } from '../state/serializer.ts';
 
-export function initArenaPanel(onDebate) {
+export interface DebateMessage {
+  role: string;
+  text: string;
+}
+
+export type DebateHandler = (individual: Individual) => void;
+
+export interface ArenaPanel {
+  render(front: Individual[]): void;
+  show(messages: DebateMessage[], score: number): void;
+}
+export function initArenaPanel(onDebate?: DebateHandler): ArenaPanel {
   const root = document.createElement('details');
   root.id = 'arena-panel';
   Object.assign(root.style, {
