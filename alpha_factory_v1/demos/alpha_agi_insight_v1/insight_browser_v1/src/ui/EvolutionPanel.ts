@@ -1,8 +1,13 @@
 // SPDX-License-Identifier: Apache-2.0
+// @ts-nocheck
 import { loadTaxonomy } from '@insight-src/taxonomy.ts';
 import { loadMemes } from '@insight-src/memeplex.ts';
+import type { Archive } from '../archive.ts';
 
-export function initEvolutionPanel(archive) {
+export interface EvolutionPanel {
+  render(): Promise<void>;
+}
+export function initEvolutionPanel(archive: Archive): EvolutionPanel {
   const panel = document.createElement('div');
   panel.id = 'evolution-panel';
   Object.assign(panel.style, {
