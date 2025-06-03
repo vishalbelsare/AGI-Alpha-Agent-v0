@@ -76,6 +76,8 @@ jobs:
         run: pnpm --dir src/interface/web_client install
       - name: Audit web dependencies
         run: npm --prefix src/interface/web_client audit --production --audit-level=high
+      - name: Type check insight browser
+        run: pnpm --dir alpha_factory_v1/demos/alpha_agi_insight_v1/insight_browser_v1 run typecheck
       - name: Cypress E2E tests with Percy
         env:
           PERCY_TOKEN: ${{ secrets.PERCY_TOKEN }}

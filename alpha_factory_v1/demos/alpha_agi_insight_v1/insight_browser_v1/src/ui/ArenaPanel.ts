@@ -43,7 +43,7 @@ export function initArenaPanel(onDebate?: DebateHandler): ArenaPanel {
 
   let currentFront = [];
 
-  function render(front) {
+  function render(front: Individual[]): void {
     currentFront = front;
     ranking.innerHTML = '';
     const sorted = [...front].sort((a, b) => (b.rank ?? 0) - (a.rank ?? 0));
@@ -58,9 +58,9 @@ export function initArenaPanel(onDebate?: DebateHandler): ArenaPanel {
     });
   }
 
-  function show(messages, score) {
+  function show(messages: DebateMessage[], score: number): void {
     msgs.innerHTML = messages
-      .map((m) => `<li><strong>${m.role}:</strong> ${m.text}</li>`)
+      .map((m: DebateMessage) => `<li><strong>${m.role}:</strong> ${m.text}</li>`)
       .join('');
     const li = document.createElement('li');
     li.textContent = `${t('label.score')}: ${score}`;

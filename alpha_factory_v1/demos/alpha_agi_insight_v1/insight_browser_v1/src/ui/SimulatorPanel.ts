@@ -95,7 +95,7 @@ export async function initSimulatorPanel(
     prompt: 'score idea',
   };
 
-  function showFrame(i) {
+  function showFrame(i: number): void {
     const f = frames[i];
     if (!f) return;
     pop = f;
@@ -112,7 +112,10 @@ export async function initSimulatorPanel(
 
   startBtn.addEventListener('click', async () => {
     if (sim && typeof sim.return === 'function') await sim.return(undefined);
-    const seeds = seedsInput.value.split(',').map((s) => Number(s.trim())).filter(Boolean);
+    const seeds = seedsInput.value
+      .split(',')
+      .map((s: string) => Number(s.trim()))
+      .filter(Boolean);
     memeRuns = [];
     sim = Simulator.run({
       popSize: Number(popInput.value),
@@ -134,7 +137,10 @@ export async function initSimulatorPanel(
         await new Promise((r) => setTimeout(r, 100));
       }
       lastPop = g.population;
-      const edges = g.population.map((p) => ({ from: p.strategy || 'x', to: p.strategy || 'x' }));
+      const edges = g.population.map((p: Individual) => ({
+        from: p.strategy || 'x',
+        to: p.strategy || 'x',
+      }));
       memeRuns.push({ edges });
       await saveMemes(mineMemes(memeRuns));
       frames.push(clone(g.population));
@@ -146,7 +152,7 @@ export async function initSimulatorPanel(
       count = g.gen;
       window.pop = g.population;
       if (g.population[0] && g.population[0].umap) {
-        const pts = g.population.map((p) => p.umap);
+        const pts = g.population.map((p: Individual) => p.umap);
         window.coldZone = detectColdZone(pts);
       }
       progress.value = count / Number(genInput.value);

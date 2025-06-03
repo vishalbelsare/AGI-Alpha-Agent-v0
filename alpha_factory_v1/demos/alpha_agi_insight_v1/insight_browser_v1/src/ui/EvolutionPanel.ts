@@ -48,7 +48,8 @@ export function initEvolutionPanel(archive: Archive): EvolutionPanel {
   panel.appendChild(memeDiv);
   document.body.appendChild(panel);
 
-  let sortKey = 'timestamp';
+  type RunSortKey = 'seed' | 'score' | 'novelty' | 'timestamp';
+  let sortKey: RunSortKey = 'timestamp';
   let desc = true;
   let taxonomy: HyperGraph | null = null;
   let selectedNode: string | null = null;
@@ -57,7 +58,7 @@ export function initEvolutionPanel(archive: Archive): EvolutionPanel {
     .forEach((th) => {
       th.style.cursor = 'pointer';
       th.onclick = () => {
-        const k = th.dataset.k ?? '';
+        const k = (th.dataset.k ?? 'timestamp') as RunSortKey;
         if (sortKey === k) desc = !desc;
         else {
           sortKey = k;
@@ -147,7 +148,11 @@ export function initEvolutionPanel(archive: Archive): EvolutionPanel {
         return parts.every((p) => kws.includes(p));
       });
     }
-    runs.sort((a, b) => (desc ? b[sortKey] - a[sortKey] : a[sortKey] - b[sortKey]));
+    runs.sort((a, b) =>
+      desc
+        ? (b[sortKey] as number) - (a[sortKey] as number)
+        : (a[sortKey] as number) - (b[sortKey] as number),
+    );
     table.querySelectorAll('tr').forEach((tr, i) => { if (i) tr.remove(); });
     runs.forEach((r) => {
       const tr = document.createElement('tr');
