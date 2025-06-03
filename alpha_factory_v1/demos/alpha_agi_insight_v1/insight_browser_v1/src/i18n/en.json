@@ -25,4 +25,8 @@
   "summary.debate": "Debate",
   "label.rank": "Rank",
   "label.score": "Score"
+  ,"score": "Score"
+  ,"novelty": "Novelty"
+  ,"time": "Time"
+  ,"respawn": "Re-spawn"
 }
