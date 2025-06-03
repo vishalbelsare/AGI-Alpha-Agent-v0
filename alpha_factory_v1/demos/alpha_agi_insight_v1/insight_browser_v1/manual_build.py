@@ -191,9 +191,33 @@ css = (
     + (ROOT / "dist" / "style.css").read_text()
     + (ROOT / "src" / "ui" / "controls.css").read_text()
 )
+d3_code = (ROOT / "d3.v7.min.js").read_text()
+web3_code = (lib_dir / "bundle.esm.min.js").read_text()
+web3_code = re.sub(r"^\s*export\s+", "", web3_code, flags=re.MULTILINE)
+web3_code += "\nwindow.Web3Storage=Web3Storage;"
+py_code = (lib_dir / "pyodide.js").read_text()
+py_code = re.sub(r"^\s*export\s+", "", py_code, flags=re.MULTILINE)
+py_code += "\nwindow.loadPyodide=loadPyodide;"
 evolver = (ROOT / "worker" / "evolver.js").read_text()
 arena = (ROOT / "worker" / "arenaWorker.js").read_text()
-bundle = "(function() {\nconst style=" + repr(css) + ";\nconst s=document.createElement('style');s.textContent=style;document.head.appendChild(s);\nconst EVOLVER_URL=URL.createObjectURL(new Blob([" + repr(evolver) + "],{type:'text/javascript'}));\nconst ARENA_URL=URL.createObjectURL(new Blob([" + repr(arena) + "],{type:'text/javascript'}));\n" + "\n".join(processed[p] for p in order) + "\n" + entry_code + "\n})();\n"
+bundle = (
+    d3_code
+    + "\n"
+    + web3_code
+    + "\n"
+    + py_code
+    + "\n(function() {\nconst style="
+    + repr(css)
+    + ";\nconst s=document.createElement('style');s.textContent=style;document.head.appendChild(s);\nconst EVOLVER_URL=URL.createObjectURL(new Blob(["
+    + repr(evolver)
+    + "],{type:'text/javascript'}));\nconst ARENA_URL=URL.createObjectURL(new Blob(["
+    + repr(arena)
+    + "],{type:'text/javascript'}));\n"
+    + "\n".join(processed[p] for p in order)
+    + "\n"
+    + entry_code
+    + "\n})();\n"
+)
 
 dist_dir.mkdir(exist_ok=True)
 (dist_dir / "insight.bundle.js").write_text(bundle)
@@ -227,18 +251,17 @@ if pdf_src.exists():
     (dist_dir / pdf_src.name).write_bytes(pdf_src.read_bytes())
 
 app_sri = sha384(dist_dir / "insight.bundle.js")
-bundle_sri = sha384(dist_dir / "bundle.esm.min.js")
-pyodide_sri = sha384(dist_dir / "pyodide.js")
 checksums = manifest["checksums"]
 out_html = out_html.replace(
     app_sri_placeholder,
     f'<script type="module" src="insight.bundle.js" integrity="{app_sri}" crossorigin="anonymous"></script>',
 )
 env_script = inject_env()
+out_html = re.sub(r'<script[^>]*d3.v7.min.js[^>]*>\s*</script>\n?', '', out_html)
+out_html = re.sub(r'<script[^>]*bundle.esm.min.js[^>]*>\s*</script>\n?', '', out_html)
+out_html = re.sub(r'<script[^>]*pyodide.js[^>]*>\s*</script>\n?', '', out_html)
 out_html = out_html.replace(
     "</body>",
-    f'<script src="bundle.esm.min.js" integrity="{bundle_sri}" crossorigin="anonymous"></script>\n'
-    f'<script src="pyodide.js" integrity="{pyodide_sri}" crossorigin="anonymous"></script>\n'
     f"{env_script}\n</body>",
 )
 
