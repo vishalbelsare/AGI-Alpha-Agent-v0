@@ -19,23 +19,34 @@ def test_offline_pwa_and_share() -> None:
         context = browser.new_context()
         page = context.new_page()
 
+        def ipfs_handler(route):
+            route.fulfill(
+                status=200,
+                content_type="application/json",
+                body='{"gen":0,"pop":[{"logic":0,"feasible":0,"front":false,"strategy":"base"}],"rngState":0}',
+            )
+
+        context.route("https://ipfs.io/**", ipfs_handler)
+
         page.goto(url)
         page.wait_for_selector("#controls")
 
         # Service worker should be ready
         page.wait_for_function("navigator.serviceWorker && navigator.serviceWorker.controller || navigator.serviceWorker.ready")
 
+        # fetch JSON to populate cache
+        assert page.evaluate("(await fetch('https://ipfs.io/ipfs/test.json')).ok")
+        page.wait_for_function("document.fonts && document.fonts.status === 'loaded'")
+
         # Go offline and reload
-        context.route("https://ipfs.io/**", lambda route: route.fulfill(
-            status=200,
-            content_type="application/json",
-            body='{"gen":0,"pop":[{"logic":0,"feasible":0,"front":false,"strategy":"base"}],"rngState":0}',
-        ))
+        context.unroute("https://ipfs.io/**", ipfs_handler)
         context.route("**", lambda route: route.abort())
         page.reload()
         page.wait_for_selector("#controls")
 
         assert page.evaluate("navigator.serviceWorker.controller !== null")
+        assert page.evaluate("document.fonts && document.fonts.status === 'loaded'")
+        assert page.evaluate("(await fetch('https://ipfs.io/ipfs/test.json')).ok")
         assert page.evaluate("typeof d3 !== 'undefined'")
         assert page.evaluate('document.styleSheets.length > 0')
 
