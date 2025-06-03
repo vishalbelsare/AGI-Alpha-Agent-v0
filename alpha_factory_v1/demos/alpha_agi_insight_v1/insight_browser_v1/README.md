@@ -107,6 +107,17 @@ When building without internet access:
 3. Execute `python manual_build.py` to generate the PWA in `dist/`.
 4. Launch with `npm start` or open `dist/index.html` directly in your browser.
 
+### Fetching Assets Offline
+
+Set `WEB3_STORAGE_TOKEN` before running the helper script:
+
+```bash
+WEB3_STORAGE_TOKEN=<token> python ../../../scripts/fetch_assets.py
+```
+
+The script retrieves the WebAssembly runtime and supporting files from IPFS,
+verifying checksums to ensure each asset is intact.
+
 ## Toolbar & Controls
 - **CSV** – export the current population as `population.csv`.
 - **PNG** – download a `frontier.png` screenshot of the chart.
