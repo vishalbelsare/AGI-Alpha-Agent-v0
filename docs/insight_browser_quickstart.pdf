@@ -9,7 +9,7 @@ endobj
 << /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Contents 4 0 R /Resources << /Font << /F1 5 0 R >> >> >>
 endobj
 4 0 obj
-<< /Length 230 >>
+<< /Length 384 >>
 stream
 BT
 /F1 12 Tf
@@ -21,6 +21,10 @@ BT
 (2. Set PINNER_TOKEN to pin runs to IPFS.) Tj
 72 660 Td
 (3. Click Share to copy the CID or permalink.) Tj
+72 640 Td
+(4. localStorage.setItem('USE_GPU','1') to force the GPU backend.) Tj
+72 620 Td
+(5. Use the Analytics panel to enable or disable telemetry.) Tj
 ET
 endstream
 endobj
