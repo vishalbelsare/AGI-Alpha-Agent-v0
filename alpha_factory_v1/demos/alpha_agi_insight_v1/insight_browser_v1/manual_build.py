@@ -198,6 +198,14 @@ web3_code += "\nwindow.Web3Storage=Web3Storage;"
 py_code = (lib_dir / "pyodide.js").read_text()
 py_code = re.sub(r"^\s*export\s+", "", py_code, flags=re.MULTILINE)
 py_code += "\nwindow.loadPyodide=loadPyodide;"
+wasm_b64 = ""
+wasm_file = ROOT / "wasm" / "pyodide.asm.wasm"
+if wasm_file.exists():
+    wasm_b64 = base64.b64encode(wasm_file.read_bytes()).decode()
+gpt2_b64 = ""
+gpt2_file = ROOT / "wasm_llm" / "wasm-gpt2.tar"
+if gpt2_file.exists():
+    gpt2_b64 = base64.b64encode(gpt2_file.read_bytes()).decode()
 evolver = (ROOT / "worker" / "evolver.js").read_text()
 arena = (ROOT / "worker" / "arenaWorker.js").read_text()
 bundle = (
@@ -206,7 +214,8 @@ bundle = (
     + web3_code
     + "\n"
     + py_code
-    + "\n(function() {\nconst style="
+    + f"\nwindow.PYODIDE_WASM_BASE64='{wasm_b64}';window.GPT2_MODEL_BASE64='{gpt2_b64}';\n"
+    + "(function() {\nconst style="
     + repr(css)
     + ";\nconst s=document.createElement('style');s.textContent=style;document.head.appendChild(s);\nconst EVOLVER_URL=URL.createObjectURL(new Blob(["
     + repr(evolver)

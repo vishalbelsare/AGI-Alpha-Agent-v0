@@ -5,7 +5,17 @@ let pyodideReady;
 async function initPy() {
   if (!pyodideReady) {
     try {
-      pyodideReady = await loadPyodide({ indexURL: './wasm/' });
+      let opts = { indexURL: './wasm/' };
+      if (window.PYODIDE_WASM_BASE64) {
+        const bytes = Uint8Array.from(
+          atob(window.PYODIDE_WASM_BASE64),
+          c => c.charCodeAt(0)
+        );
+        const blob = new Blob([bytes], { type: 'application/wasm' });
+        const url = URL.createObjectURL(blob);
+        opts.indexURL = url;
+      }
+      pyodideReady = await loadPyodide(opts);
     } catch (err) {
       toast('Pyodide failed to load');
       return Promise.reject(err);
