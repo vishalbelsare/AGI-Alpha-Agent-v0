@@ -75,6 +75,10 @@ Open `index.html` directly in your browser or pin the folder to IPFS
 (`ipfs add -r insight_browser_v1`) and share the CID.
 The URL fragment encodes parameters such as `#/s=42&p=120&g=80`.
 
+See `docs/insight_browser_quickstart.pdf` for a short walkthrough. The
+build script copies this file to `dist/insight_browser_quickstart.pdf` so
+the guide is available alongside `dist/index.html`.
+
 ## Manual Build
 Use `manual_build.py` for air‑gapped environments:
 
