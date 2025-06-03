@@ -1,5 +1,9 @@
 // SPDX-License-Identifier: Apache-2.0
-const { mineTaxonomy, saveTaxonomy, loadTaxonomy } = require('../../src/taxonomy.ts');
+const { mineTaxonomy, saveTaxonomy, loadTaxonomy, proposeSectorNodes } = require('../../src/taxonomy.ts');
+
+jest.mock('../../src/utils/llm.js', () => ({
+  chat: async () => 'Yes',
+}));
 
 beforeEach(() => {
   indexedDB.deleteDatabase('sectorTaxonomy');
@@ -30,4 +34,18 @@ test('taxonomy persists across saves and respects versioning', async () => {
 
   loaded = await loadTaxonomy();
   expect(loaded.nodes['B']).toBeUndefined();
+});
+
+test('proposeSectorNodes creates cluster nodes and saves', async () => {
+  const runs = [
+    { keywords: ['solar', 'energy'] },
+    { keywords: ['wind', 'energy'] },
+  ];
+  let g = { nodes: {} };
+  g = await proposeSectorNodes(runs, g);
+  const keys = Object.keys(g.nodes);
+  expect(keys.length).toBeGreaterThan(0);
+  await saveTaxonomy(g);
+  const loaded = await loadTaxonomy();
+  expect(Object.keys(loaded.nodes)).toEqual(keys);
 });
