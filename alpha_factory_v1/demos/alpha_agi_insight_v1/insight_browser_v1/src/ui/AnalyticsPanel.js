@@ -12,6 +12,35 @@ export function initAnalyticsPanel() {
     fontSize: '12px',
     zIndex: 1000,
   });
+
+  const metrics = document.createElement('div');
+  const memEl = document.createElement('span');
+  memEl.id = 'heap';
+  memEl.style.marginRight = '4px';
+  const workerEl = document.createElement('span');
+  workerEl.id = 'worker-time';
+  workerEl.style.marginRight = '4px';
+  const fpsEl = document.createElement('span');
+  fpsEl.id = 'fps-value';
+  metrics.appendChild(memEl);
+  metrics.appendChild(workerEl);
+  metrics.appendChild(fpsEl);
+  panel.appendChild(metrics);
+
+  const telControls = document.createElement('div');
+  const enableBtn = document.createElement('button');
+  enableBtn.textContent = 'Enable telemetry';
+  const disableBtn = document.createElement('button');
+  disableBtn.textContent = 'Disable telemetry';
+  const logBtn = document.createElement('button');
+  logBtn.textContent = 'Show logs';
+  const logPre = document.createElement('pre');
+  logPre.style.display = 'none';
+  telControls.appendChild(enableBtn);
+  telControls.appendChild(disableBtn);
+  telControls.appendChild(logBtn);
+  telControls.appendChild(logPre);
+  panel.appendChild(telControls);
   const canvas = document.createElement('canvas');
   canvas.width = 200;
   canvas.height = 100;
@@ -19,6 +48,23 @@ export function initAnalyticsPanel() {
   document.body.appendChild(panel);
   const ctx = canvas.getContext('2d');
   const hist = [];
+  let workerAvg = 0;
+  let workerSamples = 0;
+
+  enableBtn.addEventListener('click', () => {
+    localStorage.setItem('telemetryConsent', 'true');
+    location.reload();
+  });
+  disableBtn.addEventListener('click', () => {
+    localStorage.setItem('telemetryConsent', 'false');
+    location.reload();
+  });
+  logBtn.addEventListener('click', () => {
+    const logs = localStorage.getItem('telemetryQueue') || '[]';
+    logPre.textContent = logs;
+    logPre.style.display = logPre.style.display === 'none' ? 'block' : 'none';
+  });
+
   function update(pop, gen, entropy) {
     if (!ctx) return;
     hist.push(entropy);
@@ -52,6 +98,18 @@ export function initAnalyticsPanel() {
       else ctx.moveTo(x, y);
     });
     ctx.stroke();
+
+    if (performance.memory) {
+      const mb = performance.memory.usedJSHeapSize / 1048576;
+      memEl.textContent = `mem ${mb.toFixed(1)} MB`;
+    }
+    const fpsTxt = document.getElementById('fps-meter')?.textContent || '';
+    fpsEl.textContent = fpsTxt;
+    workerEl.textContent = `worker ${workerAvg.toFixed(1)} ms`;
   }
-  return { update };
+  function recordWorkerTime(ms) {
+    workerSamples += 1;
+    workerAvg += (ms - workerAvg) / workerSamples;
+  }
+  return { update, recordWorkerTime };
 }
