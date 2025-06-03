@@ -24,6 +24,7 @@ import { initSimulatorPanel } from './src/ui/SimulatorPanel.ts';
 import { initPowerPanel } from './src/ui/PowerPanel.js';
 import { initAnalyticsPanel } from './src/ui/AnalyticsPanel.js';
 import { initArenaPanel } from './src/ui/ArenaPanel.ts';
+import { initErrorBoundary } from './src/utils/errorBoundary.js';
 
 let panel,pauseBtn,exportBtn,dropZone
 let criticPanel,logicCritic,feasCritic
@@ -234,6 +235,7 @@ function apply(p, info = {}){
 }
 
 window.addEventListener('DOMContentLoaded',async()=>{
+  initErrorBoundary();
   telemetry = initTelemetry();
   archive = new Archive();
   await archive.open();

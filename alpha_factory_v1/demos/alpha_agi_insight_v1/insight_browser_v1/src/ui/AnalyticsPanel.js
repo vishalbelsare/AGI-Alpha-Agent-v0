@@ -34,11 +34,14 @@ export function initAnalyticsPanel() {
   disableBtn.textContent = 'Disable telemetry';
   const logBtn = document.createElement('button');
   logBtn.textContent = 'Show logs';
+  const downloadBtn = document.createElement('button');
+  downloadBtn.textContent = 'Download log';
   const logPre = document.createElement('pre');
   logPre.style.display = 'none';
   telControls.appendChild(enableBtn);
   telControls.appendChild(disableBtn);
   telControls.appendChild(logBtn);
+  telControls.appendChild(downloadBtn);
   telControls.appendChild(logPre);
   panel.appendChild(telControls);
   const canvas = document.createElement('canvas');
@@ -63,6 +66,15 @@ export function initAnalyticsPanel() {
     const logs = localStorage.getItem('telemetryQueue') || '[]';
     logPre.textContent = logs;
     logPre.style.display = logPre.style.display === 'none' ? 'block' : 'none';
+  });
+  downloadBtn.addEventListener('click', () => {
+    const logs = localStorage.getItem('errorLog') || '[]';
+    const blob = new Blob([logs], { type: 'application/json' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'error-log.json';
+    a.click();
+    URL.revokeObjectURL(a.href);
   });
 
   function update(pop, gen, entropy) {
