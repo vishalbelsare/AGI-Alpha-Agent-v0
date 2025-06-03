@@ -20,5 +20,9 @@
   "state_loaded": "estado cargado",
   "invalid_file": "archivo inválido",
   "simulation_restarted": "simulación reiniciada",
-  "telemetry_consent": "¿Permitir telemetría anónima?"
+  "telemetry_consent": "¿Permitir telemetría anónima?",
+  "summary.debateArena": "Arena de debate",
+  "summary.debate": "Debate",
+  "label.rank": "Rango",
+  "label.score": "Puntuación"
 }

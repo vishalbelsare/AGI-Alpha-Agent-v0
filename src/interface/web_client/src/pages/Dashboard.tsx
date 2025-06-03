@@ -211,7 +211,7 @@ export default function Dashboard() {
       navigator.share({ title: 'AGI Dashboard', url: window.location.href }).catch(() => null);
     } else if (navigator.clipboard) {
       navigator.clipboard.writeText(window.location.href).catch(() => null);
-      window.alert('URL copied to clipboard');
+      window.alert(t('alert.urlCopied'));
     }
   }
 
@@ -273,14 +273,14 @@ export default function Dashboard() {
             checked={adaptive}
             onChange={(e) => setAdaptive(e.target.checked)}
           />
-          Adaptive
+          {t('label.adaptive')}
         </label>
         <button type="submit">{t('button.run')}</button>
       </form>
       {runId && (
         <p>
           {t('label.runId')}: {runId}{' '}
-          <button type="button" onClick={share}>Share</button>
+          <button type="button" onClick={share}>{t('button.share')}</button>
         </p>
       )}
       <progress
@@ -295,14 +295,14 @@ export default function Dashboard() {
       <Pareto3D data={population} />
       <ul id="ranking">
         {population.map((p, i) => (
-          <li key={i}>Rank {p.rank.toFixed(1)}</li>
+          <li key={i}>{t('label.rank')} {p.rank.toFixed(1)}</li>
         ))}
       </ul>
       <button id="start-debate" type="button" onClick={() => workerRef.current?.postMessage({ hypothesis: 'the proposal' })}>
-        Start Debate
+        {t('button.startDebate')}
       </button>
       <details id="debate-panel">
-        <summary>Debate</summary>
+        <summary>{t('summary.debate')}</summary>
         <ul>
           {debate.map((m, i) => (
             <li key={i}>

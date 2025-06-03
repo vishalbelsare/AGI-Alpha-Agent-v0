@@ -20,5 +20,13 @@
   "aria.progress": "Progression de la simulation",
   "label.refresh": "Rafraîchir les résumés",
   "heading.lastRuns": "20 dernières simulations",
-  "telemetry_consent": "Autoriser la télémétrie anonyme ?"
+  "telemetry_consent": "Autoriser la télémétrie anonyme ?",
+  "label.adaptive": "Adaptatif",
+  "button.share": "Partager",
+  "button.startDebate": "Lancer le débat",
+  "summary.debate": "Débat",
+  "summary.debateArena": "Arène de débat",
+  "label.rank": "Rang",
+  "label.score": "Score",
+  "alert.urlCopied": "URL copiée dans le presse-papiers"
 }

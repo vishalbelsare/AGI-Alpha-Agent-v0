@@ -2,10 +2,11 @@
 import React, { createContext, ReactNode, useState, useEffect, useContext } from 'react';
 import en from '../i18n/en.json';
 import fr from '../i18n/fr.json';
+import es from '../i18n/es.json';
 
 export type Messages = Record<string, string>;
 
-const dictionaries: Record<string, Messages> = { en, fr };
+const dictionaries: Record<string, Messages> = { en, fr, es };
 
 interface IntlValue {
   lang: string;
@@ -23,7 +24,8 @@ export const IntlContext = createContext<IntlValue>({
 
 export function IntlProvider({ children }: { children: ReactNode }) {
   const browserLang = typeof navigator !== 'undefined' ? navigator.language : fallback;
-  const defaultLang = browserLang.toLowerCase().startsWith('fr') ? 'fr' : 'en';
+  const lower = browserLang.toLowerCase();
+  const defaultLang = lower.startsWith('fr') ? 'fr' : lower.startsWith('es') ? 'es' : 'en';
   const [lang, setLang] = useState<string>(defaultLang);
   const [messages, setMessages] = useState<Messages>(dictionaries[defaultLang]);
 
