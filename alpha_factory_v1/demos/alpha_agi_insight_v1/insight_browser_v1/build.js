@@ -118,6 +118,10 @@ async function bundle() {
     `<meta http-equiv="Content-Security-Policy" content="${csp}" />`
   );
   await copyAssets(manifest, repoRoot, OUT_DIR);
+  const pdf = path.join(repoRoot, 'docs/insight_browser_quickstart.pdf');
+  if (fsSync.existsSync(pdf)) {
+    await fs.copyFile(pdf, path.join(OUT_DIR, 'insight_browser_quickstart.pdf'));
+  }
   const bundleSri = await sha384('bundle.esm.min.js');
   const pyodideSri = await sha384('pyodide.js');
   const envScript = injectEnv(process.env);
@@ -153,7 +157,7 @@ async function bundle() {
     swDest: `${OUT_DIR}/sw.js`,
     globDirectory: OUT_DIR,
     importWorkboxFrom: 'disabled',
-    globPatterns: [...manifest.precache, 'insight_browser_quickstart.pdf'],
+    globPatterns: manifest.precache,
     injectionPoint: 'self.__WB_MANIFEST',
   });
   const size = await gzipSize.file(`${OUT_DIR}/insight.bundle.js`);

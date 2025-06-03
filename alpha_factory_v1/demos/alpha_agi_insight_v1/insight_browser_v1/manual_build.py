@@ -65,9 +65,6 @@ def copy_assets(manifest: dict, repo_root: Path, dist_dir: Path) -> None:
             target.parent.mkdir(parents=True, exist_ok=True)
             target.write_bytes(src_path.read_bytes())
 
-    quickstart_pdf = repo_root / manifest["quickstart_pdf"]
-    if quickstart_pdf.exists():
-        (dist_dir / quickstart_pdf.name).write_bytes(quickstart_pdf.read_bytes())
 
     translations = ROOT / manifest["dirs"]["translations"]
     if translations.exists():
@@ -225,6 +222,9 @@ out_html = re.sub(
 )
 
 copy_assets(manifest, repo_root, dist_dir)
+pdf_src = repo_root / "docs/insight_browser_quickstart.pdf"
+if pdf_src.exists():
+    (dist_dir / pdf_src.name).write_bytes(pdf_src.read_bytes())
 
 app_sri = sha384(dist_dir / "insight.bundle.js")
 bundle_sri = sha384(dist_dir / "bundle.esm.min.js")
@@ -268,7 +268,7 @@ injectManifest({{
   swDest: {json.dumps(str(sw_dest))},
   globDirectory: {json.dumps(str(dist_dir))},
   importWorkboxFrom: 'disabled',
-  globPatterns: {json.dumps(manifest["precache"] + ["insight_browser_quickstart.pdf"])},
+  globPatterns: {json.dumps(manifest["precache"])},
   injectionPoint: 'self.__WB_MANIFEST',
 }}).catch(err => {{console.error(err); process.exit(1);}});
 """

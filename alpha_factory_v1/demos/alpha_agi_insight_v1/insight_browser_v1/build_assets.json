@@ -23,7 +23,8 @@
     "wasm_llm/*",
     "wasm/*",
     "data/critics/*",
-    "src/i18n/*.json"
+    "src/i18n/*.json",
+    "insight_browser_quickstart.pdf"
   ],
   "assets": [
     "wasm/pyodide.js",
@@ -39,5 +40,5 @@
     "lib/workbox-sw.js": "sha384-LWo7skrGueg8Fa4y2Vpe1KB4g0SifqKfDr2gWFRmzZF9n9F1bQVo1F0dUurlkBJo",
     "pyodide.asm.wasm": "sha384-kdvSehcoFMjX55sjg+o5JHaLhOx3HMkaLOwwMFmwH+bmmtvfeJ7zFEMWaqV9+wqo"
   },
-  "quickstart_pdf": "../../../../docs/insight_browser_quickstart.pdf"
+  "quickstart_pdf": "docs/insight_browser_quickstart.pdf"
 }
