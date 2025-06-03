@@ -50,6 +50,13 @@ def sha384(path: Path) -> str:
     return "sha384-" + base64.b64encode(digest).decode()
 
 
+def check_gzip_size(path: Path, max_bytes: int = 2 * 1024 * 1024) -> None:
+    """Exit if gzip-compressed file exceeds ``max_bytes``."""
+    compressed = gzip.compress(path.read_bytes())
+    if len(compressed) > max_bytes:
+        sys.exit(f"gzip size {len(compressed)} bytes exceeds limit")
+
+
 def copy_assets(manifest: dict, repo_root: Path, dist_dir: Path) -> None:
     for rel in manifest["files"]:
         src_path = ROOT / rel
@@ -193,6 +200,7 @@ bundle = "(function() {\nconst style=" + repr(css) + ";\nconst s=document.create
 
 dist_dir.mkdir(exist_ok=True)
 (dist_dir / "insight.bundle.js").write_text(bundle)
+check_gzip_size(dist_dir / "insight.bundle.js")
 
 app_sri_placeholder = '<script type="module" src="insight.bundle.js" crossorigin="anonymous"></script>'
 out_html = html.replace("src/ui/controls.css", "controls.css")
@@ -253,7 +261,7 @@ else:
 # generate service worker
 sw_src = ROOT / "sw.js"
 sw_dest = dist_dir / "sw.js"
-  node_script = f"""
+node_script = f"""
 const {{injectManifest}} = require('workbox-build');
 injectManifest({{
   swSrc: {json.dumps(str(sw_src))},
@@ -269,9 +277,10 @@ try:
 except FileNotFoundError:
     print("[manual_build] node not found; skipping service worker generation", file=sys.stderr)
 except subprocess.CalledProcessError as exc:
-    print(f"[manual_build] workbox build failed: {exc}; offline features disabled", file=sys.stderr)
+    print(
+        f"[manual_build] workbox build failed: {exc}; offline features disabled",
+        file=sys.stderr,
+    )
 
-compressed = gzip.compress((dist_dir / "insight.bundle.js").read_bytes())
-MAX_GZIP_SIZE = 2 * 1024 * 1024  # 2 MiB
-if len(compressed) > MAX_GZIP_SIZE:
-    sys.exit(f"gzip size {len(compressed)} bytes exceeds limit")
+check_gzip_size(dist_dir / "insight.bundle.js")
+
