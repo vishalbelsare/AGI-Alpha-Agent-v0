@@ -29,4 +29,10 @@
   ,"novelty": "Novelty"
   ,"time": "Time"
   ,"respawn": "Re-spawn"
+  ,"pyodide_unavailable": "Pyodide unavailable; using JS only"
+  ,"pyodide_failed": "Pyodide failed to load; using JS only"
+  ,"archive_disabled": "Archive disabled (no storage access)"
+  ,"archive_full": "Archive full; oldest runs pruned"
+  ,"pin_failed": "pin failed"
+  ,"error_unknown": "unknown error"
 }

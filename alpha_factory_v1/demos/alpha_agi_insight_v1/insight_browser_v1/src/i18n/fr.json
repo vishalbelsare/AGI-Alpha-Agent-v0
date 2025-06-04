@@ -29,4 +29,10 @@
   ,"novelty": "Nouveauté"
   ,"time": "Temps"
   ,"respawn": "Relancer"
+  ,"pyodide_unavailable": "Pyodide indisponible; JS uniquement"
+  ,"pyodide_failed": "\u00c9chec du chargement de Pyodide; JS uniquement"
+  ,"archive_disabled": "Archive d\u00e9sactiv\u00e9e (pas d'acc\u00e8s au stockage)"
+  ,"archive_full": "Archive pleine; anciennes ex\u00e9cutions supprim\u00e9es"
+  ,"pin_failed": "\u00e9chec de l'\u00e9pinglage"
+  ,"error_unknown": "erreur inconnue"
 }

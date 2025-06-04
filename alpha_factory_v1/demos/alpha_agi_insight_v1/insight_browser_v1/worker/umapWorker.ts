@@ -1,11 +1,13 @@
 // SPDX-License-Identifier: Apache-2.0
 import { loadPyodide } from '../lib/pyodide.js';
 import type { Individual } from '../src/state/serializer.ts';
+import { t } from '../src/ui/i18n.js';
 
 let pyReady: any;
 async function initPy(): Promise<any> {
   if (!pyReady) {
     pyReady = await loadPyodide({ indexURL: './wasm/' }).catch(() => null);
+    if (!pyReady) self.postMessage({ toast: t('pyodide_failed') });
   }
   return pyReady;
 }

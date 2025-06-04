@@ -2,6 +2,7 @@
 import { mutate } from '../src/evolve/mutate.js';
 import { paretoFront } from '../src/utils/pareto.js';
 import { lcg } from '../src/utils/rng.js';
+import { t } from '../src/ui/i18n.js';
 import type { Individual } from '../src/state/serializer.ts';
 
 const ua = self.navigator?.userAgent ?? '';
@@ -38,7 +39,7 @@ interface EvolverResult {
 async function loadPy() {
   if (!pySupported) {
     if (!warned) {
-      self.postMessage({ toast: 'Pyodide unavailable; using JS only' });
+      self.postMessage({ toast: t('pyodide_unavailable') });
       warned = true;
     }
     return null;
@@ -51,7 +52,7 @@ async function loadPy() {
       pyReady = null;
       pySupported = false;
       if (!warned) {
-        self.postMessage({ toast: 'Pyodide failed to load; using JS only' });
+        self.postMessage({ toast: t('pyodide_failed') });
         warned = true;
       }
     }

@@ -29,4 +29,10 @@
   ,"novelty": "Novedad"
   ,"time": "Tiempo"
   ,"respawn": "Reaparecer"
+  ,"pyodide_unavailable": "Pyodide no disponible; usando solo JS"
+  ,"pyodide_failed": "Pyodide no se carg\u00f3; usando solo JS"
+  ,"archive_disabled": "Archivo deshabilitado (sin acceso a almacenamiento)"
+  ,"archive_full": "Archivo lleno; ejecuciones antiguas eliminadas"
+  ,"pin_failed": "error al fijar"
+  ,"error_unknown": "error desconocido"
 }
