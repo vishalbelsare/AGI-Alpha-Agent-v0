@@ -24,6 +24,7 @@
     "wasm/*",
     "data/critics/*",
     "src/i18n/*.json",
+    "src/i18n/zh.json",
     "insight_browser_quickstart.pdf"
   ],
   "assets": [
