@@ -202,3 +202,18 @@ reliably. The demo automatically falls back to the JavaScript engine instead of
 executing Python code in the browser. Expect noticeably slower performance for
 LLM tasks and the absence of features that rely on the Python bridge, such as
 the local GPT‑2 critic.
+
+## Running Browser Tests
+
+The demo includes a small Playwright and Pytest suite. **Node.js ≥20** is
+required. After fetching the WebAssembly assets and compiling the bundle with
+`npm run build` (or `python manual_build.py`), execute:
+
+```bash
+npm test
+```
+
+This command launches Playwright to exercise `dist/index.html` and then runs the
+Python checks. Offline setups can point Playwright at pre‑downloaded browsers by
+exporting `PLAYWRIGHT_BROWSERS_PATH=/path/to/browsers` or skip the download step
+with `PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1`.
