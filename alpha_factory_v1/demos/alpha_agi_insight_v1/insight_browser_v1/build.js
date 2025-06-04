@@ -221,6 +221,20 @@ async function bundle() {
     injectionPoint: 'self.__WB_MANIFEST',
   });
   await fs.unlink(swTemp);
+
+  const swData = await fs.readFile(`${OUT_DIR}/sw.js`);
+  const swHash = createHash('sha384').update(swData).digest('base64');
+  let indexText = await fs.readFile(`${OUT_DIR}/index.html`, 'utf8');
+  indexText = indexText.replace(".register('sw.js')", ".register('service-worker.js')");
+  indexText = indexText.replace(
+    '</body>',
+    `<script src="service-worker.js" integrity="sha384-${swHash}" crossorigin="anonymous"></script>\n</body>`
+  );
+  indexText = indexText.replace(
+    /(script-src 'self' 'wasm-unsafe-eval')/,
+    `$1 'sha384-${swHash}'`
+  );
+  await fs.writeFile(`${OUT_DIR}/index.html`, indexText);
   const size = await gzipSize.file(`${OUT_DIR}/insight.bundle.js`);
   const MAX_GZIP_SIZE = 2 * 1024 * 1024; // 2 MiB
   if (size > MAX_GZIP_SIZE) {
