@@ -30,6 +30,13 @@ interface Individual {
   horizonYears: number;
   front: boolean;
 }
+
+interface EvolverResult {
+  pop: Individual[];
+  rngState: number;
+  front: Individual[];
+  metrics: { avgLogic: number; avgFeasible: number; frontSize: number };
+}
 export class Simulator {
   static async *run(opts: SimulatorConfig): AsyncGenerator<Generation> {
     const options = { mutations: ['gaussian'], seeds: [1], critic: 'none', ...opts };
@@ -50,9 +57,9 @@ export class Simulator {
       let metrics = { avgLogic: 0, avgFeasible: 0, frontSize: 0 };
       if (options.workerUrl && typeof Worker !== 'undefined') {
         if (!worker) worker = new Worker(options.workerUrl, { type: 'module' });
-        const result: any = await new Promise((resolve) => {
+        const result: EvolverResult = await new Promise((resolve) => {
           if (!worker) return resolve({ pop, rngState: rand.state(), front: [], metrics });
-          worker.onmessage = (ev) => resolve(ev.data);
+          worker.onmessage = (ev) => resolve(ev.data as EvolverResult);
           worker.postMessage({
             pop,
             rngState: rand.state(),
