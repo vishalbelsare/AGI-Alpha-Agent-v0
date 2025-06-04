@@ -200,6 +200,10 @@ async function bundle() {
   await fs.writeFile(`${OUT_DIR}/index.html`, outHtml);
   const pkg = JSON.parse(fsSync.readFileSync('package.json', 'utf8'));
   await generateServiceWorker(OUT_DIR, manifest, pkg.version);
+  await fs.copyFile(
+    path.join(OUT_DIR, 'sw.js'),
+    path.join(OUT_DIR, 'service-worker.js')
+  );
   await checkGzipSize(`${OUT_DIR}/insight.bundle.js`);
   if (process.env.WEB3_STORAGE_TOKEN) {
     const client = new Web3Storage({ token: process.env.WEB3_STORAGE_TOKEN });

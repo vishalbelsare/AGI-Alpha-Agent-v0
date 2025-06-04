@@ -47,6 +47,8 @@ npm run build    # compile to dist/ and embed env vars
 The build script reads `.env` automatically and injects the values into
 `dist/index.html` as `window.PINNER_TOKEN`, `window.OPENAI_API_KEY`,
 `window.IPFS_GATEWAY` and `window.OTEL_ENDPOINT`.
+It also copies `dist/sw.js` to `dist/service-worker.js` which `index.html`
+registers for offline support.
 The unbuilt `index.html` falls back to `'self'` for the IPFS and telemetry
 origins, but running `npm run build` (or `python manual_build.py`) replaces
 these defaults with the real values from `.env`.
