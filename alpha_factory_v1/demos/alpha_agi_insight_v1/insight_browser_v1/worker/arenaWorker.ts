@@ -5,7 +5,21 @@
  * Proposer, Skeptic, Regulator and Investor. The outcome score is
  * returned to the caller along with the threaded messages.
  */
-self.onmessage = (ev) => {
+interface ArenaRequest {
+  hypothesis?: string;
+}
+
+interface DebateMessage {
+  role: string;
+  text: string;
+}
+
+interface ArenaResult {
+  messages: DebateMessage[];
+  score: number;
+}
+
+self.onmessage = (ev: MessageEvent<ArenaRequest>) => {
   const { hypothesis } = ev.data || {};
   if (!hypothesis) return;
 
@@ -24,5 +38,6 @@ self.onmessage = (ev) => {
   });
 
   const score = approved ? 1 : 0;
-  self.postMessage({ messages, score });
+  const result: ArenaResult = { messages, score };
+  self.postMessage(result);
 };

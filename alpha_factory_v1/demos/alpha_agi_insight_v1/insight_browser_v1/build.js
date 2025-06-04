@@ -61,6 +61,21 @@ async function ensureWeb3Bundle() {
   }
 }
 
+async function compileWorkers() {
+  const workers = ['evolver', 'arenaWorker', 'umapWorker'];
+  await Promise.all(
+    workers.map((w) =>
+      build({
+        entryPoints: [`worker/${w}.ts`],
+        outfile: `worker/${w}.js`,
+        bundle: false,
+        format: 'esm',
+        target: 'es2020',
+      }),
+    ),
+  );
+}
+
 function collectFiles(dir) {
   let out = [];
   if (!fsSync.existsSync(dir)) return out;
@@ -108,6 +123,7 @@ async function bundle() {
   const html = await fs.readFile('index.html', 'utf8');
   await ensureWeb3Bundle();
   ensureAssets();
+  await compileWorkers();
   const ipfsOrigin = process.env.IPFS_GATEWAY
     ? new URL(process.env.IPFS_GATEWAY).origin
     : '';

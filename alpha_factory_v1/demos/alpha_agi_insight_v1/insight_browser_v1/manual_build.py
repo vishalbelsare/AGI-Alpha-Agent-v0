@@ -154,6 +154,16 @@ if placeholders:
 
 subprocess.run(["tsc", "--noEmit"], check=True)
 
+def _compile_worker(path: Path) -> str:
+    script = (
+        "const ts=require('typescript');"
+        "const fs=require('fs');"
+        "const src=fs.readFileSync(process.argv[1],'utf8');"
+        "const out=ts.transpileModule(src,{compilerOptions:{module:'ES2022',target:'ES2022'}});"
+        "process.stdout.write(out.outputText);"
+    )
+    return subprocess.check_output(["node", "-e", script, str(path)], text=True)
+
 html = index_html.read_text()
 entry = (ROOT / "app.js").read_text()
 
@@ -228,8 +238,8 @@ gpt2_b64 = ""
 gpt2_file = ROOT / "wasm_llm" / "wasm-gpt2.tar"
 if gpt2_file.exists():
     gpt2_b64 = base64.b64encode(gpt2_file.read_bytes()).decode()
-evolver = (ROOT / "worker" / "evolver.js").read_text()
-arena = (ROOT / "worker" / "arenaWorker.js").read_text()
+evolver = _compile_worker(ROOT / "worker" / "evolver.ts")
+arena = _compile_worker(ROOT / "worker" / "arenaWorker.ts")
 bundle = (
     d3_code
     + "\n"

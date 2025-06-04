@@ -2,6 +2,7 @@
 import { mutate } from '../src/evolve/mutate.js';
 import { paretoFront } from '../src/utils/pareto.js';
 import { lcg } from '../src/utils/rng.js';
+import type { Individual } from '../src/state/serializer.ts';
 
 const ua = self.navigator?.userAgent ?? '';
 const isSafari = /Safari/.test(ua) && !/Chrome|Chromium|Edge/.test(ua);
@@ -10,6 +11,29 @@ let pyReady;
 let warned = false;
 let pySupported = !(isSafari || isIOS);
 let gpuAvailable = false;
+
+interface GPUMessage {
+  type: 'gpu';
+  available: boolean;
+}
+
+interface EvolverRequest {
+  pop: Individual[];
+  rngState: number;
+  mutations: string[];
+  popSize: number;
+  critic: 'llm' | 'none';
+  gen: number;
+  adaptive?: boolean;
+  sigmaScale?: number;
+}
+
+interface EvolverResult {
+  pop: Individual[];
+  rngState: number;
+  front: Individual[];
+  metrics: { avgLogic: number; avgFeasible: number; frontSize: number };
+}
 
 async function loadPy() {
   if (!pySupported) {
@@ -35,22 +59,41 @@ async function loadPy() {
   return pyReady;
 }
 
-function shuffle(arr, rand) {
+function shuffle<T>(arr: T[], rand: () => number) {
   for (let i = arr.length - 1; i > 0; i--) {
     const j = Math.floor(rand() * (i + 1));
     [arr[i], arr[j]] = [arr[j], arr[i]];
   }
 }
 
-self.onmessage = async (ev) => {
-  if (ev.data?.type === 'gpu') {
-    gpuAvailable = !!ev.data.available;
+self.onmessage = async (
+  ev: MessageEvent<EvolverRequest | GPUMessage>,
+) => {
+  if ((ev.data as GPUMessage)?.type === 'gpu') {
+    gpuAvailable = !!(ev.data as GPUMessage).available;
     return;
   }
-  const { pop, rngState, mutations, popSize, critic, gen, adaptive, sigmaScale = 1 } = ev.data;
+  const {
+    pop,
+    rngState,
+    mutations,
+    popSize,
+    critic,
+    gen,
+    adaptive,
+    sigmaScale = 1,
+  } = ev.data as EvolverRequest;
   const rand = lcg(0);
   rand.set(rngState);
-  let next = mutate(pop, rand, mutations, gen, adaptive, sigmaScale, gpuAvailable);
+  let next = mutate(
+    pop,
+    rand,
+    mutations,
+    gen,
+    adaptive,
+    sigmaScale,
+    gpuAvailable,
+  );
   const front = paretoFront(next);
   next.forEach((d) => (d.front = front.includes(d)));
   if (critic === 'llm') {
@@ -63,5 +106,11 @@ self.onmessage = async (ev) => {
     avgFeasible: next.reduce((s, d) => s + (d.feasible ?? 0), 0) / next.length,
     frontSize: front.length,
   };
-  self.postMessage({ pop: next, rngState: rand.state(), front, metrics });
+  const result: EvolverResult = {
+    pop: next,
+    rngState: rand.state(),
+    front,
+    metrics,
+  };
+  self.postMessage(result);
 };
