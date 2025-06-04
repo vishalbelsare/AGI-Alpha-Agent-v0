@@ -12,5 +12,5 @@
     "allowJs": true,
     "allowImportingTsExtensions": true
   },
-  "include": ["src/**/*.ts", "src/**/*.js", "worker/**/*.ts"]
+  "include": ["src/**/*.ts", "src/**/*.js", "src/global.d.ts", "worker/**/*.ts"]
 }
