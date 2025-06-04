@@ -31,9 +31,10 @@ Strategic Edge:
 
 For the browser-based version, see
 [insight_browser_v1/README.md](alpha_factory_v1/demos/alpha_agi_insight_v1/insight_browser_v1/README.md).
-It requires **Node.js ≥20** and building the static assets with
-`npm run build` before launching. The repository includes a `.nvmrc` file so you
-can simply run `nvm use` to select the correct Node version.
+It requires **Node.js ≥20**. Install the dependencies with
+`npm ci` and build the static assets with `npm run build` before launching.
+The repository includes a `.nvmrc` file so you can simply run `nvm use` to
+select the correct Node version.
 
 The α‑AGI Insight demo ships with an offline‑friendly command line interface.
 After installation, launch the official demo via:
