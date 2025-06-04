@@ -2,6 +2,7 @@
 import { promises as fs } from 'fs';
 import fsSync from 'fs';
 import path from 'path';
+import { createHash } from 'crypto';
 
 export async function copyAssets(manifest, repoRoot, outDir) {
   for (const rel of manifest.files) {
@@ -37,4 +38,43 @@ export async function copyAssets(manifest, repoRoot, outDir) {
 export function injectEnv(env) {
   const script = `<script>window.PINNER_TOKEN=${JSON.stringify(env.PINNER_TOKEN || '')};window.OPENAI_API_KEY=${JSON.stringify(env.OPENAI_API_KEY || '')};window.OTEL_ENDPOINT=${JSON.stringify(env.OTEL_ENDPOINT || '')};window.IPFS_GATEWAY=${JSON.stringify(env.IPFS_GATEWAY || '')};</script>`;
   return script;
+}
+export async function checkGzipSize(file, maxBytes = 2 * 1024 * 1024) {
+  const gzipSize = (await import('gzip-size')).default;
+  const size = await gzipSize.file(file);
+  if (size > maxBytes) {
+    throw new Error(`gzip size ${size} bytes exceeds limit`);
+  }
+}
+
+export async function generateServiceWorker(outDir, manifest, version) {
+  const { injectManifest } = await import('workbox-build');
+  const swSrc = 'sw.js';
+  const swTemp = path.join(outDir, 'sw.build.js');
+  const swDest = path.join(outDir, 'sw.js');
+  const swTemplate = await fs.readFile(swSrc, 'utf8');
+  await fs.writeFile(swTemp, swTemplate.replace('__CACHE_VERSION__', version));
+  await injectManifest({
+    swSrc: swTemp,
+    swDest,
+    globDirectory: outDir,
+    importWorkboxFrom: 'disabled',
+    globPatterns: manifest.precache,
+    injectionPoint: 'self.__WB_MANIFEST',
+  });
+  await fs.unlink(swTemp);
+  const swData = await fs.readFile(swDest);
+  const swHash = createHash('sha384').update(swData).digest('base64');
+  const indexPath = path.join(outDir, 'index.html');
+  let indexText = await fs.readFile(indexPath, 'utf8');
+  indexText = indexText.replace(".register('sw.js')", ".register('service-worker.js')");
+  indexText = indexText.replace(
+    '</body>',
+    `<script src="service-worker.js" integrity="sha384-${swHash}" crossorigin="anonymous"></script>\n</body>`
+  );
+  indexText = indexText.replace(
+    /(script-src 'self' 'wasm-unsafe-eval')/,
+    `$1 'sha384-${swHash}'`
+  );
+  await fs.writeFile(indexPath, indexText);
 }
