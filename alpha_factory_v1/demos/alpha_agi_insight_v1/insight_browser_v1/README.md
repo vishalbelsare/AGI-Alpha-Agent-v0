@@ -28,8 +28,10 @@ Copy [`.env.sample`](.env.sample) to `.env` then review the variables:
 See [`.env.sample`](.env.sample) for the full list of supported variables.
 
 ## Build & Run
-Before running the build script you **must** replace the placeholder
-WebAssembly artifacts. Fetch the real assets with:
+Before compiling the app you **must** replace the placeholder WebAssembly
+artifacts. Run the helper below **before** `npm run build` or
+`python manual_build.py` to download the Pyodide runtime and
+`wasm-gpt2` model:
 
 ```bash
 python ../../../scripts/fetch_assets.py
