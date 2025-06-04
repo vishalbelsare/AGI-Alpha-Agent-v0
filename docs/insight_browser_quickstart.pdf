@@ -9,7 +9,7 @@ endobj
 << /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Contents 4 0 R /Resources << /Font << /F1 5 0 R >> >> >>
 endobj
 4 0 obj
-<< /Length 384 >>
+<< /Length 481 >>
 stream
 BT
 /F1 12 Tf
@@ -20,11 +20,13 @@ BT
 72 680 Td
 (2. Set PINNER_TOKEN to pin runs to IPFS.) Tj
 72 660 Td
-(3. Click Share to copy the CID or permalink.) Tj
+(3. Run python ../../../scripts/fetch_assets.py before npm run build or manual_build.py.) Tj
 72 640 Td
-(4. localStorage.setItem('USE_GPU','1') to force the GPU backend.) Tj
+(4. This downloads the Pyodide runtime and wasm-gpt2 model.) Tj
 72 620 Td
-(5. Use the Analytics panel to enable or disable telemetry.) Tj
+(5. Click Share to copy the CID or permalink.) Tj
+72 600 Td
+(6. Use the Analytics panel to enable or disable telemetry.) Tj
 ET
 endstream
 endobj
@@ -38,9 +40,9 @@ xref
 0000000058 00000 n 
 0000000115 00000 n 
 0000000241 00000 n 
-0000000521 00000 n 
+0000000772 00000 n 
 trailer
 << /Root 1 0 R /Size 6 >>
 startxref
-591
+842
 %%EOF
