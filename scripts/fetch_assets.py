@@ -4,13 +4,14 @@
 from __future__ import annotations
 
 import sys
+import os
 from pathlib import Path
 import requests  # type: ignore
 from requests.adapters import HTTPAdapter, Retry  # type: ignore
 import hashlib
 import base64
 
-GATEWAY = "https://ipfs.io/ipfs"
+GATEWAY = os.environ.get("IPFS_GATEWAY", "https://ipfs.io/ipfs").rstrip("/")
 
 ASSETS = {
     # Pyodide 0.25 runtime files
@@ -84,6 +85,8 @@ def main() -> None:
             fallback = None
             if rel == "lib/bundle.esm.min.js":
                 fallback = "https://cdn.jsdelivr.net/npm/web3.storage/dist/bundle.esm.min.js"  # noqa: E501
+            elif rel == "wasm_llm/wasm-gpt2.tar":
+                fallback = f"https://cloudflare-ipfs.com/ipfs/{cid}"
             try:
                 download(cid, dest, fallback)
             except Exception as exc:
