@@ -8,7 +8,7 @@ import type { Individual } from '../src/state/serializer.ts';
 const ua = self.navigator?.userAgent ?? '';
 const isSafari = /Safari/.test(ua) && !/Chrome|Chromium|Edge/.test(ua);
 const isIOS = /(iPad|iPhone|iPod)/.test(ua);
-let pyReady;
+let pyReady: Promise<unknown> | null | undefined;
 let warned = false;
 let pySupported = !(isSafari || isIOS);
 let gpuAvailable = false;
@@ -46,7 +46,9 @@ async function loadPy() {
   }
   if (!pyReady) {
     try {
-      const mod = await import('../src/wasm/bridge.js');
+      const mod = (await import('../src/wasm/bridge.js')) as {
+        initPy?: () => Promise<unknown>;
+      };
       pyReady = mod.initPy ? mod.initPy() : null;
     } catch {
       pyReady = null;
@@ -86,7 +88,7 @@ self.onmessage = async (
   } = ev.data as EvolverRequest;
   const rand = lcg(0);
   rand.set(rngState);
-  let next = mutate(
+  let next: Individual[] = mutate(
     pop,
     rand,
     mutations,
@@ -95,7 +97,7 @@ self.onmessage = async (
     sigmaScale,
     gpuAvailable,
   );
-  const front = paretoFront(next);
+  const front: Individual[] = paretoFront(next as unknown as Individual[]);
   next.forEach((d) => (d.front = front.includes(d)));
   if (critic === 'llm') {
     await loadPy();
@@ -103,8 +105,11 @@ self.onmessage = async (
   shuffle(next, rand);
   next = front.concat(next.slice(0, popSize - 10));
   const metrics = {
-    avgLogic: next.reduce((s, d) => s + (d.logic ?? 0), 0) / next.length,
-    avgFeasible: next.reduce((s, d) => s + (d.feasible ?? 0), 0) / next.length,
+    avgLogic: next.reduce((s: number, d: Individual) => s + (d.logic ?? 0), 0) / next.length,
+    avgFeasible: next.reduce(
+      (s: number, d: Individual) => s + (d.feasible ?? 0),
+      0
+    ) / next.length,
     frontSize: front.length,
   };
   const result: EvolverResult = {

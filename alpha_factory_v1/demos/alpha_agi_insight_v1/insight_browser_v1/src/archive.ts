@@ -1,13 +1,30 @@
 // SPDX-License-Identifier: Apache-2.0
 import { createStore, set, get, del, values } from './utils/keyval.js';
 import type { EvaluatorGenome } from './evaluator_genome.ts';
+import type { Individual } from './state/serializer.ts';
 import { detectColdZone } from './utils/cluster.js';
+
+interface KeyValueStore<T> {
+  dbp: Promise<IDBDatabase | null>;
+  storeName: string;
+  memory: Map<string, T> | null;
+}
+
+interface WindowWithToast extends Window {
+  toast?: (msg: string) => void;
+}
+
+export interface RunParams {
+  sector?: string;
+  keywords?: string[];
+  [key: string]: unknown;
+}
 
 export interface InsightRun {
   id: string;
   seed: number;
-  params: any;
-  paretoFront: any[];
+  params: RunParams;
+  paretoFront: Individual[];
   parents: string[];
   evalId: string;
   score: number;
@@ -21,42 +38,48 @@ export interface EvaluatorRecord {
 }
 
 export class Archive {
-  private runStore;
-  private evalStore;
+  private runStore: KeyValueStore<InsightRun>;
+  private evalStore: KeyValueStore<EvaluatorRecord>;
   private disabled = false;
   constructor(private name = 'insight-archive') {
-    this.runStore = createStore(this.name, 'runs');
-    this.evalStore = createStore(this.name, 'evals');
+    this.runStore = createStore(this.name, 'runs') as unknown as KeyValueStore<InsightRun>;
+    this.evalStore = createStore(this.name, 'evals') as unknown as KeyValueStore<EvaluatorRecord>;
   }
 
   async open(): Promise<void> {
     await this.runStore.dbp;
     await this.evalStore.dbp;
     if (!this.disabled) {
-      if (typeof document !== 'undefined' &&
-          typeof (document as any).hasStorageAccess === 'function') {
+      if (
+        typeof document !== 'undefined' &&
+        typeof document.hasStorageAccess === 'function'
+      ) {
         try {
-          const access = await (document as any).hasStorageAccess();
+          const access = await (
+            (document as { hasStorageAccess?: () => Promise<boolean> }).hasStorageAccess?.() ??
+            Promise.resolve(false)
+          );
           if (!access) {
-            this.runStore.memory = new Map();
-            this.evalStore.memory = new Map();
+            this.runStore.memory = new Map<string, InsightRun>();
+            this.evalStore.memory = new Map<string, EvaluatorRecord>();
           }
         } catch {
-          this.runStore.memory = new Map();
-          this.evalStore.memory = new Map();
+          this.runStore.memory = new Map<string, InsightRun>();
+          this.evalStore.memory = new Map<string, EvaluatorRecord>();
         }
       }
 
       if (this.runStore.memory || this.evalStore.memory) {
         this.disabled = true;
-        if (typeof (window as any).toast === 'function') {
-          (window as any).toast('Archive disabled (no storage access)');
+        const toast = (window as WindowWithToast).toast;
+        if (typeof toast === 'function') {
+          toast('Archive disabled (no storage access)');
         }
       }
     }
   }
 
-  private _vector(front: any[]): [number, number] {
+  private _vector(front: Individual[]): [number, number] {
     if (!front.length) return [0, 0];
     const l = front.reduce((s, d) => s + (d.logic ?? 0), 0) / front.length;
     const f = front.reduce((s, d) => s + (d.feasible ?? 0), 0) / front.length;
@@ -78,8 +101,8 @@ export class Archive {
 
   async add(
     seed: number,
-    params: any,
-    paretoFront: any[],
+    params: RunParams,
+    paretoFront: Individual[],
     parents: string[] = [],
     evalId: string = ''
   ): Promise<string> {
@@ -103,11 +126,12 @@ export class Archive {
     };
     try {
       await set(id, run, this.runStore);
-    } catch (err: any) {
-      if (err?.name === 'QuotaExceededError') {
+    } catch (err: unknown) {
+      if ((err as DOMException)?.name === 'QuotaExceededError') {
         await this.prune();
-        if (typeof (window as any).toast === 'function') {
-          (window as any).toast('Archive full; oldest runs pruned');
+        const toast = (window as WindowWithToast).toast;
+        if (typeof toast === 'function') {
+          toast('Archive full; oldest runs pruned');
         }
         await set(id, run, this.runStore);
       } else {
