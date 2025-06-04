@@ -254,6 +254,9 @@ window.addEventListener('DOMContentLoaded',async()=>{
   await initI18n();
   telemetry = initTelemetry();
   archive = new Archive();
+  if (typeof document.hasStorageAccess === 'function') {
+    try { await document.hasStorageAccess(); } catch {}
+  }
   await archive.open();
   evolutionPanel = initEvolutionPanel(archive);
   powerPanel = initPowerPanel();

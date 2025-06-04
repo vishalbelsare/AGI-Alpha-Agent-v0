@@ -32,10 +32,26 @@ export class Archive {
   async open(): Promise<void> {
     await this.runStore.dbp;
     await this.evalStore.dbp;
-    if (!this.disabled && (this.runStore.memory || this.evalStore.memory)) {
-      this.disabled = true;
-      if (typeof (window as any).toast === 'function') {
-        (window as any).toast('Archive disabled (no storage access)');
+    if (!this.disabled) {
+      if (typeof document !== 'undefined' &&
+          typeof (document as any).hasStorageAccess === 'function') {
+        try {
+          const access = await (document as any).hasStorageAccess();
+          if (!access) {
+            this.runStore.memory = new Map();
+            this.evalStore.memory = new Map();
+          }
+        } catch {
+          this.runStore.memory = new Map();
+          this.evalStore.memory = new Map();
+        }
+      }
+
+      if (this.runStore.memory || this.evalStore.memory) {
+        this.disabled = true;
+        if (typeof (window as any).toast === 'function') {
+          (window as any).toast('Archive disabled (no storage access)');
+        }
       }
     }
   }

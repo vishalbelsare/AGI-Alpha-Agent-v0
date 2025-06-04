@@ -791,17 +791,38 @@ function lcg(seed) {
 
 // SPDX-License-Identifier: Apache-2.0
 function createStore(dbName, storeName) {
-  const dbp = new Promise((resolve, reject) => {
-    const req = indexedDB.open(dbName, 1);
-    req.onupgradeneeded = () => req.result.createObjectStore(storeName);
-    req.onsuccess = () => resolve(req.result);
-    req.onerror = () => reject(req.error);
+  const store = { dbp: null, storeName, memory: null };
+  if (typeof indexedDB === "undefined") {
+    store.dbp = Promise.resolve(null);
+    store.memory = new Map();
+    return store;
+  }
+  store.dbp = new Promise((resolve) => {
+    try {
+      const req = indexedDB.open(dbName, 1);
+      req.onupgradeneeded = () => req.result.createObjectStore(storeName);
+      req.onsuccess = () => resolve(req.result);
+      req.onerror = () => {
+        store.memory = new Map();
+        resolve(null);
+      };
+    } catch (err) {
+      store.memory = new Map();
+      resolve(null);
+    }
   });
-  return { dbp, storeName };
+  return store;
 }
 
 async function withStore(type, store, fn) {
+  if (store.memory) {
+    return Promise.resolve(fn(store.memory));
+  }
   const db = await store.dbp;
+  if (!db) {
+    store.memory = new Map();
+    return Promise.resolve(fn(store.memory));
+  }
   return new Promise((resolve, reject) => {
     const tx = db.transaction(store.storeName, type);
     const st = tx.objectStore(store.storeName);
@@ -845,6 +866,20 @@ class Archive {
 
   async open(): Promise<void> {
     await this.store.dbp;
+    if (typeof document !== "undefined" && typeof document.hasStorageAccess === "function") {
+      let access = true;
+      try {
+        access = await document.hasStorageAccess();
+      } catch {
+        access = false;
+      }
+      if (!access) {
+        this.store.memory = new Map();
+      }
+    }
+    if (this.store.memory && typeof window.toast === "function") {
+      window.toast("Archive disabled (no storage access)");
+    }
   }
 
   private _vector(front: any[]): [number, number] {
