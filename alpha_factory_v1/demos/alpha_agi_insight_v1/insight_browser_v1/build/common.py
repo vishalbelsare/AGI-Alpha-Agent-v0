@@ -38,9 +38,7 @@ injectManifest({{
   swSrc: {json.dumps(str(temp_sw))},
   swDest: {json.dumps(str(sw_dest))},
   globDirectory: {json.dumps(str(dist_dir))},
-  importWorkboxFrom: 'disabled',
   globPatterns: {json.dumps(manifest['precache'])},
-  injectionPoint: 'self.__WB_MANIFEST',
 }}).catch(err => {{console.error(err); process.exit(1);}});
 """
     try:

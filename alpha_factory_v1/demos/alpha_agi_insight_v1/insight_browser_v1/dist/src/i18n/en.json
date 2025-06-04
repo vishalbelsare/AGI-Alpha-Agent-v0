@@ -1,0 +1,38 @@
+{
+  "seed": "Seed",
+  "population": "Population",
+  "generations": "Generations",
+  "gaussian": "gaussian",
+  "swap": "swap",
+  "jump": "jump",
+  "scramble": "scramble",
+  "adaptive": "Adaptive",
+  "pause": "Pause",
+  "resume": "Resume",
+  "export": "Export",
+  "drop": "Drop JSON here",
+  "csv": "CSV",
+  "png": "PNG",
+  "share": "Share",
+  "theme": "Theme",
+  "iframe_copied": "iframe snippet copied",
+  "link_copied": "permalink copied",
+  "state_loaded": "state loaded",
+  "invalid_file": "invalid file",
+  "simulation_restarted": "simulation restarted",
+  "telemetry_consent": "Allow anonymous telemetry?",
+  "summary.debateArena": "Debate Arena",
+  "summary.debate": "Debate",
+  "label.rank": "Rank",
+  "label.score": "Score"
+  ,"score": "Score"
+  ,"novelty": "Novelty"
+  ,"time": "Time"
+  ,"respawn": "Re-spawn"
+  ,"pyodide_unavailable": "Pyodide unavailable; using JS only"
+  ,"pyodide_failed": "Pyodide failed to load; using JS only"
+  ,"archive_disabled": "Archive disabled (no storage access)"
+  ,"archive_full": "Archive full; oldest runs pruned"
+  ,"pin_failed": "pin failed"
+  ,"error_unknown": "unknown error"
+}
