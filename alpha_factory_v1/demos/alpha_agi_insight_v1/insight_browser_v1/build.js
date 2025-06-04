@@ -42,15 +42,25 @@ const aliasPlugin = {
 
 async function ensureWeb3Bundle() {
   const bundlePath = path.join('lib', 'bundle.esm.min.js');
-  const data = await fs.readFile(bundlePath, 'utf8').catch(() => {
-    throw new Error(
-      'lib/bundle.esm.min.js missing. Run scripts/fetch_assets.py to download assets.'
-    );
-  });
-  if (data.includes('Placeholder for web3.storage bundle.esm.min.js')) {
-    throw new Error(
-      'lib/bundle.esm.min.js is a placeholder. Run scripts/fetch_assets.py to download assets.'
-    );
+  let data = await fs.readFile(bundlePath, 'utf8').catch(() => '');
+  if (!data || data.includes('Placeholder')) {
+    runFetch();
+    data = await fs.readFile(bundlePath, 'utf8').catch(() => '');
+    if (!data || data.includes('Placeholder')) {
+      throw new Error('Failed to fetch lib/bundle.esm.min.js');
+    }
+  }
+}
+
+async function ensureWorkbox() {
+  const wbPath = path.join('lib', 'workbox-sw.js');
+  let data = await fs.readFile(wbPath, 'utf8').catch(() => '');
+  if (!data || data.toLowerCase().includes('placeholder')) {
+    runFetch();
+    data = await fs.readFile(wbPath, 'utf8').catch(() => '');
+    if (!data || data.toLowerCase().includes('placeholder')) {
+      throw new Error('Failed to fetch lib/workbox-sw.js');
+    }
   }
 }
 
@@ -82,7 +92,7 @@ function collectFiles(dir) {
 
 function placeholderFiles() {
   const files = [];
-  for (const sub of ['wasm', 'wasm_llm']) {
+  for (const sub of ['lib']) {
     const root = path.join(path.dirname(scriptPath), sub);
     for (const f of collectFiles(root)) {
       const data = fsSync.readFileSync(f, 'utf8');
@@ -115,6 +125,7 @@ const OUT_DIR = 'dist';
 async function bundle() {
   const html = await fs.readFile('index.html', 'utf8');
   await ensureWeb3Bundle();
+  await ensureWorkbox();
   ensureAssets();
   await compileWorkers();
   const ipfsOrigin = process.env.IPFS_GATEWAY
