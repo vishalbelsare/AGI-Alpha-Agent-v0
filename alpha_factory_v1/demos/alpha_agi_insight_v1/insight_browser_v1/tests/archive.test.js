@@ -77,3 +77,14 @@ test('in-memory fallback triggers toast', async () => {
   expect(runs.length).toBe(1);
   global.indexedDB = orig;
 });
+
+test('auto prune retains latest 50 runs', async () => {
+  const a = new Archive('jest');
+  await a.open();
+  for (let i = 0; i < 55; i++) {
+    await a.add(i, {}, [{ logic: 0, feasible: 0 }]);
+  }
+  const runs = await a.list();
+  expect(runs.length).toBe(50);
+  expect(runs[0].seed).toBe(5);
+});

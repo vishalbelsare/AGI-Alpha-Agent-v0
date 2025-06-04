@@ -29,7 +29,10 @@ def test_archive_quota_toast() -> None:
             };
             """
         )
-        page.evaluate("window.archive.add(1, {}, [{logic:1,feasible:1}])")
+        page.evaluate(
+            "(async () => { for (let i = 0; i < 55; i++) await window.archive.add(i, {}, [{logic:1,feasible:1}]); })()"
+        )
         page.wait_for_selector("#toast.show")
         assert "Archive full" in page.inner_text("#toast")
+        page.wait_for_function("window.archive.list().then(r => r.length === 50)")
         browser.close()
