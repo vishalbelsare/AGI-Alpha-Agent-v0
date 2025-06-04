@@ -122,6 +122,8 @@ Failing to replace placeholders will break offline mode.
 2. Confirm no placeholder text remains in `lib/` or `wasm*/`.
 3. Execute `npm run build` or `python manual_build.py`.
 
+4. Run `npm test --offline` to execute the suite with pre‑installed browsers.
+
 Failing to run the fetch script leaves offline mode disabled.
 
 ### Fetching Assets Offline
