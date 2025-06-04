@@ -6,9 +6,11 @@ A zero-backend Pareto explorer lives in
 This demo is a conceptual research prototype. Mentions of "AGI" or "superintelligence" describe aspirational goals and do not indicate the presence of real general intelligence. Use at your own risk.
 
 ## Prerequisites
-- **Node.js ≥20** is required for offline PWA support and by `manual_build.py`  
+- **Node.js ≥20** is required for offline PWA support and by `manual_build.py`
   to generate the service worker.
 - **Python ≥3.11** is required when using `manual_build.py`.
+- `package-lock.json` must remain checked in so `npm ci` installs the exact
+  versions specified.
 
 Verify your Node.js version before running the build script:
 
@@ -33,15 +35,11 @@ Copy [`.env.sample`](.env.sample) to `.env` then review the variables:
 See [`.env.sample`](.env.sample) for the full list of supported variables.
 
 ## Build & Run
-Run the helper script **before** building to fetch the Pyodide runtime and
-`wasm-gpt2` model. The build scripts error if any asset is missing:
-
+Run the helper script **before installing dependencies** to fetch the Pyodide
+runtime and `wasm-gpt2` model, then install the Node modules and build the
+bundle:
 ```bash
 python ../../../scripts/fetch_assets.py
-```
-
-Once this command succeeds run the following:
-```bash
 npm ci            # installs dependencies from package-lock.json
 npm run build     # or `python manual_build.py` to compile to dist/
 ```
@@ -110,8 +108,9 @@ The script requires Python ≥3.11. It loads `.env` automatically and injects
 Follow these steps when building without internet access:
 
 1. Run `python ../../../scripts/fetch_assets.py`.
-2. Verify checksums match `build_assets.json`.
-3. Confirm no files under `wasm/` or `lib/` contain the word "placeholder".
+2. Verify checksums match `build_assets.json` and ensure no files under
+   `wasm/` or `lib/` contain the word "placeholder".
+3. `npm ci` to install the locked dependencies.
 4. Execute `python manual_build.py` to generate the PWA in `dist/`.
 5. Launch with `npm start` or pin the directory with `ipfs add -r dist`.
 
@@ -120,10 +119,11 @@ Failing to replace placeholders will break offline mode.
 ### Offline build checklist
 
 1. Run `python ../../../scripts/fetch_assets.py`.
-2. Confirm no placeholder text remains in `lib/` or `wasm*/`.
-3. Execute `npm run build` or `python manual_build.py`.
+2. `npm ci` to install dependencies from `package-lock.json`.
+3. Confirm no placeholder text remains in `lib/` or `wasm*/`.
+4. Execute `npm run build` or `python manual_build.py`.
 
-4. Run `npm test --offline` to execute the suite with pre‑installed browsers.
+5. Run `npm test --offline` to execute the suite with pre‑installed browsers.
 
 Failing to run the fetch script leaves offline mode disabled.
 

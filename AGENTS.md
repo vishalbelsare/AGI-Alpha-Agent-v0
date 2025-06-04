@@ -21,6 +21,8 @@ Please report security vulnerabilities as described in our [Security Policy](SEC
 - Git
 - Node.js 20 for the web client and browser demo. A `.nvmrc` is provided, so run
   `nvm use` before installing Node dependencies.
+- Keep `package-lock.json` under version control so `npm ci` reproduces the same
+  dependency tree.
 - Run `python alpha_factory_v1/scripts/preflight.py` to validate these tools.
 
 Confirm installed versions:
