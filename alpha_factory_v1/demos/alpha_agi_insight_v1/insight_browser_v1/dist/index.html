@@ -1,24 +1,43 @@
+<!-- SPDX-License-Identifier: Apache-2.0 -->
 <!DOCTYPE html>
 <html lang="en">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="theme-color" content="#0d0e2e" />
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; connect-src 'self' https://api.openai.com; script-src 'self' 'wasm-unsafe-eval' 'sha384-umJtx7YC2OO3MgD3Yye+P6NAg+aHlfekLf3z+5Hf3P30nDuvJCP/R8WhAtZU5ewZ'" />
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; connect-src 'self' https://api.openai.com https://ipfs.io; script-src 'self' 'wasm-unsafe-eval' 'sha384-uz8Op9IIX4EniWGhkpRRpFuV/vf1aMMNFcIW5D5SYsNR60FpT4DjOmmNkrhMpoCj'" />
     <title>α-AGI Insight – in-browser Pareto explorer</title>
     <link rel="icon" href="favicon.svg" type="image/svg+xml" />
     <link rel="manifest" href="manifest.json" />
     <!-- styles injected by insight.bundle.js -->
-  </head>
-  <body>
-    <div id="controls"></div>
+  <link rel="preload" href="wasm/pyodide.asm.wasm" as="fetch" type="application/wasm" integrity="sha384-kdvSehcoFMjX55sjg+o5JHaLhOx3HMkaLOwwMFmwH+bmmtvfeJ7zFEMWaqV9+wqo" crossorigin="anonymous" />
+</head>
+  <body class="min-h-screen flex flex-col">
+    <header class="hero relative py-16">
+      <div class="parallax absolute inset-0 -z-10">
+        <div class="stars"></div>
+        <div class="stars2"></div>
+      </div>
+      <div class="hero-content text-center">
+        <h1
+          class="text-5xl font-bold bg-gradient-to-r from-purple-400 via-pink-500 to-red-500 \
+          bg-clip-text text-transparent animate-gradient"
+        >
+          α‑AGI Insight
+        </h1>
+      </div>
+    </header>
+    <div class="flex flex-1 overflow-hidden">
+      <aside id="controls" class="w-64 bg-base-100/70 backdrop-blur-md p-4 overflow-y-auto"></aside>
+      <main id="canvas" class="flex-1 relative overflow-hidden"></main>
+      <aside id="log" class="w-80 bg-base-100/70 backdrop-blur-md p-4 overflow-y-auto" aria-label="Log"></aside>
+    </div>
     <div id="toast" aria-live="polite"></div>
-    <div id="toolbar"><button id="install-btn" hidden>Install</button></div>
+    <div id="toolbar">
+      <button id="install-btn" hidden>Install</button>
+    </div>
     <div id="legend"></div>
-    <script src="d3.v7.min.js" integrity="sha384-QqrLqBpBJfpJ/24ZmCV87BPpk+Sj9GkH5DzKZdwS4d47ZojhpdfvBiF+BgWe8zX8" crossorigin="anonymous"></script>
-    <script src="bundle.esm.min.js" integrity="sha384-HCq3AUAghBODOAg7+u+o8u2pKjENSb3YGAjRfL6TZgAY49LXzq1SaOwNtQmWsIax" crossorigin="anonymous"></script>
-    <script src="pyodide.js" integrity="sha384-4lQJt6JNK5sYso6mEO1s2l1EnmbkIm958N+CAuWcYFBPuizBJ5nENroO7dtV8upW" crossorigin="anonymous"></script>
-    <script src="service-worker.js" integrity="sha384-umJtx7YC2OO3MgD3Yye+P6NAg+aHlfekLf3z+5Hf3P30nDuvJCP/R8WhAtZU5ewZ" crossorigin="anonymous"></script>
+    <div id="depth-legend"></div>
     <script>
       if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
@@ -28,7 +47,8 @@
         });
       }
     </script>
-    <script src="insight.bundle.js" integrity="sha384-fytBrbzLowDzZ22VyNAPLq8E8xGIlgLXM8JfVX+8ecZ+5YAj2RY+4FuIy1vI8ENI" crossorigin="anonymous"></script>
-    <script>window.PINNER_TOKEN="";window.OPENAI_API_KEY="";window.OTEL_ENDPOINT="";window.IPFS_GATEWAY="";</script>
-  </body>
+    <script type="module" src="insight.bundle.js" integrity="sha384-xvBtRNt3wDxbGvoB3SGnTkR049k6Z27KPqtC6P5m68+XNbPLFR9y2bC++HNGc7vJ" crossorigin="anonymous"></script>
+  <script>window.PINNER_TOKEN=atob('');window.OPENAI_API_KEY=atob('');window.OTEL_ENDPOINT=atob('');window.IPFS_GATEWAY=atob('aHR0cHM6Ly9pcGZzLmlvL2lwZnM=');</script>
+<script src="service-worker.js" integrity="sha384-uz8Op9IIX4EniWGhkpRRpFuV/vf1aMMNFcIW5D5SYsNR60FpT4DjOmmNkrhMpoCj" crossorigin="anonymous"></script>
+</body>
 </html>

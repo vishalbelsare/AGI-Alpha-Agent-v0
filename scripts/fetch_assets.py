@@ -14,21 +14,21 @@ GATEWAY = "https://ipfs.io/ipfs"
 
 ASSETS = {
     # Pyodide 0.25 runtime files
-    "wasm/pyodide.js": "bafybeiaxk3fzpjn4oi2z7rn6p5wqp5b62ukptmzqk7qhmyeeri3zx4t2pa",
-    "wasm/pyodide.asm.wasm": "bafybeifub317gmrhdss4u5aefygb4oql6dyks3v6llqj77pnibsglj6nde",
-    "wasm/pyodide_py.tar": "bafybeidazzkz4a3qle6wvyjfwcb36br4idlm43oe5cb26wqzsa4ho7t52e",
-    "wasm/packages.json": "bafybeib44a4x7jgqhkgzo5wmgyslyqi1aocsswcdpsnmqkhmvqchwdcql4",
+    "wasm/pyodide.js": "bafybeiaxk3fzpjn4oi2z7rn6p5wqp5b62ukptmzqk7qhmyeeri3zx4t2pa",  # noqa: E501
+    "wasm/pyodide.asm.wasm": "bafybeifub317gmrhdss4u5aefygb4oql6dyks3v6llqj77pnibsglj6nde",  # noqa: E501
+    "wasm/pyodide_py.tar": "bafybeidazzkz4a3qle6wvyjfwcb36br4idlm43oe5cb26wqzsa4ho7t52e",  # noqa: E501
+    "wasm/packages.json": "bafybeib44a4x7jgqhkgzo5wmgyslyqi1aocsswcdpsnmqkhmvqchwdcql4",  # noqa: E501
     # wasm-gpt2 model archive
-    "wasm_llm/wasm-gpt2.tar": "bafybeihdwdcefgh4dqkjv67uzcmw7ojee6xedzdetojuzjevtenxquvyku",
+    "wasm_llm/wasm-gpt2.tar": "bafybeihdwdcefgh4dqkjv67uzcmw7ojee6xedzdetojuzjevtenxquvyku",  # noqa: E501
     # Web3.Storage bundle
-    "lib/bundle.esm.min.js": "bafkreihgldx46iuks4lybdsc5qc6xom2y5fqdy5w3vvrxntlr42wc43u74",
+    "lib/bundle.esm.min.js": "bafkreihgldx46iuks4lybdsc5qc6xom2y5fqdy5w3vvrxntlr42wc43u74",  # noqa: E501
     # Workbox runtime
     "lib/workbox-sw.js": "https://storage.googleapis.com/workbox-cdn/releases/6.5.4/workbox-sw.js",
 }
 
 CHECKSUMS = {
-    "lib/bundle.esm.min.js": "sha384-qri3JZdkai966TTOV3Cl4xxA97q+qXCgKrd49pOn7DPuYN74wOEd6CIJ9HnqEROD",
-    "lib/workbox-sw.js": "sha384-LWo7skrGueg8Fa4y2Vpe1KB4g0SifqKfDr2gWFRmzZF9n9F1bQVo1F0dUurlkBJo",
+    "lib/bundle.esm.min.js": "sha384-qri3JZdkai966TTOV3Cl4xxA97q+qXCgKrd49pOn7DPuYN74wOEd6CIJ9HnqEROD",  # noqa: E501
+    "lib/workbox-sw.js": "sha384-LWo7skrGueg8Fa4y2Vpe1KB4g0SifqKfDr2gWFRmzZF9n9F1bQVo1F0dUurlkBJo",  # noqa: E501
     "pyodide.asm.wasm": "sha384-kdvSehcoFMjX55sjg+o5JHaLhOx3HMkaLOwwMFmwH+bmmtvfeJ7zFEMWaqV9+wqo",
 }
 
@@ -65,17 +65,33 @@ def download(cid: str, path: Path, fallback: str | None = None) -> None:
 
 def main() -> None:
     root = Path(__file__).resolve().parent.parent
-    base = root / "alpha_factory_v1/demos/alpha_agi_insight_v1/insight_browser_v1"
+    base = root / "alpha_factory_v1/demos/alpha_agi_insight_v1/insight_browser_v1"  # noqa: E501
     for rel, cid in ASSETS.items():
         dest = base / rel
-        if dest.exists():
+        check_placeholder = rel in {
+            "lib/bundle.esm.min.js",
+            "lib/workbox-sw.js",
+        }
+        placeholder = False
+        if dest.exists() and check_placeholder:
+            text = dest.read_text(errors="ignore")
+            placeholder = "placeholder" in text.lower()
+        if not dest.exists() or placeholder:
+            if placeholder:
+                print(f"Replacing placeholder {rel}...")
+            else:
+                print(f"Fetching {rel} from {cid}...")
+            fallback = None
+            if rel == "lib/bundle.esm.min.js":
+                fallback = "https://cdn.jsdelivr.net/npm/web3.storage/dist/bundle.esm.min.js"  # noqa: E501
+            try:
+                download(cid, dest, fallback)
+            except Exception as exc:
+                print(f"Failed to fetch {rel}: {exc}")
+                if check_placeholder:
+                    raise
+        else:
             print(f"Skipping {rel}, already exists")
-            continue
-        print(f"Fetching {rel} from {cid}...")
-        fallback = None
-        if rel == "lib/bundle.esm.min.js":
-            fallback = "https://cdn.jsdelivr.net/npm/web3.storage/dist/bundle.esm.min.js"
-        download(cid, dest, fallback)
 
 
 if __name__ == "__main__":

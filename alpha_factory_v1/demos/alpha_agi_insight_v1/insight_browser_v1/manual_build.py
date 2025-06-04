@@ -31,16 +31,14 @@ try:
         check=True,
     )
 except FileNotFoundError:
-    sys.exit(
-        "Node.js 20+ is required. Install Node.js and ensure 'node' is in your PATH."
-    )
+    sys.exit("Node.js 20+ is required. Install Node.js and ensure 'node' is in your PATH.")  # noqa: E501
 except subprocess.CalledProcessError as exc:
     sys.exit(exc.returncode)
 
 # load environment variables
 env_file = Path(__file__).resolve().parent / ".env"
 if not env_file.is_file():
-    sys.exit(".env not found. Copy .env.sample to .env and populate the required values.")
+    sys.exit(".env not found. Copy .env.sample to .env and populate the required values.")  # noqa: E501
 try:
     from alpha_factory_v1.utils.env import _load_env_file
 
@@ -114,26 +112,39 @@ manifest = json.loads((ROOT / "build_assets.json").read_text())
 quickstart_pdf = repo_root / manifest["quickstart_pdf"]
 
 bundle_path = lib_dir / "bundle.esm.min.js"
-try:
-    data = bundle_path.read_text()
-except FileNotFoundError:
-    sys.exit(
-        "lib/bundle.esm.min.js missing. Run scripts/fetch_assets.py to download assets."
-    )
-if "Placeholder for web3.storage bundle.esm.min.js" in data:
-    sys.exit(
-        "lib/bundle.esm.min.js is a placeholder. Run scripts/fetch_assets.py to download assets."
-    )
+workbox_path = lib_dir / "workbox-sw.js"
+
+
+def _ensure_assets() -> None:
+    placeholders = []
+    for p in (bundle_path, workbox_path):
+        if p.exists():
+            data = p.read_text(errors="ignore")
+            if "placeholder" in data.lower():
+                placeholders.append(p)
+        else:
+            placeholders.append(p)
+    if placeholders:
+        print("Fetching missing browser assets...")
+        subprocess.run(
+            [sys.executable, str(repo_root / "scripts/fetch_assets.py")],
+            check=True,
+        )
+        for p in placeholders:
+            if not p.exists() or "placeholder" in p.read_text(errors="ignore").lower():
+                sys.exit(f"Failed to download {p.relative_to(ROOT)}")
+
+
+_ensure_assets()
 
 
 def _placeholder_files() -> list[Path]:
     paths: list[Path] = []
-    for sub in ("wasm", "wasm_llm"):
-        root = ROOT / sub
-        if root.exists():
-            for p in root.rglob("*"):
-                if p.is_file() and "placeholder" in p.read_text(errors="ignore").lower():
-                    paths.append(p)
+    root = ROOT / "lib"
+    if root.exists():
+        for p in root.rglob("*"):
+            if p.is_file() and "placeholder" in p.read_text(errors="ignore").lower():
+                paths.append(p)
     return paths
 
 
@@ -143,7 +154,7 @@ if placeholders:
     subprocess.run(
         [sys.executable, str(repo_root / "scripts/fetch_assets.py")],
         check=True,
-    )  # noqa: E501
+    )
     placeholders = _placeholder_files()
     if placeholders:
         sys.exit(f"Placeholder text found in {placeholders[0]}")
@@ -152,9 +163,7 @@ if placeholders:
 try:
     subprocess.run(["tsc", "--noEmit"], check=True)
 except FileNotFoundError:
-    sys.exit(
-        "TypeScript compiler not found – run `npm install` first."
-    )
+    sys.exit("TypeScript compiler not found – run `npm install` first.")
 
 
 def _compile_worker(path: Path) -> str:

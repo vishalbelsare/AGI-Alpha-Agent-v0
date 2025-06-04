@@ -1,3 +1,44 @@
+// SPDX-License-Identifier: Apache-2.0
+/* eslint-env serviceworker */
 importScripts('workbox-sw.js');
+import {precacheAndRoute} from 'workbox-precaching';
+import {registerRoute} from 'workbox-routing';
+import {CacheFirst} from 'workbox-strategies';
 
-const CACHE_VERSION="0.1.0";workbox.core.setCacheNameDetails({prefix:CACHE_VERSION});workbox.precaching.precacheAndRoute(self.__WB_MANIFEST||[]);workbox.routing.registerRoute(({request:urlrequest,url})=>urlrequest.destination==="script"||urlrequest.destination==="worker"||urlrequest.destination==="font"||url.pathname.endsWith(".wasm")||url.pathname.includes("/ipfs/")&&url.pathname.endsWith(".json"),new workbox.strategies.CacheFirst({cacheName:`${CACHE_VERSION}-assets`}));self.addEventListener("message",e=>{e.data&&"SKIP_WAITING"===e.data.type&&self.skipWaiting()});self.addEventListener("activate",e=>{e.waitUntil(caches.keys().then(n=>Promise.all(n.map(n=>n.startsWith(CACHE_VERSION)?void 0:caches.delete(n)))))})
+// replaced during build
+const CACHE_VERSION = '__CACHE_VERSION__';
+workbox.core.setCacheNameDetails({prefix: CACHE_VERSION});
+
+// include translation JSON files in the precache
+precacheAndRoute(self.__WB_MANIFEST);
+
+registerRoute(
+  ({request, url}) =>
+    request.destination === 'script' ||
+    request.destination === 'worker' ||
+    request.destination === 'font' ||
+    url.pathname.endsWith('.wasm') ||
+    (url.pathname.includes('/ipfs/') && url.pathname.endsWith('.json')),
+  new CacheFirst({cacheName: `${CACHE_VERSION}-assets`})
+);
+
+self.addEventListener('message', (event) => {
+  if (event.data && event.data.type === 'SKIP_WAITING') {
+    self.skipWaiting();
+  }
+});
+
+self.addEventListener('activate', (event) => {
+  event.waitUntil(
+    caches.keys().then((names) =>
+      Promise.all(
+        names.map((name) => {
+          if (!name.startsWith(CACHE_VERSION)) {
+            return caches.delete(name);
+          }
+          return undefined;
+        }),
+      ),
+    ),
+  );
+});
