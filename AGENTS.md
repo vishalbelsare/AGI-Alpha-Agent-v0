@@ -19,6 +19,8 @@ Please report security vulnerabilities as described in our [Security Policy](SEC
 - Python 3.11 or 3.12 (**Python ≥3.11 and <3.13**)
 - Docker and Docker Compose (Compose ≥2.5)
 - Git
+- Node.js 20 for the web client and browser demo. A `.nvmrc` is provided, so run
+  `nvm use` before installing Node dependencies.
 - Run `python alpha_factory_v1/scripts/preflight.py` to validate these tools.
 
 Confirm installed versions:
