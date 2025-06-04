@@ -31,4 +31,9 @@ run(['node', '--loader', 'ts-node/register', '--test',
   '../../../../tests/taxonomy.test.ts',
   '../../../../tests/memeplex.test.ts'
 ]);
-run(['pytest', '../../../../tests/test_quickstart_offline.py', '../../../../tests/test_evolution_panel_reload.py']);
+run([
+  'pytest',
+  '../../../../tests/test_quickstart_offline.py',
+  '../../../../tests/test_evolution_panel_reload.py',
+  '../../../../tests/test_sw_offline_reload.py'
+]);
