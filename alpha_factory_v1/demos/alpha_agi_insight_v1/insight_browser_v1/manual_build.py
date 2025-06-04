@@ -6,7 +6,6 @@ import base64
 import json
 import subprocess
 import sys
-import shutil
 from pathlib import Path
 from urllib.parse import urlparse
 import gzip
@@ -18,24 +17,18 @@ def _require_python_311() -> None:
         sys.exit(f"Python ≥3.11 required. Current version: {sys.version}")
 
 
-def _require_node_20() -> None:
-    """Exit when Node.js is missing or too old."""
-    if not shutil.which("node"):
-        sys.exit(
-            "Node.js 20+ is required. Install Node.js and ensure 'node' is in your PATH."
-        )
-    try:
-        out = subprocess.check_output(["node", "--version"], text=True).strip()
-    except subprocess.CalledProcessError:
-        sys.exit("Failed to execute 'node --version'. Is Node.js installed correctly?")
-    version = out.lstrip("v")
-    major = int(version.split(".")[0])
-    if major < 20:
-        sys.exit(f"Node.js 20+ is required. Current version: {version}")
-
-
 _require_python_311()
-_require_node_20()
+
+ROOT = Path(__file__).resolve().parent
+try:
+    subprocess.run([
+        "node",
+        "build/version_check.js",
+    ], cwd=ROOT, check=True)
+except FileNotFoundError:
+    sys.exit("Node.js 20+ is required. Install Node.js and ensure 'node' is in your PATH.")
+except subprocess.CalledProcessError as exc:
+    sys.exit(exc.returncode)
 
 # load environment variables
 env_file = Path(__file__).resolve().parent / ".env"

@@ -7,18 +7,13 @@ import { createHash } from 'crypto';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { copyAssets, injectEnv } from './build/common.js';
+import { requireNode20 } from './build/version_check.js';
 
 const manifest = JSON.parse(
   fsSync.readFileSync(new URL('./build_assets.json', import.meta.url), 'utf8')
 );
 
-const [major] = process.versions.node.split('.').map(Number);
-if (major < 20) {
-  console.error(
-    `Node.js 20+ is required. Current version: ${process.versions.node}`
-  );
-  process.exit(1);
-}
+requireNode20();
 
 const { build } = await import('esbuild');
 const gzipSize = (await import('gzip-size')).default;

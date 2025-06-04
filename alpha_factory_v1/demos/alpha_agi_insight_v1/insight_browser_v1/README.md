@@ -10,11 +10,11 @@ A zero-backend Pareto explorer lives in
 Verify your Node.js version before running the build script:
 
 ```bash
-node --version
+node build/version_check.js
 ```
-The output must start with `v20` or higher. Only run `manual_build.py` when this
-requirement is met. The `package.json` also enforces Node.js 20 or newer via the
-`engines` field.
+The output should be empty for a valid setup. Only run `manual_build.py` when
+this requirement is met. The `package.json` also enforces Node.js 20 or newer
+via the `engines` field.
 
 ## Environment Setup
 Copy [`.env.sample`](.env.sample) to `.env` then review the variables:
@@ -92,8 +92,8 @@ Use `manual_build.py` for air‑gapped environments:
 2. `python ../../../scripts/fetch_assets.py` to fetch Pyodide and the GPT‑2 model.
    The build scripts verify these files no longer contain the word `"placeholder"`.
    Failing to replace placeholders will break offline mode.
-3. Confirm `node --version` reports **v20** or newer. `manual_build.py` exits if
-   Node.js is missing or too old.
+3. Run `node build/version_check.js` to ensure Node.js **v20** or newer is
+   installed. `manual_build.py` exits if this check fails.
 4. `python manual_build.py` – bundles the app, generates `dist/sw.js` and embeds
    your `.env` settings.
 5. `npm start` or open `dist/index.html` directly to run the demo.
