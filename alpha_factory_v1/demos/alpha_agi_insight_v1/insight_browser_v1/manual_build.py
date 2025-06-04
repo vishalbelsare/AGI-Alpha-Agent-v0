@@ -305,5 +305,6 @@ else:
 
 # generate service worker
 generate_service_worker(ROOT, dist_dir, manifest)
+(dist_dir / "service-worker.js").write_bytes((dist_dir / "sw.js").read_bytes())
 check_gzip_size(dist_dir / "insight.bundle.js")
 
