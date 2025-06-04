@@ -1,4 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
+import { t } from '../ui/i18n.js';
 let log = [];
 
 export function initErrorBoundary() {
@@ -13,7 +14,7 @@ export function initErrorBoundary() {
       localStorage.setItem('errorLog', JSON.stringify(log));
     } catch {}
     if (window.toast) {
-      window.toast(entry.message || String(entry));
+      window.toast(entry.message ? String(entry.message) : t('error_unknown'));
     }
   }
   window.onerror = (msg, url, line, col, err) => {

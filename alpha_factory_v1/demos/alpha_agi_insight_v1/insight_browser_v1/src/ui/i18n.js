@@ -10,7 +10,7 @@ export async function initI18n() {
   currentLanguage = lang.startsWith('fr') ? 'fr' : lang.startsWith('es') ? 'es' : 'en';
   try {
     const res = await fetch(`src/i18n/${currentLanguage}.json`);
-    strings = await res.json();
+    strings = { ...enStrings, ...(await res.json()) };
   } catch {
     strings = enStrings;
     currentLanguage = 'en';
@@ -22,7 +22,7 @@ export async function setLanguage(lang) {
   localStorage.setItem('lang', lang);
   try {
     const res = await fetch(`src/i18n/${lang}.json`);
-    strings = await res.json();
+    strings = { ...enStrings, ...(await res.json()) };
   } catch {
     strings = enStrings;
     currentLanguage = 'en';
@@ -30,5 +30,5 @@ export async function setLanguage(lang) {
 }
 
 export function t(key) {
-  return strings[key] || key;
+  return strings[key] || enStrings[key] || key;
 }

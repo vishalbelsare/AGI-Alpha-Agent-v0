@@ -251,6 +251,7 @@ function apply(p, info = {}){
 
 window.addEventListener('DOMContentLoaded',async()=>{
   initErrorBoundary();
+  await initI18n();
   telemetry = initTelemetry();
   archive = new Archive();
   await archive.open();
@@ -276,7 +277,6 @@ window.addEventListener('DOMContentLoaded',async()=>{
   };
   await evolutionPanel.render();
   window.archive = archive;
-  await initI18n()
   loadTheme()
   const ex=await loadCriticExamples()
   logicCritic=new LogicCritic(ex)
