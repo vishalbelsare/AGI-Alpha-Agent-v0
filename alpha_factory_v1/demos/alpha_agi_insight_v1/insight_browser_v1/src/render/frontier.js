@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 import * as Plot from '@observablehq/plot';
-import { plotCanvas } from '@observablehq/plot-canvas';
+import { plotCanvas } from './plotCanvas.js';
 import { paretoFront } from '../utils/pareto.js';
 import { depthColor } from './colors.ts';
 import { drawHeatmap } from './canvasLayer.js';
