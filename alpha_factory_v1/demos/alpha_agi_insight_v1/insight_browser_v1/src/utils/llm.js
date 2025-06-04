@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 let localModel;
 let useGpu = true;
+let ortLoaded;
 
 try {
   const saved = localStorage.getItem('USE_GPU');
@@ -17,17 +18,34 @@ export function setUseGpu(flag) {
   localModel = null;
 }
 
-export function gpuBackend() {
-  return useGpu && typeof navigator !== 'undefined' && navigator.gpu
-    ? 'webgpu'
-    : 'wasm-simd';
+async function ensureOrt() {
+  if (ortLoaded !== undefined) return ortLoaded;
+  if (typeof window === 'undefined') return false;
+  if (!window.ort) {
+    try {
+      await import('onnxruntime-web');
+    } catch {
+      ortLoaded = false;
+      return false;
+    }
+  }
+  ortLoaded = !!window.ort;
+  return ortLoaded;
+}
+
+export async function gpuBackend() {
+  if (useGpu && typeof navigator !== 'undefined' && navigator.gpu) {
+    const ok = await ensureOrt();
+    if (ok) return 'webgpu';
+  }
+  return 'wasm-simd';
 }
 
 async function loadLocal() {
   if (!localModel) {
     try {
       const { pipeline } = await import('../lib/bundle.esm.min.js');
-      const backend = gpuBackend();
+      const backend = await gpuBackend();
       if (typeof window !== 'undefined') {
         window.LLM_BACKEND = backend;
       }

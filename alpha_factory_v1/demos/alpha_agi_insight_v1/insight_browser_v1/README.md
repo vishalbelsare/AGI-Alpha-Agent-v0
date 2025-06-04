@@ -24,6 +24,8 @@ Copy [`.env.sample`](.env.sample) to `.env` then review the variables:
 - `IPFS_GATEWAY` – base URL of the IPFS gateway used to fetch pinned runs.
 - `OTEL_ENDPOINT` – OTLP/HTTP endpoint for anonymous telemetry (leave blank to disable).
 - `WEB3_STORAGE_TOKEN` – build script token consumed by `npm run build`.
+- Browsers with WebGPU can accelerate the local model using the ONNX runtime.
+  Use the GPU toggle in the power panel to switch between WebGPU and WASM.
 
 See [`.env.sample`](.env.sample) for the full list of supported variables.
 

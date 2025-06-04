@@ -14,7 +14,7 @@
     "size": "gzip-size-cli dist/app.js --bytes",
     "start": "npx serve dist",
     "typecheck": "tsc --noEmit",
-    "test": "node --loader ts-node/register --test tests/entropy.test.js tests/replay_cid.test.js tests/iframe_worker_cleanup.test.js ../../../../tests/taxonomy.test.ts ../../../../tests/memeplex.test.ts && pytest ../../../../tests/test_quickstart_offline.py ../../../../tests/test_evolution_panel_reload.py"
+    "test": "node --loader ts-node/register --test tests/entropy.test.js tests/replay_cid.test.js tests/iframe_worker_cleanup.test.js tests/onnx_gpu_backend.test.js ../../../../tests/taxonomy.test.ts ../../../../tests/memeplex.test.ts && pytest ../../../../tests/test_quickstart_offline.py ../../../../tests/test_evolution_panel_reload.py"
   },
   "devDependencies": {
     "esbuild": "^0.20.0",
@@ -32,6 +32,7 @@
     "daisyui": "^4.0.7",
     "workbox-build": "^6.5.4",
     "dotenv": "^16.4.5",
-    "ts-node": "^10.9.1"
+    "ts-node": "^10.9.1",
+    "onnxruntime-web": "^1.18.0"
   }
 }

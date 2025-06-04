@@ -1,4 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
+import { setUseGpu } from '../utils/llm.js';
+
 export function initPowerPanel() {
   const panel = document.createElement('div');
   panel.id = 'power-panel';
@@ -29,11 +31,10 @@ export function initPowerPanel() {
     gpuToggle.checked = true;
   }
   window.USE_GPU = gpuToggle.checked && !!navigator.gpu;
+  setUseGpu(window.USE_GPU);
   gpuToggle.addEventListener('change', () => {
     window.USE_GPU = gpuToggle.checked && !!navigator.gpu;
-    try {
-      localStorage.setItem('USE_GPU', gpuToggle.checked ? '1' : '0');
-    } catch {}
+    setUseGpu(window.USE_GPU);
   });
   document.body.appendChild(panel);
   function update(e) {
