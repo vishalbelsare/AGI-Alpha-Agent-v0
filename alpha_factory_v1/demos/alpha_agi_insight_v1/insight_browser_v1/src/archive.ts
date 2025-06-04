@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
-import { createStore, set, get, del, values } from './utils/keyval.js';
+import { createStore, set, get, del, values } from './utils/keyval.ts';
 import type { EvaluatorGenome } from './evaluator_genome.ts';
 import type { Individual } from './state/serializer.ts';
 import { detectColdZone } from './utils/cluster.js';
@@ -42,8 +42,8 @@ export class Archive {
   private evalStore: KeyValueStore<EvaluatorRecord>;
   private disabled = false;
   constructor(private name = 'insight-archive') {
-    this.runStore = createStore(this.name, 'runs') as unknown as KeyValueStore<InsightRun>;
-    this.evalStore = createStore(this.name, 'evals') as unknown as KeyValueStore<EvaluatorRecord>;
+    this.runStore = createStore<InsightRun>(this.name, 'runs');
+    this.evalStore = createStore<EvaluatorRecord>(this.name, 'evals');
   }
 
   async open(): Promise<void> {

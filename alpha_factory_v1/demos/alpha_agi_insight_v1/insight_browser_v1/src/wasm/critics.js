@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
-import { createStore, set, values } from '../utils/keyval.js';
+import { createStore, set, values } from '../utils/keyval.ts';
 
 export async function loadExamples(url = './data/critics/innovations.txt') {
   try {
