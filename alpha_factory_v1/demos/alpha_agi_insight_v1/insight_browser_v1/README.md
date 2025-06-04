@@ -224,3 +224,9 @@ launches Playwright to exercise `dist/index.html` and then runs the Python
 checks. Offline setups can point Playwright at pre‑downloaded browsers by
 exporting `PLAYWRIGHT_BROWSERS_PATH=/path/to/browsers` or skip the download step
 with `PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1`.
+
+## Development
+
+- Run `pre-commit run --all-files` to format and lint the code.
+- `npm test` builds the bundle then launches Playwright and Python tests.
+- See [../../../../AGENTS.md](../../../../AGENTS.md) for full contributor guidelines.
