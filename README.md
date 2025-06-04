@@ -97,21 +97,27 @@ Follow these steps when working without internet access.
    export LLAMA_MODEL_PATH=~/.cache/llama/TinyLlama-1.1B-Chat-v1.0.Q4_K_M.gguf
    ```
 
-4. **Fetch browser assets** with ``scripts/fetch_assets.py`` (verifies
-   checksums and replaces the placeholder Web3.Storage bundle):
+4. **Fetch and build the browser assets** to run the Insight demo fully offline:
    ```bash
-   python scripts/fetch_assets.py
+   cd alpha_factory_v1/demos/alpha_agi_insight_v1/insight_browser_v1
+   python ../../../scripts/fetch_assets.py
+   npm ci
+   npm run build
+   ```
+5. **Skip browser downloads** when running the web demo tests offline:
+   ```bash
+   PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1 npm test
    ```
 
-5. **Enable offline inference** by setting ``AGI_INSIGHT_OFFLINE=1`` in
+6. **Enable offline inference** by setting ``AGI_INSIGHT_OFFLINE=1`` in
    ``.env`` or the environment.
 
-6. **Disable broadcasting** to avoid network calls:
+7. **Disable broadcasting** to avoid network calls:
    ```bash
    export AGI_INSIGHT_BROADCAST=0
    ```
 
-7. **Seed the lineage database** from existing DGM logs using ``--import-dgm``.
+8. **Seed the lineage database** from existing DGM logs using ``--import-dgm``.
    ```bash
    python -m alpha_factory_v1.demos.alpha_agi_insight_v1.src.interface.cli \
      simulate --import-dgm path/to/dgm/logs
