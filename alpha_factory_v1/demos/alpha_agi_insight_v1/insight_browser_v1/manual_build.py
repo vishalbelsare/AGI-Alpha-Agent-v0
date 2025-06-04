@@ -31,7 +31,9 @@ try:
         check=True,
     )
 except FileNotFoundError:
-    sys.exit("Node.js 20+ is required. Install Node.js and ensure 'node' is in your PATH.")
+    sys.exit(
+        "Node.js 20+ is required. Install Node.js and ensure 'node' is in your PATH."
+    )
 except subprocess.CalledProcessError as exc:
     sys.exit(exc.returncode)
 
@@ -48,7 +50,11 @@ except Exception as exc:  # pragma: no cover - optional dep
     print(f"[manual_build] failed to load .env: {exc}", file=sys.stderr)
 
 
-def copy_assets(manifest: dict[str, Any], repo_root: Path, dist_dir: Path) -> None:
+def copy_assets(
+    manifest: dict[str, Any],
+    repo_root: Path,
+    dist_dir: Path,
+) -> None:
     for rel in manifest["files"]:
         src_path = ROOT / rel
         if src_path.exists():
@@ -80,13 +86,17 @@ def copy_assets(manifest: dict[str, Any], repo_root: Path, dist_dir: Path) -> No
                 (target_dir / f.name).write_bytes(f.read_bytes())
 
 
+def _enc(val: str | None) -> str:
+    return base64.b64encode(str(val or "").encode()).decode()
+
+
 def inject_env() -> str:
     return (
         "<script>"
-        f'window.PINNER_TOKEN={json.dumps(os.getenv("PINNER_TOKEN", ""))};'
-        f'window.OPENAI_API_KEY={json.dumps(os.getenv("OPENAI_API_KEY", ""))};'
-        f'window.OTEL_ENDPOINT={json.dumps(os.getenv("OTEL_ENDPOINT", ""))};'
-        f'window.IPFS_GATEWAY={json.dumps(os.getenv("IPFS_GATEWAY", ""))};'
+        f"window.PINNER_TOKEN=atob('{_enc(os.getenv('PINNER_TOKEN'))}');"
+        f"window.OPENAI_API_KEY=atob('{_enc(os.getenv('OPENAI_API_KEY'))}');"
+        f"window.OTEL_ENDPOINT=atob('{_enc(os.getenv('OTEL_ENDPOINT'))}');"
+        f"window.IPFS_GATEWAY=atob('{_enc(os.getenv('IPFS_GATEWAY'))}');"
         "</script>"
     )
 
@@ -107,9 +117,13 @@ bundle_path = lib_dir / "bundle.esm.min.js"
 try:
     data = bundle_path.read_text()
 except FileNotFoundError:
-    sys.exit("lib/bundle.esm.min.js missing. Run scripts/fetch_assets.py to download assets.")
+    sys.exit(
+        "lib/bundle.esm.min.js missing. Run scripts/fetch_assets.py to download assets."
+    )
 if "Placeholder for web3.storage bundle.esm.min.js" in data:
-    sys.exit("lib/bundle.esm.min.js is a placeholder. Run scripts/fetch_assets.py to download assets.")
+    sys.exit(
+        "lib/bundle.esm.min.js is a placeholder. Run scripts/fetch_assets.py to download assets."
+    )
 
 
 def _placeholder_files() -> list[Path]:
@@ -138,7 +152,9 @@ if placeholders:
 try:
     subprocess.run(["tsc", "--noEmit"], check=True)
 except FileNotFoundError:
-    sys.exit("TypeScript compiler not found – run `npm install` first.")
+    sys.exit(
+        "TypeScript compiler not found – run `npm install` first."
+    )
 
 
 def _compile_worker(path: Path) -> str:
@@ -282,7 +298,7 @@ app_sri = sha384(dist_dir / "insight.bundle.js")
 checksums = manifest["checksums"]
 out_html = out_html.replace(
     app_sri_placeholder,
-    f'<script type="module" src="insight.bundle.js" integrity="{app_sri}" crossorigin="anonymous"></script>',
+    (f'<script type="module" src="insight.bundle.js" integrity="{app_sri}" crossorigin="anonymous"></script>'),
 )
 env_script = inject_env()
 out_html = re.sub(
@@ -314,7 +330,8 @@ if wasm_dir.exists():
     out_html = out_html.replace(
         "</head>",
         (
-            f'<link rel="preload" href="{manifest["dirs"]["wasm"]}/pyodide.asm.wasm" '
+            f'<link rel="preload" '
+            f'href="{manifest["dirs"]["wasm"]}/pyodide.asm.wasm" '
             f'as="fetch" type="application/wasm" integrity="{wasm_sri}" '
             'crossorigin="anonymous" />\n</head>'
         ),

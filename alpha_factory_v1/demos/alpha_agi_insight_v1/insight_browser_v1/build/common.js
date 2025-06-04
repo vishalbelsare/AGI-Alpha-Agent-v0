@@ -36,7 +36,12 @@ export async function copyAssets(manifest, repoRoot, outDir) {
 }
 
 export function injectEnv(env) {
-  const script = `<script>window.PINNER_TOKEN=${JSON.stringify(env.PINNER_TOKEN || '')};window.OPENAI_API_KEY=${JSON.stringify(env.OPENAI_API_KEY || '')};window.OTEL_ENDPOINT=${JSON.stringify(env.OTEL_ENDPOINT || '')};window.IPFS_GATEWAY=${JSON.stringify(env.IPFS_GATEWAY || '')};</script>`;
+  const enc = (v) => Buffer.from(String(v ?? ''), 'utf8').toString('base64');
+  const b64Pinner = enc(env.PINNER_TOKEN);
+  const b64Openai = enc(env.OPENAI_API_KEY);
+  const b64Otel = enc(env.OTEL_ENDPOINT);
+  const b64Ipfs = enc(env.IPFS_GATEWAY);
+  const script = `<script>window.PINNER_TOKEN=atob('${b64Pinner}');window.OPENAI_API_KEY=atob('${b64Openai}');window.OTEL_ENDPOINT=atob('${b64Otel}');window.IPFS_GATEWAY=atob('${b64Ipfs}');</script>`;
   return script;
 }
 export async function checkGzipSize(file, maxBytes = 2 * 1024 * 1024) {
