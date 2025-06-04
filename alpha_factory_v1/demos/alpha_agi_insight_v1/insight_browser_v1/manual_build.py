@@ -6,6 +6,7 @@ import json
 import subprocess
 import sys
 from pathlib import Path
+from typing import Any
 from urllib.parse import urlparse
 
 from build.common import check_gzip_size, sha384, generate_service_worker
@@ -21,10 +22,14 @@ _require_python_311()
 
 ROOT = Path(__file__).resolve().parent
 try:
-    subprocess.run([
-        "node",
-        "build/version_check.js",
-    ], cwd=ROOT, check=True)
+    subprocess.run(
+        [
+            "node",
+            "build/version_check.js",
+        ],
+        cwd=ROOT,
+        check=True,
+    )
 except FileNotFoundError:
     sys.exit("Node.js 20+ is required. Install Node.js and ensure 'node' is in your PATH.")
 except subprocess.CalledProcessError as exc:
@@ -33,9 +38,7 @@ except subprocess.CalledProcessError as exc:
 # load environment variables
 env_file = Path(__file__).resolve().parent / ".env"
 if not env_file.is_file():
-    sys.exit(
-        ".env not found. Copy .env.sample to .env and populate the required values."
-    )
+    sys.exit(".env not found. Copy .env.sample to .env and populate the required values.")
 try:
     from alpha_factory_v1.utils.env import _load_env_file
 
@@ -45,14 +48,13 @@ except Exception as exc:  # pragma: no cover - optional dep
     print(f"[manual_build] failed to load .env: {exc}", file=sys.stderr)
 
 
-def copy_assets(manifest: dict, repo_root: Path, dist_dir: Path) -> None:
+def copy_assets(manifest: dict[str, Any], repo_root: Path, dist_dir: Path) -> None:
     for rel in manifest["files"]:
         src_path = ROOT / rel
         if src_path.exists():
             target = dist_dir / rel
             target.parent.mkdir(parents=True, exist_ok=True)
             target.write_bytes(src_path.read_bytes())
-
 
     translations = ROOT / manifest["dirs"]["translations"]
     if translations.exists():
@@ -105,13 +107,10 @@ bundle_path = lib_dir / "bundle.esm.min.js"
 try:
     data = bundle_path.read_text()
 except FileNotFoundError:
-    sys.exit(
-        "lib/bundle.esm.min.js missing. Run scripts/fetch_assets.py to download assets."
-    )
+    sys.exit("lib/bundle.esm.min.js missing. Run scripts/fetch_assets.py to download assets.")
 if "Placeholder for web3.storage bundle.esm.min.js" in data:
-    sys.exit(
-        "lib/bundle.esm.min.js is a placeholder. Run scripts/fetch_assets.py to download assets."
-    )
+    sys.exit("lib/bundle.esm.min.js is a placeholder. Run scripts/fetch_assets.py to download assets.")
+
 
 def _placeholder_files() -> list[Path]:
     paths: list[Path] = []
@@ -127,29 +126,37 @@ def _placeholder_files() -> list[Path]:
 placeholders = _placeholder_files()
 if placeholders:
     print("Detected placeholder assets, running fetch_assets.py...")
-    subprocess.run([sys.executable, str(repo_root / "scripts/fetch_assets.py")], check=True)
+    subprocess.run(
+        [sys.executable, str(repo_root / "scripts/fetch_assets.py")],
+        check=True,
+    )  # noqa: E501
     placeholders = _placeholder_files()
     if placeholders:
         sys.exit(f"Placeholder text found in {placeholders[0]}")
 
 
-subprocess.run(["tsc", "--noEmit"], check=True)
+try:
+    subprocess.run(["tsc", "--noEmit"], check=True)
+except FileNotFoundError:
+    sys.exit("TypeScript compiler not found – run `npm install` first.")
+
 
 def _compile_worker(path: Path) -> str:
     script = (
         "const ts=require('typescript');"
         "const fs=require('fs');"
         "const src=fs.readFileSync(process.argv[1],'utf8');"
-        "const out=ts.transpileModule(src,{compilerOptions:{module:'ES2022',target:'ES2022'}});"
+        "const out=ts.transpileModule(src,{compilerOptions:{module:'ES2022',target:'ES2022'}});"  # noqa: E501
         "process.stdout.write(out.outputText);"
     )
     return subprocess.check_output(["node", "-e", script, str(path)], text=True)
+
 
 html = index_html.read_text()
 entry = (ROOT / "app.js").read_text()
 
 
-def find_deps(code):
+def find_deps(code: str) -> list[str]:
     deps = []
     for imp in re.findall(r"import[^'\"]*['\"](.*?)['\"]", code):
         if imp.startswith(ALIAS_PREFIX) or imp.startswith("."):
@@ -161,14 +168,13 @@ processed = {}
 order = []
 
 
-def process_module(path):
-    path = Path(path)
+def process_module(path: Path) -> None:
     if path in processed:
         return
     code = path.read_text()
     for dep in find_deps(code):
         if dep.startswith(ALIAS_PREFIX):
-            dep_path = (ALIAS_TARGET / dep[len(ALIAS_PREFIX):]).resolve()
+            dep_path = (ALIAS_TARGET / dep[len(ALIAS_PREFIX) :]).resolve()
         else:
             dep_path = (path.parent / dep).resolve()
             if not dep_path.exists():
@@ -185,7 +191,7 @@ def process_module(path):
 
 for dep in find_deps(entry):
     if dep.startswith(ALIAS_PREFIX):
-        dep_path = (ALIAS_TARGET / dep[len(ALIAS_PREFIX):]).resolve()
+        dep_path = (ALIAS_TARGET / dep[len(ALIAS_PREFIX) :]).resolve()
     else:
         dep_path = (ROOT / dep).resolve()
     process_module(dep_path)
@@ -227,12 +233,12 @@ bundle = (
     + web3_code
     + "\n"
     + py_code
-    + f"\nwindow.PYODIDE_WASM_BASE64='{wasm_b64}';window.GPT2_MODEL_BASE64='{gpt2_b64}';\n"
+    + f"\nwindow.PYODIDE_WASM_BASE64='{wasm_b64}';window.GPT2_MODEL_BASE64='{gpt2_b64}';\n"  # noqa: E501
     + "(function() {\nconst style="
     + repr(css)
-    + ";\nconst s=document.createElement('style');s.textContent=style;document.head.appendChild(s);\nconst EVOLVER_URL=URL.createObjectURL(new Blob(["
+    + ";\nconst s=document.createElement('style');s.textContent=style;document.head.appendChild(s);\nconst EVOLVER_URL=URL.createObjectURL(new Blob(["  # noqa: E501
     + repr(evolver)
-    + "],{type:'text/javascript'}));\nconst ARENA_URL=URL.createObjectURL(new Blob(["
+    + "],{type:'text/javascript'}));\nconst ARENA_URL=URL.createObjectURL(new Blob(["  # noqa: E501
     + repr(arena)
     + "],{type:'text/javascript'}));\n"
     + "\n".join(processed[p] for p in order)
@@ -245,7 +251,7 @@ dist_dir.mkdir(exist_ok=True)
 (dist_dir / "insight.bundle.js").write_text(bundle)
 check_gzip_size(dist_dir / "insight.bundle.js")
 
-app_sri_placeholder = '<script type="module" src="insight.bundle.js" crossorigin="anonymous"></script>'
+app_sri_placeholder = '<script type="module" src="insight.bundle.js" crossorigin="anonymous"></script>'  # noqa: E501
 out_html = html.replace("src/ui/controls.css", "controls.css")
 ipfs_origin = os.getenv("IPFS_GATEWAY")
 if ipfs_origin:
@@ -279,9 +285,21 @@ out_html = out_html.replace(
     f'<script type="module" src="insight.bundle.js" integrity="{app_sri}" crossorigin="anonymous"></script>',
 )
 env_script = inject_env()
-out_html = re.sub(r'<script[\s\S]*?d3\.v7\.min\.js[\s\S]*?</script>\s*', '', out_html)
-out_html = re.sub(r'<script[\s\S]*?bundle\.esm\.min\.js[\s\S]*?</script>\s*', '', out_html)
-out_html = re.sub(r'<script[\s\S]*?pyodide\.js[\s\S]*?</script>\s*', '', out_html)
+out_html = re.sub(
+    r"<script[\s\S]*?d3\.v7\.min\.js[\s\S]*?</script>\s*",
+    "",
+    out_html,
+)
+out_html = re.sub(
+    r"<script[\s\S]*?bundle\.esm\.min\.js[\s\S]*?</script>\s*",
+    "",
+    out_html,
+)
+out_html = re.sub(
+    r"<script[\s\S]*?pyodide\.js[\s\S]*?</script>\s*",
+    "",
+    out_html,
+)
 out_html = out_html.replace(
     "</body>",
     f"{env_script}\n</body>",
@@ -295,16 +313,18 @@ if wasm_dir.exists():
         sys.exit("Checksum mismatch for pyodide.asm.wasm")
     out_html = out_html.replace(
         "</head>",
-        f'<link rel="preload" href="{manifest["dirs"]["wasm"]}/pyodide.asm.wasm" as="fetch" type="application/wasm" integrity="{wasm_sri}" crossorigin="anonymous" />\n</head>',
-    )
+        (
+            f'<link rel="preload" href="{manifest["dirs"]["wasm"]}/pyodide.asm.wasm" '
+            f'as="fetch" type="application/wasm" integrity="{wasm_sri}" '
+            'crossorigin="anonymous" />\n</head>'
+        ),
+    )  # noqa: E501
 else:
     wasm_sri = None
 (dist_dir / "index.html").write_text(out_html)
-
 
 
 # generate service worker
 generate_service_worker(ROOT, dist_dir, manifest)
 (dist_dir / "service-worker.js").write_bytes((dist_dir / "sw.js").read_bytes())
 check_gzip_size(dist_dir / "insight.bundle.js")
-
