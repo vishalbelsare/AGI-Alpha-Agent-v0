@@ -33,19 +33,17 @@ Copy [`.env.sample`](.env.sample) to `.env` then review the variables:
 See [`.env.sample`](.env.sample) for the full list of supported variables.
 
 ## Build & Run
-Before compiling the app you **must** replace the placeholder WebAssembly
-artifacts. Run the helper below **before** `npm run build` or
-`python manual_build.py` to download the Pyodide runtime and
-`wasm-gpt2` model:
+Run the helper script **before** building to fetch the Pyodide runtime and
+`wasm-gpt2` model. The build scripts error if any asset is missing:
 
 ```bash
 python ../../../scripts/fetch_assets.py
 ```
 
-Once the wasm files are in place run:
+Once this command succeeds run the following:
 ```bash
-npm install
-npm run build    # compile to dist/ and embed env vars
+npm ci            # installs dependencies from package-lock.json
+npm run build     # or `python manual_build.py` to compile to dist/
 ```
 The build script reads `.env` automatically and injects the values into
 `dist/index.html` as `window.PINNER_TOKEN`, `window.OPENAI_API_KEY`,
