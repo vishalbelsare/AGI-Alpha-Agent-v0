@@ -1,14 +1,14 @@
 # SPDX-License-Identifier: Apache-2.0
 import os
 import re
-import hashlib
 import base64
 import json
 import subprocess
 import sys
 from pathlib import Path
 from urllib.parse import urlparse
-import gzip
+
+from build.common import check_gzip_size, sha384, generate_service_worker
 
 
 def _require_python_311() -> None:
@@ -43,18 +43,6 @@ try:
         os.environ.setdefault(key, val)
 except Exception as exc:  # pragma: no cover - optional dep
     print(f"[manual_build] failed to load .env: {exc}", file=sys.stderr)
-
-
-def sha384(path: Path) -> str:
-    digest = hashlib.sha384(path.read_bytes()).digest()
-    return "sha384-" + base64.b64encode(digest).decode()
-
-
-def check_gzip_size(path: Path, max_bytes: int = 2 * 1024 * 1024) -> None:
-    """Exit if gzip-compressed file exceeds ``max_bytes``."""
-    compressed = gzip.compress(path.read_bytes())
-    if len(compressed) > max_bytes:
-        sys.exit(f"gzip size {len(compressed)} bytes exceeds limit")
 
 
 def copy_assets(manifest: dict, repo_root: Path, dist_dir: Path) -> None:
@@ -316,33 +304,6 @@ else:
 
 
 # generate service worker
-sw_src = ROOT / "sw.js"
-sw_dest = dist_dir / "sw.js"
-pkg_version = json.loads((ROOT / "package.json").read_text())["version"]
-temp_sw = dist_dir / "sw.build.js"
-temp_sw.write_text(sw_src.read_text().replace("__CACHE_VERSION__", pkg_version))
-node_script = f"""
-const {{injectManifest}} = require('workbox-build');
-injectManifest({{
-  swSrc: {json.dumps(str(temp_sw))},
-  swDest: {json.dumps(str(sw_dest))},
-  globDirectory: {json.dumps(str(dist_dir))},
-  importWorkboxFrom: 'disabled',
-  globPatterns: {json.dumps(manifest["precache"])},
-  injectionPoint: 'self.__WB_MANIFEST',
-}}).catch(err => {{console.error(err); process.exit(1);}});
-"""
-try:
-    subprocess.run(["node", "-e", node_script], check=True)
-except FileNotFoundError:
-    print("[manual_build] node not found; skipping service worker generation", file=sys.stderr)
-except subprocess.CalledProcessError as exc:
-    print(
-        f"[manual_build] workbox build failed: {exc}; offline features disabled",
-        file=sys.stderr,
-    )
-finally:
-    temp_sw.unlink(missing_ok=True)
-
+generate_service_worker(ROOT, dist_dir, manifest)
 check_gzip_size(dist_dir / "insight.bundle.js")
 

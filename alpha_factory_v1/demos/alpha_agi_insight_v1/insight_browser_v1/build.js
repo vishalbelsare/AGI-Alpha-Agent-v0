@@ -3,10 +3,10 @@
 import { promises as fs } from 'fs';
 import fsSync from 'fs';
 import { execSync, spawnSync } from 'child_process';
-import { createHash } from 'crypto';
 import path from 'path';
+import { createHash } from 'crypto';
 import { fileURLToPath } from 'url';
-import { copyAssets, injectEnv } from './build/common.js';
+import { copyAssets, injectEnv, checkGzipSize, generateServiceWorker } from './build/common.js';
 import { requireNode20 } from './build/version_check.js';
 
 const manifest = JSON.parse(
@@ -16,9 +16,7 @@ const manifest = JSON.parse(
 requireNode20();
 
 const { build } = await import('esbuild');
-const gzipSize = (await import('gzip-size')).default;
 const { Web3Storage, File } = await import('web3.storage');
-const { injectManifest } = await import('workbox-build');
 const dotenv = (await import('dotenv')).default;
 dotenv.config();
 
@@ -140,11 +138,8 @@ async function bundle() {
     `npx tailwindcss -i style.css -o ${OUT_DIR}/style.css --minify`,
     { stdio: 'inherit' }
   );
-  const sha384 = async (file) => {
-    const data = await fs.readFile(`${OUT_DIR}/${file}`);
-    return 'sha384-' + createHash('sha384').update(data).digest('base64');
-  };
-  const appSri = await sha384('insight.bundle.js');
+  const data = await fs.readFile(`${OUT_DIR}/insight.bundle.js`);
+  const appSri = 'sha384-' + createHash('sha384').update(data).digest('base64');
   let outHtml = html.replace(
       '<script type="module" src="insight.bundle.js" crossorigin="anonymous"></script>',
       `<script type="module" src="insight.bundle.js" integrity="${appSri}" crossorigin="anonymous"></script>`
@@ -204,37 +199,8 @@ async function bundle() {
     .replace('</body>', `${envScript}\n</body>`);
   await fs.writeFile(`${OUT_DIR}/index.html`, outHtml);
   const pkg = JSON.parse(fsSync.readFileSync('package.json', 'utf8'));
-  const swTemplate = await fs.readFile('sw.js', 'utf8');
-  const swTemp = path.join(OUT_DIR, 'sw.build.js');
-  await fs.writeFile(swTemp, swTemplate.replace('__CACHE_VERSION__', pkg.version));
-  await injectManifest({
-    swSrc: swTemp,
-    swDest: `${OUT_DIR}/sw.js`,
-    globDirectory: OUT_DIR,
-    importWorkboxFrom: 'disabled',
-    globPatterns: manifest.precache,
-    injectionPoint: 'self.__WB_MANIFEST',
-  });
-  await fs.unlink(swTemp);
-
-  const swData = await fs.readFile(`${OUT_DIR}/sw.js`);
-  const swHash = createHash('sha384').update(swData).digest('base64');
-  let indexText = await fs.readFile(`${OUT_DIR}/index.html`, 'utf8');
-  indexText = indexText.replace(".register('sw.js')", ".register('service-worker.js')");
-  indexText = indexText.replace(
-    '</body>',
-    `<script src="service-worker.js" integrity="sha384-${swHash}" crossorigin="anonymous"></script>\n</body>`
-  );
-  indexText = indexText.replace(
-    /(script-src 'self' 'wasm-unsafe-eval')/,
-    `$1 'sha384-${swHash}'`
-  );
-  await fs.writeFile(`${OUT_DIR}/index.html`, indexText);
-  const size = await gzipSize.file(`${OUT_DIR}/insight.bundle.js`);
-  const MAX_GZIP_SIZE = 2 * 1024 * 1024; // 2 MiB
-  if (size > MAX_GZIP_SIZE) {
-    throw new Error(`gzip size ${size} bytes exceeds limit`);
-  }
+  await generateServiceWorker(OUT_DIR, manifest, pkg.version);
+  await checkGzipSize(`${OUT_DIR}/insight.bundle.js`);
   if (process.env.WEB3_STORAGE_TOKEN) {
     const client = new Web3Storage({ token: process.env.WEB3_STORAGE_TOKEN });
     const files = await Promise.all([

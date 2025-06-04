@@ -8,7 +8,7 @@ import re
 def test_check_gzip_call_present() -> None:
     browser_dir = Path(__file__).resolve().parents[1]
     text = (browser_dir / "manual_build.py").read_text()
-    assert "def check_gzip_size" in text
+    assert "from build.common import check_gzip_size" in text
     pattern = r"write_text\(bundle\).*\n\s*check_gzip_size\(dist_dir / \"insight.bundle.js\"\)"
     assert re.search(pattern, text)
 
