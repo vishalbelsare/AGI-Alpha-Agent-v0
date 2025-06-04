@@ -1,15 +1,16 @@
 // SPDX-License-Identifier: Apache-2.0
 import { loadPyodide } from '../lib/pyodide.js';
+import type { Individual } from '../src/state/serializer.ts';
 
-let pyReady;
-async function initPy() {
+let pyReady: any;
+async function initPy(): Promise<any> {
   if (!pyReady) {
     pyReady = await loadPyodide({ indexURL: './wasm/' }).catch(() => null);
   }
   return pyReady;
 }
 
-async function embedTexts(texts) {
+async function embedTexts(texts: string[]): Promise<[number, number][]> {
   const py = await initPy();
   if (!py) return texts.map(() => [Math.random(), Math.random()]);
   try {
@@ -22,7 +23,11 @@ async function embedTexts(texts) {
   }
 }
 
-self.onmessage = async (ev) => {
+interface UmapRequest {
+  population: (Individual & { summary?: string })[];
+}
+
+self.onmessage = async (ev: MessageEvent<UmapRequest>) => {
   const { population } = ev.data;
   const texts = population.map((p) => p.summary || '');
   const coords = await embedTexts(texts);

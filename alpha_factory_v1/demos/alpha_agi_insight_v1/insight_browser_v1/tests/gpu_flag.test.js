@@ -14,7 +14,7 @@ function makeMsg(gen) {
 test('worker updates gpu flag before mutate calls', async () => {
   const selfObj = { navigator: {}, postMessage: jest.fn() };
   global.self = selfObj;
-  await import('../worker/evolver.js');
+  await import('../worker/evolver.ts');
   const handler = selfObj.onmessage;
 
   handler({ data: { type: 'gpu', available: true } });
