@@ -858,7 +858,7 @@ uvicorn src.interface.api_server:app --reload
 streamlit run src/interface/web_app.py
 # React client
 cd src/interface/web_client
-npm install
+npm ci          # use the lock file for reproducible installs
 npm run dev       # http://localhost:5173
 # build production assets
 pnpm build

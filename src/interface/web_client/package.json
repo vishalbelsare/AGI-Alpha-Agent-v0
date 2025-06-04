@@ -21,7 +21,7 @@
     "d3": "^7.9.0",
     "@opentelemetry/api": "^1.8.0",
     "@opentelemetry/sdk-trace-web": "^1.8.0",
-    "@opentelemetry/exporter-trace-otlp-http": "^1.8.0"
+    "@opentelemetry/exporter-trace-otlp-http": "^0.202.0"
   },
   "devDependencies": {
     "@types/react": "^18.2.0",
@@ -33,7 +33,7 @@
     "@playwright/test": "^1.39.0",
     "workbox-build": "^6.5.4",
     "cypress": "^13.0.0",
-    "@percy/cli": "^1.34.0",
+    "@percy/cli": "^1.30.11",
     "@percy/cypress": "^3.1.0"
   }
 }
