@@ -74,6 +74,10 @@ jobs:
         run: npm install -g pnpm
       - name: Install insight browser dependencies
         run: npm ci --prefix alpha_factory_v1/demos/alpha_agi_insight_v1/insight_browser_v1
+      - name: Audit insight browser dependencies
+        run: npm --prefix alpha_factory_v1/demos/alpha_agi_insight_v1/insight_browser_v1 audit --production --audit-level=high
+      - name: Run insight browser tests
+        run: npm --prefix alpha_factory_v1/demos/alpha_agi_insight_v1/insight_browser_v1 test
       - name: Install web dependencies
         run: pnpm --dir src/interface/web_client install
       - name: Audit web dependencies
@@ -141,6 +145,10 @@ PY
         run: npm install -g pnpm
       - name: Install insight browser dependencies
         run: npm ci --prefix alpha_factory_v1/demos/alpha_agi_insight_v1/insight_browser_v1
+      - name: Audit insight browser dependencies
+        run: npm --prefix alpha_factory_v1/demos/alpha_agi_insight_v1/insight_browser_v1 audit --production --audit-level=high
+      - name: Run insight browser tests
+        run: npm --prefix alpha_factory_v1/demos/alpha_agi_insight_v1/insight_browser_v1 test
       - name: Type check insight browser
         run: pnpm --dir alpha_factory_v1/demos/alpha_agi_insight_v1/insight_browser_v1 run typecheck
       - name: Build web client
