@@ -5,8 +5,8 @@ from __future__ import annotations
 
 import sys
 from pathlib import Path
-import requests
-from requests.adapters import HTTPAdapter, Retry
+import requests  # type: ignore
+from requests.adapters import HTTPAdapter, Retry  # type: ignore
 import hashlib
 import base64
 
@@ -21,13 +21,13 @@ ASSETS = {
     # wasm-gpt2 model archive
     "wasm_llm/wasm-gpt2.tar": "bafybeihdwdcefgh4dqkjv67uzcmw7ojee6xedzdetojuzjevtenxquvyku",
     # Web3.Storage bundle
-    "lib/bundle.esm.min.js": "bafybeibundlecidreplace",
+    "lib/bundle.esm.min.js": "bafkreihgldx46iuks4lybdsc5qc6xom2y5fqdy5w3vvrxntlr42wc43u74",
     # Workbox runtime
     "lib/workbox-sw.js": "https://storage.googleapis.com/workbox-cdn/releases/6.5.4/workbox-sw.js",
 }
 
 CHECKSUMS = {
-    "lib/bundle.esm.min.js": "sha384-HCq3AUAghBODOAg7+u+o8u2pKjENSb3YGAjRfL6TZgAY49LXzq1SaOwNtQmWsIax",
+    "lib/bundle.esm.min.js": "sha384-qri3JZdkai966TTOV3Cl4xxA97q+qXCgKrd49pOn7DPuYN74wOEd6CIJ9HnqEROD",
     "lib/workbox-sw.js": "sha384-LWo7skrGueg8Fa4y2Vpe1KB4g0SifqKfDr2gWFRmzZF9n9F1bQVo1F0dUurlkBJo",
     "pyodide.asm.wasm": "sha384-kdvSehcoFMjX55sjg+o5JHaLhOx3HMkaLOwwMFmwH+bmmtvfeJ7zFEMWaqV9+wqo",
 }
@@ -68,6 +68,9 @@ def main() -> None:
     base = root / "alpha_factory_v1/demos/alpha_agi_insight_v1/insight_browser_v1"
     for rel, cid in ASSETS.items():
         dest = base / rel
+        if dest.exists():
+            print(f"Skipping {rel}, already exists")
+            continue
         print(f"Fetching {rel} from {cid}...")
         fallback = None
         if rel == "lib/bundle.esm.min.js":
