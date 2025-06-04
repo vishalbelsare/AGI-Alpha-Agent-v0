@@ -194,7 +194,13 @@ async function bundle() {
   let pyCode = await fs.readFile(path.join('lib', 'pyodide.js'), 'utf8');
   pyCode = pyCode.replace(/export\s+/g, '');
   pyCode += '\nwindow.loadPyodide=loadPyodide;';
-  bundleText = `${d3Code}\n${web3Code}\n${pyCode}\nwindow.PYODIDE_WASM_BASE64='${wasmBase64}';window.GPT2_MODEL_BASE64='${gpt2Base64}';\n` + bundleText;
+  let ortCode = '';
+  const ortPath = path.join('node_modules', 'onnxruntime-web', 'dist', 'ort.all.min.js');
+  if (fsSync.existsSync(ortPath)) {
+    ortCode = await fs.readFile(ortPath, 'utf8');
+    ortCode += '\nwindow.ort=ort;';
+  }
+  bundleText = `${d3Code}\n${web3Code}\n${pyCode}\n${ortCode}\nwindow.PYODIDE_WASM_BASE64='${wasmBase64}';window.GPT2_MODEL_BASE64='${gpt2Base64}';\n` + bundleText;
   await fs.writeFile(bundlePath, bundleText);
   outHtml = outHtml
     .replace(/<script[\s\S]*?d3\.v7\.min\.js[\s\S]*?<\/script>\s*/g, '')
