@@ -143,6 +143,11 @@ required. New users can review
 [dist/insight_browser_quickstart.pdf](dist/insight_browser_quickstart.pdf) after
 extraction for a brief walkthrough.
 
+## Locale Support
+The interface automatically loads French, Spanish or Chinese translations based
+on your browser preferences. Set `localStorage.lang` to override the detected
+language.
+
 ## Toolbar & Controls
 - **CSV** – export the current population as `population.csv`.
 - **PNG** – download a `frontier.png` screenshot of the chart.
