@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
-import { setUseGpu } from '../utils/llm.ts';
+import { setUseGpu, gpuAvailable } from '../utils/llm.ts';
 
 export function initPowerPanel(): { update: (e: any) => void; gpuToggle: HTMLInputElement } {
   const panel = document.createElement('div');
@@ -24,7 +24,11 @@ export function initPowerPanel(): { update: (e: any) => void; gpuToggle: HTMLInp
   gpuToggle.id = 'gpu-toggle';
   gpuToggle.setAttribute('aria-label', 'Use GPU');
   gpuLabel.appendChild(gpuToggle);
-  gpuLabel.append(' GPU');
+  gpuLabel.append(' GPU ');
+  const gpuStatus = document.createElement('span');
+  gpuStatus.id = 'gpu-status';
+  gpuStatus.textContent = gpuAvailable ? '(available)' : '(unavailable)';
+  gpuLabel.appendChild(gpuStatus);
   panel.appendChild(gpuLabel);
   panel.appendChild(pre);
   try {

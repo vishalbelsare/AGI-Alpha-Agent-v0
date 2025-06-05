@@ -32,6 +32,7 @@ run(['node', '--loader', 'ts-node/register', '--test',
   '../../../../tests/taxonomy.test.ts',
   '../../../../tests/memeplex.test.ts'
   ,'../../../../tests/webgl_perf.test.js'
+  ,'../../../../tests/gpu_flag.test.js'
 ]);
 run([
   'pytest',
