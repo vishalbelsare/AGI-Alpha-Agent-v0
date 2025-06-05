@@ -18,7 +18,7 @@ This guide summarises the minimal steps required to run the **Alpha‑AGI Busine
 2. **Launch the service**
    - **Docker** (recommended for consistent environments):
      ```bash
-     ./run_business_v1_demo.sh --pull        # add --gpu for NVIDIA runtime
+     ./run_business_v1_demo.sh [--pull] [--gpu]
      ```
    - **Native Python**:
      ```bash

@@ -155,10 +155,11 @@ cd AGI-Alpha-Agent-v0/alpha_factory_v1/demos/alpha_agi_business_v1
 python start_alpha_business.py
 
 # automatically queue the highest scoring demo opportunity
+# automatically queue the highest scoring demo opportunity
 python start_alpha_business.py --submit-best
 
-# Docker-based run (GPU optional)
-./run_business_v1_demo.sh
+# Docker-based run (add --pull to use GHCR, --gpu for NVIDIA)
+./run_business_v1_demo.sh [--pull] [--gpu]
 # or run directly without Docker
 python run_business_v1_local.py --bridge --auto-install
 # expose orchestrator on a custom port
