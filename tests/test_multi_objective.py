@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 import time
 from alpha_factory_v1.demos.alpha_agi_insight_v1.src.simulation import mats
 
