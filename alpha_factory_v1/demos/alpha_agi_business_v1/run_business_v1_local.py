@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# SPDX-License-Identifier: Apache-2.0
 """Local launcher for the Alpha‑AGI Business v1 demo.
 
 Runs the orchestrator directly without Docker and optionally starts the

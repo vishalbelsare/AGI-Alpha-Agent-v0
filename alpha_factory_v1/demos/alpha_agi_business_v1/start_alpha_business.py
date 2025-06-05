@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# SPDX-License-Identifier: Apache-2.0
 """One-click launcher for the Alpha‑AGI Business v1 demo.
 
 This helper checks dependencies, starts the local orchestrator with the
