@@ -271,7 +271,8 @@ python gradio_dashboard.py  # visits http://localhost:7860
 ```
 
 Set `GRADIO_PORT` to use a different port. The dashboard communicates with the
-orchestrator via its REST API (`BUSINESS_HOST` environment variable).
+orchestrator via its REST API (`BUSINESS_HOST` environment variable). Use
+`--token YOUR_TOKEN` or set `API_TOKEN` to authenticate requests.
 
 ### 🤖 OpenAI Agents bridge
 
@@ -283,7 +284,9 @@ Expose the business demo via the OpenAI Agents SDK (specify `--host` if the orch
 python openai_agents_bridge.py --host http://localhost:8000 --port 6001 --wait-secs 10
 # → http://localhost:6001/v1/agents
 ```
-Pass `--open-ui` to automatically open the runtime URL in your browser.
+Pass `--open-ui` to automatically open the runtime URL in your browser. Use
+`--token YOUR_TOKEN` or set `API_TOKEN` when the orchestrator requires
+authentication.
 When the optional `google-adk` dependency is installed and `ALPHA_FACTORY_ENABLE_ADK=true` is set,
 the same helper agent is also exposed via an ADK gateway for A2A messaging.
 Visit `http://localhost:9000/docs` to explore the gateway when enabled (default port: 9000). To use a custom port, set the `GATEWAY_PORT` environment variable accordingly.

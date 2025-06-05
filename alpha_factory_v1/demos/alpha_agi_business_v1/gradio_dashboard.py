@@ -3,6 +3,7 @@
 """Simple Gradio dashboard for the Alpha‑AGI Business demo."""
 from __future__ import annotations
 
+import argparse
 import os
 import sys
 
@@ -20,43 +21,54 @@ import gradio as gr
 
 HOST = os.getenv("BUSINESS_HOST", "http://localhost:8000")
 PORT = int(os.getenv("GRADIO_PORT", "7860"))
+HEADERS: dict[str, str] = {}
+
+
+def _parse_args(argv: list[str] | None = None) -> argparse.Namespace:
+    parser = argparse.ArgumentParser(description="Alpha-AGI Business dashboard")
+    parser.add_argument(
+        "--token",
+        help="REST API bearer token (defaults to API_TOKEN env var)",
+    )
+    return parser.parse_args(argv)
 
 
 def _list_agents() -> list[str]:
-    resp = requests.get(f"{HOST}/agents", timeout=5)
+    resp = requests.get(f"{HOST}/agents", headers=HEADERS, timeout=5)
     resp.raise_for_status()
     return resp.json()
 
 
 def _trigger(agent: str) -> str:
-    resp = requests.post(f"{HOST}/agent/{agent}/trigger", timeout=5)
+    resp = requests.post(f"{HOST}/agent/{agent}/trigger", headers=HEADERS, timeout=5)
     resp.raise_for_status()
     return f"{agent} queued"
 
 
 def _recent_alpha(limit: int = 5) -> list[dict]:
-    resp = requests.get(
-        f"{HOST}/memory/alpha_opportunity/recent", params={"n": limit}, timeout=5
-    )
+    resp = requests.get(f"{HOST}/memory/alpha_opportunity/recent", params={"n": limit}, timeout=5)
     resp.raise_for_status()
     return resp.json()
 
 
 def _search_memory(query: str, limit: int = 5) -> list[dict]:
-    resp = requests.get(
-        f"{HOST}/memory/search", params={"q": query, "k": limit}, timeout=5
-    )
+    resp = requests.get(f"{HOST}/memory/search", params={"q": query, "k": limit}, timeout=5)
     resp.raise_for_status()
     return resp.json()
 
 
 def _fetch_logs() -> list[str]:
-    resp = requests.get(f"{HOST}/api/logs", timeout=5)
+    resp = requests.get(f"{HOST}/api/logs", headers=HEADERS, timeout=5)
     resp.raise_for_status()
     return resp.json()
 
 
 def main() -> None:
+    args = _parse_args()
+    global HEADERS
+    token = args.token or os.getenv("API_TOKEN")
+    HEADERS = {"Authorization": f"Bearer {token}"} if token else {}
+
     with gr.Blocks(title="Alpha‑AGI Business Dashboard") as ui:
         gr.Markdown("# Alpha‑AGI Business Dashboard")
         out = gr.JSON()
