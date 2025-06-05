@@ -1,15 +1,14 @@
-// @ts-nocheck
 // SPDX-License-Identifier: Apache-2.0
 import { loadPyodide } from '../lib/pyodide.js';
 
-let pyodideReady;
-async function initPy() {
+let pyodideReady: any;
+async function initPy(): Promise<any> {
   if (!pyodideReady) {
     try {
       let opts = { indexURL: './wasm/' };
-      if (window.PYODIDE_WASM_BASE64) {
+      if ((window as any).PYODIDE_WASM_BASE64) {
         const bytes = Uint8Array.from(
-          atob(window.PYODIDE_WASM_BASE64),
+          atob((window as any).PYODIDE_WASM_BASE64),
           c => c.charCodeAt(0)
         );
         const blob = new Blob([bytes], { type: 'application/wasm' });
@@ -18,14 +17,14 @@ async function initPy() {
       }
       pyodideReady = await loadPyodide(opts);
     } catch (err) {
-      toast('Pyodide failed to load');
+      (window as any).toast?.('Pyodide failed to load');
       return Promise.reject(err);
     }
   }
   return pyodideReady;
 }
 
-export async function run(params = {}) {
+export async function run(params: { seed?: number } = {}): Promise<any> {
   const pyodide = await initPy();
   const seed = params.seed ?? 0;
   await pyodide.runPythonAsync(`import random; random.seed(${seed})`);
@@ -35,4 +34,4 @@ export async function run(params = {}) {
   return JSON.parse(out);
 }
 
-window.Insight = { run };
+(window as any).Insight = { run };

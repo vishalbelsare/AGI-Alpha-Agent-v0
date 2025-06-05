@@ -1,7 +1,15 @@
-// @ts-nocheck
 // SPDX-License-Identifier: Apache-2.0
 import { t } from '../ui/i18n.ts';
-let log = [];
+interface ErrorEntry {
+  type: string;
+  message: string;
+  url?: string;
+  line?: number;
+  column?: number;
+  stack?: string;
+  ts: number;
+}
+let log: ErrorEntry[] = [];
 
 export function initErrorBoundary() {
   try {
@@ -9,7 +17,7 @@ export function initErrorBoundary() {
   } catch {
     log = [];
   }
-  function record(entry: any) {
+  function record(entry: ErrorEntry): void {
     log.push(entry);
     try {
       localStorage.setItem('errorLog', JSON.stringify(log));
@@ -40,11 +48,11 @@ export function initErrorBoundary() {
   };
 }
 
-export function getErrorLog(): any[] {
+export function getErrorLog(): ErrorEntry[] {
   return log.slice();
 }
 
-export function clearErrorLog() {
+export function clearErrorLog(): void {
   log = [];
   try {
     localStorage.removeItem('errorLog');

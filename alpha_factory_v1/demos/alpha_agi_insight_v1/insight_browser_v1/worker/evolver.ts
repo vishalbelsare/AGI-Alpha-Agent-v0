@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
-import { mutate } from '../src/evolve/mutate.js';
+import { mutate, type Mutant } from '../src/evolve/mutate.js';
 import { paretoFront } from '../src/utils/pareto.js';
 import { lcg } from '../src/utils/rng.js';
 import { t } from '../src/ui/i18n.js';
@@ -89,7 +89,7 @@ self.onmessage = async (
   const rand = lcg(0);
   rand.set(rngState);
   let next: Individual[] = mutate(
-    pop,
+    pop as unknown as Mutant[],
     rand,
     mutations,
     gen,

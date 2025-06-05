@@ -1,4 +1,3 @@
-// @ts-nocheck
 // SPDX-License-Identifier: Apache-2.0
 import { setUseGpu } from '../utils/llm.ts';
 
@@ -34,14 +33,14 @@ export function initPowerPanel(): { update: (e: any) => void; gpuToggle: HTMLInp
   } catch {
     gpuToggle.checked = true;
   }
-  window.USE_GPU = gpuToggle.checked && !!navigator.gpu;
+  window.USE_GPU = gpuToggle.checked && !!(navigator as any).gpu;
   setUseGpu(window.USE_GPU);
   gpuToggle.addEventListener('change', () => {
-    window.USE_GPU = gpuToggle.checked && !!navigator.gpu;
+    window.USE_GPU = gpuToggle.checked && !!(navigator as any).gpu;
     setUseGpu(window.USE_GPU);
   });
   document.body.appendChild(panel);
-  function update(e) {
+  function update(e: unknown): void {
     pre.textContent = JSON.stringify(e, null, 2);
   }
   return { update, gpuToggle };

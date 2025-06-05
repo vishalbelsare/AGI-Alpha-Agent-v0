@@ -1,7 +1,7 @@
-// @ts-nocheck
 // SPDX-License-Identifier: Apache-2.0
 import { t } from './i18n.ts';
-export function initAnalyticsPanel(): { update: (stats: any) => void; recordWorkerTime: (ms: number) => void } {
+import type { Individual } from '../state/serializer.ts';
+export function initAnalyticsPanel(): { update: (pop: Individual[], gen: number, entropy: number) => void; recordWorkerTime: (ms: number) => void } {
   const panel = document.createElement('div');
   panel.id = 'analytics-panel';
   panel.setAttribute('role', 'region');
@@ -57,7 +57,7 @@ export function initAnalyticsPanel(): { update: (stats: any) => void; recordWork
   panel.appendChild(canvas);
   document.body.appendChild(panel);
   const ctx = canvas.getContext('2d');
-  const hist = [];
+  const hist: number[] = [];
   let workerAvg = 0;
   let workerSamples = 0;
 
@@ -84,7 +84,7 @@ export function initAnalyticsPanel(): { update: (stats: any) => void; recordWork
     URL.revokeObjectURL(a.href);
   });
 
-  function update(pop, gen, entropy) {
+  function update(pop: Individual[], gen: number, entropy: number): void {
     if (!ctx) return;
     hist.push(entropy);
     if (hist.length > canvas.width) hist.shift();
@@ -118,15 +118,15 @@ export function initAnalyticsPanel(): { update: (stats: any) => void; recordWork
     });
     ctx.stroke();
 
-    if (performance.memory) {
-      const mb = performance.memory.usedJSHeapSize / 1048576;
+    if ((performance as any).memory) {
+      const mb = (performance as any).memory.usedJSHeapSize / 1048576;
       memEl.textContent = `mem ${mb.toFixed(1)} MB`;
     }
     const fpsTxt = document.getElementById('fps-meter')?.textContent || '';
     fpsEl.textContent = fpsTxt;
     workerEl.textContent = `worker ${workerAvg.toFixed(1)} ms`;
   }
-  function recordWorkerTime(ms) {
+  function recordWorkerTime(ms: number): void {
     workerSamples += 1;
     workerAvg += (ms - workerAvg) / workerSamples;
   }

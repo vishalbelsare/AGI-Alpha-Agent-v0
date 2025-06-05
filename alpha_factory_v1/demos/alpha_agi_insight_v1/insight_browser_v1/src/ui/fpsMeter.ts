@@ -1,4 +1,3 @@
-// @ts-nocheck
 // SPDX-License-Identifier: Apache-2.0
 export function initFpsMeter(isRunning: () => boolean): void {
   if (document.getElementById('fps-meter')) return;
@@ -19,7 +18,7 @@ export function initFpsMeter(isRunning: () => boolean): void {
   });
   document.body.appendChild(el);
   let last = 0;
-  function frame(ts) {
+  function frame(ts: number): void {
     if (isRunning()) {
       if (last) {
         const fps = 1000 / (ts - last);

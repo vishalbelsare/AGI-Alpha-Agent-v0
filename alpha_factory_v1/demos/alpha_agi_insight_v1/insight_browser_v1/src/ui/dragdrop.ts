@@ -1,17 +1,17 @@
-// @ts-nocheck
 // SPDX-License-Identifier: Apache-2.0
 export function initDragDrop(el: HTMLElement, onDrop: (data: string | ArrayBuffer | null) => void): void {
-  function over(ev) {
+  function over(ev: DragEvent): void {
     ev.preventDefault();
     el.classList.add('drag');
   }
-  function leave() {
+  function leave(): void {
     el.classList.remove('drag');
   }
-  function drop(ev) {
+  function drop(ev: DragEvent): void {
     ev.preventDefault();
     el.classList.remove('drag');
-    const file = ev.dataTransfer.files && ev.dataTransfer.files[0];
+    const dt = ev.dataTransfer;
+    const file = dt && dt.files && dt.files[0];
     if (!file) return;
     const reader = new FileReader();
     reader.onload = () => onDrop(reader.result);

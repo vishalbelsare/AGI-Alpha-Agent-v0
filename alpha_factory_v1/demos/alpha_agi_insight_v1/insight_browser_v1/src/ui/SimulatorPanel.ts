@@ -1,4 +1,3 @@
-// @ts-nocheck
 // SPDX-License-Identifier: Apache-2.0
 import { Simulator } from '../simulator.ts';
 import type { Individual } from '../state/serializer.ts';
@@ -18,17 +17,11 @@ export interface PowerPanel {
 }
 
 declare const view: any;
-declare function selectPoint(d: any, elem?: HTMLElement): void;
-declare let pop: any[];
+declare function selectPoint(d: Individual, elem?: HTMLElement): void;
+declare let pop: Individual[];
 declare let gen: number;
 declare const info: HTMLElement & { text?: (s: string) => void };
 
-declare global {
-  interface Window {
-    pop?: any;
-    coldZone?: unknown;
-  }
-}
 
 export async function initSimulatorPanel(
   archive: Archive,
@@ -103,8 +96,10 @@ export async function initSimulatorPanel(
     if (!f) return;
     pop = f;
     gen = i;
-    window.pop = pop;
-    renderFrontier(view.node ? view.node() : view, pop, selectPoint);
+    (window as any).pop = pop;
+    renderFrontier(view.node ? view.node() : view, pop, (d, el) =>
+      selectPoint(d, el as unknown as HTMLElement)
+    );
     info.textContent = `gen ${i}`;
     if (inspectPre) inspectPre.textContent = JSON.stringify(f, null, 2);
   }
@@ -153,10 +148,10 @@ export async function initSimulatorPanel(
       });
       frameIds.push(fid);
       count = g.gen;
-      window.pop = g.population;
+      (window as any).pop = g.population;
       if (g.population[0] && g.population[0].umap) {
         const pts = g.population.map((p: Individual) => p.umap);
-        window.coldZone = detectColdZone(pts);
+        (window as any).coldZone = detectColdZone(pts);
       }
       progress.value = count / Number(genInput.value);
       status.textContent = `gen ${count} front ${g.fronts.length}`;

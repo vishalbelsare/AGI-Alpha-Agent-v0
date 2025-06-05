@@ -1,8 +1,8 @@
-// @ts-nocheck
 // SPDX-License-Identifier: Apache-2.0
-import enStrings from '../i18n/en.json';
+import enStringsJson from '../i18n/en.json';
 
-let strings = enStrings;
+const enStrings: Record<string, string> = enStringsJson as Record<string, string>;
+let strings: Record<string, string> = enStrings;
 export let currentLanguage = 'en';
 
 export async function initI18n(): Promise<void> {
