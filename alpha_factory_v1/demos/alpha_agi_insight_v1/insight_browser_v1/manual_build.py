@@ -11,7 +11,11 @@ from urllib.parse import urlparse
 
 BUILD_DIR = Path(__file__).resolve().parent / "build"
 sys.path.insert(0, str(BUILD_DIR))
-from common import check_gzip_size, sha384, generate_service_worker
+from common import (  # noqa: E402
+    check_gzip_size,
+    sha384,
+    generate_service_worker,
+)
 
 
 def _require_python_311() -> None:
@@ -48,6 +52,24 @@ try:
         os.environ.setdefault(key, val)
 except Exception as exc:  # pragma: no cover - optional dep
     print(f"[manual_build] failed to load .env: {exc}", file=sys.stderr)
+
+
+def _validate_env() -> None:
+    """Validate tokens and URLs in the environment."""
+    for key in ("PINNER_TOKEN", "OPENAI_API_KEY", "WEB3_STORAGE_TOKEN"):
+        val = os.getenv(key)
+        if val is not None and not val.strip():
+            sys.exit(f"{key} may not be empty")
+
+    for key in ("IPFS_GATEWAY", "OTEL_ENDPOINT"):
+        val = os.getenv(key)
+        if val:
+            p = urlparse(val)
+            if not p.scheme or not p.netloc:
+                sys.exit(f"Invalid URL in {key}")
+
+
+_validate_env()
 
 
 def copy_assets(
@@ -133,7 +155,8 @@ def _ensure_assets() -> None:
             check=True,
         )
         for p in placeholders:
-            if not p.exists() or "placeholder" in p.read_text(errors="ignore").lower():
+            text = p.read_text(errors="ignore").lower() if p.exists() else ""
+            if not p.exists() or "placeholder" in text:
                 sys.exit(f"Failed to download {p.relative_to(ROOT)}")
 
 
@@ -145,8 +168,10 @@ def _placeholder_files() -> list[Path]:
     root = ROOT / "lib"
     if root.exists():
         for p in root.rglob("*"):
-            if p.is_file() and "placeholder" in p.read_text(errors="ignore").lower():
-                paths.append(p)
+            if p.is_file():
+                text = p.read_text(errors="ignore").lower()
+                if "placeholder" in text:
+                    paths.append(p)
     return paths
 
 
@@ -176,7 +201,10 @@ def _compile_worker(path: Path) -> str:
         "const out=ts.transpileModule(src,{compilerOptions:{module:'ES2022',target:'ES2022'}});"  # noqa: E501
         "process.stdout.write(out.outputText);"
     )
-    return subprocess.check_output(["node", "-e", script, str(path)], text=True)
+    return subprocess.check_output(
+        ["node", "-e", script, str(path)],
+        text=True,
+    )  # noqa: E501
 
 
 html = index_html.read_text()
@@ -201,7 +229,8 @@ def process_module(path: Path) -> None:
     code = path.read_text()
     for dep in find_deps(code):
         if dep.startswith(ALIAS_PREFIX):
-            dep_path = (ALIAS_TARGET / dep[len(ALIAS_PREFIX) :]).resolve()
+            dep_slice = dep[len(ALIAS_PREFIX) :]  # noqa: E203
+            dep_path = (ALIAS_TARGET / dep_slice).resolve()  # noqa: E203
         else:
             dep_path = (path.parent / dep).resolve()
             if not dep_path.exists():
@@ -218,7 +247,8 @@ def process_module(path: Path) -> None:
 
 for dep in find_deps(entry):
     if dep.startswith(ALIAS_PREFIX):
-        dep_path = (ALIAS_TARGET / dep[len(ALIAS_PREFIX) :]).resolve()
+        dep_slice = dep[len(ALIAS_PREFIX) :]  # noqa: E203
+        dep_path = (ALIAS_TARGET / dep_slice).resolve()  # noqa: E203
     else:
         dep_path = (ROOT / dep).resolve()
     process_module(dep_path)
@@ -309,7 +339,11 @@ app_sri = sha384(dist_dir / "insight.bundle.js")
 checksums = manifest["checksums"]
 out_html = out_html.replace(
     app_sri_placeholder,
-    (f'<script type="module" src="insight.bundle.js" integrity="{app_sri}" crossorigin="anonymous"></script>'),
+    (
+        '<script type="module" src="insight.bundle.js" '
+        + f'integrity="{app_sri}" '
+        + 'crossorigin="anonymous"></script>'
+    ),
 )
 env_script = inject_env()
 out_html = re.sub(
