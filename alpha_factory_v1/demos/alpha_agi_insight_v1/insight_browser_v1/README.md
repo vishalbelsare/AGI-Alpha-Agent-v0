@@ -130,7 +130,14 @@ Failing to replace placeholders will break offline mode.
 3. Confirm no placeholder text remains in `lib/` or `wasm*/`.
 4. Execute `npm run build` or `python manual_build.py`.
 
-5. Run `npm test --offline` to execute the suite with pre‑installed browsers.
+5. Run the tests offline:
+
+   ```bash
+   PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1 npm test --offline
+   ```
+
+   Set `PLAYWRIGHT_BROWSERS_PATH=/path/to/browsers` when using a custom
+   directory of Playwright binaries.
 
 Failing to run the fetch script leaves offline mode disabled.
 
@@ -240,17 +247,18 @@ the local GPT‑2 critic.
 ## Running Browser Tests
 
 The demo includes a small Playwright and Pytest suite. **Node.js ≥20** is
-required. After fetching the WebAssembly assets simply run:
+required. After fetching the WebAssembly assets run the tests with Playwright in
+offline mode:
 
 ```bash
-npm test
+PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1 npm test --offline
 ```
 
-This command now builds the bundle automatically before running the tests. It
+This command builds the bundle automatically before running the tests. It
 launches Playwright to exercise `dist/index.html` and then runs the Python
-checks. Offline setups can point Playwright at pre‑downloaded browsers by
-exporting `PLAYWRIGHT_BROWSERS_PATH=/path/to/browsers` or skip the download step
-with `PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1`.
+checks. `PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD` prevents Playwright from fetching
+browsers. Optionally set `PLAYWRIGHT_BROWSERS_PATH=/path/to/browsers` when using
+pre‑downloaded binaries.
 
 ## Development
 
