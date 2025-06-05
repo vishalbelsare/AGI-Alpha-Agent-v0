@@ -37,6 +37,22 @@ This guide summarises the minimal steps required to run the **Alpha‑AGI Busine
    - Gradio dashboard: [http://localhost:7860](http://localhost:7860)
    - Prometheus metrics: [http://localhost:8000/metrics](http://localhost:8000/metrics)
 
+### Verifying the ADK Gateway
+When `ALPHA_FACTORY_ENABLE_ADK=true` and the optional `google-adk` package are
+installed, the service spawns an ADK gateway.  Look for a log message like:
+
+```
+ADK gateway listening on http://0.0.0.0:${ALPHA_FACTORY_ADK_PORT}  (A2A protocol)
+```
+
+Confirm connectivity with:
+
+```bash
+curl http://localhost:${ALPHA_FACTORY_ADK_PORT}/docs
+# or
+curl http://localhost:${ALPHA_FACTORY_ADK_PORT}/healthz
+```
+
 5. **Shutting down**
    - Docker: `./run_business_v1_demo.sh --stop`
    - Native Python: press `Ctrl+C`; the orchestrator shuts down gracefully.
