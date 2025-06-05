@@ -127,6 +127,23 @@ Failing to replace placeholders will break offline mode.
 
 Failing to run the fetch script leaves offline mode disabled.
 
+### Offline npm install
+
+Create a cache on a connected machine:
+
+```bash
+npm ci --cache /path/to/npm-cache
+```
+
+Copy the cache to the target machine then run:
+
+```bash
+npm ci --offline --cache /path/to/npm-cache
+```
+
+This installs dependencies without network access.
+
+
 ### Fetching Assets Offline
 
 Set `WEB3_STORAGE_TOKEN` before running the helper script:
