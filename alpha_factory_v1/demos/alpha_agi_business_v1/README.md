@@ -8,7 +8,6 @@
 </p>
 
  <img alt="build" src="https://img.shields.io/badge/build-passing-brightgreen">
- <img alt="coverage" src="https://img.shields.io/badge/coverage-100%25-success">
  <img alt="license" src="https://img.shields.io/badge/license-Apache--2.0-blue">
  <img alt="status"  src="https://img.shields.io/badge/status-production-green">
 </p>
