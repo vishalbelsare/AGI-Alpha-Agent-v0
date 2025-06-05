@@ -54,13 +54,17 @@ except Exception:  # pragma: no cover - provide graceful degrade
 
 try:
     import gradio as gr
+    _HAVE_GRADIO = True
 except ModuleNotFoundError:  # pragma: no cover - allow CLI help without gradio
 
     class _MissingGradio:
         def __getattr__(self, name: str):  # noqa: D401
-            raise ModuleNotFoundError("gradio is required for this feature. Install with: pip install gradio")
+            raise ModuleNotFoundError(
+                "gradio is required for this feature. Install with: pip install gradio"
+            )
 
     gr = _MissingGradio()  # type: ignore[misc]
+    _HAVE_GRADIO = False
 
 # ── Minimal MuZero utilities --------------------------------------------------
 # (full implementation lives in demo/minimuzero.py, imported here)
@@ -114,6 +118,11 @@ if adk_bridge and adk_bridge.adk_enabled():  # pragma: no cover - optional
 
 # ── Gradio UI -----------------------------------------------------------------
 def launch_dashboard():
+    if not _HAVE_GRADIO:
+        raise RuntimeError(
+            "gradio is required for this feature. Install with: pip install gradio"
+        )
+
     with gr.Blocks(title="MuZero Planning Demo") as demo:
         vid = gr.Video(label="Live environment")
         log = gr.Markdown()
