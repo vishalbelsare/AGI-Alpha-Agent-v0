@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 import { t } from './i18n.ts';
+import { escapeHTML } from '../utils/dom.ts';
 import type { Individual } from '../state/serializer.ts';
 
 export interface DebateMessage {
@@ -61,9 +62,12 @@ export function initArenaPanel(onDebate?: DebateHandler): ArenaPanel {
   }
 
   function show(messages: DebateMessage[], score: number): void {
-    msgs.innerHTML = messages
-      .map((m: DebateMessage) => `<li><strong>${m.role}:</strong> ${m.text}</li>`)
-      .join('');
+    msgs.innerHTML = '';
+    messages.forEach((m: DebateMessage) => {
+      const li = document.createElement('li');
+      li.innerHTML = `<strong>${escapeHTML(m.role)}:</strong> ${escapeHTML(m.text)}`;
+      msgs.appendChild(li);
+    });
     const li = document.createElement('li');
     li.textContent = `${t('label.score')}: ${score}`;
     msgs.appendChild(li);
