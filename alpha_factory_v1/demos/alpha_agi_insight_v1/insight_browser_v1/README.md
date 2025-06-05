@@ -211,6 +211,9 @@ unavailable, the archive falls back to an in-memory store and data is lost on
 refresh. The **Evolution** panel
 lists archived runs with their score and novelty. Click **Re-spawn** next to a
 row to restart the simulation using that seed.
+The method `selectParents(count, beta?, gamma?, rand?)` returns weighted
+samples from the archive. Pass a seeded `rand` function to ensure deterministic
+results in tests or simulations.
 
 ## Arena & Meme Cloud
 The **Arena panel** allows quick debates between roles on any candidate in the
