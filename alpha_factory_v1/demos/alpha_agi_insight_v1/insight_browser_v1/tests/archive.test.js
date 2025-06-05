@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 const { Archive } = require('../src/archive.ts');
+const { set } = require('../src/utils/keyval.ts');
 
 beforeEach(async () => {
   indexedDB.deleteDatabase('jest');
@@ -87,4 +88,23 @@ test('auto prune retains latest 50 runs', async () => {
   const runs = await a.list();
   expect(runs.length).toBe(50);
   expect(runs[0].seed).toBe(5);
+});
+
+test('prune ranks by score and novelty', async () => {
+  const a = new Archive('jest');
+  await a.open();
+  const idA = await a.add(1, {}, [{ logic: 0, feasible: 0 }]);
+  const idB = await a.add(2, {}, [{ logic: 0, feasible: 0 }]);
+  const idC = await a.add(3, {}, [{ logic: 0, feasible: 0 }]);
+  let runs = await a.list();
+  const rA = runs.find((r) => r.id === idA);
+  const rB = runs.find((r) => r.id === idB);
+  const rC = runs.find((r) => r.id === idC);
+  await set(idA, { ...rA, score: 3, novelty: 1 }, a.runStore);
+  await set(idB, { ...rB, score: 0, novelty: 0 }, a.runStore);
+  await set(idC, { ...rC, score: 2, novelty: 0 }, a.runStore);
+  await a.prune(2);
+  runs = await a.list();
+  const seeds = runs.map((r) => r.seed).sort();
+  expect(seeds).toEqual([1, 3]);
 });

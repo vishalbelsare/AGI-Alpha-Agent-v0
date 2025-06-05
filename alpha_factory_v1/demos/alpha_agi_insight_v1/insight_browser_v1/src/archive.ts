@@ -168,10 +168,14 @@ export class Archive {
   async prune(max = 50): Promise<void> {
     const runs = await this.list();
     if (runs.length <= max) return;
-    runs.sort((a, b) => a.timestamp - b.timestamp);
-    const remove = runs.slice(0, runs.length - max);
+    runs.sort(
+      (a, b) =>
+        b.score + b.novelty - (a.score + a.novelty) || b.timestamp - a.timestamp,
+    );
+    const keep = runs.slice(0, max);
+    const remove = runs.slice(max);
     await Promise.all(remove.map((r) => del(r.id, this.runStore)));
-    const keepIds = new Set(runs.slice(runs.length - max).map((r) => r.evalId));
+    const keepIds = new Set(keep.map((r) => r.evalId));
     const evals = (await values(this.evalStore)) as EvaluatorRecord[];
     await Promise.all(
       evals
