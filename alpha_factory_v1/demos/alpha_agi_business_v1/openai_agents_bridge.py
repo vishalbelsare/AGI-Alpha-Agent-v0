@@ -8,6 +8,7 @@ local orchestrator. It works offline when no API key is configured.
 from __future__ import annotations
 
 import argparse
+import asyncio
 import json
 import os
 import sys
@@ -21,10 +22,27 @@ ROOT = os.path.abspath(os.path.join(SCRIPT_DIR, "..", "..", ".."))
 if ROOT not in sys.path:
     sys.path.insert(0, ROOT)
 
-try:
-    import requests  # type: ignore
+try:  # prefer httpx when available
+    from httpx import AsyncClient, ConnectError  # type: ignore
 except ModuleNotFoundError:  # pragma: no cover - offline shim
     from alpha_factory_v1 import af_requests as requests  # type: ignore
+
+    class AsyncClient:  # type: ignore
+        """Minimal async wrapper around the sync af_requests API."""
+
+        async def __aenter__(self) -> "AsyncClient":
+            return self
+
+        async def __aexit__(self, exc_type, exc, tb) -> None:
+            return False
+
+        async def get(self, url: str, **kwargs):
+            return requests.get(url, **kwargs)
+
+        async def post(self, url: str, **kwargs):
+            return requests.post(url, **kwargs)
+
+    ConnectError = requests.RequestException  # type: ignore
 
 
 # ---------------------------------------------------------------------------
@@ -55,7 +73,7 @@ def _require_openai_agents() -> bool:
             return True
         except Exception as exc:  # pragma: no cover - install failed
             sys.stderr.write(f"\n⚠️  openai_agents unavailable: {exc}\n")
-            if isinstance(exc, requests.exceptions.ConnectionError):
+            if isinstance(exc, ConnectError):
                 sys.stderr.write(
                     "   Network appears unreachable. Install 'openai_agents' "
                     "manually or provide a local wheel via WHEELHOUSE.\n"
@@ -139,21 +157,28 @@ def _parse_args(argv: list[str] | None = None) -> argparse.Namespace:
 
 @Tool(name="list_agents", description="List active orchestrator agents")
 async def list_agents() -> list[str]:
-    resp = requests.get(f"{HOST}/agents", headers=HEADERS, timeout=5)
+    async with AsyncClient() as client:
+        resp = await client.get(f"{HOST}/agents", headers=HEADERS, timeout=5)
     resp.raise_for_status()
     return resp.json()
 
 
 @Tool(name="trigger_discovery", description="Trigger the AlphaDiscoveryAgent")
 async def trigger_discovery() -> str:
-    resp = requests.post(f"{HOST}/agent/alpha_discovery/trigger", headers=HEADERS, timeout=5)
+    async with AsyncClient() as client:
+        resp = await client.post(
+            f"{HOST}/agent/alpha_discovery/trigger", headers=HEADERS, timeout=5
+        )
     resp.raise_for_status()
     return "alpha_discovery queued"
 
 
 @Tool(name="trigger_opportunity", description="Trigger the AlphaOpportunityAgent")
 async def trigger_opportunity() -> str:
-    resp = requests.post(f"{HOST}/agent/alpha_opportunity/trigger", headers=HEADERS, timeout=5)
+    async with AsyncClient() as client:
+        resp = await client.post(
+            f"{HOST}/agent/alpha_opportunity/trigger", headers=HEADERS, timeout=5
+        )
     resp.raise_for_status()
     return "alpha_opportunity queued"
 
@@ -172,82 +197,113 @@ async def trigger_best_alpha() -> str:
         best = max(data, key=lambda x: x.get("score", 0))
     except Exception as exc:  # pragma: no cover - file may be missing
         raise RuntimeError(f"failed to load alpha opportunities: {exc}") from exc
-    resp = requests.post(
-        f"{HOST}/agent/alpha_execution/trigger",
-        json=best,
-        headers=HEADERS,
-        timeout=5,
-    )
+    async with AsyncClient() as client:
+        resp = await client.post(
+            f"{HOST}/agent/alpha_execution/trigger",
+            json=best,
+            headers=HEADERS,
+            timeout=5,
+        )
     resp.raise_for_status()
     return "best alpha queued"
 
 
 @Tool(name="trigger_execution", description="Trigger the AlphaExecutionAgent")
 async def trigger_execution() -> str:
-    resp = requests.post(f"{HOST}/agent/alpha_execution/trigger", headers=HEADERS, timeout=5)
+    async with AsyncClient() as client:
+        resp = await client.post(
+            f"{HOST}/agent/alpha_execution/trigger", headers=HEADERS, timeout=5
+        )
     resp.raise_for_status()
     return "alpha_execution queued"
 
 
 @Tool(name="trigger_risk", description="Trigger the AlphaRiskAgent")
 async def trigger_risk() -> str:
-    resp = requests.post(f"{HOST}/agent/alpha_risk/trigger", headers=HEADERS, timeout=5)
+    async with AsyncClient() as client:
+        resp = await client.post(
+            f"{HOST}/agent/alpha_risk/trigger", headers=HEADERS, timeout=5
+        )
     resp.raise_for_status()
     return "alpha_risk queued"
 
 
 @Tool(name="trigger_compliance", description="Trigger the AlphaComplianceAgent")
 async def trigger_compliance() -> str:
-    resp = requests.post(f"{HOST}/agent/alpha_compliance/trigger", headers=HEADERS, timeout=5)
+    async with AsyncClient() as client:
+        resp = await client.post(
+            f"{HOST}/agent/alpha_compliance/trigger", headers=HEADERS, timeout=5
+        )
     resp.raise_for_status()
     return "alpha_compliance queued"
 
 
 @Tool(name="trigger_portfolio", description="Trigger the AlphaPortfolioAgent")
 async def trigger_portfolio() -> str:
-    resp = requests.post(f"{HOST}/agent/alpha_portfolio/trigger", headers=HEADERS, timeout=5)
+    async with AsyncClient() as client:
+        resp = await client.post(
+            f"{HOST}/agent/alpha_portfolio/trigger", headers=HEADERS, timeout=5
+        )
     resp.raise_for_status()
     return "alpha_portfolio queued"
 
 
 @Tool(name="trigger_planning", description="Trigger the PlanningAgent")
 async def trigger_planning() -> str:
-    resp = requests.post(f"{HOST}/agent/planning/trigger", headers=HEADERS, timeout=5)
+    async with AsyncClient() as client:
+        resp = await client.post(
+            f"{HOST}/agent/planning/trigger", headers=HEADERS, timeout=5
+        )
     resp.raise_for_status()
     return "planning queued"
 
 
 @Tool(name="trigger_research", description="Trigger the ResearchAgent")
 async def trigger_research() -> str:
-    resp = requests.post(f"{HOST}/agent/research/trigger", headers=HEADERS, timeout=5)
+    async with AsyncClient() as client:
+        resp = await client.post(
+            f"{HOST}/agent/research/trigger", headers=HEADERS, timeout=5
+        )
     resp.raise_for_status()
     return "research queued"
 
 
 @Tool(name="trigger_strategy", description="Trigger the StrategyAgent")
 async def trigger_strategy() -> str:
-    resp = requests.post(f"{HOST}/agent/strategy/trigger", headers=HEADERS, timeout=5)
+    async with AsyncClient() as client:
+        resp = await client.post(
+            f"{HOST}/agent/strategy/trigger", headers=HEADERS, timeout=5
+        )
     resp.raise_for_status()
     return "strategy queued"
 
 
 @Tool(name="trigger_market_analysis", description="Trigger the MarketAnalysisAgent")
 async def trigger_market_analysis() -> str:
-    resp = requests.post(f"{HOST}/agent/market_analysis/trigger", headers=HEADERS, timeout=5)
+    async with AsyncClient() as client:
+        resp = await client.post(
+            f"{HOST}/agent/market_analysis/trigger", headers=HEADERS, timeout=5
+        )
     resp.raise_for_status()
     return "market_analysis queued"
 
 
 @Tool(name="trigger_memory", description="Trigger the MemoryAgent")
 async def trigger_memory() -> str:
-    resp = requests.post(f"{HOST}/agent/memory/trigger", headers=HEADERS, timeout=5)
+    async with AsyncClient() as client:
+        resp = await client.post(
+            f"{HOST}/agent/memory/trigger", headers=HEADERS, timeout=5
+        )
     resp.raise_for_status()
     return "memory queued"
 
 
 @Tool(name="trigger_safety", description="Trigger the SafetyAgent")
 async def trigger_safety() -> str:
-    resp = requests.post(f"{HOST}/agent/safety/trigger", headers=HEADERS, timeout=5)
+    async with AsyncClient() as client:
+        resp = await client.post(
+            f"{HOST}/agent/safety/trigger", headers=HEADERS, timeout=5
+        )
     resp.raise_for_status()
     return "safety queued"
 
@@ -255,7 +311,8 @@ async def trigger_safety() -> str:
 @Tool(name="check_health", description="Return orchestrator health status")
 async def check_health() -> str:
     """Check orchestrator /healthz endpoint."""
-    resp = requests.get(f"{HOST}/healthz", headers=HEADERS, timeout=5)
+    async with AsyncClient() as client:
+        resp = await client.get(f"{HOST}/healthz", headers=HEADERS, timeout=5)
     resp.raise_for_status()
     return resp.text
 
@@ -273,12 +330,13 @@ async def submit_job(job: dict) -> str:
     agent = job.get("agent")
     if not agent:
         raise ValueError("'agent' field required in job spec")
-    resp = requests.post(
-        f"{HOST}/agent/{agent}/trigger",
-        json=job,
-        headers=HEADERS,
-        timeout=5,
-    )
+    async with AsyncClient() as client:
+        resp = await client.post(
+            f"{HOST}/agent/{agent}/trigger",
+            json=job,
+            headers=HEADERS,
+            timeout=5,
+        )
     resp.raise_for_status()
     return f"job for {agent} queued"
 
@@ -289,12 +347,13 @@ async def submit_job(job: dict) -> str:
 )
 async def recent_alpha(limit: int = 5) -> list[str]:
     """Fetch the latest alpha items from the orchestrator memory."""
-    resp = requests.get(
-        f"{HOST}/memory/alpha_opportunity/recent",
-        params={"n": limit},
-        headers=HEADERS,
-        timeout=5,
-    )
+    async with AsyncClient() as client:
+        resp = await client.get(
+            f"{HOST}/memory/alpha_opportunity/recent",
+            params={"n": limit},
+            headers=HEADERS,
+            timeout=5,
+        )
     resp.raise_for_status()
     return resp.json()
 
@@ -305,12 +364,13 @@ async def recent_alpha(limit: int = 5) -> list[str]:
 )
 async def search_memory(query: str, limit: int = 5) -> list[str]:
     """Query the orchestrator memory vector store."""
-    resp = requests.get(
-        f"{HOST}/memory/search",
-        params={"q": query, "k": limit},
-        headers=HEADERS,
-        timeout=5,
-    )
+    async with AsyncClient() as client:
+        resp = await client.get(
+            f"{HOST}/memory/search",
+            params={"q": query, "k": limit},
+            headers=HEADERS,
+            timeout=5,
+        )
     resp.raise_for_status()
     return resp.json()
 
@@ -321,7 +381,8 @@ async def search_memory(query: str, limit: int = 5) -> list[str]:
 )
 async def fetch_logs() -> list[str]:
     """Retrieve the latest orchestrator logs via the REST API."""
-    resp = requests.get(f"{HOST}/api/logs", headers=HEADERS, timeout=5)
+    async with AsyncClient() as client:
+        resp = await client.get(f"{HOST}/api/logs", headers=HEADERS, timeout=5)
     resp.raise_for_status()
     return resp.json()
 
@@ -351,15 +412,17 @@ POLICY_MAP: Dict[str, Callable[[dict], Awaitable[Any]]] = {
 }
 
 
-def wait_ready(url: str, timeout: float = 5.0) -> None:
+async def wait_ready(url: str, timeout: float = 5.0) -> None:
     """Block until the orchestrator healthcheck responds or timeout expires."""
     deadline = time.monotonic() + timeout
-    while time.monotonic() < deadline:
-        try:
-            if requests.get(f"{url}/healthz", headers=HEADERS, timeout=1).status_code == 200:
-                return
-        except Exception:
-            time.sleep(0.2)
+    async with AsyncClient() as client:
+        while time.monotonic() < deadline:
+            try:
+                resp = await client.get(f"{url}/healthz", headers=HEADERS, timeout=1)
+                if resp.status_code == 200:
+                    return
+            except Exception:
+                await asyncio.sleep(0.2)
     raise RuntimeError(f"Orchestrator not reachable at {url}")
 
 
@@ -417,7 +480,7 @@ def main() -> None:
     api_key = os.getenv("OPENAI_API_KEY") or None
     if not args.no_wait:
         try:
-            wait_ready(HOST, timeout=args.wait_secs)
+            asyncio.run(wait_ready(HOST, timeout=args.wait_secs))
         except RuntimeError as exc:
             sys.stderr.write(f"\n⚠️  {exc}\n")
             if api_key is None:
