@@ -235,6 +235,16 @@ pip install openai-agents
 ```
 In fully offline environments provide a local wheel via the `WHEELHOUSE` environment variable and run `check_env.py --auto-install` before launching the bridge.
 
+### 💾 Offline wheel install
+
+Build a wheelhouse as shown in [AGENTS.md](../../../AGENTS.md#offline-setup) and
+set `WHEELHOUSE` to its path. Run the environment check to install any missing
+packages from those wheels:
+
+```bash
+python check_env.py --auto-install --wheelhouse "$WHEELHOUSE"
+```
+
 ### 🎛️ Local Gradio Dashboard
 
 For a quick interactive UI run `python gradio_dashboard.py` after the orchestrator starts.
