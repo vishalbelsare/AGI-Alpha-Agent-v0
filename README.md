@@ -94,7 +94,7 @@ Follow these steps when working without internet access.
 1. **Build a wheelhouse** on a machine with connectivity:
    ```bash
    mkdir -p /media/wheels
-   pip wheel -r requirements.lock -w /media/wheels
+   pip wheel -r requirements.txt -w /media/wheels
    pip wheel -r requirements-dev.txt -w /media/wheels
    ```
 
@@ -103,12 +103,15 @@ Follow these steps when working without internet access.
    `WHEELHOUSE` is unset:
    ```bash
    WHEELHOUSE=/media/wheels AUTO_INSTALL_MISSING=1 ./codex/setup.sh
-  WHEELHOUSE=/media/wheels AUTO_INSTALL_MISSING=1 \
-    python check_env.py --auto-install --wheelhouse /media/wheels
-  pip check
-  ```
-   See [Offline Setup](alpha_factory_v1/scripts/README.md#offline-setup) for
-   more details.
+   WHEELHOUSE=/media/wheels AUTO_INSTALL_MISSING=1 \
+     python check_env.py --auto-install --wheelhouse /media/wheels
+   pip check
+   ```
+   `check_env.py` uses the wheels under `/media/wheels`. Set
+   `WHEELHOUSE=/media/wheels` when running `pre-commit` or the tests so
+   dependencies install from the local cache. See
+   [Offline Setup](alpha_factory_v1/scripts/README.md#offline-setup) for more
+   details.
 
 3. **Download a `.gguf` weight** and set ``LLAMA_MODEL_PATH``:
    ```bash

@@ -266,12 +266,19 @@ In fully offline environments provide a local wheel via the `WHEELHOUSE` environ
 
 ### 💾 Offline wheel install
 
-Build a wheelhouse as shown in [AGENTS.md](../../../AGENTS.md#offline-setup) and
-set `WHEELHOUSE` to its path. Run the environment check to install any missing
-packages from those wheels:
+Create a wheelhouse on a machine with internet access:
 
 ```bash
-python check_env.py --auto-install --wheelhouse "$WHEELHOUSE"
+mkdir -p /media/wheels
+pip wheel -r requirements.txt -w /media/wheels
+pip wheel -r requirements-dev.txt -w /media/wheels
+```
+
+Set `WHEELHOUSE=/media/wheels` and run the environment check to install from
+these local wheels. Use the same variable when running `pre-commit` or tests:
+
+```bash
+python check_env.py --auto-install --wheelhouse /media/wheels
 ```
 
 ### 🎛️ Local Gradio Dashboard
