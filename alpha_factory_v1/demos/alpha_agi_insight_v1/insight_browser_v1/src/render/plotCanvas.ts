@@ -27,11 +27,14 @@ function parseColor(color: string): [number, number, number, number] {
   return [0, 0, 0, 1];
 }
 
-function ensureGL(parent: any): [HTMLCanvasElement, ReturnType<typeof createREGL>] {
-  const node = parent.node ? parent.node() : parent;
+type NodeParent = HTMLElement | SVGGraphicsElement | { node: () => HTMLElement | SVGGraphicsElement };
+function ensureGL(parent: NodeParent): [HTMLCanvasElement, ReturnType<typeof createREGL>] {
+  const node: HTMLElement | SVGGraphicsElement = 'node' in parent ? parent.node() : parent;
   let canvas = node.querySelector<HTMLCanvasElement>('canvas.webgl-layer');
   if (!canvas) {
-    const svg = (node.ownerSVGElement || node) as SVGSVGElement;
+    const svg = (
+      'ownerSVGElement' in node ? node.ownerSVGElement || node : node
+    ) as unknown as SVGSVGElement;
     const vb = svg.viewBox?.baseVal;
     const width = vb && vb.width ? vb.width : svg.clientWidth;
     const height = vb && vb.height ? vb.height : svg.clientHeight;

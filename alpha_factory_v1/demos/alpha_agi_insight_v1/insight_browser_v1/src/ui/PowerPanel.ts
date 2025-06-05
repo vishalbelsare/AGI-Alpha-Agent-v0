@@ -1,7 +1,12 @@
 // SPDX-License-Identifier: Apache-2.0
 import { setUseGpu, gpuAvailable } from '../utils/llm.ts';
+import type { EvaluatorGenome } from '../evaluator_genome.ts';
+import type { GpuToggleEvent } from './types.ts';
 
-export function initPowerPanel(): { update: (e: any) => void; gpuToggle: HTMLInputElement } {
+export function initPowerPanel(): {
+  update: (e: EvaluatorGenome | GpuToggleEvent) => void;
+  gpuToggle: HTMLInputElement;
+} {
   const panel = document.createElement('div');
   panel.id = 'power-panel';
   panel.setAttribute('role', 'region');
@@ -44,7 +49,7 @@ export function initPowerPanel(): { update: (e: any) => void; gpuToggle: HTMLInp
     setUseGpu(window.USE_GPU);
   });
   document.body.appendChild(panel);
-  function update(e: unknown): void {
+  function update(e: EvaluatorGenome | GpuToggleEvent): void {
     pre.textContent = JSON.stringify(e, null, 2);
   }
   return { update, gpuToggle };

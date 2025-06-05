@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
-import { Simulator } from '../simulator.ts';
+import { Simulator, type Generation } from '../simulator.ts';
 import type { Individual } from '../state/serializer.ts';
 import { save, load } from '../state/serializer.ts';
 import { ReplayDB } from '@insight-src/replay.ts';
@@ -11,12 +11,14 @@ import { renderFrontier } from '../render/frontier.ts';
 import { detectColdZone } from '../utils/cluster.ts';
 import clone from '../../../../../../src/utils/clone.js';
 import type { Archive } from '../archive.ts';
+import type { PopulationFrame, SimulatorStatus, GpuToggleEvent } from './types.ts';
+import type { Selection } from 'd3';
 
 export interface PowerPanel {
-  update(genome: EvaluatorGenome): void;
+  update(e: EvaluatorGenome | GpuToggleEvent): void;
 }
 
-declare const view: any;
+declare const view: Selection<SVGGElement, unknown, null, undefined> | SVGGElement;
 declare function selectPoint(d: Individual, elem?: HTMLElement): void;
 declare let pop: Individual[];
 declare let gen: number;
@@ -79,13 +81,14 @@ export async function initSimulatorPanel(
   const status = panel.querySelector<HTMLDivElement>('#sim-status')!;
   const inspectPre = panel.querySelector<HTMLPreElement>('#sim-inspect');
 
-  let sim: AsyncGenerator<any> | null = null;
-  let frames: Individual[][] = [];
+  let sim: AsyncGenerator<Generation> | null = null;
+  let frames: PopulationFrame[] = [];
   let frameIds: number[] = [];
   let paused = false;
   const replay = new ReplayDB('sim-replay');
   await replay.open();
-  let memeRuns: any[] = [];
+  interface MemeRun { edges: Array<{ from: string; to: string }> }
+  let memeRuns: MemeRun[] = [];
   let evaluator: EvaluatorGenome = {
     weights: { logic: 0.5, feasible: 0.5 },
     prompt: 'score idea',
@@ -94,14 +97,15 @@ export async function initSimulatorPanel(
   function showFrame(i: number): void {
     const f = frames[i];
     if (!f) return;
-    pop = f;
-    gen = i;
-    (window as any).pop = pop;
-    renderFrontier(view.node ? view.node() : view, pop, (d, el) =>
+    pop = f.population;
+    gen = f.gen;
+    window.pop = pop;
+    const target = 'node' in view ? view.node() : view;
+    renderFrontier(target as unknown as HTMLElement, pop, (d, el) =>
       selectPoint(d, el as unknown as HTMLElement)
     );
-    info.textContent = `gen ${i}`;
-    if (inspectPre) inspectPre.textContent = JSON.stringify(f, null, 2);
+    info.textContent = `gen ${f.gen}`;
+    if (inspectPre) inspectPre.textContent = JSON.stringify(f.population, null, 2);
   }
 
   frameInput.addEventListener('input', () => {
@@ -124,7 +128,6 @@ export async function initSimulatorPanel(
       umapWorkerUrl: './worker/umapWorker.js',
       critic: heurSel.value as 'none' | 'llm',
     });
-    let lastPop = [];
     let count = 0;
     frames = [];
     frameIds = [];
@@ -134,27 +137,27 @@ export async function initSimulatorPanel(
       while (paused) {
         await new Promise((r) => setTimeout(r, 100));
       }
-      lastPop = g.population;
       const edges = g.population.map((p: Individual) => ({
         from: p.strategy || 'x',
         to: p.strategy || 'x',
       }));
       memeRuns.push({ edges });
       await saveMemes(mineMemes(memeRuns));
-      frames.push(clone(g.population));
+      frames.push({ population: clone(g.population) as Individual[], gen: g.gen });
       const fid = await replay.addFrame(frameIds[frameIds.length - 1] || null, {
         population: g.population,
         gen: g.gen,
       });
       frameIds.push(fid);
       count = g.gen;
-      (window as any).pop = g.population;
+      window.pop = g.population;
       if (g.population[0] && g.population[0].umap) {
         const pts = g.population.map((p: Individual) => p.umap);
-        (window as any).coldZone = detectColdZone(pts);
+        window.coldZone = detectColdZone(pts);
       }
       progress.value = count / Number(genInput.value);
-      status.textContent = `gen ${count} front ${g.fronts.length}`;
+      const stat: SimulatorStatus = { gen: count, frontSize: g.fronts.length };
+      status.textContent = `gen ${stat.gen} front ${stat.frontSize}`;
       await archive
         .add(seeds[0] ?? 1, { popSize: Number(popInput.value) }, g.fronts, [], evalId)
         .catch(() => {});
@@ -201,7 +204,10 @@ export async function initSimulatorPanel(
         try {
           const last = await replay.importFrames(txt);
           const thread = await replay.exportThread(last);
-          frames = thread.map((f) => f.delta.population);
+          frames = thread.map((f) => ({
+            population: f.delta.population as Individual[],
+            gen: f.delta.gen as number,
+          }));
           frameIds = thread.map((f) => f.id);
           frameInput.max = String(Math.max(0, frames.length - 1));
           frameInput.value = '0';

@@ -9,7 +9,7 @@ declare global {
     OTEL_ENDPOINT?: string;
     IPFS_GATEWAY?: string;
     USE_GPU?: boolean;
-    pop?: unknown;
+    pop?: import('./state/serializer').Individual[];
     coldZone?: unknown;
     recordedPrompts?: string[];
   }
