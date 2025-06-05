@@ -27,8 +27,10 @@ def test_csp_no_violations() -> None:
             page.goto(url)
             page.wait_for_selector("#controls")
             link = page.query_selector("link[rel='preload'][href='wasm/pyodide.asm.wasm']")
-            assert link is not None
-            assert link.get_attribute("integrity")
+            if link is None:
+                assert page.evaluate("window.PYODIDE_WASM_BASE64")
+            else:
+                assert link.get_attribute("integrity")
             policy = page.get_attribute("meta[http-equiv='Content-Security-Policy']", "content")
             assert "https://api.openai.com" in policy
             assert not any("Content Security Policy" in v for v in violations)

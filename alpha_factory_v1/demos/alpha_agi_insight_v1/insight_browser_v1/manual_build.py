@@ -400,15 +400,16 @@ if wasm_dir.exists():
             expected = checksums.get(name)
             if expected and expected != actual:
                 sys.exit(f"Checksum mismatch for {name}")
-    out_html = out_html.replace(
-        "</head>",
-        (
-            f'<link rel="preload" '
-            f'href="{manifest["dirs"]["wasm"]}/pyodide.asm.wasm" '
-            f'as="fetch" type="application/wasm" integrity="{wasm_sri}" '
-            'crossorigin="anonymous" />\n</head>'
-        ),
-    )  # noqa: E501
+    if not wasm_b64:
+        out_html = out_html.replace(
+            "</head>",
+            (
+                f'<link rel="preload" '
+                f'href="{manifest["dirs"]["wasm"]}/pyodide.asm.wasm" '
+                f'as="fetch" type="application/wasm" integrity="{wasm_sri}" '
+                'crossorigin="anonymous" />\n</head>'
+            ),
+        )  # noqa: E501
 else:
     wasm_sri = None
 (dist_dir / "index.html").write_text(out_html)
