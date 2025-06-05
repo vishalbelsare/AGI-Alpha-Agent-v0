@@ -41,6 +41,14 @@
 13. [License](#license)
 14. [Resources](#resources)
 
+> **Quick Start**
+> ```bash
+> python start_alpha_business.py      # launch the orchestrator
+> python openai_agents_bridge.py      # expose via OpenAI Agents
+> python gradio_dashboard.py          # interactive dashboard
+> ```
+> See the [Quick Start](#quick) and [Deployment Recipes](#deploy) sections for advanced options.
+
 ---
 
 <a id="why"></a>
