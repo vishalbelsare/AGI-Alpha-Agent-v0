@@ -7,23 +7,94 @@ export function initControls(
   onChange: (p: any, info: any) => void,
 ): { setValues: (p: any) => void; pauseBtn: HTMLButtonElement; exportBtn: HTMLButtonElement; dropZone: HTMLElement } {
   const root=document.getElementById('controls');
-  root.innerHTML = `
-    <label>${t('seed')} <input id="seed" type="number" min="0" aria-label="${t('seed')}" tabindex="1"></label>
-    <label>${t('population')} <input id="pop" type="number" min="1" max="${MAX_VAL}" aria-label="${t('population')}" tabindex="2"></label>
-    <label>${t('generations')} <input id="gen" type="number" min="1" max="${MAX_VAL}" aria-label="${t('generations')}" tabindex="3"></label>
-    <label><input id="gaussian" type="checkbox" aria-label="${t('gaussian')}" tabindex="4"> ${t('gaussian')}</label>
-    <label><input id="swap" type="checkbox" aria-label="${t('swap')}" tabindex="5"> ${t('swap')}</label>
-    <label><input id="jump" type="checkbox" aria-label="${t('jump')}" tabindex="6"> ${t('jump')}</label>
-    <label><input id="scramble" type="checkbox" aria-label="${t('scramble')}" tabindex="7"> ${t('scramble')}</label>
-    <label><input id="adaptive" type="checkbox" aria-label="${t('adaptive')}" tabindex="8"> ${t('adaptive')}</label>
-    <button id="pause" role="button" aria-label="${t('pause')}" tabindex="9">${t('pause')}</button>
-    <button id="export" role="button" aria-label="${t('export')}" tabindex="10">${t('export')}</button>
-    <div id="drop" role="button" aria-label="${t('drop')}" tabindex="10">${t('drop')}</div>
-    <select id="lang" tabindex="11">
-      <option value="en">English</option>
-      <option value="fr">Français</option>
-      <option value="es">Español</option>
-    </select>`;
+  root.replaceChildren();
+  function addLabel(text: string, input: HTMLElement): void {
+    const label = document.createElement('label');
+    label.appendChild(document.createTextNode(text + ' '));
+    label.appendChild(input);
+    root.appendChild(label);
+  }
+
+  const seedInput = document.createElement('input');
+  seedInput.id = 'seed';
+  seedInput.type = 'number';
+  seedInput.min = '0';
+  seedInput.setAttribute('aria-label', t('seed'));
+  seedInput.tabIndex = 1;
+  addLabel(t('seed'), seedInput);
+
+  const popInput = document.createElement('input');
+  popInput.id = 'pop';
+  popInput.type = 'number';
+  popInput.min = '1';
+  popInput.max = String(MAX_VAL);
+  popInput.setAttribute('aria-label', t('population'));
+  popInput.tabIndex = 2;
+  addLabel(t('population'), popInput);
+
+  const genInput = document.createElement('input');
+  genInput.id = 'gen';
+  genInput.type = 'number';
+  genInput.min = '1';
+  genInput.max = String(MAX_VAL);
+  genInput.setAttribute('aria-label', t('generations'));
+  genInput.tabIndex = 3;
+  addLabel(t('generations'), genInput);
+
+  function addCheck(id: string, text: string, tab: number): HTMLInputElement {
+    const c = document.createElement('input');
+    c.id = id;
+    c.type = 'checkbox';
+    c.setAttribute('aria-label', text);
+    c.tabIndex = tab;
+    addLabel(text, c);
+    return c;
+  }
+
+  const gauss = addCheck('gaussian', t('gaussian'), 4);
+  const swap = addCheck('swap', t('swap'), 5);
+  const jump = addCheck('jump', t('jump'), 6);
+  const scramble = addCheck('scramble', t('scramble'), 7);
+  const adaptive = addCheck('adaptive', t('adaptive'), 8);
+
+  const pause = document.createElement('button');
+  pause.id = 'pause';
+  pause.setAttribute('role', 'button');
+  pause.setAttribute('aria-label', t('pause'));
+  pause.tabIndex = 9;
+  pause.textContent = t('pause');
+  root.appendChild(pause);
+
+  const exportBtn = document.createElement('button');
+  exportBtn.id = 'export';
+  exportBtn.setAttribute('role', 'button');
+  exportBtn.setAttribute('aria-label', t('export'));
+  exportBtn.tabIndex = 10;
+  exportBtn.textContent = t('export');
+  root.appendChild(exportBtn);
+
+  const drop = document.createElement('div');
+  drop.id = 'drop';
+  drop.setAttribute('role', 'button');
+  drop.setAttribute('aria-label', t('drop'));
+  drop.tabIndex = 10;
+  drop.textContent = t('drop');
+  root.appendChild(drop);
+
+  const langSel = document.createElement('select');
+  langSel.id = 'lang';
+  langSel.tabIndex = 11;
+  const en = document.createElement('option');
+  en.value = 'en';
+  en.textContent = 'English';
+  const fr = document.createElement('option');
+  fr.value = 'fr';
+  fr.textContent = 'Français';
+  const es = document.createElement('option');
+  es.value = 'es';
+  es.textContent = 'Español';
+  langSel.append(en, fr, es);
+  root.appendChild(langSel);
   const seed=root.querySelector('#seed'),
         pop=root.querySelector('#pop'),
         gen=root.querySelector('#gen'),

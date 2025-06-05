@@ -37,12 +37,19 @@ export function initEvolutionPanel(archive: Archive): EvolutionPanel {
   tree.id = 'taxonomy-tree';
   const table = document.createElement('table');
   const header = document.createElement('tr');
-  header.innerHTML =
-    `<th data-k="seed">${t('seed')}</th>` +
-    `<th data-k="score">${t('score')}</th>` +
-    `<th data-k="novelty">${t('novelty')}</th>` +
-    `<th data-k="timestamp">${t('time')}</th>` +
-    '<th></th>';
+  const headCells: [string, string][] = [
+    ['seed', t('seed')],
+    ['score', t('score')],
+    ['novelty', t('novelty')],
+    ['timestamp', t('time')],
+  ];
+  for (const [k, label] of headCells) {
+    const th = document.createElement('th');
+    th.dataset.k = k;
+    th.textContent = label;
+    header.appendChild(th);
+  }
+  header.appendChild(document.createElement('th'));
   table.appendChild(header);
   const memeDiv = document.createElement('div');
   memeDiv.id = 'meme-cloud';
@@ -79,7 +86,7 @@ export function initEvolutionPanel(archive: Archive): EvolutionPanel {
   }
 
   function drawTree(runs: InsightRun[]): void {
-    svg.innerHTML = '';
+    while (svg.firstChild) svg.firstChild.remove();
     const pos = new Map<string, { x: number; y: number }>();
     runs.forEach((r, i) => {
       const x = 20 + i * 20;
@@ -117,7 +124,7 @@ export function initEvolutionPanel(archive: Archive): EvolutionPanel {
       taxonomy,
     );
     await saveTaxonomy(taxonomy);
-    tree.innerHTML = '';
+    tree.replaceChildren();
     const nodes = taxonomy?.nodes ?? {};
     function makeList(parent: string | null): HTMLUListElement | null {
       const children = Object.values(nodes).filter((n) => n.parent === parent);
@@ -161,7 +168,17 @@ export function initEvolutionPanel(archive: Archive): EvolutionPanel {
     runs.forEach((r) => {
       const tr = document.createElement('tr');
       const time = new Date(r.timestamp).toLocaleTimeString();
-      tr.innerHTML = `<td>${r.seed}</td><td>${r.score.toFixed(2)}</td><td>${r.novelty.toFixed(2)}</td><td>${time}</td>`;
+      const cells = [
+        String(r.seed),
+        r.score.toFixed(2),
+        r.novelty.toFixed(2),
+        time,
+      ];
+      for (const text of cells) {
+        const td = document.createElement('td');
+        td.textContent = text;
+        tr.appendChild(td);
+      }
       const td = document.createElement('td');
       const btn = document.createElement('button');
       btn.textContent = t('respawn');
@@ -172,13 +189,16 @@ export function initEvolutionPanel(archive: Archive): EvolutionPanel {
     });
     drawTree(runs);
     const memes = await loadMemes();
-    memeDiv.innerHTML = memes
+    memeDiv.replaceChildren();
+    memes
       .sort((a, b) => b.count - a.count)
-      .map(
-        (m) =>
-          `<span style="font-size:${10 + m.count * 2}px;margin-right:4px;">${m.edges[0].from}->${m.edges[0].to} (${m.count})</span>`
-      )
-      .join(' ');
+      .forEach((m) => {
+        const span = document.createElement('span');
+        span.style.fontSize = `${10 + m.count * 2}px`;
+        span.style.marginRight = '4px';
+        span.textContent = `${m.edges[0].from}->${m.edges[0].to} (${m.count})`;
+        memeDiv.appendChild(span);
+      });
   }
 
   renderTaxonomy();
