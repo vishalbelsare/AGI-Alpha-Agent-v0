@@ -13,6 +13,7 @@ import os
 import sys
 import time
 from pathlib import Path
+from typing import Any, Awaitable, Callable, Dict
 
 # allow running this script directly from its folder
 SCRIPT_DIR = os.path.dirname(__file__)
@@ -99,9 +100,7 @@ AGENT_PORT = int(os.getenv("AGENTS_RUNTIME_PORT", "5001"))
 
 
 def _parse_args(argv: list[str] | None = None) -> argparse.Namespace:
-    parser = argparse.ArgumentParser(
-        description="Expose alpha_agi_business_v1 via OpenAI Agents runtime"
-    )
+    parser = argparse.ArgumentParser(description="Expose alpha_agi_business_v1 via OpenAI Agents runtime")
     parser.add_argument(
         "--host",
         default=HOST,
@@ -318,6 +317,31 @@ async def fetch_logs() -> list[str]:
     return resp.json()
 
 
+# ---------------------------------------------------------------------------
+#  Action dispatch helpers
+# ---------------------------------------------------------------------------
+POLICY_MAP: Dict[str, Callable[[dict], Awaitable[Any]]] = {
+    "discover": lambda _o: trigger_discovery(),
+    "opportunity": lambda _o: trigger_opportunity(),
+    "best_alpha": lambda _o: trigger_best_alpha(),
+    "execute": lambda _o: trigger_execution(),
+    "risk": lambda _o: trigger_risk(),
+    "compliance": lambda _o: trigger_compliance(),
+    "portfolio": lambda _o: trigger_portfolio(),
+    "planning": lambda _o: trigger_planning(),
+    "research": lambda _o: trigger_research(),
+    "strategy": lambda _o: trigger_strategy(),
+    "market_analysis": lambda _o: trigger_market_analysis(),
+    "memory": lambda _o: trigger_memory(),
+    "safety": lambda _o: trigger_safety(),
+    "health": lambda _o: check_health(),
+    "recent_alpha": lambda _o: recent_alpha(),
+    "search_memory": lambda o: search_memory(o.get("query", ""), int(o.get("limit", 5))),
+    "fetch_logs": lambda _o: fetch_logs(),
+    "submit_job": lambda o: submit_job(o.get("job", {})),
+}
+
+
 def wait_ready(url: str, timeout: float = 5.0) -> None:
     """Block until the orchestrator healthcheck responds or timeout expires."""
     deadline = time.monotonic() + timeout
@@ -363,45 +387,10 @@ class BusinessAgent(Agent):
 
     async def policy(self, obs, ctx):  # type: ignore[override]
         if isinstance(obs, dict):
-            if obs.get("action") == "discover":
-                return await self.tools.trigger_discovery()
-            elif obs.get("action") == "opportunity":
-                return await self.tools.trigger_opportunity()
-            elif obs.get("action") == "best_alpha":
-                return await self.tools.trigger_best_alpha()
-            elif obs.get("action") == "execute":
-                return await self.tools.trigger_execution()
-            elif obs.get("action") == "risk":
-                return await self.tools.trigger_risk()
-            elif obs.get("action") == "compliance":
-                return await self.tools.trigger_compliance()
-            elif obs.get("action") == "portfolio":
-                return await self.tools.trigger_portfolio()
-            elif obs.get("action") == "planning":
-                return await self.tools.trigger_planning()
-            elif obs.get("action") == "research":
-                return await self.tools.trigger_research()
-            elif obs.get("action") == "strategy":
-                return await self.tools.trigger_strategy()
-            elif obs.get("action") == "market_analysis":
-                return await self.tools.trigger_market_analysis()
-            elif obs.get("action") == "memory":
-                return await self.tools.trigger_memory()
-            elif obs.get("action") == "safety":
-                return await self.tools.trigger_safety()
-            elif obs.get("action") == "health":
-                return await self.tools.check_health()
-            elif obs.get("action") == "recent_alpha":
-                return await self.tools.recent_alpha()
-            elif obs.get("action") == "search_memory":
-                query = obs.get("query", "")
-                limit = int(obs.get("limit", 5))
-                return await self.tools.search_memory(query, limit)
-            elif obs.get("action") == "fetch_logs":
-                return await self.tools.fetch_logs()
-            elif obs.get("action") == "submit_job":
-                job = obs.get("job", {})
-                return await self.tools.submit_job(job)
+            action = obs.get("action")
+            handler = POLICY_MAP.get(action)
+            if handler:
+                return await handler(obs)
         return await self.tools.list_agents()
 
 
