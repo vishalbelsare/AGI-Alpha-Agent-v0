@@ -33,9 +33,9 @@ export function renderFrontier(
     }),
   ];
 
-  marks.push(
-    pop.length > 10000 ? plotCanvas(Plot.dot(pop, dotOptions)) : Plot.dot(pop, dotOptions),
-  );
+  if (pop.length <= 10000) {
+    marks.push(Plot.dot(pop, dotOptions));
+  }
 
   const plot = Plot.plot({
     width: 500,
@@ -48,6 +48,9 @@ export function renderFrontier(
   container.innerHTML = '';
   container.append(plot);
   const svg = plot.querySelector('svg') || plot;
+  if (pop.length > 10000) {
+    plotCanvas(svg, pop, (d) => d.logic * 500, (d) => (1 - d.feasible) * 500, (d) => depthColor(d.depth ?? 0, maxDepth));
+  }
   drawHeatmap(svg, pop, (d) => d.logic * 500, (d) => (1 - d.feasible) * 500);
   if (onSelect) {
     d3
