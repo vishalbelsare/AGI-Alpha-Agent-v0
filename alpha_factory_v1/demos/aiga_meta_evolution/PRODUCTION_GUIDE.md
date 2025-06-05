@@ -39,6 +39,23 @@ This short guide distils the steps required to run the **AI‑GA Meta‑Evolutio
    - OpenAPI docs: [http://localhost:8000/docs](http://localhost:8000/docs)
    - Prometheus metrics: [http://localhost:8000/metrics](http://localhost:8000/metrics)
 
+### Verifying the ADK Gateway
+When `ALPHA_FACTORY_ENABLE_ADK=true` and the optional `google-adk` package are
+present, the orchestrator exposes an ADK gateway.  Check the logs for a line
+similar to:
+
+```
+ADK gateway listening on http://0.0.0.0:${ALPHA_FACTORY_ADK_PORT}  (A2A protocol)
+```
+
+Confirm the gateway is reachable:
+
+```bash
+curl http://localhost:${ALPHA_FACTORY_ADK_PORT}/docs
+# or
+curl http://localhost:${ALPHA_FACTORY_ADK_PORT}/healthz
+```
+
 5. **Persisting state**
    - Checkpoints are written to the directory specified by `CHECKPOINT_DIR` (default `./checkpoints`).
    - The service automatically reloads the latest checkpoint on start-up.
