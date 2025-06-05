@@ -2,6 +2,8 @@
 let localModel: any;
 let useGpu = true;
 let ortLoaded: boolean | undefined;
+export const gpuAvailable =
+  typeof navigator !== 'undefined' && !!(navigator as any).gpu;
 
 try {
   const saved = localStorage.getItem('USE_GPU');
@@ -34,7 +36,7 @@ async function ensureOrt(): Promise<boolean> {
 }
 
 export async function gpuBackend(): Promise<string> {
-  if (useGpu && typeof navigator !== 'undefined' && (navigator as any).gpu) {
+  if (useGpu && gpuAvailable) {
     const ok = await ensureOrt();
     if (ok) return 'webgpu';
   }
