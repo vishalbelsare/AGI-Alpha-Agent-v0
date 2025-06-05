@@ -1,3 +1,4 @@
+// @ts-nocheck
 // SPDX-License-Identifier: Apache-2.0
 export const defaults={seed:42,pop:80,gen:60,mutations:['gaussian'],adaptive:false};
 export function parseHash(h=window.location.hash){

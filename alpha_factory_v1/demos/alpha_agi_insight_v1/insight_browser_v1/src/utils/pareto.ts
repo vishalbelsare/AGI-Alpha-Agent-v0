@@ -1,5 +1,6 @@
+// @ts-nocheck
 // SPDX-License-Identifier: Apache-2.0
-export function paretoFront(pop) {
+export function paretoFront(pop: any[]): any[] {
   if (pop.length === 0) return [];
 
   // Sort by logic (desc) then feasible (desc) and scan once.

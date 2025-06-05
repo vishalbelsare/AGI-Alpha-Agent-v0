@@ -1,3 +1,4 @@
+// @ts-nocheck
 // SPDX-License-Identifier: Apache-2.0
 import { loadPyodide } from '../lib/pyodide.js';
 

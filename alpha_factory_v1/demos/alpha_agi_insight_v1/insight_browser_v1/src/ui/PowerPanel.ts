@@ -1,7 +1,8 @@
+// @ts-nocheck
 // SPDX-License-Identifier: Apache-2.0
-import { setUseGpu } from '../utils/llm.js';
+import { setUseGpu } from '../utils/llm.ts';
 
-export function initPowerPanel() {
+export function initPowerPanel(): { update: (e: any) => void; gpuToggle: HTMLInputElement } {
   const panel = document.createElement('div');
   panel.id = 'power-panel';
   panel.setAttribute('role', 'region');

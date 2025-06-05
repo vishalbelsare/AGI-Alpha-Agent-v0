@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
-const { initControls } = require('../src/ui/ControlsPanel.js');
+const { initControls } = require('../src/ui/ControlsPanel.ts');
 
 test('values above max are clamped', () => {
   document.body.innerHTML = '<div id="controls"></div>';

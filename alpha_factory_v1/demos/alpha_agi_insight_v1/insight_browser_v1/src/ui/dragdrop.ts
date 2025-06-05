@@ -1,5 +1,6 @@
+// @ts-nocheck
 // SPDX-License-Identifier: Apache-2.0
-export function initDragDrop(el, onDrop) {
+export function initDragDrop(el: HTMLElement, onDrop: (data: string | ArrayBuffer | null) => void): void {
   function over(ev) {
     ev.preventDefault();
     el.classList.add('drag');

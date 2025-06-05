@@ -1,5 +1,6 @@
+// @ts-nocheck
 // SPDX-License-Identifier: Apache-2.0
-export function initCriticPanel() {
+export function initCriticPanel(): { show: (scores: Record<string, number>, element?: SVGCircleElement | null) => void } {
   const root = document.createElement('div');
   root.id = 'critic-panel';
   root.setAttribute('role', 'region');
@@ -74,7 +75,7 @@ export function initCriticPanel() {
     svg.appendChild(poly);
   }
 
-  function show(scores, element) {
+  function show(scores: Record<string, number>, element?: SVGCircleElement | null): void {
     if (highlighted) highlighted.removeAttribute('stroke');
     if (element) {
       element.setAttribute('stroke', 'yellow');

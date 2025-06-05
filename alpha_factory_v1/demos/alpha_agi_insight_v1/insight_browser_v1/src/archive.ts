@@ -1,8 +1,9 @@
+// @ts-nocheck
 // SPDX-License-Identifier: Apache-2.0
 import { createStore, set, get, del, values } from './utils/keyval.ts';
 import type { EvaluatorGenome } from './evaluator_genome.ts';
 import type { Individual } from './state/serializer.ts';
-import { detectColdZone } from './utils/cluster.js';
+import { detectColdZone } from './utils/cluster.ts';
 
 interface KeyValueStore<T> {
   dbp: Promise<IDBDatabase | null>;

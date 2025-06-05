@@ -1,11 +1,11 @@
 // SPDX-License-Identifier: Apache-2.0
 const path = require('path');
 
-jest.mock('../src/evolve/mutate.js', () => ({
+jest.mock('../src/evolve/mutate.ts', () => ({
   mutate: jest.fn(() => [])
 }));
 
-const { mutate } = require('../src/evolve/mutate.js');
+const { mutate } = require('../src/evolve/mutate.ts');
 
 function makeMsg(gen) {
   return { pop: [], rngState: 1, mutations: [], popSize: 1, critic: 'none', gen };

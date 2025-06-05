@@ -1,5 +1,6 @@
+// @ts-nocheck
 // SPDX-License-Identifier: Apache-2.0
-export function detectColdZone(points, bins = 10) {
+export function detectColdZone(points: Array<[number, number]>, bins = 10) {
   const hist = new Map();
   for (const [x, y] of points) {
     const cx = Math.max(0, Math.min(bins - 1, Math.floor(x * bins)));

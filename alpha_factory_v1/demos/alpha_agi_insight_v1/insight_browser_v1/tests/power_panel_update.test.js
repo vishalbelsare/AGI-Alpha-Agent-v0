@@ -19,11 +19,11 @@ jest.mock('../src/ipfs/pinner.ts', () => ({
   pinFiles: async () => null,
 }));
 
-jest.mock('../src/render/frontier.js', () => ({
+jest.mock('../src/render/frontier.ts', () => ({
   renderFrontier: () => {},
 }));
 
-jest.mock('../src/utils/cluster.js', () => ({
+jest.mock('../src/utils/cluster.ts', () => ({
   detectColdZone: () => ({ x: 0, y: 0 }),
 }));
 

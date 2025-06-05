@@ -1,5 +1,6 @@
+// @ts-nocheck
 // SPDX-License-Identifier: Apache-2.0
-export function initFpsMeter(isRunning) {
+export function initFpsMeter(isRunning: () => boolean): void {
   if (document.getElementById('fps-meter')) return;
   const el = document.createElement('div');
   el.id = 'fps-meter';

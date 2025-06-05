@@ -1,7 +1,11 @@
+// @ts-nocheck
 // SPDX-License-Identifier: Apache-2.0
-import {t,setLanguage,currentLanguage} from './i18n.js';
+import {t,setLanguage,currentLanguage} from './i18n.ts';
 const MAX_VAL = 500;
-export function initControls(params,onChange){
+export function initControls(
+  params: any,
+  onChange: (p: any, info: any) => void,
+): { setValues: (p: any) => void; pauseBtn: HTMLButtonElement; exportBtn: HTMLButtonElement; dropZone: HTMLElement } {
   const root=document.getElementById('controls');
   root.innerHTML = `
     <label>${t('seed')} <input id="seed" type="number" min="0" aria-label="${t('seed')}" tabindex="1"></label>

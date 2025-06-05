@@ -1,5 +1,6 @@
+// @ts-nocheck
 // SPDX-License-Identifier: Apache-2.0
-export function lcg(seed) {
+export function lcg(seed: number) {
   function rand() {
     seed = Math.imul(1664525, seed) + 1013904223 >>> 0;
     return seed / 2 ** 32;

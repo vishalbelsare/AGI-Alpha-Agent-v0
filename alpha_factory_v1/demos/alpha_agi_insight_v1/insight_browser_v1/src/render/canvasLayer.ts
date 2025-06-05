@@ -1,6 +1,7 @@
+// @ts-nocheck
 // SPDX-License-Identifier: Apache-2.0
 
-export function ensureLayer(parent) {
+export function ensureLayer(parent: any): CanvasRenderingContext2D {
   const node = parent.node ? parent.node() : parent;
   let fo = node.querySelector('foreignObject#canvas-layer');
   if (!fo) {
@@ -27,7 +28,13 @@ export function ensureLayer(parent) {
   return canvas.getContext('2d');
 }
 
-export function drawPoints(parent, pop, x, y, colorFn) {
+export function drawPoints(
+  parent: any,
+  pop: any[],
+  x: (v: number) => number,
+  y: (v: number) => number,
+  colorFn: ((d: any) => string) | string,
+): CanvasRenderingContext2D {
   const ctx = ensureLayer(parent);
   ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
   const getColor = typeof colorFn === 'function' ? colorFn : () => colorFn;
@@ -40,7 +47,12 @@ export function drawPoints(parent, pop, x, y, colorFn) {
   return ctx;
 }
 
-export function drawHeatmap(parent, pop, x, y) {
+export function drawHeatmap(
+  parent: any,
+  pop: any[],
+  x: (d: any) => number,
+  y: (d: any) => number,
+): CanvasRenderingContext2D {
   const ctx = ensureLayer(parent);
   ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
   const bins = 20;

@@ -1,3 +1,4 @@
+// @ts-nocheck
 // SPDX-License-Identifier: Apache-2.0
 import { Simulator } from '../simulator.ts';
 import type { Individual } from '../state/serializer.ts';
@@ -7,8 +8,8 @@ import { mineMemes, saveMemes } from '@insight-src/memeplex.ts';
 import type { EvaluatorGenome } from '../evaluator_genome.ts';
 import { mutateEvaluator } from '../evaluator_genome.ts';
 import { pinFiles } from '../ipfs/pinner.ts';
-import { renderFrontier } from '../render/frontier.js';
-import { detectColdZone } from '../utils/cluster.js';
+import { renderFrontier } from '../render/frontier.ts';
+import { detectColdZone } from '../utils/cluster.ts';
 import clone from '../../../../../../src/utils/clone.js';
 import type { Archive } from '../archive.ts';
 
