@@ -12,25 +12,33 @@ except ModuleNotFoundError:  # pragma: no cover - optional dependency
 try:
     import gymnasium as gym
 except ModuleNotFoundError:  # pragma: no cover - lightweight stub
+
     class _StubEnv:
         observation_space = type("obs", (), {"shape": (4,)})
         action_space = type("act", (), {"n": 2})
+
         def reset(self, *, seed=None):
-            return [0.0]*4, {}
+            return [0.0] * 4, {}
+
         def step(self, action):
-            return [0.0]*4, 0.0, True, False, {}
+            return [0.0] * 4, 0.0, True, False, {}
+
         def render(self):
             return []
+
         def close(self):
             pass
+
     def make(env_id, render_mode=None):
         return _StubEnv()
+
     gym = type("gym", (), {"make": make, "Env": _StubEnv})
 
 try:
     import torch
     import torch.nn as nn
     import torch.nn.functional as F
+
     _TORCH = True
 except ModuleNotFoundError:  # pragma: no cover - optional dependency
     _TORCH = False
@@ -39,6 +47,7 @@ from typing import Dict, List, Tuple
 
 
 if _TORCH:
+
     class MiniMuNet(nn.Module):
         """Lightweight world model with representation, dynamics and prediction."""
 
@@ -70,6 +79,7 @@ if _TORCH:
             return next_state.detach(), reward, value, policy
 
 else:  # pragma: no cover - torch missing
+
     class MiniMuNet:  # type: ignore[misc]
         def __init__(self, *a, **kw) -> None:
             self.action_dim = kw.get("action_dim", 2)
@@ -117,10 +127,13 @@ def mcts_policy(net: MiniMuNet, env: gym.Env, obs, num_simulations: int = 64):
         n = env.action_space.n
         if np is not None:
             return np.full(n, 1 / n)
+
         class _P(list):
             def sum(self):  # minimal numpy-like API
                 from builtins import sum as _sum
+
                 return _sum(self)
+
         return _P([1 / n] * n)
 
     state, value, policy_logits = net.initial(obs)
@@ -196,4 +209,3 @@ def play_episode(agent: MiniMu, render: bool = True, max_steps: int = 500) -> Tu
         frames.append(agent.env.render())
     agent.env.close()
     return frames, total_reward
-
