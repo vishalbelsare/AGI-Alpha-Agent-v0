@@ -789,12 +789,16 @@ for instructions and example volume mounts.
 | `SANDBOX_MEM_MB` | `256` | Memory cap for sandboxed code in MB. |
 | `MAX_RESULTS` | `100` | Maximum stored simulation results. |
 | `OTEL_ENDPOINT` | _(empty)_ | OTLP endpoint for anonymous telemetry. |
+| `ALPHA_FACTORY_ENABLE_ADK` | `false` | Set to `true` to start the Google ADK gateway. |
+| `ALPHA_FACTORY_ADK_PORT` | `9000` | Port for the ADK gateway when enabled. |
+| `ALPHA_FACTORY_ADK_TOKEN` | _(empty)_ | Optional auth token for the ADK gateway. |
 
 The values above mirror `.env.sample`. When running the stack with Docker
 Compose, adjust the environment section of
 `infrastructure/docker-compose.yml` to override any variable—such as the gRPC
 bus port or ledger path. Sandbox limits are described in [docs/sandbox.md](docs/sandbox.md).
 When the `firejail` binary is present, CodeGen snippets run inside `firejail --net=none --private` for stronger isolation.
+For a production-ready ADK setup see [PRODUCTION_GUIDE.md](alpha_factory_v1/demos/alpha_agi_business_v1/PRODUCTION_GUIDE.md).
 
 ### Finance Demo Quick‑Start
 
