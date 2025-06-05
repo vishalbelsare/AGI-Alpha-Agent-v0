@@ -40,6 +40,21 @@ def test_quickstart_pdf_offline() -> None:
             page.wait_for_function("navigator.serviceWorker.ready")
             page.reload()
             page.wait_for_function("navigator.serviceWorker.controller !== null")
+            pdf_cached = page.evaluate(
+                """
+                (async () => {
+                  const names = await caches.keys();
+                  for (const n of names) {
+                    const c = await caches.open(n);
+                    if (await c.match('insight_browser_quickstart.pdf')) {
+                      return true;
+                    }
+                  }
+                  return false;
+                })()
+                """
+            )
+            assert pdf_cached, "PDF not cached by service worker"
             context.set_offline(True)
             resp = page.goto(url + "/insight_browser_quickstart.pdf")
             assert resp and resp.ok, "PDF not served offline"
