@@ -21,6 +21,7 @@
   "invalid_file": "文件无效",
   "simulation_restarted": "模拟已重启",
   "telemetry_consent": "允许匿名遥测吗？",
+  "download_log": "下载日志",
   "summary.debateArena": "辩论竞技场",
   "summary.debate": "辩论",
   "label.rank": "排名",
@@ -35,4 +36,5 @@
   ,"archive_full": "存档已满；已删除最旧的运行"
   ,"pin_failed": "固定失败"
   ,"error_unknown": "未知错误"
+  ,"disclaimer": "这个仓库是一个概念性的研究原型。提到\"AGI\"和\"超级智能\"描述的是愿景目标，并不意味着存在真正的通用智能。使用风险自负。"
 }

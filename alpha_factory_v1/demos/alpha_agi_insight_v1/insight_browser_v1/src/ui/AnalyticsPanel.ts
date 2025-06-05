@@ -1,5 +1,6 @@
 // @ts-nocheck
 // SPDX-License-Identifier: Apache-2.0
+import { t } from './i18n.ts';
 export function initAnalyticsPanel(): { update: (stats: any) => void; recordWorkerTime: (ms: number) => void } {
   const panel = document.createElement('div');
   panel.id = 'analytics-panel';
@@ -41,7 +42,7 @@ export function initAnalyticsPanel(): { update: (stats: any) => void; recordWork
   const logBtn = document.createElement('button');
   logBtn.textContent = 'Show logs';
   const downloadBtn = document.createElement('button');
-  downloadBtn.textContent = 'Download log';
+  downloadBtn.textContent = t('download_log');
   const logPre = document.createElement('pre');
   logPre.style.display = 'none';
   telControls.appendChild(enableBtn);
