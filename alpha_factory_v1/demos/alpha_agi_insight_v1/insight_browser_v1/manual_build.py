@@ -303,6 +303,12 @@ bundle = (
     + entry_code
     + "\n})();\n"
 )
+bundle = re.sub(
+    r"^//#\\s*sourceMappingURL=.*(?:\r?\n)?",
+    "",
+    bundle,
+    flags=re.MULTILINE,
+)
 
 dist_dir.mkdir(exist_ok=True)
 (dist_dir / "insight.bundle.js").write_text(bundle)
