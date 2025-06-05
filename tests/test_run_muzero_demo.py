@@ -9,7 +9,6 @@ import socket
 import subprocess
 from pathlib import Path
 
-import pytest
 
 
 def test_run_muzero_demo_invokes_docker(tmp_path: Path) -> None:

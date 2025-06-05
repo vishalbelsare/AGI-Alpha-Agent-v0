@@ -6,7 +6,6 @@ import sys
 import types
 import unittest
 from unittest import mock
-from alpha_factory_v1.backend import orchestrator as _orch
 
 
 class TestServeGrpc(unittest.TestCase):

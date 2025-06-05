@@ -6,7 +6,7 @@ import os
 import pytest
 
 pytest.importorskip("fastapi")
-from fastapi.testclient import TestClient
+from fastapi.testclient import TestClient  # noqa: E402
 
 # Ensure required environment variables are present for the API
 os.environ.setdefault("API_TOKEN", "test-token")

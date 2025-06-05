@@ -31,7 +31,7 @@ def test_malicious_message_blocked(tmp_path) -> None:
     ledger = logging.Ledger(str(tmp_path / "ledger.db"), broadcast=False)
 
     mem = memory_agent.MemoryAgent(bus, ledger, str(tmp_path / "mem.log"))
-    guardian = safety_agent.SafetyGuardianAgent(bus, ledger)
+    guardian = safety_agent.SafetyGuardianAgent(bus, ledger)  # noqa: F841
     chaos = chaos_agent.ChaosAgent(bus, ledger, burst=1)
 
     async def run() -> None:

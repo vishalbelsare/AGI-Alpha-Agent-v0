@@ -46,7 +46,7 @@ def test_blocked_payload_not_stored(tmp_path) -> None:
     ledger = logging.Ledger(str(tmp_path / "ledger.db"), broadcast=False)
 
     mem = FilteringMemoryAgent(bus, ledger, str(tmp_path / "mem.log"))
-    guardian = safety_agent.SafetyGuardianAgent(bus, ledger)
+    guardian = safety_agent.SafetyGuardianAgent(bus, ledger)  # noqa: F841  # needed to register handler
     chaos = chaos_agent.ChaosAgent(bus, ledger, burst=1)
 
     async def run() -> None:

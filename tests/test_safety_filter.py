@@ -23,7 +23,7 @@ def test_allows_safe_patch() -> None:
     diff = _read("safe_patch.diff")
     assert not is_patch_safe(diff)
 
-from src.simulation import SelfRewriteOperator
+from src.simulation import SelfRewriteOperator  # noqa: E402
 
 
 def test_rewrite_blocks_malicious() -> None:

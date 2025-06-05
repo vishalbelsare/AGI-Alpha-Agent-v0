@@ -10,9 +10,9 @@ from unittest import mock
 import pytest
 
 hypothesis = pytest.importorskip("hypothesis")
-from hypothesis import given, settings, strategies as st
+from hypothesis import given, settings, strategies as st  # noqa: E402
 
-from alpha_factory_v1.demos.alpha_agi_insight_v1.src.utils import config, messaging
+from alpha_factory_v1.demos.alpha_agi_insight_v1.src.utils import config, messaging  # noqa: E402
 
 
 @settings(max_examples=10, deadline=None)
