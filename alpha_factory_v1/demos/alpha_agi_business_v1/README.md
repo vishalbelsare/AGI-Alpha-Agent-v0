@@ -184,6 +184,8 @@ cp config.env.sample config.env
 #   - WHEELHOUSE=/path/to/wheels for offline package installs
 # The launcher automatically picks up these settings.
 
+> **Security Note:** `API_TOKEN` defaults to `demo-token` for quick demos. Replace it with a strong, unique value before any production deployment.
+
 By default this launcher restricts `ALPHA_ENABLED_AGENTS` to the five
 lightweight demo stubs so the orchestrator runs even on minimal setups.
 Set the variable yourself to customise the agent list.
