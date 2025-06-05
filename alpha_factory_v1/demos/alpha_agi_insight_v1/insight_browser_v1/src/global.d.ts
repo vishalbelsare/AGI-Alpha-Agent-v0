@@ -8,6 +8,10 @@ declare global {
     OPENAI_API_KEY?: string;
     OTEL_ENDPOINT?: string;
     IPFS_GATEWAY?: string;
+    USE_GPU?: boolean;
+    pop?: unknown;
+    coldZone?: unknown;
+    recordedPrompts?: string[];
   }
 }
 
