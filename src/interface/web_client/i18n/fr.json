@@ -28,5 +28,6 @@
   "summary.debateArena": "Arène de débat",
   "label.rank": "Rang",
   "label.score": "Score",
-  "alert.urlCopied": "URL copiée dans le presse-papiers"
+  "alert.urlCopied": "URL copiée dans le presse-papiers",
+  "disclaimer": "Ce dépôt est un prototype de recherche conceptuel. Les références à \"AGI\" et à la \"superintelligence\" décrivent des objectifs aspirants et n'indiquent pas la présence d'une véritable intelligence générale. Utilisez-le à vos risques et périls."
 }
