@@ -67,14 +67,14 @@ def test_llm_offline() -> None:
         page.wait_for_selector("#controls")
 
         out = page.evaluate("window.llmChat('hi')")
-        assert out.startswith('[offline]')
+        assert out.startswith("[offline]")
         browser.close()
 
 
 @pytest.mark.skipif(
     not (Path(__file__).resolve().parents[1] / "wasm_llm" / "wasm-gpt2.tar").exists(),
     reason="wasm model missing",
-)
+)  # type: ignore[misc]
 def test_llm_offline_pipeline() -> None:
     dist = Path(__file__).resolve().parents[1] / "dist" / "index.html"
     url = dist.as_uri()
@@ -86,7 +86,7 @@ def test_llm_offline_pipeline() -> None:
         page.wait_for_selector("#controls")
 
         out = page.evaluate("window.llmChat('hello')")
-        assert not out.startswith('[offline]')
+        assert not out.startswith("[offline]")
         browser.close()
 
 
@@ -109,11 +109,11 @@ def test_llm_openai_path() -> None:
         page.evaluate("localStorage.setItem('OPENAI_API_KEY','sk')")
 
         out = page.evaluate("window.llmChat('hi')")
-        assert out == 'pong'
+        assert out == "pong"
         browser.close()
 
 
-@pytest.mark.skipif(shutil.which("npm") is None, reason="npm not installed")
+@pytest.mark.skipif(shutil.which("npm") is None, reason="npm not installed")  # type: ignore[misc]
 def test_env_value_injected(tmp_path: Path) -> None:
     browser_dir = Path(__file__).resolve().parents[1]
     target = tmp_path / "browser"
@@ -128,6 +128,7 @@ def test_env_value_injected(tmp_path: Path) -> None:
         page.goto(url)
         page.wait_for_selector("#controls")
         assert page.evaluate("window.PINNER_TOKEN") == "test123"
+        assert page.evaluate("typeof window.OPENAI_API_KEY === 'undefined' || !window.OPENAI_API_KEY")
         browser.close()
 
 

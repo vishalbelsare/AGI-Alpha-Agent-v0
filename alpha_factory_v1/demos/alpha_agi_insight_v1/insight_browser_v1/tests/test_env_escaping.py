@@ -28,6 +28,7 @@ def test_env_value_escaped(tmp_path: Path) -> None:
     html_text = (target / "dist" / "index.html").read_text()
     assert token not in html_text
     assert "window.PINNER_TOKEN=atob(" in html_text
+    assert "window.OPENAI_API_KEY" not in html_text
 
     url = (target / "dist" / "index.html").as_uri()
     with sync_playwright() as p:
