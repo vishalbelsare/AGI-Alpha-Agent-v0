@@ -43,6 +43,24 @@ export AUTO_INSTALL_MISSING=1
 python start_alpha_business.py
 ```
 
+### Building a Wheelhouse
+Create wheels on a machine with internet access and copy the directory to the
+offline host:
+
+```bash
+mkdir -p /media/wheels
+pip wheel -r ../../requirements.txt -w /media/wheels
+pip wheel -r ../../requirements-dev.txt -w /media/wheels
+```
+
+Verify dependencies offline:
+
+```bash
+python ../../check_env.py --auto-install --wheelhouse /media/wheels
+```
+
+See [docs/OFFLINE.md](../../../../docs/OFFLINE.md) for additional tips.
+
 ## Colab Notebook
 Open [`colab_alpha_agi_business_v1_demo.ipynb`](colab_alpha_agi_business_v1_demo.ipynb) and run all cells. The notebook checks requirements, starts the orchestrator, and exposes helper tools via the OpenAI Agents SDK.
 
