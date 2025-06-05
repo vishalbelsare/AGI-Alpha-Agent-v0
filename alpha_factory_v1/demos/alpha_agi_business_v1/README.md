@@ -173,7 +173,7 @@ python run_business_v1_local.py --bridge --open-ui
 
 ```bash
 # Optional configuration
-cp config.env.sample config.env
+python scripts/setup_config.py
 # Edit the `config.env` file to set variables such as:
 #   - OPENAI_API_KEY
 #   - YFINANCE_SYMBOL
