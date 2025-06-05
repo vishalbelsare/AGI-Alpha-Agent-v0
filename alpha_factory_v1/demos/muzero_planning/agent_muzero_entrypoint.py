@@ -8,7 +8,7 @@ Core algorithm follows the public pseudocode from Schrittwieser et al. (2020)
 but trimmed to <300 LoC for pedagogy.
 """
 
-import os, asyncio
+import os
 
 # Optional Google ADK gateway for Agent-to-Agent federation
 try:
@@ -16,10 +16,6 @@ try:
 except Exception:  # pragma: no cover - optional dependency
     adk_bridge = None
 
-try:  # gymnasium optional for offline testing
-    import gymnasium as gym
-except ModuleNotFoundError:  # pragma: no cover - fallback stub
-    from .minimuzero import gym
 
 try:  # OpenAI Agents SDK is optional
     from openai_agents import Agent, AgentRuntime, Tool, OpenAIAgent
@@ -58,11 +54,10 @@ except Exception:  # pragma: no cover - provide graceful degrade
 try:
     import gradio as gr
 except ModuleNotFoundError:  # pragma: no cover - allow CLI help without gradio
+
     class _MissingGradio:
         def __getattr__(self, name: str):  # noqa: D401
-            raise ModuleNotFoundError(
-                'gradio is required for this feature. Install with: pip install gradio'
-            )
+            raise ModuleNotFoundError("gradio is required for this feature. Install with: pip install gradio")
 
     gr = _MissingGradio()  # type: ignore[misc]
 
