@@ -26,6 +26,7 @@ REQUIRED = [
     "anthropic",
     "fastapi",
     "opentelemetry",
+    "opentelemetry-api",
     "uvicorn",
     "httpx",
     "grpc",
@@ -60,6 +61,12 @@ PIP_NAMES = {
     "google.protobuf": "protobuf",
     "cachetools": "cachetools",
     "yaml": "PyYAML",
+    "opentelemetry": "opentelemetry-api",
+    "opentelemetry-api": "opentelemetry-api",
+}
+
+IMPORT_NAMES = {
+    "opentelemetry-api": "opentelemetry",
 }
 
 
@@ -80,8 +87,9 @@ def main(argv: Optional[List[str]] = None) -> int:
     missing_required: list[str] = []
     missing_optional: list[str] = []
     for pkg in REQUIRED + OPTIONAL:
+        import_name = IMPORT_NAMES.get(pkg, pkg)
         try:
-            spec = importlib.util.find_spec(pkg)
+            spec = importlib.util.find_spec(import_name)
         except (ValueError, ModuleNotFoundError):
             # handle cases where a namespace package left an invalid entry
             # or the root package itself is missing
@@ -119,7 +127,7 @@ def main(argv: Optional[List[str]] = None) -> int:
                     print("Automatic install failed with code", result.returncode)
                     return result.returncode
                 print("Install completed, verifying …")
-                missing = [p for p in missing if importlib.util.find_spec(p) is None]
+                missing = [p for p in missing if importlib.util.find_spec(IMPORT_NAMES.get(p, p)) is None]
                 missing_required = [p for p in missing if p not in OPTIONAL]
                 if missing_required:
                     print(
