@@ -1,6 +1,7 @@
 // @ts-nocheck
 // SPDX-License-Identifier: Apache-2.0
 export const defaults={seed:42,pop:80,gen:60,mutations:['gaussian'],adaptive:false};
+const MAX_VAL=500;
 export function parseHash(h=window.location.hash){
   if(!h || h==='#'){
     try{
@@ -9,8 +10,8 @@ export function parseHash(h=window.location.hash){
         const p=JSON.parse(stored);
         return{
           seed:p.seed??defaults.seed,
-          pop:p.pop??defaults.pop,
-          gen:p.gen??defaults.gen,
+          pop:Math.min(p.pop??defaults.pop,MAX_VAL),
+          gen:Math.min(p.gen??defaults.gen,MAX_VAL),
           mutations:p.mutations??defaults.mutations,
           adaptive:p.adaptive??defaults.adaptive
         };
@@ -20,8 +21,8 @@ export function parseHash(h=window.location.hash){
   const q=new URLSearchParams(h.replace(/^#\/?/,''));
   return{
     seed:+q.get('s')||defaults.seed,
-    pop:+q.get('p')||defaults.pop,
-    gen:+q.get('g')||defaults.gen,
+    pop:Math.min(+q.get('p')||defaults.pop,MAX_VAL),
+    gen:Math.min(+q.get('g')||defaults.gen,MAX_VAL),
     mutations:(q.get('m')||defaults.mutations.join(',')).split(',').filter(Boolean),
     adaptive:q.get('a')==='1'||defaults.adaptive
   };
