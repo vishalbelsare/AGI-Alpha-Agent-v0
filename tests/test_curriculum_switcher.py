@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 from pathlib import Path
 
 from src.eval.fitness import compute_fitness, CurriculumSwitcher
