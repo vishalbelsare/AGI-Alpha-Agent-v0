@@ -28,5 +28,6 @@
   "summary.debateArena": "Arena de debate",
   "label.rank": "Rango",
   "label.score": "Puntuación",
-  "alert.urlCopied": "URL copiada al portapapeles"
+  "alert.urlCopied": "URL copiada al portapapeles",
+  "disclaimer": "Este repositorio es un prototipo de investigación conceptual. Las referencias a \"AGI\" y \"superinteligencia\" describen metas aspiracionales y no indican la presencia de una inteligencia general real. Úselo bajo su propio riesgo."
 }
