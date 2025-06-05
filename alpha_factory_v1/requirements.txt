@@ -24,6 +24,7 @@ better-profanity~=0.7
 httpx~=0.28
 aiohttp~=3.9
 backoff~=2.2
+cachetools~=5.3
 PyYAML>=6.0
 rich>=13           # CLI output only (backend omits to stay lean)
 
@@ -46,6 +47,7 @@ litellm>=1.31           # local gateway / fallback router
 tiktoken>=0.5
 grpcio~=1.71
 grpcio-tools
+protobuf>=5
 
 # Google ADK – optional Agent-to-Agent federation (A2A protocol)
 google-adk>=0.3.0        # https://pypi.org/project/google-adk/

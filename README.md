@@ -798,6 +798,7 @@ pip install -r requirements-dev.txt
 Install the project in editable mode so tests resolve imports:
 ```bash
 pip install -e .
+python check_env.py --auto-install
 ```
 
 The suite includes `tests/test_api_rate_limit.py` which spins up
