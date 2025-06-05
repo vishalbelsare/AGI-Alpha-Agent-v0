@@ -2,6 +2,8 @@
 export function initAnalyticsPanel() {
   const panel = document.createElement('div');
   panel.id = 'analytics-panel';
+  panel.setAttribute('role', 'region');
+  panel.setAttribute('aria-label', 'Analytics');
   Object.assign(panel.style, {
     position: 'fixed',
     top: '10px',
@@ -17,11 +19,14 @@ export function initAnalyticsPanel() {
   const memEl = document.createElement('span');
   memEl.id = 'heap';
   memEl.style.marginRight = '4px';
+  memEl.setAttribute('aria-live', 'polite');
   const workerEl = document.createElement('span');
   workerEl.id = 'worker-time';
   workerEl.style.marginRight = '4px';
+  workerEl.setAttribute('aria-live', 'polite');
   const fpsEl = document.createElement('span');
   fpsEl.id = 'fps-value';
+  fpsEl.setAttribute('aria-live', 'polite');
   metrics.appendChild(memEl);
   metrics.appendChild(workerEl);
   metrics.appendChild(fpsEl);

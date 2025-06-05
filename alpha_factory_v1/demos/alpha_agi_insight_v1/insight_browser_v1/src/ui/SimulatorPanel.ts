@@ -35,6 +35,8 @@ export async function initSimulatorPanel(
 ): Promise<HTMLDivElement> {
   const panel = document.createElement('div');
   panel.id = 'simulator-panel';
+  panel.setAttribute('role', 'region');
+  panel.setAttribute('aria-label', 'Simulator');
   Object.assign(panel.style, {
     position: 'fixed',
     bottom: '10px',
@@ -58,13 +60,13 @@ export async function initSimulatorPanel(
         <option value="llm">llm</option>
       </select>
     </label>
-    <button id="sim-start">Start</button>
-    <button id="sim-pause">Pause</button>
-    <button id="sim-fork">Fork</button>
-    <button id="sim-cancel">Cancel</button>
-    <progress id="sim-progress" value="0" max="1" class="w-full"></progress>
+    <button id="sim-start" aria-label="Start simulation">Start</button>
+    <button id="sim-pause" aria-label="Pause simulation">Pause</button>
+    <button id="sim-fork" aria-label="Fork simulation">Fork</button>
+    <button id="sim-cancel" aria-label="Cancel simulation">Cancel</button>
+    <progress id="sim-progress" value="0" max="1" class="w-full" aria-label="Progress"></progress>
     <input id="sim-frame" type="range" min="0" value="0" step="1" class="w-full">
-    <div id="sim-status"></div>
+    <div id="sim-status" aria-live="polite" role="status"></div>
     <pre id="sim-inspect" class="max-h-[40vh] overflow-auto"></pre>
   `;
   document.body.appendChild(panel);

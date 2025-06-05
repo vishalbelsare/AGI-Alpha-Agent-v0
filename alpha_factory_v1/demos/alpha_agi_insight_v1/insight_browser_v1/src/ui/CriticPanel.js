@@ -2,6 +2,8 @@
 export function initCriticPanel() {
   const root = document.createElement('div');
   root.id = 'critic-panel';
+  root.setAttribute('role', 'region');
+  root.setAttribute('aria-label', 'Critic');
   Object.assign(root.style, {
     position: 'fixed',
     top: '10px',

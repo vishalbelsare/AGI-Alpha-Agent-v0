@@ -30,16 +30,16 @@
       </div>
     </header>
     <div class="flex flex-1 overflow-hidden">
-      <aside id="controls" class="w-64 bg-base-100/70 backdrop-blur-md p-4 overflow-y-auto"></aside>
-      <main id="canvas" class="flex-1 relative overflow-hidden"></main>
-      <aside id="log" class="w-80 bg-base-100/70 backdrop-blur-md p-4 overflow-y-auto" aria-label="Log"></aside>
+      <aside id="controls" class="w-64 bg-base-100/70 backdrop-blur-md p-4 overflow-y-auto" role="region" aria-label="Controls"></aside>
+      <main id="canvas" class="flex-1 relative overflow-hidden" role="main"></main>
+      <aside id="log" class="w-80 bg-base-100/70 backdrop-blur-md p-4 overflow-y-auto" aria-label="Log" role="region"></aside>
     </div>
-    <div id="toast" aria-live="polite"></div>
-    <div id="toolbar">
-      <button id="install-btn" hidden>Install</button>
+    <div id="toast" aria-live="polite" role="status"></div>
+    <div id="toolbar" role="toolbar" aria-label="App controls">
+      <button id="install-btn" hidden aria-label="Install application">Install</button>
     </div>
-    <div id="legend"></div>
-    <div id="depth-legend"></div>
+    <div id="legend" role="region" aria-label="Legend"></div>
+    <div id="depth-legend" role="region" aria-label="Depth Legend"></div>
     <script
       src="d3.v7.min.js"
       integrity="sha384-QqrLqBpBJfpJ/24ZmCV87BPpk+Sj9GkH5DzKZdwS4d47ZojhpdfvBiF+BgWe8zX8"

@@ -16,6 +16,8 @@ export interface ArenaPanel {
 export function initArenaPanel(onDebate?: DebateHandler): ArenaPanel {
   const root = document.createElement('details');
   root.id = 'arena-panel';
+  root.setAttribute('role', 'region');
+  root.setAttribute('aria-label', 'Debate Arena');
   Object.assign(root.style, {
     position: 'fixed',
     bottom: '10px',

@@ -4,6 +4,8 @@ import { setUseGpu } from '../utils/llm.js';
 export function initPowerPanel() {
   const panel = document.createElement('div');
   panel.id = 'power-panel';
+  panel.setAttribute('role', 'region');
+  panel.setAttribute('aria-label', 'Power');
   Object.assign(panel.style, {
     position: 'fixed',
     top: '10px',
@@ -20,6 +22,7 @@ export function initPowerPanel() {
   const gpuToggle = document.createElement('input');
   gpuToggle.type = 'checkbox';
   gpuToggle.id = 'gpu-toggle';
+  gpuToggle.setAttribute('aria-label', 'Use GPU');
   gpuLabel.appendChild(gpuToggle);
   gpuLabel.append(' GPU');
   panel.appendChild(gpuLabel);
