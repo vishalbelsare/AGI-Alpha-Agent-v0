@@ -24,8 +24,26 @@ Meta‑Agentic mastery at global scale. α‑AGI Sovereign represents a revoluti
 
 Strategic Edge:
 
-* Decentralized autonomy ensures superior agility and resilience.  
+* Decentralized autonomy ensures superior agility and resilience.
 * Strategically validated methodologies guarantee consistent economic leadership.
+
+## Quick Start
+Clone the repository and run the helper script to start the Insight demo locally:
+
+```bash
+git clone https://github.com/MontrealAI/AGI-Alpha-Agent-v0.git
+cd AGI-Alpha-Agent-v0
+./quickstart.sh
+```
+
+Or launch the full stack with Docker:
+
+```bash
+docker compose up --build
+```
+
+For advanced options, see the [5‑Minute Quick‑Start](#6-5-minute-quick-start)
+and [Docker Quickstart](#docker-quickstart) sections below.
 
 ### Running the Insight Demo
 
