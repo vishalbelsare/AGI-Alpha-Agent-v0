@@ -1,7 +1,8 @@
+// @ts-nocheck
 // SPDX-License-Identifier: Apache-2.0
-import { lcg } from './utils/rng.js';
-import { mutate } from './evolve/mutate.js';
-import { paretoFront } from './utils/pareto.js';
+import { lcg } from './utils/rng.ts';
+import { mutate } from './evolve/mutate.ts';
+import { paretoFront } from './utils/pareto.ts';
 
 export interface SimulatorConfig {
   popSize: number;

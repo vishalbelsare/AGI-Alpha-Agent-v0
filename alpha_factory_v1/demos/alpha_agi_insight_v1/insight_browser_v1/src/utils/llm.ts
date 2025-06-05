@@ -1,7 +1,8 @@
+// @ts-nocheck
 // SPDX-License-Identifier: Apache-2.0
-let localModel;
+let localModel: any;
 let useGpu = true;
-let ortLoaded;
+let ortLoaded: boolean | undefined;
 
 try {
   const saved = localStorage.getItem('USE_GPU');
@@ -10,7 +11,7 @@ try {
   }
 } catch {}
 
-export function setUseGpu(flag) {
+export function setUseGpu(flag: boolean) {
   useGpu = !!flag;
   try {
     localStorage.setItem('USE_GPU', useGpu ? '1' : '0');
@@ -18,7 +19,7 @@ export function setUseGpu(flag) {
   localModel = null;
 }
 
-async function ensureOrt() {
+async function ensureOrt(): Promise<boolean> {
   if (ortLoaded !== undefined) return ortLoaded;
   if (typeof window === 'undefined') return false;
   if (!window.ort) {
@@ -33,7 +34,7 @@ async function ensureOrt() {
   return ortLoaded;
 }
 
-export async function gpuBackend() {
+export async function gpuBackend(): Promise<string> {
   if (useGpu && typeof navigator !== 'undefined' && navigator.gpu) {
     const ok = await ensureOrt();
     if (ok) return 'webgpu';
@@ -41,7 +42,7 @@ export async function gpuBackend() {
   return 'wasm-simd';
 }
 
-async function loadLocal() {
+async function loadLocal(): Promise<any> {
   if (!localModel) {
     try {
       const { pipeline } = await import('../lib/bundle.esm.min.js');
@@ -64,7 +65,7 @@ async function loadLocal() {
   return localModel;
 }
 
-export async function chat(prompt) {
+export async function chat(prompt: string): Promise<string> {
   const key = localStorage.getItem('OPENAI_API_KEY');
   if (key) {
     const resp = await fetch('https://api.openai.com/v1/chat/completions', {

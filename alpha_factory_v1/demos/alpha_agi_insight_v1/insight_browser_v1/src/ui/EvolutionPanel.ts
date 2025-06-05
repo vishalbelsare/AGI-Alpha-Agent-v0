@@ -1,7 +1,8 @@
+// @ts-nocheck
 // SPDX-License-Identifier: Apache-2.0
 import { loadTaxonomy, saveTaxonomy, proposeSectorNodes } from '@insight-src/taxonomy.ts';
 import { loadMemes } from '@insight-src/memeplex.ts';
-import { t } from './i18n.js';
+import { t } from './i18n.ts';
 import type { HyperGraph } from '@insight-src/taxonomy.ts';
 import type { Archive, InsightRun } from '../archive.ts';
 

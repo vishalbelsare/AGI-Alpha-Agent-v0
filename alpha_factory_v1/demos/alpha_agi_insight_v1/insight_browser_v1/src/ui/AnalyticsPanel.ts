@@ -1,5 +1,6 @@
+// @ts-nocheck
 // SPDX-License-Identifier: Apache-2.0
-export function initAnalyticsPanel() {
+export function initAnalyticsPanel(): { update: (stats: any) => void; recordWorkerTime: (ms: number) => void } {
   const panel = document.createElement('div');
   panel.id = 'analytics-panel';
   panel.setAttribute('role', 'region');

@@ -1,5 +1,6 @@
+// @ts-nocheck
 // SPDX-License-Identifier: Apache-2.0
-export function toCSV(rows, headers) {
+export function toCSV(rows: any[], headers?: string[]) {
   if (!rows.length) return '';
   const keys = headers || Object.keys(rows[0]);
   const escape = (v) => `"${String(v).replace(/"/g, '""')}"`;

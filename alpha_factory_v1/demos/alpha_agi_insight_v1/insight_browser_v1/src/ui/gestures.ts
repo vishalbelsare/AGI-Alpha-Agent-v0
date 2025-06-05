@@ -1,5 +1,6 @@
+// @ts-nocheck
 // SPDX-License-Identifier: Apache-2.0
-export function initGestures(svg, view) {
+export function initGestures(svg: SVGSVGElement, view: SVGGraphicsElement): void {
   const state = { pointers: new Map(), lastDist: 0 };
   svg.addEventListener('pointerdown', (e) => {
     svg.setPointerCapture(e.pointerId);

@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 const { mineTaxonomy, saveTaxonomy, loadTaxonomy, proposeSectorNodes } = require('../../src/taxonomy.ts');
 
-jest.mock('../../src/utils/llm.js', () => ({
+jest.mock('../../src/utils/llm.ts', () => ({
   chat: async () => 'Yes',
 }));
 
