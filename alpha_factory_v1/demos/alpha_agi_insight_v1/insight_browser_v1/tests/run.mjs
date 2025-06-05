@@ -31,6 +31,7 @@ run(['node', '--loader', 'ts-node/register', '--test',
   'tests/error_boundary_limit.test.js',
   '../../../../tests/taxonomy.test.ts',
   '../../../../tests/memeplex.test.ts'
+  ,'../../../../tests/webgl_perf.test.js'
 ]);
 run([
   'pytest',
