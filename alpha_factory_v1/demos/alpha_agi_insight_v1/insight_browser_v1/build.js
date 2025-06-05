@@ -20,6 +20,32 @@ const { Web3Storage, File } = await import('web3.storage');
 const dotenv = (await import('dotenv')).default;
 dotenv.config();
 
+function validateEnv() {
+  for (const key of ['PINNER_TOKEN', 'OPENAI_API_KEY', 'WEB3_STORAGE_TOKEN']) {
+    const val = process.env[key];
+    if (val !== undefined && !val.trim()) {
+      throw new Error(`${key} may not be empty`);
+    }
+  }
+  for (const key of ['IPFS_GATEWAY', 'OTEL_ENDPOINT']) {
+    const val = process.env[key];
+    if (val) {
+      try {
+        new URL(val);
+      } catch {
+        throw new Error(`Invalid URL in ${key}`);
+      }
+    }
+  }
+}
+
+try {
+  validateEnv();
+} catch (err) {
+  console.error(err.message || err);
+  process.exit(1);
+}
+
 const verbose = process.argv.includes('--verbose');
 
 try {
