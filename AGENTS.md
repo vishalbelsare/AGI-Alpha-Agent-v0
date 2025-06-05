@@ -248,6 +248,9 @@ pre-commit run --files <paths>   # before each commit
     `verify-backend-requirements-lock` ensure each `requirements-lock` file
     matches its `requirements.txt`. They rely on `pip-tools`.
   - Hooks are configured in `.pre-commit-config.yaml` at the repository root.
+  - Hook `eslint-insight-browser` lints the Insight browser demo. It runs `npm ci`
+    in `alpha_factory_v1/demos/alpha_agi_insight_v1/insight_browser_v1` before
+    invoking `eslint`.
 
 #### Pre-commit in Air-Gapped Setups
 

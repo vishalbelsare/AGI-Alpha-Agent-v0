@@ -63,3 +63,8 @@ repos:
         entry: python scripts/dp_scrubber.py
         language: python
         pass_filenames: false
+      - id: eslint-insight-browser
+        name: Lint Insight Browser with ESLint
+        entry: scripts/run_eslint.sh
+        language: system
+        types: [javascript]
