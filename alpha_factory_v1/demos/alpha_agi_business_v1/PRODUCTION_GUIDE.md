@@ -1,6 +1,7 @@
 # 🏭 Production Deployment Guide — Alpha‑AGI Business v1
 
-This guide summarises the minimal steps required to run the **Alpha‑AGI Business v1** demo in a production‑like environment. The service works fully offline but upgrades automatically when `OPENAI_API_KEY` is present.
+This guide summarises the minimal steps required to run the **Alpha‑AGI Business v1** demo in a production‑like
+  environment. The service works fully offline but upgrades automatically when `OPENAI_API_KEY` is present.
 
 1. **Prepare the configuration**
    - Run `python scripts/setup_config.py` to create `config.env` if missing and edit as needed.

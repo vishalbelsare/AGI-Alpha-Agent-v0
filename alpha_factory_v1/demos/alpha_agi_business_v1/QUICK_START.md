@@ -22,7 +22,8 @@ This short guide summarises how to launch the business demo either locally or in
    # optional: choose a different port
    PORT=9000 python start_alpha_business.py
    ```
-   The dashboard is available at [http://localhost:<port>/docs](http://localhost:<port>/docs), where `<port>` is the port number used (default is `8000`).
+   The dashboard is available at [http://localhost:<port>/docs](http://localhost:<port>/docs), where `<port>` is the
+     port number used (default is `8000`).
    By default the orchestrator launches stub agents for planning, research,
    strategy, market analysis, memory and safety in addition to the core
    discovery/execution pipeline.
@@ -65,7 +66,8 @@ python ../../check_env.py --auto-install --wheelhouse /media/wheels
 See [docs/OFFLINE.md](../../../../docs/OFFLINE.md) for additional tips.
 
 ## Colab Notebook
-Open [`colab_alpha_agi_business_v1_demo.ipynb`](colab_alpha_agi_business_v1_demo.ipynb) and run all cells. The notebook checks requirements, starts the orchestrator, and exposes helper tools via the OpenAI Agents SDK.
+Open [`colab_alpha_agi_business_v1_demo.ipynb`](colab_alpha_agi_business_v1_demo.ipynb) and run all cells. The notebook
+  checks requirements, starts the orchestrator, and exposes helper tools via the OpenAI Agents SDK.
 
 ## ADK Bridge
 To expose the helper agent via Google's Agent Development Kit (ADK), install the
