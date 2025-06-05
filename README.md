@@ -320,6 +320,16 @@ Run `pre-commit run --all-files` once after the setup script to confirm
 everything is formatted correctly. These commands mirror the steps in
 [AGENTS.md](AGENTS.md) and keep commits consistent.
 
+### Development Setup
+Install the Python dependencies with the helper script:
+
+```bash
+scripts/setup_env.sh
+```
+
+The script checks for Python 3.11–3.12 and installs `requirements.txt` and
+`requirements-dev.txt`.
+
 ## 📜 Table of Contents
 0. [Design Philosophy](#0-design-philosophy)  
 1. [System Topology 🗺️](#1-system-topology)  
