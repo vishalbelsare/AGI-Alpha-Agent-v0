@@ -39,12 +39,12 @@ See [`.env.sample`](.env.sample) for the full list of supported variables.
 
 ## Build & Run
 Run the helper script **before installing dependencies** to fetch the Pyodide
-runtime and `wasm-gpt2` model, then install the Node modules and build the
+runtime and `wasm-gpt2` model, then install the Node modules and compile the
 bundle:
 ```bash
 python ../../../scripts/fetch_assets.py
 npm ci            # installs dependencies from package-lock.json
-npm run build     # or `python manual_build.py` to compile to dist/
+npm run build     # or `python manual_build.py` for offline builds
 ```
 The build script reads `.env` automatically and injects the values into
 `dist/index.html` as `window.PINNER_TOKEN`, `window.IPFS_GATEWAY` and
@@ -89,9 +89,10 @@ Open `index.html` directly or pin the built `dist/` directory to IPFS
 (`ipfs add -r dist`) and share the CID.
 The URL fragment encodes parameters such as `#/s=42&p=120&g=80`.
 
-See [docs/insight_browser_quickstart.pdf](docs/insight_browser_quickstart.pdf) for a short walkthrough. The
-build script copies this file to `dist/insight_browser_quickstart.pdf` so
-the guide is available alongside `dist/index.html`.
+See [docs/insight_browser_quickstart.pdf](docs/insight_browser_quickstart.pdf) for a short walkthrough.
+Running `npm run build` or `python manual_build.py` copies this file to
+`dist/insight_browser_quickstart.pdf` so the guide is available alongside
+`dist/index.html` when offline.
 
 ## Manual Build
 Use `manual_build.py` for air‑gapped environments:
@@ -128,7 +129,8 @@ Failing to replace placeholders will break offline mode.
 1. Run `python ../../../scripts/fetch_assets.py`.
 2. `npm ci` to install dependencies from `package-lock.json`.
 3. Confirm no placeholder text remains in `lib/` or `wasm*/`.
-4. Execute `npm run build` or `python manual_build.py`.
+4. Execute `python manual_build.py` to generate the PWA in `dist/`. Use
+   `npm run build` when internet access is available.
 
 5. Run the tests offline:
 
