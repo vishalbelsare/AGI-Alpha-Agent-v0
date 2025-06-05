@@ -43,6 +43,9 @@ def test_quickstart_pdf_offline() -> None:
             context.set_offline(True)
             resp = page.goto(url + "/insight_browser_quickstart.pdf")
             assert resp and resp.ok, "PDF not served offline"
+            page.reload()
+            resp = page.goto(url + "/insight_browser_quickstart.pdf")
+            assert resp and resp.ok, "PDF not served offline after reload"
             browser.close()
     except PlaywrightError as exc:
         pytest.skip(f"Playwright browser not installed: {exc}")

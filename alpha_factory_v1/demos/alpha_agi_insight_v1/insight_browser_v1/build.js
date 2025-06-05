@@ -79,6 +79,7 @@ try {
 const scriptPath = fileURLToPath(import.meta.url);
 const repoRoot = path.resolve(path.dirname(scriptPath), '..', '..', '..', '..');
 const aliasRoot = path.join(repoRoot, 'src');
+const quickstartPdf = path.join(repoRoot, manifest.quickstart_pdf);
 const aliasPlugin = {
   name: 'alias',
   setup(build) {
@@ -213,9 +214,11 @@ async function bundle() {
     `<meta http-equiv="Content-Security-Policy" content="${csp}" />`
   );
   await copyAssets(manifest, repoRoot, OUT_DIR);
-  const pdf = path.join(repoRoot, 'docs/insight_browser_quickstart.pdf');
-  if (fsSync.existsSync(pdf)) {
-    await fs.copyFile(pdf, path.join(OUT_DIR, 'insight_browser_quickstart.pdf'));
+  if (fsSync.existsSync(quickstartPdf)) {
+    await fs.copyFile(
+      quickstartPdf,
+      path.join(OUT_DIR, 'insight_browser_quickstart.pdf'),
+    );
   }
   const envScript = injectEnv(process.env);
 
