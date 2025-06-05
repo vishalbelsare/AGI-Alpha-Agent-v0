@@ -1,10 +1,16 @@
 // SPDX-License-Identifier: Apache-2.0
-import {t,setLanguage,currentLanguage} from './i18n.ts';
+import { t, setLanguage, currentLanguage } from './i18n.ts';
+import type { Params } from '../config/params.ts';
+
+interface ChangeInfo {
+  popClamped: boolean;
+  genClamped: boolean;
+}
 const MAX_VAL = 500;
 export function initControls(
-  params: any,
-  onChange: (p: any, info: any) => void,
-): { setValues: (p: any) => void; pauseBtn: HTMLButtonElement; exportBtn: HTMLButtonElement; dropZone: HTMLElement } {
+  params: Params,
+  onChange: (p: Params, info: ChangeInfo) => void,
+): { setValues: (p: Params) => void; pauseBtn: HTMLButtonElement; exportBtn: HTMLButtonElement; dropZone: HTMLElement } {
   const rootEl = document.getElementById('controls');
   if (!rootEl) {
     throw new Error('controls element not found');
@@ -98,7 +104,7 @@ export function initControls(
   es.textContent = 'Español';
   langSel.append(en, fr, es);
   root.appendChild(langSel);
-  function update(p: any): void {
+  function update(p: Params): void {
     seedInput.value=String(p.seed);
     popInput.value=String(Math.min(p.pop,MAX_VAL));
     genInput.value=String(Math.min(p.gen,MAX_VAL));
@@ -114,7 +120,10 @@ export function initControls(
     const muts=[gauss,swap,jump,scramble].filter(c=>c.checked).map(c=>c.id);
     let popVal=Math.min(+popInput.value,MAX_VAL);
     let genVal=Math.min(+genInput.value,MAX_VAL);
-    const info={popClamped:popVal!==+popInput.value,genClamped:genVal!==+genInput.value};
+    const info: ChangeInfo = {
+      popClamped: popVal !== +popInput.value,
+      genClamped: genVal !== +genInput.value,
+    };
     popInput.value=String(popVal);
     genInput.value=String(genVal);
     const p={seed:+seedInput.value,pop:popVal,gen:genVal,mutations:muts,adaptive:adaptive.checked};
