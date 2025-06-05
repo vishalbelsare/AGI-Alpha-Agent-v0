@@ -2884,6 +2884,8 @@ function apply(p, info = {}){
 window.addEventListener('DOMContentLoaded',async()=>{
   initErrorBoundary();
   await initI18n();
+  const disc=document.getElementById("disclaimer");
+  if(disc)disc.textContent=t("disclaimer");
   telemetry = initTelemetry();
   archive = new Archive();
   if (typeof document.hasStorageAccess === 'function') {
