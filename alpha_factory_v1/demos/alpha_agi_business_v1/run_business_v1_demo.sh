@@ -81,5 +81,6 @@ GPU_ARGS=()
 
 # ------------ RUN CONTAINER --------------------------------------------------
 cinfo "Launching Alpha‑AGI Business demo …"
-docker run -d --name "$CONTAINER" -p 7860:7860 -e OPENAI_API_KEY="${OPENAI_API_KEY:-}" \
+docker run -d --name "$CONTAINER" -p 7860:7860 -p 8000:8000 \
+  -e OPENAI_API_KEY="${OPENAI_API_KEY:-}" \
   "${GPU_ARGS[@]}" "$image" python -m alpha_factory_v1.demos.alpha_agi_business_v1

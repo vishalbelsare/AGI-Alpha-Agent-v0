@@ -160,6 +160,7 @@ python start_alpha_business.py --submit-best
 
 # Docker-based run (add --pull to use GHCR, --gpu for NVIDIA)
 ./run_business_v1_demo.sh [--pull] [--gpu]
+# REST docs → http://localhost:8000/docs
 # or run directly without Docker
 python run_business_v1_local.py --bridge --auto-install
 # expose orchestrator on a custom port
