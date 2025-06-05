@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 """
 MuZero Planning demo – Cross‑industry Alpha‑Factory illustration.
 Runs a lightweight MuZero agent (MiniMu) on Gymnasium’s CartPole‑v1

@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 """Minimal MuZero utilities used by the planning demo."""
 
 from __future__ import annotations
