@@ -172,6 +172,11 @@ required. New users can review
 [dist/insight_browser_quickstart.pdf](dist/insight_browser_quickstart.pdf) after
 extraction for a brief walkthrough.
 
+A dedicated GitHub Actions workflow
+[`size-check.yml`](../../../../.github/workflows/size-check.yml) rebuilds the
+archive on each pull request and fails if `insight_browser.zip` grows beyond
+**3&nbsp;MiB**.
+
 ## Locale Support
 The interface automatically loads French, Spanish or Chinese translations based
 on your browser preferences. Set `localStorage.lang` to override the detected
