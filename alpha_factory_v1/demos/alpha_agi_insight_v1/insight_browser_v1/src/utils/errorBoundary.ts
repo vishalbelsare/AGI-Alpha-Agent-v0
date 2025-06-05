@@ -10,6 +10,7 @@ interface ErrorEntry {
   ts: number;
 }
 let log: ErrorEntry[] = [];
+const MAX_LOG_ENTRIES = 50;
 
 export function initErrorBoundary() {
   try {
@@ -17,8 +18,14 @@ export function initErrorBoundary() {
   } catch {
     log = [];
   }
+  if (log.length > MAX_LOG_ENTRIES) {
+    log = log.slice(-MAX_LOG_ENTRIES);
+  }
   function record(entry: ErrorEntry): void {
     log.push(entry);
+    if (log.length > MAX_LOG_ENTRIES) {
+      log.shift();
+    }
     try {
       localStorage.setItem('errorLog', JSON.stringify(log));
     } catch {}
