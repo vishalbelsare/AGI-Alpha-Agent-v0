@@ -27,7 +27,7 @@ try:  # optional dependency
 except ModuleNotFoundError:  # pragma: no cover - offline shim
     from alpha_factory_v1 import af_requests as requests  # type: ignore
 
-import check_env
+import check_env  # noqa: E402
 
 # Maximum number of times to poll the orchestrator health endpoint
 # before giving up on opening the dashboard.  Keep this small so the
@@ -37,9 +37,7 @@ MAX_HEALTH_CHECK_RETRIES = 20
 
 
 def _parse_args(argv: list[str] | None = None) -> argparse.Namespace:
-    parser = argparse.ArgumentParser(
-        description="Launch the alpha_agi_business_v1 demo"
-    )
+    parser = argparse.ArgumentParser(description="Launch the alpha_agi_business_v1 demo")  # noqa: E501
     parser.add_argument(
         "--no-browser",
         action="store_true",
@@ -61,6 +59,9 @@ def main(argv: list[str] | None = None) -> None:
         print(f"⚠️  Environment check failed: {exc}")
 
     env = os.environ.copy()
+    if not env.get("API_TOKEN"):
+        env["API_TOKEN"] = "demo-token"
+        print("API_TOKEN not set; using temporary 'demo-token'")
     port = env.get("PORT", "8000")
     cmd = [sys.executable, "run_business_v1_local.py", "--bridge"]
     proc = subprocess.Popen(cmd, cwd=SCRIPT_DIR, env=env)
@@ -70,8 +71,13 @@ def main(argv: list[str] | None = None) -> None:
         if proc.poll() is not None:
             break
         try:
-
-            if requests.get(f"http://localhost:{port}/healthz", timeout=1).status_code == 200:
+            if (
+                requests.get(
+                    f"http://localhost:{port}/healthz",
+                    timeout=1,
+                ).status_code
+                == 200
+            ):
                 break
         except Exception:
             time.sleep(0.5)
@@ -79,11 +85,8 @@ def main(argv: list[str] | None = None) -> None:
         runtime_port = env.get("AGENTS_RUNTIME_PORT", "5001")
         payload = {"action": "best_alpha"}
         try:
-            resp = requests.post(
-                f"http://localhost:{runtime_port}/v1/agents/business_helper/invoke",
-                json=payload,
-                timeout=10,
-            )
+            url_endpoint = f"http://localhost:{runtime_port}/v1/agents/" "business_helper/invoke"  # noqa: E501
+            resp = requests.post(url_endpoint, json=payload, timeout=10)
             resp.raise_for_status()
             print("Queued best alpha opportunity via BusinessAgent")
         except requests.RequestException as exc:
