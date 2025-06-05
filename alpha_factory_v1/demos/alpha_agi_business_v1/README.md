@@ -176,6 +176,7 @@ cp config.env.sample config.env
 #   - OPENAI_API_KEY
 #   - YFINANCE_SYMBOL
 #   - ALPHA_BEST_ONLY
+#   - API_TOKEN (REST auth token, defaults to "demo-token" — change for production)
 #   - MCP_ENDPOINT (optional Model Context Protocol URL)
 #   - MCP_TIMEOUT_SEC (optional timeout in seconds for MCP network requests)
 #   - AUTO_INSTALL_MISSING=1 to let `check_env.py` install any missing packages
