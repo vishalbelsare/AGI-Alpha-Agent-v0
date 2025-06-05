@@ -35,3 +35,53 @@ def test_start_alpha_business_no_browser() -> None:
     finally:
         proc.terminate()
         proc.wait(timeout=5)
+
+
+def test_start_alpha_business_submit_best(monkeypatch) -> None:
+    """--submit-best queues the top demo opportunity."""
+    from alpha_factory_v1.demos.alpha_agi_business_v1 import start_alpha_business as mod
+
+    class DummyProc:
+        def poll(self) -> None:
+            return None
+
+        def terminate(self) -> None:
+            pass
+
+        def wait(self, timeout: float | None = None) -> None:
+            pass
+
+    dummy_proc = DummyProc()
+    monkeypatch.setattr(mod.subprocess, "Popen", lambda *a, **k: dummy_proc)
+    monkeypatch.setattr(mod.check_env, "main", lambda *_a, **_k: None)
+    monkeypatch.setattr(mod.webbrowser, "open", lambda *_a, **_k: None)
+
+    class Resp:
+        def __init__(self) -> None:
+            self.status_code = 200
+
+        def raise_for_status(self) -> None:
+            pass
+
+    monkeypatch.setattr(mod.requests, "get", lambda *_a, **_k: Resp())
+    post_calls: list[tuple] = []
+
+    def fake_post(url: str, json: dict, timeout: int) -> Resp:
+        post_calls.append((url, json, timeout))
+        return Resp()
+
+    monkeypatch.setattr(mod.requests, "post", fake_post)
+
+    env = {"OPENAI_API_KEY": "", "AGENTS_RUNTIME_PORT": "7000", "PORT": "8000"}
+    with monkeypatch.context() as mctx:
+        for k, v in env.items():
+            mctx.setenv(k, v)
+        mod.main(["--no-browser", "--submit-best"])
+
+    assert post_calls == [
+        (
+            "http://localhost:7000/v1/agents/business_helper/invoke",
+            {"action": "best_alpha"},
+            10,
+        )
+    ]

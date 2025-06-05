@@ -3,6 +3,7 @@ import sys
 import types
 import unittest
 from unittest.mock import AsyncMock, patch
+import json
 
 # ruff: noqa: E402
 
@@ -112,6 +113,27 @@ class TestBusinessAgentIntegration(unittest.TestCase):
             timeout=5,
         )
         self.assertEqual(result, "job for alpha_discovery queued")
+
+    def test_trigger_best_alpha(self):
+        """trigger_best_alpha should POST the highest scoring entry."""
+        data = [
+            {"alpha": "x", "score": 1},
+            {"alpha": "y", "score": 5},
+        ]
+        with patch.object(bridge.Path, "read_text", return_value=json.dumps(data)):
+            with patch.object(bridge, "AsyncClient") as client_cls:
+                client = AsyncMock()
+                client.__aenter__.return_value = client
+                client.post.return_value = DummyResponse()
+                client_cls.return_value = client
+                result = asyncio.run(bridge.trigger_best_alpha())
+        client.post.assert_awaited_once_with(
+            f"{bridge.HOST}/agent/alpha_execution/trigger",
+            json={"alpha": "y", "score": 5},
+            headers=bridge.HEADERS,
+            timeout=5,
+        )
+        self.assertEqual(result, "best alpha queued")
 
     def test_check_health(self):
         with patch.object(bridge, "AsyncClient") as client_cls:
