@@ -205,7 +205,7 @@ Set the variable yourself to customise the agent list.
 #     **MemoryAgent** and **SafetyAgent** emit placeholder events to illustrate the
 #     full role architecture
 
-open http://localhost:7878      # Dashboard SPA
+open http://localhost:7860      # Dashboard SPA
 ./scripts/post_alpha_job.sh examples/job_copper_spread.json
 # or
 ./scripts/post_alpha_job.sh examples/job_supply_chain_alpha.json
