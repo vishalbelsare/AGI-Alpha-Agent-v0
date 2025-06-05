@@ -35,7 +35,7 @@ CHECKSUMS = {
 
 
 def _session() -> requests.Session:
-    retry = Retry(total=5, backoff_factor=1)
+    retry = Retry(total=0)
     adapter = HTTPAdapter(max_retries=retry)
     s = requests.Session()
     s.mount("https://", adapter)
@@ -64,9 +64,33 @@ def download(cid: str, path: Path, fallback: str | None = None) -> None:
             raise RuntimeError(f"Checksum mismatch for {path.name}")
 
 
+def download_with_retry(
+    cid: str,
+    path: Path,
+    fallback: str | None = None,
+    attempts: int = 3,
+    label: str | None = None,
+) -> None:
+    last_exc: Exception | None = None
+    lbl = label or str(path)
+    for i in range(1, attempts + 1):
+        try:
+            download(cid, path, fallback)
+            return
+        except Exception as exc:  # noqa: PERF203
+            last_exc = exc
+            if i < attempts:
+                print(f"Attempt {i} failed for {lbl}: {exc}, retrying...")
+            else:
+                print(f"ERROR: could not fetch {lbl} after {attempts} attempts")
+    if last_exc:
+        raise last_exc
+
+
 def main() -> None:
     root = Path(__file__).resolve().parent.parent
     base = root / "alpha_factory_v1/demos/alpha_agi_insight_v1/insight_browser_v1"  # noqa: E501
+    failures: list[str] = []
     for rel, cid in ASSETS.items():
         dest = base / rel
         check_placeholder = rel in {
@@ -88,13 +112,21 @@ def main() -> None:
             elif rel == "wasm_llm/wasm-gpt2.tar":
                 fallback = f"https://cloudflare-ipfs.com/ipfs/{cid}"
             try:
-                download(cid, dest, fallback)
+                download_with_retry(cid, dest, fallback, label=rel)
             except Exception as exc:
-                print(f"Failed to fetch {rel}: {exc}")
-                if check_placeholder:
-                    raise
+                print(f"Download failed for {rel}: {exc}")
+                failures.append(rel)
         else:
             print(f"Skipping {rel}, already exists")
+
+    if failures:
+        joined = ", ".join(failures)
+        print(
+            f"\nERROR: Unable to retrieve {joined}.\n"
+            "Check your internet connection or set IPFS_GATEWAY to a reachable "
+            "gateway."
+        )
+        sys.exit(1)
 
 
 if __name__ == "__main__":

@@ -66,6 +66,9 @@ It also retrieves `lib/bundle.esm.min.js` from the mirror. The build and
 `"placeholder"` and abort when any file still contains that marker.
 `scripts/fetch_assets.py` also downloads `lib/workbox-sw.js` from
 Workbox 6.5.4 so the service worker can operate offline.
+Each file is retried up to three times. If a download fails the script exits
+with an error suggesting you check connectivity or the `IPFS_GATEWAY`
+setting.
 Run `scripts/fetch_assets.py` if you encounter this error.
 ```bash
 PINNER_TOKEN=<token> npm start
