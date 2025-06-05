@@ -49,6 +49,7 @@ from types import GeneratorType
 from typing import Any, Dict, Generator, List, Optional, Sequence
 
 from src.monitoring import metrics
+from alpha_factory_v1.backend import metrics_registry
 
 # ──────────────────── optional dependencies ────────────────
 _HAS_PROM = _HAS_TOK = False
@@ -77,9 +78,24 @@ _log.setLevel(logging.INFO)
 
 # ───────────────────── Prometheus metrics ──────────────────
 if _HAS_PROM:
-    _CNT_REQ = Counter("af_llm_requests_total", "LLM requests", ("provider", "status"))
-    _CNT_TOK = Counter("af_llm_tokens_total", "Tokens used", ("provider",))
-    _HIST_LAT = Histogram("af_llm_latency_seconds", "Latency", ("provider",))
+    _CNT_REQ = metrics_registry.get_metric(
+        Counter,
+        "af_llm_requests_total",
+        "LLM requests",
+        ["provider", "status"],
+    )
+    _CNT_TOK = metrics_registry.get_metric(
+        Counter,
+        "af_llm_tokens_total",
+        "Tokens used",
+        ["provider"],
+    )
+    _HIST_LAT = metrics_registry.get_metric(
+        Histogram,
+        "af_llm_latency_seconds",
+        "Latency",
+        ["provider"],
+    )
 else:  # no-op stubs
 
     class _N:

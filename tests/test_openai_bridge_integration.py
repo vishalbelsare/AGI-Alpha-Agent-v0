@@ -34,7 +34,7 @@ def _tool(*_a, **_kw):
 
 
 _oai.Tool = _tool
-sys.modules.setdefault("openai_agents", _oai)
+sys.modules["openai_agents"] = _oai
 
 # Provide a dummy google_adk module so adk_bridge imports succeed
 _dummy = types.ModuleType("google_adk")
@@ -72,32 +72,57 @@ class DummyResponse:
 
 class TestBusinessAgentIntegration(unittest.TestCase):
     def test_list_agents(self):
-        with patch.object(bridge, "requests") as req:
-            req.get.return_value = DummyResponse(["a"])
+        with patch.object(bridge, "AsyncClient") as client_cls:
+            client = AsyncMock()
+            client.__aenter__.return_value = client
+            client.get.return_value = DummyResponse(["a"])
+            client_cls.return_value = client
             result = asyncio.run(bridge.list_agents())
-        req.get.assert_called_once_with(f"{bridge.HOST}/agents", timeout=5)
+        client.get.assert_awaited_once_with(
+            f"{bridge.HOST}/agents", headers=bridge.HEADERS, timeout=5
+        )
         self.assertEqual(result, ["a"])
 
     def test_trigger_discovery(self):
-        with patch.object(bridge, "requests") as req:
-            req.post.return_value = DummyResponse()
+        with patch.object(bridge, "AsyncClient") as client_cls:
+            client = AsyncMock()
+            client.__aenter__.return_value = client
+            client.post.return_value = DummyResponse()
+            client_cls.return_value = client
             result = asyncio.run(bridge.trigger_discovery())
-        req.post.assert_called_once_with(f"{bridge.HOST}/agent/alpha_discovery/trigger", timeout=5)
+        client.post.assert_awaited_once_with(
+            f"{bridge.HOST}/agent/alpha_discovery/trigger",
+            headers=bridge.HEADERS,
+            timeout=5,
+        )
         self.assertEqual(result, "alpha_discovery queued")
 
     def test_submit_job(self):
         job = {"agent": "alpha_discovery", "foo": 1}
-        with patch.object(bridge, "requests") as req:
-            req.post.return_value = DummyResponse()
+        with patch.object(bridge, "AsyncClient") as client_cls:
+            client = AsyncMock()
+            client.__aenter__.return_value = client
+            client.post.return_value = DummyResponse()
+            client_cls.return_value = client
             result = asyncio.run(bridge.submit_job(job))
-        req.post.assert_called_once_with(f"{bridge.HOST}/agent/alpha_discovery/trigger", json=job, timeout=5)
+        client.post.assert_awaited_once_with(
+            f"{bridge.HOST}/agent/alpha_discovery/trigger",
+            json=job,
+            headers=bridge.HEADERS,
+            timeout=5,
+        )
         self.assertEqual(result, "job for alpha_discovery queued")
 
     def test_check_health(self):
-        with patch.object(bridge, "requests") as req:
-            req.get.return_value = DummyResponse(text="healthy")
+        with patch.object(bridge, "AsyncClient") as client_cls:
+            client = AsyncMock()
+            client.__aenter__.return_value = client
+            client.get.return_value = DummyResponse(text="healthy")
+            client_cls.return_value = client
             result = asyncio.run(bridge.check_health())
-        req.get.assert_called_once_with(f"{bridge.HOST}/healthz", timeout=5)
+        client.get.assert_awaited_once_with(
+            f"{bridge.HOST}/healthz", headers=bridge.HEADERS, timeout=5
+        )
         self.assertEqual(result, "healthy")
 
     def test_policy_dispatch_discover(self):
