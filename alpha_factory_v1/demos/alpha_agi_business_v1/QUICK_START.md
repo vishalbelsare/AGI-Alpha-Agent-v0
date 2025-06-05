@@ -8,8 +8,9 @@ This short guide summarises how to launch the business demo either locally or in
    git clone https://github.com/MontrealAI/AGI-Alpha-Agent-v0.git
    cd AGI-Alpha-Agent-v0/alpha_factory_v1/demos/alpha_agi_business_v1
    ```
-2. **Check dependencies**
+2. **Install requirements and check dependencies**
    ```bash
+   pip install -r ../../requirements.txt -q
    python ../../check_env.py --auto-install
    ```
 3. **Run the demo**
