@@ -88,6 +88,28 @@ given JSON file exists before uploading.
 
 ---
 
+## Offline Setup
+
+When working on an air‑gapped machine build wheels ahead of time and tell
+``check_env.py`` where to find them.
+
+1. **Build wheels** from the lock file:
+   ```bash
+   mkdir -p /media/wheels
+   pip wheel -r requirements.lock -w /media/wheels
+   pip wheel -r requirements-dev.txt -w /media/wheels
+   ```
+
+2. **Run the environment check** using your wheelhouse:
+   ```bash
+   WHEELHOUSE=/media/wheels AUTO_INSTALL_MISSING=1 \
+     python check_env.py --auto-install --wheelhouse /media/wheels
+   ```
+   When a ``wheels/`` directory exists in the repository root, the setup
+   scripts automatically set ``WHEELHOUSE`` for you.
+
+---
+
 ## 🛡️ Security & Compliance
 
 * **Secrets stay secret** — `.env` is `.gitignore`‑d; Kubernetes `Secret` template provided.

@@ -103,10 +103,12 @@ Follow these steps when working without internet access.
    `WHEELHOUSE` is unset:
    ```bash
    WHEELHOUSE=/media/wheels AUTO_INSTALL_MISSING=1 ./codex/setup.sh
-   WHEELHOUSE=/media/wheels AUTO_INSTALL_MISSING=1 \
-     python check_env.py --auto-install --wheelhouse /media/wheels
-   pip check
-   ```
+  WHEELHOUSE=/media/wheels AUTO_INSTALL_MISSING=1 \
+    python check_env.py --auto-install --wheelhouse /media/wheels
+  pip check
+  ```
+   See [Offline Setup](alpha_factory_v1/scripts/README.md#offline-setup) for
+   more details.
 
 3. **Download a `.gguf` weight** and set ``LLAMA_MODEL_PATH``:
    ```bash
