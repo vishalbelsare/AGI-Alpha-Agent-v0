@@ -17,12 +17,15 @@ def test_single_network_request() -> None:
         page = browser.new_page()
         js_requests: list[str] = []
         map_requests: list[str] = []
+        wasm_requests: list[str] = []
 
         def handle_request(req: Request) -> None:
             if req.url.endswith(".js") and not req.url.endswith("sw.js"):
                 js_requests.append(req.url)
             elif req.url.endswith(".map"):
                 map_requests.append(req.url)
+            elif req.url.endswith(".wasm"):
+                wasm_requests.append(req.url)
 
         page.on("request", handle_request)
         page.goto(url)
@@ -30,4 +33,5 @@ def test_single_network_request() -> None:
         expected = page.url.replace("index.html", "insight.bundle.js")
         assert js_requests == [expected]
         assert map_requests == []
+        assert wasm_requests == []
         browser.close()

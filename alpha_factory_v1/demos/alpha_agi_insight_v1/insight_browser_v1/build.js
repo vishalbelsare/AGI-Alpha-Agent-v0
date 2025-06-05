@@ -238,6 +238,8 @@ async function bundle() {
   const wasmBuf = fsSync.readFileSync(wasmPath);
   verify(wasmBuf, 'pyodide.asm.wasm');
   const wasmBase64 = wasmBuf.toString('base64');
+  const wasmSri =
+    'sha384-' + createHash('sha384').update(wasmBuf).digest('base64');
 
   for (const name of ['pyodide.js', 'pyodide_py.tar', 'packages.json']) {
     const p = path.join('wasm', name);
@@ -251,6 +253,12 @@ async function bundle() {
     verify(buf, 'wasm-gpt2.tar');
     gpt2Base64 = buf.toString('base64');
   } catch {}
+  if (!wasmBase64) {
+    outHtml = outHtml.replace(
+      '</head>',
+      `<link rel="preload" href="wasm/pyodide.asm.wasm" as="fetch" type="application/wasm" integrity="${wasmSri}" crossorigin="anonymous" />\n</head>`,
+    );
+  }
   const bundlePath = `${OUT_DIR}/insight.bundle.js`;
   let bundleText = await fs.readFile(bundlePath, 'utf8');
   const d3Code = await fs.readFile('d3.v7.min.js', 'utf8');
