@@ -97,6 +97,7 @@ except ImportError:  # pragma: no cover - ADK not installed
 
 HOST = os.getenv("BUSINESS_HOST", "http://localhost:8000")
 AGENT_PORT = int(os.getenv("AGENTS_RUNTIME_PORT", "5001"))
+HEADERS: Dict[str, str] = {}
 
 
 def _parse_args(argv: list[str] | None = None) -> argparse.Namespace:
@@ -125,6 +126,10 @@ def _parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         help="How long to wait for orchestrator health check (default: 5)",
     )
     parser.add_argument(
+        "--token",
+        help="REST API bearer token (defaults to API_TOKEN env var)",
+    )
+    parser.add_argument(
         "--open-ui",
         action="store_true",
         help="Open the Agents runtime URL in the default browser",
@@ -134,21 +139,21 @@ def _parse_args(argv: list[str] | None = None) -> argparse.Namespace:
 
 @Tool(name="list_agents", description="List active orchestrator agents")
 async def list_agents() -> list[str]:
-    resp = requests.get(f"{HOST}/agents", timeout=5)
+    resp = requests.get(f"{HOST}/agents", headers=HEADERS, timeout=5)
     resp.raise_for_status()
     return resp.json()
 
 
 @Tool(name="trigger_discovery", description="Trigger the AlphaDiscoveryAgent")
 async def trigger_discovery() -> str:
-    resp = requests.post(f"{HOST}/agent/alpha_discovery/trigger", timeout=5)
+    resp = requests.post(f"{HOST}/agent/alpha_discovery/trigger", headers=HEADERS, timeout=5)
     resp.raise_for_status()
     return "alpha_discovery queued"
 
 
 @Tool(name="trigger_opportunity", description="Trigger the AlphaOpportunityAgent")
 async def trigger_opportunity() -> str:
-    resp = requests.post(f"{HOST}/agent/alpha_opportunity/trigger", timeout=5)
+    resp = requests.post(f"{HOST}/agent/alpha_opportunity/trigger", headers=HEADERS, timeout=5)
     resp.raise_for_status()
     return "alpha_opportunity queued"
 
@@ -170,6 +175,7 @@ async def trigger_best_alpha() -> str:
     resp = requests.post(
         f"{HOST}/agent/alpha_execution/trigger",
         json=best,
+        headers=HEADERS,
         timeout=5,
     )
     resp.raise_for_status()
@@ -178,70 +184,70 @@ async def trigger_best_alpha() -> str:
 
 @Tool(name="trigger_execution", description="Trigger the AlphaExecutionAgent")
 async def trigger_execution() -> str:
-    resp = requests.post(f"{HOST}/agent/alpha_execution/trigger", timeout=5)
+    resp = requests.post(f"{HOST}/agent/alpha_execution/trigger", headers=HEADERS, timeout=5)
     resp.raise_for_status()
     return "alpha_execution queued"
 
 
 @Tool(name="trigger_risk", description="Trigger the AlphaRiskAgent")
 async def trigger_risk() -> str:
-    resp = requests.post(f"{HOST}/agent/alpha_risk/trigger", timeout=5)
+    resp = requests.post(f"{HOST}/agent/alpha_risk/trigger", headers=HEADERS, timeout=5)
     resp.raise_for_status()
     return "alpha_risk queued"
 
 
 @Tool(name="trigger_compliance", description="Trigger the AlphaComplianceAgent")
 async def trigger_compliance() -> str:
-    resp = requests.post(f"{HOST}/agent/alpha_compliance/trigger", timeout=5)
+    resp = requests.post(f"{HOST}/agent/alpha_compliance/trigger", headers=HEADERS, timeout=5)
     resp.raise_for_status()
     return "alpha_compliance queued"
 
 
 @Tool(name="trigger_portfolio", description="Trigger the AlphaPortfolioAgent")
 async def trigger_portfolio() -> str:
-    resp = requests.post(f"{HOST}/agent/alpha_portfolio/trigger", timeout=5)
+    resp = requests.post(f"{HOST}/agent/alpha_portfolio/trigger", headers=HEADERS, timeout=5)
     resp.raise_for_status()
     return "alpha_portfolio queued"
 
 
 @Tool(name="trigger_planning", description="Trigger the PlanningAgent")
 async def trigger_planning() -> str:
-    resp = requests.post(f"{HOST}/agent/planning/trigger", timeout=5)
+    resp = requests.post(f"{HOST}/agent/planning/trigger", headers=HEADERS, timeout=5)
     resp.raise_for_status()
     return "planning queued"
 
 
 @Tool(name="trigger_research", description="Trigger the ResearchAgent")
 async def trigger_research() -> str:
-    resp = requests.post(f"{HOST}/agent/research/trigger", timeout=5)
+    resp = requests.post(f"{HOST}/agent/research/trigger", headers=HEADERS, timeout=5)
     resp.raise_for_status()
     return "research queued"
 
 
 @Tool(name="trigger_strategy", description="Trigger the StrategyAgent")
 async def trigger_strategy() -> str:
-    resp = requests.post(f"{HOST}/agent/strategy/trigger", timeout=5)
+    resp = requests.post(f"{HOST}/agent/strategy/trigger", headers=HEADERS, timeout=5)
     resp.raise_for_status()
     return "strategy queued"
 
 
 @Tool(name="trigger_market_analysis", description="Trigger the MarketAnalysisAgent")
 async def trigger_market_analysis() -> str:
-    resp = requests.post(f"{HOST}/agent/market_analysis/trigger", timeout=5)
+    resp = requests.post(f"{HOST}/agent/market_analysis/trigger", headers=HEADERS, timeout=5)
     resp.raise_for_status()
     return "market_analysis queued"
 
 
 @Tool(name="trigger_memory", description="Trigger the MemoryAgent")
 async def trigger_memory() -> str:
-    resp = requests.post(f"{HOST}/agent/memory/trigger", timeout=5)
+    resp = requests.post(f"{HOST}/agent/memory/trigger", headers=HEADERS, timeout=5)
     resp.raise_for_status()
     return "memory queued"
 
 
 @Tool(name="trigger_safety", description="Trigger the SafetyAgent")
 async def trigger_safety() -> str:
-    resp = requests.post(f"{HOST}/agent/safety/trigger", timeout=5)
+    resp = requests.post(f"{HOST}/agent/safety/trigger", headers=HEADERS, timeout=5)
     resp.raise_for_status()
     return "safety queued"
 
@@ -249,7 +255,7 @@ async def trigger_safety() -> str:
 @Tool(name="check_health", description="Return orchestrator health status")
 async def check_health() -> str:
     """Check orchestrator /healthz endpoint."""
-    resp = requests.get(f"{HOST}/healthz", timeout=5)
+    resp = requests.get(f"{HOST}/healthz", headers=HEADERS, timeout=5)
     resp.raise_for_status()
     return resp.text
 
@@ -270,6 +276,7 @@ async def submit_job(job: dict) -> str:
     resp = requests.post(
         f"{HOST}/agent/{agent}/trigger",
         json=job,
+        headers=HEADERS,
         timeout=5,
     )
     resp.raise_for_status()
@@ -285,6 +292,7 @@ async def recent_alpha(limit: int = 5) -> list[str]:
     resp = requests.get(
         f"{HOST}/memory/alpha_opportunity/recent",
         params={"n": limit},
+        headers=HEADERS,
         timeout=5,
     )
     resp.raise_for_status()
@@ -300,6 +308,7 @@ async def search_memory(query: str, limit: int = 5) -> list[str]:
     resp = requests.get(
         f"{HOST}/memory/search",
         params={"q": query, "k": limit},
+        headers=HEADERS,
         timeout=5,
     )
     resp.raise_for_status()
@@ -312,7 +321,7 @@ async def search_memory(query: str, limit: int = 5) -> list[str]:
 )
 async def fetch_logs() -> list[str]:
     """Retrieve the latest orchestrator logs via the REST API."""
-    resp = requests.get(f"{HOST}/api/logs", timeout=5)
+    resp = requests.get(f"{HOST}/api/logs", headers=HEADERS, timeout=5)
     resp.raise_for_status()
     return resp.json()
 
@@ -347,7 +356,7 @@ def wait_ready(url: str, timeout: float = 5.0) -> None:
     deadline = time.monotonic() + timeout
     while time.monotonic() < deadline:
         try:
-            if requests.get(f"{url}/healthz", timeout=1).status_code == 200:
+            if requests.get(f"{url}/healthz", headers=HEADERS, timeout=1).status_code == 200:
                 return
         except Exception:
             time.sleep(0.2)
@@ -402,6 +411,9 @@ def main() -> None:
     args = _parse_args()
     global HOST
     HOST = args.host
+    global HEADERS
+    token = args.token or os.getenv("API_TOKEN")
+    HEADERS = {"Authorization": f"Bearer {token}"} if token else {}
     api_key = os.getenv("OPENAI_API_KEY") or None
     if not args.no_wait:
         try:
