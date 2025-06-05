@@ -4,6 +4,7 @@ export function showTooltip(x, y, text) {
   if (!tip) {
     tip = document.createElement('div');
     tip.id = 'tooltip';
+    tip.setAttribute('role', 'tooltip');
     tip.style.position = 'absolute';
     tip.style.pointerEvents = 'none';
     tip.style.background = 'rgba(0,0,0,0.7)';

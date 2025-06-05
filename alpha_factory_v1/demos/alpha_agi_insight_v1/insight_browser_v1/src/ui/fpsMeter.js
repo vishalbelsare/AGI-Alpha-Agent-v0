@@ -3,6 +3,8 @@ export function initFpsMeter(isRunning) {
   if (document.getElementById('fps-meter')) return;
   const el = document.createElement('div');
   el.id = 'fps-meter';
+  el.setAttribute('role', 'status');
+  el.setAttribute('aria-live', 'polite');
   Object.assign(el.style, {
     position: 'fixed',
     right: '4px',

@@ -15,6 +15,8 @@ export interface EvolutionPanel {
 export function initEvolutionPanel(archive: Archive): EvolutionPanel {
   const panel = document.createElement('div');
   panel.id = 'evolution-panel';
+  panel.setAttribute('role', 'region');
+  panel.setAttribute('aria-label', 'Evolution');
   Object.assign(panel.style, {
     position: 'fixed',
     bottom: '10px',
