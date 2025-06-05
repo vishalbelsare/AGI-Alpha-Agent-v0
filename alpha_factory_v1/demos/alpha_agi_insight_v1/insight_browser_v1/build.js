@@ -7,7 +7,8 @@ import path from 'path';
 import { createHash } from 'crypto';
 import { fileURLToPath } from 'url';
 import { createRequire } from 'module';
-import { copyAssets, injectEnv, checkGzipSize, generateServiceWorker } from './build/common.js';
+import { copyAssets, checkGzipSize, generateServiceWorker } from './build/common.js';
+import { injectEnv } from './build/env_inject.js';
 import { requireNode20 } from './build/version_check.js';
 
 const manifest = JSON.parse(

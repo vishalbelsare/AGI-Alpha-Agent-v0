@@ -42,6 +42,8 @@ def test_manual_build_missing_tsc(tmp_path: Path) -> None:
 
     env = os.environ.copy()
     env["PATH"] = str(bin_dir)
+    env["PINNER_TOKEN"] = "dummy"
+    env["WEB3_STORAGE_TOKEN"] = "dummy"
 
     result = subprocess.run(
         [sys.executable, "manual_build.py"],
