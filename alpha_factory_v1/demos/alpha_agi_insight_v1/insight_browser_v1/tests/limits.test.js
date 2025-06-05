@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 const { initControls } = require('../src/ui/ControlsPanel.ts');
+const { parseHash } = require('../src/config/params.ts');
 
 test('values above max are clamped', () => {
   document.body.innerHTML = '<div id="controls"></div>';
@@ -14,6 +15,12 @@ test('values above max are clamped', () => {
   genInput.dispatchEvent(new Event('change'));
   expect(popInput.value).toBe('500');
   expect(genInput.value).toBe('500');
+  expect(params.pop).toBe(500);
+  expect(params.gen).toBe(500);
+});
+
+test('parseHash clamps values above max', () => {
+  const params = parseHash('#/p=9999&g=9999');
   expect(params.pop).toBe(500);
   expect(params.gen).toBe(500);
 });
