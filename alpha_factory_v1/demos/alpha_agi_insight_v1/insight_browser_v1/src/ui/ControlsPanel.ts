@@ -1,4 +1,3 @@
-// @ts-nocheck
 // SPDX-License-Identifier: Apache-2.0
 import {t,setLanguage,currentLanguage} from './i18n.ts';
 const MAX_VAL = 500;
@@ -6,7 +5,11 @@ export function initControls(
   params: any,
   onChange: (p: any, info: any) => void,
 ): { setValues: (p: any) => void; pauseBtn: HTMLButtonElement; exportBtn: HTMLButtonElement; dropZone: HTMLElement } {
-  const root=document.getElementById('controls');
+  const rootEl = document.getElementById('controls');
+  if (!rootEl) {
+    throw new Error('controls element not found');
+  }
+  const root: HTMLElement = rootEl;
   root.replaceChildren();
   function addLabel(text: string, input: HTMLElement): void {
     const label = document.createElement('label');
@@ -95,19 +98,11 @@ export function initControls(
   es.textContent = 'Español';
   langSel.append(en, fr, es);
   root.appendChild(langSel);
-  const seed=root.querySelector('#seed'),
-        pop=root.querySelector('#pop'),
-        gen=root.querySelector('#gen'),
-        gauss=root.querySelector('#gaussian'),
-        swap=root.querySelector('#swap'),
-        jump=root.querySelector('#jump'),
-        scramble=root.querySelector('#scramble'),
-        adaptive=root.querySelector('#adaptive');
-  function update(p){
-    seed.value=p.seed;
-    pop.value=Math.min(p.pop,MAX_VAL);
-    gen.value=Math.min(p.gen,MAX_VAL);
-    const set=new Set(p.mutations||[]);
+  function update(p: any): void {
+    seedInput.value=String(p.seed);
+    popInput.value=String(Math.min(p.pop,MAX_VAL));
+    genInput.value=String(Math.min(p.gen,MAX_VAL));
+    const set=new Set<string>(p.mutations||[]);
     gauss.checked=set.has('gaussian');
     swap.checked=set.has('swap');
     jump.checked=set.has('jump');
@@ -117,27 +112,23 @@ export function initControls(
   update(params);
   function emit(){
     const muts=[gauss,swap,jump,scramble].filter(c=>c.checked).map(c=>c.id);
-    let popVal=Math.min(+pop.value,MAX_VAL);
-    let genVal=Math.min(+gen.value,MAX_VAL);
-    const info={popClamped:popVal!==+pop.value,genClamped:genVal!==+gen.value};
-    pop.value=popVal;
-    gen.value=genVal;
-    const p={seed:+seed.value,pop:popVal,gen:genVal,mutations:muts,adaptive:adaptive.checked};
+    let popVal=Math.min(+popInput.value,MAX_VAL);
+    let genVal=Math.min(+genInput.value,MAX_VAL);
+    const info={popClamped:popVal!==+popInput.value,genClamped:genVal!==+genInput.value};
+    popInput.value=String(popVal);
+    genInput.value=String(genVal);
+    const p={seed:+seedInput.value,pop:popVal,gen:genVal,mutations:muts,adaptive:adaptive.checked};
     try{localStorage.setItem('insightParams',JSON.stringify(p));}catch{}
     onChange(p,info);
   }
-  seed.addEventListener('change',emit);
-  pop.addEventListener('change',emit);
-  gen.addEventListener('change',emit);
+  seedInput.addEventListener('change',emit);
+  popInput.addEventListener('change',emit);
+  genInput.addEventListener('change',emit);
   gauss.addEventListener('change',emit);
   swap.addEventListener('change',emit);
-    jump.addEventListener('change',emit);
-    scramble.addEventListener('change',emit);
-    adaptive.addEventListener('change',emit);
-  const pause=root.querySelector('#pause'),
-        exportBtn=root.querySelector('#export'),
-        drop=root.querySelector('#drop'),
-        langSel=root.querySelector('#lang');
+  jump.addEventListener('change',emit);
+  scramble.addEventListener('change',emit);
+  adaptive.addEventListener('change',emit);
   langSel.value=currentLanguage;
   langSel.addEventListener('change',async()=>{await setLanguage(langSel.value);location.reload();});
   return{setValues:update,pauseBtn:pause,exportBtn,dropZone:drop};
