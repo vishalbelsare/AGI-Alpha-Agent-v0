@@ -148,3 +148,31 @@ def test_queue_limit_and_fetch_fallback() -> None:
         page.wait_for_function("window.fetchArgs !== undefined")
         assert page.evaluate("localStorage.getItem('telemetryQueue')") == "[]"
         browser.close()
+
+
+def test_queue_never_exceeds_cap() -> None:
+    dist = Path(__file__).resolve().parents[1] / "dist" / "index.html"
+    url = dist.as_uri()
+
+    with sync_playwright() as p:
+        browser = p.chromium.launch()
+        page = browser.new_page()
+        page.goto(url)
+        page.evaluate(
+            "window.OTEL_ENDPOINT='https://example.com';"
+            "window.confirm=() => true;"
+            "navigator.sendBeacon=()=>false;"
+            "Object.defineProperty(navigator,'onLine',{get:()=>false,configurable:true});"
+        )
+        page.reload()
+        page.wait_for_selector("#controls")
+        for _ in range(105):
+            page.click("text=Share")
+            page.evaluate("window.dispatchEvent(new Event('beforeunload'))")
+        assert (
+            page.evaluate(
+                "JSON.parse(localStorage.getItem('telemetryQueue')).length"
+            )
+            == 100
+        )
+        browser.close()
