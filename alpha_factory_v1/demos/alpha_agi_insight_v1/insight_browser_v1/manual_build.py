@@ -273,14 +273,31 @@ web3_code += "\nwindow.Web3Storage=Web3Storage;"
 py_code = (lib_dir / "pyodide.js").read_text()
 py_code = re.sub(r"^\s*export\s+", "", py_code, flags=re.MULTILINE)
 py_code += "\nwindow.loadPyodide=loadPyodide;"
+checksums = manifest["checksums"]
+
+
+def _verify(path: Path, name: str) -> bytes:
+    data = path.read_bytes()
+    expected = checksums.get(name)
+    if expected:
+        actual = sha384(path)
+        if expected != actual:
+            sys.exit(f"Checksum mismatch for {name}")
+    return data
+
+
 wasm_b64 = ""
 wasm_file = ROOT / "wasm" / "pyodide.asm.wasm"
 if wasm_file.exists():
-    wasm_b64 = base64.b64encode(wasm_file.read_bytes()).decode()
+    wasm_b64 = base64.b64encode(_verify(wasm_file, "pyodide.asm.wasm")).decode()
+for name in ("pyodide.js", "pyodide_py.tar", "packages.json"):
+    f = ROOT / "wasm" / name
+    if f.exists():
+        _verify(f, name)
 gpt2_b64 = ""
 gpt2_file = ROOT / "wasm_llm" / "wasm-gpt2.tar"
 if gpt2_file.exists():
-    gpt2_b64 = base64.b64encode(gpt2_file.read_bytes()).decode()
+    gpt2_b64 = base64.b64encode(_verify(gpt2_file, "wasm-gpt2.tar")).decode()
 evolver = _compile_worker(ROOT / "worker" / "evolver.ts")
 arena = _compile_worker(ROOT / "worker" / "arenaWorker.ts")
 bundle = (
@@ -377,6 +394,13 @@ if wasm_dir.exists():
     expected = checksums.get("pyodide.asm.wasm")
     if expected and expected != wasm_sri:
         sys.exit("Checksum mismatch for pyodide.asm.wasm")
+    for name in ("pyodide.js", "pyodide_py.tar", "packages.json"):
+        f = dist_dir / manifest["dirs"]["wasm"] / name
+        if f.exists():
+            actual = sha384(f)
+            expected = checksums.get(name)
+            if expected and expected != actual:
+                sys.exit(f"Checksum mismatch for {name}")
     out_html = out_html.replace(
         "</head>",
         (
@@ -389,6 +413,15 @@ if wasm_dir.exists():
 else:
     wasm_sri = None
 (dist_dir / "index.html").write_text(out_html)
+
+wasm_llm_dir = ROOT / manifest["dirs"]["wasm_llm"]
+if wasm_llm_dir.exists():
+    f = dist_dir / manifest["dirs"]["wasm_llm"] / "wasm-gpt2.tar"
+    if f.exists():
+        actual = sha384(f)
+        expected = checksums.get("wasm-gpt2.tar")
+        if expected and expected != actual:
+            sys.exit("Checksum mismatch for wasm-gpt2.tar")
 
 
 # generate service worker

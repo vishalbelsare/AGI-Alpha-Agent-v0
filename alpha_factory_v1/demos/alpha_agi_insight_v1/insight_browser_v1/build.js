@@ -219,20 +219,33 @@ async function bundle() {
   }
   const envScript = injectEnv(process.env);
 
+  const checksums = manifest.checksums || {};
+
+  function verify(buf, name) {
+    const expected = checksums[name];
+    if (!expected) return;
+    const actual = 'sha384-' + createHash('sha384').update(buf).digest('base64');
+    if (actual !== expected) {
+      throw new Error(`Checksum mismatch for ${name}`);
+    }
+  }
+
   const wasmPath = 'wasm/pyodide.asm.wasm';
   const wasmBuf = fsSync.readFileSync(wasmPath);
+  verify(wasmBuf, 'pyodide.asm.wasm');
   const wasmBase64 = wasmBuf.toString('base64');
-  const expected = manifest.checksums['pyodide.asm.wasm'];
-  if (expected) {
-    const actual =
-      'sha384-' + createHash('sha384').update(wasmBuf).digest('base64');
-    if (actual !== expected) {
-      throw new Error('Checksum mismatch for pyodide.asm.wasm');
+
+  for (const name of ['pyodide.js', 'pyodide_py.tar', 'packages.json']) {
+    const p = path.join('wasm', name);
+    if (fsSync.existsSync(p)) {
+      verify(fsSync.readFileSync(p), name);
     }
   }
   let gpt2Base64 = '';
   try {
-    gpt2Base64 = fsSync.readFileSync('wasm_llm/wasm-gpt2.tar').toString('base64');
+    const buf = fsSync.readFileSync('wasm_llm/wasm-gpt2.tar');
+    verify(buf, 'wasm-gpt2.tar');
+    gpt2Base64 = buf.toString('base64');
   } catch {}
   const bundlePath = `${OUT_DIR}/insight.bundle.js`;
   let bundleText = await fs.readFile(bundlePath, 'utf8');
