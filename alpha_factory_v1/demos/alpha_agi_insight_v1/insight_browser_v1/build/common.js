@@ -3,6 +3,7 @@ import { promises as fs } from 'fs';
 import fsSync from 'fs';
 import path from 'path';
 import { createHash } from 'crypto';
+import { injectEnv } from './env_inject.js';
 
 export async function copyAssets(manifest, repoRoot, outDir) {
   for (const rel of manifest.files) {
@@ -35,14 +36,7 @@ export async function copyAssets(manifest, repoRoot, outDir) {
   }
 }
 
-export function injectEnv(env) {
-  const enc = (v) => Buffer.from(String(v ?? ''), 'utf8').toString('base64');
-  const b64Pinner = enc(env.PINNER_TOKEN);
-  const b64Otel = enc(env.OTEL_ENDPOINT);
-  const b64Ipfs = enc(env.IPFS_GATEWAY);
-  const script = `<script>window.PINNER_TOKEN=atob('${b64Pinner}');window.OTEL_ENDPOINT=atob('${b64Otel}');window.IPFS_GATEWAY=atob('${b64Ipfs}');</script>`; 
-  return script;
-}
+export { injectEnv };
 export async function checkGzipSize(file, maxBytes = 2 * 1024 * 1024) {
   const gzipSize = (await import('gzip-size')).default;
   const size = await gzipSize.file(file);

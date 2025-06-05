@@ -1,13 +1,13 @@
 # SPDX-License-Identifier: Apache-2.0
 import os
 import re
-import base64
 import json
 import subprocess
 import sys
 from pathlib import Path
 from typing import Any
 from urllib.parse import urlparse
+import base64
 
 BUILD_DIR = Path(__file__).resolve().parent / "build"
 sys.path.insert(0, str(BUILD_DIR))
@@ -108,18 +108,18 @@ def copy_assets(
                 (target_dir / f.name).write_bytes(f.read_bytes())
 
 
-def _enc(val: str | None) -> str:
-    return base64.b64encode(str(val or "").encode()).decode()
-
-
 def inject_env() -> str:
-    return (
-        "<script>"
-        f"window.PINNER_TOKEN=atob('{_enc(os.getenv('PINNER_TOKEN'))}');"
-        f"window.OTEL_ENDPOINT=atob('{_enc(os.getenv('OTEL_ENDPOINT'))}');"
-        f"window.IPFS_GATEWAY=atob('{_enc(os.getenv('IPFS_GATEWAY'))}');"
-        "</script>"
-    )
+    script = subprocess.check_output(
+        [
+            "node",
+            "-e",
+            "import('./build/env_inject.js').then(m=>process.stdout.write(m.injectEnv(process.env)))",
+        ],
+        cwd=ROOT,
+        text=True,
+        env=os.environ,
+    ).strip()
+    return script
 
 
 ROOT = Path(__file__).resolve().parent
