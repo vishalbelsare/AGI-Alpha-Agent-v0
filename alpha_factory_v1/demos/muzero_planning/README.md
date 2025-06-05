@@ -46,6 +46,18 @@ pip install -r requirements.txt
 python -m alpha_factory_v1.demos.muzero_planning
 ```
 
+### Optional `openai_agents`
+
+For narrated actions and tool calls, install `openai_agents` version
+`>=0.0.16`:
+
+```bash
+pip install -U 'openai_agents>=0.0.16'
+```
+
+Leaving `OPENAI_API_KEY` empty keeps the demo offline and falls back to
+**Ollama ✕ Mixtral** if available.
+
 ### Command-line options
 
 You can override the environment, episode count and port directly from the CLI:
