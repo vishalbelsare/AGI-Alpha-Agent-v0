@@ -6,6 +6,7 @@ import { execSync, spawnSync } from 'child_process';
 import path from 'path';
 import { createHash } from 'crypto';
 import { fileURLToPath } from 'url';
+import { createRequire } from 'module';
 import { copyAssets, injectEnv, checkGzipSize, generateServiceWorker } from './build/common.js';
 import { requireNode20 } from './build/version_check.js';
 
@@ -14,6 +15,27 @@ const manifest = JSON.parse(
 );
 
 requireNode20();
+
+function ensureDevPackages() {
+  const require = createRequire(import.meta.url);
+  const packages = [
+    'esbuild',
+    'tailwindcss',
+    'workbox-build',
+    'web3.storage',
+    'dotenv',
+  ];
+  for (const pkg of packages) {
+    try {
+      require.resolve(pkg);
+    } catch {
+      console.error(`Missing dependency "${pkg}". Run 'npm ci' before building.`);
+      process.exit(1);
+    }
+  }
+}
+
+ensureDevPackages();
 
 const { build } = await import('esbuild');
 const { Web3Storage, File } = await import('web3.storage');

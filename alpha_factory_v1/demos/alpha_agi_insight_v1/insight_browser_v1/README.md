@@ -11,6 +11,7 @@ This demo is a conceptual research prototype. Mentions of "AGI" or "superintelli
 - **Python ≥3.11** is required when using `manual_build.py`.
 - `package-lock.json` must remain checked in so `npm ci` installs the exact
   versions specified.
+- Run `npm ci` before executing any lint or build script.
 
 Verify your Node.js version before running the build script:
 
