@@ -228,6 +228,7 @@ async function bundle() {
     ortCode += '\nwindow.ort=ort;';
   }
   bundleText = `${d3Code}\n${web3Code}\n${pyCode}\n${ortCode}\nwindow.PYODIDE_WASM_BASE64='${wasmBase64}';window.GPT2_MODEL_BASE64='${gpt2Base64}';\n` + bundleText;
+  bundleText = bundleText.replace(/\/\/#[ \t]*sourceMappingURL=.*(?:\r?\n)?/g, '');
   await fs.writeFile(bundlePath, bundleText);
   outHtml = outHtml
     .replace(/<script[\s\S]*?d3\.v7\.min\.js[\s\S]*?<\/script>\s*/g, '')
