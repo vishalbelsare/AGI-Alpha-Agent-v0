@@ -1,4 +1,3 @@
-// @ts-nocheck
 // SPDX-License-Identifier: Apache-2.0
 export function showTooltip(x: number, y: number, text: string): void {
   let tip = document.getElementById('tooltip');
