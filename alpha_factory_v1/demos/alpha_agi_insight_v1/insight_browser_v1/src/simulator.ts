@@ -1,8 +1,8 @@
-// @ts-nocheck
 // SPDX-License-Identifier: Apache-2.0
 import { lcg } from './utils/rng.ts';
-import { mutate } from './evolve/mutate.ts';
+import { mutate, type Mutant } from './evolve/mutate.ts';
 import { paretoFront } from './utils/pareto.ts';
+import type { Individual as BaseIndividual } from './state/serializer.ts';
 
 export interface SimulatorConfig {
   popSize: number;
@@ -23,9 +23,7 @@ export interface Generation {
   metrics: { avgLogic: number; avgFeasible: number; frontSize: number };
 }
 
-interface Individual {
-  logic: number;
-  feasible: number;
+interface Individual extends BaseIndividual {
   strategy: string;
   depth: number;
   horizonYears: number;
@@ -75,8 +73,8 @@ export class Simulator {
         front = result.front;
         metrics = result.metrics;
       } else {
-        pop = mutate(pop, rand, options.mutations ?? ['gaussian'], gen + 1, options.adaptive);
-        front = paretoFront(pop);
+        pop = mutate(pop, rand, options.mutations ?? ['gaussian'], gen + 1, options.adaptive) as Individual[];
+        front = paretoFront(pop) as Individual[];
         pop.forEach((d) => (d.front = front.includes(d)));
         pop = front.concat(pop.slice(0, options.popSize - 10));
         metrics = {

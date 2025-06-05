@@ -1,4 +1,3 @@
-// @ts-nocheck
 // SPDX-License-Identifier: Apache-2.0
 export function initCriticPanel(): { show: (scores: Record<string, number>, element?: SVGCircleElement | null) => void } {
   const root = document.createElement('div');
@@ -31,9 +30,9 @@ export function initCriticPanel(): { show: (scores: Record<string, number>, elem
   root.appendChild(table);
   document.body.appendChild(root);
 
-  let highlighted = null;
+  let highlighted: SVGCircleElement | null = null;
 
-  function drawSpider(scores) {
+  function drawSpider(scores: Record<string, number>): void {
     const labels = Object.keys(scores);
     const values = Object.values(scores);
     const size = 200;
@@ -41,7 +40,7 @@ export function initCriticPanel(): { show: (scores: Record<string, number>, elem
     const radius = center - 20;
     const step = (Math.PI * 2) / labels.length;
     svg.innerHTML = '';
-    const pts = [];
+    const pts: string[] = [];
     labels.forEach((label, i) => {
       const angle = i * step - Math.PI / 2;
       const r = radius * (values[i] ?? 0);
@@ -53,15 +52,15 @@ export function initCriticPanel(): { show: (scores: Record<string, number>, elem
       const tx = center + (radius + 12) * Math.cos(angle);
       const ty = center + (radius + 12) * Math.sin(angle);
       const line = document.createElementNS('http://www.w3.org/2000/svg','line');
-      line.setAttribute('x1', center);
-      line.setAttribute('y1', center);
-      line.setAttribute('x2', lx);
-      line.setAttribute('y2', ly);
+      line.setAttribute('x1', String(center));
+      line.setAttribute('y1', String(center));
+      line.setAttribute('x2', String(lx));
+      line.setAttribute('y2', String(ly));
       line.setAttribute('stroke', '#ccc');
       svg.appendChild(line);
       const text = document.createElementNS('http://www.w3.org/2000/svg','text');
-      text.setAttribute('x', tx);
-      text.setAttribute('y', ty);
+      text.setAttribute('x', String(tx));
+      text.setAttribute('y', String(ty));
       text.setAttribute('font-size', '10');
       text.setAttribute('text-anchor', 'middle');
       text.setAttribute('dominant-baseline', 'middle');

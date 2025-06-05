@@ -1,15 +1,17 @@
-// @ts-nocheck
 // SPDX-License-Identifier: Apache-2.0
 import * as Plot from '@observablehq/plot';
+import * as d3 from 'd3';
 import { plotCanvas } from './plotCanvas.ts';
 import { paretoFront } from '../utils/pareto.ts';
 import { depthColor } from './colors.ts';
 import { drawHeatmap } from './canvasLayer.ts';
 
+import type { Individual } from '../state/serializer.ts';
+
 export function renderFrontier(
   container: HTMLElement,
-  pop: any[],
-  onSelect?: (d: any, el: SVGCircleElement) => void,
+  pop: Individual[],
+  onSelect?: (d: Individual, el: SVGCircleElement) => void,
 ): void {
   const front = paretoFront(pop).sort((a, b) => a.logic - b.logic);
 
@@ -18,8 +20,8 @@ export function renderFrontier(
     x: 'logic',
     y: 'feasible',
     r: 3,
-    fill: (d) => depthColor(d.depth ?? 0, maxDepth),
-    title: (d) => `${d.summary ?? ''}\n${d.critic ?? ''}`,
+    fill: (d: Individual) => depthColor(d.depth ?? 0, maxDepth),
+    title: (d: Individual) => `${d.summary ?? ''}\n${d.critic ?? ''}`,
   };
 
   const marks = [
@@ -48,8 +50,11 @@ export function renderFrontier(
   const svg = plot.querySelector('svg') || plot;
   drawHeatmap(svg, pop, (d) => d.logic * 500, (d) => (1 - d.feasible) * 500);
   if (onSelect) {
-    d3.select(plot).selectAll('circle').on('click', function (_, d) {
-      onSelect(d, this);
-    });
+    d3
+      .select(plot)
+      .selectAll<SVGCircleElement, Individual>('circle')
+      .on('click', function (_, d) {
+        onSelect(d, this);
+      });
   }
 }

@@ -1,6 +1,7 @@
-// @ts-nocheck
 // SPDX-License-Identifier: Apache-2.0
-export function paretoFront(pop: any[]): any[] {
+import type { Individual } from '../state/serializer.ts';
+
+export function paretoFront(pop: Individual[]): Individual[] {
   if (pop.length === 0) return [];
 
   // Sort by logic (desc) then feasible (desc) and scan once.
@@ -8,7 +9,7 @@ export function paretoFront(pop: any[]): any[] {
     (a, b) => b.logic - a.logic || b.feasible - a.feasible,
   );
 
-  const front = [];
+  const front: Individual[] = [];
   let bestFeasible = -Infinity;
   for (const p of sorted) {
     if (p.feasible >= bestFeasible) {

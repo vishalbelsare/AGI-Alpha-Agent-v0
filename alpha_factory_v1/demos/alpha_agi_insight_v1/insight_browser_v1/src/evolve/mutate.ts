@@ -1,16 +1,23 @@
-// @ts-nocheck
 // SPDX-License-Identifier: Apache-2.0
+import type { Individual as BaseIndividual } from '../state/serializer.ts';
+
+export interface Mutant extends BaseIndividual {
+  strategy: string;
+  depth: number;
+  horizonYears: number;
+}
+
 export function mutate(
-  pop: any[],
+  pop: Mutant[],
   rand: () => number,
   strategies: string[],
   gen = 0,
   adaptive = false,
   scale = 1,
   gpu = false,
-): any[] {
-  const clamp = (v) => Math.min(1, Math.max(0, v));
-  const mutants = [];
+): Mutant[] {
+  const clamp = (v: number): number => Math.min(1, Math.max(0, v));
+  const mutants: Mutant[] = [];
   function converged() {
     if (!adaptive) return false;
     const meanL = pop.reduce((s, d) => s + (d.logic ?? 0), 0) / pop.length;

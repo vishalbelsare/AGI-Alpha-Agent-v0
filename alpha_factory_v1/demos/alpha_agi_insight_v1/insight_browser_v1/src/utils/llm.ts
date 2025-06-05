@@ -1,4 +1,3 @@
-// @ts-nocheck
 // SPDX-License-Identifier: Apache-2.0
 let localModel: any;
 let useGpu = true;
@@ -22,7 +21,7 @@ export function setUseGpu(flag: boolean) {
 async function ensureOrt(): Promise<boolean> {
   if (ortLoaded !== undefined) return ortLoaded;
   if (typeof window === 'undefined') return false;
-  if (!window.ort) {
+  if (!(window as any).ort) {
     try {
       await import('onnxruntime-web');
     } catch {
@@ -30,12 +29,12 @@ async function ensureOrt(): Promise<boolean> {
       return false;
     }
   }
-  ortLoaded = !!window.ort;
+  ortLoaded = !!(window as any).ort;
   return ortLoaded;
 }
 
 export async function gpuBackend(): Promise<string> {
-  if (useGpu && typeof navigator !== 'undefined' && navigator.gpu) {
+  if (useGpu && typeof navigator !== 'undefined' && (navigator as any).gpu) {
     const ok = await ensureOrt();
     if (ok) return 'webgpu';
   }
@@ -45,13 +44,14 @@ export async function gpuBackend(): Promise<string> {
 async function loadLocal(): Promise<any> {
   if (!localModel) {
     try {
-      const { pipeline } = await import('../lib/bundle.esm.min.js');
+      const mod = await import('../lib/bundle.esm.min.js');
+      const { pipeline } = mod as any;
       const backend = await gpuBackend();
       if (typeof window !== 'undefined') {
-        window.LLM_BACKEND = backend;
+        (window as any).LLM_BACKEND = backend;
       }
-      if (window.GPT2_MODEL_BASE64) {
-        const bytes = Uint8Array.from(atob(window.GPT2_MODEL_BASE64), c => c.charCodeAt(0));
+      if ((window as any).GPT2_MODEL_BASE64) {
+        const bytes = Uint8Array.from(atob((window as any).GPT2_MODEL_BASE64), c => c.charCodeAt(0));
         const blob = new Blob([bytes]);
         const url = URL.createObjectURL(blob);
         localModel = await pipeline('text-generation', url, { backend });
@@ -59,7 +59,7 @@ async function loadLocal(): Promise<any> {
         localModel = await pipeline('text-generation', './wasm_llm/', { backend });
       }
     } catch (err) {
-      localModel = async (p) => `[offline] ${p}`;
+      localModel = async (p: string) => `[offline] ${p}`;
     }
   }
   return localModel;
