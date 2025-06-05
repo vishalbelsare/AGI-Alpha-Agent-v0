@@ -43,7 +43,7 @@ const dotenv = (await import('dotenv')).default;
 dotenv.config();
 
 function validateEnv() {
-  for (const key of ['PINNER_TOKEN', 'OPENAI_API_KEY', 'WEB3_STORAGE_TOKEN']) {
+  for (const key of ['PINNER_TOKEN', 'WEB3_STORAGE_TOKEN']) {
     const val = process.env[key];
     if (val !== undefined && !val.trim()) {
       throw new Error(`${key} may not be empty`);

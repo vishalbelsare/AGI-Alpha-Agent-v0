@@ -26,7 +26,9 @@ via the `engines` field.
 Copy [`.env.sample`](.env.sample) to `.env` then review the variables:
 
 - `PINNER_TOKEN` – Web3.Storage token used to pin results.
-- `OPENAI_API_KEY` – optional OpenAI key for chat prompts.
+- `OPENAI_API_KEY` – optional OpenAI key for chat prompts. **For security, do not
+  embed the key in the built HTML.** Store it in `localStorage` or enter it at
+  runtime instead.
 - `IPFS_GATEWAY` – base URL of the IPFS gateway used to fetch pinned runs.
 - `OTEL_ENDPOINT` – OTLP/HTTP endpoint for anonymous telemetry (leave blank to disable).
 - `WEB3_STORAGE_TOKEN` – build script token consumed by `npm run build`.
@@ -45,8 +47,9 @@ npm ci            # installs dependencies from package-lock.json
 npm run build     # or `python manual_build.py` to compile to dist/
 ```
 The build script reads `.env` automatically and injects the values into
-`dist/index.html` as `window.PINNER_TOKEN`, `window.OPENAI_API_KEY`,
-`window.IPFS_GATEWAY` and `window.OTEL_ENDPOINT`.
+`dist/index.html` as `window.PINNER_TOKEN`, `window.IPFS_GATEWAY` and
+`window.OTEL_ENDPOINT`. `OPENAI_API_KEY` is **not** embedded by default.
+Set it in `localStorage` or provide it at runtime when prompted.
 It also copies `dist/sw.js` to `dist/service-worker.js` which `index.html`
 registers for offline support.
 The unbuilt `index.html` falls back to `'self'` for the IPFS and telemetry
@@ -78,8 +81,8 @@ PINNER_TOKEN=<token> npm start
 Set `PINNER_TOKEN` to your [Web3.Storage](https://web3.storage/) token so
 exported JSON results can be pinned.
 
-If `OPENAI_API_KEY` is saved in `localStorage`, the demo uses the OpenAI API for
-chat prompts. When the key is absent a lightweight GPT‑2 model under
+If `OPENAI_API_KEY` is stored in `localStorage`, the demo uses the OpenAI API for
+chat prompts. When no key is present a lightweight GPT‑2 model under
 `wasm_llm/` runs locally.
 
 Open `index.html` directly or pin the built `dist/` directory to IPFS

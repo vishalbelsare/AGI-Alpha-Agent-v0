@@ -56,7 +56,7 @@ except Exception as exc:  # pragma: no cover - optional dep
 
 def _validate_env() -> None:
     """Validate tokens and URLs in the environment."""
-    for key in ("PINNER_TOKEN", "OPENAI_API_KEY", "WEB3_STORAGE_TOKEN"):
+    for key in ("PINNER_TOKEN", "WEB3_STORAGE_TOKEN"):
         val = os.getenv(key)
         if val is not None and not val.strip():
             sys.exit(f"{key} may not be empty")
@@ -116,7 +116,6 @@ def inject_env() -> str:
     return (
         "<script>"
         f"window.PINNER_TOKEN=atob('{_enc(os.getenv('PINNER_TOKEN'))}');"
-        f"window.OPENAI_API_KEY=atob('{_enc(os.getenv('OPENAI_API_KEY'))}');"
         f"window.OTEL_ENDPOINT=atob('{_enc(os.getenv('OTEL_ENDPOINT'))}');"
         f"window.IPFS_GATEWAY=atob('{_enc(os.getenv('IPFS_GATEWAY'))}');"
         "</script>"
