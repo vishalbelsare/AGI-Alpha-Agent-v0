@@ -189,7 +189,8 @@ archive on each pull request and fails if `insight_browser.zip` grows beyond
 ## Locale Support
 The interface automatically loads French, Spanish or Chinese translations based
 on your browser preferences. Set `localStorage.lang` to override the detected
-language.
+language. When the chosen locale file is missing, a warning appears in the
+browser console and the demo falls back to the built‑in English strings.
 
 ## Toolbar & Controls
 - **CSV** – export the current population as `population.csv`.
