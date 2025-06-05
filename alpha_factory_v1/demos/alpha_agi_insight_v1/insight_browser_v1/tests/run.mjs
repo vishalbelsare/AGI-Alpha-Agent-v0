@@ -28,6 +28,7 @@ run(['node', '--loader', 'ts-node/register', '--test',
   'tests/replay_cid.test.js',
   'tests/iframe_worker_cleanup.test.js',
   'tests/onnx_gpu_backend.test.js',
+  'tests/error_boundary_limit.test.js',
   '../../../../tests/taxonomy.test.ts',
   '../../../../tests/memeplex.test.ts'
 ]);
