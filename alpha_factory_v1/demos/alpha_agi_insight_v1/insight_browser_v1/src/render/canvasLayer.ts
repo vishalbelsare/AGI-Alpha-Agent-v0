@@ -1,4 +1,3 @@
-// @ts-nocheck
 // SPDX-License-Identifier: Apache-2.0
 
 export function ensureLayer(parent: any): CanvasRenderingContext2D {
@@ -22,10 +21,10 @@ export function ensureLayer(parent: any): CanvasRenderingContext2D {
     canvas.height = height;
     fo.appendChild(canvas);
     node.appendChild(fo);
-    return canvas.getContext('2d');
+    return canvas.getContext('2d')!;
   }
   const canvas = fo.querySelector('canvas');
-  return canvas.getContext('2d');
+  return canvas.getContext('2d')!;
 }
 
 export function drawPoints(
