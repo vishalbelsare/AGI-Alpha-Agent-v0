@@ -16,6 +16,8 @@ export interface PinResult {
 export async function pinFiles(files: File[]): Promise<PinResult | null> {
   if (!window.PINNER_TOKEN) return null;
   try {
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore Web3Storage typings require additional options in newer versions
     const client = new Web3Storage({ token: window.PINNER_TOKEN });
     const cid = await client.put(files);
     const gateway = (window.IPFS_GATEWAY || 'https://ipfs.io/ipfs').replace(/\/$/, '');

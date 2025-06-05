@@ -21,6 +21,7 @@
   "invalid_file": "archivo inválido",
   "simulation_restarted": "simulación reiniciada",
   "telemetry_consent": "¿Permitir telemetría anónima?",
+  "download_log": "Descargar registro",
   "summary.debateArena": "Arena de debate",
   "summary.debate": "Debate",
   "label.rank": "Rango",
@@ -35,4 +36,5 @@
   ,"archive_full": "Archivo lleno; ejecuciones antiguas eliminadas"
   ,"pin_failed": "error al fijar"
   ,"error_unknown": "error desconocido"
+  ,"disclaimer": "Este repositorio es un prototipo de investigaci\u00f3n conceptual. Las menciones de \"AGI\" o \"superinteligencia\" describen metas aspiracionales y no indican la presencia de una inteligencia general real. \u00dAselo bajo su propio riesgo."
 }
