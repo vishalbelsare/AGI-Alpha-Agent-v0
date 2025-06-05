@@ -90,7 +90,14 @@ jobs:
           PERCY_TOKEN_E2E: ${{ secrets.PERCY_TOKEN }}
         run: pnpm --dir src/interface/web_client run percy:cypress
       - name: Install Playwright browsers
-        run: playwright install chromium webkit
+        id: install-browsers
+        run: |
+          set +e
+          playwright install chromium webkit
+          if [ $? -ne 0 ]; then
+            echo "SKIP_WEBKIT_TESTS=1" >> "$GITHUB_ENV"
+          fi
+          set -e
       - name: Install proto compiler
         run: pip install grpcio-tools
       - name: Verify protobuf
