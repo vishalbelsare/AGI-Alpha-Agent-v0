@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# SPDX-License-Identifier: Apache-2.0
 # scripts/post_alpha_job.sh - queue a demo job via the orchestrator REST API
 # Usage: ./scripts/post_alpha_job.sh examples/job_copper_spread.json
 # Requirements: curl, jq

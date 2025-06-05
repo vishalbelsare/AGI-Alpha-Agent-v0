@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# SPDX-License-Identifier: Apache-2.0
 # ────────────────────────────────────────────────────────────────
 # Alpha‑AGI Business v1 – quick launcher
 # Options : --pull  use the signed image from GHCR (skip local build)

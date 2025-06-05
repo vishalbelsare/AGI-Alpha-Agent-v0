@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# SPDX-License-Identifier: Apache-2.0
 """Minimal OpenAI Agents client for the business demo.
 
 This helper queries the ``business_helper`` agent exposed by
