@@ -31,6 +31,9 @@ REQUIRED = [
     "grpc",
     "cryptography",
     "numpy",
+    "google.protobuf",
+    "cachetools",
+    "yaml",
     "click",
     "requests",
     "pandas",
@@ -54,6 +57,9 @@ PIP_NAMES = {
     "pytest_benchmark": "pytest-benchmark",
     "playwright.sync_api": "playwright",
     "websockets": "websockets",
+    "google.protobuf": "protobuf",
+    "cachetools": "cachetools",
+    "yaml": "PyYAML",
 }
 
 

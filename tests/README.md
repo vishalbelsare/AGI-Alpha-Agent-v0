@@ -3,6 +3,8 @@
 
 These integration tests expect the `alpha_factory_v1` package to be importable. When running from the repository root without installation, set `PYTHONPATH` so Python can locate the source tree:
 
+Run `python check_env.py --auto-install` first to confirm all dependencies are available.
+
 ```bash
 export PYTHONPATH=$(pwd)
 python -m pytest -q tests
