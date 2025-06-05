@@ -28,8 +28,10 @@ This short guide summarises how to launch the business demo either locally or in
 
    Alternatively, run the orchestrator directly with:
    ```bash
-   python run_business_v1_local.py --bridge --open-ui
-   ```
+  python run_business_v1_local.py --bridge --open-ui
+  # customise the Agents runtime port
+  python run_business_v1_local.py --bridge --runtime-port 6001
+  ```
    This starts the Agents bridge and opens the REST docs automatically once the service is ready.
 
 Set `OPENAI_API_KEY` to enable cloud models. Offline mode works automatically when the key is absent.
