@@ -180,7 +180,12 @@ export class Archive {
     );
   }
 
-  async selectParents(count: number, beta = 1, gamma = 1): Promise<InsightRun[]> {
+  async selectParents(
+    count: number,
+    beta = 1,
+    gamma = 1,
+    rand: () => number = Math.random,
+  ): Promise<InsightRun[]> {
     const runs = await this.list();
     if (!runs.length) return [];
     const scoreW = runs.map((r) => Math.exp(beta * r.score));
@@ -200,7 +205,7 @@ export class Archive {
     for (let i = 0; i < weights.length; i++) weights[i] /= wSum;
     const selected: InsightRun[] = [];
     for (let i = 0; i < Math.min(count, runs.length); i++) {
-      let r = Math.random();
+      let r = rand();
       let idx = 0;
       for (; idx < weights.length; idx++) {
         if (r < weights[idx]) break;

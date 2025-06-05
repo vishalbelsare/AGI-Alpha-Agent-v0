@@ -31,7 +31,7 @@ test('selectParents returns entries', async () => {
   await a.open();
   await a.add(1, {}, [{logic:0.2,feasible:0.2}]);
   await a.add(2, {}, [{logic:0.8,feasible:0.8}]);
-  const parents = await a.selectParents(1);
+  const parents = await a.selectParents(1, 1, 1, () => 0.5);
   expect(parents.length).toBe(1);
   expect([1,2]).toContain(parents[0].seed);
 });
