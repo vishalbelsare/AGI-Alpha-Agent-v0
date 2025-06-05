@@ -23,4 +23,9 @@ RUN pnpm --dir alpha_factory_v1/demos/alpha_agi_insight_v1/src/interface/web_cli
     && pnpm --dir alpha_factory_v1/demos/alpha_agi_insight_v1/src/interface/web_client run build \
     && rm -rf alpha_factory_v1/demos/alpha_agi_insight_v1/src/interface/web_client/node_modules
 
+# run as non-root user for demos
+RUN useradd --uid 1001 --create-home appuser \
+    && chown -R appuser:appuser /app
+USER appuser
+
 CMD ["uvicorn", "alpha_factory_v1.demos.alpha_agi_insight_v1.src.interface.api_server:app", "--host", "0.0.0.0", "--port", "8000"]
