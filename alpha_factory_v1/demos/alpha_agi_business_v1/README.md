@@ -41,6 +41,7 @@
 12. [FAQ](#faq)
 13. [License](#license)
 14. [Resources](#resources)
+15. [Local Checks](#local-checks)
 
 > **Quick Start**
 > ```bash
@@ -449,3 +450,14 @@ Apache 2.0 © 2025 **MONTREAL.AI**
   https://colab.research.google.com/github/MontrealAI/AGI-Alpha-Agent-v0/blob/main/
   alpha_factory_v1/demos/alpha_agi_business_v1/colab_alpha_agi_business_v1_demo.ipynb
 [guide-pdf]: https://cdn.openai.com/business-guides-and-resources/a-practical-guide-to-building-agents.pdf
+
+<a id="local-checks"></a>
+## 15 Local Checks
+
+Run the standard checks from this folder before committing:
+
+```bash
+python ../../check_env.py --auto-install   # verify optional packages
+pre-commit run --files <paths>             # format only the staged files
+pytest -q ../../../tests                   # execute the root test suite
+```
