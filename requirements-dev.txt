@@ -10,5 +10,6 @@ hypothesis
 grpcio-tools
 pytest-httpx
 
+PyYAML
 types-PyYAML
 types-requests

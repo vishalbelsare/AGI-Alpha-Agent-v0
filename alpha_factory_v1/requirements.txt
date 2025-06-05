@@ -24,6 +24,7 @@ better-profanity~=0.7
 httpx~=0.28
 aiohttp~=3.9
 backoff~=2.2
+PyYAML>=6.0
 rich>=13           # CLI output only (backend omits to stay lean)
 
 # ─────────── Observability & task-orchestration ────────────────────────
