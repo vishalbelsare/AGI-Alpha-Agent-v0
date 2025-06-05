@@ -36,8 +36,11 @@ export function initTelemetry(t) {
   const enabled = consent === 'true';
   const queueKey = 'telemetryQueue';
   const metrics = { ts: Date.now(), session: '', generations: 0, shares: 0 };
-  const queue = JSON.parse(localStorage.getItem(queueKey) || '[]');
   const MAX_QUEUE_SIZE = 100;
+  const queue = JSON.parse(localStorage.getItem(queueKey) || '[]');
+  if (queue.length > MAX_QUEUE_SIZE) {
+    queue.splice(0, queue.length - MAX_QUEUE_SIZE);
+  }
 
   const ready = (async () => {
     let sid = localStorage.getItem('telemetrySession');
@@ -74,7 +77,7 @@ export function initTelemetry(t) {
   function flush() {
     if (!enabled) return;
     metrics.ts = Date.now();
-    if (queue.length >= MAX_QUEUE_SIZE) {
+    while (queue.length >= MAX_QUEUE_SIZE) {
       queue.shift();
     }
     queue.push({ ...metrics });
