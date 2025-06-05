@@ -15,23 +15,35 @@ def test_single_network_request() -> None:
     with sync_playwright() as p:
         browser = p.chromium.launch()
         page = browser.new_page()
-        js_requests: list[str] = []
-        map_requests: list[str] = []
-        wasm_requests: list[str] = []
+        asset_requests: list[str] = []
 
         def handle_request(req: Request) -> None:
-            if req.url.endswith(".js") and not req.url.endswith("sw.js"):
-                js_requests.append(req.url)
-            elif req.url.endswith(".map"):
-                map_requests.append(req.url)
-            elif req.url.endswith(".wasm"):
-                wasm_requests.append(req.url)
+            url = req.url.split("?", 1)[0]
+            if url.endswith("index.html"):
+                return
+            if any(
+                url.endswith(ext)
+                for ext in (
+                    ".js",
+                    ".css",
+                    ".map",
+                    ".wasm",
+                    ".json",
+                    ".svg",
+                    ".png",
+                    ".jpg",
+                    ".jpeg",
+                    ".gif",
+                    ".ico",
+                    ".pdf",
+                )
+            ):
+                if not url.endswith("sw.js"):
+                    asset_requests.append(url)
 
         page.on("request", handle_request)
         page.goto(url)
         page.wait_for_selector("#controls")
         expected = page.url.replace("index.html", "insight.bundle.js")
-        assert js_requests == [expected]
-        assert map_requests == []
-        assert wasm_requests == []
+        assert asset_requests == [expected]
         browser.close()
