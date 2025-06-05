@@ -3,9 +3,9 @@ import asyncio
 import pytest
 
 hypothesis = pytest.importorskip("hypothesis")
-from hypothesis import given, strategies as st, settings, assume
+from hypothesis import given, strategies as st, settings, assume  # noqa: E402
 
-from alpha_factory_v1.demos.alpha_agi_insight_v1.src.utils import retry
+from alpha_factory_v1.demos.alpha_agi_insight_v1.src.utils import retry  # noqa: E402
 
 
 @settings(max_examples=25)

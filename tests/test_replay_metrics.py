@@ -1,5 +1,4 @@
 import csv
-import pytest
 
 from src.simulation import replay
 

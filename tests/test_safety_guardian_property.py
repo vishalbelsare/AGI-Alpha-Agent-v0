@@ -4,20 +4,18 @@
 from __future__ import annotations
 
 import asyncio
-import sys
-import types
 import pathlib
 from unittest import mock
 
 import pytest
 
 hypothesis = pytest.importorskip("hypothesis")
-from hypothesis import assume, given, settings, strategies as st
-from hypothesis.strategies import composite
+from hypothesis import assume, given, settings, strategies as st  # noqa: E402
+from hypothesis.strategies import composite  # noqa: E402
 
-from alpha_factory_v1.demos.alpha_agi_insight_v1.src.agents import safety_agent
-from alpha_factory_v1.demos.alpha_agi_insight_v1.src.utils import config, messaging
-from alpha_factory_v1.demos.alpha_agi_insight_v1.src.utils import logging as insight_logging
+from alpha_factory_v1.demos.alpha_agi_insight_v1.src.agents import safety_agent  # noqa: E402
+from alpha_factory_v1.demos.alpha_agi_insight_v1.src.utils import config, messaging  # noqa: E402
+from alpha_factory_v1.demos.alpha_agi_insight_v1.src.utils import logging as insight_logging  # noqa: E402
 
 
 class DummyBus:

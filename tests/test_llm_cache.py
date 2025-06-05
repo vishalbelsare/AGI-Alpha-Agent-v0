@@ -8,7 +8,7 @@ import importlib
 prometheus_client.REGISTRY = CollectorRegistry()
 prometheus_client.REGISTRY._names_to_collectors.clear()
 os.environ.setdefault("OPENAI_API_KEY", "stub")
-import alpha_factory_v1.backend.utils.llm_provider as llm
+import alpha_factory_v1.backend.utils.llm_provider as llm  # noqa: E402
 llm = importlib.reload(llm)
 
 

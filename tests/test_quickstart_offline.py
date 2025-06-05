@@ -6,8 +6,8 @@ from pathlib import Path
 import pytest
 
 pw = pytest.importorskip("playwright.sync_api")
-from playwright.sync_api import sync_playwright
-from playwright._impl._errors import Error as PlaywrightError
+from playwright.sync_api import sync_playwright  # noqa: E402
+from playwright._impl._errors import Error as PlaywrightError  # noqa: E402
 
 
 def test_quickstart_offline() -> None:

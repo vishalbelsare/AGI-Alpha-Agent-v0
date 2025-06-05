@@ -6,7 +6,6 @@ from pathlib import Path
 
 from src.archive.db import ArchiveDB, ArchiveEntry
 from src.snark import (
-    generate_score_proof,
     publish_score_proof,
     verify_score_proof,
     verify_onchain,

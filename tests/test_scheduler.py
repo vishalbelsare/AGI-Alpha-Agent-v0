@@ -1,6 +1,5 @@
 # SPDX-License-Identifier: Apache-2.0
 
-import asyncio
 import json
 from pathlib import Path
 from unittest.mock import patch
@@ -8,7 +7,7 @@ from unittest.mock import patch
 import pytest
 
 rocketry = pytest.importorskip("rocketry")
-from src import scheduler
+from src import scheduler  # noqa: E402
 
 
 @pytest.mark.asyncio

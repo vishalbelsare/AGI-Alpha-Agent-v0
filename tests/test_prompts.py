@@ -1,7 +1,6 @@
 # SPDX-License-Identifier: Apache-2.0
 """Tests for self-improvement prompt loading."""
 
-from pathlib import Path
 
 import yaml
 

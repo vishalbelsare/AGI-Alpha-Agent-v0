@@ -22,7 +22,7 @@ except Exception:  # pragma: no cover - optional
     HAVE_CRYPTO = False
 
 from alpha_factory_v1.demos.alpha_agi_insight_v1.src import orchestrator
-from alpha_factory_v1.demos.alpha_agi_insight_v1.src.utils import config
+from alpha_factory_v1.demos.alpha_agi_insight_v1.src.utils import config, messaging
 
 
 def _free_port() -> int:

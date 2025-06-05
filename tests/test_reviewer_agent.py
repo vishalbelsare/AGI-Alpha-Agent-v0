@@ -3,7 +3,7 @@ from __future__ import annotations
 import asyncio
 
 from src.agents.reviewer_agent import ReviewerAgent
-from src.evolve import InMemoryArchive, evolve, Candidate
+from src.evolve import InMemoryArchive, evolve
 
 
 async def _noop_eval(genome: str) -> tuple[float, float]:

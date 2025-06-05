@@ -9,7 +9,7 @@ import os
 import pytest
 
 pytest.importorskip("fastapi", reason="fastapi is required for REST API tests")
-from fastapi.testclient import TestClient
+from fastapi.testclient import TestClient  # noqa: E402
 
 from alpha_factory_v1.backend import orchestrator
 

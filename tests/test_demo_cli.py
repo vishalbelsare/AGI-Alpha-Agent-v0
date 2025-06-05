@@ -1,6 +1,5 @@
 # SPDX-License-Identifier: Apache-2.0
 import os
-import sys
 import csv
 import json
 import hashlib

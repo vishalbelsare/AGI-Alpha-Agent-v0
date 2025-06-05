@@ -42,7 +42,7 @@ class TestMemoryFabricSQLiteWarning(unittest.TestCase):
         os.environ.pop("PGHOST", None)
         with mock.patch.object(memf, "np", None, create=True):
             with self.assertLogs("AlphaFactory.MemoryFabric", level="WARNING") as cm:
-                with memf.MemoryFabric() as fabric:
+                with memf.MemoryFabric() as fabric:  # noqa: F841
                     pass
         os.environ.pop("VECTOR_STORE_USE_SQLITE", None)
         self.assertTrue(any("numpy required for SQLite" in msg for msg in cm.output))

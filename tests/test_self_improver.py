@@ -83,9 +83,9 @@ def test_improve_repo_requires_git(monkeypatch, tmp_path: Path) -> None:
             str(repo_dir), str(patch_file), "metric.txt", str(log_file)
         )
 
-from alpha_factory_v1.demos.alpha_agi_insight_v1.src.utils import config, messaging
-from src.agents.self_improver_agent import SelfImproverAgent
-from prometheus_client import REGISTRY
+from alpha_factory_v1.demos.alpha_agi_insight_v1.src.utils import config, messaging  # noqa: E402
+from src.agents.self_improver_agent import SelfImproverAgent  # noqa: E402
+from prometheus_client import REGISTRY  # noqa: E402
 
 class DummyLedger:
     def log(self, _env) -> None:

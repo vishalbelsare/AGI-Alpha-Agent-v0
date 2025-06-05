@@ -6,10 +6,10 @@ from typing import Iterator
 
 import pytest
 
-httpx = pytest.importorskip("httpx")
-uvicorn = pytest.importorskip("uvicorn")
+httpx = pytest.importorskip("httpx")  # noqa: E402
+uvicorn = pytest.importorskip("uvicorn")  # noqa: E402
 
-from alpha_factory_v1.demos.alpha_agi_insight_v1.src import evolution_worker
+from alpha_factory_v1.demos.alpha_agi_insight_v1.src import evolution_worker  # noqa: E402
 
 
 def _free_port() -> int:

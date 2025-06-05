@@ -13,8 +13,8 @@ import pytest
 
 pytest.importorskip("fastapi")
 pytest.importorskip("grpc")
-from fastapi.testclient import TestClient
-import grpc
+from fastapi.testclient import TestClient  # noqa: E402
+import grpc  # noqa: E402
 
 from src.critics import DualCriticService, create_app
 

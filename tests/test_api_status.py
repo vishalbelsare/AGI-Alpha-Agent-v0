@@ -9,7 +9,7 @@ from unittest.mock import patch
 import pytest
 
 pytest.importorskip("fastapi")
-from fastapi.testclient import TestClient
+from fastapi.testclient import TestClient  # noqa: E402
 from click.testing import CliRunner
 
 os.environ.setdefault("API_TOKEN", "test-token")
