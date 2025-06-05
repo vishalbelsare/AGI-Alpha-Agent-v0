@@ -353,9 +353,8 @@ out_html = re.sub(
 )
 
 copy_assets(manifest, repo_root, dist_dir)
-pdf_src = repo_root / "docs/insight_browser_quickstart.pdf"
-if pdf_src.exists():
-    (dist_dir / pdf_src.name).write_bytes(pdf_src.read_bytes())
+if quickstart_pdf.exists():
+    (dist_dir / quickstart_pdf.name).write_bytes(quickstart_pdf.read_bytes())
 
 app_sri = sha384(dist_dir / "insight.bundle.js")
 checksums = manifest["checksums"]
