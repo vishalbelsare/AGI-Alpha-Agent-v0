@@ -106,6 +106,9 @@ Follow these steps when installing without internet access:
   The `verify-alpha-colab-requirements-lock` hook relies on this lock file.
 
 - See [`alpha_factory_v1/scripts/README.md`](alpha_factory_v1/scripts/README.md) for additional offline tips.
+- Run `python scripts/check_python_deps.py` to quickly verify that `numpy` and
+  other required packages are installed. If it reports missing packages,
+  execute `python check_env.py --auto-install` before running the tests.
 - After setup, validate with `python check_env.py --auto-install`. When `WHEELHOUSE` is set, run `python check_env.py --auto-install --wheelhouse <path>` so optional packages install correctly offline.
 - The unit tests rely on `fastapi`, `opentelemetry-api`, `openai-agents` and `google-adk`. `./codex/setup.sh` installs these packages automatically. When skipping the setup script, run
   `pip install -r requirements-dev.txt` or ensure `check_env.py` reports no
@@ -271,7 +274,8 @@ install dependencies without internet access.
 - Keep commits focused and descriptive. Use meaningful commit messages.
 - Ensure `git status` shows a clean working tree before committing.
 - Remove stray build artifacts with `git clean -fd` if needed.
-- Run `python check_env.py --auto-install` and `pytest -q` before committing. \
+- Run `python scripts/check_python_deps.py` followed by
+  `python check_env.py --auto-install` and `pytest -q` before committing. \
   Document any remaining test failures in the PR description.
 - See [tests/README.md](tests/README.md) for details on running the suite locally,
   including setting `PYTHONPATH` or installing in editable mode.
@@ -314,7 +318,9 @@ The **Deploy — Kind** workflow provisions a local kind cluster, builds the Ins
 ### Troubleshooting
 - If the stack fails to start, verify Docker and Docker Compose are running.
 - Setup errors usually mean Python is older than 3.11. Use Python 3.11 or 3.12 (>=3.11,<3.13).
-- Missing optional packages can cause test failures; run `python check_env.py --auto-install`.
+- Missing optional packages can cause test failures; first run
+  `python scripts/check_python_deps.py` and then
+  `python check_env.py --auto-install` if required.
 
 For detailed troubleshooting steps, see [`alpha_factory_v1/scripts/README.md`](alpha_factory_v1/scripts/README.md).
 
