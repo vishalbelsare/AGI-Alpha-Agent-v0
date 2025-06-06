@@ -7,6 +7,10 @@ class TestMiniMu(unittest.TestCase):
     def setUp(self):
         self.mu = MiniMu(env_id="CartPole-v1")
 
+    def tearDown(self):
+        """Close the Gym environment after each test."""
+        self.mu.env.close()
+
     def test_policy_distribution(self):
         obs = self.mu.reset()
         policy = self.mu.policy(obs)
