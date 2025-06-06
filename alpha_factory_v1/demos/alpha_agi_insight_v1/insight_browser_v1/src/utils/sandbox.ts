@@ -18,7 +18,7 @@ let w;
 window.addEventListener('message',e=>{
   if(e.data.type==='start'){
     w=new Worker(e.data.url,{type:'module'});
-    w.onmessage=d=>parent.postMessage(d.data,'*');
+    w.onmessage=d=>parent.postMessage(d.data,location.origin);
   }else if(w){
     w.postMessage(e.data);
   }
@@ -33,7 +33,7 @@ window.addEventListener('message',e=>{
     document.body.appendChild(iframe);
 
     const worker: any = {
-      postMessage: (m: any) => iframe.contentWindow!.postMessage(m, '*'),
+      postMessage: (m: any) => iframe.contentWindow!.postMessage(m, location.origin),
       terminate() {
         iframe.remove();
         URL.revokeObjectURL(iframe.src);
@@ -44,14 +44,14 @@ window.addEventListener('message',e=>{
     };
 
     const handler = (e: MessageEvent) => {
-      if (e.source === iframe.contentWindow && worker.onmessage) {
+      if (e.source === iframe.contentWindow && e.origin === location.origin && worker.onmessage) {
         worker.onmessage(e);
       }
     };
     window.addEventListener('message', handler);
 
     iframe.onload = () => {
-      iframe.contentWindow!.postMessage({ type: 'start', url: workerUrl }, '*');
+      iframe.contentWindow!.postMessage({ type: 'start', url: workerUrl }, location.origin);
       resolve(worker as unknown as Worker);
     };
   });
