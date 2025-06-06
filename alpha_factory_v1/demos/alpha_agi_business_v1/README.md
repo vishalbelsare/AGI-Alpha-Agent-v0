@@ -7,14 +7,18 @@
  using <em>Alpha‑Factory v1</em> multi‑agent stack, on‑chain incentives & antifragile safety‑loops.</b>
 </p>
 
- <img alt="build" src="https://img.shields.io/badge/build-passing-brightgreen">
- <img alt="license" src="https://img.shields.io/badge/license-Apache--2.0-blue">
- <img alt="status"  src="https://img.shields.io/badge/status-production-green">
+<img alt="build" src="https://img.shields.io/badge/build-passing-brightgreen">
+<img alt="license" src="https://img.shields.io/badge/license-Apache--2.0-blue">
+<img alt="status"  src="https://img.shields.io/badge/status-production-green">
 </p>
+
+> **Important**: This is a research demonstration. It simulates how an autonomous
+> business *could* operate using Alpha‑Factory v1, but it is **not** a real or
+> operational company. Use it only for experimentation and educational purposes.
 
 ---
 
-## ✨ Executive Summary 
+## ✨ Executive Summary
 * **Mission 🎯** Continuously harvest <code>alpha</code> across <kbd>equities • commodities • crypto • supply‑chains •
   life‑sciences</kbd> and convert it into compounding value — automatically, transparently, safely.
 * **Engine ⚙️** *Alpha‑Factory v1 👁️✨* → six specialised agents orchestrated via **A2A** message‑bus (see §4). 
