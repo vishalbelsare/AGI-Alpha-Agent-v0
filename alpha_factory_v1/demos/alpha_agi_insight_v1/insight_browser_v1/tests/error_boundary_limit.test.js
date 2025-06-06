@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { initErrorBoundary, getErrorLog, clearErrorLog } from '../src/utils/errorBoundary.ts';
+import { initErrorBoundary, getErrorLog, clearErrorLog, record } from '../src/utils/errorBoundary.ts';
+import { t } from '../src/ui/i18n.ts';
 
 function makeMocks() {
   const store = {};
@@ -27,4 +28,16 @@ test('error log retains last 50 entries', () => {
   assert.equal(logs.length, 50);
   assert.equal(logs[0].message, 'err6');
   assert.equal(logs[49].message, 'err55');
+});
+
+test('worker error posts log and toast', () => {
+  const toasts = [];
+  makeMocks();
+  window.toast = (msg) => { toasts.push(msg); };
+  clearErrorLog();
+  initErrorBoundary();
+  window.dispatchEvent(new MessageEvent('message', { data: { type: 'error', message: 'boom', stack: 's', ts: Date.now() } }));
+  const logs = getErrorLog();
+  assert.equal(logs[logs.length - 1].message, 'boom');
+  assert.equal(toasts.pop(), t('worker_error'));
 });

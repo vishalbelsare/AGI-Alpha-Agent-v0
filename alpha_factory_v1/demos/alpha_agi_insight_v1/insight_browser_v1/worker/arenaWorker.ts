@@ -19,6 +19,27 @@ interface ArenaResult {
   score: number;
 }
 
+self.onerror = (e) => {
+  self.postMessage({
+    type: 'error',
+    message: e.message,
+    url: (e as ErrorEvent).filename,
+    line: (e as ErrorEvent).lineno,
+    column: (e as ErrorEvent).colno,
+    stack: (e as ErrorEvent).error?.stack,
+    ts: Date.now(),
+  });
+};
+self.onunhandledrejection = (ev) => {
+  const reason: any = ev.reason || {};
+  self.postMessage({
+    type: 'error',
+    message: reason.message ? String(reason.message) : String(reason),
+    stack: reason.stack,
+    ts: Date.now(),
+  });
+};
+
 self.onmessage = (ev: MessageEvent<ArenaRequest>) => {
   const { hypothesis } = ev.data || {};
   if (!hypothesis) return;
