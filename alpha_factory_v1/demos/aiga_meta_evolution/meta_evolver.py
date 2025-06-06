@@ -166,10 +166,9 @@ class EvoNet(nn.Module):
         last, modules = obs_dim, []
         for h in g.layers:
             modules.append(nn.Linear(last, h))
-            modules.append(nn.ReLU())  # placeholder
             last = h
         modules.append(nn.Linear(last, act_dim))
-        self.model = nn.Sequential(*modules)
+        self.model = nn.ModuleList(modules)
         self.genome = g
         if g.hebbian:
             self.hFast = torch.zeros_like(next(self.model.parameters()))
@@ -184,17 +183,14 @@ class EvoNet(nn.Module):
     def forward(self, x: torch.Tensor):
         act_fn = _ACT[self.genome.activation]
         h = x
-        for layer in self.model[:-1]:
-            if isinstance(layer, nn.Linear):
-                h = act_fn(layer(h))
-                if self.genome.hebbian:
-                    with torch.no_grad():
-                        dw = 0.03 * torch.bmm(h.unsqueeze(2), x.unsqueeze(1))
-                        self.hFast = (self.hFast + dw.mean(0)).clamp(-0.02, 0.02)
-                        layer.weight.data += self.hFast
-            else:
-                h = layer(h)
-        return self.model[-1](h)
+        for idx, layer in enumerate(self.model):
+            h = act_fn(layer(h))
+            if self.genome.hebbian and idx < len(self.model) - 1:
+                with torch.no_grad():
+                    dw = 0.03 * torch.bmm(h.unsqueeze(2), x.unsqueeze(1))
+                    self.hFast = (self.hFast + dw.mean(0)).clamp(-0.02, 0.02)
+                    layer.weight.data += self.hFast
+        return h
 
 
 # ────────────────────────── MetaEvolver core ──────────────────────────────
