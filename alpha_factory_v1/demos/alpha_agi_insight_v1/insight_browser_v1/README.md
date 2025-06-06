@@ -282,3 +282,8 @@ pre‑downloaded binaries.
 - Run `pre-commit run --all-files` to format and lint the code.
 - `npm test` builds the bundle then launches Playwright and Python tests.
 - See [../../../../AGENTS.md](../../../../AGENTS.md) for full contributor guidelines.
+
+## License
+
+The Insight browser demo and its translation files are provided under the
+[Apache 2.0](../../../../LICENSE) license.
