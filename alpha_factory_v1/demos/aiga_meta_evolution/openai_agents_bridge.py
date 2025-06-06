@@ -22,8 +22,15 @@ try:
 except Exception:  # pragma: no cover - optional
     ADK_AVAILABLE = False
 
-from meta_evolver import MetaEvolver
-from curriculum_env import CurriculumEnv
+if __package__ is None:
+    import sys
+    from pathlib import Path
+
+    sys.path.append(str(Path(__file__).resolve().parent))
+    __package__ = "alpha_factory_v1.demos.aiga_meta_evolution"
+
+from .meta_evolver import MetaEvolver
+from .curriculum_env import CurriculumEnv
 
 
 # ---------------------------------------------------------------------------
