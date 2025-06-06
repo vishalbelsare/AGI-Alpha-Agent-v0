@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 """Alpha opportunity discovery agent stub.
 
 This lightweight example exposes a single tool via the OpenAI Agents SDK

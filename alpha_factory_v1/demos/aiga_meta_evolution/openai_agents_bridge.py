@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 """OpenAI Agents SDK bridge for the AI-GA Meta-Evolution demo.
 
 This script registers a minimal agent capable of driving the evolutionary
