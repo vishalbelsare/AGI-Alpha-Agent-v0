@@ -16,6 +16,11 @@ one‑command experience**.
 You’ll see a MuZero‑style agent improvise physics, deploy Monte‑Carlo search,
 and **stabilise CartPole** — all inside your browser. No GPU, no PhD required.
 
+> **Disclaimer**
+> This demo is a conceptual research prototype. References to "AGI" and
+> "superintelligence" describe aspirational goals and do not indicate the
+> presence of a real general intelligence. Use at your own risk.
+
 ---
 
 ## 🚀 Quick Start
