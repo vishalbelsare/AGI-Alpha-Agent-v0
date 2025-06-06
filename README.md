@@ -867,6 +867,17 @@ pip install -e .
 python check_env.py --auto-install
 ```
 
+#### Test Runtime
+
+Running `pytest` may take several minutes on the first run while caches are
+created. Execute the suite in verbose mode to see ongoing progress:
+
+```bash
+pytest -vv
+```
+
+After completion `pytest` prints a summary such as `### passed in 120.00s`.
+
 The suite includes `tests/test_api_rate_limit.py` which spins up
 `api_server.app` with `API_RATE_LIMIT=2` and verifies that exceeding the
 limit returns HTTP `429`.
