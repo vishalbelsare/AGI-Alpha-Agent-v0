@@ -10,6 +10,7 @@ import { createRequire } from 'module';
 import { copyAssets, checkGzipSize, generateServiceWorker } from './build/common.js';
 import { injectEnv } from './build/env_inject.js';
 import { requireNode20 } from './build/version_check.js';
+import { validateEnv } from './build/env_validate.js';
 
 const manifest = JSON.parse(
   fsSync.readFileSync(new URL('./build_assets.json', import.meta.url), 'utf8')
@@ -43,27 +44,9 @@ const { Web3Storage, File } = await import('web3.storage');
 const dotenv = (await import('dotenv')).default;
 dotenv.config();
 
-function validateEnv() {
-  for (const key of ['PINNER_TOKEN', 'WEB3_STORAGE_TOKEN']) {
-    const val = process.env[key];
-    if (val !== undefined && !val.trim()) {
-      throw new Error(`${key} may not be empty`);
-    }
-  }
-  for (const key of ['IPFS_GATEWAY', 'OTEL_ENDPOINT']) {
-    const val = process.env[key];
-    if (val) {
-      try {
-        new URL(val);
-      } catch {
-        throw new Error(`Invalid URL in ${key}`);
-      }
-    }
-  }
-}
 
 try {
-  validateEnv();
+  validateEnv(process.env);
 } catch (err) {
   console.error(err.message || err);
   process.exit(1);
