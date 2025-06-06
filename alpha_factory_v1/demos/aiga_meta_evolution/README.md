@@ -93,6 +93,18 @@ python -m alpha_factory_v1.demos.aiga_meta_evolution --help
 Set `OPENAI_API_KEY` in your environment to enable cloud models. Without
 it the demo falls back to the bundled offline mixtral model.
 
+### Installing the OpenAI Agents SDK
+
+The optional OpenAI Agents bridge relies on this package.
+
+```bash
+pip install openai-agents
+```
+
+Some distributions ship it as the simpler `agents` module; the
+demo auto-detects both. If you see `ModuleNotFoundError: openai_agents`,
+reinstall the SDK in the active virtual environment.
+
 ### 🤖 OpenAI Agents bridge
 
 Expose the evolver to the **OpenAI Agents SDK** runtime:
