@@ -41,12 +41,14 @@ Python must report 3.11 or 3.12 and Docker Compose must be at least 2.5.
   python3 -m venv .venv
   source .venv/bin/activate
   pip install -U pip
+  pip install pre-commit
   ```
   On Windows PowerShell:
   ```powershell
   python -m venv .venv
   .\.venv\Scripts\Activate.ps1
   pip install -U pip
+  pip install pre-commit
   ```
 - The script `alpha_factory_v1/scripts/preflight.py` enforces this requirement.
 - From the repository root, run `./codex/setup.sh` to install the project in editable mode

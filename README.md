@@ -333,6 +333,8 @@ pre-commit run --files <paths>   # before each commit
 Run `pre-commit run --all-files` once after the setup script to confirm
 everything is formatted correctly. These commands mirror the steps in
 [AGENTS.md](AGENTS.md) and keep commits consistent.
+Before opening a pull request, run `pre-commit run --all-files` to ensure
+all hooks succeed.
 
 When editing the web UI, preserve existing ARIA labels so the interface
 remains accessible.
