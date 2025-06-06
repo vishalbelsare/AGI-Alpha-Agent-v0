@@ -45,14 +45,16 @@ injectManifest({{
         subprocess.run(["node", "-e", node_script], check=True)
     except FileNotFoundError:
         print(
-            "[manual_build] node not found; skipping service worker generation",
+            "[manual_build] node not found; service worker not generated – offline features disabled",
             file=sys.stderr,
         )
+        return
     except subprocess.CalledProcessError as exc:
         print(
             f"[manual_build] workbox build failed: {exc}; offline features disabled",
             file=sys.stderr,
         )
+        return
     finally:
         temp_sw.unlink(missing_ok=True)
     sw_hash = sha384(sw_dest)
