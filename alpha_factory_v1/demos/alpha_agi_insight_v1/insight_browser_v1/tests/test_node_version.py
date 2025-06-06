@@ -10,10 +10,7 @@ import pytest
 def test_requires_node_20() -> None:
     browser_dir = Path(__file__).resolve().parents[1]
     script = browser_dir / "build.js"
-    node_code = (
-        "Object.defineProperty(process.versions,'node',{value:'19.0.0'});"
-        f" import('./{script.name}')"
-    )
+    node_code = "Object.defineProperty(process.versions,'node',{value:'19.0.0'});" f" import('./{script.name}')"
     res = subprocess.run(
         ["node", "-e", node_code],
         cwd=browser_dir,
@@ -24,10 +21,22 @@ def test_requires_node_20() -> None:
     assert "Node.js 20+ is required. Current version: 19.0.0" in res.stderr
 
 
+def test_allows_node_22() -> None:
+    browser_dir = Path(__file__).resolve().parents[1]
+    script = browser_dir / "build.js"
+    node_code = "Object.defineProperty(process.versions,'node',{value:'22.0.0'});" f" import('./{script.name}')"
+    res = subprocess.run(
+        ["node", "-e", node_code],
+        cwd=browser_dir,
+        text=True,
+        capture_output=True,
+    )
+    assert res.returncode == 0, res.stderr
+
+
 def test_requires_python_311() -> None:
     browser_dir = Path(__file__).resolve().parents[1]
     script = browser_dir / "manual_build.py"
     with mock.patch.object(sys, "version_info", (3, 10)):
         with pytest.raises(SystemExit):
             runpy.run_path(script, run_name="__main__")
-
