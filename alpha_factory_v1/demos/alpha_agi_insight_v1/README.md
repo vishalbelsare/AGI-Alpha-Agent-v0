@@ -230,6 +230,9 @@ docker run -it --rm -p 8501:8501   -e OPENAI_API_KEY=$OPENAI_API_KEY   ghcr.io/m
 # →  open http://localhost:8501  (Streamlit dashboard)
 ```
 
+For offline builds or the browser-based PWA, see
+[insight_browser_v1/README.md](insight_browser_v1/README.md).
+
 ---
 
 ## 3 Architecture
