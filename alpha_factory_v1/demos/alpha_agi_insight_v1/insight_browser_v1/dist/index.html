@@ -52,16 +52,28 @@
         <p>Run <code>node tests/run.mjs --offline</code> to confirm the build works without network access.</p>
       </section>
       <script>
+        const SW_URL = 'service-worker.js';
+        const SW_HASH = 'sha384-o4otzwjbNKzpYYcqiTHOYyd9asjheSu1P8UVzmVl3HU8cvmE86GWhOgWUjkJ6gXT';
         if ('serviceWorker' in navigator) {
-          window.addEventListener('load', () => {
-            navigator.serviceWorker
-              .register('service-worker.js')
-            .catch(() => toast('Service worker registration failed; offline mode disabled.'));
-        });
-      }
-    </script>
+          window.addEventListener('load', async () => {
+            try {
+              const res = await fetch(SW_URL);
+              const buf = await res.arrayBuffer();
+              const digest = await crypto.subtle.digest('SHA-384', buf);
+              const b64 = btoa(String.fromCharCode(...new Uint8Array(digest)));
+              if (`sha384-${b64}` !== SW_HASH) {
+                throw new Error('Service worker hash mismatch');
+              }
+              navigator.serviceWorker
+                .register(SW_URL)
+                .catch(() => toast('Service worker registration failed; offline mode disabled.'));
+            } catch {
+              toast('Service worker registration failed; offline mode disabled.');
+            }
+          });
+        }
+      </script>
     <script type="module" src="insight.bundle.js" integrity="sha384-Ncy+MhWgRJkawvIEODZrYnn88OwB4Xkn87PI44g280p2BhU0AVEe7k8s7ZQFCrxi" crossorigin="anonymous"></script>
   <script>window.PINNER_TOKEN=atob('');window.OTEL_ENDPOINT=atob('');window.IPFS_GATEWAY=atob('aHR0cHM6Ly9pcGZzLmlvL2lwZnM=');</script>
-<script src="service-worker.js" integrity="sha384-o4otzwjbNKzpYYcqiTHOYyd9asjheSu1P8UVzmVl3HU8cvmE86GWhOgWUjkJ6gXT" crossorigin="anonymous"></script>
 </body>
 </html>

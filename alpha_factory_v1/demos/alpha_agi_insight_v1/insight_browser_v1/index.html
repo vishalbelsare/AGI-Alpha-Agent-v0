@@ -59,35 +59,48 @@
       crossorigin="anonymous"
     ></script>
     <script>
+      const SW_URL = 'service-worker.js';
+      const SW_HASH = '__SW_HASH__';
       if ('serviceWorker' in navigator) {
-        window.addEventListener('load', () => {
-          navigator.serviceWorker
-            .register('service-worker.js')
-            .then((registration) => {
-              navigator.serviceWorker.ready.then(() => {
-                registration.addEventListener('updatefound', () => {
-                  const newWorker = registration.installing;
-                  if (!newWorker) return;
-                  newWorker.addEventListener('statechange', () => {
-                    if (
-                      newWorker.state === 'installed' &&
-                      navigator.serviceWorker.controller
-                    ) {
-                      newWorker.postMessage({ type: 'SKIP_WAITING' });
-                      toast('Update available. Refreshing…');
-                      navigator.serviceWorker.addEventListener(
-                        'controllerchange',
-                        () => location.reload(),
-                        { once: true },
-                      );
-                    }
+        window.addEventListener('load', async () => {
+          try {
+            const res = await fetch(SW_URL);
+            const buf = await res.arrayBuffer();
+            const digest = await crypto.subtle.digest('SHA-384', buf);
+            const b64 = btoa(String.fromCharCode(...new Uint8Array(digest)));
+            if (`sha384-${b64}` !== SW_HASH) {
+              throw new Error('Service worker hash mismatch');
+            }
+            navigator.serviceWorker
+              .register(SW_URL)
+              .then((registration) => {
+                navigator.serviceWorker.ready.then(() => {
+                  registration.addEventListener('updatefound', () => {
+                    const newWorker = registration.installing;
+                    if (!newWorker) return;
+                    newWorker.addEventListener('statechange', () => {
+                      if (
+                        newWorker.state === 'installed' &&
+                        navigator.serviceWorker.controller
+                      ) {
+                        newWorker.postMessage({ type: 'SKIP_WAITING' });
+                        toast('Update available. Refreshing…');
+                        navigator.serviceWorker.addEventListener(
+                          'controllerchange',
+                          () => location.reload(),
+                          { once: true },
+                        );
+                      }
+                    });
                   });
                 });
-              });
-            })
-            .catch(() =>
-              toast('Service worker registration failed; offline mode disabled.'),
-            );
+              })
+              .catch(() =>
+                toast('Service worker registration failed; offline mode disabled.'),
+              );
+          } catch {
+            toast('Service worker registration failed; offline mode disabled.');
+          }
         });
       }
     </script>
