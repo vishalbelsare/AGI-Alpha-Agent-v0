@@ -20,7 +20,8 @@ def test_prompt_variants() -> None:
 def test_placeholders_stable() -> None:
     parent = "pdiff"
     exemplars = ["a", "b"]
-    prefix = f"sys\n{parent}|{'\n'.join(exemplars)}|"
+    join = "\n".join(exemplars)
+    prefix = f"sys\n{parent}|{join}|"
     for _ in range(5):
         prompt = construct_prompt(parent, exemplars, TEMPLATE)
         assert prompt.startswith(prefix)
