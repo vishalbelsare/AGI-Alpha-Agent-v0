@@ -25,6 +25,7 @@ import { initPowerPanel } from './src/ui/PowerPanel.js';
 import { initAnalyticsPanel } from './src/ui/AnalyticsPanel.js';
 import { initArenaPanel } from './src/ui/ArenaPanel.ts';
 import { initErrorBoundary, record } from './src/utils/errorBoundary.js';
+import { createSandboxWorker } from './src/utils/sandbox.ts';
 
 let panel,pauseBtn,exportBtn,dropZone
 let criticPanel,logicCritic,feasCritic
@@ -35,21 +36,6 @@ let fpsStarted=false;
 let workerStart=0;
 let archive,evolutionPanel,powerPanel,analyticsPanel;
 let arenaPanel,debateWorker,debateTarget;
-
-async function createIframeWorker(url){
-  return new Promise(resolve=>{
-    const html="<script>let w;window.addEventListener('message',e=>{if(e.data.type==='start'){w=new Worker(e.data.url,{type:'module'});w.onmessage=d=>parent.postMessage(d.data,'*')}else if(w){w.postMessage(e.data)}});<\/script>";
-    const iframe=document.createElement('iframe');
-    iframe.sandbox='allow-scripts';
-    iframe.style.display='none';
-    iframe.src=URL.createObjectURL(new Blob([html],{type:'text/html'}));
-    document.body.appendChild(iframe);
-    const obj={postMessage:m=>iframe.contentWindow.postMessage(m,'*'),terminate(){iframe.remove();URL.revokeObjectURL(iframe.src);window.removeEventListener('message',handler);},onmessage:null};
-    const handler=e=>{if(e.source===iframe.contentWindow&&obj.onmessage)obj.onmessage(e);};
-    window.addEventListener('message',handler);
-    iframe.onload=()=>{iframe.contentWindow.postMessage({type:'start',url},'*');resolve(obj);};
-  });
-}
 function toast(msg) {
   const t = document.getElementById('toast');
   t.textContent = msg;
@@ -127,7 +113,7 @@ async function start(p){
   if(!fpsStarted){initFpsMeter(() => running);fpsStarted=true;}
   updateLegend(p.mutations)
   if(worker) worker.terminate()
-  worker=await createIframeWorker('./worker/evolver.js')
+  worker=await createSandboxWorker('./worker/evolver.js')
   if(navigator.gpu){
     worker.postMessage({type:'gpu', available: window.USE_GPU !== false})
   }
@@ -236,7 +222,7 @@ async function loadState(text){
     setupView()
     updateLegend(current.mutations)
     if(worker) worker.terminate()
-    worker=await createIframeWorker('./worker/evolver.js')
+    worker=await createSandboxWorker('./worker/evolver.js')
     if(navigator.gpu){
       worker.postMessage({type:'gpu', available: window.USE_GPU !== false})
     }
@@ -277,7 +263,7 @@ window.addEventListener('DOMContentLoaded',async()=>{
     const hypo = pt.summary || `logic ${pt.logic}`;
     debateWorker.postMessage({ hypothesis: hypo });
   });
-  debateWorker = await createIframeWorker('./worker/arenaWorker.js');
+  debateWorker = await createSandboxWorker('./worker/arenaWorker.js');
   debateWorker.onmessage = (ev) => {
     const { messages, score } = ev.data;
     if (debateTarget) {
