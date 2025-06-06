@@ -123,6 +123,13 @@ orchestrate evolution remotely.
 Set `ALPHA_FACTORY_ENABLE_ADK=1` in `config.env` to auto-start the gateway
 when running `./run_aiga_demo.sh`.
 
+Define `ALPHA_FACTORY_ADK_TOKEN` to require this token on every ADK request:
+
+```env
+ALPHA_FACTORY_ENABLE_ADK=1
+ALPHA_FACTORY_ADK_TOKEN="my_secret_token"
+```
+
 ## 🔐 API authentication
 
 Export `AUTH_BEARER_TOKEN` to require a static token on every API request. For
