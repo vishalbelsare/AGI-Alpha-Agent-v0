@@ -24,9 +24,7 @@ import uvicorn
 from fastapi import FastAPI, BackgroundTasks, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
-from prometheus_client import (
-    Counter, Gauge, Histogram, generate_latest, CONTENT_TYPE_LATEST
-)
+from prometheus_client import Counter, Gauge, Histogram, generate_latest, CONTENT_TYPE_LATEST
 
 # optional‑imports block keeps runtime lean
 try:
@@ -49,9 +47,7 @@ except ImportError:  # pragma: no cover
 try:  # optional dependency
     from openai_agents import OpenAIAgent, Tool
 except ImportError as exc:  # pragma: no cover - missing package
-    raise SystemExit(
-        "openai_agents package is required. Install with `pip install openai-agents`"
-    ) from exc
+    raise SystemExit("openai_agents package is required. Install with `pip install openai-agents`") from exc
 try:
     from alpha_factory_v1.backend import adk_bridge
 except Exception:  # pragma: no cover - optional dependency
@@ -69,20 +65,20 @@ except Exception:  # pragma: no cover - optional
 # ---------------------------------------------------------------------------
 # CONFIG --------------------------------------------------------------------
 # ---------------------------------------------------------------------------
-SERVICE_NAME   = os.getenv("SERVICE_NAME", "aiga-meta-evolution")
-GRADIO_PORT    = int(os.getenv("GRADIO_PORT", "7862"))
-API_PORT       = int(os.getenv("API_PORT", "8000"))
-MODEL_NAME     = os.getenv("MODEL_NAME", "gpt-4o-mini")
+SERVICE_NAME = os.getenv("SERVICE_NAME", "aiga-meta-evolution")
+GRADIO_PORT = int(os.getenv("GRADIO_PORT", "7862"))
+API_PORT = int(os.getenv("API_PORT", "8000"))
+MODEL_NAME = os.getenv("MODEL_NAME", "gpt-4o-mini")
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
-OLLAMA_URL     = os.getenv("OLLAMA_BASE_URL", "http://ollama:11434/v1")
-MAX_GEN        = int(os.getenv("MAX_GEN", "1000"))  # safety rail
-ENABLE_OTEL    = os.getenv("ENABLE_OTEL", "false").lower() == "true"
-ENABLE_SENTRY  = os.getenv("ENABLE_SENTRY", "false").lower() == "true"
-SENTRY_DSN     = os.getenv("SENTRY_DSN", "")
-RATE_LIMIT     = int(os.getenv("RATE_LIMIT_PER_MIN", "120"))
-AUTH_TOKEN     = os.getenv("AUTH_BEARER_TOKEN")
+OLLAMA_URL = os.getenv("OLLAMA_BASE_URL", "http://ollama:11434/v1")
+MAX_GEN = int(os.getenv("MAX_GEN", "1000"))  # safety rail
+ENABLE_OTEL = os.getenv("ENABLE_OTEL", "false").lower() == "true"
+ENABLE_SENTRY = os.getenv("ENABLE_SENTRY", "false").lower() == "true"
+SENTRY_DSN = os.getenv("SENTRY_DSN", "")
+RATE_LIMIT = int(os.getenv("RATE_LIMIT_PER_MIN", "120"))
+AUTH_TOKEN = os.getenv("AUTH_BEARER_TOKEN")
 JWT_PUBLIC_KEY = os.getenv("JWT_PUBLIC_KEY")
-JWT_ISSUER     = os.getenv("JWT_ISSUER", "aiga.local")
+JWT_ISSUER = os.getenv("JWT_ISSUER", "aiga.local")
 
 SAVE_DIR = Path(os.getenv("CHECKPOINT_DIR", "/data/checkpoints"))
 SAVE_DIR.mkdir(parents=True, exist_ok=True)
@@ -99,6 +95,7 @@ log = logging.getLogger(SERVICE_NAME)
 if ENABLE_SENTRY and SENTRY_DSN:
     try:
         import sentry_sdk  # type: ignore
+
         sentry_sdk.init(dsn=SENTRY_DSN, traces_sample_rate=1.0)
         log.info("Sentry enabled")
     except ImportError:  # pragma: no cover - optional
@@ -107,9 +104,9 @@ if ENABLE_SENTRY and SENTRY_DSN:
 # ---------------------------------------------------------------------------
 # METRICS --------------------------------------------------------------------
 # ---------------------------------------------------------------------------
-FITNESS_GAUGE   = Gauge("aiga_best_fitness", "Best fitness achieved so far")
-GEN_COUNTER     = Counter("aiga_generations_total", "Total generations processed")
-STEP_LATENCY    = Histogram("aiga_step_seconds", "Seconds spent per evolution step")
+FITNESS_GAUGE = Gauge("aiga_best_fitness", "Best fitness achieved so far")
+GEN_COUNTER = Counter("aiga_generations_total", "Total generations processed")
+STEP_LATENCY = Histogram("aiga_step_seconds", "Seconds spent per evolution step")
 REQUEST_COUNTER = Counter("aiga_http_requests", "API requests", ["route"])
 
 # rate-limit state
@@ -124,9 +121,11 @@ LLM = OpenAIAgent(
     base_url=(None if OPENAI_API_KEY else OLLAMA_URL),
 )
 
+
 @Tool(name="describe_candidate", description="Explain why this architecture might learn fast")
 async def describe_candidate(arch: str):
     return await LLM(f"In two sentences, explain why architecture '{arch}' might learn quickly.")
+
 
 # ---------------------------------------------------------------------------
 # CORE RUNTIME ---------------------------------------------------------------
@@ -136,7 +135,12 @@ class AIGAMetaService:
 
     def __init__(self) -> None:
         self._lock = asyncio.Lock()
-        self.evolver = MetaEvolver(env_cls=CurriculumEnv, llm=LLM, checkpoint_dir=SAVE_DIR)
+        self.evolver = MetaEvolver(
+            env_cls=CurriculumEnv,
+            llm=LLM,
+            checkpoint_dir=SAVE_DIR,
+            start_socket=True,
+        )
         self._restore_if_any()
 
     # -------- public ops --------
@@ -182,6 +186,7 @@ class AIGAMetaService:
     def latest_log(self):
         return self.evolver.latest_log()
 
+
 service = AIGAMetaService()
 
 # ---------------------------------------------------------------------------
@@ -200,6 +205,7 @@ if ENABLE_OTEL and FastAPIInstrumentor:
     FastAPIInstrumentor.instrument_app(app)
 
 # ---------- routes ----------
+
 
 @app.middleware("http")
 async def _count_requests(request, call_next):
@@ -234,6 +240,7 @@ async def _count_requests(request, call_next):
     _REQUEST_LOG[ip] = times
     return await call_next(request)
 
+
 @app.get("/health")
 async def read_health():
     return {
@@ -242,9 +249,11 @@ async def read_health():
         "best_fitness": service.evolver.best_fitness,
     }
 
+
 @app.get("/metrics")
 async def metrics():
     return generate_latest(), 200, {"Content-Type": CONTENT_TYPE_LATEST}
+
 
 @app.post("/evolve/{gens}")
 async def evolve_endpoint(gens: int, background_tasks: BackgroundTasks):
@@ -253,27 +262,31 @@ async def evolve_endpoint(gens: int, background_tasks: BackgroundTasks):
     background_tasks.add_task(service.evolve, gens)
     return {"msg": f"scheduled evolution for {gens} generations"}
 
+
 @app.post("/checkpoint")
 async def checkpoint_endpoint(background_tasks: BackgroundTasks):
     background_tasks.add_task(service.checkpoint)
     return {"msg": "checkpoint scheduled"}
+
 
 @app.post("/reset")
 async def reset_endpoint(background_tasks: BackgroundTasks):
     background_tasks.add_task(service.reset)
     return {"msg": "reset scheduled"}
 
+
 @app.get("/alpha")
 async def best_alpha():
     """Return current best architecture + LLM summary (meta‑explanation)."""
     return await service.best_alpha()
+
 
 # ---------------------------------------------------------------------------
 # GRADIO DASHBOARD -----------------------------------------------------------
 # ---------------------------------------------------------------------------
 async def _launch_gradio() -> None:  # noqa: D401
     with gr.Blocks(title="AI‑GA Meta‑Evolution Demo") as ui:
-        plot   = gr.LinePlot(label="Fitness by Generation")
+        plot = gr.LinePlot(label="Fitness by Generation")
         log_md = gr.Markdown()
 
         def on_step(g=5):
@@ -283,6 +296,7 @@ async def _launch_gradio() -> None:  # noqa: D401
         gr.Button("Evolve 5 Generations").click(on_step, [], [plot, log_md])
     ui.launch(server_name="0.0.0.0", server_port=GRADIO_PORT, share=False)
 
+
 # ---------------------------------------------------------------------------
 # SIGNAL HANDLERS ------------------------------------------------------------
 # ---------------------------------------------------------------------------
@@ -291,6 +305,7 @@ async def _graceful_exit(*_):
     await service.checkpoint()
     loop = asyncio.get_event_loop()
     loop.stop()
+
 
 # ---------------------------------------------------------------------------
 # MAIN -----------------------------------------------------------------------
@@ -307,7 +322,7 @@ if __name__ == "__main__":
     if AgentRuntime:
         AgentRuntime.register(SERVICE_NAME, f"http://localhost:{API_PORT}")
     if A2ASocket:
-        A2ASocket(host="0.0.0.0", port=5555, app_id=SERVICE_NAME).start()
+        service.evolver.start_socket()
     if adk_bridge and adk_bridge.adk_enabled():
         evolver_agent = EvolverAgent()
         adk_bridge.auto_register([evolver_agent])
