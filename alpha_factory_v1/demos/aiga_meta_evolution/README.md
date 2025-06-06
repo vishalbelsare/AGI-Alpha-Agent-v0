@@ -26,6 +26,13 @@ Within **&lt; 60 s** you’ll watch neural nets **rewrite their own blueprin
 
 ---
 
+## Disclaimer
+This repository is a conceptual research prototype. References to "AGI" and
+"superintelligence" describe aspirational goals and do not indicate the presence
+of a real general intelligence. Use at your own risk.
+
+---
+
 <details open>
 <summary>📑 Table of contents — click to jump</summary>
 
