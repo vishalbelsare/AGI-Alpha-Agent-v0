@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 import React, { useEffect, useState, FormEvent, useRef } from 'react';
+import { createSandboxWorker } from '../utils/sandbox';
 import Plotly from 'plotly.js-dist';
 import D3LineageTree, { LineageNode } from '../D3LineageTree';
 import Pareto3D, { PopulationMember } from '../Pareto3D';
@@ -45,16 +46,18 @@ export default function Dashboard() {
   const HEADERS = TOKEN ? { Authorization: `Bearer ${TOKEN}` } : {};
 
   useEffect(() => {
-    workerRef.current = new Worker(new URL('../../arenaWorker.js', import.meta.url), { type: 'module' });
-    workerRef.current.onmessage = (ev) => {
-      const { messages, score } = ev.data;
-      setDebate(messages);
-      setPopulation((pop) => {
-        const updated = pop.map((p) => ({ ...p, rank: p.rank + score }));
-        updated.sort((a, b) => a.rank - b.rank);
-        return updated;
-      });
-    };
+    createSandboxWorker(new URL('../../arenaWorker.js', import.meta.url)).then(w => {
+      workerRef.current = w;
+      w.onmessage = (ev) => {
+        const { messages, score } = ev.data;
+        setDebate(messages);
+        setPopulation((pop) => {
+          const updated = pop.map((p) => ({ ...p, rank: p.rank + score }));
+          updated.sort((a, b) => a.rank - b.rank);
+          return updated;
+        });
+      };
+    });
     return () => {
       workerRef.current?.terminate();
       workerRef.current = null;

@@ -2,6 +2,7 @@
 import { lcg } from './utils/rng.ts';
 import { mutate, type Mutant } from './evolve/mutate.ts';
 import { paretoFront } from './utils/pareto.ts';
+import { createSandboxWorker } from './utils/sandbox.ts';
 import type { Individual as BaseIndividual } from './state/serializer.ts';
 
 export interface SimulatorConfig {
@@ -55,7 +56,7 @@ export class Simulator {
       let front: Individual[] = [];
       let metrics = { avgLogic: 0, avgFeasible: 0, frontSize: 0 };
       if (options.workerUrl && typeof Worker !== 'undefined') {
-        if (!worker) worker = new Worker(options.workerUrl, { type: 'module' });
+        if (!worker) worker = await createSandboxWorker(options.workerUrl);
         const result: EvolverResult = await new Promise((resolve) => {
           if (!worker) return resolve({ pop, rngState: rand.state(), front: [], metrics });
           worker.onmessage = (ev) => resolve(ev.data as EvolverResult);
@@ -84,7 +85,7 @@ export class Simulator {
         };
       }
       if (options.umapWorkerUrl && typeof Worker !== 'undefined' && (gen + 1) % 3 === 0) {
-        if (!umapWorker) umapWorker = new Worker(options.umapWorkerUrl, { type: 'module' });
+        if (!umapWorker) umapWorker = await createSandboxWorker(options.umapWorkerUrl);
         pop = await new Promise((resolve) => {
           if (!umapWorker) return resolve(pop);
           umapWorker.onmessage = (ev) => resolve(ev.data);
