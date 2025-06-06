@@ -9,6 +9,25 @@ These integration tests expect the `alpha_factory_v1` package to be importable.
 2. Set `PYTHONPATH=$(pwd)` or install the project in editable mode with `pip install -e .`.
 3. Execute `pytest -q`.
 
+### Offline install
+
+Create a wheelhouse with the MuZero demo and development requirements:
+
+```bash
+mkdir -p wheels
+pip wheel -r requirements.txt -w wheels
+pip wheel -r alpha_factory_v1/demos/muzero_planning/requirements.txt -w wheels
+pip wheel -r requirements-dev.txt -w wheels
+```
+
+Install and run the tests without contacting PyPI:
+
+```bash
+WHEELHOUSE=$(pwd)/wheels pip install --no-index --find-links "$WHEELHOUSE" -r requirements-dev.txt
+WHEELHOUSE=$(pwd)/wheels python check_env.py --auto-install --wheelhouse "$WHEELHOUSE"
+PYTHONPATH=$(pwd) WHEELHOUSE="$WHEELHOUSE" pytest -q
+```
+
 Missing optional dependencies often cause failures. Re-run the environment check or pass `--wheelhouse` to install them offline.
 
 When running from the repository root without installation:
