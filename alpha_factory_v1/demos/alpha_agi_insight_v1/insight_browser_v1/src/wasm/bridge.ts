@@ -1,9 +1,14 @@
 // SPDX-License-Identifier: Apache-2.0
 import { loadPyodide } from '../lib/pyodide.js';
 
+export const bridgeEvents = new EventTarget();
+export const PY_LOAD_START = 'py-load-start';
+export const PY_LOAD_END = 'py-load-end';
+
 let pyodideReady: any;
 async function initPy(): Promise<any> {
   if (!pyodideReady) {
+    bridgeEvents.dispatchEvent(new Event(PY_LOAD_START));
     try {
       let opts = { indexURL: './wasm/' };
       if ((window as any).PYODIDE_WASM_BASE64) {
@@ -19,6 +24,8 @@ async function initPy(): Promise<any> {
     } catch (err) {
       (window as any).toast?.('Pyodide failed to load');
       return Promise.reject(err);
+    } finally {
+      bridgeEvents.dispatchEvent(new Event(PY_LOAD_END));
     }
   }
   return pyodideReady;

@@ -2,6 +2,9 @@
 let localModel: any;
 let useGpu = true;
 let ortLoaded: boolean | undefined;
+export const llmEvents = new EventTarget();
+export const LLM_LOAD_START = 'llm-load-start';
+export const LLM_LOAD_END = 'llm-load-end';
 export const gpuAvailable =
   typeof navigator !== 'undefined' && !!(navigator as any).gpu;
 
@@ -45,6 +48,7 @@ export async function gpuBackend(): Promise<string> {
 
 async function loadLocal(): Promise<any> {
   if (!localModel) {
+    llmEvents.dispatchEvent(new Event(LLM_LOAD_START));
     try {
       const mod = await import('../lib/bundle.esm.min.js');
       const { pipeline } = mod as any;
@@ -62,6 +66,8 @@ async function loadLocal(): Promise<any> {
       }
     } catch (err) {
       localModel = async (p: string) => `[offline] ${p}`;
+    } finally {
+      llmEvents.dispatchEvent(new Event(LLM_LOAD_END));
     }
   }
   return localModel;

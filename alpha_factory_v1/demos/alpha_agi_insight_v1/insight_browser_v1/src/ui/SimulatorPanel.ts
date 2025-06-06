@@ -67,6 +67,26 @@ export async function initSimulatorPanel(
   `;
   document.body.appendChild(panel);
 
+  const loader = document.createElement('div');
+  loader.id = 'sim-loader';
+  loader.setAttribute('role', 'status');
+  loader.setAttribute('aria-live', 'polite');
+  Object.assign(loader.style, {
+    position: 'fixed',
+    inset: '0',
+    display: 'none',
+    alignItems: 'center',
+    justifyContent: 'center',
+    background: 'rgba(0,0,0,0.5)',
+    zIndex: 2000,
+  });
+  loader.innerHTML = '<div class="spinner" aria-hidden="true"></div>';
+  document.body.appendChild(loader);
+
+  function showLoader(show: boolean): void {
+    loader.style.display = show ? 'flex' : 'none';
+  }
+
   const seedsInput = panel.querySelector<HTMLInputElement>('#sim-seeds')!;
   const popInput = panel.querySelector<HTMLInputElement>('#sim-pop')!;
   const genInput = panel.querySelector<HTMLInputElement>('#sim-gen')!;
@@ -116,6 +136,7 @@ export async function initSimulatorPanel(
 
   startBtn.addEventListener('click', async () => {
     if (sim && typeof sim.return === 'function') await sim.return(undefined);
+    showLoader(true);
     const seeds = seedsInput.value
       .split(',')
       .map((s: string) => Number(s.trim()))
@@ -135,47 +156,56 @@ export async function initSimulatorPanel(
     frameIds = [];
     paused = false;
     let evalId = await archive.addEvaluator(evaluator);
-    for await (const g of sim) {
-      while (paused) {
-        await new Promise((r) => setTimeout(r, 100));
+    try {
+      let firstFrame = true;
+      for await (const g of sim) {
+        if (firstFrame) {
+          showLoader(false);
+          firstFrame = false;
+        }
+        while (paused) {
+          await new Promise((r) => setTimeout(r, 100));
+        }
+        const edges = g.population.map((p: Individual) => ({
+          from: p.strategy || 'x',
+          to: p.strategy || 'x',
+        }));
+        memeRuns.push({ edges });
+        await saveMemes(mineMemes(memeRuns));
+        frames.push({ population: clone(g.population) as Individual[], gen: g.gen });
+        const fid = await replay.addFrame(frameIds[frameIds.length - 1] || null, {
+          population: g.population,
+          gen: g.gen,
+        });
+        frameIds.push(fid);
+        count = g.gen;
+        if (window.DEBUG) {
+          window.pop = g.population;
+        }
+        if (window.DEBUG && g.population[0] && g.population[0].umap) {
+          const pts = g.population.map((p: Individual) => p.umap);
+          window.coldZone = detectColdZone(pts);
+        }
+        progress.value = count / Number(genInput.value);
+        const stat: SimulatorStatus = { gen: count, frontSize: g.fronts.length };
+        status.textContent = `gen ${stat.gen} front ${stat.frontSize}`;
+        await archive
+          .add(seeds[0] ?? 1, { popSize: Number(popInput.value) }, g.fronts, [], evalId)
+          .catch(() => {});
+        power.update(evaluator);
+        evaluator = mutateEvaluator(evaluator);
+        evalId = await archive.addEvaluator(evaluator);
       }
-      const edges = g.population.map((p: Individual) => ({
-        from: p.strategy || 'x',
-        to: p.strategy || 'x',
-      }));
-      memeRuns.push({ edges });
-      await saveMemes(mineMemes(memeRuns));
-      frames.push({ population: clone(g.population) as Individual[], gen: g.gen });
-      const fid = await replay.addFrame(frameIds[frameIds.length - 1] || null, {
-        population: g.population,
-        gen: g.gen,
-      });
-      frameIds.push(fid);
-      count = g.gen;
-      if (window.DEBUG) {
-        window.pop = g.population;
-      }
-      if (window.DEBUG && g.population[0] && g.population[0].umap) {
-        const pts = g.population.map((p: Individual) => p.umap);
-        window.coldZone = detectColdZone(pts);
-      }
-      progress.value = count / Number(genInput.value);
-      const stat: SimulatorStatus = { gen: count, frontSize: g.fronts.length };
-      status.textContent = `gen ${stat.gen} front ${stat.frontSize}`;
-      await archive
-        .add(seeds[0] ?? 1, { popSize: Number(popInput.value) }, g.fronts, [], evalId)
-        .catch(() => {});
-      power.update(evaluator);
-      evaluator = mutateEvaluator(evaluator);
-      evalId = await archive.addEvaluator(evaluator);
+      frameInput.max = String(Math.max(0, frames.length - 1));
+      frameInput.value = String(frames.length - 1);
+      showFrame(frames.length - 1);
+      const share = await replay.share(frameIds[frameIds.length - 1]);
+      const file = new File([share.data], 'replay.json', { type: 'application/json' });
+      const out = await pinFiles([file]);
+      if (out) status.textContent = `CID: ${share.cid}`;
+    } finally {
+      showLoader(false);
     }
-    frameInput.max = String(Math.max(0, frames.length - 1));
-    frameInput.value = String(frames.length - 1);
-    showFrame(frames.length - 1);
-    const share = await replay.share(frameIds[frameIds.length - 1]);
-    const file = new File([share.data], 'replay.json', { type: 'application/json' });
-    const out = await pinFiles([file]);
-    if (out) status.textContent = `CID: ${share.cid}`;
   });
 
   cancelBtn.addEventListener('click', () => {
