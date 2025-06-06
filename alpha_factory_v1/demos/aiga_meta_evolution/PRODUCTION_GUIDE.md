@@ -15,6 +15,13 @@ This short guide distils the steps required to run the **AI‑GA Meta‑Evolutio
      This attempts to install `openai-agents`, `google-adk` and other required
      packages if they are missing. Offline environments can point the script to
      a wheelhouse via `WHEELHOUSE=/path/to/wheels`.
+   - Install the OpenAI Agents SDK if not already present:
+     ```bash
+     pip install openai-agents
+     ```
+     Some distributions package it as the simpler `agents` module; the demo
+     detects both. If `import openai_agents` fails, reinstall the SDK and
+     confirm your virtual environment is active.
 
 2. **Launch the service**
    - Using Docker:
