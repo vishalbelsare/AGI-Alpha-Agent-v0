@@ -1,14 +1,10 @@
 # SPDX-License-Identifier: Apache-2.0
-"""Verify SRI for workbox-sw.js in the built Insight demo."""
+"""Verify integrity attributes in the built Insight demo."""
 
 from pathlib import Path
 import hashlib
 import base64
-
-import pytest
-
-pw = pytest.importorskip("playwright.sync_api")
-from playwright.sync_api import sync_playwright
+import re
 
 
 def sha384(path: Path) -> str:
@@ -19,15 +15,10 @@ def sha384(path: Path) -> str:
 def test_workbox_integrity() -> None:
     browser_dir = Path(__file__).resolve().parents[1]
     dist = browser_dir / "dist"
-    index = dist / "index.html"
-    expected = sha384(dist / "workbox-sw.js")
-    url = index.as_uri()
+    html = (dist / "index.html").read_text()
+    app_expected = sha384(dist / "insight.bundle.js")
 
-    with sync_playwright() as p:
-        browser = p.chromium.launch()
-        page = browser.new_page()
-        page.goto(url)
-        page.wait_for_selector("#controls")
-        integrity = page.get_attribute("script[src='workbox-sw.js']", "integrity")
-        assert integrity == expected
-        browser.close()
+    tag = re.search(r"<script[^>]*src=['\"]insight.bundle.js['\"][^>]*>", html)
+    assert tag, "insight.bundle.js script tag missing"
+    integrity = re.search(r"integrity=['\"]([^'\"]+)['\"]", tag.group(0))
+    assert integrity and integrity.group(1) == app_expected

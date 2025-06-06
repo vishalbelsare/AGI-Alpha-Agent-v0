@@ -452,6 +452,16 @@ if wasm_dir.exists():
 else:
     wasm_sri = None
 (dist_dir / "index.html").write_text(out_html)
+index_html.write_text(
+    html.replace(
+        app_sri_placeholder,
+        (
+            '<script type="module" src="insight.bundle.js" '
+            f'integrity="{app_sri}" '
+            'crossorigin="anonymous"></script>'
+        ),
+    )
+)
 
 wasm_llm_dir = ROOT / manifest["dirs"]["wasm_llm"]
 if wasm_llm_dir.exists():

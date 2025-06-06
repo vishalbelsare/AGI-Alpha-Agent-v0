@@ -201,10 +201,11 @@ async function bundle() {
   );
   const data = await fs.readFile(`${OUT_DIR}/insight.bundle.js`);
   const appSri = 'sha384-' + createHash('sha384').update(data).digest('base64');
-  let outHtml = html.replace(
-      '<script type="module" src="insight.bundle.js" crossorigin="anonymous"></script>',
-      `<script type="module" src="insight.bundle.js" integrity="${appSri}" crossorigin="anonymous"></script>`
-    );
+  const scriptTag =
+    '<script type="module" src="insight.bundle.js" crossorigin="anonymous"></script>';
+  const sriTag =
+    `<script type="module" src="insight.bundle.js" integrity="${appSri}" crossorigin="anonymous"></script>`;
+  let outHtml = html.replace(scriptTag, sriTag);
   const csp =
     "default-src 'self'; connect-src 'self' https://api.openai.com" +
     (ipfsOrigin ? ` ${ipfsOrigin}` : '') +
@@ -283,6 +284,10 @@ async function bundle() {
     .replace(/<script[\s\S]*?pyodide\.js[\s\S]*?<\/script>\s*/g, '')
     .replace('</body>', `${envScript}\n</body>`);
   await fs.writeFile(`${OUT_DIR}/index.html`, outHtml);
+  const devHtml = html.replace(scriptTag, sriTag);
+  if (devHtml !== html) {
+    await fs.writeFile('index.html', devHtml);
+  }
   const pkg = JSON.parse(fsSync.readFileSync('package.json', 'utf8'));
   await generateServiceWorker(OUT_DIR, manifest, pkg.version);
   await fs.copyFile(
