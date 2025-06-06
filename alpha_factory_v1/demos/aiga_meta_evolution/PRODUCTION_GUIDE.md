@@ -10,11 +10,14 @@ This short guide distils the steps required to run the **AI‑GA Meta‑Evolutio
    - Verify all Python packages are available:
      Run the following command from the project root directory:
      ```bash
-    AUTO_INSTALL_MISSING=1 python check_env.py
+     AUTO_INSTALL_MISSING=1 python check_env.py --auto-install
      ```
      This attempts to install `openai-agents`, `google-adk` and other required
      packages if they are missing. Offline environments can point the script to
-     a wheelhouse via `WHEELHOUSE=/path/to/wheels`.
+     a wheelhouse via `WHEELHOUSE=/path/to/wheels`. **Running this command is
+     mandatory before executing the demos or the unit tests.** The
+     `openai-agents` and `google-adk` packages are optional and only needed when
+     the OpenAI Agents runtime or the ADK gateway is enabled.
    - Install the OpenAI Agents SDK if not already present:
      ```bash
      pip install openai-agents

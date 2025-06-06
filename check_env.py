@@ -3,7 +3,8 @@
 This helper validates that the Python packages required by the
 Alpha‑Factory demos and unit tests are present.  When invoked with the
 ``--auto-install`` flag (or ``AUTO_INSTALL_MISSING=1`` environment
-variable) it attempts to install any missing dependencies using
+variable) it ensures ``alpha_factory_v1/requirements.txt`` is installed
+before attempting to resolve any remaining missing packages with
 ``pip``.  For air‑gapped environments supply ``--wheelhouse`` or set
 ``WHEELHOUSE=/path/to/wheels`` so ``pip`` can resolve packages from a
 local directory.
@@ -17,6 +18,7 @@ import subprocess
 import os
 import sys
 import argparse
+from pathlib import Path
 from typing import List, Optional
 
 REQUIRED = [
@@ -84,6 +86,21 @@ def main(argv: Optional[List[str]] = None) -> int:
 
     args = parser.parse_args(argv)
 
+    wheelhouse = args.wheelhouse or os.getenv("WHEELHOUSE")
+    auto = args.auto_install or os.getenv("AUTO_INSTALL_MISSING") == "1"
+    req_file = Path(__file__).resolve().parent / "alpha_factory_v1" / "requirements.txt"
+    if auto and req_file.exists():
+        cmd = [sys.executable, "-m", "pip", "install", "--quiet"]
+        if wheelhouse:
+            cmd += ["--no-index", "--find-links", wheelhouse]
+        cmd += ["-r", str(req_file)]
+        print("Ensuring baseline requirements:", " ".join(cmd))
+        try:
+            subprocess.run(cmd, check=True)
+        except subprocess.CalledProcessError as exc:
+            print("Failed to install baseline requirements", exc.returncode)
+            return exc.returncode
+
     missing_required: list[str] = []
     missing_optional: list[str] = []
     for pkg in REQUIRED + OPTIONAL:
@@ -102,8 +119,6 @@ def main(argv: Optional[List[str]] = None) -> int:
     missing = missing_required + missing_optional
     if missing:
         print("WARNING: Missing packages:", ", ".join(missing))
-        wheelhouse = args.wheelhouse or os.getenv("WHEELHOUSE")
-        auto = args.auto_install or os.getenv("AUTO_INSTALL_MISSING") == "1"
         if auto:
             cmd = [sys.executable, "-m", "pip", "install", "--quiet"]
             if wheelhouse:
