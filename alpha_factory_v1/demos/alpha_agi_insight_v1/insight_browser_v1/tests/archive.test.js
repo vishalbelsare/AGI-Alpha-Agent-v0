@@ -108,3 +108,18 @@ test('prune ranks by score and novelty', async () => {
   const seeds = runs.map((r) => r.seed).sort();
   expect(seeds).toEqual([1, 3]);
 });
+
+jest.mock('../src/utils/llm.ts', () => ({
+  chat: jest.fn(() => Promise.resolve('5')),
+}));
+const { chat } = require('../src/utils/llm.ts');
+
+test('add calls chat when api key set and stores impact score', async () => {
+  global.localStorage = { getItem: () => 'k' };
+  const a = new Archive('jest');
+  await a.open();
+  await a.add(9, {}, [{ logic: 1, feasible: 1 }]);
+  expect(chat).toHaveBeenCalled();
+  const runs = await a.list();
+  expect(runs[0].impactScore).toBeCloseTo(runs[0].score + 5);
+});

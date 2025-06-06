@@ -3,6 +3,7 @@ import { createStore, set, get, del, values } from './utils/keyval.ts';
 import type { EvaluatorGenome } from './evaluator_genome.ts';
 import type { Individual } from './state/serializer.ts';
 import { detectColdZone } from './utils/cluster.ts';
+import { chat } from './utils/llm.ts';
 
 interface KeyValueStore<T> {
   dbp: Promise<IDBDatabase | null>;
@@ -28,6 +29,7 @@ export interface InsightRun {
   parents: string[];
   evalId: string;
   score: number;
+  impactScore: number;
   novelty: number;
   timestamp: number;
 }
@@ -110,6 +112,19 @@ export class Archive {
     const vec = this._vector(paretoFront);
     const score = (vec[0] + vec[1]) / 2;
     const novelty = await this._novelty(vec);
+    let impact = 0;
+    try {
+      if (localStorage.getItem('OPENAI_API_KEY')) {
+        const resp = await chat(
+          `Estimate economic impact for: ${JSON.stringify(paretoFront)}`,
+        );
+        const val = parseFloat(resp);
+        if (!Number.isNaN(val)) impact = val;
+      }
+    } catch {
+      impact = 0;
+    }
+    const impactScore = score + impact;
     const id = typeof crypto.randomUUID === 'function'
       ? crypto.randomUUID()
       : String(Date.now());
@@ -121,6 +136,7 @@ export class Archive {
       parents,
       evalId,
       score,
+      impactScore,
       novelty,
       timestamp: Date.now(),
     };
@@ -192,7 +208,7 @@ export class Archive {
   ): Promise<InsightRun[]> {
     const runs = await this.list();
     if (!runs.length) return [];
-    const scoreW = runs.map((r) => Math.exp(beta * r.score));
+    const scoreW = runs.map((r) => Math.exp(beta * (r.impactScore ?? r.score)));
     const novW = runs.map((r) => Math.exp(gamma * r.novelty));
     const sumS = scoreW.reduce((a, b) => a + b, 0);
     const sumN = novW.reduce((a, b) => a + b, 0);
