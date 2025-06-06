@@ -10,7 +10,7 @@
 </p>
 
 <p align="center">
-  <a href="#quickstart">Quick-start</a> •
+  <a href="#quickstart" aria-label="Jump to quickstart">Quick-start</a> •
   <a href="#architecture">Architecture</a> •
   <a href="#cli-usage">CLI</a> •
   <a href="#web-ui">Web UI</a> •
