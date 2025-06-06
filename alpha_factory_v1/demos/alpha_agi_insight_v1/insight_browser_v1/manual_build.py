@@ -53,23 +53,15 @@ try:
 except Exception as exc:  # pragma: no cover - optional dep
     print(f"[manual_build] failed to load .env: {exc}", file=sys.stderr)
 
-
-def _validate_env() -> None:
-    """Validate tokens and URLs in the environment."""
-    for key in ("PINNER_TOKEN", "WEB3_STORAGE_TOKEN"):
-        val = os.getenv(key)
-        if val is not None and not val.strip():
-            sys.exit(f"{key} may not be empty")
-
-    for key in ("IPFS_GATEWAY", "OTEL_ENDPOINT"):
-        val = os.getenv(key)
-        if val:
-            p = urlparse(val)
-            if not p.scheme or not p.netloc:
-                sys.exit(f"Invalid URL in {key}")
-
-
-_validate_env()
+try:
+    subprocess.run(
+        ["node", "build/env_validate.js"],
+        cwd=ROOT,
+        check=True,
+        env=os.environ,
+    )
+except subprocess.CalledProcessError as exc:
+    sys.exit(exc.returncode)
 
 
 def copy_assets(
