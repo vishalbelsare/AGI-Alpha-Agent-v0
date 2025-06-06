@@ -25,7 +25,10 @@ def check_gzip_size(path: Path, max_bytes: int = 2 * 1024 * 1024) -> None:
         sys.exit(f"gzip size {len(compressed)} bytes exceeds limit")
 
 
-def generate_service_worker(root: Path, dist_dir: Path, manifest: dict) -> None:
+from typing import Any
+
+
+def generate_service_worker(root: Path, dist_dir: Path, manifest: dict[str, Any]) -> None:
     """Create ``sw.js`` using workbox and inject it into ``index.html``."""
     sw_src = root / "sw.js"
     sw_dest = dist_dir / "sw.js"
@@ -61,9 +64,6 @@ injectManifest({{
     index_path = dist_dir / "index.html"
     text = index_path.read_text()
     text = text.replace(".register('sw.js')", ".register('service-worker.js')")
-    text = text.replace(
-        "</body>",
-        f'<script src="service-worker.js" integrity="{sw_hash}" crossorigin="anonymous"></script>\n</body>',
-    )
+    text = text.replace("__SW_HASH__", sw_hash)
     text = re.sub(r"(script-src 'self' 'wasm-unsafe-eval')", rf"\1 '{sw_hash}'", text)
     index_path.write_text(text)
