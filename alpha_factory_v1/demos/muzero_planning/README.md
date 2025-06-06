@@ -159,6 +159,12 @@ Two extra cells let you tweak the Gym environment, port number and gracefully st
 
 ---
 
+### Development notes
+
+Run `pre-commit run --files alpha_factory_v1/demos/muzero_planning` before committing changes. This mirrors the workflow in [AGENTS.md](../../../AGENTS.md).
+
+---
+
 ## 🤝 Credits
 
 * **DeepMind** for the research masterpiece (2020).  
