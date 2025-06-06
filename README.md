@@ -33,6 +33,7 @@ Clone the repository and run the helper script to start the Insight demo locally
 ```bash
 git clone https://github.com/MontrealAI/AGI-Alpha-Agent-v0.git
 cd AGI-Alpha-Agent-v0
+python check_env.py --auto-install  # verify runtime and install extras
 ./quickstart.sh
 ```
 
