@@ -36,6 +36,7 @@ run(['node', '--loader', 'ts-node/register', '--test',
 ]);
 run([
   'pytest',
+  'tests/test_no_console_errors.py',
   '../../../../tests/test_quickstart_offline.py',
   '../../../../tests/test_evolution_panel_reload.py',
   '../../../../tests/test_sw_offline_reload.py',
