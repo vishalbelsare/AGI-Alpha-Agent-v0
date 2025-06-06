@@ -10,18 +10,35 @@ but trimmed to <300 LoC for pedagogy.
 """
 
 import os
+import sys
 from typing import Any
 
 # Optional Google ADK gateway for Agent-to-Agent federation
 try:
     from alpha_factory_v1.backend import adk_bridge
+
+    if not getattr(adk_bridge, "_ADK_OK", True):
+        print(
+            "Google ADK not installed. Install with: pip install google-adk \n"
+            "and set ALPHA_FACTORY_ENABLE_ADK=true to enable the gateway.",
+            file=sys.stderr,
+        )
 except Exception:  # pragma: no cover - optional dependency
     adk_bridge = None
+    print(
+        "Google ADK integration unavailable. Install with: pip install google-adk "
+        "and set ALPHA_FACTORY_ENABLE_ADK=true to enable the gateway.",
+        file=sys.stderr,
+    )
 
 
 try:  # OpenAI Agents SDK is optional
     from agents import Agent, AgentRuntime, Tool, OpenAIAgent
 except Exception:  # pragma: no cover - provide graceful degrade
+    print(
+        "OpenAI Agents SDK not installed. Install with: pip install openai-agents",
+        file=sys.stderr,
+    )
 
     class OpenAIAgent:
         def __init__(self, *_, **__):
@@ -58,6 +75,7 @@ try:
 
     _HAVE_GRADIO = True
 except ModuleNotFoundError:  # pragma: no cover - allow CLI help without gradio
+    print("Gradio not installed. Install with: pip install gradio", file=sys.stderr)
 
     class _MissingGradio:
         def __getattr__(self, name: str):  # noqa: D401

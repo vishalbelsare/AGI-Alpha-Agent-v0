@@ -276,6 +276,14 @@ python -m webbrowser http://localhost:8000/docs
 ```
 The adapters initialise automatically when these optional packages are present.
 
+### Optional Packages
+
+Install these extras to unlock additional features:
+
+- `pip install gradio` – enables the MuZero planning dashboard.
+- `pip install openai-agents` – activates the official Agents runtime used for commentary.
+- `pip install google-adk` and set `ALPHA_FACTORY_ENABLE_ADK=true` – starts the Google ADK gateway for cross‑organisation agent exchange.
+
 To regenerate `requirements.lock` from `requirements.txt` with hashes, run:
 
 ```bash
