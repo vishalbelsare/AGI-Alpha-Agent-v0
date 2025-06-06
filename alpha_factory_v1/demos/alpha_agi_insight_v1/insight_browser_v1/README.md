@@ -43,8 +43,12 @@ runtime and `wasm-gpt2` model, then install the Node modules and compile the
 bundle:
 ```bash
 python ../../../scripts/fetch_assets.py
-npm ci            # installs dependencies from package-lock.json
+./setup.sh        # installs dependencies when node_modules is missing
 npm run build     # or `python manual_build.py` for offline builds
+```
+Run the tests with:
+```bash
+./setup.sh && npm test
 ```
 The build script reads `.env` automatically and injects the values into
 `dist/index.html` as `window.PINNER_TOKEN`, `window.IPFS_GATEWAY` and
