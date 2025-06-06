@@ -10,7 +10,7 @@ This short guide distils the steps required to run the **AI‑GA Meta‑Evolutio
    - Verify all Python packages are available:
      Run the following command from the project root directory:
      ```bash
-     AUTO_INSTALL_MISSING=1 python alpha_factory_v1/check_env.py
+    AUTO_INSTALL_MISSING=1 python check_env.py
      ```
      This attempts to install `openai-agents`, `google-adk` and other required
      packages if they are missing. Offline environments can point the script to
