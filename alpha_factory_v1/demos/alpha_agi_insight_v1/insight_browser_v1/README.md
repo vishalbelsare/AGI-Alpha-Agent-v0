@@ -34,6 +34,8 @@ Copy [`.env.sample`](.env.sample) to `.env` then review the variables:
 - `WEB3_STORAGE_TOKEN` – build script token consumed by `npm run build`.
 - Browsers with WebGPU can accelerate the local model using the ONNX runtime.
   Use the GPU toggle in the power panel to switch between WebGPU and WASM.
+- Set `window.DEBUG = true` before loading the page to expose debugging helpers
+  like `window.pop` and `window.coldZone`.
 
 See [`.env.sample`](.env.sample) for the full list of supported variables.
 

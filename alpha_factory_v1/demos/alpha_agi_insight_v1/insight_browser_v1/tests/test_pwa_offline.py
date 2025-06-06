@@ -18,6 +18,7 @@ def test_offline_pwa_and_share() -> None:
         browser = p.chromium.launch()
         context = browser.new_context()
         page = context.new_page()
+        page.add_init_script("window.DEBUG = true")
 
         def ipfs_handler(route):
             route.fulfill(
@@ -87,6 +88,7 @@ def test_service_worker_registration_failure_toast() -> None:
     with sync_playwright() as p:
         browser = p.chromium.launch()
         page = browser.new_page()
+        page.add_init_script("window.DEBUG = true")
         page.add_init_script(
             "navigator.serviceWorker.register = () => Promise.reject('fail')"
         )

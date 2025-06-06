@@ -99,7 +99,9 @@ export async function initSimulatorPanel(
     if (!f) return;
     pop = f.population;
     gen = f.gen;
-    window.pop = pop;
+    if (window.DEBUG) {
+      window.pop = pop;
+    }
     const target = 'node' in view ? view.node() : view;
     renderFrontier(target as unknown as HTMLElement, pop, (d, el) =>
       selectPoint(d, el as unknown as HTMLElement)
@@ -150,8 +152,10 @@ export async function initSimulatorPanel(
       });
       frameIds.push(fid);
       count = g.gen;
-      window.pop = g.population;
-      if (g.population[0] && g.population[0].umap) {
+      if (window.DEBUG) {
+        window.pop = g.population;
+      }
+      if (window.DEBUG && g.population[0] && g.population[0].umap) {
         const pts = g.population.map((p: Individual) => p.umap);
         window.coldZone = detectColdZone(pts);
       }
