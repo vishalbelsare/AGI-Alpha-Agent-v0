@@ -301,12 +301,16 @@ window.addEventListener('DOMContentLoaded',async()=>{
   const tb=document.getElementById("toolbar");
   const csvBtn=document.createElement("button");
   csvBtn.textContent=t('csv');
+  csvBtn.setAttribute('aria-label','Export CSV');
   const pngBtn=document.createElement("button");
   pngBtn.textContent=t('png');
+  pngBtn.setAttribute('aria-label','Download PNG');
   const shareBtn=document.createElement("button");
   shareBtn.textContent=t('share');
+  shareBtn.setAttribute('aria-label','Share simulation');
   const themeBtn=document.createElement("button");
   themeBtn.textContent=t('theme');
+  themeBtn.setAttribute('aria-label','Toggle theme');
   tb.appendChild(csvBtn);
   tb.appendChild(pngBtn);
   tb.appendChild(shareBtn);
