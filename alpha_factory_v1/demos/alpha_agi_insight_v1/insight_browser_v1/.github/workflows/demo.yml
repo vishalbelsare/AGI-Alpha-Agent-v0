@@ -20,7 +20,7 @@ jobs:
           cache: 'npm'
           cache-dependency-path: '**/package.json'
       - name: Fetch offline assets
-        run: python ../../../../scripts/fetch_assets.py
+        run: npm run fetch-assets
       - name: Install dependencies
         run: npm ci
       - name: Lint

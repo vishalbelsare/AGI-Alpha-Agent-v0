@@ -37,14 +37,18 @@ Copy [`.env.sample`](.env.sample) to `.env` then review the variables:
 - Set `window.DEBUG = true` before loading the page to expose debugging helpers
   like `window.pop` and `window.coldZone`.
 
+Run `npm run fetch-assets` to download the Pyodide runtime and local model
+before installing dependencies. The script invokes
+`scripts/fetch_assets.py` under the hood.
+
 See [`.env.sample`](.env.sample) for the full list of supported variables.
 
 ## Build & Run
-Run the helper script **before installing dependencies** to fetch the Pyodide
-runtime and `wasm-gpt2` model, then install the Node modules and compile the
-bundle:
+Run `npm run fetch-assets` **before installing dependencies** to download the
+Pyodide runtime and `wasm-gpt2` model, then install the Node modules and
+compile the bundle:
 ```bash
-python ../../../scripts/fetch_assets.py
+npm run fetch-assets
 ./setup.sh        # installs dependencies when node_modules is missing
 npm run build     # or `python manual_build.py` for offline builds
 ```
@@ -72,7 +76,7 @@ to `dist/wasm` so the demo can run offline. When preparing the environment
 offline run:
 
 ```bash
-python ../../../scripts/fetch_assets.py
+npm run fetch-assets
 ```
 
 This downloads the Pyodide runtime and `wasm-gpt2` model from IPFS into
@@ -80,12 +84,12 @@ This downloads the Pyodide runtime and `wasm-gpt2` model from IPFS into
 It also retrieves `lib/bundle.esm.min.js` from the mirror. The build and
 `manual_build.py` scripts scan every downloaded asset for the word
 `"placeholder"` and abort when any file still contains that marker.
-`scripts/fetch_assets.py` also downloads `lib/workbox-sw.js` from
+`npm run fetch-assets` also downloads `lib/workbox-sw.js` from
 Workbox 6.5.4 so the service worker can operate offline.
 Each file is retried up to three times. If a download fails the script exits
 with an error suggesting you check connectivity or the `IPFS_GATEWAY`
 setting.
-Run `scripts/fetch_assets.py` if you encounter this error.
+Run `npm run fetch-assets` if you encounter this error.
 ```bash
 PINNER_TOKEN=<token> npm start
 ```
@@ -110,7 +114,7 @@ Running `npm run build` or `python manual_build.py` copies this file to
 Use `manual_build.py` for air‑gapped environments:
 
 1. `cp .env.sample .env` and edit the values if you haven't already.
-2. `python ../../../scripts/fetch_assets.py` to fetch Pyodide and the GPT‑2 model.
+2. `npm run fetch-assets` to fetch Pyodide and the GPT‑2 model.
    The build scripts verify these files no longer contain the word `"placeholder"`.
    Failing to replace placeholders will break offline mode.
 3. Run `node build/version_check.js` to ensure Node.js **v20** or newer is
@@ -127,7 +131,7 @@ The script requires Python ≥3.11. It loads `.env` automatically and injects
 
 Follow these steps when building without internet access:
 
-1. Run `python ../../../scripts/fetch_assets.py`.
+1. Run `npm run fetch-assets`.
 2. Verify checksums match `build_assets.json` and ensure no files under
    `wasm/` or `lib/` contain the word "placeholder".
 3. `npm ci` to install the locked dependencies.
@@ -138,7 +142,7 @@ Failing to replace placeholders will break offline mode.
 
 ### Offline build checklist
 
-1. Run `python ../../../scripts/fetch_assets.py`.
+1. Run `npm run fetch-assets`.
 2. `npm ci` to install dependencies from `package-lock.json`.
 3. Confirm no placeholder text remains in `lib/` or `wasm*/`.
 4. Execute `python manual_build.py` to generate the PWA in `dist/`. Use
@@ -177,7 +181,7 @@ This installs dependencies without network access.
 Set `WEB3_STORAGE_TOKEN` before running the helper script:
 
 ```bash
-WEB3_STORAGE_TOKEN=<token> python ../../../scripts/fetch_assets.py
+WEB3_STORAGE_TOKEN=<token> npm run fetch-assets
 ```
 
 
@@ -189,7 +193,7 @@ verifying checksums to ensure each asset is intact.
 Requires **Node.js ≥20** and **Python ≥3.11**.
 
 1. Copy `.env.sample` to `.env` and set the variables.
-2. Run `WEB3_STORAGE_TOKEN=<token> python ../../../scripts/fetch_assets.py` to download the WASM runtime and model files.
+2. Run `WEB3_STORAGE_TOKEN=<token> npm run fetch-assets` to download the WASM runtime and model files.
 3. Execute `python manual_build.py` to produce the `dist/` directory.
 4. Open `dist/index.html` to verify offline functionality.
 

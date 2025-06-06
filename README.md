@@ -125,7 +125,7 @@ Follow these steps when working without internet access.
 4. **Fetch and build the browser assets** (requires **Node.js**) to run the Insight demo fully offline:
    ```bash
    cd alpha_factory_v1/demos/alpha_agi_insight_v1/insight_browser_v1
-   python ../../../scripts/fetch_assets.py
+   npm run fetch-assets
    npm ci
    npm run build
    ```
