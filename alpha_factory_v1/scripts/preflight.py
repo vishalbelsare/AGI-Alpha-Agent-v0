@@ -148,22 +148,29 @@ def check_network(host: str = "pypi.org", timeout: float = 2.0) -> bool:
 
 
 def check_openai_agents_version(min_version: str = "0.0.14") -> bool:
-    """Verify ``openai_agents`` is new enough when installed."""
+    """Verify the installed Agents runtime is new enough.
+
+    This checks both the ``openai_agents`` and ``agents`` packages.
+    """
     import importlib
 
-    spec = importlib.util.find_spec("openai_agents")
-    if spec is None:  # not installed
-        return True
+    module_name = "openai_agents"
+    spec = importlib.util.find_spec(module_name)
+    if spec is None:
+        module_name = "agents"
+        spec = importlib.util.find_spec(module_name)
+        if spec is None:  # not installed
+            return True
 
-    mod = importlib.import_module("openai_agents")
+    mod = importlib.import_module(module_name)
     version = getattr(mod, "__version__", "0")
     if _version_lt(version, min_version):
         banner(
-            f"openai_agents {version} detected; >={min_version} required",
+            f"{module_name} {version} detected; >={min_version} required",
             "RED",
         )
         return False
-    banner(f"openai_agents {version} detected", "GREEN")
+    banner(f"{module_name} {version} detected", "GREEN")
     return True
 
 
