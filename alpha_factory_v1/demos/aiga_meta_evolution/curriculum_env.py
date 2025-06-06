@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 """curriculum_env.py – Self‑Evolving Grid‑World (v2.0, 2025‑04‑23)
 ============================================================================
 Breaks new ground for Pillar‑3 research by guaranteeing **solvable levels**,

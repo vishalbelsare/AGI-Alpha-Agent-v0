@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 #!/usr/bin/env python3
 """Cross-platform launcher for the AI-GA meta-evolution demo.
 

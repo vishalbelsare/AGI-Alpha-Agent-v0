@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 # alpha_factory_v1/demos/aiga_meta_evolution/meta_evolver.py
 # © 2025 MONTREAL.AI  Apache-2.0 License
 """MetaEvolver v3.0 (2025‑04‑23)
