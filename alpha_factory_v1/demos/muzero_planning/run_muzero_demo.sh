@@ -7,6 +7,12 @@ root_dir="${demo_dir%/*/*}"                       # → alpha_factory_v1
 compose="$demo_dir/docker-compose.muzero.yml"
 
 cd "$root_dir"
+if [[ -f ../check_env.py ]]; then
+  if ! AUTO_INSTALL_MISSING=1 python ../check_env.py --auto-install; then
+    echo "🚨  Environment check failed" >&2
+    exit 1
+  fi
+fi
 
 command -v docker >/dev/null 2>&1 || {
   echo "🚨  Docker is required → https://docs.docker.com/get-docker/"; exit 1; }
