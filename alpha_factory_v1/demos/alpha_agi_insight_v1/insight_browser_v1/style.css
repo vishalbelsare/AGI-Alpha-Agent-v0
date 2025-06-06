@@ -62,3 +62,7 @@ svg {
   from { transform: translate3d(0,0,0); }
   to { transform: translate3d(-50%, -50%, 0); }
 }
+#sim-loader { @apply hidden fixed inset-0 items-center justify-center bg-black/50 z-50; }
+#sim-loader.show { @apply flex; }
+#sim-loader .spinner { @apply w-8 h-8 border-4 border-white border-t-transparent rounded-full animate-spin; }
+@keyframes spin { to { transform: rotate(360deg); } }
