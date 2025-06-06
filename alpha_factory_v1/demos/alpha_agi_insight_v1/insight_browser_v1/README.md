@@ -3,7 +3,7 @@ A zero-backend Pareto explorer lives in
 `demos/alpha_agi_insight_v1/insight_browser_v1/`.
 
 ## Disclaimer
-This demo is a conceptual research prototype. Mentions of "AGI" or "superintelligence" describe aspirational goals and do not indicate the presence of real general intelligence. Use at your own risk.
+This demo is a conceptual research prototype describing aspirational goals and does not contain real general intelligence. Use at your own risk.
 
 ## Prerequisites
 - **Node.js ≥20** is required for offline PWA support and by `manual_build.py`
