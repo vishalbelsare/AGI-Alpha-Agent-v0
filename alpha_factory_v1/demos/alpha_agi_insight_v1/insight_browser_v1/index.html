@@ -61,6 +61,8 @@
     <script>
       const SW_URL = 'service-worker.js';
       const SW_HASH = '__SW_HASH__';
+      // Replaced with the SHA-384 digest of service-worker.js during
+      // `npm run build` (or `python manual_build.py`)
       if ('serviceWorker' in navigator) {
         window.addEventListener('load', async () => {
           try {

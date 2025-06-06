@@ -56,6 +56,10 @@ The build script reads `.env` automatically and injects the values into
 Set it in `localStorage` or provide it at runtime when prompted.
 It also copies `dist/sw.js` to `dist/service-worker.js` which `index.html`
 registers for offline support.
+`npm run build` (or `python manual_build.py`) also replaces the
+`__SW_HASH__` placeholder in `index.html` with the SHA-384 digest of
+`service-worker.js` so the browser can verify the script before
+registration.
 After rebuilding the demo, the service worker automatically skips the waiting
 phase and reloads the page so users always run the latest version.
 The unbuilt `index.html` falls back to `'self'` for the IPFS and telemetry
