@@ -9,6 +9,7 @@ cryptography
 hypothesis
 grpcio-tools
 pytest-httpx
+pre-commit
 
 PyYAML
 types-PyYAML
