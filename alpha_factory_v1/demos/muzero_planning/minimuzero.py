@@ -44,7 +44,7 @@ try:
 except ModuleNotFoundError:  # pragma: no cover - optional dependency
     _TORCH = False
 from dataclasses import dataclass
-from typing import Dict, List, Tuple
+from typing import Dict, List, Sequence, Tuple
 
 
 if _TORCH:
@@ -61,22 +61,24 @@ if _TORCH:
             self.value_head = nn.Linear(hidden_dim, 1)
 
         def initial(self, obs) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
-            x = torch.as_tensor(obs, dtype=torch.float32)
-            state = self.repr(x)
-            policy = self.policy_head(state)
-            value = self.value_head(state)
+            with torch.no_grad():
+                x = torch.as_tensor(obs, dtype=torch.float32)
+                state = self.repr(x)
+                policy = self.policy_head(state)
+                value = self.value_head(state)
             return state, value, policy
 
         def recurrent(
             self, state: torch.Tensor, action: int
         ) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor, torch.Tensor]:
-            a = F.one_hot(torch.tensor(action), num_classes=self.action_dim).float()
-            x = torch.cat([state, a], dim=-1)
-            out = self.dyn(x)
-            reward = out[..., :1]
-            next_state = torch.tanh(out[..., 1:])
-            policy = self.policy_head(next_state)
-            value = self.value_head(next_state)
+            with torch.no_grad():
+                a = F.one_hot(torch.tensor(action), num_classes=self.action_dim).float()
+                x = torch.cat([state, a], dim=-1)
+                out = self.dyn(x)
+                reward = out[..., :1]
+                next_state = torch.tanh(out[..., 1:])
+                policy = self.policy_head(next_state)
+                value = self.value_head(next_state)
             return next_state.detach(), reward, value, policy
 
 else:  # pragma: no cover - torch missing
@@ -137,36 +139,37 @@ def mcts_policy(net: MiniMuNet, env: gym.Env, obs, num_simulations: int = 64):
 
         return _P([1 / n] * n)
 
-    state, value, policy_logits = net.initial(obs)
-    root = Node(prior=1.0, state=state)
-    root.children = {a: Node(prior=float(p)) for a, p in enumerate(torch.softmax(policy_logits, dim=-1))}
-    root.visit_count = 1
-    discount = 0.997
+    with torch.no_grad():
+        state, value, policy_logits = net.initial(obs)
+        root = Node(prior=1.0, state=state)
+        root.children = {a: Node(prior=float(p)) for a, p in enumerate(torch.softmax(policy_logits, dim=-1))}
+        root.visit_count = 1
+        discount = 0.997
 
-    for _ in range(num_simulations):
-        node = root
-        search_path = [node]
-        actions_taken: List[int] = []
+        for _ in range(num_simulations):
+            node = root
+            search_path = [node]
+            actions_taken: List[int] = []
 
-        while node.expanded():
-            action, node = _select_child(node)
-            actions_taken.append(action)
-            search_path.append(node)
+            while node.expanded():
+                action, node = _select_child(node)
+                actions_taken.append(action)
+                search_path.append(node)
 
-        parent = search_path[-2]
-        state, reward, value, policy_logits = net.recurrent(parent.state, actions_taken[-1])
-        node.state = state
-        node.reward = float(reward)
-        node.children = {a: Node(prior=float(p)) for a, p in enumerate(torch.softmax(policy_logits, dim=-1))}
-        leaf_value = float(value)
+            parent = search_path[-2]
+            state, reward, value, policy_logits = net.recurrent(parent.state, actions_taken[-1])
+            node.state = state
+            node.reward = float(reward)
+            node.children = {a: Node(prior=float(p)) for a, p in enumerate(torch.softmax(policy_logits, dim=-1))}
+            leaf_value = float(value)
 
-        for n in reversed(search_path):
-            n.visit_count += 1
-            n.value_sum += leaf_value
-            leaf_value = n.reward + discount * leaf_value
+            for n in reversed(search_path):
+                n.visit_count += 1
+                n.value_sum += leaf_value
+                leaf_value = n.reward + discount * leaf_value
 
-    visits = torch.tensor([c.visit_count for c in root.children.values()], dtype=torch.float32)
-    policy = visits / visits.sum()
+        visits = torch.tensor([c.visit_count for c in root.children.values()], dtype=torch.float32)
+        policy = visits / visits.sum()
     return policy
 
 
@@ -179,7 +182,10 @@ class MiniMu:
         self.action_dim = self.env.action_space.n
         self.net = MiniMuNet(obs_dim, self.action_dim)
 
-    def policy(self, obs):
+    def policy(self, obs: Sequence[float] | torch.Tensor | np.ndarray) -> torch.Tensor:
+        if _TORCH:
+            with torch.no_grad():
+                return mcts_policy(self.net, self.env, obs)
         return mcts_policy(self.net, self.env, obs)
 
     def act(self, obs) -> int:
@@ -188,7 +194,7 @@ class MiniMu:
             return int(torch.multinomial(policy, 1).item())
         return random.randrange(self.action_dim)
 
-    def reset(self):
+    def reset(self) -> np.ndarray:
         obs, _ = self.env.reset()
         return obs
 
