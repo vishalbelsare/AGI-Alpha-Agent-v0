@@ -29,17 +29,14 @@ _require_python_311()
 ROOT = Path(__file__).resolve().parent
 try:
     subprocess.run(
-        [
-            "node",
-            "build/version_check.js",
-        ],
+        ["node", "build/version_check.js"],
         cwd=ROOT,
         check=True,
     )
 except FileNotFoundError:
     sys.exit("Node.js 20+ is required. Install Node.js and ensure 'node' is in your PATH.")  # noqa: E501
-except subprocess.CalledProcessError as exc:
-    sys.exit(exc.returncode)
+except subprocess.CalledProcessError:
+    sys.exit("Node.js 20+ is required.")
 
 # load environment variables
 env_file = Path(__file__).resolve().parent / ".env"
