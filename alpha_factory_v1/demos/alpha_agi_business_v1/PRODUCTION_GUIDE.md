@@ -13,9 +13,12 @@ This guide summarises the minimal steps required to run the **Alpha‑AGI Busine
    - For API protection set either `AUTH_BEARER_TOKEN` or `JWT_PUBLIC_KEY`/`JWT_ISSUER`.
    - Validate that all Python packages are available. From the project root run:
      ```bash
-     AUTO_INSTALL_MISSING=1 python check_env.py
+     AUTO_INSTALL_MISSING=1 python check_env.py --auto-install
      ```
-     Provide `WHEELHOUSE=/path/to/wheels` for air‑gapped setups.
+     Provide `WHEELHOUSE=/path/to/wheels` for air‑gapped setups. **Running this
+     command is mandatory before executing the demos or running the test suite.**
+     The `openai-agents` and `google-adk` packages are optional and are only
+     required when using the OpenAI Agents runtime or the Google ADK gateway.
 
 2. **Launch the service**
    - **Docker** (recommended for consistent environments):
