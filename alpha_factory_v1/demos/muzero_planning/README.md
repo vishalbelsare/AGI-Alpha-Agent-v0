@@ -46,13 +46,13 @@ pip install -r requirements.txt
 python -m alpha_factory_v1.demos.muzero_planning
 ```
 
-### Optional `openai_agents`
+### Optional `openai-agents`
 
-For narrated actions and tool calls, install `openai_agents` version
+For narrated actions and tool calls, install `openai-agents` version
 `>=0.0.16`:
 
 ```bash
-pip install -U 'openai_agents>=0.0.16'
+pip install -U 'openai-agents>=0.0.16'
 ```
 
 Leaving `OPENAI_API_KEY` empty keeps the demo offline and falls back to

@@ -5,7 +5,7 @@ try:
     from .agent_muzero_entrypoint import launch_dashboard
 except ImportError:  # pragma: no cover - optional deps may be missing
 
-    def launch_dashboard() -> None:  # type: ignore[return-type]
+    def launch_dashboard() -> None:
         """Placeholder when optional dependencies are absent."""
         raise RuntimeError("gradio and other optional packages are required for the MuZero demo")
 
