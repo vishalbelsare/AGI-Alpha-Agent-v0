@@ -12,6 +12,19 @@ interface ErrorEntry {
 let log: ErrorEntry[] = [];
 const MAX_LOG_ENTRIES = 50;
 
+export function record(entry: ErrorEntry, quiet = false): void {
+  log.push(entry);
+  if (log.length > MAX_LOG_ENTRIES) {
+    log.shift();
+  }
+  try {
+    localStorage.setItem('errorLog', JSON.stringify(log));
+  } catch {}
+  if (!quiet && window.toast) {
+    window.toast(entry.message ? String(entry.message) : t('error_unknown'));
+  }
+}
+
 export function initErrorBoundary() {
   try {
     log = JSON.parse(localStorage.getItem('errorLog') || '[]');
@@ -20,18 +33,6 @@ export function initErrorBoundary() {
   }
   if (log.length > MAX_LOG_ENTRIES) {
     log = log.slice(-MAX_LOG_ENTRIES);
-  }
-  function record(entry: ErrorEntry): void {
-    log.push(entry);
-    if (log.length > MAX_LOG_ENTRIES) {
-      log.shift();
-    }
-    try {
-      localStorage.setItem('errorLog', JSON.stringify(log));
-    } catch {}
-    if (window.toast) {
-      window.toast(entry.message ? String(entry.message) : t('error_unknown'));
-    }
   }
   window.onerror = (msg, url, line, col, err) => {
     record({

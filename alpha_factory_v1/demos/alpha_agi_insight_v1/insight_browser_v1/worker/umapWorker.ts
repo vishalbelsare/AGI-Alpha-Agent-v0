@@ -3,6 +3,27 @@ import { loadPyodide } from '../lib/pyodide.js';
 import type { Individual } from '../src/state/serializer.ts';
 import { t } from '../src/ui/i18n.js';
 
+self.onerror = (e) => {
+  self.postMessage({
+    type: 'error',
+    message: e.message,
+    url: (e as ErrorEvent).filename,
+    line: (e as ErrorEvent).lineno,
+    column: (e as ErrorEvent).colno,
+    stack: (e as ErrorEvent).error?.stack,
+    ts: Date.now(),
+  });
+};
+self.onunhandledrejection = (ev) => {
+  const reason: any = ev.reason || {};
+  self.postMessage({
+    type: 'error',
+    message: reason.message ? String(reason.message) : String(reason),
+    stack: reason.stack,
+    ts: Date.now(),
+  });
+};
+
 interface Pyodide {
   globals: { set(key: string, value: unknown): void; get(key: string): string };
   runPythonAsync(code: string): Promise<unknown>;

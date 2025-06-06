@@ -24,7 +24,7 @@ import { initSimulatorPanel } from './src/ui/SimulatorPanel.ts';
 import { initPowerPanel } from './src/ui/PowerPanel.js';
 import { initAnalyticsPanel } from './src/ui/AnalyticsPanel.js';
 import { initArenaPanel } from './src/ui/ArenaPanel.ts';
-import { initErrorBoundary } from './src/utils/errorBoundary.js';
+import { initErrorBoundary, record } from './src/utils/errorBoundary.js';
 
 let panel,pauseBtn,exportBtn,dropZone
 let criticPanel,logicCritic,feasCritic
@@ -59,6 +59,13 @@ function toast(msg) {
 }
 window.toast = toast;
 window.llmChat=llmChat;
+
+window.addEventListener('message', (ev) => {
+  if (ev.data && ev.data.type === 'error') {
+    record(ev.data, true);
+    toast(t('worker_error'));
+  }
+});
 
 function applyTheme(t){
   document.documentElement.dataset.theme=t;
