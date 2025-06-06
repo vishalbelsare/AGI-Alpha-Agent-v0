@@ -172,6 +172,17 @@ WEB3_STORAGE_TOKEN=<token> python ../../../scripts/fetch_assets.py
 The script retrieves the WebAssembly runtime and supporting files from IPFS,
 verifying checksums to ensure each asset is intact.
 
+### Offline Build Steps
+
+Requires **Node.js ≥20** and **Python ≥3.11**.
+
+1. Copy `.env.sample` to `.env` and set the variables.
+2. Run `WEB3_STORAGE_TOKEN=<token> python ../../../scripts/fetch_assets.py` to download the WASM runtime and model files.
+3. Execute `python manual_build.py` to produce the `dist/` directory.
+4. Open `dist/index.html` to verify offline functionality.
+
+Run `node tests/run.mjs --offline` to confirm the build works without network access.
+
 ## Distribution
 Run `npm run build:dist` to generate `insight_browser.zip` in this directory.
 The archive bundles the production build along with the service worker and

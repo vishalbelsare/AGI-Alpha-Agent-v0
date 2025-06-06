@@ -122,6 +122,44 @@ def inject_env() -> str:
     return script
 
 
+def extract_offline_html() -> str:
+    """Return the Offline Build Steps section from README as HTML."""
+    readme = ROOT / "README.md"
+    md = readme.read_text().splitlines()
+    capture = False
+    lines: list[str] = []
+    for line in md:
+        if line.strip() == "### Offline Build Steps":
+            capture = True
+            continue
+        if capture and line.startswith("### "):
+            break
+        if capture:
+            lines.append(line.rstrip())
+    if not lines:
+        return ""
+    paras: list[str] = []
+    items: list[str] = []
+    for line in lines:
+        if re.match(r"^\d+\.\s", line.strip()):
+            items.append(re.sub(r"^\d+\.\s*", "", line.strip()))
+        elif line.strip():
+            paras.append(line.strip())
+    html = [
+        '<section id="offline-build-steps">',
+        "<h2>Offline Build Steps</h2>",
+    ]
+    for p in paras:
+        html.append(f"<p>{p}</p>")
+    if items:
+        html.append("<ol>")
+        for item in items:
+            html.append(f"<li>{item}</li>")
+        html.append("</ol>")
+    html.append("</section>")
+    return "\n".join(html)
+
+
 ROOT = Path(__file__).resolve().parent
 ALIAS_PREFIX = "@insight-src/"
 repo_root = Path(__file__).resolve()
@@ -367,6 +405,7 @@ out_html = out_html.replace(
     ),
 )
 env_script = inject_env()
+offline_html = extract_offline_html()
 out_html = re.sub(
     r"<script[\s\S]*?d3\.v7\.min\.js[\s\S]*?</script>\s*",
     "",
@@ -384,7 +423,7 @@ out_html = re.sub(
 )
 out_html = out_html.replace(
     "</body>",
-    f"{env_script}\n</body>",
+    f"{offline_html}\n{env_script}\n</body>",
 )
 
 wasm_dir = ROOT / manifest["dirs"]["wasm"]

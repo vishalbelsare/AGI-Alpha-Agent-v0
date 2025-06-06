@@ -36,15 +36,26 @@
       <button id="install-btn" hidden>Install</button>
     </div>
     <div id="legend"></div>
-    <div id="depth-legend"></div>
-    <footer id="disclaimer" style="font-size: 0.8rem; margin: 1rem; text-align:center;">
-      This repository is a conceptual research prototype. References to "AGI" and "superintelligence" describe aspirational goals and do not indicate the presence of a real general intelligence. Use at your own risk.
-    </footer>
-    <script>
-      if ('serviceWorker' in navigator) {
-        window.addEventListener('load', () => {
-          navigator.serviceWorker
-            .register('service-worker.js')
+      <div id="depth-legend"></div>
+      <footer id="disclaimer" style="font-size: 0.8rem; margin: 1rem; text-align:center;">
+        This repository is a conceptual research prototype. References to "AGI" and "superintelligence" describe aspirational goals and do not indicate the presence of a real general intelligence. Use at your own risk.
+      </footer>
+      <section id="offline-build-steps">
+        <h2>Offline Build Steps</h2>
+        <p>Requires <strong>Node.js ≥20</strong> and <strong>Python ≥3.11</strong>.</p>
+        <ol>
+          <li>Copy <code>.env.sample</code> to <code>.env</code> and set the variables.</li>
+          <li>Run <code>WEB3_STORAGE_TOKEN=&lt;token&gt; python ../../../scripts/fetch_assets.py</code> to download the WASM runtime and model files.</li>
+          <li>Execute <code>python manual_build.py</code> to produce the <code>dist/</code> directory.</li>
+          <li>Open <code>dist/index.html</code> to verify offline functionality.</li>
+        </ol>
+        <p>Run <code>node tests/run.mjs --offline</code> to confirm the build works without network access.</p>
+      </section>
+      <script>
+        if ('serviceWorker' in navigator) {
+          window.addEventListener('load', () => {
+            navigator.serviceWorker
+              .register('service-worker.js')
             .catch(() => toast('Service worker registration failed; offline mode disabled.'));
         });
       }
