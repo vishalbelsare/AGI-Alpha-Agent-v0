@@ -20,7 +20,7 @@ except Exception:  # pragma: no cover - optional dependency
 
 
 try:  # OpenAI Agents SDK is optional
-    from openai_agents import Agent, AgentRuntime, Tool, OpenAIAgent
+    from agents import Agent, AgentRuntime, Tool, OpenAIAgent
 except Exception:  # pragma: no cover - provide graceful degrade
 
     class OpenAIAgent:
@@ -117,7 +117,7 @@ if adk_bridge and adk_bridge.adk_enabled():  # pragma: no cover - optional
 
 
 # ── Gradio UI -----------------------------------------------------------------
-def launch_dashboard():
+def launch_dashboard() -> None:
     if not _HAVE_GRADIO:
         raise RuntimeError("gradio is required for this feature. Install with: pip install gradio")
 
@@ -125,7 +125,7 @@ def launch_dashboard():
         vid = gr.Video(label="Live environment")
         log = gr.Markdown()
 
-        async def run():
+        async def run() -> tuple[list[bytes], str]:
             mu = MiniMu(env_id=ENV_ID)
             frames = []
             commentary = []
