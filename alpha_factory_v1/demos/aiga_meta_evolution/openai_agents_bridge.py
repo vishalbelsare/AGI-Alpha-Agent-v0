@@ -12,13 +12,12 @@ import os
 
 try:  # optional dependency
     from openai_agents import Agent, AgentRuntime, OpenAIAgent, Tool
-except ImportError as exc:  # pragma: no cover - missing package
-    raise SystemExit(
-        "openai_agents package is required. Install with `pip install openai-agents`"
-    ) from exc
+except ImportError:  # pragma: no cover - fallback for legacy package
+    from agents import Agent, AgentRuntime, OpenAIAgent, Tool  # type: ignore
 
 try:
     from alpha_factory_v1.backend.adk_bridge import auto_register, maybe_launch
+
     ADK_AVAILABLE = True
 except Exception:  # pragma: no cover - optional
     ADK_AVAILABLE = False

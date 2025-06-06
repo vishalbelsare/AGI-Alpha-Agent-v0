@@ -101,7 +101,8 @@ Expose the evolver to the **OpenAI Agents SDK** runtime:
 python alpha_factory_v1/demos/aiga_meta_evolution/openai_agents_bridge.py
 ```
 
-Requires the `openai-agents` package (installed via requirements).
+Requires the `openai-agents` package (installed via requirements). When only
+the newer `agents` package is available, the bridge falls back automatically.
 
 The bridge registers an `aiga_evolver` agent exposing four tools:
 `evolve` (run N generations), `best_alpha` (return the champion),
