@@ -56,6 +56,8 @@ The build script reads `.env` automatically and injects the values into
 Set it in `localStorage` or provide it at runtime when prompted.
 It also copies `dist/sw.js` to `dist/service-worker.js` which `index.html`
 registers for offline support.
+After rebuilding the demo, the service worker automatically skips the waiting
+phase and reloads the page so users always run the latest version.
 The unbuilt `index.html` falls back to `'self'` for the IPFS and telemetry
 origins, but running `npm run build` (or `python manual_build.py`) replaces
 these defaults with the real values from `.env`.
