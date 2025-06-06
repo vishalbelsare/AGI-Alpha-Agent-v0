@@ -122,13 +122,15 @@ Follow these steps when working without internet access.
    export LLAMA_MODEL_PATH=~/.cache/llama/TinyLlama-1.1B-Chat-v1.0.Q4_K_M.gguf
    ```
 
-4. **Fetch and build the browser assets** to run the Insight demo fully offline:
+4. **Fetch and build the browser assets** (requires **Node.js**) to run the Insight demo fully offline:
    ```bash
    cd alpha_factory_v1/demos/alpha_agi_insight_v1/insight_browser_v1
    python ../../../scripts/fetch_assets.py
    npm ci
    npm run build
    ```
+   Skipping this step or running without Node.js prevents the service worker
+   from being generated, so offline functionality is limited.
 5. **Skip browser downloads** when running the web demo tests offline:
    ```bash
    PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1 npm test
