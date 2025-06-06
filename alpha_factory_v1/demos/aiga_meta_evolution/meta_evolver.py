@@ -37,9 +37,11 @@ try:
     import torch
     import torch.nn as nn
     import torch.nn.functional as F
+
     _TORCH = True
 except ModuleNotFoundError:  # pragma: no cover - CPU-only stub
     import types
+
     torch = types.SimpleNamespace(
         Tensor=float,
         device=lambda *_: "cpu",
@@ -49,32 +51,46 @@ except ModuleNotFoundError:  # pragma: no cover - CPU-only stub
         multinomial=lambda *_: 0,
         no_grad=contextlib.nullcontext,
     )
+
     class _DummyNN:
         Module = object
-        def Linear(*_, **__): return None
-        def Sequential(*_, **__): return []
+
+        def Linear(*_, **__):
+            return None
+
+        def Sequential(*_, **__):
+            return []
+
     nn = _DummyNN()
+
     class _F:
         relu = staticmethod(lambda x: x)
         gelu = staticmethod(lambda x: x)
+
     F = _F
     _TORCH = False
 
 # optional deps ------------------------------------------------------------
 try:
     import ray
+
     _HAS_RAY = True
 except ImportError:
     _HAS_RAY = False
 try:
     from prometheus_client import Gauge
+
     _fitness_gauge = Gauge("aiga_avg_fitness", "Average fitness per generation")
 except ImportError:
     _fitness_gauge = None
 try:
     from a2a import A2ASocket
-    _A2A = A2ASocket(host="localhost", port=5555, app_id="meta_evolver")
-    _A2A.start()
+
+    _A2A = A2ASocket(
+        host=os.getenv("A2A_HOST", "localhost"),
+        port=int(os.getenv("A2A_PORT", "5555")),
+        app_id="meta_evolver",
+    )
 except Exception:
     _A2A = None
 
@@ -97,10 +113,10 @@ if _TORCH:
     }
 else:  # pragma: no cover - minimal placeholders
     Device = "cpu"
-    _ACT = {"relu": lambda x: x, "tanh": lambda x: x,
-            "sigmoid": lambda x: x, "gelu": lambda x: x}
+    _ACT = {"relu": lambda x: x, "tanh": lambda x: x, "sigmoid": lambda x: x, "gelu": lambda x: x}
 CHKPT_DIR = pathlib.Path(os.getenv("CHECKPOINT_DIR", "./checkpoints"))
 CHKPT_DIR.mkdir(parents=True, exist_ok=True)
+
 
 # ────────────────────────────── Genome ────────────────────────────────────
 @dc.dataclass(slots=True)
@@ -132,7 +148,7 @@ class Genome:
 
     # serialisation -------------------------------------------------------
     def to_json(self) -> str:
-        return json.dumps(dc.asdict(self), separators=(',', ':'))
+        return json.dumps(dc.asdict(self), separators=(",", ":"))
 
     @staticmethod
     def from_json(js: str | dict) -> "Genome":
@@ -141,6 +157,7 @@ class Genome:
     @cached_property
     def sha(self) -> str:
         return hashlib.sha256(self.to_json().encode()).hexdigest()[:12]
+
 
 # ───────────────────────── network wrapper ────────────────────────────────
 class EvoNet(nn.Module):
@@ -179,6 +196,7 @@ class EvoNet(nn.Module):
                 h = layer(h)
         return self.model[-1](h)
 
+
 # ────────────────────────── MetaEvolver core ──────────────────────────────
 class MetaEvolver:
     def __init__(
@@ -189,7 +207,9 @@ class MetaEvolver:
         parallel: bool = True,
         checkpoint_dir: pathlib.Path = CHKPT_DIR,
         llm: Callable[[str], str] | None = None,
-    ):
+        *,
+        start_socket: bool = False,
+    ) -> None:
         self.env_cls, self.pop_size, self.elitism = env_cls, pop_size, elitism
         self.parallel = parallel
         self.ckpt_dir = pathlib.Path(checkpoint_dir)
@@ -205,6 +225,8 @@ class MetaEvolver:
         self._init_population()
         if self.parallel and _HAS_RAY and not ray.is_initialized():
             ray.init(ignore_reinit_error=True, _temp_dir=str(self.ckpt_dir / "ray"))
+        if start_socket:
+            self.start_socket()
         LOG.info("Evolver ready ▶ pop=%d device=%s", self.pop_size, Device)
 
     # population -----------------------------------------------------------
@@ -212,6 +234,16 @@ class MetaEvolver:
         seed = Genome()
         self.population = [seed.mutate() for _ in range(self.pop_size)]
         self.best_genome = self.population[0]
+
+    # A2A -----------------------------------------------------------------
+    @staticmethod
+    def start_socket() -> None:
+        """Start the optional A2A socket if available."""
+        if _A2A:
+            try:
+                _A2A.start()
+            except Exception:  # pragma: no cover - best effort
+                LOG.warning("Failed to start A2A socket", exc_info=True)
 
     # evaluation util ------------------------------------------------------
     def _simulate(self, g: Genome) -> Tuple[float, np.ndarray]:
@@ -310,7 +342,7 @@ class MetaEvolver:
             LOG.info("gen=%d avg=%.3f best=%.2f", self.gen, avg, self._best_fitness)
             if _A2A:
                 _A2A.sendjson({"gen": self.gen, "avg": avg, "sha": self.population_sha()})
-            elite_idx = sorted(range(self.pop_size), key=lambda i: scores[i], reverse=True)[:self.elitism]
+            elite_idx = sorted(range(self.pop_size), key=lambda i: scores[i], reverse=True)[: self.elitism]
             new_pop = [self.population[i] for i in elite_idx]
             while len(new_pop) < self.pop_size:
                 new_pop.append(self._select(scores).mutate())
@@ -329,7 +361,7 @@ class MetaEvolver:
             "sha": self.population_sha(),
             "best_fitness": self._best_fitness,
             "best_genome": self.best_genome.to_json() if self.best_genome else None,
-            "ts": datetime.now(timezone.utc).isoformat()
+            "ts": datetime.now(timezone.utc).isoformat(),
         }
         p = self.ckpt_dir / f"gen_{self.gen:04d}.json.tmp"
         p.write_text(json.dumps(data))
@@ -376,6 +408,7 @@ class MetaEvolver:
 
     def history_plot(self):
         import pandas as pd
+
         return pd.DataFrame(self.history, columns=["generation", "avg_fitness"])
 
     def latest_log(self):
@@ -408,7 +441,7 @@ def cli() -> None:
 
     from curriculum_env import CurriculumEnv
 
-    evolver = MetaEvolver(env_cls=CurriculumEnv)
+    evolver = MetaEvolver(env_cls=CurriculumEnv, start_socket=True)
     evolver.run_generations(args.gens)
     print(evolver.latest_log())
 
