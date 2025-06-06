@@ -30,6 +30,7 @@ def test_umap_fallback_random_coordinates() -> None:
         with sync_playwright() as p:
             browser = p.chromium.launch()
             page = browser.new_page()
+            page.add_init_script("window.DEBUG = true")
             page.route("**/pyodide.js", lambda route: route.abort())
             page.goto(url)
             page.wait_for_selector("#controls")

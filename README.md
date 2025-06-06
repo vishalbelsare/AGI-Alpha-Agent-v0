@@ -732,6 +732,8 @@ Build the PWA and open `dist/index.html` to run the demo locally.
 The quick-start guide `docs/insight_browser_quickstart.pdf` is copied to
 `dist/insight_browser_quickstart.pdf` during the build so it is available
 alongside the compiled assets.
+Set `window.DEBUG = true` before loading the page to expose debugging helpers
+such as `window.pop`.
 
 For evolutionary experiments you can run the optional
 [evolution worker](docs/DESIGN.md#evolution-worker) container and POST a tarball
