@@ -38,6 +38,13 @@ function withStore<T>(mode: IDBTransactionMode, fn: (s: IDBObjectStore) => IDBRe
   );
 }
 
+/**
+ * Discover frequently occurring edges across runs.
+ *
+ * @param runs - Runs containing edge histories.
+ * @param minSupport - Minimum run count for an edge to be considered a meme.
+ * @returns List of mined memes.
+ */
 export function mineMemes(runs: Array<{ edges: Edge[] }>, minSupport = 2): Meme[] {
   const counts: Record<string, number> = {};
   for (const r of runs) {
@@ -60,6 +67,11 @@ export function mineMemes(runs: Array<{ edges: Edge[] }>, minSupport = 2): Meme[
   return memes;
 }
 
+/**
+ * Persist mined memes in IndexedDB, replacing existing data.
+ *
+ * @param memes - Memes to store.
+ */
 export async function saveMemes(memes: Meme[]): Promise<void> {
   await withStore('readwrite', (s) => {
     s.clear();
@@ -68,6 +80,11 @@ export async function saveMemes(memes: Meme[]): Promise<void> {
   });
 }
 
+/**
+ * Load stored memes from IndexedDB.
+ *
+ * @returns Array of persisted memes.
+ */
 export async function loadMemes(): Promise<Meme[]> {
   const items = (await withStore<Meme[]>('readonly', (s) => s.getAll())) || [];
   return items.filter((m) => m && m.edges);

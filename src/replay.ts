@@ -37,13 +37,30 @@ function withStore<T>(mode: IDBTransactionMode, fn: (s: IDBObjectStore) => IDBRe
   );
 }
 
+/**
+ * Persistence helper for storing and retrieving replay frames.
+ * Each frame links to its parent so threads can be reconstructed.
+ */
 export class ReplayDB {
+  /**
+   * Create a new replay database wrapper.
+   *
+   * @param name - Optional IndexedDB name.
+   */
   constructor(private name = DB_NAME) {}
 
+  /** Open the underlying database. */
   async open(): Promise<void> {
     await openDB();
   }
 
+  /**
+   * Store a frame and return its generated ID.
+   *
+   * @param parent - ID of the parent frame or `null` if root.
+   * @param delta - Partial state update for this frame.
+   * @returns The new frame ID.
+   */
   async addFrame(parent: number | null, delta: ReplayDelta): Promise<number> {
     const id = Date.now() + Math.floor(Math.random() * 1000);
     const frame: ReplayFrame = { id, parent, delta, timestamp: Date.now() };
@@ -51,10 +68,21 @@ export class ReplayDB {
     return id;
   }
 
+  /**
+   * Retrieve a frame by ID.
+   *
+   * @param id - Frame identifier.
+   * @returns The stored frame or `undefined`.
+   */
   async getFrame(id: number): Promise<ReplayFrame | undefined> {
     return withStore('readonly', (s) => s.get(id));
   }
 
+  /**
+   * Return the chain of frames ending at `id` in chronological order.
+   *
+   * @param id - Last frame ID in the thread.
+   */
   async exportThread(id: number): Promise<ReplayFrame[]> {
     const out: ReplayFrame[] = [];
     let cur: number | null = id;
@@ -67,6 +95,9 @@ export class ReplayDB {
     return out;
   }
 
+  /**
+   * Compute a hex-encoded CID for the given frames.
+   */
   static async cidForFrames(frames: ReplayFrame[]): Promise<string> {
     const deltas = frames.map((f) => f.delta);
     const buf = new TextEncoder().encode(JSON.stringify(deltas));
@@ -76,11 +107,21 @@ export class ReplayDB {
       .join('');
   }
 
+  /**
+   * Compute the CID for the thread containing `id`.
+   *
+   * @param id - Last frame in the thread.
+   */
   async computeCid(id: number): Promise<string> {
     const frames = await this.exportThread(id);
     return ReplayDB.cidForFrames(frames);
   }
 
+  /**
+   * Export a thread and return its CID and serialized data.
+   *
+   * @param id - Last frame in the thread to share.
+   */
   async share(id: number): Promise<{ cid: string; data: string }> {
     const frames = await this.exportThread(id);
     const cid = await ReplayDB.cidForFrames(frames);
@@ -88,6 +129,12 @@ export class ReplayDB {
     return { cid, data };
   }
 
+  /**
+   * Import a JSON thread created by {@link share}.
+   *
+   * @param json - JSON representation of frames.
+   * @returns ID of the last imported frame.
+   */
   async importFrames(json: string): Promise<number> {
     const records: Array<{ parent: number | null; delta: ReplayDelta }> = JSON.parse(json);
     let parent: number | null = null;
