@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 """End-to-end Alpha Factory workflow demo.
 
 This script chains the ``alpha_discovery`` and ``alpha_conversion``

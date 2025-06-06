@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 """agent_aiga_entrypoint.py – AI‑GA Meta‑Evolution Service
 ================================================================
 Production‑grade entry point that wraps the *MetaEvolver* demo into a
