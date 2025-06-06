@@ -38,5 +38,6 @@ run([
   'pytest',
   '../../../../tests/test_quickstart_offline.py',
   '../../../../tests/test_evolution_panel_reload.py',
-  '../../../../tests/test_sw_offline_reload.py'
+  '../../../../tests/test_sw_offline_reload.py',
+  '../../../../tests/test_pwa_update_reload.py'
 ]);
