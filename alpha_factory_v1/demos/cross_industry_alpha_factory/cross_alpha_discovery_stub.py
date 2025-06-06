@@ -7,6 +7,9 @@ will query OpenAI when an ``OPENAI_API_KEY`` is configured for live ideas.
 Discovered items are logged to ``cross_alpha_log.json`` by default.  The
 queried model defaults to ``gpt-4o-mini`` but can be overridden with
 ``--model`` or ``CROSS_ALPHA_MODEL``.
+
+The suggestions returned by this stub are purely illustrative examples and
+should **not** be considered financial advice.
 """
 from __future__ import annotations
 
