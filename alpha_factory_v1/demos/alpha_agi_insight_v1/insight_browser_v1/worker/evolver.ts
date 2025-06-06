@@ -5,7 +5,7 @@ import { lcg } from '../src/utils/rng.js';
 import { t } from '../src/ui/i18n.js';
 import type { Individual } from '../src/state/serializer.ts';
 
-self.onerror = (e) => {
+self.onerror = ((e: ErrorEvent) => {
   self.postMessage({
     type: 'error',
     message: e.message,
@@ -15,8 +15,8 @@ self.onerror = (e) => {
     stack: (e as ErrorEvent).error?.stack,
     ts: Date.now(),
   });
-};
-self.onunhandledrejection = (ev) => {
+}) as any;
+self.onunhandledrejection = ((ev: PromiseRejectionEvent) => {
   const reason: any = ev.reason || {};
   self.postMessage({
     type: 'error',
@@ -24,7 +24,7 @@ self.onunhandledrejection = (ev) => {
     stack: reason.stack,
     ts: Date.now(),
   });
-};
+}) as any;
 
 const ua = self.navigator?.userAgent ?? '';
 const isSafari = /Safari/.test(ua) && !/Chrome|Chromium|Edge/.test(ua);

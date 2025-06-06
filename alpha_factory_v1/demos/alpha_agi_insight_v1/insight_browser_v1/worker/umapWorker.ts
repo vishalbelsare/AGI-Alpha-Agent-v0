@@ -3,7 +3,7 @@ import { loadPyodide } from '../lib/pyodide.js';
 import type { Individual } from '../src/state/serializer.ts';
 import { t } from '../src/ui/i18n.js';
 
-self.onerror = (e) => {
+self.onerror = ((e: ErrorEvent) => {
   self.postMessage({
     type: 'error',
     message: e.message,
@@ -13,8 +13,8 @@ self.onerror = (e) => {
     stack: (e as ErrorEvent).error?.stack,
     ts: Date.now(),
   });
-};
-self.onunhandledrejection = (ev) => {
+}) as any;
+self.onunhandledrejection = ((ev: PromiseRejectionEvent) => {
   const reason: any = ev.reason || {};
   self.postMessage({
     type: 'error',
@@ -22,7 +22,7 @@ self.onunhandledrejection = (ev) => {
     stack: reason.stack,
     ts: Date.now(),
   });
-};
+}) as any;
 
 interface Pyodide {
   globals: { set(key: string, value: unknown): void; get(key: string): string };
