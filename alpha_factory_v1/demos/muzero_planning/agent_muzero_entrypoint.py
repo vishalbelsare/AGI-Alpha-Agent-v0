@@ -10,6 +10,7 @@ but trimmed to <300 LoC for pedagogy.
 """
 
 import os
+from typing import Any
 
 # Optional Google ADK gateway for Agent-to-Agent federation
 try:
@@ -54,14 +55,13 @@ except Exception:  # pragma: no cover - provide graceful degrade
 
 try:
     import gradio as gr
+
     _HAVE_GRADIO = True
 except ModuleNotFoundError:  # pragma: no cover - allow CLI help without gradio
 
     class _MissingGradio:
         def __getattr__(self, name: str):  # noqa: D401
-            raise ModuleNotFoundError(
-                "gradio is required for this feature. Install with: pip install gradio"
-            )
+            raise ModuleNotFoundError("gradio is required for this feature. Install with: pip install gradio")
 
     gr = _MissingGradio()  # type: ignore[misc]
     _HAVE_GRADIO = False
@@ -102,7 +102,7 @@ class MuZeroAgent(Agent):
     name = "muzero_demo"
     tools = [run_episode]
 
-    async def policy(self, obs, ctx):  # type: ignore[override]
+    async def policy(self, obs: dict[str, Any] | Any, ctx: Any) -> object:  # type: ignore[override]
         steps = int(obs.get("steps", 500)) if isinstance(obs, dict) else 500
         return await run_episode(steps)
 
@@ -119,9 +119,7 @@ if adk_bridge and adk_bridge.adk_enabled():  # pragma: no cover - optional
 # ── Gradio UI -----------------------------------------------------------------
 def launch_dashboard():
     if not _HAVE_GRADIO:
-        raise RuntimeError(
-            "gradio is required for this feature. Install with: pip install gradio"
-        )
+        raise RuntimeError("gradio is required for this feature. Install with: pip install gradio")
 
     with gr.Blocks(title="MuZero Planning Demo") as demo:
         vid = gr.Video(label="Live environment")
