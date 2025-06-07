@@ -42,6 +42,7 @@ root_dir="${demo_dir%/*/*}"                    # → …/alpha_factory_v1
 compose_file="$demo_dir/docker-compose.experience.yml"
 env_file="$demo_dir/config.env"
 sample_dir="${SAMPLE_DATA_DIR:-$demo_dir/offline_samples}"
+sample_dir="$(realpath -m "$sample_dir")"
 offline_dir="$sample_dir"
 export SAMPLE_DATA_DIR="$sample_dir"
 

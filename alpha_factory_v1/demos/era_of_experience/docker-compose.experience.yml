@@ -96,9 +96,10 @@ services:
       REDIS_URL: "redis://redis:6379/0"
       DATABASE_URL: "postgresql://experience:${PG_PASSWORD:-experience}@timescaledb:5432/exp_stream"
       LLM_BASE_URL: "${LLM_BASE_URL:-http://ollama:11434/v1}"
-      SAMPLE_DATA_DIR: "${SAMPLE_DATA_DIR:-/app/demo/offline_samples}"
+      SAMPLE_DATA_DIR: "/app/demo/offline_samples"
     volumes:
       - ./:/app/demo:ro
+      - ${SAMPLE_DATA_DIR:-./offline_samples}:/app/demo/offline_samples:ro
     depends_on:
       qdrant:
         condition: service_healthy
