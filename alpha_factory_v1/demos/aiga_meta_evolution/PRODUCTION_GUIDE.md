@@ -1,6 +1,7 @@
 # 🛠️ Production Deployment Guide — AI‑GA Meta‑Evolution
 
 This short guide distils the steps required to run the **AI‑GA Meta‑Evolution** service in a production or workshop environment.
+The AI‑GA Meta‑Evolution service is a conceptual research prototype. References to "AGI" and "superintelligence" describe aspirational goals and do not indicate the presence of a real general intelligence. Use at your own risk.
 
 1. **Prepare the configuration**
    - Copy `config.env.sample` to `config.env` and edit as needed.
