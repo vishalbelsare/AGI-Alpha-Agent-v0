@@ -62,13 +62,11 @@ export class ReplayDB {
    * @returns The new frame ID.
    */
   async addFrame(parent: number | null, delta: ReplayDelta): Promise<number> {
-    let id: number;
-    if (typeof (crypto as any).randomUUID === 'function') {
-      const uuid = (crypto as any).randomUUID().replace(/-/g, '');
-      id = parseInt(uuid.slice(0, 13), 16);
-    } else {
-      id = Date.now() + Math.floor(Math.random() * 1000);
-    }
+    const uuidFn = (globalThis.crypto as Crypto | undefined)?.randomUUID;
+    const id =
+      typeof uuidFn === 'function'
+        ? parseInt(uuidFn.call(globalThis.crypto).replace(/-/g, '').slice(0, 13), 16)
+        : Date.now() + Math.floor(Math.random() * 1000);
     const frame: ReplayFrame = { id, parent, delta, timestamp: Date.now() };
     await withStore('readwrite', (s) => s.put(frame, id));
     return id;
