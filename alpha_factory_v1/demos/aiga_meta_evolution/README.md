@@ -97,14 +97,19 @@ python alpha_factory_v1/demos/aiga_meta_evolution/start_aiga_demo.py --help
 python -m alpha_factory_v1.demos.aiga_meta_evolution --help
 ```
 
-Launch the local Mixtral server in another terminal if it is not already
-running:
+Launch the **Ollama Mixtral** model in another terminal:
 
 ```bash
 docker run -p 11434:11434 ollama/ollama:latest --models mixtral:instruct
 ```
 
-Set `OLLAMA_BASE_URL` when binding the server to a different host or port.
+If you bind the server to a custom host or port, set `OLLAMA_BASE_URL` so the
+demo can reach it. Example:
+
+```bash
+docker run -p 12345:11434 ollama/ollama:latest --models mixtral:instruct
+export OLLAMA_BASE_URL="http://localhost:12345"
+```
 
 Set `OPENAI_API_KEY` in your environment to enable cloud models. Without
 it the demo falls back to the bundled offline mixtral model.
