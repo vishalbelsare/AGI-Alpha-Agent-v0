@@ -14,52 +14,52 @@ import json
 import os
 import contextlib
 from pathlib import Path
-from typing import Dict
+from typing import Any, Dict
 import logging
 
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s - %(levelname)s - %(message)s"
-)
+logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 # Initialize `openai` to `None` as a fallback in case the module import fails.
 openai = None
 with contextlib.suppress(ModuleNotFoundError):
     import openai  # type: ignore
 
-SAMPLE_PLAN = {
+SAMPLE_PLAN: Dict[str, Any] = {
     "steps": [
         "Validate market potential and regulatory constraints",
         "Prototype a minimal solution to capture early demand",
-        "Deploy iteratively while measuring ROI"
+        "Deploy iteratively while measuring ROI",
     ]
 }
 
-DEFAULT_LEDGER = Path(__file__).with_name("alpha_conversion_log.json")
+DEFAULT_LEDGER = Path.home() / ".aiga" / "alpha_conversion_log.json"
 
 
-def _ledger_path(path: str | os.PathLike | None) -> Path:
+def _ledger_path(path: str | os.PathLike[str] | None) -> Path:
     if path:
-        return Path(path).expanduser().resolve()
-    env = os.getenv("ALPHA_CONVERSION_LEDGER")
-    if env:
-        return Path(env).expanduser().resolve()
-    return DEFAULT_LEDGER
+        ledger = Path(path).expanduser().absolute()
+    else:
+        env = os.getenv("ALPHA_CONVERSION_LEDGER")
+        if env:
+            ledger = Path(env).expanduser().absolute()
+        else:
+            ledger = DEFAULT_LEDGER.expanduser()
+    ledger.parent.mkdir(parents=True, exist_ok=True)
+    return ledger
 
 
-def convert_alpha(alpha: str, *, ledger: Path | None = None, model: str = "gpt-4o-mini") -> Dict[str, object]:
+def convert_alpha(alpha: str, *, ledger: Path | None = None, model: str = "gpt-4o-mini") -> Dict[str, Any]:
     """Return a plan dictionary and log to *ledger*."""
-    plan: Dict[str, object] = SAMPLE_PLAN
+    plan: Dict[str, Any] = SAMPLE_PLAN.copy()
     if openai is not None and os.getenv("OPENAI_API_KEY"):
         prompt = (
-            f"Given the opportunity: {alpha}\n"
-            "Provide a short JSON plan with three concise steps to realise value."
+            f"Given the opportunity: {alpha}\n" "Provide a short JSON plan with three concise steps to realise value."
         )
         try:
             resp = openai.ChatCompletion.create(
                 model=model,
                 messages=[{"role": "user", "content": prompt}],
             )
-            plan = json.loads(resp.choices[0].message.content)  # type: ignore[index]
+            plan = json.loads(resp.choices[0].message.content)
             if not isinstance(plan, dict):
                 plan = SAMPLE_PLAN
         except openai.error.OpenAIError as e:
