@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 """Meta-Agentic Tree Search v0 demo package."""
 
 from . import mats
