@@ -63,7 +63,7 @@ Add `--live` to pull in real sensor feeds (wearables, RSS, etc.):
 
    ```bash
    cp config.env.sample config.env
-   $EDITOR config.env      # set OPENAI_API_KEY, MODEL_NAME, LIVE_FEED, etc.
+   $EDITOR config.env      # set OPENAI_API_KEY, MODEL_NAME, LOG_LEVEL, LIVE_FEED, etc.
    ```
    You may override the path for built-in offline samples with
    `SAMPLE_DATA_DIR=/path/to/csvs`.

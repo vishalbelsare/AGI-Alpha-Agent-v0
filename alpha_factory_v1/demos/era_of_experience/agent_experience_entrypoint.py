@@ -27,6 +27,7 @@ Environment vars (optional):
     MODEL_NAME          – default gpt-4o-mini
     TEMPERATURE         – default 0.2
     LIVE_FEED           – 1 to mix in real wearable/web data
+    LOG_LEVEL           – default INFO
 """
 from __future__ import annotations
 import os
@@ -71,7 +72,7 @@ MODEL       = os.getenv("MODEL_NAME", "gpt-4o-mini")
 TEMP        = float(os.getenv("TEMPERATURE", "0.2"))
 LIVE_FEED   = bool(int(os.getenv("LIVE_FEED", "0")))
 PORT        = int(os.getenv("PORT", "7860"))
-LOG_LVL     = os.getenv("LOGLEVEL", "INFO").upper()
+LOG_LVL     = os.getenv("LOG_LEVEL", "INFO").upper()
 
 logging.basicConfig(
     level=LOG_LVL,
