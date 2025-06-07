@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# SPDX-License-Identifier: Apache-2.0
 ###############################################################################
 #  run_experience_demo.sh – Era-of-Experience • Alpha-Factory v1 👁️✨
 #
