@@ -55,6 +55,7 @@ if env_file.is_file():
     except subprocess.CalledProcessError as exc:
         sys.exit(exc.returncode)
 else:
+    print("[manual_build] .env not found, using default values")
     for key in ("PINNER_TOKEN", "IPFS_GATEWAY", "OTEL_ENDPOINT", "OPENAI_API_KEY"):
         os.environ.setdefault(key, "")
 
