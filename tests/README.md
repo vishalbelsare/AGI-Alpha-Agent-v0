@@ -13,14 +13,17 @@ These integration tests expect the `alpha_factory_v1` package to be importable.
    ```bash
    pip install -r requirements-demo.txt
    ```
-3. Run `python check_env.py --auto-install` (provide `--wheelhouse <dir>` when offline).
+3. Run `python check_env.py --auto-install` to ensure optional packages are installed. The command
+   downloads dependencies from PyPI, so it **requires an internet connection or a local
+   wheelhouse** supplied via `--wheelhouse <dir>`.
 4. Set `PYTHONPATH=$(pwd)` or install the project in editable mode with `pip install -e .`.
 5. Execute `pytest -q`.
 
 ### Offline install
 
-Create a wheelhouse so the tests run without contacting PyPI. Build wheels for
-`requirements.txt` and `requirements-dev.txt` (include the MuZero demo if
+Create a wheelhouse so the tests run without contacting PyPI. Build the wheels on
+a machine with connectivity and copy the directory to the offline host. Include
+`requirements.txt` and `requirements-dev.txt` (add the MuZero demo requirements if
 needed):
 
 ```bash
@@ -37,6 +40,10 @@ WHEELHOUSE=$(pwd)/wheels pip install --no-index --find-links "$WHEELHOUSE" -r re
 WHEELHOUSE=$(pwd)/wheels python check_env.py --auto-install --wheelhouse "$WHEELHOUSE"
 PYTHONPATH=$(pwd) WHEELHOUSE="$WHEELHOUSE" pytest -q
 ```
+
+The `check_env.py` command will fail offline unless `--wheelhouse` is provided.
+Ensure the `WHEELHOUSE` environment variable points to your wheel directory
+before running `pytest`.
 
 Missing optional dependencies often cause failures. Re-run the environment check or pass `--wheelhouse` to install them offline.
 
