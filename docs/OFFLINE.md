@@ -12,6 +12,10 @@ mkdir -p /media/wheels
 pip wheel -r requirements.txt -w /media/wheels
 pip wheel -r requirements-dev.txt -w /media/wheels
 ```
+These wheels cover the runtime and development dependencies needed for the test
+suite. Copy the directory to the offline host and set
+`WHEELHOUSE=/media/wheels` so `check_env.py` and `pytest` install packages from
+this local cache.
 
 You can optionally compile a lock file from these wheels:
 
