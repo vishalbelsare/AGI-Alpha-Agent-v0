@@ -116,13 +116,21 @@ Follow these steps when working without internet access.
      python check_env.py --auto-install --wheelhouse /media/wheels
    pip check
    ```
-   `check_env.py` uses the wheels under `/media/wheels`. Set
-   `WHEELHOUSE=/media/wheels` when running `pre-commit` or the tests so
-   dependencies install from the local cache. See
-   [Offline Setup](alpha_factory_v1/scripts/README.md#offline-setup) for more
-  details. If package installation hangs for more than ten minutes,
-  `check_env.py` will time out and suggest using `--wheelhouse` for
-  offline installs.
+`check_env.py` uses the wheels under `/media/wheels`. Set
+`WHEELHOUSE=/media/wheels` when running `pre-commit` or the tests so
+dependencies install from the local cache. See
+[Offline Setup](alpha_factory_v1/scripts/README.md#offline-setup) for more
+details. If package installation hangs for more than ten minutes,
+`check_env.py` will time out and suggest using `--wheelhouse` for
+offline installs.
+
+Run the environment check again when the machine is completely
+air‑gapped:
+```bash
+python check_env.py --auto-install --wheelhouse /media/wheels
+```
+This mirrors the instructions in
+[alpha_factory_v1/scripts/README.md](alpha_factory_v1/scripts/README.md#offline-setup).
 
 3. **Download a `.gguf` weight** and set ``LLAMA_MODEL_PATH``:
    ```bash
