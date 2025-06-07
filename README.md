@@ -35,7 +35,7 @@ Clone the repository and run the helper script to start the Insight demo locally
 ```bash
 git clone https://github.com/MontrealAI/AGI-Alpha-Agent-v0.git
 cd AGI-Alpha-Agent-v0
-python check_env.py --auto-install  # verify runtime and install extras
+python check_env.py --auto-install  # verify runtime and install extras (10 min timeout)
 ./quickstart.sh
 ```
 
@@ -120,7 +120,9 @@ Follow these steps when working without internet access.
    `WHEELHOUSE=/media/wheels` when running `pre-commit` or the tests so
    dependencies install from the local cache. See
    [Offline Setup](alpha_factory_v1/scripts/README.md#offline-setup) for more
-   details.
+  details. If package installation hangs for more than ten minutes,
+  `check_env.py` will time out and suggest using `--wheelhouse` for
+  offline installs.
 
 3. **Download a `.gguf` weight** and set ``LLAMA_MODEL_PATH``:
    ```bash
@@ -691,7 +693,7 @@ Cells with \(Δ\mathcal F < 0\) glow 🔵 on Grafana; Ω‑Agents race to harves
 git clone https://github.com/MontrealAI/AGI-Alpha-Agent-v0.git
 cd AGI-Alpha-Agent-v0
 ./quickstart.sh --preflight   # optional environment check
-python check_env.py --auto-install  # verify & auto-install deps
+python check_env.py --auto-install  # verify & auto-install deps (10 min timeout)
 # Install runtime dependencies
 pip install -r requirements.lock
 # (If this fails with a network error, create a wheelhouse and rerun
@@ -874,7 +876,7 @@ pip install -r requirements-dev.txt
 Install the project in editable mode so tests resolve imports:
 ```bash
 pip install -e .
-python check_env.py --auto-install
+python check_env.py --auto-install  # times out after 10 minutes
 ```
 
 #### Test Runtime
