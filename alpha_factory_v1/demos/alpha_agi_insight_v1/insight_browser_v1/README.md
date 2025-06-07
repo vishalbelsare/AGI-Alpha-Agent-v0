@@ -320,6 +320,9 @@ checks. `PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD` prevents Playwright from fetching
 browsers. Optionally set `PLAYWRIGHT_BROWSERS_PATH=/path/to/browsers` when using
 pre‑downloaded binaries.
 
+The Jest test `locale_parity.test.js` verifies that all translation files share
+the same set of keys.
+
 ## Development
 
 - Run `pre-commit run --all-files` to format and lint the code.
