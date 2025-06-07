@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# SPDX-License-Identifier: Apache-2.0
 # demos/deploy_alpha_factory_demo.sh
 # ─────────────────────────────────────────────────────────────────────────
 # One‑command demo for Alpha‑Factory v1.
