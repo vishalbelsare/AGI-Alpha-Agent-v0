@@ -3,8 +3,9 @@
 
 This script chains the ``alpha_discovery`` and ``alpha_conversion``
 stubs via the OpenAI Agents runtime. It works offline when
-``OPENAI_API_KEY`` is unset and optionally exposes the agent over
-the Google ADK gateway if available.
+``OPENAI_API_KEY`` is unset and can publish the agent over the
+Google ADK gateway when the ``ALPHA_FACTORY_ENABLE_ADK`` environment
+variable is set.
 """
 from __future__ import annotations
 
@@ -21,6 +22,7 @@ from alpha_opportunity_stub import identify_alpha
 from alpha_conversion_stub import convert_alpha
 
 try:
+    from alpha_factory_v1.backend import adk_bridge
     from alpha_factory_v1.backend.adk_bridge import auto_register, maybe_launch
     ADK_AVAILABLE = True
 except Exception:  # pragma: no cover - optional
@@ -66,7 +68,7 @@ def main() -> None:
     runtime.register(agent)
     print("Registered WorkflowAgent with runtime")
 
-    if ADK_AVAILABLE:
+    if ADK_AVAILABLE and adk_bridge.adk_enabled():
         auto_register([agent])
         maybe_launch()
         print("WorkflowAgent exposed via ADK gateway")
