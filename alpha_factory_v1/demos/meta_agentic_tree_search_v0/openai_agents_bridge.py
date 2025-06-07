@@ -12,7 +12,7 @@ import os
 import argparse
 import importlib.util
 import sys
-import pathlib
+from pathlib import Path
 
 DEFAULT_MODEL_NAME = os.getenv("OPENAI_MODEL", "gpt-4o")
 
@@ -31,7 +31,7 @@ def verify_env() -> None:
 
 if __package__ is None:  # pragma: no cover - allow direct execution
     # Ensure imports resolve when running the script directly
-    sys.path.append(str(pathlib.Path(__file__).resolve().parents[3]))
+    sys.path.append(str(Path(__file__).resolve().parents[3]))
     __package__ = "alpha_factory_v1.demos.meta_agentic_tree_search_v0"
 
 try:

@@ -221,6 +221,28 @@ class TestMetaAgenticTreeSearchDemo(unittest.TestCase):
         )
         self.assertEqual(result.returncode, 0, result.stderr)
 
+    def test_bridge_market_data(self) -> None:
+        import tempfile
+
+        with tempfile.NamedTemporaryFile("w", delete=False) as fh:
+            fh.write("6,6,6")
+            feed_path = fh.name
+
+        result = subprocess.run(
+            [
+                sys.executable,
+                "-m",
+                "alpha_factory_v1.demos.meta_agentic_tree_search_v0.openai_agents_bridge",
+                "--episodes",
+                "1",
+                "--market-data",
+                feed_path,
+            ],
+            capture_output=True,
+            text=True,
+        )
+        self.assertEqual(result.returncode, 0, result.stderr)
+
 
 def test_bridge_online_mode(monkeypatch) -> None:
     pytest.importorskip("openai_agents")
