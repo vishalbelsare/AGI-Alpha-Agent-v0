@@ -20,6 +20,7 @@ x-common-env: &common-env
   OPENAI_API_KEY: "${OPENAI_API_KEY:-}"
   MODEL_NAME: "${MODEL_NAME:-gpt-4o-mini}"
   TEMPERATURE: "${TEMPERATURE:-0.2}"
+  LOG_LEVEL: "${LOG_LEVEL:-INFO}"
   # ↓ live metrics (optional)
   PROM_PUSHGATEWAY: "http://prom-push:9091"
 
