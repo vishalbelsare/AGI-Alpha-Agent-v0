@@ -27,7 +27,7 @@ curl -L https://raw.githubusercontent.com/MontrealAI/AGI-Alpha-Agent-v0/main/alp
 2. Container starts with the *BTC / GLD* momentum strategy.
 3. The script verifies the API port is free and waits for the health endpoint.
 4. The script prints JSON tables for **positions** and **P&L**.
-5. You get a link to the live **trace‑graph UI** (`http://localhost:8088`).
+5. You get a link to the live **trace‑graph UI** (`http://localhost:${TRACE_WS_PORT}`).
 6. Container stops automatically when you close the terminal.
 
 _No installation beyond Docker, `curl`, and `jq`._

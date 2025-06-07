@@ -24,6 +24,7 @@ if [ -f "${SCRIPT_DIR}/.env" ]; then
   set +a
 fi
 
+
 STRATEGY="${STRATEGY:-${FINANCE_STRATEGY:-btc_gld}}"
 PORT_API="${PORT_API:-8000}"
 TRACE_WS_PORT="${TRACE_WS_PORT:-8088}"
@@ -63,6 +64,31 @@ else
   fi
 fi
 
+# Check whether the trace WebSocket port is free
+if command -v python >/dev/null; then
+  if ! python - <<'EOF_P' "$TRACE_WS_PORT"
+import socket, sys
+s = socket.socket()
+result = s.connect_ex(('localhost', int(sys.argv[1])))
+sys.exit(0 if result else 1)
+EOF_P
+  then
+    echo "❌  Port $TRACE_WS_PORT is already in use"; exit 1;
+  fi
+else
+  if command -v lsof >/dev/null; then
+    if lsof -i ":$TRACE_WS_PORT" >/dev/null 2>&1; then
+      echo "❌  Port $TRACE_WS_PORT is already in use"; exit 1;
+    fi
+  elif command -v ss >/dev/null; then
+    if ss -ltn | grep -q ":$TRACE_WS_PORT " ; then
+      echo "❌  Port $TRACE_WS_PORT is already in use"; exit 1;
+    fi
+  else
+    echo "⚠  Unable to verify if port $TRACE_WS_PORT is free (missing python, lsof/ss)" >&2
+  fi
+fi
+
 # ── pull image if missing ───────────────────────────────────────────────
 if ! docker image inspect "$IMAGE" >/dev/null 2>&1; then
   banner "📦  Pulling Alpha‑Factory image ($IMAGE)…"
@@ -82,8 +108,8 @@ done
 
 CID=$(docker run -d --rm --name "$CONTAINER" \
         "${DOCKER_ENV[@]}" \
-        -p "${PORT_API}:8000" \
-        -p "${TRACE_WS_PORT}:8088" "$IMAGE")
+       -p "${PORT_API}:8000" \
+       -p "${TRACE_WS_PORT}:${TRACE_WS_PORT}" "$IMAGE")
 trap 'docker stop "$CID" >/dev/null' EXIT
 
 # ── wait for API health endpoint ────────────────────────────────────────
