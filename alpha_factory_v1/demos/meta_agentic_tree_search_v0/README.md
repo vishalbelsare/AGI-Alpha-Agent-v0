@@ -170,6 +170,22 @@ The repository's setup script automatically uses a `wheels/` directory
 in the project root when present, so placing your pre-built wheels
 there also works.
 
+### Environment variables
+The demo consults a few environment variables when choosing a rewrite strategy
+and model. Set these if you do not pass ``--rewriter`` or ``--model`` on the
+command line:
+
+- ``MATS_REWRITER`` – forces the rewrite engine to ``random``, ``openai`` or
+  ``anthropic``.
+- ``OPENAI_MODEL`` – default model used by the OpenAI rewriter and bridge
+  (defaults to ``gpt-4o``).
+- ``ANTHROPIC_MODEL`` – model name for the Anthropic rewriter
+  (defaults to ``claude-3-opus-20240229``).
+
+If ``MATS_REWRITER`` is unset the script picks ``openai`` when an
+``OPENAI_API_KEY`` is present or ``anthropic`` when ``ANTHROPIC_API_KEY`` is
+configured, falling back to the offline rewriter otherwise.
+
 ### Notebook quick start
 1. Click the “Open In Colab” badge at the top of this document.
 2. Execute the first cell to clone the repository and install dependencies.
