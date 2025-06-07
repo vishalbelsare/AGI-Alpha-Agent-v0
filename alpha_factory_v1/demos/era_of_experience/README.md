@@ -255,8 +255,10 @@ Verify the demo locally with Python's builtin test runner:
 python -m unittest tests.test_era_experience
 ```
 
-Run `python ../../../check_env.py --auto-install` first to ensure optional
-packages like `pytest` and `openai-agents` are available.
+Run `python ../../../check_env.py --auto-install` first and make sure it
+completes successfully before running any tests. Tests will fail if core
+packages such as `numpy` are missing, in addition to optional ones like
+`pytest` and `openai-agents`.
 
 ---
 
