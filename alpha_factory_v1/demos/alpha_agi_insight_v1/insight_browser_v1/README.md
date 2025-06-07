@@ -49,12 +49,12 @@ Pyodide runtime and `wasm-gpt2` model, then install the Node modules and
 compile the bundle:
 ```bash
 npm run fetch-assets
-./setup.sh        # installs dependencies when node_modules is missing
-npm run build     # or `python manual_build.py` for offline builds
+./setup.sh        # installs dependencies when node_modules is missing (use `./setup.ps1` on Windows)
+npm run build     # or `python manual_build.py` or `./manual_build.ps1` for offline builds
 ```
 Run the tests with:
 ```bash
-./setup.sh && npm test
+./setup.sh && npm test    # on Windows use `./setup.ps1`
 ```
 The build script reads `.env` automatically and injects the values into
 `dist/index.html` as `window.PINNER_TOKEN`, `window.IPFS_GATEWAY` and
@@ -119,8 +119,8 @@ Use `manual_build.py` for air‑gapped environments:
    Failing to replace placeholders will break offline mode.
 3. Run `node build/version_check.js` to ensure Node.js **v20** or newer is
    installed. `manual_build.py` exits if this check fails.
-4. `python manual_build.py` – bundles the app, generates `dist/sw.js` and embeds
-   your `.env` settings.
+4. `python manual_build.py` – or run `./manual_build.ps1` – bundles the app,
+   generates `dist/sw.js` and embeds your `.env` settings.
 5. `npm start` or open `dist/index.html` directly to run the demo.
 
 The script requires Python ≥3.11. It loads `.env` automatically and injects
@@ -135,7 +135,7 @@ Follow these steps when building without internet access:
 2. Verify checksums match `build_assets.json` and ensure no files under
    `wasm/` or `lib/` contain the word "placeholder".
 3. `npm ci` to install the locked dependencies.
-4. Execute `python manual_build.py` to generate the PWA in `dist/`.
+4. Execute `python manual_build.py` (or `./manual_build.ps1`) to generate the PWA in `dist/`.
 5. Launch with `npm start` or pin the directory with `ipfs add -r dist`.
 
 Failing to replace placeholders will break offline mode.
@@ -145,7 +145,7 @@ Failing to replace placeholders will break offline mode.
 1. Run `npm run fetch-assets`.
 2. `npm ci` to install dependencies from `package-lock.json`.
 3. Confirm no placeholder text remains in `lib/` or `wasm*/`.
-4. Execute `python manual_build.py` to generate the PWA in `dist/`. Use
+4. Execute `python manual_build.py` (or `./manual_build.ps1`) to generate the PWA in `dist/`. Use
    `npm run build` when internet access is available.
 
 5. Run the tests offline:
@@ -194,7 +194,7 @@ Requires **Node.js ≥20** and **Python ≥3.11**.
 
 1. Copy `.env.sample` to `.env` and set the variables.
 2. Run `WEB3_STORAGE_TOKEN=<token> npm run fetch-assets` to download the WASM runtime and model files.
-3. Execute `python manual_build.py` to produce the `dist/` directory.
+3. Execute `python manual_build.py` (or `./manual_build.ps1`) to produce the `dist/` directory.
 4. Open `dist/index.html` to verify offline functionality.
 
 Run `node tests/run.mjs --offline` to confirm the build works without network access.
