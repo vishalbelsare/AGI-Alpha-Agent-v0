@@ -57,6 +57,21 @@ Add `--live` to pull in real sensor feeds (wearables, RSS, etc.):
 
 > **Offline/Private mode** — leave `OPENAI_API_KEY=` blank in <code>config.env</code>; the stack falls back to <strong>Ollama ✕ Mixtral‑8x7B</strong> and stays air‑gapped.
 
+## Offline Setup
+
+When running without internet access:
+
+1. Pre-download `wearable_daily.csv` and `edu_progress.csv` from the
+   <a href="https://github.com/MontrealAI/demo-assets">demo-assets</a> repository.
+2. Place both files in `offline_samples/` before executing
+   <code>./run_experience_demo.sh</code> so the orchestrator can read them.
+3. If the environment check cannot reach PyPI, set `SKIP_ENV_CHECK=1` to skip
+   that step:
+   ```bash
+   SKIP_ENV_CHECK=1 ./run_experience_demo.sh
+   ```
+
+
 ### 🔧 Configure &amp; advanced usage
 
 1. Copy the sample environment file and tweak as desired:
