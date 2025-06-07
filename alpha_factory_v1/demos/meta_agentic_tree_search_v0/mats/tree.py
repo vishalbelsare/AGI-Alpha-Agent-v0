@@ -7,6 +7,7 @@ from dataclasses import dataclass, field
 from typing import List, Optional
 import math
 
+
 @dataclass
 class Node:
     agents: List[int]
@@ -39,10 +40,11 @@ class Tree:
 
     def backprop(self, node: Node) -> None:
         reward = node.reward
-        while node is not None:
-            node.visits += 1
-            node.reward += reward
-            node = node.parent
+        current: Optional[Node] = node
+        while current is not None:
+            current.visits += 1
+            current.reward += reward
+            current = current.parent
 
     def best_leaf(self) -> Node:
         best = self.root
@@ -53,4 +55,3 @@ class Tree:
                 best = n
             stack.extend(n.children)
         return best
-
