@@ -201,7 +201,7 @@ template). The sample file now lists every variable with its default value.
 | `AGENTS_RUNTIME_PORT` | OpenAI Agents runtime port | `5001` |
 | `BUSINESS_HOST` | Base orchestrator URL for bridges | `"http://localhost:8000"` |
 | `ALPHA_FACTORY_ENABLE_ADK` | Set to `true` to start the Google ADK gateway | `false` |
-| `LOGLEVEL` | Logging level | `INFO` |
+| `LOG_LEVEL` | Logging level | `INFO` |
 | `API_TOKEN` | Bearer token for the demo API | `REPLACE_ME_TOKEN` |
 | `API_RATE_LIMIT` | Requests per minute per IP | `60` |
 | `API_CORS_ORIGINS` | Comma-separated CORS origins for the API | `*` |
