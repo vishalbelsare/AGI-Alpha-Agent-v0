@@ -11,11 +11,7 @@ import base64
 
 BUILD_DIR = Path(__file__).resolve().parent / "build"
 sys.path.insert(0, str(BUILD_DIR))
-from common import (  # noqa: E402
-    check_gzip_size,
-    sha384,
-    generate_service_worker,
-)
+from build.common import check_gzip_size, sha384, generate_service_worker  # noqa: E402
 
 
 def _require_python_311() -> None:
@@ -40,25 +36,27 @@ except subprocess.CalledProcessError:
 
 # load environment variables
 env_file = Path(__file__).resolve().parent / ".env"
-if not env_file.is_file():
-    sys.exit(".env not found. Copy .env.sample to .env and populate the required values.")  # noqa: E501
-try:
-    from alpha_factory_v1.utils.env import _load_env_file
+if env_file.is_file():
+    try:
+        from alpha_factory_v1.utils.env import _load_env_file
 
-    for key, val in _load_env_file(env_file).items():
-        os.environ.setdefault(key, val)
-except Exception as exc:  # pragma: no cover - optional dep
-    print(f"[manual_build] failed to load .env: {exc}", file=sys.stderr)
+        for key, val in _load_env_file(env_file).items():
+            os.environ.setdefault(key, val)
+    except Exception as exc:  # pragma: no cover - optional dep
+        print(f"[manual_build] failed to load .env: {exc}", file=sys.stderr)
 
-try:
-    subprocess.run(
-        ["node", "build/env_validate.js"],
-        cwd=ROOT,
-        check=True,
-        env=os.environ,
-    )
-except subprocess.CalledProcessError as exc:
-    sys.exit(exc.returncode)
+    try:
+        subprocess.run(
+            ["node", "build/env_validate.js"],
+            cwd=ROOT,
+            check=True,
+            env=os.environ,
+        )
+    except subprocess.CalledProcessError as exc:
+        sys.exit(exc.returncode)
+else:
+    for key in ("PINNER_TOKEN", "IPFS_GATEWAY", "OTEL_ENDPOINT", "OPENAI_API_KEY"):
+        os.environ.setdefault(key, "")
 
 
 def copy_assets(
