@@ -102,11 +102,11 @@ The `openai_agents_bridge.py` script exposes the search loop via the
 the bridge to control the demo through API calls or the Agents runtime UI:
 
 ```bash
-python openai_agents_bridge.py --help
+mats-bridge --help
 ```
 Run a quick environment check with ``--verify-env`` if desired:
 ```bash
-python openai_agents_bridge.py --verify-env --episodes 3 --target 4 --model gpt-4o
+mats-bridge --verify-env --episodes 3 --target 4 --model gpt-4o
 ```
 The bridge exposes a small :func:`verify_env` helper that performs the same
 sanity check programmatically. Call it from Python or rely on the command
@@ -116,7 +116,7 @@ remains reproducible anywhere. When running offline you can still invoke
 `run_search` directly to verify the helper logic:
 
 ```bash
-python openai_agents_bridge.py --episodes 3 --target 4 --model gpt-4o
+mats-bridge --episodes 3 --target 4 --model gpt-4o
 python -m alpha_factory_v1.demos.meta_agentic_tree_search_v0.openai_agents_bridge --episodes 3 --target 4
 ```
 Enable the optional ADK gateway with ``--enable-adk`` (or set
@@ -144,7 +144,7 @@ python run_demo.py --config configs/default.yaml --episodes 500 --target 5 --see
 # or equivalently
 python -m alpha_factory_v1.demos.meta_agentic_tree_search_v0.run_demo --episodes 500 --target 5
 # installed script
-mats-demo --episodes 10
+mats-bridge --episodes 3
 ```
 `run_demo.py` prints a per‑episode scoreboard.  Pass `--log-dir logs` to save a
 `scores.csv` file for further analysis. A ready‑to‑run Colab notebook is also
