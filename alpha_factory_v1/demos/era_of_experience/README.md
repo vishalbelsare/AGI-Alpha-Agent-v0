@@ -53,7 +53,9 @@ Add `--live` to pull in real sensor feeds (wearables, RSS, etc.):
   * live trace‑graph 🪄
   * reward dashboards 📈
   * interactive chat / tool console 💬
-  * built‑in alpha detectors (yield curve & supply‑chain) 🔍
+  * built‑in alpha detectors (yield curve & supply‑chain) 🔍 — they read from
+    `alpha_factory_v1/demos/macro_sentinel/offline_samples/`, and the CSV
+    snapshots are already included in the repository
 
 > **Offline/Private mode** — leave `OPENAI_API_KEY=` blank in <code>config.env</code>; the stack falls back to <strong>Ollama ✕ Mixtral‑8x7B</strong> and stays air‑gapped.
 
