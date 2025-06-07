@@ -3,6 +3,9 @@
 A minimal showcase of a self-directed agent with token-gated access.
 Run `./deploy_sovereign_agentic_agialpha_agent_v0.sh` to build and launch the containerized environment.
 
+## Disclaimer
+References to AGI or superintelligence describe the aspirational design goals of this demo. The agent shown here is not a true artificial general intelligence and should not be treated as such.
+
 ## Features
 1. Docker-based deployment with one command.
 2. Flask web interface served at `http://localhost:5000`.
