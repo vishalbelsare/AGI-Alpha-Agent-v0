@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 
 """
 novel_solution_reward.py – Alpha‑Factory v1 👁️✨
@@ -51,12 +52,12 @@ from typing import Any, List, Dict
 _lock = _th.Lock()
 
 # ── hyper‑parameters (env‑tunable) ────────────────────────────────────
-_TAU_LOW  = float(_os.getenv("NOVEL_TAU_LOW", 0.25))   # novelty threshold
+_TAU_LOW = float(_os.getenv("NOVEL_TAU_LOW", 0.25))  # novelty threshold
 _TAU_HIGH = float(_os.getenv("NOVEL_TAU_HIGH", 0.75))  # redundancy threshold
-_MAX_MEM  = int(_os.getenv("NOVEL_MEM_LIMIT", 2048))   # ring‑buffer length
+_MAX_MEM = int(_os.getenv("NOVEL_MEM_LIMIT", 2048))  # ring‑buffer length
 
 # ── in‑memory ring buffers ───────────────────────────────────────────
-_sig_mem: List[int]         = []
+_sig_mem: List[int] = []
 _emb_mem: List[List[float]] | None = None
 _idx = 0  # ring pointer
 
@@ -64,6 +65,7 @@ _idx = 0  # ring pointer
 _have_embed = False
 try:
     import importlib as _imp
+
     _st = _imp.import_module("sentence_transformers")
     _model_name = _os.getenv("EMBED_MODEL", "all-MiniLM-L6-v2")
     _model = _st.SentenceTransformer(_model_name)
@@ -71,10 +73,11 @@ try:
 except Exception:
     _have_embed = False
 
+
 # ── helpers ──────────────────────────────────────────────────────────
 def _simhash(text: str) -> int:
     """Return 64‑bit SimHash of *text*."""
-    hv = [0]*64
+    hv = [0] * 64
     for token in text.split():
         h = int.from_bytes(_hl.sha1(token.encode()).digest()[:8], "big")
         for i in range(64):
@@ -92,10 +95,10 @@ def _sim_sig(a: int, b: int) -> float:
 
 
 def _cos(a: List[float], b: List[float]) -> float:
-    dot = sum(x*y for x, y in zip(a, b))
-    na  = _math.sqrt(sum(x*x for x in a)) or 1e-9
-    nb  = _math.sqrt(sum(x*x for x in b)) or 1e-9
-    return max(0.0, min(1.0, dot / (na*nb)))
+    dot = sum(x * y for x, y in zip(a, b))
+    na = _math.sqrt(sum(x * x for x in a)) or 1e-9
+    nb = _math.sqrt(sum(x * x for x in b)) or 1e-9
+    return max(0.0, min(1.0, dot / (na * nb)))
 
 
 def _to_text(obj: Any) -> str:
@@ -103,6 +106,7 @@ def _to_text(obj: Any) -> str:
         return obj
     try:
         import json as _json
+
         return _json.dumps(obj, sort_keys=True, ensure_ascii=False)
     except Exception:
         return repr(obj)
@@ -124,7 +128,7 @@ def reward(state: Any, action: Any, result: Any) -> float:  # noqa: D401
         for j, old_sig in enumerate(_sig_mem):
             s = _sim_sig(sig, old_sig)
             if _have_embed and _emb_mem is not None:
-                s = 0.75*s + 0.25*_cos(emb, _emb_mem[j])
+                s = 0.75 * s + 0.25 * _cos(emb, _emb_mem[j])
             sims.append(s)
 
         sim = max(sims) if sims else 0.0

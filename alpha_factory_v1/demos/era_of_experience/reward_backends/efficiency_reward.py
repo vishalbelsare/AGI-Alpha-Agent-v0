@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 """
 efficiency_reward.py – Alpha‑Factory v1 👁️✨
 ───────────────────────────────────────────────────────────────────────────────
@@ -64,6 +65,7 @@ __all__ = ("reward",)
 
 _log = logging.getLogger(__name__)
 
+
 # ─────────────────────────── configurable baselines ───────────────────────────
 def _env_float(name: str, default: float) -> float:
     """Fetch *name* from env or fall back to *default* (must be > 0)."""
@@ -75,10 +77,10 @@ def _env_float(name: str, default: float) -> float:
 
 
 # Baseline targets (tweak for your infra or via env)
-_LAT_MS: float   = _env_float("EFF_BSLN_LAT_MS",   500.0)   # ms
-_TOKENS: float   = _env_float("EFF_BSLN_TOKENS",   1500.0)  # tokens
-_COST_USD: float = _env_float("EFF_BSLN_COST_USD", 0.01)    # dollars
-_ENERGY_J: float = _env_float("EFF_BSLN_ENERGY_J", 50.0)    # joules
+_LAT_MS: float = _env_float("EFF_BSLN_LAT_MS", 500.0)  # ms
+_TOKENS: float = _env_float("EFF_BSLN_TOKENS", 1500.0)  # tokens
+_COST_USD: float = _env_float("EFF_BSLN_COST_USD", 0.01)  # dollars
+_ENERGY_J: float = _env_float("EFF_BSLN_ENERGY_J", 50.0)  # joules
 
 # Weights for penalty blend – must sum to 1.0
 _WEIGHTS = (0.4, 0.3, 0.2, 0.1)
@@ -102,7 +104,7 @@ def _clip01(x: float) -> float:
 
 
 # ──────────────────────────────── main entry ‑ API ───────────────────────────
-def reward(state: Any, action: Any, result: Any) -> float:   # noqa: D401
+def reward(state: Any, action: Any, result: Any) -> float:  # noqa: D401
     """
     Efficiency reward ∈ [0, 1]
 
@@ -130,16 +132,11 @@ def reward(state: Any, action: Any, result: Any) -> float:   # noqa: D401
 
     try:
         latency_p = _norm(float(result.get("latency_ms", 0.0)), _LAT_MS)
-        tokens_p  = _norm(float(result.get("tokens", 0.0)),     _TOKENS)
-        cost_p    = _norm(float(result.get("cost_usd", 0.0)),   _COST_USD)
-        energy_p  = _norm(float(result.get("energy_j", 0.0)),   _ENERGY_J)
+        tokens_p = _norm(float(result.get("tokens", 0.0)), _TOKENS)
+        cost_p = _norm(float(result.get("cost_usd", 0.0)), _COST_USD)
+        energy_p = _norm(float(result.get("energy_j", 0.0)), _ENERGY_J)
 
-        penalty = (
-            _WEIGHTS[0] * latency_p +
-            _WEIGHTS[1] * tokens_p  +
-            _WEIGHTS[2] * cost_p    +
-            _WEIGHTS[3] * energy_p
-        )
+        penalty = _WEIGHTS[0] * latency_p + _WEIGHTS[1] * tokens_p + _WEIGHTS[2] * cost_p + _WEIGHTS[3] * energy_p
 
         reward_val = value / (1.0 + penalty)
     except Exception as exc:  # noqa: BLE001

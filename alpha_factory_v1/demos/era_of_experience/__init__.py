@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 # Demo package
 from .alpha_detection import (
     detect_yield_curve_alpha,
