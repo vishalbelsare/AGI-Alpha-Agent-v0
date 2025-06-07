@@ -41,6 +41,7 @@ from __future__ import annotations
 # ───────────────────────────────────────────────────────────────────────────────
 import abc
 import asyncio
+import contextlib
 import datetime as _dt
 import json
 import logging
@@ -60,6 +61,7 @@ except Exception:  # pragma: no cover
 
 try:  # -- Kafka producer for heart-beats
     from kafka import KafkaProducer  # type: ignore
+    from kafka.errors import KafkaError
 except ModuleNotFoundError:  # pragma: no cover
     KafkaProducer = None  # type: ignore
 
@@ -82,6 +84,11 @@ if not _logger.handlers:
     )
     _logger.addHandler(_h)
     _logger.setLevel(os.getenv("AF_AGENT_LOGLEVEL", "INFO").upper())
+
+with contextlib.suppress(ModuleNotFoundError):
+    from opentelemetry import trace
+
+tracer = trace.get_tracer(__name__) if "trace" in globals() else None  # type: ignore
 
 # ───────────────────────────────────────────────────────────────────────────────
 # ░░░ 4. Internal helper factories ░░░
@@ -129,7 +136,7 @@ def _kafka_producer() -> Optional[KafkaProducer]:
             ),
             linger_ms=250,
         )
-    except Exception:  # noqa: BLE001
+    except KafkaError:
         _logger.exception("Failed to bootstrap Kafka producer")
         return None
 
@@ -173,7 +180,9 @@ class AgentBase(abc.ABC):
     # ------------------------------------------------------------------
     async def run_cycle(self) -> None:  # pragma: no cover - default wrapper
         """Single orchestrator cycle – runs :meth:`step` once."""
-        await self.step()
+        span_cm = tracer.start_as_current_span(f"{self.NAME}.run_cycle") if tracer else contextlib.nullcontext()
+        with span_cm:
+            await self.step()
 
     async def teardown(self) -> None:  # noqa: D401
         """Optional async clean-up (closing DB handles etc.)."""
@@ -246,7 +255,7 @@ class AgentBase(abc.ABC):
         ok = True
         try:
             await self.step()
-        except Exception as exc:  # noqa: BLE001
+        except Exception as exc:  # noqa: BLE001 - step() may raise anything
             ok = False
             if self._metrics_err:
                 self._metrics_err.inc()

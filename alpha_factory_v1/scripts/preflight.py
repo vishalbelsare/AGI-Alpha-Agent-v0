@@ -12,6 +12,8 @@ import sys
 import subprocess
 import tempfile
 from pathlib import Path
+import socket
+from contextlib import suppress
 
 try:
     from packaging.version import Version
@@ -73,7 +75,7 @@ def check_docker_daemon() -> bool:
         subprocess.run(["docker", "info"], check=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
         banner("docker daemon reachable", "GREEN")
         return True
-    except Exception:  # noqa: BLE001
+    except (subprocess.CalledProcessError, OSError):
         banner("docker daemon not running", "RED")
         return False
 
@@ -100,7 +102,7 @@ def check_docker_compose() -> bool:
             if (major, minor) < (2, 5):
                 banner("docker compose >=2.5 recommended", "YELLOW")
         return True
-    except Exception:  # noqa: BLE001
+    except (subprocess.CalledProcessError, OSError):
         banner("docker compose missing", "RED")
         return False
 
@@ -125,23 +127,50 @@ def ensure_dir(path: Path) -> None:
         banner(f"Using {path}", "GREEN")
 
 
+def check_network(host: str = "pypi.org", timeout: float = 2.0) -> bool:
+    """Return True if *host* can be resolved within *timeout* seconds."""
+    try:
+        with suppress(Exception):
+            prev = socket.getdefaulttimeout()
+        socket.setdefaulttimeout(timeout)
+        socket.gethostbyname(host)
+    except Exception:
+        banner(
+            f"WARNING: Unable to resolve {host}. Use --wheelhouse for offline installs.",
+            "YELLOW",
+        )
+        return False
+    finally:
+        with suppress(Exception):
+            socket.setdefaulttimeout(prev)
+    banner(f"{host} resolved", "GREEN")
+    return True
+
+
 def check_openai_agents_version(min_version: str = "0.0.14") -> bool:
-    """Verify ``openai_agents`` is new enough when installed."""
+    """Verify the installed Agents runtime is new enough.
+
+    This checks both the ``openai_agents`` and ``agents`` packages.
+    """
     import importlib
 
-    spec = importlib.util.find_spec("openai_agents")
-    if spec is None:  # not installed
-        return True
+    module_name = "openai_agents"
+    spec = importlib.util.find_spec(module_name)
+    if spec is None:
+        module_name = "agents"
+        spec = importlib.util.find_spec(module_name)
+        if spec is None:  # not installed
+            return True
 
-    mod = importlib.import_module("openai_agents")
+    mod = importlib.import_module(module_name)
     version = getattr(mod, "__version__", "0")
     if _version_lt(version, min_version):
         banner(
-            f"openai_agents {version} detected; >={min_version} required",
+            f"{module_name} {version} detected; >={min_version} required",
             "RED",
         )
         return False
-    banner(f"openai_agents {version} detected", "GREEN")
+    banner(f"{module_name} {version} detected", "GREEN")
     return True
 
 
@@ -157,7 +186,13 @@ OPTIONAL_DEPS = {
 }
 
 
-def main() -> None:
+def main(argv: list[str] | None = None) -> None:
+    import argparse
+
+    parser = argparse.ArgumentParser(description="Validate environment")
+    parser.add_argument("--offline", action="store_true", help="Skip network checks")
+    args = parser.parse_args(argv)
+
     banner("Alpha-Factory Preflight Check", "YELLOW")
     ok = True
     ok &= check_python()
@@ -165,6 +200,8 @@ def main() -> None:
     ok &= check_cmd("git")
     ok &= check_docker_daemon()
     ok &= check_docker_compose()
+    if not args.offline:
+        check_network()
     # Always install pytest and prometheus_client for smooth local tests
     ok &= check_pkg("pytest")
     ok &= check_pkg("prometheus_client")

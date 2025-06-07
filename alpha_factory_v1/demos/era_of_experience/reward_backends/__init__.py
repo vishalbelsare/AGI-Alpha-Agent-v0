@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 
 """
 reward_backends · Alpha‑Factory v1 👁️✨

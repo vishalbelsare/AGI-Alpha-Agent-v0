@@ -2,6 +2,10 @@
 *Out-learn • Out-think • Out-design • Out-strategise • Out-execute*
 [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/MontrealAI/AGI-Alpha-Agent-v0/blob/main/alpha_factory_v1/demos/cross_industry_alpha_factory/colab_deploy_alpha_factory_cross_industry_demo.ipynb)
 
+This demo is a conceptual research prototype. References to "AGI" and
+"superintelligence" describe aspirational goals and do not indicate the presence
+of a real general intelligence. Use at your own risk.
+
 
 ---
 
@@ -33,7 +37,7 @@ MuZero-style model-based search to stay sample-efficient.
 | **Docker script**<br>`deploy_alpha_factory_cross_industry_demo.sh` | dev-ops / prod | 8 min | any Ubuntu with Docker 24 |
 | **Colab notebook**<br>`colab_deploy_alpha_factory_cross_industry_demo.ipynb` | analysts / no install | 4 min | free Colab CPU |
 
-The notebook installs dependencies from `../requirements-colab.txt` for a quick setup.
+The notebook installs dependencies from `../requirements-colab.lock` for a quick setup.
 
 Both flows autodetect `OPENAI_API_KEY`; when absent they inject a **Mixtral 8×7B**
 local LLM container so the demo works **fully offline**.
@@ -172,4 +176,4 @@ Community PRs welcome!
 ### References
 Clune 2019 · Sutton & Silver 2024 · MuZero 2020 
 
-© 2025 MONTREAL.AI — MIT License
+© 2025 MONTREAL.AI — Apache‑2.0 License

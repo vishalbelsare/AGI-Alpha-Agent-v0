@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 """safety_compliance_reward.py – Alpha‑Factory v1 👁️✨
 ================================================================
 Reward backend that *rewards policy compliance* and *penalises safety
@@ -30,7 +31,7 @@ Implementation details
 * Thread‑safe via a `threading.Lock`
 * Duplicate `request_id`s are ignored (idempotent)
 * Unknown / malformed payload → neutral reward 0.0
-* MIT License
+* Apache‑2.0 License
 
 © 2025 Montreal.AI
 """
@@ -49,6 +50,7 @@ _log = logging.getLogger(__name__)
 # --------------------------------------------------------------------------- #
 _seen_request_ids: Set[str] = set()
 _lock = threading.Lock()
+
 
 # --------------------------------------------------------------------------- #
 #  Helpers                                                                    #
@@ -91,8 +93,8 @@ def reward(state: Any, action: Any, result: Any) -> float:  # noqa: D401
     # ------------------------------------------------------------------ #
     #  Extract & sanitise fields                                         #
     # ------------------------------------------------------------------ #
-    violation    = _to_bool(result.get("violation", False))
-    autocorrect  = _to_bool(result.get("autocorrected", False))
+    violation = _to_bool(result.get("violation", False))
+    autocorrect = _to_bool(result.get("autocorrected", False))
 
     # Severity: float ∈ [0,10], infer 0 if missing / bad
     try:

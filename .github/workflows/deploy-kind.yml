@@ -1,0 +1,36 @@
+name: "🚀 Deploy — Kind"
+
+on:
+  workflow_dispatch:
+
+jobs:
+  deploy-kind:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Kind cluster
+        uses: helm/kind-action@v1.7.0
+
+      - name: Build Insight demo image
+        run: |
+          docker build -t insight-demo:local infrastructure
+
+      - name: Load image into Kind
+        run: kind load docker-image insight-demo:local
+
+      - name: Deploy Helm chart
+        run: |
+          helm install insight infrastructure/helm-chart --values infrastructure/helm-chart/values.yaml
+
+      - name: Apply Terraform
+        working-directory: infrastructure/terraform
+        run: |
+          terraform init -backend=false
+          terraform apply -auto-approve
+
+      - name: Wait for service readiness
+        run: |
+          kubectl wait --for=condition=Ready pods --all --timeout=120s
+          kubectl get pods

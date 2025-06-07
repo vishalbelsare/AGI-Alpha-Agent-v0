@@ -1,0 +1,26 @@
+name: "📦 Browser Size"
+
+on:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  build-and-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: '.nvmrc'
+      - name: Install dependencies
+        run: npm ci --prefix alpha_factory_v1/demos/alpha_agi_insight_v1/insight_browser_v1
+      - name: Build distribution zip
+        run: npm run build:dist --prefix alpha_factory_v1/demos/alpha_agi_insight_v1/insight_browser_v1
+      - name: Check archive size
+        run: |
+          size=$(stat -c%s alpha_factory_v1/demos/alpha_agi_insight_v1/insight_browser_v1/insight_browser.zip)
+          echo "insight_browser.zip size: $size bytes"
+          if [ "$size" -gt $((3 * 1024 * 1024)) ]; then
+            echo "Archive exceeds 3 MiB" >&2
+            exit 1
+          fi

@@ -1,6 +1,6 @@
 
-from flask import Flask, render_template, jsonify, request
-import os, json
+from flask import Flask, jsonify, render_template, request
+
 from backend.memory import Memory
 app=Flask(__name__,template_folder='templates',static_folder='static')
 mem=Memory()

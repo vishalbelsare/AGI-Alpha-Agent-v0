@@ -3,7 +3,8 @@
 This helper validates that the Python packages required by the
 Alpha‑Factory demos and unit tests are present.  When invoked with the
 ``--auto-install`` flag (or ``AUTO_INSTALL_MISSING=1`` environment
-variable) it attempts to install any missing dependencies using
+variable) it ensures ``alpha_factory_v1/requirements.txt`` is installed
+before attempting to resolve any remaining missing packages with
 ``pip``.  For air‑gapped environments supply ``--wheelhouse`` or set
 ``WHEELHOUSE=/path/to/wheels`` so ``pip`` can resolve packages from a
 local directory.
@@ -17,7 +18,17 @@ import subprocess
 import os
 import sys
 import argparse
+from pathlib import Path
 from typing import List, Optional
+
+CORE = ["numpy", "yaml", "pandas"]
+
+
+def warn_missing_core() -> None:
+    missing = [pkg for pkg in CORE if importlib.util.find_spec(pkg) is None]
+    if missing:
+        print("WARNING: Missing core packages:", ", ".join(missing))
+
 
 REQUIRED = [
     "pytest",
@@ -26,6 +37,23 @@ REQUIRED = [
     "anthropic",
     "fastapi",
     "opentelemetry",
+    "opentelemetry-api",
+    "uvicorn",
+    "httpx",
+    "grpc",
+    "cryptography",
+    "numpy",
+    "google.protobuf",
+    "cachetools",
+    "yaml",
+    "click",
+    "requests",
+    "pandas",
+    "playwright.sync_api",
+    "websockets",
+    "pytest_benchmark",
+    "hypothesis",
+    "plotly",
 ]
 
 # Optional integrations that may not be present in restricted environments.
@@ -33,6 +61,24 @@ OPTIONAL = [
     "openai_agents",
     "google_adk",
 ]
+
+PIP_NAMES = {
+    "openai_agents": "openai-agents",
+    "google_adk": "google-adk",
+    "grpc": "grpcio",
+    "pytest_benchmark": "pytest-benchmark",
+    "playwright.sync_api": "playwright",
+    "websockets": "websockets",
+    "google.protobuf": "protobuf",
+    "cachetools": "cachetools",
+    "yaml": "PyYAML",
+    "opentelemetry": "opentelemetry-api",
+    "opentelemetry-api": "opentelemetry-api",
+}
+
+IMPORT_NAMES = {
+    "opentelemetry-api": "opentelemetry",
+}
 
 
 def main(argv: Optional[List[str]] = None) -> int:
@@ -49,13 +95,38 @@ def main(argv: Optional[List[str]] = None) -> int:
 
     args = parser.parse_args(argv)
 
+    warn_missing_core()
+
+    wheelhouse = args.wheelhouse or os.getenv("WHEELHOUSE")
+    auto = args.auto_install or os.getenv("AUTO_INSTALL_MISSING") == "1"
+    req_file = Path(__file__).resolve().parent / "alpha_factory_v1" / "requirements.txt"
+    if auto and req_file.exists():
+        cmd = [sys.executable, "-m", "pip", "install", "--quiet"]
+        if wheelhouse:
+            cmd += ["--no-index", "--find-links", wheelhouse]
+        cmd += ["-r", str(req_file)]
+        print("Ensuring baseline requirements:", " ".join(cmd))
+        try:
+            subprocess.run(cmd, check=True, timeout=600)
+        except subprocess.TimeoutExpired:
+            print(
+                "Timed out installing baseline requirements. "
+                "Re-run with '--wheelhouse <path>' to install offline packages."
+            )
+            return 1
+        except subprocess.CalledProcessError as exc:
+            print("Failed to install baseline requirements", exc.returncode)
+            return exc.returncode
+
     missing_required: list[str] = []
     missing_optional: list[str] = []
     for pkg in REQUIRED + OPTIONAL:
+        import_name = IMPORT_NAMES.get(pkg, pkg)
         try:
-            spec = importlib.util.find_spec(pkg)
-        except ValueError:
+            spec = importlib.util.find_spec(import_name)
+        except (ValueError, ModuleNotFoundError):
             # handle cases where a namespace package left an invalid entry
+            # or the root package itself is missing
             spec = None
         if spec is None:
             if pkg in OPTIONAL:
@@ -65,22 +136,27 @@ def main(argv: Optional[List[str]] = None) -> int:
     missing = missing_required + missing_optional
     if missing:
         print("WARNING: Missing packages:", ", ".join(missing))
-        wheelhouse = args.wheelhouse or os.getenv("WHEELHOUSE")
-        auto = args.auto_install or os.getenv("AUTO_INSTALL_MISSING") == "1"
         if auto:
             cmd = [sys.executable, "-m", "pip", "install", "--quiet"]
             if wheelhouse:
                 cmd += ["--no-index", "--find-links", wheelhouse]
-            cmd += missing
+            packages = [PIP_NAMES.get(pkg, pkg) for pkg in missing]
+            cmd += packages
             print("Attempting automatic install:", " ".join(cmd))
             try:
-                result = subprocess.run(cmd, capture_output=True, text=True, check=True)
+                result = subprocess.run(cmd, capture_output=True, text=True, check=True, timeout=600)
+            except subprocess.TimeoutExpired:
+                print(
+                    "Timed out installing packages. Re-run with '--wheelhouse <path>' " "to install from local wheels."
+                )
+                return 1
             except subprocess.CalledProcessError as exc:
                 stderr = exc.stderr or ""
                 print("Automatic install failed with code", exc.returncode)
                 if any(kw in stderr.lower() for kw in ["connection", "temporary failure", "network", "resolve"]):
                     print(
-                        "Network failure detected. Re-run with '--wheelhouse <path>' or set WHEELHOUSE to install offline packages."
+                        "Network failure detected. Re-run with '--wheelhouse <path>' "
+                        "or set WHEELHOUSE to install offline packages."
                     )
                 return 1
             else:
@@ -88,7 +164,7 @@ def main(argv: Optional[List[str]] = None) -> int:
                     print("Automatic install failed with code", result.returncode)
                     return result.returncode
                 print("Install completed, verifying …")
-                missing = [p for p in missing if importlib.util.find_spec(p) is None]
+                missing = [p for p in missing if importlib.util.find_spec(IMPORT_NAMES.get(p, p)) is None]
                 missing_required = [p for p in missing if p not in OPTIONAL]
                 if missing_required:
                     print(

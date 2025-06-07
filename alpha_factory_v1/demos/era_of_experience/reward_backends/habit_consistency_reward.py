@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 
 """
 habit_consistency_reward.py – Alpha‑Factory v1 👁️✨
@@ -50,7 +51,7 @@ Implementation notes
 • **Stateless config**: tweak thresholds via module‑level constants.  
 • **Zero deps**: std‑lib only — works offline, inside minimal containers.
 
-© 2025 Montreal.AI – MIT License
+© 2025 Montreal.AI – Apache-2.0 License
 """
 
 from __future__ import annotations
@@ -66,11 +67,11 @@ __all__ = ["reward"]
 _LOG: Final = _lg.getLogger(__name__)
 
 # ─────────────────────────────── config ──────────────────────────────────────
-FIRST_SIGHT_REWARD:   Final[float] = 0.25
-DELTA_THRESHOLDS:     Final[Dict[float, float]] = {
-    36.0: 1.0,        # ≤ 1.5 days
-    72.0: 0.5,        # ≤ 3   days
-    168.0: 0.2,       # ≤ 1   week
+FIRST_SIGHT_REWARD: Final[float] = 0.25
+DELTA_THRESHOLDS: Final[Dict[float, float]] = {
+    36.0: 1.0,  # ≤ 1.5 days
+    72.0: 0.5,  # ≤ 3   days
+    168.0: 0.2,  # ≤ 1   week
 }
 # Anything above max(DELTA_THRESHOLDS) → 0.0
 
@@ -79,6 +80,7 @@ _ISO_FMT_COMPACT: Final[str] = "%Y-%m-%dT%H:%M:%S"
 # ─────────────────────────── internal state ──────────────────────────────────
 _last_seen: Dict[str, _dt.datetime] = {}
 _lock = _th.Lock()
+
 
 # ─────────────────────────── helper functions ────────────────────────────────
 def _normalise_habit(raw: str | None) -> str | None:

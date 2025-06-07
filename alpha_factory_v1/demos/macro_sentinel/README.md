@@ -4,7 +4,7 @@
 
 [![Docker](https://img.shields.io/badge/Run‑with-Docker-blue?logo=docker)](#one‑command‑docker) 
 [![Colab](https://img.shields.io/badge/Try‑on‑Colab-yellow?logo=googlecolab)](#google‑colab) 
-![License](https://img.shields.io/badge/License-MIT-green)
+![License](https://img.shields.io/badge/License-Apache%202.0-blue)
 
 > **TL;DR**   Spin up a self‑healing stack that ingests macro telemetry, runs a Monte‑Carlo risk engine, sizes an ES hedge, and explains its reasoning—all behind a Gradio dashboard.
 
@@ -149,6 +149,6 @@ no liability for losses incurred from using this software.
 ---
 
 ## 📜 License
-MIT © 2025 **MONTREAL.AI**
+Apache‑2.0 © 2025 **MONTREAL.AI**
 
 Happy alpha‑hunting 🚀

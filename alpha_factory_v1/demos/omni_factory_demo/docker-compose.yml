@@ -11,7 +11,7 @@
 #     • prometheus, grafana   – observability stack (optional, ports 9090/3000)
 #
 #  Quick-start:
-#      cp .env.example .env         # then edit if you wish
+#      cp .env.sample .env         # then edit if you wish
 #      docker compose up -d
 ###############################################################################
 version: "3.9"

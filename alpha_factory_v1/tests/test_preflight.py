@@ -61,6 +61,14 @@ class PreflightTest(unittest.TestCase):
             preflight.ensure_dir(path)
             self.assertTrue(path.exists())
 
+    def test_check_network(self) -> None:
+        with mock.patch("socket.gethostbyname", return_value="1.2.3.4"):
+            self.assertTrue(preflight.check_network())
+        with mock.patch("socket.gethostbyname", side_effect=OSError):
+            with mock.patch.object(preflight, "banner") as b:
+                self.assertFalse(preflight.check_network())
+                b.assert_called()
+
     def test_main_success_and_failure(self) -> None:
         with mock.patch.multiple(
             preflight,
@@ -72,7 +80,7 @@ class PreflightTest(unittest.TestCase):
             ensure_dir=lambda p: None,
             banner=lambda *a, **k: None,
         ):
-            preflight.main()
+            preflight.main([])
         with mock.patch.multiple(
             preflight,
             check_python=lambda: False,
@@ -82,9 +90,25 @@ class PreflightTest(unittest.TestCase):
             check_pkg=lambda pkg: False,
             ensure_dir=lambda p: None,
             banner=lambda *a, **k: None,
+            check_network=lambda: True,
         ):
             with self.assertRaises(SystemExit):
-                preflight.main()
+                preflight.main([])
+
+    def test_main_offline_skips_network(self) -> None:
+        with mock.patch.multiple(
+            preflight,
+            check_python=lambda: True,
+            check_cmd=lambda cmd: True,
+            check_docker_daemon=lambda: True,
+            check_docker_compose=lambda: True,
+            check_pkg=lambda pkg: True,
+            ensure_dir=lambda p: None,
+            banner=lambda *a, **k: None,
+        ):
+            with mock.patch.object(preflight, "check_network") as cn:
+                preflight.main(["--offline"])
+                cn.assert_not_called()
 
 
 if __name__ == "__main__":

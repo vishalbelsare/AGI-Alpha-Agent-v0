@@ -9,6 +9,7 @@ use.
 from __future__ import annotations
 
 import importlib.util
+import os
 import subprocess
 import sys
 from pathlib import Path
@@ -27,18 +28,36 @@ def run_tests(target: Path) -> int:
     return subprocess.call(cmd)
 
 
-def main() -> None:
+def main(argv: list[str] | None = None) -> None:
+    import argparse
+
     script_dir = Path(__file__).resolve().parents[1]
     repo_root = script_dir.parent
-    if len(sys.argv) > 1:
-        target = Path(sys.argv[1])
-        if not target.is_absolute():
-            guess = script_dir / target
-            if not guess.exists():
-                guess = repo_root / target
-            target = guess
-    else:
-        target = script_dir / "tests"
+
+    parser = argparse.ArgumentParser(
+        description="Run Alpha-Factory unit tests",
+    )
+    parser.add_argument("target", nargs="?", default=str(script_dir / "tests"))
+    parser.add_argument(
+        "--offline",
+        action="store_true",
+        help="Use preinstalled Playwright browsers",
+    )
+    args = parser.parse_args(argv)
+
+    if args.offline:
+        os.environ.setdefault("PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD", "1")
+        os.environ.setdefault(
+            "PLAYWRIGHT_BROWSERS_PATH",
+            str(Path.home() / ".cache" / "ms-playwright"),
+        )
+
+    target = Path(args.target)
+    if not target.is_absolute():
+        guess = script_dir / target
+        if not guess.exists():
+            guess = repo_root / target
+        target = guess
     if not target.exists():
         raise SystemExit(f"Test path {target} not found")
 

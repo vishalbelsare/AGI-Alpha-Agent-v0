@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 """Reward backend template · Alpha-Factory v1 👁️✨
 ---------------------------------------------------------------------
 Minimal skeleton illustrating how to craft a custom reward backend.
@@ -14,6 +15,7 @@ from typing import Any
 import math
 
 __all__ = ["reward"]
+
 
 def reward(state: Any, action: Any, result: Any) -> float:
     """Example reward function normalising ``result['score']``.

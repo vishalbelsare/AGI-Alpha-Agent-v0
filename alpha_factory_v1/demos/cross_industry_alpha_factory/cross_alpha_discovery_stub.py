@@ -7,6 +7,9 @@ will query OpenAI when an ``OPENAI_API_KEY`` is configured for live ideas.
 Discovered items are logged to ``cross_alpha_log.json`` by default.  The
 queried model defaults to ``gpt-4o-mini`` but can be overridden with
 ``--model`` or ``CROSS_ALPHA_MODEL``.
+
+The suggestions returned by this stub are purely illustrative examples and
+should **not** be considered financial advice.
 """
 from __future__ import annotations
 
@@ -22,7 +25,10 @@ with contextlib.suppress(ModuleNotFoundError):
     import openai  # type: ignore
 
 SAMPLE_ALPHA: List[Dict[str, str]] = [
-    {"sector": "Energy", "opportunity": "Battery storage arbitrage between solar overproduction and evening peak demand"},
+    {
+        "sector": "Energy",
+        "opportunity": "Battery storage arbitrage between solar overproduction and evening peak demand",
+    },
     {"sector": "Supply Chain", "opportunity": "Reroute shipping from congested port to alternate harbor to cut delays"},
     {"sector": "Finance", "opportunity": "Hedge currency exposure using futures due to predicted FX volatility"},
     {"sector": "Manufacturing", "opportunity": "Optimize machine maintenance schedule to reduce unplanned downtime"},

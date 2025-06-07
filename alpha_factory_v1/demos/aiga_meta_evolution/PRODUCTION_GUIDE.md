@@ -1,6 +1,7 @@
 # 🛠️ Production Deployment Guide — AI‑GA Meta‑Evolution
 
 This short guide distils the steps required to run the **AI‑GA Meta‑Evolution** service in a production or workshop environment.
+The AI‑GA Meta‑Evolution service is a conceptual research prototype. References to "AGI" and "superintelligence" describe aspirational goals and do not indicate the presence of a real general intelligence. Use at your own risk.
 
 1. **Prepare the configuration**
    - Copy `config.env.sample` to `config.env` and edit as needed.
@@ -10,11 +11,21 @@ This short guide distils the steps required to run the **AI‑GA Meta‑Evolutio
    - Verify all Python packages are available:
      Run the following command from the project root directory:
      ```bash
-     AUTO_INSTALL_MISSING=1 python alpha_factory_v1/check_env.py
+     AUTO_INSTALL_MISSING=1 python check_env.py --auto-install
      ```
      This attempts to install `openai-agents`, `google-adk` and other required
      packages if they are missing. Offline environments can point the script to
-     a wheelhouse via `WHEELHOUSE=/path/to/wheels`.
+     a wheelhouse via `WHEELHOUSE=/path/to/wheels`. **Running this command is
+     mandatory before executing the demos or the unit tests.** The
+     `openai-agents` and `google-adk` packages are optional and only needed when
+     the OpenAI Agents runtime or the ADK gateway is enabled.
+   - Install the OpenAI Agents SDK if not already present:
+     ```bash
+     pip install openai-agents
+     ```
+     Some distributions package it as the simpler `agents` module; the demo
+     detects both. If `import openai_agents` fails, reinstall the SDK and
+     confirm your virtual environment is active.
 
 2. **Launch the service**
    - Using Docker:
@@ -27,6 +38,22 @@ This short guide distils the steps required to run the **AI‑GA Meta‑Evolutio
      python agent_aiga_entrypoint.py
      ```
 
+### Launching the OpenAI Agents bridge
+
+Start the bridge if you wish to drive the evolver through the **OpenAI Agents**
+SDK.  Enable the ADK gateway by exporting `ALPHA_FACTORY_ENABLE_ADK=1` before
+launching the script.  A token can be enforced via
+`ALPHA_FACTORY_ADK_TOKEN`.
+
+```bash
+ALPHA_FACTORY_ENABLE_ADK=1 python openai_agents_bridge.py
+# optional token auth
+ALPHA_FACTORY_ADK_TOKEN=my_token python openai_agents_bridge.py
+```
+
+The bridge exposes health checks at
+`http://localhost:${ALPHA_FACTORY_ADK_PORT}/healthz` (or `/docs`).
+
 3. **Run in Colab**
    - Open the notebook at
      [colab_aiga_meta_evolution.ipynb](colab_aiga_meta_evolution.ipynb).
@@ -38,6 +65,23 @@ This short guide distils the steps required to run the **AI‑GA Meta‑Evolutio
    - Gradio dashboard: [http://localhost:7862](http://localhost:7862)
    - OpenAPI docs: [http://localhost:8000/docs](http://localhost:8000/docs)
    - Prometheus metrics: [http://localhost:8000/metrics](http://localhost:8000/metrics)
+
+### Verifying the ADK Gateway
+When `ALPHA_FACTORY_ENABLE_ADK=true` and the optional `google-adk` package are
+present, the orchestrator exposes an ADK gateway.  Check the logs for a line
+similar to:
+
+```
+ADK gateway listening on http://0.0.0.0:${ALPHA_FACTORY_ADK_PORT}  (A2A protocol)
+```
+
+Confirm the gateway is reachable:
+
+```bash
+curl http://localhost:${ALPHA_FACTORY_ADK_PORT}/docs
+# or
+curl http://localhost:${ALPHA_FACTORY_ADK_PORT}/healthz
+```
 
 5. **Persisting state**
    - Checkpoints are written to the directory specified by `CHECKPOINT_DIR` (default `./checkpoints`).

@@ -1,4 +1,6 @@
-import subprocess, sys
+# SPDX-License-Identifier: Apache-2.0
+import subprocess
+import sys
 
 
 def test_cli_help() -> None:
