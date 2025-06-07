@@ -123,6 +123,16 @@ Enable the optional ADK gateway with ``--enable-adk`` (or set
 ``ALPHA_FACTORY_ENABLE_ADK=true``) to expose the agent over the A2A protocol.
 This prints a short completion summary after executing the demo loop.
 
+### 4.4 · Google ADK Integration
+Install the ``google-adk`` package to communicate over the A2A protocol:
+
+```bash
+pip install google-adk
+```
+
+Set ``ALPHA_FACTORY_ENABLE_ADK=true`` or pass ``--enable-adk`` to enable the gateway.
+The ADK layer is optional so the demo still runs completely offline.
+
 ## 5 Quick start
 ```bash
 git clone https://github.com/MontrealAI/AGI-Alpha-Agent-v0.git
