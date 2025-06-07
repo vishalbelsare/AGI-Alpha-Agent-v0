@@ -165,6 +165,11 @@ ALPHA_FACTORY_ENABLE_ADK=1
 ALPHA_FACTORY_ADK_TOKEN="my_secret_token"
 ```
 
+The optional ADK gateway integrates with the OpenAI Agents SDK bridge and
+underlying LLM providers as shown below.
+
+![Bridge overview](bridge_overview.svg)
+
 ## 🔐 API authentication
 
 Export `AUTH_BEARER_TOKEN` to require a static token on every API request. For
