@@ -181,6 +181,11 @@ command line:
   (defaults to ``gpt-4o``).
 - ``ANTHROPIC_MODEL`` – model name for the Anthropic rewriter
   (defaults to ``claude-3-opus-20240229``).
+- ``MCP_ENDPOINT`` – optional URL for Model Context Protocol logging.
+- ``MCP_TIMEOUT_SEC`` – timeout in seconds for MCP requests (defaults to ``10``).
+
+Setting ``MCP_ENDPOINT`` enables prompt logging via the Model Context Protocol
+for later audit.
 
 If ``MATS_REWRITER`` is unset the script picks ``openai`` when an
 ``OPENAI_API_KEY`` is present or ``anthropic`` when ``ANTHROPIC_API_KEY`` is
