@@ -511,6 +511,7 @@ the `alpha_factory_v1` package. Either install the project or export
 
 ```bash
 export PYTHONPATH=$(pwd)  # if running from the repo root without installation
+python check_env.py --auto-install  # verify optional packages
 pytest -q          # unit + integration suite
 pytest -m e2e      # full 5-year forecast smoke-test
 ```
@@ -537,6 +538,15 @@ WHEELHOUSE=/media/wheels pytest -q
 
 `playwright` and other heavy packages must exist in the wheelhouse for tests to
 pass offline.
+
+### Troubleshooting
+
+If `check_env.py` reports missing packages, ensure `WHEELHOUSE` points to a
+directory of wheels and rerun:
+
+```bash
+python check_env.py --auto-install --wheelhouse "$WHEELHOUSE"
+```
 
 ---
 
