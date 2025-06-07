@@ -188,6 +188,8 @@ For step-by-step instructions on running the service in a production or workshop
 | :-- | :-- |
 | <a href="https://colab.research.google.com/github/MontrealAI/AGI-Alpha-Agent-v0/blob/main/alpha_factory_v1/demos/aiga_meta_evolution/colab_aiga_meta_evolution.ipynb"><img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"></a> | Launches the same dashboard with an automatic public URL. Ideal for workshops & quick demos. |
 
+The Colab notebook also explains how to **upload a wheelhouse archive** for offline installs. Follow that section to set `WHEELHOUSE` and run `check_env.py --auto-install --wheelhouse` when the runtime lacks internet access.
+
 ---
 
 ## 🔑 Online vs offline LLMs
