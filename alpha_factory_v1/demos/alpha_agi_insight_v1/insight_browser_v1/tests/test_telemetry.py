@@ -176,3 +176,25 @@ def test_queue_never_exceeds_cap() -> None:
             == 100
         )
         browser.close()
+
+
+def test_localstorage_failure_disables_telemetry() -> None:
+    dist = Path(__file__).resolve().parents[1] / "dist" / "index.html"
+    url = dist.as_uri()
+
+    with sync_playwright() as p:
+        browser = p.chromium.launch()
+        page = browser.new_page()
+        errors: list[str] = []
+        page.on("pageerror", lambda err: errors.append(str(err)))
+        page.goto(url)
+        page.evaluate(
+            "window.OTEL_ENDPOINT='https://example.com';"
+            "window.confirm=() => true;"
+            "Object.defineProperty(localStorage,'setItem',{value:()=>{throw new Error('fail');},configurable:true});"
+        )
+        page.reload()
+        page.wait_for_selector("#controls")
+        page.evaluate("window.dispatchEvent(new Event('beforeunload'))")
+        assert not errors
+        browser.close()
