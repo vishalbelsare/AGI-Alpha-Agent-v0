@@ -15,7 +15,9 @@ These integration tests expect the `alpha_factory_v1` package to be importable.
 
 ### Offline install
 
-Create a wheelhouse with the MuZero demo and development requirements:
+Create a wheelhouse so the tests run without contacting PyPI. Build wheels for
+`requirements.txt` and `requirements-dev.txt` (include the MuZero demo if
+needed):
 
 ```bash
 mkdir -p wheels
