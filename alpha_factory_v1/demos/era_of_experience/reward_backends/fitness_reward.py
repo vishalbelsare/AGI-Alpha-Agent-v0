@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 """fitness_reward · Alpha-Factory v1 👁
 ----------------------------------------------------------------------
 Grounded reward back-end focused on *physical well-being*.
@@ -39,10 +40,10 @@ __all__ = ["reward"]  # explicit export for auto-discovery tools
 # ----------------------------------------------------------------------
 # Constants (targets & weights)
 # ----------------------------------------------------------------------
-_TARGET_STEPS = 10_000      # per day
-_TARGET_REST_HR = 60        # beats per minute
-_TARGET_SLEEP = 8.0         # hours
-_TARGET_CAL = 2_100         # kilocalories
+_TARGET_STEPS = 10_000  # per day
+_TARGET_REST_HR = 60  # beats per minute
+_TARGET_SLEEP = 8.0  # hours
+_TARGET_CAL = 2_100  # kilocalories
 
 _WEIGHTS = {
     "steps": 0.25,

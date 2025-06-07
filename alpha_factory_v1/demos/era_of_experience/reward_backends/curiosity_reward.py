@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 
 """
 curiosity_reward.py – Alpha‑Factory v1 👁️✨
@@ -42,8 +43,9 @@ __all__ = ["reward"]
 _LOG = logging.getLogger(__name__)
 
 # ─────────────────────────── configuration ──────────────────────────────
-_MAX_ENTRIES = 50_000           # LRU capacity for seen hashes
-_HASH_TRUNCATE = 4096           # bytes of repr() to hash
+_MAX_ENTRIES = 50_000  # LRU capacity for seen hashes
+_HASH_TRUNCATE = 4096  # bytes of repr() to hash
+
 
 # ─────────────────────────── internal state ─────────────────────────────
 class _LRUCounter(OrderedDict):
@@ -67,13 +69,16 @@ class _LRUCounter(OrderedDict):
                 _LOG.debug("[curiosity_reward] LRU evict %s", popped_h)
             return prev
 
+
 _seen = _LRUCounter(_MAX_ENTRIES)
+
 
 # ─────────────────────────── helpers ────────────────────────────────────
 def _hash_observation(obs: Any) -> str:
     """Return a stable SHA‑1 hex digest for an arbitrary Python object."""
-    data = repr(obs).encode("utf-8", errors="replace")[: _HASH_TRUNCATE]
+    data = repr(obs).encode("utf-8", errors="replace")[:_HASH_TRUNCATE]
     return hashlib.sha1(data).hexdigest()
+
 
 # ─────────────────────────── public API ─────────────────────────────────
 def reward(state: Any, action: Any, result: Any) -> float:  # noqa: D401

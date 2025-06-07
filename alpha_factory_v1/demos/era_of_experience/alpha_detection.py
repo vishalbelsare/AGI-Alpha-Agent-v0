@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 """Alpha detection utilities for Era-of-Experience demo.
 
 This module demonstrates how one might detect simple "alpha" signals

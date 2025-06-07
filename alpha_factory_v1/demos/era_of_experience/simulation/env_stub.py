@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 """Simple Gym-like environment stub.
 
 This minimal environment illustrates how the

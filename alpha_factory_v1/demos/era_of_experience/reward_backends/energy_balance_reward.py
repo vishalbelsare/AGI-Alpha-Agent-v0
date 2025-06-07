@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 """energy_balance_reward.py — Alpha‑Factory v1 👁️✨
 ========================================================================
 Reward backend that promotes **healthy daily energy balance**.
@@ -65,6 +66,7 @@ _lock = _th.Lock()
 
 _DEFAULT_BMR = 1650  # kcal, population‑level average
 
+
 # ----------------------------------------------------------------------
 # Helper utilities
 # ----------------------------------------------------------------------
@@ -82,11 +84,13 @@ def _iso_day(date_str: str | None) -> str:
             _logger.warning("energy_balance_reward: unparseable date %s", date_str)
             return _dt.date.today().isoformat()
 
+
 def _as_int(val: Any, fallback: int = 0) -> int:
     try:
         return int(val)
     except Exception:
         return fallback
+
 
 def _score(net: int) -> float:
     abs_net = abs(net)
@@ -95,6 +99,7 @@ def _score(net: int) -> float:
     if abs_net <= 600:
         return 0.5
     return 0.0
+
 
 def _update_day(res: Dict[str, Any]) -> Tuple[int, int, int]:
     """Atomically update ledger and return aggregate tuple (cin, cout, bmr)."""
@@ -107,6 +112,7 @@ def _update_day(res: Dict[str, Any]) -> Tuple[int, int, int]:
             bmr = max(0, _as_int(res["bmr"], _DEFAULT_BMR))
         _ledger[day] = (cin, cout, bmr)
         return _ledger[day]
+
 
 # ----------------------------------------------------------------------
 # Public entry point
@@ -123,9 +129,15 @@ def reward(state: Any, action: Any, result: Any) -> float:  # noqa: D401
 
     _logger.debug(
         "energy_balance_reward: day=%s cal_in=%d cal_out=%d bmr=%d net=%d reward=%.2f",
-        _iso_day(result.get("date")), cal_in, cal_out, bmr, net, score
+        _iso_day(result.get("date")),
+        cal_in,
+        cal_out,
+        bmr,
+        net,
+        score,
     )
     return score
+
 
 # ----------------------------------------------------------------------
 # Unit test (run with `python energy_balance_reward.py`)
