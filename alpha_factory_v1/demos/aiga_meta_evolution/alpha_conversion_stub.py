@@ -1,6 +1,11 @@
 # SPDX-License-Identifier: Apache-2.0
 #!/usr/bin/env python3
-"""Alpha conversion stub.
+"""
+This module is part of a conceptual research prototype. References to
+'AGI' or 'superintelligence' describe aspirational goals and do not
+indicate the presence of real general intelligence. Use at your own risk.
+
+Alpha conversion stub.
 
 Given a text description of an opportunity, output a short JSON plan
 for how one might capitalise on it. Works fully offline via a canned

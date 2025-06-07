@@ -1,5 +1,10 @@
 # SPDX-License-Identifier: Apache-2.0
-"""End-to-end Alpha Factory workflow demo.
+"""
+This module is part of a conceptual research prototype. References to
+'AGI' or 'superintelligence' describe aspirational goals and do not
+indicate the presence of real general intelligence. Use at your own risk.
+
+End-to-end Alpha Factory workflow demo.
 
 This script chains the ``alpha_discovery`` and ``alpha_conversion``
 stubs via the OpenAI Agents runtime. It works offline when

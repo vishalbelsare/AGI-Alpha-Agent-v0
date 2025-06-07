@@ -1,6 +1,11 @@
 # SPDX-License-Identifier: Apache-2.0
 #!/usr/bin/env python3
-"""Cross-platform launcher for the AI-GA meta-evolution demo.
+"""
+This module is part of a conceptual research prototype. References to
+'AGI' or 'superintelligence' describe aspirational goals and do not
+indicate the presence of real general intelligence. Use at your own risk.
+
+Cross-platform launcher for the AI-GA meta-evolution demo.
 
 This utility mirrors ``run_aiga_demo.sh`` for users without a POSIX shell.
 It orchestrates the Docker Compose stack and optionally tails the logs.

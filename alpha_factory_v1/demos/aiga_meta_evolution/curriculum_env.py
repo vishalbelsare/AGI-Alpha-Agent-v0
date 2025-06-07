@@ -1,5 +1,10 @@
 # SPDX-License-Identifier: Apache-2.0
-"""curriculum_env.py – Self‑Evolving Grid‑World (v2.0, 2025‑04‑23)
+"""
+This module is part of a conceptual research prototype. References to
+'AGI' or 'superintelligence' describe aspirational goals and do not
+indicate the presence of real general intelligence. Use at your own risk.
+
+curriculum_env.py – Self‑Evolving Grid‑World (v2.0, 2025‑04‑23)
 ============================================================================
 Breaks new ground for Pillar‑3 research by guaranteeing **solvable levels**,
 adding energy budgets, vectorised batch reset, and OpenAI Gymnasium 0.29 API

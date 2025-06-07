@@ -1,7 +1,12 @@
 # SPDX-License-Identifier: Apache-2.0
 # alpha_factory_v1/demos/aiga_meta_evolution/meta_evolver.py
 # © 2025 MONTREAL.AI  Apache-2.0 License
-"""MetaEvolver v3.0 (2025‑04‑23)
+"""
+This module is part of a conceptual research prototype. References to
+'AGI' or 'superintelligence' describe aspirational goals and do not
+indicate the presence of real general intelligence. Use at your own risk.
+
+MetaEvolver v3.0 (2025‑04‑23)
 =================================
 ✦ **Mission**  Self‑contained, SOC‑2‑aligned neuro‑evolution engine that scales
   from a laptop to a Kubernetes Ray cluster with zero code changes.

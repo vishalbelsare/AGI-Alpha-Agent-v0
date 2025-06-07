@@ -1,5 +1,10 @@
 # SPDX-License-Identifier: Apache-2.0
-"""Alpha opportunity discovery agent stub.
+"""
+This module is part of a conceptual research prototype. References to
+'AGI' or 'superintelligence' describe aspirational goals and do not
+indicate the presence of real general intelligence. Use at your own risk.
+
+Alpha opportunity discovery agent stub.
 
 This lightweight example exposes a single tool via the OpenAI Agents SDK
 that requests the LLM to list live market inefficiencies. It falls back to
