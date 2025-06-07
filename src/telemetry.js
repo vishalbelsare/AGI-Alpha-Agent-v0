@@ -25,34 +25,60 @@ export function initTelemetry(t) {
   }
 
   const consentKey = 'telemetryConsent';
-  let consent = localStorage.getItem(consentKey);
+  let disabled = false;
+  function lsGet(key) {
+    if (disabled) return null;
+    try {
+      return localStorage.getItem(key);
+    } catch (err) {
+      console.warn('telemetry disabled', err);
+      disabled = true;
+      return null;
+    }
+  }
+  function lsSet(key, val) {
+    if (disabled) return;
+    try {
+      localStorage.setItem(key, val);
+    } catch (err) {
+      console.warn('telemetry disabled', err);
+      disabled = true;
+    }
+  }
+
+  let consent = lsGet(consentKey);
   if (consent === null) {
     const prompt = typeof t === 'function' ? t('telemetry_consent') : 'Allow anonymous telemetry?';
     const allow = window.confirm(prompt);
     consent = allow ? 'true' : 'false';
-    localStorage.setItem(consentKey, consent);
+    lsSet(consentKey, consent);
   }
 
-  const enabled = consent === 'true';
+  const enabled = !disabled && consent === 'true';
   const queueKey = 'telemetryQueue';
   const metrics = { ts: Date.now(), session: '', generations: 0, shares: 0 };
   const MAX_QUEUE_SIZE = 100;
-  const queue = JSON.parse(localStorage.getItem(queueKey) || '[]');
+  let queue;
+  try {
+    queue = JSON.parse(lsGet(queueKey) || '[]');
+  } catch {
+    queue = [];
+  }
   if (queue.length > MAX_QUEUE_SIZE) {
     queue.splice(0, queue.length - MAX_QUEUE_SIZE);
   }
 
   const ready = (async () => {
-    let sid = localStorage.getItem('telemetrySession');
+    let sid = lsGet('telemetrySession');
     if (!sid) {
       sid = await hashSession(crypto.randomUUID());
-      localStorage.setItem('telemetrySession', sid);
+      lsSet('telemetrySession', sid);
     }
-    metrics.session = sid;
+    metrics.session = sid || '';
   })();
 
   async function sendQueue() {
-    if (!enabled) return;
+    if (!enabled || disabled) return;
     await ready;
     while (queue.length && navigator.onLine) {
       const payload = queue[0];
@@ -71,17 +97,17 @@ export function initTelemetry(t) {
         }
       }
     }
-    localStorage.setItem(queueKey, JSON.stringify(queue));
+    lsSet(queueKey, JSON.stringify(queue));
   }
 
   function flush() {
-    if (!enabled) return;
+    if (!enabled || disabled) return;
     metrics.ts = Date.now();
     while (queue.length >= MAX_QUEUE_SIZE) {
       queue.shift();
     }
     queue.push({ ...metrics });
-    localStorage.setItem(queueKey, JSON.stringify(queue));
+    lsSet(queueKey, JSON.stringify(queue));
     void sendQueue();
   }
   window.addEventListener('beforeunload', flush);
