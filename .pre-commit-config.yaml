@@ -47,6 +47,12 @@ repos:
         language: python
         additional_dependencies: [pip-tools]
         pass_filenames: false
+      - id: verify-mats-requirements-lock
+        name: Verify MATS demo requirements.lock is up to date
+        entry: python scripts/verify_mats_requirements_lock.py
+        language: python
+        additional_dependencies: [pip-tools]
+        pass_filenames: false
       - id: verify-backend-requirements-lock
         name: Verify backend requirements-lock.txt is up to date
         entry: python scripts/verify_backend_requirements_lock.py

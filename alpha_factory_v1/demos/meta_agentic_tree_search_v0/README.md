@@ -138,7 +138,7 @@ The ADK layer is optional so the demo still runs completely offline.
 git clone https://github.com/MontrealAI/AGI-Alpha-Agent-v0.git
 cd AGI-Alpha-Agent-v0/alpha_factory_v1/demos/meta_agentic_tree_search_v0
 python -m venv .venv && source .venv/bin/activate
-pip install -r requirements.txt          # torch, gymnasium, networkx, etc.
+pip install -r requirements.lock         # torch, gymnasium, networkx, etc.
 python run_demo.py --verify-env          # optional sanity check
 python run_demo.py --config configs/default.yaml --episodes 500 --target 5 --seed 42 --model gpt-4o
 # or equivalently
