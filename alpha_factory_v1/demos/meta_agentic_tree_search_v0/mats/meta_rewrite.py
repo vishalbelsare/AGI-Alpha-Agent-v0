@@ -5,6 +5,11 @@ from __future__ import annotations
 
 import random
 import logging
+import importlib
+import asyncio
+import os
+import time
+import re
 from typing import List
 
 try:  # pragma: no cover - optional httpx dependency
@@ -26,12 +31,6 @@ def store_sync(messages: list[dict[str, str]]) -> None:
     except Exception:  # noqa: BLE001 - never raise on logging failures
         logging.getLogger(__name__).debug("MCP push failed – continuing without persistence", exc_info=True)
 
-
-import importlib
-import asyncio
-import os
-import time
-import re
 
 
 def meta_rewrite(agents: List[int]) -> List[int]:
