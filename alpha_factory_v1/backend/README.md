@@ -16,7 +16,7 @@ The orchestrator honours several variables to tune runtime behaviour:
 | Variable | Purpose | Default |
 |----------|---------|---------|
 | `DEV_MODE` | Enable lightweight in-memory mode | `false` |
-| `LOGLEVEL` | Logging level (e.g. `DEBUG`) | `INFO` |
+| `LOG_LEVEL` | Logging level (e.g. `DEBUG`) | `INFO` |
 | `PORT` | REST API port | `8000` |
 | `METRICS_PORT` | Prometheus metrics port (0 = disabled) | `0` |
 | `A2A_PORT` | gRPC A2A port (0 = disabled) | `0` |
