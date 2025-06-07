@@ -2,10 +2,16 @@
 
 Welcome! These short demos let **anyone – even if you’ve never touched a
 terminal – spin up Alpha‑Factory, watch a live trade, and explore the
-planner trace‑graph in *under 2 minutes*.  
+planner trace‑graph in *under 2 minutes*.
 
 *(Runs with or without an `OPENAI_API_KEY`; the image auto‑falls back to
 a local Φ‑2 model.)*
+
+> **⚠️ Disclaimer**: These demos and the included trading strategy are **for
+> research and educational purposes only**. They operate on a simulated
+> exchange by default and **should not be used with real funds**. Nothing here
+> constitutes financial advice. MontrealAI and the maintainers accept no
+> liability for losses incurred from using this software.
 
 ---
 
@@ -27,15 +33,33 @@ curl -L https://raw.githubusercontent.com/MontrealAI/AGI-Alpha-Agent-v0/main/alp
 _No installation beyond Docker, `curl`, and `jq`._
 
 **Customize**
-`STRATEGY=my_pair PORT_API=8001 bash deploy_alpha_factory_demo.sh` runs a
-different momentum pair on an alternate port.
+`STRATEGY=my_pair PORT_API=8001 TRACE_WS_PORT=9000 bash deploy_alpha_factory_demo.sh`
+runs a different momentum pair and exposes the trace‑graph on an alternate
+port.
 
 ### .env Setup
-Copy [.env.sample](.env.sample) to `.env` and tweak values as desired. The
-sample defines defaults such as `FINANCE_STRATEGY=btc_gld`, `PORT_API=8000`,
-`TRACE_WS_PORT=8088`, `FIN_CYCLE_SECONDS=60` and
-`FIN_START_BALANCE_USD=10000`. Any variable you omit falls back to these safe
-defaults when the demo starts.
+Copy [.env.sample](.env.sample) to `.env` and tweak values as desired. Every
+variable can also be overridden directly on the command line:
+`PORT_API=8001 TRACE_WS_PORT=9000 bash deploy_alpha_factory_demo.sh`.
+
+| Variable | Purpose | Default |
+|----------|---------|---------|
+| `FINANCE_STRATEGY` | Momentum pair to trade | `btc_gld` |
+| `PORT_API` | REST API port | `8000` |
+| `TRACE_WS_PORT` | Trace graph WebSocket port | `8088` |
+| `FIN_CYCLE_SECONDS` | Seconds between trade cycles | `60` |
+| `FIN_START_BALANCE_USD` | Starting cash in USD | `10000` |
+| `FIN_PLANNER_DEPTH` | Planner decision depth | `5` |
+| `FIN_PROMETHEUS` | Enable Prometheus metrics | `1` |
+| `ALPHA_UNIVERSE` | Tradable symbols | `BTCUSDT,ETHUSDT` |
+| `ALPHA_MAX_VAR_USD` | Max value at risk | `50000` |
+| `ALPHA_MAX_CVAR_USD` | Max conditional VAR | `75000` |
+| `ALPHA_MAX_DD_PCT` | Max drawdown percent | `20` |
+| `BINANCE_API_KEY` | Optional Binance key | _empty_ |
+| `BINANCE_API_SECRET` | Optional Binance secret | _empty_ |
+| `ADK_MESH` | Register on Google ADK mesh | `0` |
+
+Any variable you omit falls back to these safe defaults when the demo starts.
 
 ---
 
