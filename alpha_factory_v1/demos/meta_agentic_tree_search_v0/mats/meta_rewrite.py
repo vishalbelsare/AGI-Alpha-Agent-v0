@@ -13,7 +13,7 @@ import random
 from typing import List
 
 try:  # pragma: no cover - optional httpx dependency
-    import httpx  # type: ignore
+    import httpx
 except Exception:  # noqa: BLE001 - optional dependency may be absent
     httpx = None
 
@@ -74,15 +74,17 @@ def openai_rewrite(agents: List[int], model: str | None = None) -> List[int]:
 
     if have_oai and have_openai and os.getenv("OPENAI_API_KEY"):
         try:  # pragma: no cover - optional integration
-            from openai_agents import Agent, Tool  # type: ignore
-            import openai  # type: ignore
+            from openai_agents import Agent, Tool
+            from openai import OpenAI
 
             oai_model = model or os.getenv("OPENAI_MODEL", "gpt-4o")
 
             if have_adk:
-                from google_adk import agent2agent  # type: ignore
+                from google_adk import agent2agent
 
-            @Tool(name="improve_policy", description="Return an improved integer policy")
+            from typing import Callable, cast
+
+            @Tool(name="improve_policy", description="Return an improved integer policy")  # type: ignore[misc]
             def improve_policy(policy: list[int]) -> list[int]:
                 prompt = "Given the current integer policy " f"{policy}, suggest a slightly improved list of integers."
                 messages = [
@@ -93,7 +95,8 @@ def openai_rewrite(agents: List[int], model: str | None = None) -> List[int]:
                     {"role": "user", "content": prompt},
                 ]
                 try:
-                    response = openai.ChatCompletion.create(
+                    client = OpenAI()
+                    response = client.chat.completions.create(
                         model=oai_model,
                         messages=messages,
                         max_tokens=20,
@@ -106,13 +109,15 @@ def openai_rewrite(agents: List[int], model: str | None = None) -> List[int]:
 
                 return _parse_numbers(text, policy)
 
-            class RewriterAgent(Agent):
+            improve_policy = cast(Callable[[list[int]], list[int]], improve_policy)
+
+            class RewriterAgent(Agent):  # type: ignore[misc]
                 name = "mats_rewriter"
                 tools = [improve_policy]
 
-                async def policy(self, obs, _ctx):  # type: ignore[override]
+                async def policy(self, obs: object, _ctx: object) -> list[int]:
                     cand = obs.get("policy", []) if isinstance(obs, dict) else obs
-                    return improve_policy(list(cand))
+                    return cast(list[int], improve_policy(list(cand)))
 
             agent = RewriterAgent()
 
@@ -144,7 +149,7 @@ def anthropic_rewrite(agents: List[int], model: str | None = None) -> List[int]:
     have_anthropic = importlib.util.find_spec("anthropic") is not None
     if have_anthropic and os.getenv("ANTHROPIC_API_KEY"):
         try:  # pragma: no cover - optional integration
-            import anthropic  # type: ignore
+            import anthropic
 
             claude_model = model or os.getenv("ANTHROPIC_MODEL", "claude-3-opus-20240229")
             client = anthropic.Anthropic(api_key=os.getenv("ANTHROPIC_API_KEY"))
