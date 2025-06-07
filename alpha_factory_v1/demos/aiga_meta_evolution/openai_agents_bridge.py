@@ -1,5 +1,10 @@
 # SPDX-License-Identifier: Apache-2.0
-"""OpenAI Agents SDK bridge for the AI-GA Meta-Evolution demo.
+"""
+This module is part of a conceptual research prototype. References to
+'AGI' or 'superintelligence' describe aspirational goals and do not
+indicate the presence of real general intelligence. Use at your own risk.
+
+OpenAI Agents SDK bridge for the AI-GA Meta-Evolution demo.
 
 This script registers a minimal agent capable of driving the evolutionary
 loop via the OpenAI Agents runtime. It works fully offline when no

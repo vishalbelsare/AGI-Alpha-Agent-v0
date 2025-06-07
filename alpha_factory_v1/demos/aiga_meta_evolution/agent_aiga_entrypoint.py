@@ -1,5 +1,10 @@
 # SPDX-License-Identifier: Apache-2.0
-"""agent_aiga_entrypoint.py – AI‑GA Meta‑Evolution Service
+"""
+This module is part of a conceptual research prototype. References to
+'AGI' or 'superintelligence' describe aspirational goals and do not
+indicate the presence of real general intelligence. Use at your own risk.
+
+agent_aiga_entrypoint.py – AI‑GA Meta‑Evolution Service
 ================================================================
 Production‑grade entry point that wraps the *MetaEvolver* demo into a
 Kubernetes‑/Docker‑friendly micro‑service with:
