@@ -785,6 +785,8 @@ omitted and `AGI_INSIGHT_ALLOW_INSECURE=1`, the bus starts without TLS.
 See [bus_tls.md](alpha_factory_v1/demos/alpha_agi_insight_v1/docs/bus_tls.md)
 for instructions and example volume mounts.
 
+`.env.sample` notes that paths on Windows may require quotes (e.g., `C:\\path\\to\\file`).
+
 #### Supported Environment Variables
 
 | Variable | Default | Purpose |
