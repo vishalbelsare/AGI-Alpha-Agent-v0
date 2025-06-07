@@ -73,6 +73,12 @@ Any variable you omit falls back to these safe defaults when the demo starts.
 
 The first code cell checks for Docker and installs it automatically when running on Colab. Simply run each cell in order to launch Alpha‑Factory, view positions, and open the live trace‑graph.
 
+### Notebook setup
+The notebook begins by verifying Docker. When missing (like on Colab) it installs
+Docker with `apt-get` and starts the service. The same cell uses `pip install -q`
+to grab any packages not already present. Copy [.env.sample](.env.sample) to `.env`
+and adjust `FINANCE_STRATEGY`, `PORT_API` or `TRACE_WS_PORT` to customise the demo.
+
 An additional cell now embeds the trace‑graph UI directly inside the notebook so you can follow the planner's decisions without leaving Colab.
 
 ```bash
