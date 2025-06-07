@@ -50,6 +50,7 @@ alpha-agi-insight-v1 = "alpha_factory_v1.demos.alpha_agi_insight_v1.src.interfac
 alpha-agi-insight-v1-api = "alpha_factory_v1.demos.alpha_agi_insight_v1.src.interface.api_server:main"
 aii = "alpha_factory_v1.demos.alpha_agi_insight_v1.src.interface.cli:main"
 verify-wheel-sig = "alpha_factory_v1.scripts.verify_wheel_sig:main"
+mats-demo = "alpha_factory_v1.demos.meta_agentic_tree_search_v0.run_demo:main"
 
 [project.entry-points."alpha_factory.agents"]
 # custom agents can be registered here

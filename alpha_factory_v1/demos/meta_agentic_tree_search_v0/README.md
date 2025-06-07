@@ -143,6 +143,8 @@ python run_demo.py --verify-env          # optional sanity check
 python run_demo.py --config configs/default.yaml --episodes 500 --target 5 --seed 42 --model gpt-4o
 # or equivalently
 python -m alpha_factory_v1.demos.meta_agentic_tree_search_v0.run_demo --episodes 500 --target 5
+# installed script
+mats-demo --episodes 10
 ```
 `run_demo.py` prints a per‑episode scoreboard.  Pass `--log-dir logs` to save a
 `scores.csv` file for further analysis. A ready‑to‑run Colab notebook is also
