@@ -23,6 +23,7 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.lock
+          pip install -r requirements-dev.txt
       - name: Run 2-year simulation
         run: |
           python -m alpha_factory_v1.demos.alpha_agi_insight_v1.src.interface.cli simulate \

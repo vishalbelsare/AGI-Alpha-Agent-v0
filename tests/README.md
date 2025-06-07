@@ -5,9 +5,13 @@ These integration tests expect the `alpha_factory_v1` package to be importable.
 
 ## Setup
 
-1. Run `python check_env.py --auto-install` (provide `--wheelhouse <dir>` when offline).
-2. Set `PYTHONPATH=$(pwd)` or install the project in editable mode with `pip install -e .`.
-3. Execute `pytest -q`.
+1. Install the development requirements:
+   ```bash
+   pip install -r requirements-dev.txt
+   ```
+2. Run `python check_env.py --auto-install` (provide `--wheelhouse <dir>` when offline).
+3. Set `PYTHONPATH=$(pwd)` or install the project in editable mode with `pip install -e .`.
+4. Execute `pytest -q`.
 
 ### Offline install
 
