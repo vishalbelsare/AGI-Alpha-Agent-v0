@@ -833,10 +833,10 @@ curl -L https://raw.githubusercontent.com/MontrealAI/AGI-Alpha-Agent-v0/main/alp
 
 The script pulls the signed demo container, runs a BTC/GLD strategy, prints open
 positions and P&L, and exposes the trace‑graph UI at
-<http://localhost:8088>.
+<http://localhost:${TRACE_WS_PORT}>.
 
 Need a different pair or port? Use environment variables:
-`STRATEGY=my_pair PORT_API=8001 bash deploy_alpha_factory_demo.sh`
+`STRATEGY=my_pair PORT_API=8001 TRACE_WS_PORT=9000 bash deploy_alpha_factory_demo.sh`
 
 No GPU → falls back to GGML Llama‑3‑8B‑Q4.
 No `OPENAI_API_KEY` → switches to local SBERT + heuristics.
