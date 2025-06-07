@@ -2,6 +2,7 @@
 import subprocess
 import sys
 import unittest
+import pytest
 from alpha_factory_v1.demos.meta_agentic_tree_search_v0.openai_agents_bridge import (
     DEFAULT_MODEL_NAME,
 )
@@ -197,6 +198,26 @@ class TestMetaAgenticTreeSearchDemo(unittest.TestCase):
             text=True,
         )
         self.assertEqual(result.returncode, 0, result.stderr)
+
+
+def test_bridge_online_mode(monkeypatch) -> None:
+    pytest.importorskip("openai_agents")
+    monkeypatch.setenv("OPENAI_API_KEY", "dummy")
+    result = subprocess.run(
+        [
+            sys.executable,
+            "-m",
+            "alpha_factory_v1.demos.meta_agentic_tree_search_v0.openai_agents_bridge",
+            "--episodes",
+            "1",
+            "--rewriter",
+            "openai",
+        ],
+        capture_output=True,
+        text=True,
+    )
+    assert result.returncode == 0, result.stderr
+    assert "Best agents" in result.stdout
 
 
 if __name__ == "__main__":  # pragma: no cover
