@@ -8,8 +8,6 @@ instance started by ``run_aiga_demo.sh``.
 """
 from __future__ import annotations
 
-import os
-
 try:  # optional dependency
     from openai_agents import Agent, AgentRuntime, OpenAIAgent, Tool
 except ImportError:  # pragma: no cover - fallback for legacy package
@@ -31,16 +29,13 @@ if __package__ is None:
 
 from .meta_evolver import MetaEvolver
 from .curriculum_env import CurriculumEnv
+from .utils import build_llm
 
 
 # ---------------------------------------------------------------------------
 # LLM setup -----------------------------------------------------------------
 # ---------------------------------------------------------------------------
-LLM = OpenAIAgent(
-    model=os.getenv("MODEL_NAME", "gpt-4o-mini"),
-    api_key=os.getenv("OPENAI_API_KEY"),
-    base_url=(None if os.getenv("OPENAI_API_KEY") else os.getenv("OLLAMA_BASE_URL", "http://localhost:11434/v1")),
-)
+LLM = build_llm()
 
 # single MetaEvolver instance reused across tool invocations
 EVOLVER = MetaEvolver(env_cls=CurriculumEnv, llm=LLM)

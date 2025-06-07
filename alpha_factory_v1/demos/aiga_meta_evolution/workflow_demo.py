@@ -9,14 +9,12 @@ variable is set.
 """
 from __future__ import annotations
 
-import os
-
 try:
     from openai_agents import Agent, AgentRuntime, OpenAIAgent, Tool
 except ImportError as exc:  # pragma: no cover
-    raise SystemExit(
-        "openai_agents package is required. Install with `pip install openai-agents`"
-    ) from exc
+    raise SystemExit("openai_agents package is required. Install with `pip install openai-agents`") from exc
+
+from .utils import build_llm
 
 from alpha_opportunity_stub import identify_alpha
 from alpha_conversion_stub import convert_alpha
@@ -24,6 +22,7 @@ from alpha_conversion_stub import convert_alpha
 try:
     from alpha_factory_v1.backend import adk_bridge
     from alpha_factory_v1.backend.adk_bridge import auto_register, maybe_launch
+
     ADK_AVAILABLE = True
 except Exception:  # pragma: no cover - optional
     ADK_AVAILABLE = False
@@ -31,11 +30,7 @@ except Exception:  # pragma: no cover - optional
 # ---------------------------------------------------------------------------
 # LLM setup -----------------------------------------------------------------
 # ---------------------------------------------------------------------------
-LLM = OpenAIAgent(
-    model=os.getenv("MODEL_NAME", "gpt-4o-mini"),
-    api_key=os.getenv("OPENAI_API_KEY"),
-    base_url=(None if os.getenv("OPENAI_API_KEY") else os.getenv("OLLAMA_BASE_URL", "http://localhost:11434/v1")),
-)
+LLM = build_llm()
 
 
 @Tool(name="discover_alpha", description="List market opportunities in a domain")

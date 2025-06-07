@@ -62,6 +62,7 @@ if __package__ is None:
 from .openai_agents_bridge import EvolverAgent
 from .meta_evolver import MetaEvolver
 from .curriculum_env import CurriculumEnv
+from .utils import build_llm
 import gradio as gr
 
 try:  # optional JWT auth
@@ -75,9 +76,6 @@ except Exception:  # pragma: no cover - optional
 SERVICE_NAME = os.getenv("SERVICE_NAME", "aiga-meta-evolution")
 GRADIO_PORT = int(os.getenv("GRADIO_PORT", "7862"))
 API_PORT = int(os.getenv("API_PORT", "8000"))
-MODEL_NAME = os.getenv("MODEL_NAME", "gpt-4o-mini")
-OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
-OLLAMA_URL = os.getenv("OLLAMA_BASE_URL", "http://ollama:11434/v1")
 MAX_GEN = int(os.getenv("MAX_GEN", "1000"))  # safety rail
 ENABLE_OTEL = os.getenv("ENABLE_OTEL", "false").lower() == "true"
 ENABLE_SENTRY = os.getenv("ENABLE_SENTRY", "false").lower() == "true"
@@ -122,11 +120,7 @@ _REQUEST_LOG: dict[str, list[float]] = {}
 # ---------------------------------------------------------------------------
 # LLM TOOLING ----------------------------------------------------------------
 # ---------------------------------------------------------------------------
-LLM = OpenAIAgent(
-    model=MODEL_NAME,
-    api_key=OPENAI_API_KEY,
-    base_url=(None if OPENAI_API_KEY else OLLAMA_URL),
-)
+LLM = build_llm()
 
 
 @Tool(name="describe_candidate", description="Explain why this architecture might learn fast")
