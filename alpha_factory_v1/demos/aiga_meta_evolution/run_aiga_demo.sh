@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# SPDX-License-Identifier: Apache-2.0
 # ────────────────────────────────────────────────────────────────
 # AI-GA Meta-Evolution – one-command launcher
 # Works on: Linux, macOS, WSL2 (Docker Desktop ≥ 4.28)

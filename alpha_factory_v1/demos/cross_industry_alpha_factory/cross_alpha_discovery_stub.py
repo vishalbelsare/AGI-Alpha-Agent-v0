@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# SPDX-License-Identifier: Apache-2.0
 """Cross‑Industry alpha discovery helper.
 
 This minimal command‑line tool surfaces potential "alpha" opportunities

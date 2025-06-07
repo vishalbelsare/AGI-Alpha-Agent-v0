@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# SPDX-License-Identifier: Apache-2.0
 ###############################################################################
 # Alpha-Factory v1 👁️✨  – Cross-Industry AGENTIC α-AGI demo bootstrap
 # Fully production-grade, security-attested, CI-ready one-liner installer
