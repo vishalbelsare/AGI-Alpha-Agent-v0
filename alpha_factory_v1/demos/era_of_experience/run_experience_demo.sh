@@ -41,7 +41,9 @@ demo_dir="$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &>/dev/null && pwd )"
 root_dir="${demo_dir%/*/*}"                    # → …/alpha_factory_v1
 compose_file="$demo_dir/docker-compose.experience.yml"
 env_file="$demo_dir/config.env"
-offline_dir="$demo_dir/offline_samples"
+sample_dir="${SAMPLE_DATA_DIR:-$demo_dir/offline_samples}"
+offline_dir="$sample_dir"
+export SAMPLE_DATA_DIR="$sample_dir"
 
 cd "$root_dir"                                # required for build context
 
@@ -55,7 +57,7 @@ while [[ $# -gt 0 ]]; do
 Usage: ./run_experience_demo.sh [--live]
 
 --live   Start real-time collectors (wearables-sim, RSS feeds, etc.)
-Place pre-downloaded CSVs in ./offline_samples/ for air-gapped runs.
+Place pre-downloaded CSVs in $SAMPLE_DATA_DIR (defaults to ./offline_samples/) for air-gapped runs.
 Set SKIP_ENV_CHECK=1 to bypass Python package checks.
 EOF
       exit 0 ;;
@@ -95,7 +97,7 @@ EOF
 fi
 
 ############################## offline samples ################################
-say "Syncing offline experience snapshots"
+say "Syncing offline experience snapshots in $offline_dir"
 mkdir -p "$offline_dir"
 declare -A urls=(
   [wearable_daily.csv]=https://raw.githubusercontent.com/MontrealAI/demo-assets/main/wearable_daily.csv
