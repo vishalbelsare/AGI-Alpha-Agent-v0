@@ -3,13 +3,14 @@
 """Download browser demo assets from IPFS or a mirror."""
 from __future__ import annotations
 
-import sys
+import argparse
+import base64
+import hashlib
 import os
 from pathlib import Path
+import sys
 import requests  # type: ignore
 from requests.adapters import HTTPAdapter, Retry  # type: ignore
-import hashlib
-import base64
 
 GATEWAY = os.environ.get("IPFS_GATEWAY", "https://ipfs.io/ipfs").rstrip("/")
 
@@ -87,10 +88,42 @@ def download_with_retry(
         raise last_exc
 
 
+def verify_assets(base: Path) -> list[str]:
+    """Return a list of assets that failed verification."""
+
+    failures: list[str] = []
+    for rel in ASSETS:
+        dest = base / rel
+        if not dest.exists():
+            print(f"Missing {rel}")
+            failures.append(rel)
+            continue
+        expected = CHECKSUMS.get(dest.name)
+        if expected:
+            digest = base64.b64encode(hashlib.sha384(dest.read_bytes()).digest()).decode()
+            if not expected.endswith(digest):
+                print(f"Checksum mismatch for {rel}")
+                failures.append(rel)
+    return failures
+
+
 def main() -> None:
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--verify-only", action="store_true", help="Verify asset checksums and exit")
+    args = parser.parse_args()
+
     root = Path(__file__).resolve().parent.parent
     base = root / "alpha_factory_v1/demos/alpha_agi_insight_v1/insight_browser_v1"  # noqa: E501
-    failures: list[str] = []
+
+    if args.verify_only:
+        failures = verify_assets(base)
+        if failures:
+            joined = ", ".join(failures)
+            sys.exit(f"verification failed for: {joined}")
+        print("All assets verified successfully")
+        return
+
+    dl_failures: list[str] = []
     for rel, cid in ASSETS.items():
         dest = base / rel
         check_placeholder = rel in {
@@ -115,12 +148,12 @@ def main() -> None:
                 download_with_retry(cid, dest, fallback, label=rel)
             except Exception as exc:
                 print(f"Download failed for {rel}: {exc}")
-                failures.append(rel)
+                dl_failures.append(rel)
         else:
             print(f"Skipping {rel}, already exists")
 
-    if failures:
-        joined = ", ".join(failures)
+    if dl_failures:
+        joined = ", ".join(dl_failures)
         print(
             f"\nERROR: Unable to retrieve {joined}.\n"
             "Check your internet connection or set IPFS_GATEWAY to a reachable "

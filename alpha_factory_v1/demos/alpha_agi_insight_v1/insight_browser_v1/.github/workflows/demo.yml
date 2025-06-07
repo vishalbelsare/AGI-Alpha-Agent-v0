@@ -25,6 +25,8 @@ jobs:
         run: npm ci
       - name: Lint
         run: npm run lint
+      - name: Verify assets
+        run: python ../../../../scripts/fetch_assets.py --verify-only
       - name: Build
         run: npm run build -- --verbose
         env:
