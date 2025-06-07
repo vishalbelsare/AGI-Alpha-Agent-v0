@@ -1,5 +1,5 @@
-# SPDX-License-Identifier: Apache-2.0
 #!/usr/bin/env python3
+# SPDX-License-Identifier: Apache-2.0
 """OpenAI Agents SDK bridge for the Meta-Agentic Tree Search demo.
 
 This utility registers a small agent that exposes the tree-search loop via the
