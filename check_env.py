@@ -107,7 +107,13 @@ def main(argv: Optional[List[str]] = None) -> int:
         cmd += ["-r", str(req_file)]
         print("Ensuring baseline requirements:", " ".join(cmd))
         try:
-            subprocess.run(cmd, check=True)
+            subprocess.run(cmd, check=True, timeout=600)
+        except subprocess.TimeoutExpired:
+            print(
+                "Timed out installing baseline requirements. "
+                "Re-run with '--wheelhouse <path>' to install offline packages."
+            )
+            return 1
         except subprocess.CalledProcessError as exc:
             print("Failed to install baseline requirements", exc.returncode)
             return exc.returncode
@@ -138,7 +144,12 @@ def main(argv: Optional[List[str]] = None) -> int:
             cmd += packages
             print("Attempting automatic install:", " ".join(cmd))
             try:
-                result = subprocess.run(cmd, capture_output=True, text=True, check=True)
+                result = subprocess.run(cmd, capture_output=True, text=True, check=True, timeout=600)
+            except subprocess.TimeoutExpired:
+                print(
+                    "Timed out installing packages. Re-run with '--wheelhouse <path>' " "to install from local wheels."
+                )
+                return 1
             except subprocess.CalledProcessError as exc:
                 stderr = exc.stderr or ""
                 print("Automatic install failed with code", exc.returncode)
