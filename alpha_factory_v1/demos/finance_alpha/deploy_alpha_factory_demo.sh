@@ -16,8 +16,17 @@
 # ------------------------------------------------------------------------
 set -euo pipefail
 
-STRATEGY="${STRATEGY:-btc_gld}"
+SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
+if [ -f "${SCRIPT_DIR}/.env" ]; then
+  # shellcheck source=/dev/null
+  set -a
+  . "${SCRIPT_DIR}/.env"
+  set +a
+fi
+
+STRATEGY="${STRATEGY:-${FINANCE_STRATEGY:-btc_gld}}"
 PORT_API="${PORT_API:-8000}"
+TRACE_WS_PORT="${TRACE_WS_PORT:-8088}"
 IMAGE_TAG="${IMAGE_TAG:-cpu-slim-latest}"
 IMAGE="ghcr.io/montrealai/alphafactory_pro:${IMAGE_TAG}"
 CONTAINER="af_demo_${STRATEGY}_${PORT_API}"
@@ -62,11 +71,19 @@ fi
 
 # ── start container ─────────────────────────────────────────────────────
 banner "🚀  Starting Alpha‑Factory  (strategy: $STRATEGY)"
+DOCKER_ENV=(-e FINANCE_STRATEGY="$STRATEGY" -e TRACE_WS_PORT="$TRACE_WS_PORT")
+for var in FIN_CYCLE_SECONDS FIN_START_BALANCE_USD FIN_PLANNER_DEPTH FIN_PROMETHEUS \
+           ALPHA_UNIVERSE ALPHA_MAX_VAR_USD ALPHA_MAX_CVAR_USD ALPHA_MAX_DD_PCT \
+           BINANCE_API_KEY BINANCE_API_SECRET ADK_MESH; do
+  if [ -n "${!var-}" ]; then
+    DOCKER_ENV+=( -e "$var=${!var}" )
+  fi
+done
+
 CID=$(docker run -d --rm --name "$CONTAINER" \
-        -e FINANCE_STRATEGY="$STRATEGY" \
-        -e TRACE_WS_PORT=8088 \
+        "${DOCKER_ENV[@]}" \
         -p "${PORT_API}:8000" \
-        -p 8088:8088 "$IMAGE")
+        -p "${TRACE_WS_PORT}:8088" "$IMAGE")
 trap 'docker stop "$CID" >/dev/null' EXIT
 
 # ── wait for API health endpoint ────────────────────────────────────────
@@ -99,7 +116,7 @@ curl -s "http://localhost:${PORT_API}/api/finance/pnl" | jq .
 cat <<EOF
 
 🎉  Demo complete!
-• Trace‑graph UI :  http://localhost:8088
+• Trace‑graph UI :  http://localhost:${TRACE_WS_PORT}
 • API docs       :  http://localhost:${PORT_API}/docs
 
 Press Ctrl‑C to stop the container when you're finished.

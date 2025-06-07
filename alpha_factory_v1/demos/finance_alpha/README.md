@@ -38,8 +38,10 @@ runs a different momentum pair and exposes the trace‑graph on an alternate
 port.
 
 ### .env Setup
-Copy [.env.sample](.env.sample) to `.env` and tweak values as desired. Every
-variable can also be overridden directly on the command line:
+Copy [.env.sample](.env.sample) to `.env` next to the script. The demo
+automatically sources this file before reading any environment variables so
+values defined inside are forwarded to the container.
+Each variable can still be overridden directly on the command line:
 `PORT_API=8001 TRACE_WS_PORT=9000 bash deploy_alpha_factory_demo.sh`.
 
 | Variable | Purpose | Default |
