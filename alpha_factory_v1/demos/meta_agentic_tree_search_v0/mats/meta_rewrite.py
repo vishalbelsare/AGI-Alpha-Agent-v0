@@ -23,16 +23,14 @@ def store_sync(messages: list[dict[str, str]]) -> None:
     try:
         httpx.post(f"{endpoint}/context", json=payload, timeout=timeout)
     except Exception:  # noqa: BLE001 - never raise on logging failures
-        logging.getLogger(__name__).debug(
-            "MCP push failed – continuing without persistence", exc_info=True
-        )
+        logging.getLogger(__name__).debug("MCP push failed – continuing without persistence", exc_info=True)
+
 
 import importlib
 import asyncio
 import os
 import time
 import re
-import threading
 
 
 def meta_rewrite(agents: List[int]) -> List[int]:
@@ -85,14 +83,9 @@ def openai_rewrite(agents: List[int], model: str | None = None) -> List[int]:
             if have_adk:
                 from google_adk import agent2agent  # type: ignore
 
-            @Tool(
-                name="improve_policy", description="Return an improved integer policy"
-            )
+            @Tool(name="improve_policy", description="Return an improved integer policy")
             def improve_policy(policy: list[int]) -> list[int]:
-                prompt = (
-                    "Given the current integer policy "
-                    f"{policy}, suggest a slightly improved list of integers."
-                )
+                prompt = "Given the current integer policy " f"{policy}, suggest a slightly improved list of integers."
                 messages = [
                     {
                         "role": "system",
@@ -154,15 +147,10 @@ def anthropic_rewrite(agents: List[int], model: str | None = None) -> List[int]:
         try:  # pragma: no cover - optional integration
             import anthropic  # type: ignore
 
-            claude_model = model or os.getenv(
-                "ANTHROPIC_MODEL", "claude-3-opus-20240229"
-            )
+            claude_model = model or os.getenv("ANTHROPIC_MODEL", "claude-3-opus-20240229")
             client = anthropic.Anthropic(api_key=os.getenv("ANTHROPIC_API_KEY"))
 
-            prompt = (
-                "Given the current integer policy "
-                f"{agents}, suggest a slightly improved list of integers."
-            )
+            prompt = "Given the current integer policy " f"{agents}, suggest a slightly improved list of integers."
 
             messages = [{"role": "user", "content": prompt}]
             msg = client.messages.create(
