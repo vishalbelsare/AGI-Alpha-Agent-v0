@@ -9,7 +9,7 @@
 #   • Prints FinanceAgent Positions & P&L via REST
 #   • Points the user to the live trace‑graph UI
 #
-# Requirements: docker 24+, curl, jq              (no Python needed)
+# Requirements: docker 24+, curl, jq              (Python optional)
 # Optional env:  STRATEGY   finance alpha (default=btc_gld)
 #                PORT_API   host port (default=8000)
 #                IMAGE_TAG  override container tag
@@ -28,17 +28,30 @@ banner() { printf "\033[1;36m%s\033[0m\n" "$*"; }
 for cmd in docker curl jq; do
   command -v "$cmd" >/dev/null || { echo "❌  $cmd not found"; exit 1; }
 done
-# Check whether the API port is free using lsof or ss
-if command -v lsof >/dev/null; then
-  if lsof -i ":$PORT_API" >/dev/null 2>&1; then
-    echo "❌  Port $PORT_API is already in use"; exit 1;
-  fi
-elif command -v ss >/dev/null; then
-  if ss -ltn | grep -q ":$PORT_API " ; then
+# Check whether the API port is free. Prefer a tiny Python probe if available
+if command -v python >/dev/null; then
+  if ! python - <<'EOF_P' "$PORT_API"
+import socket, sys
+s = socket.socket()
+result = s.connect_ex(('localhost', int(sys.argv[1])))
+sys.exit(0 if result else 1)
+EOF_P
+  then
     echo "❌  Port $PORT_API is already in use"; exit 1;
   fi
 else
-  echo "⚠  Unable to verify if port $PORT_API is free (missing lsof/ss)" >&2
+  # Fallback to legacy lsof/ss approach when Python is missing
+  if command -v lsof >/dev/null; then
+    if lsof -i ":$PORT_API" >/dev/null 2>&1; then
+      echo "❌  Port $PORT_API is already in use"; exit 1;
+    fi
+  elif command -v ss >/dev/null; then
+    if ss -ltn | grep -q ":$PORT_API " ; then
+      echo "❌  Port $PORT_API is already in use"; exit 1;
+    fi
+  else
+    echo "⚠  Unable to verify if port $PORT_API is free (missing python, lsof/ss)" >&2
+  fi
 fi
 
 # ── pull image if missing ───────────────────────────────────────────────
