@@ -2,8 +2,8 @@
 # SPDX-License-Identifier: Apache-2.0
 """Quick dependency check for tests.
 
-This lightweight helper verifies that ``numpy`` and a few
-core packages are installed.  It is intended as a fast
+This lightweight helper verifies that ``numpy``, ``yaml`` and ``pandas``
+along with a few core packages are installed.  It is intended as a fast
 pre-flight check before running the full environment
 validation or the test suite.
 
@@ -18,7 +18,7 @@ from __future__ import annotations
 import importlib.util
 import sys
 
-REQUIRED = ["numpy", "pytest"]
+REQUIRED = ["numpy", "pytest", "yaml", "pandas"]
 
 
 def main() -> int:
