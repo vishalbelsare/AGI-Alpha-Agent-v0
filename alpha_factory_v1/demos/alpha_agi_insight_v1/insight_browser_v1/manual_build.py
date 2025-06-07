@@ -463,4 +463,8 @@ if wasm_llm_dir.exists():
 # generate service worker
 generate_service_worker(ROOT, dist_dir, manifest)
 (dist_dir / "service-worker.js").write_bytes((dist_dir / "sw.js").read_bytes())
+sw_actual = sha384(dist_dir / "service-worker.js")
+sw_expected = checksums.get("service-worker.js")
+if sw_expected and sw_expected != sw_actual:
+    sys.exit("Checksum mismatch for service-worker.js")
 check_gzip_size(dist_dir / "insight.bundle.js")
