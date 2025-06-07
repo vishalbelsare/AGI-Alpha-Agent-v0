@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: Apache-2.0
 import unittest
 import asyncio
+from typing import Any
 
 from alpha_factory_v1.demos.era_of_experience import agent_experience_entrypoint as demo
 from alpha_factory_v1.demos.era_of_experience import reward_backends
@@ -13,7 +14,7 @@ from alpha_factory_v1.demos.era_of_experience.stub_agents import (
 
 class TestEraOfExperience(unittest.TestCase):
     def test_experience_stream_yields_event(self) -> None:
-        async def get_event():
+        async def get_event() -> dict[str, Any]:
             gen = demo.experience_stream()
             return await anext(gen)
 
@@ -48,6 +49,26 @@ class TestEraOfExperience(unittest.TestCase):
         fed = FederatedExperienceAgent()
         self.assertTrue(hasattr(exp, "act"))
         self.assertTrue(hasattr(fed, "handle_request"))
+
+    def test_ingest_and_step_concurrent(self) -> None:
+        async def run_tasks() -> None:
+            queue: asyncio.Queue[dict[str, Any]] = asyncio.Queue()
+
+            async def ingest_loop() -> None:
+                async for evt in demo.experience_stream():
+                    await queue.put(evt)
+                    break
+
+            async def step_once() -> None:
+                evt = await queue.get()
+                self.assertIsInstance(evt, dict)
+
+            await asyncio.gather(ingest_loop(), step_once())
+
+        try:
+            asyncio.run(run_tasks())
+        except RuntimeError as exc:  # pragma: no cover - fail if raised
+            self.fail(f"RuntimeError raised: {exc}")
 
 
 if __name__ == "__main__":  # pragma: no cover

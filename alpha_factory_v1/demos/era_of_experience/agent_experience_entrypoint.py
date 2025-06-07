@@ -7,11 +7,11 @@ Era-of-Experience Agent 👁️✨
 ────────────────────────────
 A minimal yet *comprehensive* reference implementation of an **autonomous,
 reward-grounded, life-long agent** as envisioned in “Welcome to the Era of Experience”
-(Sutton & Silver 2024) 
+(Sutton & Silver 2024)
 
-✓ Streams of experience (continuous event generator)  
-✓ Sensor-motor tools (search, meal planning, workout scheduling)  
-✓ Grounded reward (fitness & knowledge signals, *no* human grading)  
+✓ Streams of experience (continuous event generator)
+✓ Sensor-motor tools (search, meal planning, workout scheduling)
+✓ Grounded reward (fitness & knowledge signals, *no* human grading)
 ✓ Non-human reasoning (MCTS planning + vector memory)
 
 The script runs **online** (OPENAI_API_KEY) *or* **offline** (Ollama Mixtral) and
@@ -222,10 +222,11 @@ async def main() -> None:
     if gr is None:
         raise RuntimeError("gradio is required for the demo UI; install via 'pip install gradio'")
 
-    evt_gen = experience_stream()
+    evt_queue: asyncio.Queue[Dict[str, Any]] = asyncio.Queue()
 
-    async def ingest_loop():
-        async for evt in evt_gen:
+    async def ingest_loop() -> None:
+        async for evt in experience_stream():
+            await evt_queue.put(evt)
             logging.debug("Event %s", evt)
             # agent observes the world
             agent.observe(json.dumps(evt))
@@ -242,8 +243,8 @@ async def main() -> None:
         log_view = gr.Markdown()
         btn = gr.Button("Step once")
 
-        async def step_once():
-            evt = await anext(evt_gen)
+        async def step_once() -> tuple[list[list[str]], str]:
+            evt = await evt_queue.get()
             agent.observe(json.dumps(evt))
             call = await agent.act()
             return [[json.dumps(m)[:120] for m in agent.memory.recent(10)]], f"**Event:** {evt}\n\n**Action:** {call}"
