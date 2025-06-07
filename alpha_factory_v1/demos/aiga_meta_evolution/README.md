@@ -213,7 +213,7 @@ Turn a discovered opportunity into a short execution plan:
 python alpha_factory_v1/demos/aiga_meta_evolution/alpha_conversion_stub.py --alpha "Battery arbitrage"
 ```
 
-The tool outputs a three‑step JSON plan and logs it to `alpha_conversion_log.json`. When `OPENAI_API_KEY` is configured, it queries an OpenAI model; otherwise a sample plan is returned.
+The tool outputs a three‑step JSON plan and logs it to `~/.aiga/alpha_conversion_log.json` by default. When `OPENAI_API_KEY` is configured, it queries an OpenAI model; otherwise a sample plan is returned.
 
 ## 🤝 End‑to‑end workflow
 
