@@ -55,6 +55,8 @@ while [[ $# -gt 0 ]]; do
 Usage: ./run_experience_demo.sh [--live]
 
 --live   Start real-time collectors (wearables-sim, RSS feeds, etc.)
+Place pre-downloaded CSVs in ./offline_samples/ for air-gapped runs.
+Set SKIP_ENV_CHECK=1 to bypass Python package checks.
 EOF
       exit 0 ;;
     *) die "Unknown flag: $1" ;;
