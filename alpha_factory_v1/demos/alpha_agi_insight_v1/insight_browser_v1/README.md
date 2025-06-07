@@ -1,9 +1,13 @@
 ### 🔬 Browser-only Insight demo
 A zero-backend Pareto explorer lives in
-`demos/alpha_agi_insight_v1/insight_browser_v1/`.
+`demos/alpha_agi_insight_v1/insight_browser_v1/`. See the **Quick-Start** section below for a short walkthrough.
 
 ## Disclaimer
 This demo is a conceptual research prototype describing aspirational goals and does not contain real general intelligence. Use at your own risk.
+
+## Quick-Start
+Open [docs/insight_browser_quickstart.pdf](docs/insight_browser_quickstart.pdf)
+for a concise overview of the build and launch steps.
 
 ## Prerequisites
 - **Node.js ≥20** is required for offline PWA support and by `manual_build.py`
