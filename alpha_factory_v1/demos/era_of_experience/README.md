@@ -82,10 +82,15 @@ When running without internet access:
    cp config.env.sample config.env
    $EDITOR config.env      # set OPENAI_API_KEY, MODEL_NAME, PG_PASSWORD, LOG_LEVEL, LIVE_FEED, etc.
    ```
-   You may override the path for built-in offline samples with
-   `SAMPLE_DATA_DIR=/path/to/csvs`.
-   Sample CSVs (`wearable_daily.csv`, `edu_progress.csv`) are shipped in
-   `offline_samples/` so the demo also works without internet access.
+You may override the path for built-in offline samples by exporting
+`SAMPLE_DATA_DIR` before launching the demo:
+
+```bash
+SAMPLE_DATA_DIR=/path/to/csvs ./run_experience_demo.sh
+```
+
+Sample CSVs (`wearable_daily.csv`, `edu_progress.csv`) are shipped in
+`offline_samples/` so the demo also works without internet access.
 
 2. Enable real-time collectors and metrics with the `--live` flag:
 
