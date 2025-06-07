@@ -26,6 +26,12 @@ export function initTelemetry(t) {
 
   const consentKey = 'telemetryConsent';
   let disabled = false;
+  try {
+    localStorage.getItem(consentKey);
+  } catch (err) {
+    console.warn('telemetry disabled', err);
+    disabled = true;
+  }
   function lsGet(key) {
     if (disabled) return null;
     try {
