@@ -24,7 +24,7 @@ except Exception:  # pragma: no cover - fallback parser
 from .mats.tree import Node, Tree
 from .mats.meta_rewrite import meta_rewrite, openai_rewrite, anthropic_rewrite
 from .mats.evaluators import evaluate
-from .mats.env import NumberLineEnv
+from .mats.env import NumberLineEnv, LiveBrokerEnv
 
 
 def verify_environment() -> None:
@@ -49,6 +49,7 @@ def run(
     target: int = 5,
     seed: Optional[int] = None,
     model: str | None = None,
+    market_data: list[int] | None = None,
 ) -> None:
     """Run a toy tree search for a small number of episodes.
 
@@ -66,12 +67,14 @@ def run(
         Optional RNG seed for reproducible runs.
     model:
         Optional model override used by the rewriter.
+    market_data:
+        Optional list of integers representing a market price feed.
     """
     if seed is not None:
         random.seed(seed)
 
     root_agents: List[int] = [0, 0, 0, 0]
-    env = NumberLineEnv(target=target)
+    env = LiveBrokerEnv(target=target, market_data=market_data) if market_data else NumberLineEnv(target=target)
     tree = Tree(Node(root_agents), exploration=exploration)
     if rewriter is None:
         rewriter = (
@@ -147,6 +150,11 @@ def main(argv: List[str] | None = None) -> None:
         type=str,
         help="Model name for the rewriter (OpenAI or Anthropic)",
     )
+    parser.add_argument(
+        "--market-data",
+        type=Path,
+        help="CSV file with comma-separated integers for LiveBrokerEnv",
+    )
     parser.add_argument("--log-dir", type=Path, help="Optional directory to store episode logs")
     parser.add_argument(
         "--verify-env",
@@ -155,6 +163,11 @@ def main(argv: List[str] | None = None) -> None:
     )
     args = parser.parse_args(argv)
     cfg = load_config(args.config)
+
+    market_data: list[int] | None = None
+    if args.market_data:
+        text = args.market_data.read_text(encoding="utf-8")
+        market_data = [int(x) for x in text.split(",") if x.strip()]
 
     if args.verify_env:
         verify_environment()
@@ -173,6 +186,7 @@ def main(argv: List[str] | None = None) -> None:
         seed=seed,
         log_dir=args.log_dir,
         model=model,
+        market_data=market_data,
     )
 
 

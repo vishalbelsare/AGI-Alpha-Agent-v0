@@ -153,6 +153,28 @@ class TestMetaAgenticTreeSearchDemo(unittest.TestCase):
         self.assertEqual(result.returncode, 0, result.stderr)
         self.assertIn("Best agents", result.stdout)
 
+    def test_run_demo_market_data(self) -> None:
+        import tempfile
+
+        with tempfile.NamedTemporaryFile("w", delete=False) as fh:
+            fh.write("6,6,6")
+            feed_path = fh.name
+        result = subprocess.run(
+            [
+                sys.executable,
+                "-m",
+                "alpha_factory_v1.demos.meta_agentic_tree_search_v0.run_demo",
+                "--episodes",
+                "2",
+                "--market-data",
+                feed_path,
+            ],
+            capture_output=True,
+            text=True,
+        )
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertIn("Best agents", result.stdout)
+
     def test_bridge_fallback(self) -> None:
         result = subprocess.run(
             [

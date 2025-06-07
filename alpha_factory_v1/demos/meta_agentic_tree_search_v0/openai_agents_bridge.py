@@ -16,6 +16,8 @@ import pathlib
 
 DEFAULT_MODEL_NAME = os.getenv("OPENAI_MODEL", "gpt-4o")
 
+MARKET_DATA: list[int] | None = None
+
 
 def verify_env() -> None:
     """Best-effort runtime dependency check."""
@@ -75,13 +77,22 @@ if has_oai:
         target: int = 5,
         model: str | None = None,
         rewriter: str | None = None,
+        market_data: list[int] | None = None,
     ) -> str:
         """Execute the search loop and return a summary string."""
         if model:
             os.environ.setdefault("OPENAI_MODEL", model)
         if rewriter:
             os.environ.setdefault("MATS_REWRITER", rewriter)
-        run(episodes=episodes, target=target, model=model, rewriter=rewriter)
+        if market_data is None:
+            market_data = MARKET_DATA
+        run(
+            episodes=episodes,
+            target=target,
+            model=model,
+            rewriter=rewriter,
+            market_data=market_data,
+        )
         return f"completed {episodes} episodes toward target {target}"
 
     class MATSAgent(Agent):
@@ -95,8 +106,15 @@ if has_oai:
             target = int(obs.get("target", 5)) if isinstance(obs, dict) else 5
             model = obs.get("model") if isinstance(obs, dict) else None
             rewriter = obs.get("rewriter") if isinstance(obs, dict) else None
+            market_data = (
+                [int(x) for x in obs.get("market_data", [])] if isinstance(obs, dict) and "market_data" in obs else None
+            )
             return await run_search(
-                episodes=episodes, target=target, model=model, rewriter=rewriter
+                episodes=episodes,
+                target=target,
+                model=model,
+                rewriter=rewriter,
+                market_data=market_data,
             )
 
     def _run_runtime(
@@ -104,11 +122,15 @@ if has_oai:
         target: int,
         model: str | None = None,
         rewriter: str | None = None,
+        market_data: list[int] | None = None,
     ) -> None:
         if model:
             os.environ.setdefault("OPENAI_MODEL", model)
         if rewriter:
             os.environ.setdefault("MATS_REWRITER", rewriter)
+        if market_data is not None:
+            global MARKET_DATA
+            MARKET_DATA = list(market_data)
         runtime = AgentRuntime(api_key=os.getenv("OPENAI_API_KEY"))
         agent = MATSAgent()
         runtime.register(agent)
@@ -137,11 +159,20 @@ else:
         target: int,
         model: str | None = None,
         rewriter: str | None = None,
+        market_data: list[int] | None = None,
     ) -> str:
         """Execute the search loop and return a summary string."""
         if model:
             os.environ.setdefault("OPENAI_MODEL", model)
-        run(episodes=episodes, target=target, model=model, rewriter=rewriter)
+        if market_data is None:
+            market_data = MARKET_DATA
+        run(
+            episodes=episodes,
+            target=target,
+            model=model,
+            rewriter=rewriter,
+            market_data=market_data,
+        )
         return f"completed {episodes} episodes toward target {target}"
 
     async def run_search(
@@ -149,23 +180,25 @@ else:
         target: int = 5,
         model: str | None = None,
         rewriter: str | None = None,
+        market_data: list[int] | None = None,
     ) -> str:
-        return _run_search_helper(episodes, target, model, rewriter)
+        return _run_search_helper(episodes, target, model, rewriter, market_data)
 
 
 def main(argv: list[str] | None = None) -> None:
     parser = argparse.ArgumentParser(description="OpenAI Agents bridge for MATS")
-    parser.add_argument(
-        "--episodes", type=int, default=10, help="Search episodes when offline"
-    )
-    parser.add_argument(
-        "--target", type=int, default=5, help="Target integer when offline"
-    )
+    parser.add_argument("--episodes", type=int, default=10, help="Search episodes when offline")
+    parser.add_argument("--target", type=int, default=5, help="Target integer when offline")
     parser.add_argument("--model", type=str, help="Optional model override")
     parser.add_argument(
         "--rewriter",
         choices=["random", "openai", "anthropic"],
         help="Rewrite strategy to use",
+    )
+    parser.add_argument(
+        "--market-data",
+        type=Path,
+        help="CSV file with comma-separated integers for LiveBrokerEnv",
     )
     parser.add_argument(
         "--enable-adk",
@@ -179,6 +212,11 @@ def main(argv: list[str] | None = None) -> None:
     )
     args = parser.parse_args(argv)
 
+    market_data: list[int] | None = None
+    if args.market_data:
+        text = args.market_data.read_text(encoding="utf-8")
+        market_data = [int(x) for x in text.split(",") if x.strip()]
+
     if args.verify_env:
         verify_env()
 
@@ -189,13 +227,20 @@ def main(argv: list[str] | None = None) -> None:
             target=args.target,
             model=args.model,
             rewriter=args.rewriter,
+            market_data=market_data,
         )
         return
 
     if args.enable_adk:
         os.environ.setdefault("ALPHA_FACTORY_ENABLE_ADK", "true")
 
-    _run_runtime(args.episodes, args.target, args.model, args.rewriter)
+    _run_runtime(
+        args.episodes,
+        args.target,
+        args.model,
+        args.rewriter,
+        market_data,
+    )
 
 
 __all__ = [

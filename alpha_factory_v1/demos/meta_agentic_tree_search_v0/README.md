@@ -182,7 +182,8 @@ gateway for remote control via the A2A protocol.
 The default environment is a simple number‑line task defined in `mats/env.py` where each agent must approach a target integer. Pass `--target 7` (for example) to experiment with different goals.
 Use `--seed 42` to reproduce a specific search trajectory.
 
-> **Tip:** Set `--market-data my_feed.csv` to replay real tick data.
+> **Tip:** Replay real tick data with:
+> `python run_demo.py --market-data my_feed.csv`
 
 ## 6 Repository layout
 ```
