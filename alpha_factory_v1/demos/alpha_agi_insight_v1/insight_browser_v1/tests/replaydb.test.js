@@ -35,10 +35,9 @@ test('share and import frames maintain order and cid', async () => {
 test('addFrame generates unique ids', async () => {
   const db = new ReplayDB('jest');
   await db.open();
-  const ids = new Set();
+  const ids = [];
   for (let i = 0; i < 100; i++) {
-    const id = await db.addFrame(null, { i });
-    expect(ids.has(id)).toBe(false);
-    ids.add(id);
+    ids.push(await db.addFrame(null, { i }));
   }
+  expect(new Set(ids).size).toBe(100);
 });
