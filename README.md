@@ -878,6 +878,10 @@ Install the project in editable mode so tests resolve imports:
 pip install -e .
 python check_env.py --auto-install  # times out after 10 minutes
 ```
+Run `python check_env.py --auto-install` again before executing `pytest` to
+ensure optional dependencies are present. In offline setups pass
+`--wheelhouse <dir>` (or set `WHEELHOUSE`) so packages install from the local
+wheel cache.
 
 #### Test Runtime
 
