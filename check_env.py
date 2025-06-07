@@ -21,6 +21,15 @@ import argparse
 from pathlib import Path
 from typing import List, Optional
 
+CORE = ["numpy", "yaml", "pandas"]
+
+
+def warn_missing_core() -> None:
+    missing = [pkg for pkg in CORE if importlib.util.find_spec(pkg) is None]
+    if missing:
+        print("WARNING: Missing core packages:", ", ".join(missing))
+
+
 REQUIRED = [
     "pytest",
     "prometheus_client",
@@ -85,6 +94,8 @@ def main(argv: Optional[List[str]] = None) -> int:
     )
 
     args = parser.parse_args(argv)
+
+    warn_missing_core()
 
     wheelhouse = args.wheelhouse or os.getenv("WHEELHOUSE")
     auto = args.auto_install or os.getenv("AUTO_INSTALL_MISSING") == "1"
