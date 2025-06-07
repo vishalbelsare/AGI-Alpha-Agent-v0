@@ -150,6 +150,26 @@ mats-demo --episodes 10
 `scores.csv` file for further analysis. A ready‑to‑run Colab notebook is also
 provided as `colab_meta_agentic_tree_search.ipynb`.
 
+### Offline setup
+When installing without network access, first build a wheelhouse on a
+machine with connectivity:
+
+```bash
+mkdir -p /media/wheels
+pip wheel -r requirements.txt -w /media/wheels
+```
+
+Copy `/media/wheels` to the offline machine and set `WHEELHOUSE` so
+`pip` installs from this directory:
+
+```bash
+WHEELHOUSE=/media/wheels pip install -r requirements.txt
+```
+
+The repository's setup script automatically uses a `wheels/` directory
+in the project root when present, so placing your pre-built wheels
+there also works.
+
 ### Notebook quick start
 1. Click the “Open In Colab” badge at the top of this document.
 2. Execute the first cell to clone the repository and install dependencies.
