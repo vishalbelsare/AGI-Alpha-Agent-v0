@@ -11,6 +11,7 @@ grpcio-tools
 pytest-httpx
 pre-commit
 
+numpy
 PyYAML
 types-PyYAML
 types-requests
