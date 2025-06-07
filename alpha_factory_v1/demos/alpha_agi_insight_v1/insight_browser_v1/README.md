@@ -22,6 +22,27 @@ The output should be empty for a valid setup. Only run `manual_build.py` when
 this requirement is met. The `package.json` also enforces Node.js 20 or newer
 via the `engines` field.
 
+## Windows Setup
+
+Download and install [Node.js 20](https://nodejs.org/en/download) and
+[Python 3.11](https://www.python.org/downloads/) before running the build
+scripts. Open PowerShell in this directory and verify the versions:
+
+```powershell
+node --version
+python --version
+```
+
+Use `./setup.ps1` to install the Node modules when `node_modules` is missing.
+Build and launch the demo with:
+
+```powershell
+npm run fetch-assets
+./setup.ps1
+npm run build    # or ./manual_build.ps1 for offline builds
+npm start
+```
+
 ## Environment Setup
 Copy [`.env.sample`](.env.sample) to `.env` then review the variables:
 
