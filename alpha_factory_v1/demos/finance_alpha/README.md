@@ -26,9 +26,16 @@ curl -L https://raw.githubusercontent.com/MontrealAI/AGI-Alpha-Agent-v0/main/alp
 
 _No installation beyond Docker, `curl`, and `jq`._
 
-**Customize**  
+**Customize**
 `STRATEGY=my_pair PORT_API=8001 bash deploy_alpha_factory_demo.sh` runs a
 different momentum pair on an alternate port.
+
+### .env Setup
+Copy [.env.sample](.env.sample) to `.env` and tweak values as desired. The
+sample defines defaults such as `FINANCE_STRATEGY=btc_gld`, `PORT_API=8000`,
+`TRACE_WS_PORT=8088`, `FIN_CYCLE_SECONDS=60` and
+`FIN_START_BALANCE_USD=10000`. Any variable you omit falls back to these safe
+defaults when the demo starts.
 
 ---
 
