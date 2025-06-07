@@ -10,11 +10,13 @@ from alpha_factory_v1.demos.era_of_experience.stub_agents import (
     FederatedExperienceAgent,
 )
 
+
 class TestEraOfExperience(unittest.TestCase):
     def test_experience_stream_yields_event(self) -> None:
         async def get_event():
             gen = demo.experience_stream()
             return await anext(gen)
+
         evt = asyncio.run(get_event())
         self.assertIsInstance(evt, dict)
         self.assertIn("kind", evt)
@@ -29,6 +31,11 @@ class TestEraOfExperience(unittest.TestCase):
             self.assertGreaterEqual(val, 0.0)
             self.assertLessEqual(val, 1.0)
 
+    def test_fitness_reward_parses_sleep(self) -> None:
+        evt = {"payload": {"activity": "Sleep 7 h 45 m"}}
+        val = demo._fitness_reward(evt)
+        self.assertIsInstance(val, float)
+
     def test_simple_env_runs(self) -> None:
         env = SimpleExperienceEnv()
         state = env.reset()
@@ -42,6 +49,6 @@ class TestEraOfExperience(unittest.TestCase):
         self.assertTrue(hasattr(exp, "act"))
         self.assertTrue(hasattr(fed, "handle_request"))
 
+
 if __name__ == "__main__":  # pragma: no cover
     unittest.main()
-

@@ -38,6 +38,7 @@ import datetime as dt
 import json
 import logging
 import math
+import re
 from typing import Dict, Any, AsyncIterator, List
 
 from fastapi import FastAPI
@@ -165,7 +166,8 @@ def _fitness_reward(evt: Dict[str, Any]) -> float:
     if "Run" in act or "Cycle" in act or "Yoga" in act:
         return 1.0
     if "Sleep" in act:
-        hrs = float(act.split()[1][:-1])  # crude parse
+        match = re.search(r"\d+(?:\.\d+)?", act)
+        hrs = float(match.group(0)) if match else 0.0  # extract first numeric value
         return max(0, min(1.0, hrs / 8.0))
     return 0.0
 
