@@ -123,3 +123,20 @@ test('add calls chat when api key set and stores impact score', async () => {
   const runs = await a.list();
   expect(runs[0].impactScore).toBeCloseTo(runs[0].score + 5);
 });
+
+test('prune logs warning when deletion fails', async () => {
+  const keyval = require('../src/utils/keyval.ts');
+  const origDel = keyval.del;
+  keyval.del = jest.fn(() => { throw new DOMException('fail'); });
+  const warn = jest.spyOn(console, 'warn').mockImplementation(() => {});
+
+  const a = new Archive('jest');
+  await a.open();
+  await a.add(1, {}, []);
+  await expect(a.prune(0)).resolves.toBeUndefined();
+
+  expect(warn).toHaveBeenCalled();
+
+  keyval.del = origDel;
+  warn.mockRestore();
+});
