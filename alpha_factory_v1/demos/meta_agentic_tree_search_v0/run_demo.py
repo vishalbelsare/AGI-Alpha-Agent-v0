@@ -9,7 +9,7 @@ import random
 import sys
 import pathlib
 from pathlib import Path
-from typing import List, Optional
+from typing import List, Optional, Any
 
 if __package__ is None:  # pragma: no cover - allow execution via `python run_demo.py`
     # Add repository root so package imports resolve when executed directly
@@ -30,7 +30,7 @@ from .mats.env import NumberLineEnv
 def verify_environment() -> None:
     """Best-effort runtime dependency check."""
     try:
-        import check_env  # type: ignore
+        import check_env
 
         check_env.main([])
     except (ImportError, ModuleNotFoundError) as exc:  # pragma: no cover - optional helper
@@ -80,6 +80,9 @@ def run(
             or ("anthropic" if os.getenv("ANTHROPIC_API_KEY") else None)
             or "random"
         )
+    from typing import Callable
+
+    rewrite_fn: Callable[[List[int]], List[int]]
     if rewriter == "openai":
         rewrite_fn = lambda ag: openai_rewrite(ag, model=model)
     elif rewriter == "anthropic":
@@ -109,7 +112,7 @@ def run(
         log_fh.close()
 
 
-def load_config(path: Path) -> dict:
+def load_config(path: Path) -> dict[str, Any]:
     """Load a YAML configuration file with a minimal fallback parser."""
     if not path.exists():
         return {}
@@ -121,7 +124,7 @@ def load_config(path: Path) -> dict:
         if ":" in line:
             key, val = line.split(":", 1)
             val = val.strip()
-            if val.replace('.', '', 1).isdigit():
+            if val.replace(".", "", 1).isdigit():
                 cfg[key.strip()] = float(val) if "." in val else int(val)
             else:
                 cfg[key.strip()] = val

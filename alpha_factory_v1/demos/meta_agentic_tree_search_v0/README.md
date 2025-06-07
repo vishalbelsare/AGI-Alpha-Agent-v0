@@ -71,7 +71,7 @@ The script automatically falls back to the offline rewriter when the
 dependencies are unavailable so the notebook remains runnable anywhere.
 
 When the optional `openai` package is also present, `openai_rewrite` uses
-`ChatCompletion` to refine candidate integer policies.  Supply an
+`OpenAI().chat.completions.create` to refine candidate integer policies.  Supply an
 `OPENAI_API_KEY` environment variable to activate this behaviour.  Without a
 key or in fully offline environments the routine simply increments the
 proposed policy elements so the rest of the demo keeps working.  You can
