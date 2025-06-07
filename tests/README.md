@@ -13,11 +13,19 @@ These integration tests expect the `alpha_factory_v1` package to be importable.
    ```bash
    pip install -r requirements-demo.txt
    ```
-3. Run `python check_env.py --auto-install` to ensure optional packages are installed. The command
-   downloads dependencies from PyPI, so it **requires an internet connection or a local
-   wheelhouse** supplied via `--wheelhouse <dir>`.
-4. Set `PYTHONPATH=$(pwd)` or install the project in editable mode with `pip install -e .`.
-5. Execute `pytest -q`.
+3. Verify the core dependencies are present:
+   ```bash
+   python scripts/check_python_deps.py
+   ```
+4. Install any missing optional packages:
+   ```bash
+   python check_env.py --auto-install
+   ```
+   These commands download packages from PyPI, so ensure you have either
+   internet connectivity or a wheelhouse available via `--wheelhouse <dir>`
+   (or the `WHEELHOUSE` environment variable).
+5. Set `PYTHONPATH=$(pwd)` or install the project in editable mode with `pip install -e .`.
+6. Execute `pytest -q`.
 
 ### Offline install
 
