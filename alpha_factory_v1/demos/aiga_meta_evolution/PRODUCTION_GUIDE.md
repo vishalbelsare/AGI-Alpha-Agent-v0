@@ -37,6 +37,22 @@ This short guide distils the steps required to run the **AI‑GA Meta‑Evolutio
      python agent_aiga_entrypoint.py
      ```
 
+### Launching the OpenAI Agents bridge
+
+Start the bridge if you wish to drive the evolver through the **OpenAI Agents**
+SDK.  Enable the ADK gateway by exporting `ALPHA_FACTORY_ENABLE_ADK=1` before
+launching the script.  A token can be enforced via
+`ALPHA_FACTORY_ADK_TOKEN`.
+
+```bash
+ALPHA_FACTORY_ENABLE_ADK=1 python openai_agents_bridge.py
+# optional token auth
+ALPHA_FACTORY_ADK_TOKEN=my_token python openai_agents_bridge.py
+```
+
+The bridge exposes health checks at
+`http://localhost:${ALPHA_FACTORY_ADK_PORT}/healthz` (or `/docs`).
+
 3. **Run in Colab**
    - Open the notebook at
      [colab_aiga_meta_evolution.ipynb](colab_aiga_meta_evolution.ipynb).
