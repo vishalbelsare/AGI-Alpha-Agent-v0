@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 """Evaluation environments for the MATS demo.
 
 This module exposes a lightweight :class:`NumberLineEnv` used by the unit tests
