@@ -44,7 +44,8 @@ npm start
 ```
 
 ## Environment Setup
-Copy [`.env.sample`](.env.sample) to `.env` then review the variables:
+Copy [`.env.sample`](.env.sample) to `.env` then review the variables. If `.env` is
+absent, the build scripts use empty defaults:
 
 - `PINNER_TOKEN` – Web3.Storage token used to pin results.
 - `OPENAI_API_KEY` – optional OpenAI key for chat prompts. **For security, do not
@@ -147,6 +148,7 @@ Use `manual_build.py` for air‑gapped environments:
 The script requires Python ≥3.11. It loads `.env` automatically and injects
 `PINNER_TOKEN`, `OPENAI_API_KEY`, `IPFS_GATEWAY` and `OTEL_ENDPOINT` into
 `dist/index.html`, mirroring `npm run build`.
+If `.env` is missing, default empty values are used instead.
 
 ### Offline Build
 
