@@ -114,6 +114,17 @@ export OLLAMA_BASE_URL="http://localhost:12345"
 Set `OPENAI_API_KEY` in your environment to enable cloud models. Without
 it the demo falls back to the bundled offline mixtral model.
 
+### Offline verification
+
+When running without internet access, point `check_env.py` at your wheelhouse:
+
+```bash
+WHEELHOUSE=/path/to/wheels AUTO_INSTALL_MISSING=1 \
+  python check_env.py --auto-install --wheelhouse /path/to/wheels
+```
+
+See [scripts/README.md](../../scripts/README.md) for details on creating the wheelhouse.
+
 ### Installing the OpenAI Agents SDK
 
 The optional OpenAI Agents bridge relies on this package.
