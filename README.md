@@ -7,6 +7,12 @@
 
 ---
 
+## Disclaimer
+This repository is a conceptual research prototype. References to "AGI" and
+"superintelligence" describe aspirational goals and do not indicate the presence
+of a real general intelligence. Use at your own risk.
+
+
 # 🚀 [ 🎖️ α‑AGI Ascension 🌌 ]
 
 ## Humanity’s Structured Rise to Economic Supremacy via Strategic AGI Mastery
