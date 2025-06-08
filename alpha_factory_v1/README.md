@@ -428,7 +428,7 @@ falls back to Python's built-in `unittest` discovery when `pytest` is not
 available.
 
 ```bash
-./scripts/run_tests.py
+python -m alpha_factory_v1.scripts.run_tests
 ```
 ---
 
