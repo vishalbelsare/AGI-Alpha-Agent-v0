@@ -1,4 +1,5 @@
 # SPDX-License-Identifier: Apache-2.0
+# NOTE: This demo is a research prototype and does not implement real AGI.
 """
 This module is part of a conceptual research prototype. References to
 'AGI' or 'superintelligence' describe aspirational goals and do not

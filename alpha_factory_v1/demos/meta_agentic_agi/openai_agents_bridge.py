@@ -1,4 +1,5 @@
 # SPDX-License-Identifier: Apache-2.0
+# NOTE: This demo is a research prototype and does not implement real AGI.
 """OpenAI Agents SDK bridge for the Meta-Agentic \u03b1-AGI demo.
 
 Registers a minimal agent that exposes the demo's meta-search loop as an

@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: Apache-2.0
+# NOTE: This demo is a research prototype and does not implement real AGI.
 """OpenAI Agents SDK bridge for the Meta-Agentic Tree Search demo.
 
 This utility registers a small agent that exposes the tree-search loop via the
