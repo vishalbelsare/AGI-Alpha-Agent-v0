@@ -216,6 +216,14 @@ template). The sample file now lists every variable with its default value.
 | `ARCHIVE_PATH` | Darwin‑Archive SQLite file | `archive.db` |
 | `ARCHIVE_DB` | API server results database | `archive.db` |
 | `SOLUTION_ARCHIVE_PATH` | Path to solution archive | `solutions.duckdb` |
+| `ALPHA_ASI_SEED` | Deterministic RNG seed for the world model demo | `42` |
+| `ALPHA_ASI_MAX_STEPS` | Learner steps before auto-stop | `100000` |
+| `ALPHA_ASI_BUFFER_LIMIT` | Replay-buffer length | `50000` |
+| `ALPHA_ASI_TRAIN_BATCH` | SGD mini-batch size | `128` |
+| `ALPHA_ASI_MAX_GRID` | Safety clamp on generated mazes | `64` |
+| `ALPHA_ASI_HOST` | FastAPI bind address for the demo | `0.0.0.0` |
+| `ALPHA_ASI_PORT` | FastAPI port for the demo | `7860` |
+| `ALPHA_ASI_LLM_MODEL` | Planner model used by the world model demo | `gpt-4o-mini` |
 | `PROOF_THRESHOLD` | Minimum score to generate SNARK proof | `0.5` |
 
 ## Coding Style
