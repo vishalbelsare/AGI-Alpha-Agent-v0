@@ -1,5 +1,6 @@
 # SPDX-License-Identifier: Apache-2.0
 #!/usr/bin/env python3
+# NOTE: This demo is a research prototype and does not implement real AGI.
 """OpenAI Agents SDK bridge for the alpha_agi_business_v1 demo.
 
 This utility registers a small helper agent that interacts with the

@@ -1,4 +1,5 @@
 # SPDX-License-Identifier: Apache-2.0
+# NOTE: This demo is a research prototype and does not implement real AGI.
 """Minimal OpenAI Agents & Google ADK bridge for the α‑ASI demo.
 
 This utility registers a tiny inspector agent with the local orchestrator
