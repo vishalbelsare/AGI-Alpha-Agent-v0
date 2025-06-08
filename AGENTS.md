@@ -248,6 +248,8 @@ pre-commit run --files <paths>   # before each commit
     to regenerate and verify protobuf sources.
   - The configuration runs `black`, `ruff`, `flake8` and `mypy` using
     `mypy.ini`.
+  - Semgrep scans Python files with the official `p/python` ruleset to enforce
+    security and style best practices.
   - Hooks `verify-requirements-lock`, `verify-alpha-requirements-lock` and
     `verify-backend-requirements-lock` ensure each `requirements-lock` file
     matches its `requirements.txt`. They rely on `pip-tools`.
