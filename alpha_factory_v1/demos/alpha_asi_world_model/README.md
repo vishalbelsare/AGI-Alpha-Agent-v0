@@ -116,6 +116,7 @@ WHEELHOUSE=/media/wheels AUTO_INSTALL_MISSING=1 \
 Set `NO_LLM=1` to disable the planning agent when no API key is available. The
 `deploy_alpha_asi_world_model_demo.sh` helper exports this variable
 automatically.
+Define `ALPHA_ASI_LLM_MODEL=gpt-4o-mini` to change the planner's model.
 
 ---
 
