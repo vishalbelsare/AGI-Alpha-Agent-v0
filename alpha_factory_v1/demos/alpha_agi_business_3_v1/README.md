@@ -11,6 +11,11 @@ high‑stakes prod cluster right now.
 > **Definition**: An **α‑AGI Business** 👁️✨ (`<name>.a.agi.eth`) is an antifragile, self‑governing multi‑agent  👁️✨ (`<name>.a.agent.agi.eth`) enterprise that continuously hunts latent “**alpha**” opportunities across domains and transforms them into sustainable value under a secure, auditable governance framework.
 
 ---
+## Disclaimer
+This repository is a conceptual research prototype. References to "AGI" and
+"superintelligence" describe aspirational goals and do not indicate the presence
+of a real general intelligence. Use at your own risk.
+
 
 ## 📚 Table of Contents
 0. [Executive Summary](#0)

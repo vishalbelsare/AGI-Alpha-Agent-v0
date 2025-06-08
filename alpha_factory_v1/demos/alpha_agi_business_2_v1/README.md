@@ -5,6 +5,11 @@
 > **Alpha‑Factory v1** turns that raw potential into deployable breakthroughs, *autonomously*.
 
 ---
+## Disclaimer
+This repository is a conceptual research prototype. References to "AGI" and
+"superintelligence" describe aspirational goals and do not indicate the presence
+of a real general intelligence. Use at your own risk.
+
 
 ## ⚡ TL;DR  
 
