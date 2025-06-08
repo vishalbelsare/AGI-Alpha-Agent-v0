@@ -39,7 +39,7 @@ def parse_agents_table(path: Path) -> set[str]:
         return set()
 
     table_vars: set[str] = set()
-    for line in text[start + 1 :]:
+    for line in text[start + 1 :]:  # noqa: E203
         if line.startswith("|"):
             match = re.search(r"`([^`]+)`", line)
             if match:
@@ -57,7 +57,7 @@ def parse_runbook_checklist(path: Path) -> list[str]:
     except ValueError:
         return []
     items: list[str] = []
-    for line in text[start + 1 :]:
+    for line in text[start + 1 :]:  # noqa: E203
         line = line.strip()
         if not line:
             if items:
