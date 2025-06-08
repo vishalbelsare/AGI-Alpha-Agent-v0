@@ -2,6 +2,7 @@
 import pytest
 import sys
 import types
+import importlib.util
 from src.simulation import replay
 
 rocketry_stub = types.ModuleType("rocketry")
@@ -11,6 +12,18 @@ conds_mod.every = lambda *_: None
 rocketry_stub.conds = conds_mod
 sys.modules.setdefault("rocketry", rocketry_stub)
 sys.modules.setdefault("rocketry.conds", conds_mod)
+
+
+def pytest_sessionstart(session: pytest.Session) -> None:
+    """Ensure core packages are installed at session start."""
+    missing = [name for name in ("numpy", "torch") if importlib.util.find_spec(name) is None]
+    if missing:
+        try:
+            import check_env
+        except Exception as exc:  # pragma: no cover - fallback just prints
+            print(f"check_env unavailable: {exc}")
+        else:
+            check_env.main(["--auto-install"])
 
 
 @pytest.fixture(scope="module")
