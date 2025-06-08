@@ -15,13 +15,32 @@
 # ============================================================================#
 
 from __future__ import annotations
-import argparse, asyncio, importlib, json, os, random, sys, threading, yaml
-from dataclasses import dataclass, field
-from pathlib import Path
-from typing import Callable, Dict, List, Optional, Sequence, Tuple
 
+import argparse
+import asyncio
+import importlib
+import json
+import os
+import random
+import sys
+import threading
+import yaml
+from dataclasses import dataclass
+from pathlib import Path
+from typing import Callable
+from typing import Dict
+from typing import List
+from typing import Optional
+from typing import Tuple
+
+from fastapi import FastAPI
+from fastapi import WebSocket
+from fastapi.middleware.cors import CORSMiddleware
 import numpy as np
-import torch, torch.nn as nn, torch.nn.functional as F
+import torch
+import torch.nn as nn
+import torch.nn.functional as F
+import uvicorn
 from torch import optim
 
 # ---------------------------------------------------------------------------#
@@ -349,9 +368,6 @@ if os.getenv("OPENAI_API_KEY") and _cfg("integrations", "openai_enabled", True):
 # ---------------------------------------------------------------------------#
 # 9. FastAPI + WebSocket UI                                                   #
 # ---------------------------------------------------------------------------#
-from fastapi import FastAPI, WebSocket
-from fastapi.middleware.cors import CORSMiddleware
-import uvicorn
 
 app = FastAPI(title="Alpha-ASI World Model")
 app.add_middleware(
