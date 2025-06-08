@@ -12,6 +12,7 @@ from __future__ import annotations
 import argparse
 import random
 import os
+from typing import cast
 
 # Payoff matrix for a standard Prisoner's Dilemma (T > R > P > S)
 R, T, P, S = 3.0, 5.0, 1.0, 0.0
@@ -94,7 +95,7 @@ def summarise_with_agent(mean_coop: float, *, agents: int, rounds: int, delta: f
             ],
             max_tokens=60,
         )
-        return completion.choices[0].message.content.strip()
+        return cast(str, completion.choices[0].message.content).strip()
     except Exception:
         return base_msg
 
