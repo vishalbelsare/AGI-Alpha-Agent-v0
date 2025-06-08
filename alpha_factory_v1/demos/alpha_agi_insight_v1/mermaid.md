@@ -1,4 +1,32 @@
 ```mermaid
+flowchart TD
+    Meta["Meta-Agentic Paradigm (Second-order Intelligence)"]
+    Insight["α-AGI Insight (Foresight genomes)"]
+    Nova["α-AGI Nova-Seeds (Stellar spores & FusionPlans)"]
+    MARK["α-AGI MARK (Foresight pricing DEX)"]
+    Sovereign["α-AGI Sovereign (Autonomous DAOs)"]
+    Marketplace["α-AGI Marketplace (Decentralized matching)"]
+    Jobs["α-AGI Jobs (Strategic missions)"]
+    Agents["α-AGI Agents (Execution layer)"]
+    Reservoir["Infinite Value Reservoir (Treasury)"]
+    Token["$AGIALPHA Token (Utility & governance)"]
+    Architect["α-AGI Architect (Infrastructure & governance)"]
+
+    Meta --> Insight --> Nova --> MARK --> Sovereign
+    Sovereign --> Marketplace
+    Marketplace --> Jobs
+    Marketplace --> Agents
+    Jobs --> Agents
+    Agents --> Reservoir
+    Reservoir --> Token --> Marketplace
+    Token --> Architect --> Sovereign
+    Architect -.-> Insight
+    Reservoir -.-> Nova
+```
+
+
+
+```mermaid
 %% α-AGI Insight • Parts 11-35 • High-Level System Graph
 %% Palette — C-A:red; C-B:orange; C-C:gold; C-D:yellowgreen; C-E:cyan; 
 %% C-F:cornflowerblue; C-G:violet; C-H:mediumpurple; C-I:magenta
