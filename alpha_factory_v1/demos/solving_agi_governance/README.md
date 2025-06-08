@@ -150,3 +150,26 @@ is self-contained and does not require network access once installed.
 
 ---
 
+### 11 · OpenAI Agents Bridge
+Install the optional packages to expose the simulator via the
+**OpenAI Agents SDK** and, when desired, the **Google ADK** federation layer:
+
+```bash
+pip install openai-agents google-adk
+```
+
+Launch the bridge with your API key set:
+
+```bash
+export OPENAI_API_KEY=sk-…
+export ALPHA_FACTORY_ENABLE_ADK=true  # optional
+governance-bridge --enable-adk
+```
+
+The script registers a `GovernanceSimAgent` with the Agents runtime and, when
+`google-adk` is available, also exposes it over the A2A protocol. If either
+package is missing the bridge prints a warning and runs the local simulator
+only, so the demo remains fully offline capable.
+
+---
+
