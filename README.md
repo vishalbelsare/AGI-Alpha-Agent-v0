@@ -632,6 +632,15 @@ sequenceDiagram
 
 > **Colab?** Each folder ships an `*.ipynb` that mirrors the Docker flow with free GPUs.
 
+The official Docker image bundles **PyTorch&nbsp;2.2.x** and **Ray&nbsp;2.10.0**. The
+notebooks install PyTorch from the [PyTorch wheel index](https://download.pytorch.org/whl)
+and pin Ray to the same version for compatibility.
+
+| `USE_GPU` | PyTorch wheel URL |
+|:--------:|-------------------------------------------------|
+| `True`   | <https://download.pytorch.org/whl/cu118> |
+| `False`  | <https://download.pytorch.org/whl/cpu> |
+
 ### 4.1 · [α-ASI World-Model Demo 👁️✨](https://github.com/MontrealAI/AGI-Alpha-Agent-v0/tree/main/alpha_factory_v1/demos/alpha_asi_world_model)
 
 Paper: [Multi-Agent AGENTIC α-AGI World-Model Demo 🥑](https://github.com/MontrealAI/AGI-Alpha-Agent-v0/blob/main/alpha_factory_v1/demos/alpha_asi_world_model/Alpha_ASI_World_Model.pdf)

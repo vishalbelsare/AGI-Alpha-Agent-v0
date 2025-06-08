@@ -1,9 +1,12 @@
+# Minimal Colab dependencies. PyTorch 2.2.* is installed separately from
+# https://download.pytorch.org/whl and Ray is pinned to match the Docker image.
 fastapi>=0.111,<1.0
 uvicorn[standard]~=0.34
 pyngrok
 ctransformers==0.2.27
 k6-python
 subprocess-tee
+# Ray version mirrors the Docker setup
 ray[default]==2.10.0
 openai>=1.82.0,<2.0
 openai-agents>=0.0.16
