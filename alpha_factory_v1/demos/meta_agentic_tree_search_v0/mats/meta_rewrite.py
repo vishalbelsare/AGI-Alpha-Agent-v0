@@ -1,5 +1,9 @@
 # SPDX-License-Identifier: Apache-2.0
-"""Placeholder meta-rewrite function."""
+"""Policy rewrite helpers for the MATS demo.
+
+The module provides :func:`meta_rewrite` along with optional OpenAI and
+Anthropic integrations used to tweak integer policies.
+"""
 
 from __future__ import annotations
 
@@ -33,7 +37,15 @@ def store_sync(messages: list[dict[str, str]]) -> None:
 
 
 def meta_rewrite(agents: List[int]) -> List[int]:
-    """Return a modified copy of ``agents`` with a small random change."""
+    """Return ``agents`` with one element randomly tweaked.
+
+    Args:
+        agents: Current candidate policy.
+
+    Returns:
+        Modified policy list.
+    """
+
     new_agents = list(agents)
     idx = random.randrange(len(new_agents))
     new_agents[idx] += random.choice([-1, 1])
@@ -41,11 +53,14 @@ def meta_rewrite(agents: List[int]) -> List[int]:
 
 
 def _parse_numbers(text: str, fallback: List[int]) -> List[int]:
-    """Return integers parsed from ``text`` or a simple increment fallback.
+    """Return integers parsed from ``text`` with a fallback.
 
-    The helper ensures the returned list has the same length as ``fallback`` so
-    the rest of the demo remains stable even when the LLM response is malformed
-    or incomplete. If ``fallback`` is an empty list, an empty list is returned.
+    Args:
+        text: Raw text containing numbers.
+        fallback: Policy used when parsing fails.
+
+    Returns:
+        List of integers matching the length of ``fallback``.
     """
     numbers = [int(n) for n in re.findall(r"-?\d+", text)]
     if not fallback:
@@ -56,16 +71,17 @@ def _parse_numbers(text: str, fallback: List[int]) -> List[int]:
 
 
 def openai_rewrite(agents: List[int], model: str | None = None) -> List[int]:
-    """Improve ``agents`` using OpenAI Agents SDK and Google ADK when available.
+    """Rewrite ``agents`` using the OpenAI Agents SDK when possible.
 
-    The routine falls back to :func:`meta_rewrite` when the required
-    libraries are missing or any error occurs.  This keeps the demo
-    functional in fully offline environments. When the optional
-    dependencies are present, a tiny ``RewriterAgent`` is instantiated
-    and invoked once to illustrate how the Agents SDK could be wired
-    into the search loop.  The implementation uses ``asyncio`` under the
-    hood but exposes a synchronous API so the rest of the demo can run
-    without an event loop.
+    Args:
+        agents: Policy to rewrite.
+        model: Optional model name.
+
+    Returns:
+        Modified policy list.
+
+    Falls back to :func:`meta_rewrite` when dependencies are missing or
+    any error occurs.
     """
 
     have_oai = importlib.util.find_spec("openai_agents") is not None
@@ -144,7 +160,15 @@ def openai_rewrite(agents: List[int], model: str | None = None) -> List[int]:
 
 
 def anthropic_rewrite(agents: List[int], model: str | None = None) -> List[int]:
-    """Improve ``agents`` using the Anthropic API when available."""
+    """Rewrite ``agents`` using the Anthropic API when available.
+
+    Args:
+        agents: Policy to rewrite.
+        model: Optional model name.
+
+    Returns:
+        Modified policy list.
+    """
 
     have_anthropic = importlib.util.find_spec("anthropic") is not None
     if have_anthropic and os.getenv("ANTHROPIC_API_KEY"):

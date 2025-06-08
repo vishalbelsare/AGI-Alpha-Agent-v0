@@ -1,5 +1,8 @@
 # SPDX-License-Identifier: Apache-2.0
-"""Simple best-first tree search utilities."""
+"""Simple best-first search helpers for integer policies.
+
+The module defines :class:`Node` and :class:`Tree` used by the search loop.
+"""
 
 from __future__ import annotations
 
@@ -10,6 +13,8 @@ import math
 
 @dataclass
 class Node:
+    """A single state in the search tree."""
+
     agents: List[int]
     reward: float = 0.0
     visits: int = 0
@@ -18,13 +23,22 @@ class Node:
 
 
 class Tree:
-    """Minimal UCB1-style search tree."""
+    """Minimal UCB1-style search tree for integer policies."""
 
     def __init__(self, root: Node, exploration: float = 1.4) -> None:
+        """Initialize the tree.
+
+        Args:
+            root: Root node of the tree.
+            exploration: Exploration constant for UCB1.
+        """
+
         self.root = root
         self.exploration = exploration
 
     def select(self) -> Node:
+        """Return the next leaf node following the UCB1 rule."""
+
         node = self.root
         while node.children:
             node = max(
@@ -35,10 +49,14 @@ class Tree:
         return node
 
     def add_child(self, parent: Node, child: Node) -> None:
+        """Attach ``child`` to ``parent``."""
+
         child.parent = parent
         parent.children.append(child)
 
     def backprop(self, node: Node) -> None:
+        """Propagate ``node``'s reward up to the root."""
+
         reward = node.reward
         current: Optional[Node] = node
         while current is not None:
@@ -47,6 +65,8 @@ class Tree:
             current = current.parent
 
     def best_leaf(self) -> Node:
+        """Return the visited leaf with highest average reward."""
+
         best = self.root
         stack = [self.root]
         while stack:
