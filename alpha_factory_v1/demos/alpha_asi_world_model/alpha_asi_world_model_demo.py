@@ -1,6 +1,9 @@
 # SPDX-License-Identifier: Apache-2.0
 # alpha_asi_world_model_demo.py – Alpha‑Factory v1 👁
 # =============================================================================
+# This demo is a conceptual research prototype. References to "AGI" and
+# "superintelligence" describe aspirational goals and do not indicate the
+# presence of a real general intelligence. Use at your own risk.
 # Production‑grade α‑ASI world‑model demo.
 # POET‑style curriculum with MuZero learner (light MCTS), orchestrated by
 # ≥5 Alpha‑Factory agents. Local‑first design with optional cloud helpers.
