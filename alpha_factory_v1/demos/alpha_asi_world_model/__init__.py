@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 """
 ╭──────────────────────────────────────────────────────────────────────────────╮
 │  Alpha-Factory v1 👁️✨ — Multi-Agent AGENTIC α-AGI World-Model Demo          │

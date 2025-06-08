@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 # alpha_asi_world_model_demo.py – Alpha‑Factory v1 👁
 # =============================================================================
 # Production‑grade α‑ASI world‑model demo.
