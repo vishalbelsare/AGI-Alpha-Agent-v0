@@ -8,6 +8,7 @@ env:
 
 jobs:
   smoke:
+    if: github.actor == github.repository_owner
     runs-on: ubuntu-latest
     timeout-minutes: 5
     strategy:
