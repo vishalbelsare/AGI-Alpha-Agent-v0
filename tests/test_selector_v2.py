@@ -2,7 +2,9 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-import numpy as np
+import pytest
+
+np = pytest.importorskip("numpy")
 
 from src.archive.selector import select_parent
 

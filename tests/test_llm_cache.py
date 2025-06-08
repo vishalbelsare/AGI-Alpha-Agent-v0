@@ -1,6 +1,10 @@
 # SPDX-License-Identifier: Apache-2.0
 import os
 import unittest
+import pytest
+
+pytest.importorskip("prometheus_client")
+
 from prometheus_client import CollectorRegistry
 import prometheus_client
 import importlib

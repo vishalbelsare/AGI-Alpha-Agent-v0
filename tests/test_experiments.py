@@ -7,6 +7,10 @@ from unittest import mock
 from alpha_factory_v1.demos.alpha_agi_insight_v1.src import orchestrator
 from alpha_factory_v1.demos.alpha_agi_insight_v1.src.utils import config
 
+import pytest
+
+np = pytest.importorskip("numpy")
+
 
 def test_concurrent_experiments(tmp_path, monkeypatch) -> None:
     monkeypatch.setenv("ARCHIVE_PATH", str(tmp_path / "arch.db"))
@@ -14,8 +18,6 @@ def test_concurrent_experiments(tmp_path, monkeypatch) -> None:
     settings = config.Settings(bus_port=0)
     with mock.patch.object(orchestrator.Orchestrator, "_init_agents", lambda self: []):
         orch = orchestrator.Orchestrator(settings)
-
-    import numpy as np
 
     monkeypatch.setattr("src.evaluators.novelty.embed", lambda _t: np.zeros((1, 1), dtype="float32"))
     monkeypatch.setattr("src.simulation.surrogate_fitness.aggregate", lambda vals, **kw: [0.0 for _ in vals])
