@@ -23,9 +23,9 @@ import os
 import random
 import sys
 import threading
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from pathlib import Path
-from typing import Callable, Dict, List, Optional, Sequence, Tuple
+from typing import Callable, Dict, List, Optional, Tuple
 
 import numpy as np
 import torch
@@ -44,6 +44,7 @@ random.seed(_SEED)
 np.random.seed(_SEED)
 torch.manual_seed(_SEED)
 
+
 # ─────────────────────────────────────────────────────────────────────────────
 # 2.  RUNTIME CONFIG  (editable via env or CLI in prod)
 # ─────────────────────────────────────────────────────────────────────────────
@@ -61,11 +62,13 @@ class Config:
 
 CFG = Config()
 
+
 # ─────────────────────────────────────────────────────────────────────────────
 # 3.  A2A MESSAGE BUS  •  AGENT BASE-CLASS  •  DYNAMIC LOADER
 # ─────────────────────────────────────────────────────────────────────────────
 class A2ABus:
     """Ultra-light, in-proc pub-sub hub.  Swap with Redis/NATS for scale."""
+
     _subs: Dict[str, List[Callable[[dict], None]]] = {}
     _lock = threading.Lock()
 
@@ -86,6 +89,7 @@ class A2ABus:
 
 class Agent:
     """Minimal contract every Alpha-Factory micro-agent follows."""
+
     def __init__(self, name: str):
         self.name = name
         A2ABus.subscribe(name, self._on)
@@ -145,6 +149,7 @@ while len(AGENTS) < 5:  # hard-guarantee at least 5 topics live
 
     AGENTS[f"Fallback{idx}"] = Fallback(f"Fallback{idx}")
 
+
 # ─────────────────────────────────────────────────────────────────────────────
 # 4.  TINY MUZERO (representation · dynamics · prediction heads)
 # ─────────────────────────────────────────────────────────────────────────────
@@ -180,6 +185,7 @@ class Pred(nn.Module):
 
 class MuZeroTiny(nn.Module):
     """Policy/value/reward network – small but plug-compatible with real MuZero."""
+
     def __init__(self, obs_dim: int, act_dim: int):
         super().__init__()
         self.repr = Repr(obs_dim, CFG.hidden)
@@ -232,15 +238,13 @@ class MiniWorld:
 
 class POETGenerator:
     """Tiny—yet fully open-ended—environment generator."""
+
     def __init__(self):
         self.pool: List[MiniWorld] = []
 
     def propose(self) -> MiniWorld:
         size = random.randint(5, 8)
-        obstacles = {
-            (random.randint(1, size - 2), random.randint(1, size - 2))
-            for _ in range(random.randint(0, size))
-        }
+        obstacles = {(random.randint(1, size - 2), random.randint(1, size - 2)) for _ in range(random.randint(0, size))}
         env = MiniWorld(size, list(obstacles), (size - 1, size - 1))
         self.pool.append(env)
         return env
@@ -252,15 +256,13 @@ class POETGenerator:
 class Learner:
     def __init__(self, env: MiniWorld):
         self.env = env
-        self.net = MuZeroTiny(env.size ** 2, 4).to(CFG.device)
+        self.net = MuZeroTiny(env.size**2, 4).to(CFG.device)
         self.opt = optim.Adam(self.net.parameters(), CFG.lr)
         self.buffer: List[Tuple[np.ndarray, float]] = []
 
     def act(self, obs, eps: float = 0.25) -> int:
         with torch.no_grad():
-            _, _, policy = self.net.initial(
-                torch.tensor(obs, device=CFG.device, dtype=torch.float32)
-            )
+            _, _, policy = self.net.initial(torch.tensor(obs, device=CFG.device, dtype=torch.float32))
         if random.random() < eps:
             return random.randrange(4)
         return int(torch.argmax(policy).item())
@@ -364,9 +366,7 @@ if os.getenv("OPENAI_API_KEY"):
 # 10.  FASTAPI UI  •  REST & Web-Socket telemetry
 # ─────────────────────────────────────────────────────────────────────────────
 app = FastAPI(title="Alpha-ASI World-Model")
-app.add_middleware(
-    CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"]
-)
+app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"])
 
 orch: Optional[Orchestrator] = None
 
@@ -435,9 +435,7 @@ def emit_docker(fp: Path = Path("Dockerfile")):
 def emit_helm(dir_: Path = Path("helm_chart")):
     dir_.mkdir(exist_ok=True)
     (dir_ / "values.yaml").write_text(HELM_VALUES_TXT)
-    (dir_ / "Chart.yaml").write_text(
-        "apiVersion: v2\nname: alpha-asi-demo\nversion: 0.1.0\n"
-    )
+    (dir_ / "Chart.yaml").write_text("apiVersion: v2\nname: alpha-asi-demo\nversion: 0.1.0\n")
     print("Helm chart →", dir_)
 
 
