@@ -307,7 +307,7 @@ pip install google-adk mcp
 # Requires Python 3.11–3.12 (<3.13)
 ./quickstart.sh
 Run `pre-commit run --all-files` after the dependencies finish installing.
-python -m webbrowser http://localhost:8000/docs
+# Open http://localhost:8000/docs in your browser
 ```
 The adapters initialise automatically when these optional packages are present.
 
@@ -750,8 +750,7 @@ pip install -r requirements.lock
 #   python check_env.py --auto-install --wheelhouse "$WHEELHOUSE"
 #   WHEELHOUSE=$WHEELHOUSE ./quickstart.sh
 #   WHEELHOUSE=$WHEELHOUSE pytest -q
-# open the docs in your browser
-python -m webbrowser http://localhost:8000/docs
+# Open http://localhost:8000/docs in your browser
 # Alternatively, ``python alpha_factory_v1/quickstart.py`` provides the same
 # workflow on Windows and other systems without Bash.
 
