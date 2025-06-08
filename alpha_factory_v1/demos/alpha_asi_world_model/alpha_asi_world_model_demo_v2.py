@@ -332,7 +332,8 @@ class BasicSafetyAgent(Agent):
             self.emit("orch", {"cmd": "stop"})
 
 
-BasicSafetyAgent()  # gets overridden if a richer SafetyAgent exists
+if "safety" not in AGENTS:
+    BasicSafetyAgent()  # gets overridden if a richer SafetyAgent exists
 
 # ─────────────────────────────────────────────────────────────────────────────
 # 9.  OPTIONAL LLM PLANNER (OpenAI Agents SDK — only if API key provided)

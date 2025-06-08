@@ -397,7 +397,8 @@ class BasicSafetyAgent(Agent):
             self.emit("orch", {"cmd": "stop"})
 
 
-BasicSafetyAgent()
+if "safety" not in AGENTS:
+    BasicSafetyAgent()
 
 # =============================================================================
 # 9. Optional LLM planner

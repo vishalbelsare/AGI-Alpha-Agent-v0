@@ -92,6 +92,7 @@ def test_real_safety_agent_loaded(monkeypatch) -> None:
     mod = _reload_module(monkeypatch)
 
     assert "safety" in mod.AGENTS
+    assert list(mod.AGENTS).count("safety") == 1
     subs = mod.A2ABus._subs.get("safety") or []
     assert len(subs) == 1
 
