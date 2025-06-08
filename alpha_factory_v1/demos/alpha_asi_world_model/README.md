@@ -79,7 +79,12 @@ helm install alpha-asi ./helm_chart
 python -m alpha_asi_world_model_demo --emit-notebook
 jupyter lab alpha_asi_world_model_demo.ipynb
 # ░ Colab
-Open `alpha_asi_world_model_colab.ipynb` in Google Colab for an end-to-end guided setup
+Open `alpha_asi_world_model_colab.ipynb` in Google Colab for an end-to-end guided setup.
+Non‑technical users can run it step by step:
+1. Visit the notebook on GitHub and click **Open in Colab**.
+2. Wait for the environment to start then choose **Runtime → Run all** (or run each cell manually).
+3. The notebook installs requirements and launches the demo. When no API key is provided it automatically sets `NO_LLM=1`.
+4. Interact with the dashboard in the new browser tab and run the final **Shut down** cell when done.
 # ░ Shell helper
 ./deploy_alpha_asi_world_model_demo.sh
 # ░ OpenAI Agents bridge
