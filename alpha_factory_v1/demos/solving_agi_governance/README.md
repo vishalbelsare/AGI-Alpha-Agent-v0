@@ -97,6 +97,14 @@ Python standard library.
 
 ---
 
+### Requirements
+* Python 3.11 or 3.12
+* Install the demo extras before running the tests:
+  ```bash
+  pip install -r requirements-demo.txt
+  ```
+  See [tests/README.md](../../../tests/README.md) for full instructions.
+
 ### 9 · Running the Demo
 The CLI simulator has **no third‑party dependencies**—use Python 3.11 or 3.12.
 
