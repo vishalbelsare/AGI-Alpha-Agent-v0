@@ -15,6 +15,7 @@ All notable changes to this project are documented in this file.
   exported via OpenTelemetry and can be viewed in Grafana or the Streamlit
   dashboard.
 - Documented `ALPHA_ASI_*` demo variables in README and AGENTS.md.
+- Removed outdated `alpha_asi_world_model_demo_v1.py` script.
 
 ## [1.1.0] - 2025-07-15
 ### Added
