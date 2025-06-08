@@ -6,6 +6,7 @@ from unittest.mock import patch
 
 from alpha_factory_v1.demos.solving_agi_governance import run_sim, summarise_with_agent
 
+
 class TestGovernanceSim(unittest.TestCase):
     def test_basic_convergence(self) -> None:
         coop = run_sim(agents=50, rounds=500, delta=0.85, stake=2.5, seed=1)
@@ -17,9 +18,7 @@ class TestGovernanceSim(unittest.TestCase):
         self.assertIn("mean cooperation", text)
 
     def test_summary_with_openai_mock(self) -> None:
-        completion = SimpleNamespace(
-            choices=[SimpleNamespace(message=SimpleNamespace(content="ok"))]
-        )
+        completion = SimpleNamespace(choices=[SimpleNamespace(message=SimpleNamespace(content="ok"))])
         with patch.dict(os.environ, {"OPENAI_API_KEY": "sk-test"}):
             with patch("openai.OpenAI") as mock_client:
                 mock_client.return_value.chat.completions.create.return_value = completion
@@ -31,6 +30,22 @@ class TestGovernanceSim(unittest.TestCase):
                     stake=1.0,
                 )
         self.assertEqual(text, "ok")
+
+    def test_summary_auth_error(self) -> None:
+        import openai
+
+        with patch.dict(os.environ, {"OPENAI_API_KEY": "sk-test"}):
+            with patch("openai.OpenAI") as mock_client:
+                mock_client.return_value.chat.completions.create.side_effect = openai.AuthenticationError("bad key")
+                text = summarise_with_agent(
+                    0.5,
+                    agents=2,
+                    rounds=10,
+                    delta=0.9,
+                    stake=1.0,
+                )
+        self.assertIn("OPENAI_API_KEY not set", text)
+        self.assertIn("offline summary", text)
 
     def test_agents_must_be_positive(self) -> None:
         with self.assertRaises(ValueError):
@@ -53,6 +68,7 @@ class TestGovernanceSim(unittest.TestCase):
     def test_stake_must_not_be_negative(self) -> None:
         with self.assertRaises(ValueError):
             run_sim(agents=1, rounds=10, delta=0.5, stake=-0.1)
+
 
 if __name__ == "__main__":
     unittest.main()
