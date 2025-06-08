@@ -52,6 +52,7 @@ aii = "alpha_factory_v1.demos.alpha_agi_insight_v1.src.interface.cli:main"
 verify-wheel-sig = "alpha_factory_v1.scripts.verify_wheel_sig:main"
 mats-demo = "alpha_factory_v1.demos.meta_agentic_tree_search_v0.run_demo:main"
 mats-bridge = "alpha_factory_v1.demos.meta_agentic_tree_search_v0.openai_agents_bridge:main"
+governance-bridge = "alpha_factory_v1.demos.solving_agi_governance.openai_agents_bridge:main"
 
 [project.entry-points."alpha_factory.agents"]
 # custom agents can be registered here
