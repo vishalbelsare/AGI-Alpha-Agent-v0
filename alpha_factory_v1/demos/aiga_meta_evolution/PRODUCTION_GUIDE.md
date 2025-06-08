@@ -8,25 +8,28 @@ The AI‑GA Meta‑Evolution service is a conceptual research prototype. Referen
    - Set `OPENAI_API_KEY` to enable cloud models. Leave empty to run fully offline via the bundled Mixtral model.
    - Optionally enable the Google ADK gateway by setting `ALPHA_FACTORY_ENABLE_ADK=true`. A token can be enforced with `ALPHA_FACTORY_ADK_TOKEN`.
    - For API protection, set `AUTH_BEARER_TOKEN` or provide `JWT_PUBLIC_KEY`/`JWT_ISSUER` values.
-   - Verify all Python packages are available:
-     Run the following command from the project root directory:
+   - Verify all Python packages are available. Run from the project root:
      ```bash
-    AUTO_INSTALL_MISSING=1 python check_env.py --auto-install
+     AUTO_INSTALL_MISSING=1 python check_env.py --auto-install
      ```
      This installs `openai-agents` (or the alternative `agents` package) and
-     other requirements if they are missing. Offline environments can point the
-     script to a wheelhouse via `WHEELHOUSE=/path/to/wheels`.
+     other requirements if they are missing.
      **Running this command is mandatory before executing the demos or the unit
      tests.** The LLM features depend on having either `openai-agents` or
      `agents` available. The `google-adk` package is only needed when the ADK
      gateway is enabled.
-   - Run `python scripts/check_python_deps.py` first to verify core packages,
-     then `AUTO_INSTALL_MISSING=1 python check_env.py --auto-install`.
    - Build wheels for the optional agent packages on a machine with internet access:
      ```bash
      pip wheel openai-agents google-adk -w /path/to/wheels
      ```
-     Provide this directory via `WHEELHOUSE` when installing on the production host.
+   - When installing offline, set the wheelhouse before running `check_env.py`:
+     ```bash
+     export WHEELHOUSE=/path/to/wheels
+     AUTO_INSTALL_MISSING=1 python check_env.py --auto-install
+     ```
+   - Run `python scripts/check_python_deps.py` first to verify core packages,
+     then `AUTO_INSTALL_MISSING=1 python check_env.py --auto-install`.
+   - Provide this directory via `WHEELHOUSE` when installing on the production host.
 Run `pre-commit run --all-files` after the dependencies finish installing.
    - Install the OpenAI Agents SDK if not already present:
     ```bash
