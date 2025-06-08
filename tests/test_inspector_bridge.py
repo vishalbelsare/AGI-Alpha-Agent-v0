@@ -2,7 +2,7 @@ import asyncio
 import sys
 import types
 import unittest
-from unittest.mock import AsyncMock, patch
+from unittest.mock import AsyncMock, MagicMock, patch
 
 # Provide a dummy openai_agents module so imports succeed
 _oai = types.ModuleType("openai_agents")
@@ -62,6 +62,21 @@ class TestInspectorAgent(unittest.TestCase):
             result = asyncio.run(agent.policy({}, None))
         func.assert_awaited_once_with()
         self.assertEqual(result, ["x"])
+
+    def test_runtime_list_agents(self):
+        runtime = MagicMock()
+        with patch.object(bridge, "AgentRuntime", return_value=runtime) as rt_cls, \
+                patch.object(bridge.requests, "get", return_value=DummyResponse(["a"])) as get:
+            agent = bridge.InspectorAgent()
+            rt = bridge.AgentRuntime(api_key=None)
+            rt.register(agent)
+
+            rt_cls.assert_called_once_with(api_key=None)
+            runtime.register.assert_called_once_with(agent)
+
+            result = asyncio.run(bridge.list_agents())
+        get.assert_called_once_with("http://localhost:7860/agents", timeout=5)
+        self.assertIsInstance(result, list)
 
 
 if __name__ == "__main__":
