@@ -116,15 +116,20 @@ it the demo falls back to the bundled offline mixtral model.
 
 ### Offline dependency setup
 
-When working **air‑gapped**, build a wheel cache in advance and tell
-`check_env.py` where to find it. Set the `WHEELHOUSE` environment variable and
-run the helper with `--wheelhouse <dir>` to install packages from that
-directory:
+Follow these steps when working **air‑gapped**:
 
-```bash
-WHEELHOUSE=/path/to/wheels AUTO_INSTALL_MISSING=1 \
-  python check_env.py --auto-install --wheelhouse "$WHEELHOUSE"
-```
+- Build wheels using the same Python version as your virtual environment:
+  ```bash
+  mkdir -p /path/to/wheels
+  pip wheel -r ../../requirements.txt -w /path/to/wheels
+  pip wheel openai-agents google-adk -w /path/to/wheels
+  ```
+
+- Install from the wheelhouse so `check_env.py` can resolve all dependencies:
+  ```bash
+  WHEELHOUSE=/path/to/wheels AUTO_INSTALL_MISSING=1 \
+    python check_env.py --auto-install --wheelhouse "$WHEELHOUSE"
+  ```
 
 See [scripts/README.md](../../scripts/README.md#offline-setup) for details on
 creating the wheelhouse.
