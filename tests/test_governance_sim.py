@@ -1,5 +1,9 @@
 # SPDX-License-Identifier: Apache-2.0
+import os
 import unittest
+from types import SimpleNamespace
+from unittest.mock import patch
+
 from alpha_factory_v1.demos.solving_agi_governance import run_sim, summarise_with_agent
 
 class TestGovernanceSim(unittest.TestCase):
@@ -11,6 +15,22 @@ class TestGovernanceSim(unittest.TestCase):
         text = summarise_with_agent(0.8, agents=10, rounds=100, delta=0.9, stake=1.0)
         self.assertIsInstance(text, str)
         self.assertIn("mean cooperation", text)
+
+    def test_summary_with_openai_mock(self) -> None:
+        completion = SimpleNamespace(
+            choices=[SimpleNamespace(message=SimpleNamespace(content="ok"))]
+        )
+        with patch.dict(os.environ, {"OPENAI_API_KEY": "sk-test"}):
+            with patch("openai.OpenAI") as mock_client:
+                mock_client.return_value.chat.completions.create.return_value = completion
+                text = summarise_with_agent(
+                    0.9,
+                    agents=5,
+                    rounds=10,
+                    delta=0.8,
+                    stake=1.0,
+                )
+        self.assertEqual(text, "ok")
 
     def test_agents_must_be_positive(self) -> None:
         with self.assertRaises(ValueError):
