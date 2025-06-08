@@ -58,6 +58,7 @@ def test_safety_agent_halts_on_nan(monkeypatch):
     mod.A2ABus.subscribe("orch", lambda m: msgs.append(m))
     safety.handle({"loss": np.nan})
     assert {"cmd": "stop"} in msgs
+    safety.close()
 
 
 def test_safety_agent_halts_on_large_loss(monkeypatch):
@@ -72,6 +73,7 @@ def test_safety_agent_halts_on_large_loss(monkeypatch):
     mod.A2ABus.subscribe("orch", lambda m: msgs.append(m))
     safety.handle({"loss": 5000.0})
     assert {"cmd": "stop"} in msgs
+    safety.close()
 
 
 def test_llm_planner_activates_with_key(monkeypatch):

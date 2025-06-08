@@ -153,13 +153,28 @@ class A2ABus:
         with cls._lock:
             cls._subs.setdefault(topic, []).append(cb)
 
+    @classmethod
+    def unsubscribe(cls, topic: str, cb: Callable[[dict], None]):
+        """Remove a previously registered callback."""
+        with cls._lock:
+            handlers = cls._subs.get(topic)
+            if not handlers:
+                return
+            try:
+                handlers.remove(cb)
+            except ValueError:
+                return
+            if not handlers:
+                cls._subs.pop(topic, None)
+
 
 class Agent:
     """Base‑class for micro‑agents. Override .handle."""
 
     def __init__(self, name: str):
         self.name = name
-        A2ABus.subscribe(name, self._on)
+        self._cb = self._on
+        A2ABus.subscribe(name, self._cb)
 
     def _on(self, msg: dict):
         try:
@@ -169,6 +184,10 @@ class Agent:
 
     def emit(self, topic: str, msg: dict):
         A2ABus.publish(topic, msg)
+
+    def close(self) -> None:
+        """Unsubscribe the agent from the message bus."""
+        A2ABus.unsubscribe(self.name, self._cb)
 
     # -----------------------------------------------------------------
     def handle(self, msg: dict):  # to be overridden
