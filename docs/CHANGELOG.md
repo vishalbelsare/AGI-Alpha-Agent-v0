@@ -14,6 +14,7 @@ All notable changes to this project are documented in this file.
   automated image deployment on tags and rollback on failure. Metrics are
   exported via OpenTelemetry and can be viewed in Grafana or the Streamlit
   dashboard.
+- Documented `ALPHA_ASI_*` demo variables in README and AGENTS.md.
 
 ## [1.1.0] - 2025-07-15
 ### Added

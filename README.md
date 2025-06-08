@@ -842,7 +842,14 @@ for instructions and example volume mounts.
 |----------|---------|---------|
 | `OPENAI_API_KEY` | _(empty)_ | API key for hosted models. Offline mode is used when empty. |
 | `NO_LLM` | `0` | Set to `1` to skip the LLM planner even when `OPENAI_API_KEY` is provided. |
-| `ALPHA_ASI_LLM_MODEL` | `gpt-4o-mini` | Model used by the world model planner. |
+| `ALPHA_ASI_LLM_MODEL` | `gpt-4o-mini` | Planner model name used by the world model demo. |
+| `ALPHA_ASI_SEED` | `42` | Deterministic RNG seed for the demo. |
+| `ALPHA_ASI_MAX_STEPS` | `100000` | Learner steps before auto-stop. |
+| `ALPHA_ASI_BUFFER_LIMIT` | `50000` | Replay-buffer length. |
+| `ALPHA_ASI_TRAIN_BATCH` | `128` | SGD mini-batch size. |
+| `ALPHA_ASI_MAX_GRID` | `64` | Safety clamp on generated mazes. |
+| `ALPHA_ASI_HOST` | `0.0.0.0` | FastAPI bind address for the demo. |
+| `ALPHA_ASI_PORT` | `7860` | FastAPI port for the demo. |
 | `NEO4J_PASSWORD` | `REPLACE_ME` | Database password required by the orchestrator. |
 | `RUN_MODE` | `api` | Launch mode for Compose or Helm (`api`, `cli`, `web`). |
 | `PORT` | `8000` | REST API port. |
