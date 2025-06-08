@@ -715,13 +715,15 @@ pip install -r requirements.lock
 ./quickstart.sh               # creates venv, installs deps, launches
 # Use `--wheelhouse /path/to/wheels` to install offline packages when
 # the host has no internet access. The setup script automatically
-# sets `WHEELHOUSE` to `./wheels` when that directory exists. Running
-# `python check_env.py --auto-install --wheelhouse /path/to/wheels`
-# installs any missing optional packages. Example offline setup:
+# sets `WHEELHOUSE` to `./wheels` when that directory exists. When
+# working offline, run `python check_env.py --auto-install --wheelhouse
+# /path/to/wheels` to verify and install packages. The setup script
+# exits with a message if neither network nor a wheelhouse are available.
+# Example offline workflow:
 #   export WHEELHOUSE=/media/wheels
-#   python check_env.py --auto-install --wheelhouse $WHEELHOUSE
-# The setup script exits with a message if neither network nor a wheelhouse
-# are available.
+#   python check_env.py --auto-install --wheelhouse "$WHEELHOUSE"
+#   WHEELHOUSE=$WHEELHOUSE ./quickstart.sh
+#   WHEELHOUSE=$WHEELHOUSE pytest -q
 # open the docs in your browser
 python -m webbrowser http://localhost:8000/docs
 # Alternatively, ``python alpha_factory_v1/quickstart.py`` provides the same
