@@ -9,7 +9,7 @@ These integration tests expect the `alpha_factory_v1` package to be importable.
    ```bash
    pip install -r requirements-dev.txt
    ```
-2. Install the demo extras:
+2. Install the demo extras **required for the full suite**:
    ```bash
    pip install -r requirements-demo.txt
    ```
@@ -28,7 +28,7 @@ These integration tests expect the `alpha_factory_v1` package to be importable.
     `numpy`, `torch`, `pandas`, `prometheus_client`, `gymnasium`, `playwright`,
     `httpx`, `uvicorn`, `git` and `hypothesis`.
 5. Set `PYTHONPATH=$(pwd)` or install the project in editable mode with `pip install -e .`.
-6. Execute `pytest -q`.
+6. After installing **both** requirements files above, execute `pytest -q`.
 
 ### Offline install
 
