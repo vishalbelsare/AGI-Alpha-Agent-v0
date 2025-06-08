@@ -27,6 +27,7 @@ The AI‑GA Meta‑Evolution service is a conceptual research prototype. Referen
      pip wheel openai-agents google-adk -w /path/to/wheels
      ```
      Provide this directory via `WHEELHOUSE` when installing on the production host.
+Run `pre-commit run --all-files` after the dependencies finish installing.
    - Install the OpenAI Agents SDK if not already present:
     ```bash
     pip install -U openai-agents

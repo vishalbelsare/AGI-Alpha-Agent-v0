@@ -43,6 +43,7 @@ git clone https://github.com/MontrealAI/AGI-Alpha-Agent-v0.git
 cd AGI-Alpha-Agent-v0
 python check_env.py --auto-install  # verify runtime and install extras (10 min timeout)
 ./quickstart.sh
+Run `pre-commit run --all-files` after the dependencies finish installing.
 ```
 
 Or launch the full stack with Docker:
@@ -296,6 +297,7 @@ pip install -r requirements.lock  # pinned versions for deterministic setup
 pip install google-adk mcp
 # Requires Python 3.11–3.12 (<3.13)
 ./quickstart.sh
+Run `pre-commit run --all-files` after the dependencies finish installing.
 python -m webbrowser http://localhost:8000/docs
 ```
 The adapters initialise automatically when these optional packages are present.

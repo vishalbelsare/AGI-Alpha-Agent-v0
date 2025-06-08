@@ -26,6 +26,7 @@ This guide summarises the minimal steps required to run the **Alpha‑AGI Busine
       ```
       Provide this directory via `WHEELHOUSE` during installation on the
       production host.
+Run `pre-commit run --all-files` after the dependencies finish installing.
 
 2. **Launch the service**
    - **Docker** (recommended for consistent environments):
