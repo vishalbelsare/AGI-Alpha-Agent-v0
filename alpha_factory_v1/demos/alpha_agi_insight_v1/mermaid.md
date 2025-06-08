@@ -1,27 +1,60 @@
 ```mermaid
 flowchart TD
-    Meta["Meta-Agentic Paradigm (Second-order Intelligence)"]
-    Insight["α-AGI Insight (Foresight genomes)"]
-    Nova["α-AGI Nova-Seeds (Stellar spores & FusionPlans)"]
-    MARK["α-AGI MARK (Foresight pricing DEX)"]
-    Sovereign["α-AGI Sovereign (Autonomous DAOs)"]
-    Marketplace["α-AGI Marketplace (Decentralized matching)"]
-    Jobs["α-AGI Jobs (Strategic missions)"]
-    Agents["α-AGI Agents (Execution layer)"]
-    Reservoir["Infinite Value Reservoir (Treasury)"]
-    Token["$AGIALPHA Token (Utility & governance)"]
-    Architect["α-AGI Architect (Infrastructure & governance)"]
 
-    Meta --> Insight --> Nova --> MARK --> Sovereign
-    Sovereign --> Marketplace
-    Marketplace --> Jobs
-    Marketplace --> Agents
-    Jobs --> Agents
-    Agents --> Reservoir
-    Reservoir --> Token --> Marketplace
-    Token --> Architect --> Sovereign
-    Architect -.-> Insight
-    Reservoir -.-> Nova
+%% Core linear value-creation spine
+Meta[Meta-Agentic Paradigm] --> Insight
+Insight --> NovaSeeds[Nova-Seeds]
+NovaSeeds --> MARK
+MARK --> Sovereign
+Sovereign --> Marketplace
+Marketplace --> JobsAgents[α-AGI Jobs & Agents]
+JobsAgents --> Reservoir[Infinite Value Reservoir]
+
+%% Reservoir feedback loop
+Reservoir --> Marketplace
+Reservoir --> NovaSeeds
+
+%% Architect feedback loop
+Architect --> Sovereign
+Architect --> Insight
+Sovereign --> Architect
+Insight --> Architect
+
+%% Token dynamics across all edges
+subgraph Token Dynamics [$AGIALPHA Token Flows]
+direction TB
+Burn[🔥 Burned for Compute]
+Mint[🌱 Minted on Verified Profit]
+Stake[🔐 Staked for Governance]
+end
+
+TokenDynamics -- embedded within all transactions --> Marketplace
+TokenDynamics --> MARK
+TokenDynamics --> JobsAgents
+TokenDynamics --> Sovereign
+TokenDynamics --> Nodes
+
+%% Nodes-Agent relationship
+Nodes[α-AGI Nodes\n(Compute Substrate)] <--> JobsAgents
+
+%% Styling clarity
+classDef spine fill:#0f172a,color:#fff,font-weight:bold
+classDef loops fill:#1e3a8a,color:#fff
+classDef token fill:#facc15,color:#000,font-weight:bold
+classDef substrate fill:#22c55e,color:#fff,font-weight:bold
+
+class Meta,Insight,NovaSeeds,MARK,Sovereign,Marketplace,JobsAgents,Reservoir spine
+class Architect loops
+class TokenDynamics,Burn,Mint,Stake token
+class Nodes substrate
+
+%% Highlight feedback loops
+linkStyle 7 stroke:#10b981,stroke-width:2px
+linkStyle 8 stroke:#10b981,stroke-width:2px
+linkStyle 9 stroke:#3b82f6,stroke-dasharray: 5 5,stroke-width:2px
+linkStyle 10 stroke:#3b82f6,stroke-dasharray: 5 5,stroke-width:2px
+linkStyle 11 stroke:#3b82f6,stroke-dasharray: 5 5,stroke-width:2px
+linkStyle 12 stroke:#3b82f6,stroke-dasharray: 5 5,stroke-width:2px
 ```
 
 
