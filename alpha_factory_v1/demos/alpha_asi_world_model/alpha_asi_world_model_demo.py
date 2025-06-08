@@ -36,6 +36,7 @@ import logging
 import os
 import random
 import threading
+import time
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Callable, Dict, List, Optional, Tuple
@@ -187,21 +188,51 @@ MODROOT = "alpha_factory_v1.backend.agents."
 AGENTS: Dict[str, Agent] = {}
 
 
-def _boot(path: str):
+def _boot(path: str) -> None:
     module_path, cls_name = (MODROOT + path).rsplit(".", 1)
     try:
         cls = getattr(importlib.import_module(module_path), cls_name)
-        inst: Agent = cls()  # type: ignore
-        LOG.info("[BOOT] loaded real agent %s", inst.name)
+        inst = cls()  # type: ignore[call-arg]
+        name = getattr(inst, "name", getattr(inst, "NAME", cls_name))
+
+        if not hasattr(inst, "handle") and hasattr(inst, "step"):
+            step_fn = getattr(inst, "step")
+            interval = getattr(inst, "CYCLE_SECONDS", 60) or 60
+
+            class StepAdapter(Agent):
+                def __init__(self) -> None:
+                    super().__init__(name)
+                    threading.Thread(target=self._loop, daemon=True).start()
+
+                def handle(self, _msg: dict) -> None:  # noqa: D401
+                    pass
+
+                def _loop(self) -> None:
+                    while True:
+                        try:
+                            res = step_fn()
+                            if asyncio.iscoroutine(res):
+                                asyncio.run(res)
+                        except Exception as exc:  # pragma: no cover
+                            LOG.debug("[Adapter:%s] step error: %s", name, exc)
+                        time.sleep(max(1, interval))
+
+            inst = StepAdapter()
+        else:
+            if not hasattr(inst, "name"):
+                inst.name = name  # type: ignore[attr-defined]
+        LOG.info("[BOOT] loaded real agent %s", name)
     except Exception as exc:
+        name = cls_name
 
         class Stub(Agent):
-            def handle(self, _msg):  # noqa
+            def handle(self, _msg: dict) -> None:  # noqa: D401
                 LOG.debug("[Stub:%s] ← %s", cls_name, _msg)
 
-        inst = Stub(cls_name)
+        inst = Stub(name)
         LOG.warning("[BOOT] stubbed %s (%s)", cls_name, exc)
-    AGENTS[inst.name] = inst
+
+    AGENTS[name] = inst
 
 
 for _p in REQUIRED:
