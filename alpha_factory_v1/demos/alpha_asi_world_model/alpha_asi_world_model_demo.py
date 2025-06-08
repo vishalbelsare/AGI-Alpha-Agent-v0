@@ -605,6 +605,11 @@ def _main():
     p.add_argument("--emit-docker", action="store_true")
     p.add_argument("--emit-helm", action="store_true")
     p.add_argument("--emit-notebook", action="store_true")
+    p.add_argument(
+        "--no-llm",
+        action="store_true",
+        help="Disable the optional LLM planner regardless of OPENAI_API_KEY",
+    )
     p.add_argument("--host", default=CFG.host)
     p.add_argument("--port", type=int, default=CFG.port)
     args = p.parse_args()
@@ -615,6 +620,8 @@ def _main():
     elif args.emit_notebook:
         emit_notebook()
     elif args.demo:
+        if args.no_llm:
+            os.environ["NO_LLM"] = "1"
         uvicorn.run(
             "alpha_asi_world_model_demo:app",
             host=args.host,
