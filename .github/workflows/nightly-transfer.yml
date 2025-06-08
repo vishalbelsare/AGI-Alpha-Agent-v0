@@ -1,13 +1,11 @@
 name: "📊 Transfer Matrix"
 
 on:
-  schedule:
-    - cron: '0 2 * * *'
   workflow_dispatch:
 
 jobs:
   transfer-matrix:
-    if: github.actor == github.repository_owner
+    if: github.event_name == 'workflow_dispatch' && github.actor == github.repository_owner
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
