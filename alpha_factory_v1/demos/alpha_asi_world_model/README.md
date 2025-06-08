@@ -20,6 +20,7 @@ Last updated 2025-04-25   Maintainer → Montreal.AI Core AGI Team
 ## 0  Table of Contents  <!-- omit in toc -->
 1. [Why this demo matters](#1-why-this-demo-matters)
 2. [Quick-start 🥑](#2-quick-start-)
+   - [Offline setup](#offline-setup)
 3. [High-level architecture 🗺️](#3-high-level-architecture-️)
 4. [Meet the agents 🤖 (≥ 5)](#4-meet-the-agents-️-≥-5)
 5. [Runtime controls 🎮](#5-runtime-controls-)
@@ -89,6 +90,27 @@ ALPHA_FACTORY_ENABLE_ADK=true python openai_agents_bridge.py
 
 > **Tip 💡** Set `ALPHA_ASI_SEED=<int>` to reproduce identical curriculum runs.
 > **Tip 💡** Set `ALPHA_ASI_SILENT=1` to hide the startup banner.
+
+### Offline setup
+When working without internet access, first build a local wheelhouse:
+
+```bash
+mkdir -p /media/wheels
+pip wheel -r requirements.txt -w /media/wheels
+pip wheel -r ../../../requirements-dev.txt -w /media/wheels
+```
+
+Install and verify using the wheelhouse from the repository root:
+
+```bash
+WHEELHOUSE=/media/wheels AUTO_INSTALL_MISSING=1 ./codex/setup.sh
+WHEELHOUSE=/media/wheels AUTO_INSTALL_MISSING=1 \
+  python check_env.py --auto-install --wheelhouse /media/wheels
+```
+
+Set `NO_LLM=1` to disable the planning agent when no API key is available. The
+`deploy_alpha_asi_world_model_demo.sh` helper exports this variable
+automatically.
 
 ---
 
