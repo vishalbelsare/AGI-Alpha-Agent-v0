@@ -64,6 +64,7 @@ xdg-open http://localhost:7860      # or just paste in browser
 | `service.type` | `ClusterIP` | Switch to `LoadBalancer` or `Ingress` for public clouds. |
 | `resources.requests.cpu` | `250m` | Tweak for on-prem GPU nodes (see docs). |
 | `env.ALHPA_ASI_MAX_STEPS` | `100000` | Faster demo? Set to `20000`. |
+| `enableADK` | `false` | Set to `true` to expose the Google ADK gateway. |
 | `secretKeys.openai` | *(unset)* | Will be mounted to `OPENAI_API_KEY`. |
 
 ```yaml
