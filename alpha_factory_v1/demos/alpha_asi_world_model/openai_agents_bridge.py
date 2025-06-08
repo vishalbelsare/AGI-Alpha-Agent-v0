@@ -29,11 +29,31 @@ async def list_agents() -> list[str]:
     return resp.json()
 
 
+@Tool(name="new_env", description="Spawn a new demo environment")
+async def new_env() -> dict:
+    resp = requests.post(
+        "http://localhost:7860/command", json={"cmd": "new_env"}, timeout=5
+    )
+    resp.raise_for_status()
+    return resp.json()
+
+
+POLICY_MAP = {
+    "list_agents": lambda _o: list_agents(),
+    "new_env": lambda _o: new_env(),
+}
+
+
 class InspectorAgent(Agent):
     name = "inspector"
-    tools = [list_agents]
+    tools = [list_agents, new_env]
 
     async def policy(self, obs, ctx):  # type: ignore[override]
+        if isinstance(obs, dict):
+            action = obs.get("action")
+            handler = POLICY_MAP.get(action)
+            if handler:
+                return await handler(obs)
         return await self.tools.list_agents()
 
 
