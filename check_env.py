@@ -115,7 +115,13 @@ def main(argv: Optional[List[str]] = None) -> int:
             )
             return 1
         except subprocess.CalledProcessError as exc:
+            stderr = exc.stderr or ""
             print("Failed to install baseline requirements", exc.returncode)
+            if any(kw in stderr.lower() for kw in ["connection", "temporary failure", "network", "resolve"]):
+                print(
+                    "Network failure detected. Re-run with '--wheelhouse <path>' "
+                    "or set WHEELHOUSE to install offline packages."
+                )
             return exc.returncode
 
     missing_required: list[str] = []
