@@ -101,6 +101,10 @@ def summarise_with_agent(mean_coop: float, *, agents: int, rounds: int, delta: f
         return cast(str, completion.choices[0].message.content).strip()
     except openai.AuthenticationError:
         return base_msg + " (OPENAI_API_KEY not set; using offline summary)"
+    except openai.APIConnectionError:
+        return base_msg + " (OpenAI connection error; using offline summary)"
+    except openai.RateLimitError:
+        return base_msg + " (OpenAI rate limit exceeded; using offline summary)"
     except Exception:
         return base_msg
 

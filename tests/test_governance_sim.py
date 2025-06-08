@@ -47,6 +47,38 @@ class TestGovernanceSim(unittest.TestCase):
         self.assertIn("OPENAI_API_KEY not set", text)
         self.assertIn("offline summary", text)
 
+    def test_summary_api_connection_error(self) -> None:
+        import openai
+
+        with patch.dict(os.environ, {"OPENAI_API_KEY": "sk-test"}):
+            with patch("openai.OpenAI") as mock_client:
+                mock_client.return_value.chat.completions.create.side_effect = openai.APIConnectionError("fail")
+                text = summarise_with_agent(
+                    0.5,
+                    agents=2,
+                    rounds=10,
+                    delta=0.9,
+                    stake=1.0,
+                )
+        self.assertIn("offline summary", text)
+        self.assertIn("connection", text)
+
+    def test_summary_rate_limit_error(self) -> None:
+        import openai
+
+        with patch.dict(os.environ, {"OPENAI_API_KEY": "sk-test"}):
+            with patch("openai.OpenAI") as mock_client:
+                mock_client.return_value.chat.completions.create.side_effect = openai.RateLimitError("limit")
+                text = summarise_with_agent(
+                    0.5,
+                    agents=2,
+                    rounds=10,
+                    delta=0.9,
+                    stake=1.0,
+                )
+        self.assertIn("offline summary", text)
+        self.assertIn("rate limit", text)
+
     def test_agents_must_be_positive(self) -> None:
         with self.assertRaises(ValueError):
             run_sim(agents=0, rounds=10, delta=0.5, stake=1.0)
