@@ -21,3 +21,18 @@ def test_governance_bridge_help() -> None:
     )
     assert result.returncode == 0
     assert "usage" in result.stdout.lower()
+
+
+@pytest.mark.skipif(
+    importlib.util.find_spec("openai_agents") is None,
+    reason="openai_agents not installed",
+)
+def test_governance_bridge_port_arg() -> None:
+    """Verify the CLI accepts the --port option."""
+    result = subprocess.run(
+        ["governance-bridge", "--port", "1234", "--help"],
+        capture_output=True,
+        text=True,
+        check=True,
+    )
+    assert result.returncode == 0

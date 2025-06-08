@@ -171,5 +171,11 @@ The script registers a `GovernanceSimAgent` with the Agents runtime and, when
 package is missing the bridge prints a warning and runs the local simulator
 only, so the demo remains fully offline capable.
 
+Specify a custom runtime port with `--port`:
+
+```bash
+governance-bridge --port 5005
+```
+
 ---
 
