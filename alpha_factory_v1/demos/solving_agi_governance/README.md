@@ -1,4 +1,4 @@
-# Solving **α-AGI Governance** [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/MontrealAI/AGI-Alpha-Agent-v0/blob/main/alpha_factory_v1/demos/solving_agi_governance/colab_solving_agi_governance.ipynb)
+# Solving **α-AGI Governance** [![Open In Colab]][colab-notebook]
 *Minimal Conditions for Stable, Antifragile Multi-Agent Order*
 **Author :** Vincent Boucher — President, MONTREAL.AI · QUEBEC.AI
 
@@ -10,11 +10,14 @@
 ---
 
 ### 1 · Executive Abstract
-A permissionless swarm of autonomous *α-AGI Businesses* can be driven toward a **single, efficient macro-equilibrium** by coupling provably-safe game-theoretic incentives to on-chain physics.  
+A permissionless swarm of autonomous *α-AGI Businesses* can be driven toward a
+**single, efficient macro-equilibrium** by coupling provably-safe game-theoretic
+incentives to on-chain physics.
 The only primitive is the utility / governance token **$AGIALPHA**.  
 If every agent stakes *sₖ > 0* and discounts future value at **δ ≥ 0.8**, then:
 
-> *All Nash equilibria collapse into one cooperative fixed-point on the Pareto frontier while net energy dissipation approaches the Landauer bound.*
+> *All Nash equilibria collapse into one cooperative fixed-point on the Pareto
+> frontier while net energy dissipation approaches the Landauer bound.*
 
 Six million Monte-Carlo rounds at *N = 10⁴* confirm convergence ± 1.7 %.  
 
@@ -26,7 +29,7 @@ Six million Monte-Carlo rounds at *N = 10⁴* confirm convergence ± 1.7 %.
 |-------|--------------|---------------|
 | **Incentive** | Mint/burn $AGIALPHA for provable α-extraction | **Stake sₖ**, slash on violation |
 | **Safety** | Formal envelopes, red-team fuzzing, Coq-verified actuators | Risk < 10⁻⁹ / action |
-| **Governance** | Quadratic voting, time-locked upgrades, adaptive oracles | **Voting curvature ≈ incentive gradient** |
+| **Governance** | Quadratic voting, time-locked upgrades, adaptive oracles | **Vote curvature ≈ incentive slope** |
 
 ---
 
@@ -77,7 +80,10 @@ Six million Monte-Carlo rounds at *N = 10⁴* confirm convergence ± 1.7 %.
 ---
 
 ### 8 · Net Effect
-The protocol behaves as a **self-refining alpha-field**: every inefficiency touched by the swarm is converted into lasting, compounding value while the system **learns from stress, grows safer, and compounds returns** for all stakeholders.
+The protocol behaves as a **self-refining alpha-field**: every inefficiency
+touched by the swarm is converted into lasting, compounding value while the
+system **learns from stress, grows safer, and compounds returns** for all
+stakeholders.
 
 > **$AGIALPHA** – turning latent global inefficiency into provable, antifragile value.
 
@@ -87,7 +93,10 @@ The protocol behaves as a **self-refining alpha-field**: every inefficiency touc
 Open the Colab notebook for an end-to-end demo:
 
 ```bash
-open https://colab.research.google.com/github/MontrealAI/AGI-Alpha-Agent-v0/blob/main/alpha_factory_v1/demos/solving_agi_governance/colab_solving_agi_governance.ipynb
+open \
+  https://colab.research.google.com/github/MontrealAI/AGI-Alpha-Agent-v0/blob/\
+  main/alpha_factory_v1/demos/solving_agi_governance/\
+  colab_solving_agi_governance.ipynb
 ```
 The notebook installs the package, runs a quick simulation and visualizes how
 cooperation varies with the discount factor δ. It uses `numpy` and
@@ -199,4 +208,8 @@ governance-bridge --port 5005
 ```
 
 ---
+
+[colab-notebook]: https://colab.research.google.com/github/MontrealAI/AGI-Alpha-Agent-v0/\
+    blob/main/alpha_factory_v1/demos/solving_agi_governance/\
+    colab_solving_agi_governance.ipynb
 
