@@ -88,6 +88,7 @@ ALPHA_FACTORY_ENABLE_ADK=true python openai_agents_bridge.py
 ```
 
 > **Tip 💡** Set `ALPHA_ASI_SEED=<int>` to reproduce identical curriculum runs.
+> **Tip 💡** Set `ALPHA_ASI_SILENT=1` to hide the startup banner.
 
 ---
 
@@ -201,6 +202,7 @@ bus liveness even on a clean clone.)*
 | _CUDA OOM_ | `export TORCH_FORCE_CPU=1` or downsize net via CodeGenAgent. |
 | _Docker build slow_ | Add build-arg `TORCH_WHL=<local-wheel>` (offline). |
 | _K8s CrashLoop_ | `kubectl logs`; missing GPU driver or env var. |
+| _Hide banner_ | Set `ALPHA_ASI_SILENT=1` before launching. |
 
 Need help? Open an issue → **@MontrealAI/alpha-factory-core**.
 
