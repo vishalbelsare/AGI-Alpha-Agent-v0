@@ -1,6 +1,11 @@
 # Solving **α-AGI Governance** [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/MontrealAI/AGI-Alpha-Agent-v0/blob/main/alpha_factory_v1/demos/solving_agi_governance/colab_solving_agi_governance.ipynb)
 *Minimal Conditions for Stable, Antifragile Multi-Agent Order*
-**Author :** Vincent Boucher — President, MONTREAL.AI · QUEBEC.AI  
+**Author :** Vincent Boucher — President, MONTREAL.AI · QUEBEC.AI
+
+> **Disclaimer**
+> This demo is a conceptual research prototype. References to "AGI" and
+> "superintelligence" describe aspirational goals and do not indicate the
+> presence of a real general intelligence. Use at your own risk.
 
 ---
 
