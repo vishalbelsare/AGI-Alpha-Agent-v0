@@ -60,6 +60,7 @@ def _parse_args(argv: list[str] | None = None) -> argparse.Namespace:
 
 
 def main(argv: list[str] | None = None) -> None:
+    logging.basicConfig(level=logging.INFO)
     args = _parse_args(argv)
     if args.port is not None:
         runtime = AgentRuntime(port=args.port, api_key=None)
