@@ -46,6 +46,12 @@ python check_env.py --auto-install  # verify runtime and install extras (10 min 
 Run `pre-commit run --all-files` after the dependencies finish installing.
 ```
 
+Offline example using a local wheelhouse:
+
+```bash
+WHEELHOUSE=/media/wheels AUTO_INSTALL_MISSING=1 ./quickstart.sh
+```
+
 Or launch the full stack with Docker:
 
 ```bash
