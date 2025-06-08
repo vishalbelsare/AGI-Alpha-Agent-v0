@@ -58,6 +58,9 @@ Or launch the full stack with Docker:
 docker compose up --build
 ```
 
+Detailed step‑by‑step instructions, including Colab usage,
+are available in [docs/quickstart.md](docs/quickstart.md).
+
 For advanced options, see the [5‑Minute Quick‑Start](#6-5-minute-quick-start)
 and [Docker Quickstart](#docker-quickstart) sections below.
 
