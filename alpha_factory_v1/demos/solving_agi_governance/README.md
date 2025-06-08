@@ -98,7 +98,7 @@ Python standard library.
 ---
 
 ### 9 · Running the Demo
-The CLI simulator has **no third‑party dependencies**—any Python ≥ 3.9 works.
+The CLI simulator has **no third‑party dependencies**—use Python 3.11 or 3.12.
 
 Clone the repository and launch the Monte‑Carlo simulator:
 
@@ -123,7 +123,7 @@ governance-sim --agents 500 --summary
 
 ### 10 · Quick Start & Troubleshooting
 
-1. **Install** the package in a fresh virtual environment:
+1. **Install** the package in a fresh **Python 3.11 or 3.12** virtual environment:
 
    ```bash
    python -m pip install -e .[tests]
@@ -144,7 +144,7 @@ governance-sim --agents 500 --summary
    python -m unittest discover -s alpha_factory_v1/tests -p 'test_governance_sim.py'
    ```
 
-If you encounter issues, ensure Python ≥ 3.9 is in your PATH and that
+If you encounter issues, ensure Python 3.11 or 3.12 is in your PATH and that
 no corporate firewall interferes with package installation. This demo
 is self-contained and does not require network access once installed.
 
