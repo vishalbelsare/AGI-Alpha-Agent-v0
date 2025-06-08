@@ -95,6 +95,11 @@ class Config:
                 setattr(self, k, v)
 
 
+def _str_to_bool(v: str) -> bool:
+    """Return True for truthy strings."""
+    return v.lower() in {"1", "true", "yes", "on"}
+
+
 def _load_cfg() -> Config:
     cfg = Config()
     # yaml config file optional
@@ -111,10 +116,14 @@ def _load_cfg() -> Config:
         env_key = "ALPHA_ASI_" + k.upper()
         if env_key in os.environ:
             val = os.environ[env_key]
-            try:
-                val = type(getattr(cfg, k))(val)
-            except Exception:
-                pass
+            default = getattr(cfg, k)
+            if isinstance(default, bool):
+                val = _str_to_bool(val)
+            else:
+                try:
+                    val = type(default)(val)
+                except Exception:
+                    pass
             setattr(cfg, k, val)
     return cfg
 
