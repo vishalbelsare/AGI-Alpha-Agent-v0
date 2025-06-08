@@ -359,6 +359,10 @@ everything is formatted correctly. These commands mirror the steps in
 [AGENTS.md](AGENTS.md) and keep commits consistent.
 Before opening a pull request, run `pre-commit run --all-files` to ensure
 all hooks succeed.
+Run `python check_env.py --auto-install` before invoking these commands so
+optional hook dependencies are installed. When working offline, pass
+`--wheelhouse <dir>` or set `WHEELHOUSE` to install from a local cache. If
+`pre-commit` isn't found, install it with `pip install pre-commit`.
 
 When editing the web UI, preserve existing ARIA labels so the interface
 remains accessible.
