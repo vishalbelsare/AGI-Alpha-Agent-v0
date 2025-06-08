@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 # alpha_asi_world_model_demo.py – Alpha‑Factory v1 👁️✨  (auto‑generated 2025‑04‑25)
 # =============================================================================
 # Fully‑agentic α‑AGI demo: POET‑style curriculum × MuZero learner with light
