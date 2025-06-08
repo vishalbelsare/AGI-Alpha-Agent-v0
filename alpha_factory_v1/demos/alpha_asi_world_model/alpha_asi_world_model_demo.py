@@ -425,7 +425,9 @@ if os.getenv("OPENAI_API_KEY") and not os.getenv("NO_LLM"):
                 with concurrent.futures.ThreadPoolExecutor() as ex:
                     fut = ex.submit(
                         lambda: openai.ChatCompletion.create(
-                            model="gpt-4o-mini", messages=[{"role": "user", "content": prompt}], timeout=timeout
+                            model=os.getenv("ALPHA_ASI_LLM_MODEL", "gpt-4o-mini"),
+                            messages=[{"role": "user", "content": prompt}],
+                            timeout=timeout,
                         )
                     )
                     return fut.result().choices[0].message.content
