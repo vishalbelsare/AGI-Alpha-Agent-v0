@@ -166,6 +166,8 @@ export ALPHA_FACTORY_ENABLE_ADK=true  # optional
 governance-bridge --enable-adk
 ```
 
+The `OPENAI_API_KEY` variable must be set or the bridge cannot communicate with OpenAI.
+
 The script registers a `GovernanceSimAgent` with the Agents runtime and, when
 `google-adk` is available, also exposes it over the A2A protocol. If either
 package is missing the bridge prints a warning and runs the local simulator
