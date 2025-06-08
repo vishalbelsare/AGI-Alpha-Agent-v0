@@ -3,8 +3,9 @@
 """Validate environment variable documentation.
 
 This script compares the variable names listed in ``alpha_factory_v1/.env.sample``
-with the table in ``AGENTS.md``. It exits with a non-zero status if the two sets
-of variables differ.
+and ``alpha_factory_v1/demos/alpha_asi_world_model/.env.sample`` with the table
+in ``AGENTS.md``. It exits with a non-zero status if the two sets of variables
+differ.
 """
 
 from __future__ import annotations
@@ -15,6 +16,7 @@ import sys
 
 ROOT = Path(__file__).resolve().parents[1]
 ENV_SAMPLE = ROOT / "alpha_factory_v1" / ".env.sample"
+WM_ENV_SAMPLE = ROOT / "alpha_factory_v1" / "demos" / "alpha_asi_world_model" / ".env.sample"
 AGENTS_MD = ROOT / "AGENTS.md"
 RUNBOOK_MD = ROOT / "docs" / "POLICY_RUNBOOK.md"
 
@@ -76,7 +78,7 @@ def parse_runbook_checklist(path: Path) -> list[str]:
 
 
 def main() -> int:
-    env_vars = parse_env_sample(ENV_SAMPLE)
+    env_vars = parse_env_sample(ENV_SAMPLE) | parse_env_sample(WM_ENV_SAMPLE)
     md_vars = parse_agents_table(AGENTS_MD)
     checklist = parse_runbook_checklist(RUNBOOK_MD)
 
@@ -89,7 +91,10 @@ def main() -> int:
             print("Missing from AGENTS.md:", ", ".join(missing_in_md))
             errors = True
         if missing_in_env:
-            print("Missing from .env.sample:", ", ".join(missing_in_env))
+            print(
+                "Missing from .env.sample files:",
+                ", ".join(missing_in_env),
+            )
             errors = True
 
     if len(checklist) < 5:
