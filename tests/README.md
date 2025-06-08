@@ -26,7 +26,13 @@ These integration tests expect the `alpha_factory_v1` package to be importable.
     (or the `WHEELHOUSE` environment variable).
     The full suite exercises features that depend on optional packages such as
     `numpy`, `torch`, `pandas`, `prometheus_client`, `gymnasium`, `playwright`,
-    `httpx`, `uvicorn`, `git` and `hypothesis`.
+   `httpx`, `uvicorn`, `git` and `hypothesis`.
+   
+   The test suite automatically attempts to install missing packages at
+   session start when `numpy` or `torch` are unavailable by invoking
+   `check_env.py --auto-install`.  Set the `WHEELHOUSE` environment
+   variable to point to a local wheel directory when running offline so
+   these installs can succeed without contacting PyPI.
 5. Set `PYTHONPATH=$(pwd)` or install the project in editable mode with `pip install -e .`.
 6. After installing **both** requirements files above, execute `pytest -q`.
 
