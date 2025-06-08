@@ -11,20 +11,23 @@ The AI‑GA Meta‑Evolution service is a conceptual research prototype. Referen
    - Verify all Python packages are available:
      Run the following command from the project root directory:
      ```bash
-     AUTO_INSTALL_MISSING=1 python check_env.py --auto-install
-     ```
-     This attempts to install `openai-agents`, `google-adk` and other required
-     packages if they are missing. Offline environments can point the script to
-     a wheelhouse via `WHEELHOUSE=/path/to/wheels`. **Running this command is
-     mandatory before executing the demos or the unit tests.** The
-     `openai-agents` and `google-adk` packages are optional and only needed when
-     the OpenAI Agents runtime or the ADK gateway is enabled.
+    AUTO_INSTALL_MISSING=1 python check_env.py --auto-install
+    ```
+    This installs `openai-agents` (or the alternative `agents` package) and
+    other requirements if they are missing. Offline environments can point the
+    script to a wheelhouse via `WHEELHOUSE=/path/to/wheels`.
+    **Running this command is mandatory before executing the demos or the unit
+    tests.** The LLM features depend on having either `openai-agents` or
+    `agents` available. The `google-adk` package is only needed when the ADK
+    gateway is enabled.
    - Install the OpenAI Agents SDK if not already present:
-     ```bash
-     pip install openai-agents
-     ```
-     Some distributions package it as the simpler `agents` module; the demo
-     detects both. If `import openai_agents` fails, reinstall the SDK and
+    ```bash
+    pip install -U openai-agents
+    # offline
+    pip install --no-index --find-links /path/to/wheels openai-agents
+    ```
+    Some distributions package it as the simpler `agents` module; the demo
+    detects both. If `import openai_agents` fails, reinstall the SDK and
      confirm your virtual environment is active.
 
 2. **Launch the service**

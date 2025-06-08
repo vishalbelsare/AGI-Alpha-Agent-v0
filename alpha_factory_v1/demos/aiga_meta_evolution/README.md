@@ -131,15 +131,26 @@ creating the wheelhouse.
 
 ### Installing the OpenAI Agents SDK
 
-The optional OpenAI Agents bridge relies on this package.
+The meta-evolution service depends on the **OpenAI Agents SDK** (or the
+newer `agents` package) for all LLM access, even when running offline.
+The optional bridge described below merely exposes the same tools over the
+OpenAI runtime.
+
+Install from PyPI:
 
 ```bash
-pip install openai-agents
+pip install -U openai-agents
 ```
 
-Some distributions ship it as the simpler `agents` module; the
-demo auto-detects both. If you see `ModuleNotFoundError: openai_agents`,
-reinstall the SDK in the active virtual environment.
+Offline, point `pip` to your wheelhouse:
+
+```bash
+pip install --no-index --find-links /path/to/wheels openai-agents
+```
+
+Some distributions ship the dependency as `agents`. The demo automatically
+detects both. If you encounter `ModuleNotFoundError: openai_agents`, ensure
+the package is installed in the active virtual environment.
 
 ### 🤖 OpenAI Agents bridge
 
@@ -149,8 +160,8 @@ Expose the evolver to the **OpenAI Agents SDK** runtime:
 python alpha_factory_v1/demos/aiga_meta_evolution/openai_agents_bridge.py
 ```
 
-Requires the `openai-agents` package (installed via requirements). When only
-the newer `agents` package is available, the bridge falls back automatically.
+Requires the `openai-agents` or `agents` package (already installed above).
+If both are missing the script exits with an error.
 
 The bridge registers an `aiga_evolver` agent exposing five tools:
 `evolve` (run N generations), `best_alpha` (return the champion),
