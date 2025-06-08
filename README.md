@@ -636,6 +636,8 @@ The official Docker image bundles **PyTorch&nbsp;2.2.x** and **Ray&nbsp;2.10.0**
 notebooks install PyTorch from the [PyTorch wheel index](https://download.pytorch.org/whl)
 and pin Ray to the same version for compatibility.
 
+* [Solving AGI Governance](alpha_factory_v1/demos/solving_agi_governance/README.md) — Monte‑Carlo governance simulation with optional OpenAI‑Agents/ADK integration. [Colab](alpha_factory_v1/demos/solving_agi_governance/colab_solving_agi_governance.ipynb)
+
 | `USE_GPU` | PyTorch wheel URL |
 |:--------:|-------------------------------------------------|
 | `True`   | <https://download.pytorch.org/whl/cu118> |
