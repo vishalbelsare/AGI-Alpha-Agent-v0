@@ -1,5 +1,8 @@
 # SPDX-License-Identifier: Apache-2.0
-"""Evaluation utilities for the MATS demo."""
+"""Evaluation helpers for the Meta Agentic Tree Search demo.
+
+Exposes :func:`evaluate` which scores integer policies in a toy environment.
+"""
 from __future__ import annotations
 
 from typing import List
@@ -7,17 +10,15 @@ from .env import NumberLineEnv
 
 
 def evaluate(agents: List[int], env: NumberLineEnv | None = None) -> float:
-    """Return a pseudo reward for the agents using ``env``.
+    """Return a pseudo reward for ``agents``.
 
-    Parameters
-    ----------
-    agents:
-        Current candidate policies represented as integers.
-    env:
-        Optional environment instance.  A new :class:`NumberLineEnv` is created
-        when omitted so the function remains backward compatible.
+    Args:
+        agents: Candidate integer policy.
+        env: Optional environment instance.
+
+    Returns:
+        Calculated reward from the environment.
     """
 
     environment = env or NumberLineEnv()
     return environment.rollout(agents)
-
