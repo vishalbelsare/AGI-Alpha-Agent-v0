@@ -85,7 +85,10 @@ def summarise_with_agent(mean_coop: float, *, agents: int, rounds: int, delta: f
 
     try:  # optional dependency
         import openai
+    except Exception:
+        return base_msg
 
+    try:
         client = openai.OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
         completion = client.chat.completions.create(
             model="gpt-4o",
@@ -96,6 +99,8 @@ def summarise_with_agent(mean_coop: float, *, agents: int, rounds: int, delta: f
             max_tokens=60,
         )
         return cast(str, completion.choices[0].message.content).strip()
+    except openai.AuthenticationError:
+        return base_msg + " (OPENAI_API_KEY not set; using offline summary)"
     except Exception:
         return base_msg
 
