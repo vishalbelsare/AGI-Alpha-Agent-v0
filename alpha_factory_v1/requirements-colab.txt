@@ -14,3 +14,4 @@ anthropic>=0.21
 litellm>=1.31
 pytest~=8.2
 prometheus-client~=0.19
+ipywidgets~=8.1
