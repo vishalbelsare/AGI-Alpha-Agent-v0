@@ -84,12 +84,16 @@ Open the Colab notebook for an end-to-end demo:
 ```bash
 open https://colab.research.google.com/github/MontrealAI/AGI-Alpha-Agent-v0/blob/main/alpha_factory_v1/demos/solving_agi_governance/colab_solving_agi_governance.ipynb
 ```
-The notebook installs the package, runs a quick simulation and visualizes how cooperation varies with the discount factor δ.
+The notebook installs the package, runs a quick simulation and visualizes how
+cooperation varies with the discount factor δ. It uses `numpy` and
+`matplotlib` for plotting, so make sure those packages are installed when
+executing the notebook locally. The CLI script below works with just the
+Python standard library.
 
 ---
 
 ### 9 · Running the Demo
-This demo has **no third‑party dependencies**.  Any Python ≥ 3.9 works.
+The CLI simulator has **no third‑party dependencies**—any Python ≥ 3.9 works.
 
 Clone the repository and launch the Monte‑Carlo simulator:
 
