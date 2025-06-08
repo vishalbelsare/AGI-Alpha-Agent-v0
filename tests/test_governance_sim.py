@@ -12,5 +12,27 @@ class TestGovernanceSim(unittest.TestCase):
         self.assertIsInstance(text, str)
         self.assertIn("mean cooperation", text)
 
+    def test_agents_must_be_positive(self) -> None:
+        with self.assertRaises(ValueError):
+            run_sim(agents=0, rounds=10, delta=0.5, stake=1.0)
+        with self.assertRaises(ValueError):
+            run_sim(agents=-1, rounds=10, delta=0.5, stake=1.0)
+
+    def test_rounds_must_be_positive(self) -> None:
+        with self.assertRaises(ValueError):
+            run_sim(agents=1, rounds=0, delta=0.5, stake=1.0)
+        with self.assertRaises(ValueError):
+            run_sim(agents=1, rounds=-5, delta=0.5, stake=1.0)
+
+    def test_delta_must_be_within_range(self) -> None:
+        with self.assertRaises(ValueError):
+            run_sim(agents=1, rounds=10, delta=-0.1, stake=1.0)
+        with self.assertRaises(ValueError):
+            run_sim(agents=1, rounds=10, delta=1.1, stake=1.0)
+
+    def test_stake_must_not_be_negative(self) -> None:
+        with self.assertRaises(ValueError):
+            run_sim(agents=1, rounds=10, delta=0.5, stake=-0.1)
+
 if __name__ == "__main__":
     unittest.main()
