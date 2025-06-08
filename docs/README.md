@@ -20,3 +20,19 @@ python -m src.tools.ablation_runner
 ```
 
 The resulting heatmap visualises the pass rate drop when a component is disabled.
+
+## Manual Workflows
+
+The repository defines several optional GitHub Actions that are disabled by
+default. They only run when the repository owner starts them from the GitHub
+UI. These workflows perform heavyweight benchmarking and stress testing.
+
+To launch a job:
+
+1. Open the **Actions** tab on GitHub.
+2. Choose either **📈 Replay Bench**, **🌩 Load Test** or **📊 Transfer Matrix**.
+3. Click **Run workflow** and confirm.
+
+Each workflow checks that the person triggering it matches
+`github.repository_owner`, so it executes only when the owner initiates the
+run.
