@@ -1,5 +1,10 @@
 ## Quick‑Start
 
+## Disclaimer
+This demo is a conceptual research prototype. References to "AGI" and
+"superintelligence" describe aspirational goals and do not indicate the presence
+of a real general intelligence. Use at your own risk.
+
 ```bash
 pip install -r requirements.txt
 python -m alpha_asi_world_model_demo --demo
