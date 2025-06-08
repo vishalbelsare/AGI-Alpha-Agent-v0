@@ -1,3 +1,5 @@
+imports:
+  - p/python
 rules:
   - id: solidity-tx-origin
     languages: [solidity]
