@@ -15,8 +15,9 @@ logger = logging.getLogger(__name__)
 
 try:
     from openai_agents import Agent, AgentRuntime, Tool
-except ModuleNotFoundError as exc:  # pragma: no cover - optional dep
-    raise SystemExit("openai-agents package is missing. Install with `pip install openai-agents`") from exc
+    HAS_OAI = True
+except ModuleNotFoundError:  # pragma: no cover - optional dep
+    HAS_OAI = False
 
 
 @Tool(name="run_sim", description="Run governance simulation")
@@ -54,7 +55,13 @@ class GovernanceSimAgent(Agent):
 
 
 def _parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
-    ap = argparse.ArgumentParser(description="Expose the governance simulation via OpenAI Agents runtime")
+    ap = argparse.ArgumentParser(
+        description="Expose the governance simulation via OpenAI Agents runtime"
+    )
+    ap.add_argument("-N", "--agents", type=int, default=100, help="agents when offline")
+    ap.add_argument("-r", "--rounds", type=int, default=1000, help="rounds when offline")
+    ap.add_argument("--delta", type=float, default=0.8, help="discount factor when offline")
+    ap.add_argument("--stake", type=float, default=2.5, help="stake penalty when offline")
     ap.add_argument(
         "--enable-adk",
         action="store_true",
@@ -71,6 +78,12 @@ def _parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
 def main(argv: list[str] | None = None) -> None:
     logging.basicConfig(level=logging.INFO)
     args = _parse_args(argv)
+    if not HAS_OAI:
+        print("openai-agents package is missing. Running offline demo...")
+        coop = run_sim(args.agents, args.rounds, args.delta, args.stake)
+        print(f"mean cooperation \u2248 {coop:.3f}")
+        return
+
     if args.port is not None:
         runtime = AgentRuntime(port=args.port, api_key=None)
     else:
