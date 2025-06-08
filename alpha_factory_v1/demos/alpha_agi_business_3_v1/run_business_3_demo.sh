@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# SPDX-License-Identifier: Apache-2.0
 # Quick launcher for alpha_agi_business_3_v1
 set -euo pipefail
 

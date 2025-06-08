@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# SPDX-License-Identifier: Apache-2.0
 """royalty_radar.py – Production‑grade α‑AGI Business Module
 ───────────────────────────────────────────────────────────────────────────────
 RoyaltyRadar.a.agi.eth

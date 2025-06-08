@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# SPDX-License-Identifier: Apache-2.0
 """Lightweight orchestrator launcher for offline / edge deployments.
 
 This utility wraps :mod:`alpha_factory_v1.run` with sensible defaults so that

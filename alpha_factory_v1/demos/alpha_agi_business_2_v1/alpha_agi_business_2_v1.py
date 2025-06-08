@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# SPDX-License-Identifier: Apache-2.0
 """Alpha‑AGI Business v2 demo.
 
 Boots the Alpha‑Factory orchestrator with two minimal agents. The demo

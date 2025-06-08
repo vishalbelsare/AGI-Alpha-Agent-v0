@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# SPDX-License-Identifier: Apache-2.0
 # Alpha-Factory Quickstart Launcher
 # Professional production-ready script to bootstrap and run Alpha-Factory v1
 set -Eeuo pipefail

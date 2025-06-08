@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 # core/physics/gibbs.py
 from math import exp, log
 from typing import Sequence

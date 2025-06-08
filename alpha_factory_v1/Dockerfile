@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 # syntax=docker/dockerfile:1.6
 ##############################################################################
 #  Alpha‑Factory v1 👁️✨ — Multi‑Agent AGENTIC α‑AGI                         #

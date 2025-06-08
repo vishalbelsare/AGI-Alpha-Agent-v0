@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# SPDX-License-Identifier: Apache-2.0
 """Cross-platform Quickstart launcher for Alpha-Factory v1.
 
 This utility mirrors ``quickstart.sh`` but works on Windows and other

@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 """
 Lightweight wrapper around Google OR-Tools with safe fall-backs.
 

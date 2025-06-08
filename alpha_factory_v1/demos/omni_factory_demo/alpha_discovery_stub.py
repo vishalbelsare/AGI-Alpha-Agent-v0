@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# SPDX-License-Identifier: Apache-2.0
 """Alpha discovery stub with minimal CLI.
 
 The script illustrates how the OMNI‑Factory demo might surface

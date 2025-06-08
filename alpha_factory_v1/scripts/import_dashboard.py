@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# SPDX-License-Identifier: Apache-2.0
 """Import a Grafana dashboard via HTTP API.
 
 This helper simplifies loading dashboards from JSON files into a running

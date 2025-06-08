@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 # llm_client.py
 import os, openai
 

@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 """Example plugin for OMNI-Factory demo.
 
 Provides a simple policy that nudges the planner

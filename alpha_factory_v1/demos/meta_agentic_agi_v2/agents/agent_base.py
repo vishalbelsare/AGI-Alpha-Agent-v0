@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 """
 agent_base.py – Meta‑Agentic α‑AGI substrate (v0.4.0)
 =====================================================

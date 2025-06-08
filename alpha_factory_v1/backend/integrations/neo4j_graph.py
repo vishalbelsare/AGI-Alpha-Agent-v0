@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 """
 Graph storage wrapper – tries Neo4j first, falls back to NetworkX.
 

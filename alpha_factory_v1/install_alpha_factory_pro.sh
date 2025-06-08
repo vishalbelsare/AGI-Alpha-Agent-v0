@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# SPDX-License-Identifier: Apache-2.0
 # install_alpha_factory_pro.sh  —  one‑stop builder *and* optional deployer
 # ─────────────────────────────────────────────────────────────────────────
 #   Original flags (still supported)

@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# SPDX-License-Identifier: Apache-2.0
 ###############################################################################
 #  run_macro_demo.sh — Macro-Sentinel • Alpha-Factory v1 👁️✨
 #

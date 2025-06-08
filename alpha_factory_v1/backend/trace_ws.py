@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 # backend/trace_ws.py
 """
 ASGI WebSocket hub for live Trace‑graph events

@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 """Thin client for the α‑AGI Marketplace demo."""
 
 from __future__ import annotations
