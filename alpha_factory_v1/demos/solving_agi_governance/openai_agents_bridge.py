@@ -54,12 +54,20 @@ def _parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         action="store_true",
         help="Expose agent via ADK gateway",
     )
+    ap.add_argument(
+        "--port",
+        type=int,
+        help="Custom port for the Agents runtime",
+    )
     return ap.parse_args(argv)
 
 
 def main(argv: list[str] | None = None) -> None:
     args = _parse_args(argv)
-    runtime = AgentRuntime(api_key=None)
+    if args.port is not None:
+        runtime = AgentRuntime(port=args.port, api_key=None)
+    else:
+        runtime = AgentRuntime(api_key=None)
     agent = GovernanceSimAgent()
     runtime.register(agent)
     if args.enable_adk:
