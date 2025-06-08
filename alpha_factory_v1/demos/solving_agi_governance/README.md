@@ -178,8 +178,9 @@ The `OPENAI_API_KEY` variable must be set or the bridge cannot communicate with 
 
 The script registers a `GovernanceSimAgent` with the Agents runtime and, when
 `google-adk` is available, also exposes it over the A2A protocol. If either
-package is missing the bridge prints a warning and runs the local simulator
-only, so the demo remains fully offline capable.
+package is missing the bridge prints a warning and executes the local simulator
+instead. The offline fallback accepts the same parameters as `governance-sim`
+(`-N`, `-r`, `--delta`, `--stake`) so the demo remains fully offline capable.
 
 Specify a custom runtime port with `--port`:
 
