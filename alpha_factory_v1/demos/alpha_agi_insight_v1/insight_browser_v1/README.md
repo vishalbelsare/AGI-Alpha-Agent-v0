@@ -237,7 +237,7 @@ extraction for a brief walkthrough.
 
 A dedicated GitHub Actions workflow
 [`size-check.yml`](../../../../.github/workflows/size-check.yml) rebuilds the
-archive on each pull request and fails if `insight_browser.zip` grows beyond
+archive when triggered manually and fails if `insight_browser.zip` grows beyond
 **3&nbsp;MiB**.
 
 ## Locale Support
