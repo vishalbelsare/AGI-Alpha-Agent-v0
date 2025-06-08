@@ -84,6 +84,18 @@ def test_llm_planner_activates_with_key(monkeypatch):
     assert "llm_planner" in mod.A2ABus._subs
 
 
+def test_real_safety_agent_loaded(monkeypatch) -> None:
+    monkeypatch.setenv("NO_LLM", "1")
+    monkeypatch.setenv("ALPHA_ASI_SILENT", "1")
+    monkeypatch.setenv("ALPHA_ASI_MAX_STEPS", "1")
+
+    mod = _reload_module(monkeypatch)
+
+    assert "safety" in mod.AGENTS
+    subs = mod.A2ABus._subs.get("safety") or []
+    assert len(subs) == 1
+
+
 def _write_executable(path: Path, content: str) -> None:
     path.write_text(content)
     path.chmod(0o755)
