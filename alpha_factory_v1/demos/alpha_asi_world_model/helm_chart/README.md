@@ -1,5 +1,9 @@
-# α-ASI World-Model 🛰️ — Helm Chart 📦  
+# α-ASI World-Model 🛰️ — Helm Chart 📦
 *Alpha-Factory v1 👁️✨ • Multi-Agent AGENTIC α-AGI*
+
+This demo is a conceptual research prototype. References to "AGI" and
+"superintelligence" describe aspirational goals and do not indicate the
+presence of a real general intelligence. Use at your own risk.
 
 | Chart version | App version | License |
 |---------------|------------|---------|

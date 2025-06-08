@@ -1,5 +1,9 @@
 # Changelog
 
+This demo is a conceptual research prototype. References to "AGI" and
+"superintelligence" describe aspirational goals and do not indicate the
+presence of a real general intelligence. Use at your own risk.
+
 All notable changes to this project are documented in this file.
 
 ## [Unreleased]
