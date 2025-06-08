@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 import unittest
 from alpha_factory_v1.backend.agents import register, AGENT_REGISTRY, _agent_base
 

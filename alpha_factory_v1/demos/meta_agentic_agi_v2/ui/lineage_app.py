@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 
 """
 alpha_factory_v1.demos.meta_agentic_agi.ui.lineage_app

@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 """Run environment checks before installing Alpha-Factory.
 
 The script verifies Python compatibility, essential command line tools,

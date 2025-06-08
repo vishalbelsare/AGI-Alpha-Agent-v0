@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 """curriculum.azr_engine
 -------------------------
 Absolute‑Zero Reasoner self‑curriculum engine – Production‑grade v0.5.0

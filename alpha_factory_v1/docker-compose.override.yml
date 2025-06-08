@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 ###############################################################################
 #  docker-compose.override.yml -- Development conveniences (hot reload)       #
 #  Compose v2+ file (no explicit `version:` key required)                      #

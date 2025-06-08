@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 """
 Unified headline fetcher (NewsAPI → RSS → cached local file).
 

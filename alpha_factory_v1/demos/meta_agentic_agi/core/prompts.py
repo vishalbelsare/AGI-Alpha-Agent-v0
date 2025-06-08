@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 
 """prompts.py – Prompt & Template & Lineage Registry (v0.3.0)
 =================================================================

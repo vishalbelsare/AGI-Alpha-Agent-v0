@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 # -*- coding: utf-8 -*-
 """
 scorer.py — Meta‑Agentic α‑AGI / Alpha‑Factory v1 👁️✨

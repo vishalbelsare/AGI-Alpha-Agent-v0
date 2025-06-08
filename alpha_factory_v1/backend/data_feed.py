@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 """Synchronous market-data helpers used by small demos.
 
 This module exposes a single :func:`last_price` function that attempts to fetch

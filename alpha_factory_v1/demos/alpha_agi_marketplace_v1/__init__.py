@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 """Helper module for the Alpha‑AGI Marketplace demo."""
 
 from __future__ import annotations

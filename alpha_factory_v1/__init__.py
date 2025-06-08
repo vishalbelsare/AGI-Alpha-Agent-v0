@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 """Alpha‑Factory v1 package root.
 
 This module exposes the public entry points of the project while keeping the

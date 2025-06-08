@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 """Zero-data launcher for the α‑AGI Insight demo.
 
 This wrapper enforces offline execution by setting ``ALPHA_AGI_OFFLINE=true``

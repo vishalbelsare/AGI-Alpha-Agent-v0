@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 """Unified LLM wrapper used across Alpha-Factory.
 
 This facade hides the concrete provider so agents can simply call

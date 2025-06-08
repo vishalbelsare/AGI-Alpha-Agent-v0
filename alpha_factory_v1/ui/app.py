@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 
 from flask import Flask, jsonify, render_template, request
 

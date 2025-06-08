@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 # self_healer.py
 import os, shutil, subprocess
 from agent_core import llm_client, test_runner, diff_utils

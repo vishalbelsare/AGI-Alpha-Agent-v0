@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# SPDX-License-Identifier: Apache-2.0
 """Self-contained Ω‑Lattice business demo.
 
 This module showcases a minimal zero‑entropy pipeline suitable for

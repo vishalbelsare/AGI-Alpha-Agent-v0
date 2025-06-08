@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 # alpha_factory_v1/demos/macro_sentinel/agent_macro_entrypoint.py
 # © 2025 MONTREAL.AI Apache-2.0 License
 """

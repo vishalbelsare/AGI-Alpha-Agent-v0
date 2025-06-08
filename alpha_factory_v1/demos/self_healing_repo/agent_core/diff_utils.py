@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 # diff_utils.py
 import re
 import subprocess
