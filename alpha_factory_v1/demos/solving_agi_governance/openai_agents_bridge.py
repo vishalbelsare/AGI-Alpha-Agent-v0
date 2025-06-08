@@ -7,6 +7,7 @@ from __future__ import annotations
 import argparse
 import logging
 import asyncio
+from typing import Sequence
 
 from .governance_sim import run_sim
 
@@ -25,6 +26,7 @@ async def run_sim_tool(
     delta: float = 0.8,
     stake: float = 2.5,
 ) -> float:
+    """Run the governance simulation in a thread."""
     return await asyncio.to_thread(run_sim, agents, rounds, delta, stake)
 
 
@@ -34,7 +36,13 @@ class GovernanceSimAgent(Agent):
     name = "governance_sim"
     tools = [run_sim_tool]
 
-    async def policy(self, obs, ctx):  # type: ignore[override]
+    async def policy(self, obs: object, ctx: object) -> float:
+        """Return the simulation result for ``obs`` parameters.
+
+        ``openai_agents`` does not ship type hints, so both ``obs`` and ``ctx``
+        are typed as :class:`object` to match the base ``Agent.policy``
+        signature.
+        """
         if isinstance(obs, dict):
             return await self.tools.run_sim(
                 int(obs.get("agents", 100)),
@@ -45,7 +53,7 @@ class GovernanceSimAgent(Agent):
         return await self.tools.run_sim()
 
 
-def _parse_args(argv: list[str] | None = None) -> argparse.Namespace:
+def _parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
     ap = argparse.ArgumentParser(description="Expose the governance simulation via OpenAI Agents runtime")
     ap.add_argument(
         "--enable-adk",
