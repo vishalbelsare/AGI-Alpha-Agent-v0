@@ -354,7 +354,7 @@ BasicSafetyAgent()
 # =============================================================================
 # 9. Optional LLM planner
 # =============================================================================
-if os.getenv("OPENAI_API_KEY"):
+if os.getenv("OPENAI_API_KEY") and not os.getenv("NO_LLM"):
     try:
         import openai, functools, concurrent.futures, contextlib
         class LLMPlanner(Agent):

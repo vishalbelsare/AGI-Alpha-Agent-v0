@@ -160,7 +160,7 @@ bus liveness even on a clean clone.)*
 | 🐳 **Docker** | Auto-generated `Dockerfile` (<100 MB slim). GPU builds: swap base for `nvidia/cuda:runtime-12.4`. |
 | ☸️ **Kubernetes** | Run `--emit-helm`; edit values (`replicaCount`, `resources.limits`). Works on GKE, AKS, EKS, k3d. |
 | 🐍 **Pure Python** | No Docker needed; just `pip install -r requirements.txt`. |
-| 🔒 **Air-gapped** | Offline wheels; set env `NO_LLM=1` or omit API keys. |
+| 🔒 **Air-gapped** | Offline wheels; set `NO_LLM=1` to disable the planner or omit API keys. |
 | 🔑 **Cloud LLM mode** | Export `OPENAI_API_KEY` → PlanningAgent & ResearchAgent auto-upgrade to LLM assistants. |
 
 ---
@@ -211,6 +211,7 @@ Need help? Open an issue → **@MontrealAI/alpha-factory-core**.
 - Launch via `./deploy_alpha_asi_world_model_demo.sh` and visit `http://localhost:7860`.
 - The script sets `NO_LLM=1` automatically when `OPENAI_API_KEY` is unset.
 - Provide an `OPENAI_API_KEY` to unlock planner features.
+- Set `NO_LLM=1` to skip the LLM planner even when a key is provided.
 
 ---
 

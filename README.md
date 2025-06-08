@@ -827,6 +827,7 @@ for instructions and example volume mounts.
 | Variable | Default | Purpose |
 |----------|---------|---------|
 | `OPENAI_API_KEY` | _(empty)_ | API key for hosted models. Offline mode is used when empty. |
+| `NO_LLM` | `0` | Set to `1` to skip the LLM planner even when `OPENAI_API_KEY` is provided. |
 | `NEO4J_PASSWORD` | `REPLACE_ME` | Database password required by the orchestrator. |
 | `RUN_MODE` | `api` | Launch mode for Compose or Helm (`api`, `cli`, `web`). |
 | `PORT` | `8000` | REST API port. |
