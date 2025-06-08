@@ -86,6 +86,8 @@ class Config:
     mcts_simulations: int = 16
     device: str = "cuda" if torch.cuda.is_available() else "cpu"
     log_json: bool = False
+    host: str = "127.0.0.1"
+    port: int = 7860
 
     def update(self, **kw):
         for k, v in kw.items():
@@ -543,8 +545,8 @@ def _main():
     p.add_argument("--emit-docker", action="store_true")
     p.add_argument("--emit-helm", action="store_true")
     p.add_argument("--emit-notebook", action="store_true")
-    p.add_argument("--host", default="127.0.0.1")
-    p.add_argument("--port", type=int, default=7860)
+    p.add_argument("--host", default=CFG.host)
+    p.add_argument("--port", type=int, default=CFG.port)
     args = p.parse_args()
     if args.emit_docker:
         emit_docker()
