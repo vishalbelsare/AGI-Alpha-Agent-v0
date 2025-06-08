@@ -98,7 +98,11 @@ Python standard library.
 ---
 
 ### Requirements
-* Python 3.11 or 3.12
+* Python 3.11 or 3.12 (<3.13; see [AGENTS.md](../../../AGENTS.md))
+* Install the optional runtime packages:
+  ```bash
+  pip install -r alpha_factory_v1/demos/solving_agi_governance/requirements.txt
+  ```
 * Install the demo extras before running the tests:
   ```bash
   pip install -r requirements-demo.txt
@@ -131,7 +135,13 @@ governance-sim --agents 500 --summary
 
 ### 10 · Quick Start & Troubleshooting
 
-1. **Install** the package in a fresh **Python 3.11 or 3.12** virtual environment:
+1. **Install the demo dependencies**:
+
+   ```bash
+   pip install -r alpha_factory_v1/demos/solving_agi_governance/requirements.txt
+   ```
+
+2. **Install** the package in a fresh **Python 3.11 or 3.12** virtual environment:
 
    ```bash
    python -m pip install -e .[tests]
@@ -140,13 +150,13 @@ governance-sim --agents 500 --summary
    The demo requires only the Python standard library but the optional
    `tests` extra installs `pytest` for validation.
 
-2. **Run the simulator** using the provided command:
+3. **Run the simulator** using the provided command:
 
    ```bash
    governance-sim -N 500 -r 2000 --delta 0.85 --verbose
    ```
 
-3. **Verify** that everything works by launching the unit tests:
+4. **Verify** that everything works by launching the unit tests:
 
    ```bash
    python -m unittest discover -s alpha_factory_v1/tests -p 'test_governance_sim.py'
@@ -160,10 +170,10 @@ is self-contained and does not require network access once installed.
 
 ### 11 · OpenAI Agents Bridge
 Install the optional packages to expose the simulator via the
-**OpenAI Agents SDK** and, when desired, the **Google ADK** federation layer:
+**OpenAI Agents SDK** and the **Google ADK** federation layer:
 
 ```bash
-pip install openai-agents google-adk
+pip install -r alpha_factory_v1/demos/solving_agi_governance/requirements.txt
 ```
 
 Launch the bridge with your API key set:
