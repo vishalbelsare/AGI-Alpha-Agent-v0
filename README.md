@@ -922,6 +922,9 @@ Run `python check_env.py --auto-install` again before executing `pytest` to
 ensure optional dependencies are present. In offline setups pass
 `--wheelhouse <dir>` (or set `WHEELHOUSE`) so packages install from the local
 wheel cache.
+The full test suite relies on optional packages including `numpy`, `torch`,
+`pandas`, `prometheus_client`, `gymnasium`, `playwright`, `httpx`, `uvicorn`,
+`git` and `hypothesis`.
 
 #### Test Runtime
 

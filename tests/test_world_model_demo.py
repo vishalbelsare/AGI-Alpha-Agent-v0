@@ -9,6 +9,8 @@ from typing import Any, cast
 
 import pytest
 
+pytest.importorskip("numpy")
+
 pytest.importorskip("torch")
 from fastapi.testclient import TestClient  # noqa: E402
 
