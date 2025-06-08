@@ -143,7 +143,8 @@ python run_demo.py --verify-env          # optional sanity check
 python run_demo.py --config configs/default.yaml --episodes 500 --target 5 --seed 42 --model gpt-4o
 # or equivalently
 python -m alpha_factory_v1.demos.meta_agentic_tree_search_v0.run_demo --episodes 500 --target 5
-# installed script
+# installed scripts
+mats-demo --episodes 5
 mats-bridge --episodes 3
 ```
 `run_demo.py` prints a per‑episode scoreboard.  Pass `--log-dir logs` to save a
