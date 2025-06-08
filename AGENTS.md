@@ -319,10 +319,15 @@ The **Deploy — Kind** workflow provisions a local kind cluster, builds the Ins
 ### Troubleshooting
 - If the stack fails to start, verify Docker and Docker Compose are running.
 - Setup errors usually mean Python is older than 3.11. Use Python 3.11 or 3.12 (>=3.11,<3.13).
- - Missing optional packages can cause test failures; first run
+- Missing optional packages can cause test failures; first run
   `python scripts/check_python_deps.py` and then
   `python check_env.py --auto-install` (pass `--wheelhouse <path>` when offline)
   if required.
+- Always execute `python check_env.py --auto-install` before running the tests
+  or `pre-commit` so optional dependencies install correctly. When offline,
+  provide `--wheelhouse <dir>` or set `WHEELHOUSE` to your wheel cache.
+- If `pre-commit` reports "command not found", install it manually with
+  `pip install pre-commit` and run `pre-commit install` once.
 
 For detailed troubleshooting steps, see [`alpha_factory_v1/scripts/README.md`](alpha_factory_v1/scripts/README.md).
 
