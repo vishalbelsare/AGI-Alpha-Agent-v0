@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import argparse
 import logging
+import asyncio
 
 from .governance_sim import run_sim
 
@@ -13,9 +14,7 @@ logger = logging.getLogger(__name__)
 try:
     from openai_agents import Agent, AgentRuntime, Tool
 except ModuleNotFoundError as exc:  # pragma: no cover - optional dep
-    raise SystemExit(
-        "openai-agents package is missing. Install with `pip install openai-agents`"
-    ) from exc
+    raise SystemExit("openai-agents package is missing. Install with `pip install openai-agents`") from exc
 
 
 @Tool(name="run_sim", description="Run governance simulation")
@@ -25,7 +24,7 @@ async def run_sim_tool(
     delta: float = 0.8,
     stake: float = 2.5,
 ) -> float:
-    return run_sim(agents=agents, rounds=rounds, delta=delta, stake=stake)
+    return await asyncio.to_thread(run_sim, agents, rounds, delta, stake)
 
 
 class GovernanceSimAgent(Agent):
@@ -46,9 +45,7 @@ class GovernanceSimAgent(Agent):
 
 
 def _parse_args(argv: list[str] | None = None) -> argparse.Namespace:
-    ap = argparse.ArgumentParser(
-        description="Expose the governance simulation via OpenAI Agents runtime"
-    )
+    ap = argparse.ArgumentParser(description="Expose the governance simulation via OpenAI Agents runtime")
     ap.add_argument(
         "--enable-adk",
         action="store_true",
