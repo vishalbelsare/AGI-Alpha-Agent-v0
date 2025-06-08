@@ -20,6 +20,11 @@ The AI‑GA Meta‑Evolution service is a conceptual research prototype. Referen
     tests.** The LLM features depend on having either `openai-agents` or
     `agents` available. The `google-adk` package is only needed when the ADK
     gateway is enabled.
+   - Build wheels for the optional agent packages on a machine with internet access:
+     ```bash
+     pip wheel openai-agents google-adk -w /path/to/wheels
+     ```
+     Provide this directory via `WHEELHOUSE` when installing on the production host.
    - Install the OpenAI Agents SDK if not already present:
     ```bash
     pip install -U openai-agents

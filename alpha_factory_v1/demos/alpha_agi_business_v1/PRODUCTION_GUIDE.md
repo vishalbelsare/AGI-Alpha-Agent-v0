@@ -16,9 +16,16 @@ This guide summarises the minimal steps required to run the **Alpha‑AGI Busine
      AUTO_INSTALL_MISSING=1 python check_env.py --auto-install
      ```
      Provide `WHEELHOUSE=/path/to/wheels` for air‑gapped setups. **Running this
-     command is mandatory before executing the demos or running the test suite.**
-     The `openai-agents` and `google-adk` packages are optional and are only
-     required when using the OpenAI Agents runtime or the Google ADK gateway.
+      command is mandatory before executing the demos or running the test suite.**
+      The `openai-agents` and `google-adk` packages are optional and are only
+      required when using the OpenAI Agents runtime or the Google ADK gateway.
+   - Build wheels for these optional packages when preparing an offline
+      deployment:
+      ```bash
+      pip wheel openai-agents google-adk -w /path/to/wheels
+      ```
+      Provide this directory via `WHEELHOUSE` during installation on the
+      production host.
 
 2. **Launch the service**
    - **Docker** (recommended for consistent environments):
