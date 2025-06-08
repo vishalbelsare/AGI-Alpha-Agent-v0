@@ -24,18 +24,26 @@ except Exception:  # pragma: no cover - adk not installed
 
 @Tool(name="list_agents", description="List active orchestrator agents")
 async def list_agents() -> list[str]:
-    resp = requests.get("http://localhost:7860/agents", timeout=5)
-    resp.raise_for_status()
-    return resp.json()
+    try:
+        resp = requests.get("http://localhost:7860/agents", timeout=5)
+        resp.raise_for_status()
+        return resp.json()
+    except requests.RequestException:
+        print("Demo server not running")
+        return []
 
 
 @Tool(name="new_env", description="Spawn a new demo environment")
 async def new_env() -> dict:
-    resp = requests.post(
-        "http://localhost:7860/command", json={"cmd": "new_env"}, timeout=5
-    )
-    resp.raise_for_status()
-    return resp.json()
+    try:
+        resp = requests.post(
+            "http://localhost:7860/command", json={"cmd": "new_env"}, timeout=5
+        )
+        resp.raise_for_status()
+        return resp.json()
+    except requests.RequestException:
+        print("Demo server not running")
+        return {}
 
 
 POLICY_MAP = {
