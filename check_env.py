@@ -24,10 +24,12 @@ from typing import List, Optional
 CORE = ["numpy", "yaml", "pandas"]
 
 
-def warn_missing_core() -> None:
+def warn_missing_core() -> List[str]:
+    """Return any missing foundational packages and print a warning."""
     missing = [pkg for pkg in CORE if importlib.util.find_spec(pkg) is None]
     if missing:
         print("WARNING: Missing core packages:", ", ".join(missing))
+    return missing
 
 
 REQUIRED = [
@@ -95,10 +97,22 @@ def main(argv: Optional[List[str]] = None) -> int:
 
     args = parser.parse_args(argv)
 
-    warn_missing_core()
+    missing_core = warn_missing_core()
 
     wheelhouse = args.wheelhouse or os.getenv("WHEELHOUSE")
     auto = args.auto_install or os.getenv("AUTO_INSTALL_MISSING") == "1"
+
+    if auto and missing_core:
+        cmd = [sys.executable, "-m", "pip", "install", "--quiet"]
+        if wheelhouse:
+            cmd += ["--no-index", "--find-links", wheelhouse]
+        cmd += [PIP_NAMES.get(pkg, pkg) for pkg in missing_core]
+        print("Attempting install of core packages:", " ".join(cmd))
+        try:
+            subprocess.run(cmd, check=True, timeout=600)
+        except subprocess.SubprocessError as exc:
+            print("Failed to install core packages", getattr(exc, "returncode", ""))
+            return 1
     req_file = Path(__file__).resolve().parent / "alpha_factory_v1" / "requirements.txt"
     if auto and req_file.exists():
         cmd = [sys.executable, "-m", "pip", "install", "--quiet"]
