@@ -216,7 +216,7 @@ template). The sample file now lists every variable with its default value.
 | `ARCHIVE_PATH` | Darwin‑Archive SQLite file | `archive.db` |
 | `ARCHIVE_DB` | API server results database | `archive.db` |
 | `SOLUTION_ARCHIVE_PATH` | Path to solution archive | `solutions.duckdb` |
-| `ALPHA_ASI_SEED` | Deterministic RNG seed for the world model demo | `42` |
+| `ALPHA_ASI_SEED` | Deterministic RNG seed for the world model demo (or `general.seed` in `config.yaml`) | `42` |
 | `ALPHA_ASI_MAX_STEPS` | Learner steps before auto-stop | `100000` |
 | `ALPHA_ASI_BUFFER_LIMIT` | Replay-buffer length | `50000` |
 | `ALPHA_ASI_TRAIN_BATCH` | SGD mini-batch size | `128` |

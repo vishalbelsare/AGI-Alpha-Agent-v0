@@ -74,6 +74,14 @@ np.random.seed(_SEED)
 torch.manual_seed(_SEED)
 
 
+def _set_seed(val: int) -> None:
+    global _SEED
+    _SEED = val
+    random.seed(val)
+    np.random.seed(val)
+    torch.manual_seed(val)
+
+
 # =============================================================================
 # 2.  Typed runtime configuration
 #     Loads defaults → overrides with config.yaml → overrides with env vars.
@@ -112,6 +120,7 @@ def _str_to_bool(v: str) -> bool:
 
 def _load_cfg() -> Config:
     cfg = Config()
+    seed_raw = os.getenv("ALPHA_ASI_SEED", "42")
     # yaml config file optional
     if yaml:
         for p in (Path.cwd() / "config.yaml", Path.cwd() / "alpha_asi.yaml"):
@@ -119,6 +128,8 @@ def _load_cfg() -> Config:
                 try:
                     data = yaml.safe_load(p.read_text())
                     if isinstance(data, dict):
+                        if isinstance(data.get("general"), dict) and "seed" in data["general"]:
+                            seed_raw = data["general"].get("seed", seed_raw)
                         for section in data.values():
                             if isinstance(section, dict):
                                 cfg.update(**section)
@@ -143,6 +154,7 @@ def _load_cfg() -> Config:
     # map 'auto' → 'cuda' if available else 'cpu'
     if isinstance(cfg.device, str) and cfg.device.lower() == "auto":
         cfg.device = "cuda" if torch.cuda.is_available() else "cpu"
+    _set_seed(int(seed_raw))
     return cfg
 
 
