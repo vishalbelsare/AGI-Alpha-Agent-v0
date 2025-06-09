@@ -10,12 +10,12 @@ flowchart TD
 
 ```mermaid
 flowchart TD
-    %% ───────  CORE VALUE‑CREATION SPINE  ───────
-    Insight["👁️‍🗨️ α‑AGI Insight"]
+    %% ───────────  CORE VALUE‑CREATION SPINE  ───────────
+    Insight["👁️ α‑AGI Insight"]
     Seeds["🌱 Nova‑Seeds"]
     MARK["🔮 MARK"]
-    Sovereign["👑 α‑AGI Sovereign"]
-    Market["🛒 α‑AGI Marketplace"]
+    Sovereign["👑 α‑AGI Sovereign"]
+    Market["🛒 α‑AGI Marketplace"]
     Exec["⚙️ Jobs & Agents"]
     Vault["💎 Infinite Value Reservoir"]
 
@@ -24,34 +24,32 @@ flowchart TD
     MARK   --> Sovereign
     Sovereign --> Market
     Market --> Exec
-    Exec   --> Vault   %% value harvested into treasury
+    Exec   --> Vault
 
-    %% ───────  FEEDBACK VORTICES  ───────
-    Vault  -.->  Market      %% capital reinvestment
-    Vault  -.->  Seeds       %% funds new exploration
+    %% ───────────  FEEDBACK VORTICES  ───────────
+    Vault  -. "reinvests capital" .-> Market
+    Vault  -. "funds exploration" .-> Seeds
 
     Architect["🛠️ Architect"]
-    Architect -.-> Insight   %% model tuning / telemetry
-    Architect -.-> Sovereign %% policy hot‑swap
+    Architect -. "model tuning" .-> Insight
+    Architect -. "policy hot‑swap" .-> Sovereign
 
-    %% ───────  GOVERNANCE & COMPUTE  ───────
+    %% ───────────  GOVERNANCE & COMPUTE  ───────────
     Council["⚖️ Validator Council"]
-    Council -. audit .- Vault
-    Council -. policy .- Sovereign
+    Council -. "audits" .-> Vault
+    Council -. "governs" .-> Sovereign
 
     Nodes["🖥️ Compute Nodes"]
-    Exec  -. compute ↔ burn .- Nodes
+    Exec  -. "compute spend" .-> Nodes
 
-    %% ───────  STYLING  ───────
-    classDef cosmic fill:#0f172a,color:#ffffff,stroke-width:0px
-    classDef aurora fill:#4f46e5,color:#ffffff,stroke-width:0px
-    classDef gold   fill:#fbbf24,color:#000,stroke-width:0px,font-weight:bold
-    class Insight,Seeds,MARK,Sovereign,Market,Exec cosmic
+    %% ───────────  STYLING  ───────────
+    classDef core   fill:#0f172a,color:#ffffff,stroke-width:0px
+    classDef accent fill:#4f46e5,color:#ffffff,stroke-width:0px
+    classDef gold   fill:#fbbf24,color:#000000,font-weight:bold,stroke-width:0px
+
+    class Insight,Seeds,MARK,Sovereign,Market,Exec core
     class Vault gold
-    class Architect,Council,Nodes aurora
-
-    linkStyle default stroke-width:2px
-    linkStyle 7,8,9,10 stroke-dasharray: 5 5   %% dashed feedback & aux flows
+    class Architect,Council,Nodes accent
 ```
 
 
