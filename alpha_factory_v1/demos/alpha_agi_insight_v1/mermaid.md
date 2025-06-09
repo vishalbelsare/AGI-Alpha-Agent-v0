@@ -9,6 +9,35 @@ flowchart TD
 ```
 
 ```mermaid
+flowchart LR
+    %% ===== TOP: STRATEGY =====
+    Insight["👁️✨ Insight"] -->|query| KG[(🔗💎 KG)]
+    KG -->|snapshot CID| Seeds["🌱 Nova‑Seeds"]
+    Bots["📡 Ingest Bots"] --> KG
+    Validator["🛡️ Validators"] -. audit .-> KG
+    Architect["⚙️ Architect"] <..> KG
+
+    %% ===== MID: ORCHESTRATION =====
+    Seeds --> Sovereign["👑 Sovereign"]
+    Sovereign -->|tasks| Market["🛒 Marketplace"]
+    Market --> Agents["🤖 Agents"]
+    Agents --> Jobs["⚡ Jobs"]
+    
+    %% ===== KG AS BLACKBOARD =====
+    Agents -. read/write .- KG
+    Jobs -. results .- KG
+    Market -. capability lookup .- KG
+    Sovereign -. state & telemetry .- KG
+
+    %% ===== Value Loop =====
+    Jobs --> Reservoir["💎 Value Reservoir"]
+    Reservoir --> Sovereign
+```
+
+
+
+
+```mermaid
 flowchart TD
     %% ── STRATEGIC LAYER ──────────────────────────────────────────────
     subgraph "🌌 Strategic Foresight Loop"
