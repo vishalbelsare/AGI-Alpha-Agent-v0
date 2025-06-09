@@ -1,8 +1,8 @@
 ```mermaid
 flowchart TD
     subgraph Strategic Layer
-        Insight["α‑AGI Insight 👁️"] -- KG queries / updates --> KG[(Knowledge Graph)]
-        KG -- snapshot hash & context --> Seeds["α‑AGI Nova‑Seeds"]
+        Insight["α‑AGI Insight 👁️✨"] -- KG queries / updates --> KG[(Knowledge Graph)]
+        KG -- snapshot hash & context --> Seeds["🌱💫 α-AGI Nova-Seeds"]
         Architect <-- telemetry & model weights --> KG
     end
     style KG fill:#1e293b,color:#fff,stroke:#4ade80
