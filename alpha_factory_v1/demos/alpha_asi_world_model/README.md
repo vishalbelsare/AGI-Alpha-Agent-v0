@@ -65,7 +65,7 @@ pip install -r requirements.txt        # torch, fastapi, uvicorn…
 # new CLI (after `pip install -e .` at repo root)
 alpha-asi-demo --demo        # same as `python -m alpha_asi_world_model_demo --demo`
 alpha-asi-demo --demo --no-llm   # force-disable the optional LLM planner
-open http://localhost:7860             # dashboard & Swagger
+python -m webbrowser http://localhost:7860  # dashboard & Swagger
 
 # ░ One-liner Docker
 python -m alpha_asi_world_model_demo --emit-docker
