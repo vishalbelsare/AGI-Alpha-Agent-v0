@@ -388,9 +388,7 @@ class POETGenerator:
     def __init__(self):
         self.pool: List[MiniWorld] = []
 
-    def _mc_eval(
-        self, env: MiniWorld, policy: Callable[[np.ndarray], int], episodes: int
-    ) -> float:
+    def _mc_eval(self, env: MiniWorld, policy: Callable[[np.ndarray], int], episodes: int) -> float:
         scores = []
         for _ in range(episodes):
             obs = env.reset()
@@ -411,10 +409,7 @@ class POETGenerator:
         for _ in range(attempts):
             size = random.randint(CFG.min_size, CFG.max_size)
             num_obs = int(size * size * CFG.obstacle_density)
-            obstacles = {
-                (random.randint(1, size - 2), random.randint(1, size - 2))
-                for _ in range(num_obs)
-            }
+            obstacles = {(random.randint(1, size - 2), random.randint(1, size - 2)) for _ in range(num_obs)}
             env = MiniWorld(size, list(obstacles), (size - 1, size - 1))
             score = self._mc_eval(env, policy, CFG.mc_episodes)
             if CFG.mc_min <= score <= CFG.mc_max:
@@ -504,11 +499,14 @@ class Orchestrator:
                 total_loss += loss
             if t % CFG.ui_tick == 0:
                 count = max(1, len(self.envs))
-                A2ABus.publish("ui", {
-                    "t": t,
-                    "r": total_r / count,
-                    "loss": total_loss / count,
-                })
+                A2ABus.publish(
+                    "ui",
+                    {
+                        "t": t,
+                        "r": total_r / count,
+                        "loss": total_loss / count,
+                    },
+                )
         LOG.info("Orchestrator loop exit at t=%d", t)
 
 
@@ -583,13 +581,27 @@ app = FastAPI(title="Alpha‑ASI World Model")
 app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"])
 
 orch: Optional[Orchestrator] = None
+loop_thread: Optional[threading.Thread] = None
 
 
 @app.on_event("startup")
 async def _startup():
-    global orch
+    global orch, loop_thread
     orch = Orchestrator()
-    threading.Thread(target=orch.loop, daemon=True).start()
+    loop_thread = threading.Thread(target=orch.loop, daemon=True)
+    loop_thread.start()
+
+
+@app.on_event("shutdown")
+async def _shutdown() -> None:
+    """Stop the orchestrator loop and wait for the thread to exit."""
+    global orch, loop_thread
+    if orch:
+        orch.stop = True
+    if loop_thread:
+        loop_thread.join(timeout=1)
+    orch = None
+    loop_thread = None
 
 
 @app.get("/agents")
