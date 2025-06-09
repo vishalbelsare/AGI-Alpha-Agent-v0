@@ -113,3 +113,15 @@ def test_shutdown_stops_loop(non_network: None) -> None:
         loop = mod.loop_thread
         assert loop is not None and loop.is_alive()
     assert loop is not None and not loop.is_alive()
+
+
+def test_invalid_seed_fallback(monkeypatch: pytest.MonkeyPatch, caplog: pytest.LogCaptureFixture) -> None:
+    """Invalid ALPHA_ASI_SEED should trigger fallback to default."""
+    module = "alpha_factory_v1.demos.alpha_asi_world_model.alpha_asi_world_model_demo"
+    mod = importlib.import_module(module)
+    monkeypatch.setenv("ALPHA_ASI_SEED", "bad")
+    caplog.set_level("WARNING")
+    cfg = mod._load_cfg()
+    assert mod._SEED == 42
+    assert any("Invalid seed" in rec.message for rec in caplog.records)
+    assert isinstance(cfg, mod.Config)
