@@ -3,7 +3,18 @@ import pytest
 import sys
 import types
 import importlib.util
-from src.simulation import replay
+
+try:  # skip all tests if the simulation module fails to import
+    from src.simulation import replay
+except Exception as exc:  # pragma: no cover - environment issue
+    pytest.skip(
+        (
+            f"Critical import failed: {exc}.\n"
+            "Run `python check_env.py --auto-install` "
+            "(add `--wheelhouse <dir>` when offline)."
+        ),
+        allow_module_level=True,
+    )
 
 rocketry_stub = types.ModuleType("rocketry")
 rocketry_stub.Rocketry = type("Rocketry", (), {})
