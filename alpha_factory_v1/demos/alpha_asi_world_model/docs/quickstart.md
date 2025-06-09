@@ -13,13 +13,15 @@ python -m alpha_asi_world_model_demo --demo
 ### Wheelhouse Setup
 
 Build wheels using the same Python version as your virtual environment and
-verify packages from that directory:
+verify packages from that directory before running the tests:
 
 ```bash
 mkdir -p /media/wheels
 pip wheel -r requirements.txt -w /media/wheels
 pip wheel -r ../../../requirements-dev.txt -w /media/wheels
-python check_env.py --auto-install --wheelhouse /media/wheels
+WHEELHOUSE=/media/wheels AUTO_INSTALL_MISSING=1 \
+  python check_env.py --auto-install --wheelhouse /media/wheels
+WHEELHOUSE=/media/wheels pytest -q
 ```
 
 Set `WHEELHOUSE=/media/wheels` when launching the demo offline:
