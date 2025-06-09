@@ -1,17 +1,17 @@
 ```mermaid
 flowchart TD
-    Insight["🎖️ Insight 👁️"]
-    Seeds["🌱💫 Nova-Seeds 🔐"]
-    Mark["🔮 MARK 🌠"]
-    Sovereign["👑 Sovereign 🔱"]
-    Biz["🏢 α-AGI Business"]
-    Market["🪐 Marketplace"]
-    Jobs["📜 Jobs"]
-    Agents["🤖 Agents"]
-    Reservoir["💎 Value Reservoir"]
-    Architect["⚙️ Architect"]
-    Council["🔐 Council"]
-    Nodes["🖥️ Nodes"]
+    Insight["🎖️ α‑AGI Insight 👁️✨"]
+    Seeds["🌱💫 α-AGI Nova-Seeds 🔐"]
+    Mark["α-AGI MARK 🔮🌌✨"]
+    Sovereign["🎖️ α‑AGI Sovereign 👑✨"]
+    Biz["🌸 α‑AGI Business 👁️✨"]
+    Market["🪐 Marketplace 👁️✨"]
+    Jobs["📜 α‑AGI Jobs 👁️✨"]
+    Agents["👾👾👾🌌👾👾👾 α‑AGI Agents 👁️✨"]
+    Reservoir["💎 α‑AGI Value Reservoir"]
+    Architect["🎖️ α‑AGI Architect 🔱✨"]
+    Council["🔐 α‑AGI Council 👁️✨"]
+    Nodes["🖥️ α‑AGI Nodes 👁️✨"]
 
     Insight --> Seeds --> Mark --> Sovereign
     Sovereign --> Biz --> Market
