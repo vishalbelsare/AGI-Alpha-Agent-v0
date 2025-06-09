@@ -7,7 +7,6 @@ import subprocess
 import sys
 from pathlib import Path
 import shutil
-import tempfile
 
 try:  # optional dependency
     import grpc_tools.protoc  # noqa: F401
