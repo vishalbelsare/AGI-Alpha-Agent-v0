@@ -87,19 +87,19 @@ def _exec_trusted(code: str, inp_json: str) -> Tuple[str, str]:
     with tempfile.NamedTemporaryFile("w+", suffix=".py", delete=False) as tmp:
         tmp.write(
             code
-            + textwrap.dedent("""
+            + textwrap.dedent(
+                """
+            """
+            )
 
-            if __name__ == '__main__':
-                import json, sys
-                _inp = json.loads({inp_json!r})
-                try:
-                    _ret = main(*_inp) if isinstance(_inp, (list, tuple)) else main(_inp)
-                except Exception as _e:
-                    _ret = repr(_e)
-                print(json.dumps(_ret, separators=(',', ':')))
-            """)
+            proc = subprocess.Popen([sys.executable, script], stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+
+    _PROMPT = textwrap.dedent(
+        """        Invent {n} deterministic Python *triplets* that challenge a
+    """
+    )
         )
-        tmp.flush()
+            solved = stderr == "" and stdout.strip() == t.out.strip()
         script = tmp.name
 
     def _target(q):
@@ -269,13 +269,20 @@ class AZREngine:
 
         self.log(f"[AZR] reward={reward:.3f} adv={adv:+.3f} -> T={self.temperature:.2f}")
 
-    # ------------------------- helpers -----------------------------
-    def _parse_triplets(self, txt: str) -> List[Triplet]:
-        out: List[Triplet] = []
-        for m in self._TRIPLE_RE.finditer(txt):
-            prog, inp, outp = m.group("prog", "inp", "out")
-            mode = "deduct" if "return" in prog else "induct"
-            out.append(Triplet(prog.strip(), inp.strip(), outp.strip(), mode))
+        examples = (
+            "\n\n".join(
+                f"```python\n{t.program}```\n```json\n{t.inp}```\n```json\n{t.out}```"
+                for t in self._rng.sample(self.buffer, k=min(3, len(self.buffer)))
+            or "(buffer empty)"
+        )
+
+        return self._PROMPT.format(
+            n=n,
+            max_loc=MAX_PROG_LOC,
+            buf=len(self.buffer),
+            examples=examples,
+        )
+
         return out
 
     def _validate(self, t: Triplet) -> bool:
