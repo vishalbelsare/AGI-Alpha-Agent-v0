@@ -92,6 +92,12 @@ class Config:
     log_json: bool = False
     host: str = "127.0.0.1"
     port: int = 7860
+    min_size: int = 5
+    max_size: int = 10
+    obstacle_density: float = 0.15
+    mc_min: float = 0.2
+    mc_max: float = 0.8
+    mc_episodes: int = 3
 
     def update(self, **kw):
         for k, v in kw.items():
@@ -111,7 +117,12 @@ def _load_cfg() -> Config:
         for p in (Path.cwd() / "config.yaml", Path.cwd() / "alpha_asi.yaml"):
             if p.exists():
                 try:
-                    cfg.update(**yaml.safe_load(p.read_text()))
+                    data = yaml.safe_load(p.read_text())
+                    if isinstance(data, dict):
+                        for section in data.values():
+                            if isinstance(section, dict):
+                                cfg.update(**section)
+                        cfg.update(**{k: v for k, v in data.items() if not isinstance(v, dict)})
                     LOG.info("Loaded config from %s", p)
                 except Exception as e:
                     LOG.warning("Failed to parse %s: %s", p, e)
@@ -377,10 +388,38 @@ class POETGenerator:
     def __init__(self):
         self.pool: List[MiniWorld] = []
 
+    def _mc_eval(
+        self, env: MiniWorld, policy: Callable[[np.ndarray], int], episodes: int
+    ) -> float:
+        scores = []
+        for _ in range(episodes):
+            obs = env.reset()
+            total = 0.0
+            for _ in range(env.size * env.size * 4):
+                a = policy(obs)
+                obs, r, done, _ = env.step(a)
+                total += r
+                if done:
+                    break
+            scores.append(total)
+        return float(np.mean(scores))
+
     def propose(self) -> MiniWorld:
-        size = random.randint(5, 9)
-        obstacles = {(random.randint(1, size - 2), random.randint(1, size - 2)) for _ in range(random.randint(0, size))}
-        env = MiniWorld(size, list(obstacles), (size - 1, size - 1))
+        policy = lambda _o: random.randint(0, 3)
+        attempts = 5
+        env = None
+        for _ in range(attempts):
+            size = random.randint(CFG.min_size, CFG.max_size)
+            num_obs = int(size * size * CFG.obstacle_density)
+            obstacles = {
+                (random.randint(1, size - 2), random.randint(1, size - 2))
+                for _ in range(num_obs)
+            }
+            env = MiniWorld(size, list(obstacles), (size - 1, size - 1))
+            score = self._mc_eval(env, policy, CFG.mc_episodes)
+            if CFG.mc_min <= score <= CFG.mc_max:
+                break
+        assert env is not None
         self.pool.append(env)
         return env
 
