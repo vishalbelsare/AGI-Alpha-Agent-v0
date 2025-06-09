@@ -8,13 +8,13 @@ drop‑in module for Alpha‑Factory v1.*
 
 Highlights
 ----------
-• Open‑ended **task invention & self‑evaluation** across deduction/abduction/induction.  
+• Open‑ended **task invention & self‑evaluation** across deduction/abduction/induction.
 • Lightweight **Task‑Relative PPO‑Lite** with multi‑objective reward: *difficulty,
-  novelty, execution‑cost, free‑energy proxy*.  
+  novelty, execution‑cost, free‑energy proxy*.
 • **Auditable by design** – every event streamed as structured JSON to the
-  lineage bus.  
+  lineage bus.
 • **Vendor‑agnostic** – works with any `core.fm.FMInterface` (OpenAI, Anthropic,
-  llama.cpp gguf, etc.) or fully offline stubs for CI.  
+  llama.cpp gguf, etc.) or fully offline stubs for CI.
 • Zero heavy deps; optional `numpy` and `radon` (for cyclomatic complexity).
 
 The engine exposes a canonical `curriculum_factory(fm)` used by
@@ -37,8 +37,7 @@ import sys
 import tempfile
 import textwrap
 import time
-from dataclasses import dataclass, field
-from pathlib import Path
+from dataclasses import dataclass
 from typing import Callable, List, Optional, Sequence, Tuple
 
 # ---------------------------------------------------------------------
@@ -83,34 +82,23 @@ def _apply_limits() -> None:
 
 
 def _exec_trusted(code: str, inp_json: str) -> Tuple[str, str]:
-    """Run *trusted* python snippet in isolated subprocess."""
+    """Run *trusted* Python code in an isolated subprocess."""
     with tempfile.NamedTemporaryFile("w+", suffix=".py", delete=False) as tmp:
-        tmp.write(
-            code
-            + textwrap.dedent(
-                """
-            """
-            )
-
-            proc = subprocess.Popen([sys.executable, script], stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
-
-    _PROMPT = textwrap.dedent(
-        """        Invent {n} deterministic Python *triplets* that challenge a
-    """
-    )
-        )
-            solved = stderr == "" and stdout.strip() == t.out.strip()
+        tmp.write(code)
         script = tmp.name
 
-    def _target(q):
+    def _target(q: _mp.Queue) -> None:
         _apply_limits()
         try:
-            proc = subprocess.Popen([sys.executable, script],
-                                    stdout=subprocess.PIPE,
-                                    stderr=subprocess.PIPE,
-                                    text=True)
+            proc = subprocess.Popen(
+                [sys.executable, script],
+                stdin=subprocess.PIPE,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                text=True,
+            )
             try:
-                out, err = proc.communicate(timeout=SOFT_T)
+                out, err = proc.communicate(inp_json, timeout=SOFT_T)
             except subprocess.TimeoutExpired:
                 proc.kill()
                 out, err = proc.communicate()
@@ -142,6 +130,7 @@ def _exec_trusted(code: str, inp_json: str) -> Tuple[str, str]:
 @dataclass(frozen=True)
 class Triplet:
     """Deterministic reasoning task."""
+
     program: str
     inp: str
     out: str
@@ -158,10 +147,6 @@ class TaskResult:
     complexity: float  # cyclomatic complexity proxy
 
 
-# ---------------------------------------------------------------------
-        r"""```python\s*#\s*program\s*\n(?P<prog>[\s\S]+?)```\s*```
-        json\s*#\s*input\s*\n(?P<inp>[\s\S]+?)```\s*```json\s*#\s*output\s*\n(?P<out>[\s\S]+?)```""",
-    )  # noqa: E501
 def _complexity(py_src: str) -> float:  # noqa: D401
     """Return cyclomatic complexity; fallback to AST node count."""
     if cc_visit:
@@ -187,7 +172,8 @@ class AZREngine:
         re.MULTILINE,
     )
 
-    _PROMPT = textwrap.dedent("""        Invent {n} deterministic Python *triplets* that challenge a
+    _PROMPT = textwrap.dedent(
+        """        Invent {n} deterministic Python *triplets* that challenge a
     GPT‑4‑level coder (~30‑60 % expected solve‑rate).
 
     Format **exactly**:
@@ -210,7 +196,8 @@ class AZREngine:
     Current buffer: {buf} tasks.
     Diversity reference (do not copy):
     {examples}
-    """)
+    """
+    )
 
     def __init__(self, fm, *, buffer_max: int = MAX_BUF, logger: Optional[Callable[[str], None]] = None):
         self.fm = fm
@@ -240,7 +227,7 @@ class AZREngine:
             start = time.time()
             stdout, stderr = _exec_trusted(t.program, t.inp)
             lat = time.time() - start
-            solved = (stderr == "" and stdout.strip() == t.out.strip())
+            solved = stderr == "" and stdout.strip() == t.out.strip()
             complexity = _complexity(t.program)
             results.append(TaskResult(t, solved, lat, stdout, stderr, complexity))
         return results
@@ -273,17 +260,16 @@ class AZREngine:
             "\n\n".join(
                 f"```python\n{t.program}```\n```json\n{t.inp}```\n```json\n{t.out}```"
                 for t in self._rng.sample(self.buffer, k=min(3, len(self.buffer)))
+            )
             or "(buffer empty)"
         )
 
         return self._PROMPT.format(
-            n=n,
+            n=n,  # noqa: F821
             max_loc=MAX_PROG_LOC,
             buf=len(self.buffer),
             examples=examples,
         )
-
-        return out
 
     def _validate(self, t: Triplet) -> bool:
         if (
@@ -302,14 +288,20 @@ class AZREngine:
             self.buffer.pop(0)
 
     def _build_prompt(self, n: int) -> str:
-        examples = "\n\n".join(
-            f"```python\n{t.program}```\n```json\n{t.inp}```\n```json\n{t.out}```"
-            for t in self._rng.sample(self.buffer, k=min(3, len(self.buffer)))
-        ) or "(buffer empty)"
-            return (
-                """```python # program\ndef main(x):\n    return x\n```\n"""
-                "```json # input\n3```\n```json # output\n3```"
+        examples = (
+            "\n\n".join(
+                f"```python\n{t.program}```\n```json\n{t.inp}```\n```json\n{t.out}```"
+                for t in self._rng.sample(self.buffer, k=min(3, len(self.buffer)))
             )
+            or "(buffer empty)"
+        )
+
+        return self._PROMPT.format(
+            n=n,
+            max_loc=MAX_PROG_LOC,
+            buf=len(self.buffer),
+            examples=examples,
+        )
 
     # ----------------------- serialisation --------------------------
     def to_json(self) -> str:
@@ -332,6 +324,7 @@ def curriculum_factory(fm, **kwargs) -> AZREngine:  # noqa: D401
 #                      CLI smoke‑test
 # ---------------------------------------------------------------------
 if __name__ == "__main__":
+
     class _StubFM:
         def chat(self, system: str, user: str, temperature: float = 0.4, max_tokens: int = 1024) -> str:
             # deterministically return identity task
