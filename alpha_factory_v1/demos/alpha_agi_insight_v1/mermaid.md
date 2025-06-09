@@ -35,6 +35,37 @@ flowchart TD
     class Architect amber
 ```
 
+```mermaid
+flowchart TD
+    %% ── STRATEGIC LAYER ──────────────────────────────────────────────
+    subgraph "🌌 Strategic Foresight Loop"
+        Insight["👁️✨ α‑AGI Insight"] -- "semantic / causal queries" --> KG[(🔗💎 Decision‑Relevant\nKnowledge Graph)]
+        DefIngest["📡 Ingestion Bots"] -- "real‑time edges\n+ provenance" --> KG
+        KG -- "snapshot CID 📜\n+ trust score" --> Seeds["🌱💫 α‑AGI Nova‑Seeds"]
+        Validator["🛡️ Validator Agents"] -- "path‑proof audits" --- KG
+        Architect["⚙️🧠 α‑AGI Architect"] <-. "telemetry ∆, model weights" .-> KG
+    end
+
+    %% ── VISUAL STYLES ────────────────────────────────────────────────
+    classDef dark   fill:#0f172a,color:#ffffff,stroke-width:0px;
+    classDef neon   fill:#1e293b,color:#ffffff,stroke:#4ade80,stroke-width:2px;
+    classDef seed   fill:#166534,color:#ffffff,stroke-width:0px;
+    classDef blue   fill:#0e7490,color:#ffffff,stroke-width:0px;
+    classDef violet fill:#7c3aed,color:#ffffff,stroke-width:0px;
+    classDef amber  fill:#b45309,color:#ffffff,stroke-width:0px;
+
+    class Insight dark
+    class KG neon
+    class Seeds seed
+    class DefIngest blue
+    class Validator violet
+    class Architect amber
+```
+
+
+
+
+
 
 ```mermaid
 %% α-AGI Insight • Parts 11-35 • High-Level System Graph
