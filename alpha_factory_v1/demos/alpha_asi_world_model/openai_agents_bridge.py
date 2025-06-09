@@ -15,6 +15,10 @@ from __future__ import annotations
 import af_requests as requests
 from openai_agents import Agent, AgentRuntime, Tool
 
+from alpha_factory_v1.backend.logger import get_logger
+
+_LOG = get_logger("alpha_factory.asi_inspector")
+
 try:
     # Optional ADK integration
     from alpha_factory_v1.backend.adk_bridge import auto_register, maybe_launch
@@ -30,7 +34,7 @@ async def list_agents() -> list[str]:
         resp.raise_for_status()
         return resp.json()
     except requests.RequestException:
-        print("Demo server not running")
+        _LOG.warning("Demo server not running")
         return []
 
 
@@ -43,7 +47,7 @@ async def new_env() -> dict:
         resp.raise_for_status()
         return resp.json()
     except requests.RequestException:
-        print("Demo server not running")
+        _LOG.warning("Demo server not running")
         return {}
 
 
@@ -70,12 +74,12 @@ def main() -> None:
     rt = AgentRuntime(api_key=None)
     agent = InspectorAgent()
     rt.register(agent)
-    print("Registered InspectorAgent with runtime")
+    _LOG.info("Registered InspectorAgent with runtime")
 
     if ADK_AVAILABLE:
         auto_register([agent])
         maybe_launch()
-        print("InspectorAgent exposed via ADK gateway")
+        _LOG.info("InspectorAgent exposed via ADK gateway")
 
     rt.run()
 
