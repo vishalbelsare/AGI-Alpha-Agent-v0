@@ -10,15 +10,21 @@ pip install -r requirements.txt
 python -m alpha_asi_world_model_demo --demo
 ```
 
-To run without internet access, build wheels on a connected machine and
-install from a local wheelhouse:
+### Wheelhouse Setup
+
+Build wheels using the same Python version as your virtual environment and
+verify packages from that directory:
 
 ```bash
 mkdir -p /media/wheels
 pip wheel -r requirements.txt -w /media/wheels
 pip wheel -r ../../../requirements-dev.txt -w /media/wheels
-WHEELHOUSE=/media/wheels AUTO_INSTALL_MISSING=1 \
-  python check_env.py --auto-install --wheelhouse /media/wheels
+python check_env.py --auto-install --wheelhouse /media/wheels
+```
+
+Set `WHEELHOUSE=/media/wheels` when launching the demo offline:
+
+```bash
 WHEELHOUSE=/media/wheels alpha-asi-demo --demo
 ```
 
