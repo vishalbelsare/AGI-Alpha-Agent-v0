@@ -3,6 +3,9 @@
 # Tweak anything, then run:  `python -m alpha_asi_world_model_demo --demo`
 # Lines beginning with “#” are comments / tooltips for non-technical users.
 # =============================================
+# Disclaimer: this demo is a conceptual research prototype. References to
+# “AGI” or “superintelligence” describe aspirational goals and do not
+# indicate real general intelligence. Use at your own risk.
 
 general:
   seed: 42        # 🔁 Set to any int for reproduce-able runs
