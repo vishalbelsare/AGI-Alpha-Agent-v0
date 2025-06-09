@@ -878,7 +878,7 @@ for instructions and example volume mounts.
 | `OPENAI_API_KEY` | _(empty)_ | API key for hosted models. Offline mode is used when empty. |
 | `NO_LLM` | `0` | Set to `1` to skip the LLM planner even when `OPENAI_API_KEY` is provided. |
 | `ALPHA_ASI_LLM_MODEL` | `gpt-4o-mini` | Planner model name used by the world model demo. |
-| `ALPHA_ASI_SEED` | `42` | Deterministic RNG seed for the demo. |
+| `ALPHA_ASI_SEED` | `42` | Deterministic RNG seed for the demo (can also be set via `general.seed` in `config.yaml`). |
 | `ALPHA_ASI_MAX_STEPS` | `100000` | Learner steps before auto-stop. |
 | `ALPHA_ASI_BUFFER_LIMIT` | `50000` | Replay-buffer length. |
 | `ALPHA_ASI_TRAIN_BATCH` | `128` | SGD mini-batch size. |

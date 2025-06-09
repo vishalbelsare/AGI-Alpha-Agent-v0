@@ -94,7 +94,7 @@ python openai_agents_bridge.py
 ALPHA_FACTORY_ENABLE_ADK=true python openai_agents_bridge.py
 ```
 
-> **Tip 💡** Set `ALPHA_ASI_SEED=<int>` to reproduce identical curriculum runs.
+> **Tip 💡** Set `ALPHA_ASI_SEED=<int>` or `general.seed` in `config.yaml` to reproduce identical curriculum runs.
 > **Tip 💡** Set `ALPHA_ASI_SILENT=1` to hide the startup banner.
 
 ### Offline setup

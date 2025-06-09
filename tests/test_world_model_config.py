@@ -56,3 +56,29 @@ def test_auto_device_from_config(monkeypatch, tmp_path, non_network: None) -> No
 
     expected = "cuda" if torch.cuda.is_available() else "cpu"
     assert mod.CFG.device == expected
+
+
+def test_config_seed_changes_env(monkeypatch, tmp_path, non_network: None) -> None:
+    """`general.seed` should control RNG seeding."""
+
+    module = "alpha_factory_v1.demos.alpha_asi_world_model.alpha_asi_world_model_demo"
+
+    def load_env(seed: int):
+        cfg = tmp_path / "config.yaml"
+        cfg.write_text(f"general:\n  seed: {seed}\n")
+        monkeypatch.chdir(tmp_path)
+        monkeypatch.setenv("NO_LLM", "1")
+        monkeypatch.setenv("ALPHA_ASI_SILENT", "1")
+        monkeypatch.setenv("ALPHA_ASI_MAX_STEPS", "1")
+        if module in sys.modules:
+            del sys.modules[module]
+        mod = importlib.import_module(module)
+        env = mod.Orchestrator().envs[0]
+        return env.size, sorted(env.obstacles)
+
+    first = load_env(123)
+    second_same = load_env(123)
+    different = load_env(456)
+
+    assert first == second_same
+    assert first != different
