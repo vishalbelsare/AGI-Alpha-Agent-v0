@@ -403,7 +403,9 @@ class POETGenerator:
         return float(np.mean(scores))
 
     def propose(self) -> MiniWorld:
-        policy = lambda _o: random.randint(0, 3)
+        def policy(_o: np.ndarray) -> int:
+            """Random baseline policy used for Monte Carlo evaluation."""
+            return random.randint(0, 3)
         attempts = 5
         env = None
         for _ in range(attempts):
