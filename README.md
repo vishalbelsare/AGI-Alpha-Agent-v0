@@ -148,6 +148,9 @@ python check_env.py --auto-install --wheelhouse /media/wheels
 This mirrors the instructions in
 [alpha_factory_v1/scripts/README.md](alpha_factory_v1/scripts/README.md#offline-setup).
 
+See the [Wheelhouse Setup](alpha_factory_v1/demos/alpha_asi_world_model/docs/quickstart.md#wheelhouse-setup)
+section of the α‑ASI world-model quickstart for a concise summary.
+
 3. **Download a `.gguf` weight** and set ``LLAMA_MODEL_PATH``:
    ```bash
    mkdir -p ~/.cache/llama
