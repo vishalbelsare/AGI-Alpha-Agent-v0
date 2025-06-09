@@ -5,8 +5,6 @@ from pathlib import Path
 import subprocess
 import contextlib
 
-from typing import Any
-
 import numpy as np  # ensure numpy optional dependency is present
 import pytest
 
@@ -18,6 +16,7 @@ def _reload_module(monkeypatch=None):
         del sys.modules[MODULE]
     if monkeypatch:
         import types
+
         fake = types.ModuleType("torch")
         fake.__path__ = []  # mark as package
         fake.manual_seed = lambda *_a, **_k: None
@@ -105,16 +104,14 @@ def _write_executable(path: Path, content: str) -> None:
 
 
 def _run_deploy_script(tmp_path: Path, env_vars: dict[str, str]) -> str:
-    script = Path(
-        "alpha_factory_v1/demos/alpha_asi_world_model/deploy_alpha_asi_world_model_demo.sh"
-    )
+    script = Path("alpha_factory_v1/demos/alpha_asi_world_model/deploy_alpha_asi_world_model_demo.sh")
     assert script.exists(), script
     bin_dir = tmp_path / "bin"
     bin_dir.mkdir()
     capture = tmp_path / "env.txt"
     _write_executable(
         bin_dir / "python",
-        "#!/usr/bin/env bash\nprintenv > \"$CAPTURE\"\n",
+        '#!/usr/bin/env bash\nprintenv > "$CAPTURE"\n',
     )
     env = os.environ.copy()
     env.update(env_vars)
