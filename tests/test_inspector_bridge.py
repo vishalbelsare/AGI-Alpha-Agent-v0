@@ -1,3 +1,4 @@
+# ruff: noqa: E402
 import asyncio
 import sys
 import types
@@ -9,10 +10,13 @@ _oai = types.ModuleType("openai_agents")
 _oai.Agent = object
 _oai.AgentRuntime = object
 
+
 def _tool(*_a, **_k):
     def _decorator(func):
         return func
+
     return _decorator
+
 
 _oai.Tool = _tool
 sys.modules["openai_agents"] = _oai
@@ -65,8 +69,10 @@ class TestInspectorAgent(unittest.TestCase):
 
     def test_runtime_list_agents(self):
         runtime = MagicMock()
-        with patch.object(bridge, "AgentRuntime", return_value=runtime) as rt_cls, \
-                patch.object(bridge.requests, "get", return_value=DummyResponse(["a"])) as get:
+        with (
+            patch.object(bridge, "AgentRuntime", return_value=runtime) as rt_cls,
+            patch.object(bridge.requests, "get", return_value=DummyResponse(["a"])) as get,
+        ):
             agent = bridge.InspectorAgent()
             rt = bridge.AgentRuntime(api_key=None)
             rt.register(agent)

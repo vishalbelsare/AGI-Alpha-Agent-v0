@@ -17,6 +17,8 @@ import subprocess
 from pathlib import Path
 from typing import Sequence
 
+from src.archive.db import ArchiveDB
+
 __all__ = [
     "generate_proof",
     "publish_proof",

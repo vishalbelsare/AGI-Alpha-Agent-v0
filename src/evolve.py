@@ -187,6 +187,7 @@ async def task_solve_phase(
     gamma: float = 0.0,
     phase_hook: Optional[Callable[[Phase], None]] = None,
     reviewer: ReviewerAgent | None = None,
+    cost_threshold: float | None = None,
 ) -> None:
     await _phase_loop(
         operator,
