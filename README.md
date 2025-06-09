@@ -741,6 +741,10 @@ python check_env.py --auto-install  # verify & auto-install deps (10 min timeout
 pip install -r requirements.lock
 # (If this fails with a network error, create a wheelhouse and rerun
 #  with --wheelhouse <path> or place the wheels under ./wheels)
+# Build a wheelhouse if the machine has no internet access:
+#   mkdir -p /media/wheels
+#   pip wheel -r requirements.txt -w /media/wheels
+#   pip wheel -r requirements-dev.txt -w /media/wheels
 ./quickstart.sh               # creates venv, installs deps, launches
 # Use `--wheelhouse /path/to/wheels` to install offline packages when
 # the host has no internet access. The setup script automatically
