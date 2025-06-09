@@ -389,7 +389,10 @@ class POETGenerator:
 # 6.  Learner wrapper
 # =============================================================================
 class Learner:
+    """MuZero learner that optimizes a policy for a single environment."""
+
     def __init__(self, env: MiniWorld):
+        """Initialize the learner for ``env``."""
         self.net = MuZeroTiny(env.size**2, 4).to(CFG.device)
         self.opt = optim.Adam(self.net.parameters(), CFG.lr)
         self.buffer: List[Tuple[np.ndarray, float]] = []
@@ -424,7 +427,10 @@ class Learner:
 # 7.  Orchestrator (multi‑env batch)
 # =============================================================================
 class Orchestrator:
+    """Coordinates multiple learners and manages environment lifecycles."""
+
     def __init__(self):
+        """Initialize the orchestrator and subscribe to control commands."""
         self.gen = POETGenerator()
         self.envs = [self.gen.propose() for _ in range(CFG.env_batch)]
         self.learners = [Learner(e) for e in self.envs]
@@ -462,7 +468,10 @@ class Orchestrator:
 # 8. Safety agent
 # =============================================================================
 class BasicSafetyAgent(Agent):
+    """Monitors learner metrics and issues stop commands on anomalies."""
+
     def __init__(self):
+        """Register the agent on the bus under the ``safety`` topic."""
         super().__init__("safety")
 
     def handle(self, msg):
@@ -483,10 +492,15 @@ if os.getenv("OPENAI_API_KEY") and not os.getenv("NO_LLM"):
         import concurrent.futures
 
         class LLMPlanner(Agent):
+            """Asks an external LLM for high level plans and forwards them."""
+
             def __init__(self):
+                """Register the planner under the ``llm_planner`` topic."""
                 super().__init__("llm_planner")
 
             def _safe_call(self, prompt: str, timeout: int = 15) -> str:
+                """Invoke the LLM with a timeout to avoid hanging."""
+
                 with concurrent.futures.ThreadPoolExecutor() as ex:
                     fut = ex.submit(
                         lambda: openai.ChatCompletion.create(
