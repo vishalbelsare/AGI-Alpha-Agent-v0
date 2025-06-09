@@ -154,7 +154,12 @@ def _load_cfg() -> Config:
     # map 'auto' → 'cuda' if available else 'cpu'
     if isinstance(cfg.device, str) and cfg.device.lower() == "auto":
         cfg.device = "cuda" if torch.cuda.is_available() else "cpu"
-    _set_seed(int(seed_raw))
+    try:
+        seed = int(seed_raw)
+    except Exception:  # pragma: no cover - rarely triggered
+        LOG.warning("Invalid seed %r; falling back to default", seed_raw)
+        seed = 42
+    _set_seed(seed)
     return cfg
 
 
