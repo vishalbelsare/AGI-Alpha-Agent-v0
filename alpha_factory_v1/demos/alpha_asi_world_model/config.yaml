@@ -19,6 +19,9 @@ env:
   min_size: 5           # 🌍 Smallest grid size
   max_size: 10          # 🌍 Largest grid size
   obstacle_density: 0.15  # 🚧 % of cells turned into obstacles
+  mc_min: 0.2           # 🔎 Reject envs solved < mc_min return
+  mc_max: 0.8           # 🔎 Reject envs scoring > mc_max return
+  mc_episodes: 3        # 🎲 Episodes to estimate average return
 
 agents:                 # 🤖 Agent modules to auto-load
   required:
