@@ -119,6 +119,12 @@ Set `NO_LLM=1` to disable the planning agent when no API key is available. The
 automatically.
 Define `ALPHA_ASI_LLM_MODEL=gpt-4o-mini` to change the planner's model.
 
+### Device selection
+`config.yaml` exposes a `device` field controlling which accelerator PyTorch
+uses. Accepted values are `cpu`, `cuda` and `auto`. With `auto` (the default),
+the demo runs on GPU when `torch.cuda.is_available()` returns `True` and falls
+back to CPU otherwise.
+
 ---
 
 ## 3  High-level architecture 🗺️
