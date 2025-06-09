@@ -1,8 +1,10 @@
 <!--
   🎖️ α-AGI Insight 👁️✨ — Beyond Human Foresight
   Production-grade Demo  ·  Version 1.0  (2025-05-24)
-  © 2025 Montreal.AI — All rights reserved
+© 2025 Montreal.AI — All rights reserved
 -->
+
+This repository is a conceptual research prototype. References to "AGI" and "superintelligence" describe aspirational goals and do not indicate the presence of a real general intelligence. Use at your own risk.
 
 <p align="center">
   <b>Forecast AGI-driven economic phase-transitions<br>
