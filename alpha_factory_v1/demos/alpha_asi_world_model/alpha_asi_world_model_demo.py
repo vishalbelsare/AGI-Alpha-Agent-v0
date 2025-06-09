@@ -171,11 +171,12 @@ class A2ABus:
     @classmethod
     def publish(cls, topic: str, msg: dict):
         with cls._lock:
-            for cb in list(cls._subs.get(topic, [])):
-                try:
-                    cb(msg)
-                except Exception as exc:  # pragma: no cover
-                    LOG.error("[A2A] handler error on %s: %s", topic, exc)
+            callbacks = list(cls._subs.get(topic, []))
+        for cb in callbacks:
+            try:
+                cb(msg)
+            except Exception as exc:  # pragma: no cover
+                LOG.error("[A2A] handler error on %s: %s", topic, exc)
 
     @classmethod
     def subscribe(cls, topic: str, cb: Callable[[dict], None]):
