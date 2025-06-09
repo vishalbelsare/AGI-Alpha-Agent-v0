@@ -453,14 +453,23 @@ class Orchestrator:
         for t in range(CFG.max_steps):
             if self.stop:
                 break
+            total_r = 0.0
+            total_loss = 0.0
             for i, (env, learner) in enumerate(zip(self.envs, self.learners)):
                 a = learner.act(obs[i])
                 nxt, r, done, _ = env.step(a)
                 learner.remember(obs[i], r)
                 loss = learner.train_once()
                 obs[i] = env.reset() if done else nxt
-                if t % CFG.ui_tick == 0 and i == 0:
-                    A2ABus.publish("ui", {"t": t, "r": r, "loss": loss})
+                total_r += r
+                total_loss += loss
+            if t % CFG.ui_tick == 0:
+                count = max(1, len(self.envs))
+                A2ABus.publish("ui", {
+                    "t": t,
+                    "r": total_r / count,
+                    "loss": total_loss / count,
+                })
         LOG.info("Orchestrator loop exit at t=%d", t)
 
 
