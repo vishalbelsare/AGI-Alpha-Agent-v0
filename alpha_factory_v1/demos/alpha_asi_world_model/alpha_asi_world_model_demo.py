@@ -140,6 +140,9 @@ def _load_cfg() -> Config:
                 except Exception:
                     pass
             setattr(cfg, k, val)
+    # map 'auto' → 'cuda' if available else 'cpu'
+    if isinstance(cfg.device, str) and cfg.device.lower() == "auto":
+        cfg.device = "cuda" if torch.cuda.is_available() else "cpu"
     return cfg
 
 
@@ -406,6 +409,7 @@ class POETGenerator:
         def policy(_o: np.ndarray) -> int:
             """Random baseline policy used for Monte Carlo evaluation."""
             return random.randint(0, 3)
+
         attempts = 5
         env = None
         for _ in range(attempts):
