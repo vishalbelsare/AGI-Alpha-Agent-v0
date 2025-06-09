@@ -1,5 +1,35 @@
 ```mermaid
 flowchart TD
+    Insight["🎖️ Insight 👁️"]
+    Seeds["🌱💫 Nova-Seeds 🔐"]
+    Mark["🔮 MARK 🌠"]
+    Sovereign["👑 Sovereign 🔱"]
+    Biz["🏢 α-AGI Business"]
+    Market["🪐 Marketplace"]
+    Jobs["📜 Jobs"]
+    Agents["🤖 Agents"]
+    Reservoir["💎 Value Reservoir"]
+    Architect["⚙️ Architect"]
+    Council["🔐 Council"]
+    Nodes["🖥️ Nodes"]
+
+    Insight --> Seeds --> Mark --> Sovereign
+    Sovereign --> Biz --> Market
+    Market -->|spawn| Jobs --> Agents
+    Agents -- success --> Reservoir
+    Jobs -- ΔΣUSD --> Reservoir
+    Reservoir -. reinvest .-> Seeds
+    Reservoir -. fund .-> Market
+    Agents <---> Nodes
+    Architect <--> Sovereign
+    Architect <--> Insight
+    Council --> Sovereign
+```
+
+
+
+```mermaid
+flowchart TD
     subgraph Strategic Layer
         Insight["α‑AGI Insight 👁️✨"] -- KG queries / updates --> KG[(Knowledge Graph)]
         KG -- snapshot hash & context --> Seeds["🌱💫 α-AGI Nova-Seeds"]
