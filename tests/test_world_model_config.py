@@ -82,3 +82,29 @@ def test_config_seed_changes_env(monkeypatch, tmp_path, non_network: None) -> No
 
     assert first == second_same
     assert first != different
+
+
+def test_extended_cfg_fields(monkeypatch, tmp_path, non_network: None) -> None:
+    """Values from config.yaml should populate the Config dataclass."""
+
+    cfg = tmp_path / "config.yaml"
+    cfg.write_text(
+        "training:\n"
+        "  env_batch: 3\n"
+        "  hidden: 64\n"
+        "  mcts_simulations: 8\n"
+    )
+
+    monkeypatch.chdir(tmp_path)
+    monkeypatch.setenv("NO_LLM", "1")
+    monkeypatch.setenv("ALPHA_ASI_SILENT", "1")
+    monkeypatch.setenv("ALPHA_ASI_MAX_STEPS", "1")
+
+    module = "alpha_factory_v1.demos.alpha_asi_world_model.alpha_asi_world_model_demo"
+    if module in sys.modules:
+        del sys.modules[module]
+    mod = importlib.import_module(module)
+
+    assert mod.CFG.env_batch == 3
+    assert mod.CFG.hidden == 64
+    assert mod.CFG.mcts_simulations == 8

@@ -10,9 +10,12 @@ general:
 
 training:
   buffer_limit: 50000   # 🧠 Replay-buffer size
+  env_batch: 2         # 🌐 Parallel environments
   train_batch: 128
   lr: 0.001
   max_steps: 100000     # ⏱️ Orchestrator loop iterations
+  hidden: 256          # 🤖 Latent state size
+  mcts_simulations: 16 # 🕵️ MCTS rollouts per action
   ui_tick: 100          # 📈 How often to broadcast stats (in steps)
 
 env:
