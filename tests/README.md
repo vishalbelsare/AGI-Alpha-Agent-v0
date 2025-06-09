@@ -83,3 +83,15 @@ pytest -q
 OPENAI_API_KEY=dummy pytest tests/test_meta_agentic_tree_search_demo.py::test_bridge_online_mode
 ```
 - The meta-agentic tree search tests also rely on `numpy` and `pyyaml`. These packages are included in `requirements-dev.txt`, so running `pip install -r requirements-dev.txt` will install them.
+
+## Troubleshooting
+
+ImportErrors during test collection usually mean optional packages are missing.
+Run:
+
+```bash
+python check_env.py --auto-install
+```
+
+Use `--wheelhouse <dir>` or set `WHEELHOUSE` when offline so packages
+install from your local wheel cache.
