@@ -4,9 +4,7 @@
 from __future__ import annotations
 
 import importlib
-import os
 import sys
-from typing import Any
 
 
 def test_bool_env_override(monkeypatch, non_network: None) -> None:
