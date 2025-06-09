@@ -5,6 +5,34 @@
 
 **Official and *pioneering* definition – Meta-Agentic (adj.)**: Describes an agent whose **primary role** is to **create, select, evaluate, or re‑configure other agents** and the rules governing their interactions, thereby exercising **second‑order agency** over a population of first‑order agents. *The term was **pioneered by [Vincent Boucher](https://www.linkedin.com/in/montrealai/), President of MONTREAL.AI**.*
 
+```mermaid
+flowchart TD
+    Insight["🎖️ α‑AGI Insight 👁️✨"]
+    Seeds["🌱💫 α-AGI Nova-Seeds 🔐"]
+    Mark["α-AGI MARK 🔮🌌✨"]
+    Sovereign["🎖️ α‑AGI Sovereign 👑✨"]
+    Biz["🌸 α‑AGI Business 👁️✨"]
+    Market["🪐 Marketplace 👁️✨"]
+    Jobs["📜 α‑AGI Jobs 👁️✨"]
+    Agents["👾👾👾🌌👾👾👾 α‑AGI Agents 👁️✨"]
+    Reservoir["💎 α‑AGI Value Reservoir"]
+    Architect["🎖️ α‑AGI Architect 🔱✨"]
+    Council["🔐 α‑AGI Council 👁️✨"]
+    Nodes["🖥️ α‑AGI Nodes 👁️✨"]
+
+    Insight --> Seeds --> Mark --> Sovereign
+    Sovereign --> Biz --> Market
+    Market -->|spawn| Jobs --> Agents
+    Agents -- success --> Reservoir
+    Jobs -- ΔΣUSD --> Reservoir
+    Reservoir -. reinvest .-> Seeds
+    Reservoir -. fund .-> Market
+    Agents <---> Nodes
+    Architect <--> Sovereign
+    Architect <--> Insight
+    Council --> Sovereign
+```
+
 ---
 
 ## Disclaimer
