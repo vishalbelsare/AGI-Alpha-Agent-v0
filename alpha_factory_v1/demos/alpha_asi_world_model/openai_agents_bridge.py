@@ -6,11 +6,14 @@ This utility registers a tiny inspector agent with the local orchestrator
 and prints the list of active agents. When the optional Google ADK
 dependency is installed and ``ALPHA_FACTORY_ENABLE_ADK=true`` is set,
 the agent is also exposed via an ADK gateway. It works offline when no API
-key is provided. Run after the demo server is up:
+key is provided. Set ``OPENAI_API_KEY`` to connect to the OpenAI Agents
+platform. Run after the demo server is up:
 
     python openai_agents_bridge.py
 """
 from __future__ import annotations
+
+import os
 
 import af_requests as requests
 from openai_agents import Agent, AgentRuntime, Tool
@@ -22,6 +25,7 @@ _LOG = get_logger("alpha_factory.asi_inspector")
 try:
     # Optional ADK integration
     from alpha_factory_v1.backend.adk_bridge import auto_register, maybe_launch
+
     ADK_AVAILABLE = True
 except Exception:  # pragma: no cover - adk not installed
     ADK_AVAILABLE = False
@@ -41,9 +45,7 @@ async def list_agents() -> list[str]:
 @Tool(name="new_env", description="Spawn a new demo environment")
 async def new_env() -> dict:
     try:
-        resp = requests.post(
-            "http://localhost:7860/command", json={"cmd": "new_env"}, timeout=5
-        )
+        resp = requests.post("http://localhost:7860/command", json={"cmd": "new_env"}, timeout=5)
         resp.raise_for_status()
         return resp.json()
     except requests.RequestException:
@@ -71,7 +73,8 @@ class InspectorAgent(Agent):
 
 
 def main() -> None:
-    rt = AgentRuntime(api_key=None)
+    api_key = os.getenv("OPENAI_API_KEY")
+    rt = AgentRuntime(api_key=api_key)
     agent = InspectorAgent()
     rt.register(agent)
     _LOG.info("Registered InspectorAgent with runtime")

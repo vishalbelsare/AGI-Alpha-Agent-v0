@@ -89,10 +89,12 @@ Non‑technical users can run it step by step:
 # ░ Shell helper
 ./deploy_alpha_asi_world_model_demo.sh
 # ░ OpenAI Agents bridge
+# uses ``OPENAI_API_KEY`` if set
 python openai_agents_bridge.py
 # ░ Google ADK gateway
 ALPHA_FACTORY_ENABLE_ADK=true python openai_agents_bridge.py
 ```
+Set `OPENAI_API_KEY` to connect the bridge to the OpenAI Agents platform.
 
 > **Tip 💡** Set `ALPHA_ASI_SEED=<int>` or `general.seed` in `config.yaml` to reproduce identical curriculum runs.
 > **Tip 💡** Set `ALPHA_ASI_SILENT=1` to hide the startup banner.
