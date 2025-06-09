@@ -9,29 +9,49 @@ flowchart TD
 ```
 
 ```mermaid
-flowchart LR
-    %% ===== TOP: STRATEGY =====
-    Insight["👁️✨ Insight"] -->|query| KG[(🔗💎 KG)]
-    KG -->|snapshot CID| Seeds["🌱 Nova‑Seeds"]
-    Bots["📡 Ingest Bots"] --> KG
-    Validator["🛡️ Validators"] -. audit .-> KG
-    Architect["⚙️ Architect"] <..> KG
+flowchart TD
+    %% ───────  CORE VALUE‑CREATION SPINE  ───────
+    Insight["👁️‍🗨️ α‑AGI Insight"]
+    Seeds["🌱 Nova‑Seeds"]
+    MARK["🔮 MARK"]
+    Sovereign["👑 α‑AGI Sovereign"]
+    Market["🛒 α‑AGI Marketplace"]
+    Exec["⚙️ Jobs & Agents"]
+    Vault["💎 Infinite Value Reservoir"]
 
-    %% ===== MID: ORCHESTRATION =====
-    Seeds --> Sovereign["👑 Sovereign"]
-    Sovereign -->|tasks| Market["🛒 Marketplace"]
-    Market --> Agents["🤖 Agents"]
-    Agents --> Jobs["⚡ Jobs"]
-    
-    %% ===== KG AS BLACKBOARD =====
-    Agents -. read/write .- KG
-    Jobs -. results .- KG
-    Market -. capability lookup .- KG
-    Sovereign -. state & telemetry .- KG
+    Insight --> Seeds
+    Seeds  --> MARK
+    MARK   --> Sovereign
+    Sovereign --> Market
+    Market --> Exec
+    Exec   --> Vault   %% value harvested into treasury
 
-    %% ===== Value Loop =====
-    Jobs --> Reservoir["💎 Value Reservoir"]
-    Reservoir --> Sovereign
+    %% ───────  FEEDBACK VORTICES  ───────
+    Vault  -.->  Market      %% capital reinvestment
+    Vault  -.->  Seeds       %% funds new exploration
+
+    Architect["🛠️ Architect"]
+    Architect -.-> Insight   %% model tuning / telemetry
+    Architect -.-> Sovereign %% policy hot‑swap
+
+    %% ───────  GOVERNANCE & COMPUTE  ───────
+    Council["⚖️ Validator Council"]
+    Council -. audit .- Vault
+    Council -. policy .- Sovereign
+
+    Nodes["🖥️ Compute Nodes"]
+    Exec  -. compute ↔ burn .- Nodes
+
+    %% ───────  STYLING  ───────
+    classDef cosmic fill:#0f172a,color:#ffffff,stroke-width:0px
+    classDef aurora fill:#4f46e5,color:#ffffff,stroke-width:0px
+    classDef gold   fill:#fbbf24,color:#000,stroke-width:0px,font-weight:bold
+    class Insight,Seeds,MARK,Sovereign,Market,Exec cosmic
+    class Vault gold
+    class Architect,Council,Nodes aurora
+
+    linkStyle default stroke-width:2px
+    linkStyle 7,8,9,10 stroke-dasharray: 5 5   %% dashed feedback & aux flows
 ```
 
 
