@@ -26,6 +26,18 @@ flowchart TD
     Council --> Sovereign
 ```
 
+```mermaid
+flowchart LR
+    JobSpec{{α-Job}}
+    Agent(α-AGI Agent)
+    Node[(Compute Node)]
+    JobSpec -- escrow \$AGIALPHA --> Agent
+    Agent -- code & data --> Node
+    Node -- result + attest --> Agent
+    Agent -- proof --> JobSpec
+```
+
+
 
 
 ```mermaid
