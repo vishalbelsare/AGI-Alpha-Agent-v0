@@ -225,6 +225,8 @@ template). The sample file now lists every variable with its default value.
 | `ALPHA_ASI_PORT` | FastAPI port for the demo | `7860` |
 | `ALPHA_ASI_LLM_MODEL` | Planner model used by the world model demo | `gpt-4o-mini` |
 | `PROOF_THRESHOLD` | Minimum score to generate SNARK proof | `0.5` |
+| `CROSS_ALPHA_LEDGER` | Output ledger file for the cross‑industry alpha demo | `cross_alpha_log.json` |
+| `CROSS_ALPHA_MODEL` | OpenAI model for the discovery tool when `OPENAI_API_KEY` is set | `gpt-4o-mini` |
 
 ## Coding Style
 - Use Python 3.11 or 3.12 (**Python ≥3.11 and <3.13**) and include type hints for public APIs.
