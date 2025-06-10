@@ -226,7 +226,7 @@ done
 ############## 9. OPTIONAL HEAVY-LOAD BENCH ###################################
 if [[ -z ${SKIP_BENCH:-} ]]; then
   echo "🏋 Running load test"
-  k6 run -e AGENTS_ENABLED="${AGENTS[*]}" --duration 60s --vus 50 "$LOADTEST_DIR/k6.js" || true
+  k6 run -e AGENTS_ENABLED="${AGENTS[*]}" --duration 60s --vus 50 "$LOADTEST_DIR/k6.js"
 fi
 
 ############# 10. AUTO-COMMIT GENERATED ASSETS ################################

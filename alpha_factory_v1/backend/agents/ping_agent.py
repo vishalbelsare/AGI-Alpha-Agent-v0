@@ -84,6 +84,7 @@ except ModuleNotFoundError:
 
 try:
     from opentelemetry import trace  # type: ignore
+
     _OTEL.tracer = trace.get_tracer(__name__)
 except ModuleNotFoundError:
     pass  # Tracing disabled – agent still functions.
@@ -93,6 +94,7 @@ except ModuleNotFoundError:
 # ──────────────────────────────────────────────────────────────────────────────
 _DEFAULT_INTERVAL: int = 60
 _MIN_INTERVAL: int = 5
+
 
 def _env_seconds(name: str, default: int) -> int:
     try:
@@ -122,8 +124,8 @@ class PingAgent(AgentBase):
     NAME = "ping"
     VERSION = "2.0.0"  # ↑ bump any time behaviour changes.
     CAPABILITIES = ["diagnostics", "observability"]
-    COMPLIANCE_TAGS: list[str] = []      # ← Security/compliance scopes (GDPR, etc.)
-    SAFE_TO_REMOVE: bool = True          # ← DevOps hint (“may be disabled”)
+    COMPLIANCE_TAGS: list[str] = []  # ← Security/compliance scopes (GDPR, etc.)
+    SAFE_TO_REMOVE: bool = True  # ← DevOps hint (“may be disabled”)
 
     CYCLE_SECONDS: int = _env_seconds("AF_PING_INTERVAL", _DEFAULT_INTERVAL)
 
@@ -188,11 +190,7 @@ class PingAgent(AgentBase):
         """
         start_ts = datetime.now(tz=timezone.utc)
 
-        span_cm = (
-            _OTEL.tracer.start_as_current_span("ping-agent.step")
-            if _OTEL.tracer
-            else nullcontext()
-        )
+        span_cm = _OTEL.tracer.start_as_current_span("ping-agent.step") if _OTEL.tracer else nullcontext()
         # ``start_as_current_span`` returns a synchronous context manager so we
         # use a regular ``with`` block for compatibility.
         with span_cm:  # type: ignore[var-annotated]
@@ -225,6 +223,10 @@ class PingAgent(AgentBase):
     async def teardown(self) -> None:
         """Graceful shutdown hook."""
         _log.info("PingAgent shutting down.", extra={"agent": self.NAME})
+
+    async def skill_test(self, payload: dict) -> dict:
+        """Respond to skill test pings."""
+        return {"pong": True}
 
 
 # ═════════════════════════════════════════════════════════════════════════════
@@ -268,6 +270,7 @@ try:
     from contextlib import nullcontext  # pylint: disable=ungrouped-imports
 except ImportError:  # pragma: no cover
     from contextlib import contextmanager
+
     @contextmanager
     def nullcontext():  # type: ignore[override]
         yield
