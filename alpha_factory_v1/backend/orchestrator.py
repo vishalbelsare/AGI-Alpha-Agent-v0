@@ -27,7 +27,7 @@ Run examples
         python -m alpha_factory_v1.backend.orchestrator --dev
 
     # container
-    docker compose -f demos/docker-compose.cross_industry.yml up
+    ./alpha_factory_v1/demos/cross_industry_alpha_factory/deploy_alpha_factory_cross_industry_demo.sh
 """
 
 from __future__ import annotations
