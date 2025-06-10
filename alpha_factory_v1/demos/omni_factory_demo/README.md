@@ -183,6 +183,7 @@ cd AGI-Alpha-Agent-v0
 # 2‒ Launch via Docker (recommended)
 cd alpha_factory_v1/demos/omni_factory_demo
 cp .env.sample .env  # optional – edit to customise
+chmod 600 .env
 docker compose up -d  # builds image on first run
 
 # 3‒ Open the dashboard

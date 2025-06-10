@@ -345,6 +345,7 @@ cd AGI-Alpha-Agent-v0/alpha_factory_v1
 export ALPHA_KAFKA_BROKER=localhost:9092
 echo "PORT=8000" > .env
 echo "LOG_LEVEL=info" >> .env
+chmod 600 alpha_factory_v1/.env
 ./quickstart.sh  # automatically loads .env
 open http://localhost:8000/docs
 ```

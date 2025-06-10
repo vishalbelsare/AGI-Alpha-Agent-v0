@@ -139,7 +139,7 @@ Running `npm run build` or `python manual_build.py` copies this file to
 ## Manual Build
 Use `manual_build.py` for air‑gapped environments:
 
-1. `cp .env.sample .env` and edit the values if you haven't already.
+1. `cp .env.sample .env` and edit the values if you haven't already, then `chmod 600 .env`.
 2. `npm run fetch-assets` to fetch Pyodide and the GPT‑2 model.
    The build scripts verify these files no longer contain the word `"placeholder"`.
    Failing to replace placeholders will break offline mode.
