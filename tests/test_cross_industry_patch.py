@@ -24,7 +24,7 @@ def _run_script(tmp_path: Path) -> dict:
         """#!/usr/bin/env bash
 if [ "$1" = "info" ] || [ "$1" = "compose" ]; then exit 0; fi
 if [ "$1" = "run" ]; then
-  while [ "$1" != "ghcr.io/mikefarah/yq" ] && [ $# -gt 0 ]; do shift; done
+  while [ "$1" != "ghcr.io/mikefarah/yq:4.44.1" ] && [ $# -gt 0 ]; do shift; done
   shift
   yq "$@"
   exit $?
