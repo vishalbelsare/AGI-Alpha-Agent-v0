@@ -117,7 +117,7 @@ When Google ADK is installed the bridge auto-registers with the ADK gateway as w
 | Ray dashboard | `http://localhost:8265` |
 | REST orchestrator | `http://localhost:8000` (`GET /healthz`) |
 
-All ports are configurable: set environment variables like `DASH_PORT` or `PROM_PORT` before running the installer.
+All ports are configurable: set environment variables like `DASH_PORT` or `PROM_PORT` before running the installer. The installer maps `DASH_PORT` (default `9000`) to Grafana's internal port `3000`. The Colab notebook tunnels this external port via `ngrok.connect(DASH_PORT)` so you can view the dashboard remotely.
 
 ---
 
