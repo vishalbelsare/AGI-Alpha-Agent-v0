@@ -51,6 +51,8 @@ git clone https://github.com/MontrealAI/AGI-Alpha-Agent-v0.git
 cd AGI-Alpha-Agent-v0/alpha_factory_v1/demos/cross_industry_alpha_factory
 ./deploy_alpha_factory_cross_industry_demo.sh
 ```
+The installer writes a random `API_TOKEN` to `.env`; include it in the
+`Authorization` header when calling the REST API.
 
 #### Colab Quick Start
 Click the badge above or run:

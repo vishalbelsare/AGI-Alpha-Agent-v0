@@ -90,6 +90,9 @@ PROMPT_PUB=$(cat "$KEY_DIR/agent_key.pub")
 [[ -f $SBOM_DIR/cosign.key ]] || cosign generate-key-pair --key "file://$SBOM_DIR/cosign" &>/dev/null
 COSIGN_PUB=$(cat "$SBOM_DIR/cosign.pub")
 
+# random REST token
+TOKEN=$(openssl rand -hex 16)
+
 # .env
 cat > alpha_factory_v1/.env <<EOF
 ALPHA_FACTORY_MODE=cross_industry
@@ -101,6 +104,7 @@ RAY_PORT=$RAY_PORT
 PROJECT_SHA=$COMMIT_SHA
 PROMPT_SIGN_PUBKEY=$PROMPT_PUB
 COSIGN_PUBKEY=$COSIGN_PUB
+API_TOKEN=$TOKEN
 EOF
 
 # guard-rails (MCP)
