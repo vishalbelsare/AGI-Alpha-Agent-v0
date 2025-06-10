@@ -69,11 +69,27 @@ python cross_alpha_discovery_stub.py --list
 Use `-n 3 --seed 42` to log three deterministic picks to
 `cross_alpha_log.json`. If `OPENAI_API_KEY` is set, the tool queries an LLM for fresh ideas. The model may be overridden with `--model` (default `gpt-4o-mini`).
 
+
 Environment variables controlling `cross_alpha_discovery_stub`:
 - `CROSS_ALPHA_LEDGER` – output ledger file. Defaults to `cross_alpha_log.json`. Use `--ledger` to override.
 - `CROSS_ALPHA_MODEL` – OpenAI model used when an API key is available. Defaults to `gpt-4o-mini`. Use `--model` to override.
 - `OPENAI_API_KEY` – enables live suggestions. Without it the tool falls back to the offline samples.
 - Install `filelock` if multiple runs write to the same ledger to ensure atomic updates.
+
+#### Optional libraries
+Certain extras unlock additional capabilities:
+
+- `openai` – live idea generation from a remote LLM when `OPENAI_API_KEY` is set.
+- `openai_agents` – exposes the Agents SDK bridge via `openai_agents_bridge.py`.
+- `filelock` – enables concurrent ledger writes.
+
+Install them all at once with:
+
+```bash
+pip install -r requirements-demo.txt
+```
+
+or install the packages individually.
 
 ### 🤖 OpenAI Agents bridge
 Expose the discovery helper via the OpenAI Agents SDK:
