@@ -97,9 +97,20 @@ def discover_alpha(
     if not picks:
         picks = [random.choice(SAMPLE_ALPHA) for _ in range(max(1, num))]
 
-    (_ledger_path(ledger) if ledger else DEFAULT_LEDGER).write_text(
-        json.dumps(picks[0] if num == 1 else picks, indent=2)
-    )
+    path = _ledger_path(ledger) if ledger else DEFAULT_LEDGER
+    existing: List[Dict[str, str]] = []
+    try:
+        if path.exists():
+            data = json.loads(path.read_text())
+            if isinstance(data, dict):
+                existing = [data]
+            elif isinstance(data, list):
+                existing = data
+    except (json.JSONDecodeError, OSError):
+        existing = []
+
+    existing.extend(picks if num != 1 else [picks[0]])
+    path.write_text(json.dumps(existing, indent=2))
     return picks
 
 

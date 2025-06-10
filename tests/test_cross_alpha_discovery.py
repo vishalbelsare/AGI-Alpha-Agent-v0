@@ -41,5 +41,31 @@ class TestCrossAlphaDiscoveryStub(unittest.TestCase):
             self.assertIsInstance(logged, list)
             self.assertEqual(len(logged), 2)
 
+    def test_accumulate_entries(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            ledger = Path(tmp) / 'log.json'
+            for seed in ('1', '2'):
+                result = subprocess.run(
+                    [
+                        sys.executable,
+                        STUB,
+                        '-n',
+                        '1',
+                        '--seed',
+                        seed,
+                        '--ledger',
+                        str(ledger),
+                        '--model',
+                        'gpt-4o-mini',
+                    ],
+                    capture_output=True,
+                    text=True,
+                )
+                self.assertEqual(result.returncode, 0, result.stderr)
+
+            logged = json.loads(ledger.read_text())
+            self.assertIsInstance(logged, list)
+            self.assertEqual(len(logged), 2)
+
 if __name__ == '__main__':  # pragma: no cover
     unittest.main()
