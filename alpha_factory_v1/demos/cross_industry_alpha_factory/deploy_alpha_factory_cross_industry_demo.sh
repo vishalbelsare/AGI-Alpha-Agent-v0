@@ -7,6 +7,7 @@
 ###############################################################################
 set -Eeuo pipefail
 IFS=$'\n\t'; shopt -s lastpipe
+# Set AUTO_COMMIT=1 to automatically commit generated assets.
 
 usage(){
   echo "Usage: $0 [--ci] [--skip-bench]" >&2
@@ -214,7 +215,7 @@ if [[ -z ${SKIP_BENCH:-} ]]; then
 fi
 
 ############# 10. AUTO-COMMIT GENERATED ASSETS ################################
-if [[ -z ${CI:-} ]]; then
+if [[ -z ${CI:-} && ${AUTO_COMMIT:-0} == 1 ]]; then
   git add "$CI_PATH" "$CONTINUAL_DIR" "$LOADTEST_DIR" "$ASSETS_DIR" || true
   git commit -m "auto: bootstrap cross-industry demo ($COMMIT_SHA)" 2>/dev/null || true
 fi
