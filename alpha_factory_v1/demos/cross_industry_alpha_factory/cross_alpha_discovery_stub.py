@@ -31,7 +31,7 @@ logger = logging.getLogger(__name__)
 try:
     from filelock import FileLock
 except Exception:  # pragma: no cover - optional dependency
-    FileLock = None  # type: ignore
+    FileLock = None
 
 with contextlib.suppress(ModuleNotFoundError):
     import openai
@@ -52,16 +52,20 @@ SAMPLE_ALPHA: List[Dict[str, str]] = [
     {"sector": "Telecom", "opportunity": "Lease dark fiber to data-intensive startups"},
 ]
 
-DEFAULT_LEDGER = Path(__file__).with_name("cross_alpha_log.json")
+DEFAULT_LEDGER = Path.home() / ".alpha_factory" / "cross_alpha_log.json"
 
 
 def _ledger_path(path: str | os.PathLike[str] | None) -> Path:
     if path:
-        return Path(path).expanduser().resolve()
-    env = os.getenv("CROSS_ALPHA_LEDGER")
-    if env:
-        return Path(env).expanduser().resolve()
-    return DEFAULT_LEDGER
+        resolved = Path(path).expanduser().resolve()
+    else:
+        env = os.getenv("CROSS_ALPHA_LEDGER")
+        if env:
+            resolved = Path(env).expanduser().resolve()
+        else:
+            resolved = DEFAULT_LEDGER.expanduser().resolve()
+    resolved.parent.mkdir(parents=True, exist_ok=True)
+    return resolved
 
 
 def discover_alpha(
