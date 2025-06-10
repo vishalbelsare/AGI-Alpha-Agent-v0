@@ -162,6 +162,34 @@ class TestCrossAlphaDiscoveryStub(unittest.TestCase):
             data = json.loads(ledger.read_text())
             self.assertEqual(len(data), 5)
 
+    def test_concurrent_writes_with_filelock(self) -> None:
+        try:
+            import filelock
+        except Exception:  # pragma: no cover - optional dependency
+            self.skipTest("filelock not installed")
+
+        from alpha_factory_v1.demos.cross_industry_alpha_factory import (
+            cross_alpha_discovery_stub as stub,
+        )
+
+        with tempfile.TemporaryDirectory() as tmp:
+            ledger = Path(tmp) / "thread_lock_log.json"
+
+            def worker(seed: int) -> None:
+                stub.discover_alpha(num=1, seed=seed, ledger=ledger, model="gpt-4o-mini")
+
+            threads = [threading.Thread(target=worker, args=(i,)) for i in range(5)]
+            with patch.object(stub, "FileLock", filelock.FileLock):
+                for t in threads:
+                    t.start()
+                for t in threads:
+                    t.join()
+
+            data = json.loads(ledger.read_text())
+            self.assertIsInstance(data, list)
+            self.assertEqual(len(data), 5)
+            self.assertEqual(len(data), len({json.dumps(i, sort_keys=True) for i in data}))
+
 
 if __name__ == "__main__":  # pragma: no cover
     unittest.main()
