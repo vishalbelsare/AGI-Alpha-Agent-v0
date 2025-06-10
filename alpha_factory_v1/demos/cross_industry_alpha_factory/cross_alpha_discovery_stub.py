@@ -67,13 +67,13 @@ def discover_alpha(
     Args:
         num: Number of opportunities to return.
         seed: Optional RNG seed for reproducible output.
-        ledger: Ledger file to write to. When ``None``, ``CROSS_ALPHA_LEDGER`` or
-            ``cross_alpha_log.json`` is used.
+        ledger: Ledger file to write to. When ``None`` no file is written.
         model: OpenAI model to query when available. ``main`` reads the default
             from ``CROSS_ALPHA_MODEL``.
 
     Environment variables:
-        CROSS_ALPHA_LEDGER: Default ledger path when ``ledger`` is ``None``.
+        CROSS_ALPHA_LEDGER: Default ledger path used by :func:`main` when
+            ``--ledger`` is not supplied.
         CROSS_ALPHA_MODEL: Default model used by :func:`main`.
 
     Returns:
@@ -97,20 +97,21 @@ def discover_alpha(
     if not picks:
         picks = [random.choice(SAMPLE_ALPHA) for _ in range(max(1, num))]
 
-    path = _ledger_path(ledger)
-    existing: List[Dict[str, str]] = []
-    try:
-        if path.exists():
-            data = json.loads(path.read_text())
-            if isinstance(data, dict):
-                existing = [data]
-            elif isinstance(data, list):
-                existing = data
-    except (json.JSONDecodeError, OSError):
-        existing = []
+    if ledger is not None:
+        path = _ledger_path(ledger)
+        existing: List[Dict[str, str]] = []
+        try:
+            if path.exists():
+                data = json.loads(path.read_text())
+                if isinstance(data, dict):
+                    existing = [data]
+                elif isinstance(data, list):
+                    existing = data
+        except (json.JSONDecodeError, OSError):
+            existing = []
 
-    existing.extend(picks if num != 1 else [picks[0]])
-    path.write_text(json.dumps(existing, indent=2))
+        existing.extend(picks if num != 1 else [picks[0]])
+        path.write_text(json.dumps(existing, indent=2))
     return picks
 
 
@@ -144,12 +145,13 @@ def main(argv: List[str] | None = None) -> None:  # pragma: no cover - CLI wrapp
         print(json.dumps(SAMPLE_ALPHA, indent=2))
         return
 
-    ledger = _ledger_path(args.ledger)
+    ledger = None if args.no_log else _ledger_path(args.ledger)
     picks = discover_alpha(args.num, seed=args.seed, ledger=ledger, model=args.model)
-    if args.no_log:
-        ledger.unlink(missing_ok=True)
     print(json.dumps(picks[0] if args.num == 1 else picks, indent=2))
-    print(f"Logged to {ledger}" if not args.no_log else "Ledger write skipped")
+    if ledger is not None:
+        print(f"Logged to {ledger}")
+    else:
+        print("Ledger write skipped")
 
 
 if __name__ == "__main__":  # pragma: no cover

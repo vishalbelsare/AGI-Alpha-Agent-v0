@@ -99,6 +99,29 @@ class TestCrossAlphaDiscoveryStub(unittest.TestCase):
             self.assertIsInstance(data, list)
             self.assertEqual(len(data), 1)
 
+    def test_no_log_flag(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            ledger = Path(tmp) / "no_log.json"
+            result = subprocess.run(
+                [
+                    sys.executable,
+                    STUB,
+                    "-n",
+                    "1",
+                    "--seed",
+                    "4",
+                    "--ledger",
+                    str(ledger),
+                    "--no-log",
+                    "--model",
+                    "gpt-4o-mini",
+                ],
+                capture_output=True,
+                text=True,
+            )
+            self.assertEqual(result.returncode, 0, result.stderr)
+            self.assertFalse(ledger.exists())
+
 
 if __name__ == "__main__":  # pragma: no cover
     unittest.main()
