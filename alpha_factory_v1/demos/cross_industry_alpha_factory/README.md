@@ -8,6 +8,8 @@ of a real general intelligence. Use at your own risk.
 
 See [CONCEPTUAL_FRAMEWORK.md](CONCEPTUAL_FRAMEWORK.md) for an architecture overview.
 
+> **⚠️ Disclaimer**: This demo is **for research and educational purposes only**. Nothing herein constitutes financial advice. MontrealAI and the maintainers accept no liability for losses incurred from using this software.
+
 ---
 
 ### 1 · Why we built this
