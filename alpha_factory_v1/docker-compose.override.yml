@@ -17,9 +17,9 @@ services:
   ###########################################################################
   # 1️⃣  FastAPI back‑end – auto‑reload on source edits                      #
   ###########################################################################
-  alphafactory:
+  orchestrator:
     <<: *restart_policy
-    container_name: alphafactory-dev
+    container_name: orchestrator-dev
     # Re-use the multi-stage Dockerfile but build only the *runtime* stage
     build:
       context: .
