@@ -88,6 +88,7 @@ def discover_alpha(
             resp = openai.ChatCompletion.create(
                 model=model,
                 messages=[{"role": "user", "content": prompt}],
+                response_format={"type": "json_object"},
             )
             picks = json.loads(resp.choices[0].message.content)
             if isinstance(picks, dict):

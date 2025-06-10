@@ -6,6 +6,8 @@ import sys
 import unittest
 from pathlib import Path
 import tempfile
+import types
+from unittest.mock import patch, Mock
 
 STUB = "alpha_factory_v1/demos/cross_industry_alpha_factory/cross_alpha_discovery_stub.py"
 
@@ -122,6 +124,22 @@ class TestCrossAlphaDiscoveryStub(unittest.TestCase):
             )
             self.assertEqual(result.returncode, 0, result.stderr)
             self.assertFalse(ledger.exists())
+
+    def test_openai_response_format(self) -> None:
+        from alpha_factory_v1.demos.cross_industry_alpha_factory import (
+            cross_alpha_discovery_stub as stub,
+        )
+
+        resp = types.SimpleNamespace(choices=[types.SimpleNamespace(message=types.SimpleNamespace(content="[]"))])
+        openai_mock = types.SimpleNamespace(ChatCompletion=types.SimpleNamespace(create=Mock(return_value=resp)))
+
+        with patch.dict(os.environ, {"OPENAI_API_KEY": "x"}):
+            with patch.object(stub, "openai", openai_mock):
+                stub.discover_alpha(num=1, ledger=None, model="gpt-4o-mini")
+
+        openai_mock.ChatCompletion.create.assert_called_once()
+        kwargs = openai_mock.ChatCompletion.create.call_args.kwargs
+        self.assertEqual(kwargs.get("response_format"), {"type": "json_object"})
 
 
 if __name__ == "__main__":  # pragma: no cover
