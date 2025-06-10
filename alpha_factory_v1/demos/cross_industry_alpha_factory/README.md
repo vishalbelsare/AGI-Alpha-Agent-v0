@@ -176,6 +176,13 @@ with p95 latency < 180 ms.
 
 Community PRs welcome!
 
+### 11 · Teardown & cleanup
+Stop containers and wipe data volumes with:
+```bash
+docker compose -f alpha_factory_v1/docker-compose.yml down -v
+```
+To automate this step run `./teardown_alpha_factory_cross_industry_demo.sh`.
+
 ---
 
 ### References
