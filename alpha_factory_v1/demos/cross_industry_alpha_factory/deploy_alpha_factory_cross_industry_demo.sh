@@ -61,7 +61,8 @@ else
 fi
 
 # containerised yq / cosign / rekor-cli / k6 / locust when missing
-yq(){ docker run --rm -i -v "$PWD":/workdir ghcr.io/mikefarah/yq "$@"; }
+# yq pinned to 4.44.1 for reproducible builds
+yq(){ docker run --rm -i -v "$PWD":/workdir ghcr.io/mikefarah/yq:4.44.1 "$@"; }
 # Use explicit tool versions to ensure reproducible builds
 # cosign v2.5.0, rekor-cli v1.3.10, k6 0.52.0, locust 2.37.10
 cosign(){ docker run --rm -e COSIGN_EXPERIMENTAL=1 -v "$PWD":/workdir ghcr.io/sigstore/cosign/v2:v2.5.0 "$@"; }
