@@ -50,10 +50,13 @@ local LLM container so the demo works **fully offline**.
 ```bash
 git clone https://github.com/MontrealAI/AGI-Alpha-Agent-v0.git
 cd AGI-Alpha-Agent-v0/alpha_factory_v1/demos/cross_industry_alpha_factory
+cp .env.example ../../.env  # optional customization
 ./deploy_alpha_factory_cross_industry_demo.sh
 ```
 The installer writes a random `API_TOKEN` to `.env`; include it in the
 `Authorization` header when calling the REST API.
+Customize variables like `OPENAI_API_KEY`, `AGENTS_ENABLED`, `PROM_PORT` or
+`RAY_PORT` by editing `../../.env` before deployment.
 
 #### Colab Quick Start
 Click the badge above or run:
