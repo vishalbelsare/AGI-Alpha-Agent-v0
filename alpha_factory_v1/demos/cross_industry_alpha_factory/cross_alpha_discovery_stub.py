@@ -95,7 +95,7 @@ def discover_alpha(
         except Exception:
             picks = []
     if not picks:
-        picks = [random.choice(SAMPLE_ALPHA) for _ in range(max(1, num))]
+        picks = random.sample(SAMPLE_ALPHA, k=min(num, len(SAMPLE_ALPHA)))
 
     if ledger is not None:
         path = _ledger_path(ledger)
