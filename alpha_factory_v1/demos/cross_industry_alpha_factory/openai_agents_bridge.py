@@ -2,6 +2,7 @@
 #!/usr/bin/env python3
 # NOTE: This demo is a research prototype and does not implement real AGI.
 """OpenAI Agents SDK bridge for the cross-industry Alpha-Factory demo."""
+
 from __future__ import annotations
 
 import json
@@ -9,16 +10,45 @@ import logging
 from pathlib import Path
 from typing import List, Dict
 
+import os
+
 from .cross_alpha_discovery_stub import SAMPLE_ALPHA, discover_alpha, _ledger_path
 
 logger = logging.getLogger(__name__)
 
-try:
-    from openai_agents import Agent, AgentRuntime, Tool
-except ModuleNotFoundError as exc:  # pragma: no cover - optional dep
-    raise SystemExit(
-        "openai-agents package is missing. Install with `pip install openai-agents`"
-    ) from exc
+
+def _load_agents():
+    """Return OpenAI Agents classes when available, otherwise stubs."""
+    try:
+        from openai_agents import Agent, AgentRuntime, Tool  # type: ignore
+
+        if not os.getenv("OPENAI_API_KEY"):
+            raise RuntimeError("OPENAI_API_KEY not set")
+        logger.debug("Using real OpenAI Agents runtime")
+        return Agent, AgentRuntime, Tool, True
+    except Exception as exc:  # pragma: no cover - optional dep
+        logger.warning("OpenAI Agents SDK unavailable: %s", exc)
+
+        class AgentRuntime:  # type: ignore
+            def __init__(self, *a, **kw) -> None:  # noqa: D401 - simple stub
+                pass
+
+            def register(self, *_a, **_k) -> None:
+                pass
+
+            def run(self) -> None:
+                logger.info("OpenAI Agents bridge disabled.")
+
+        def Tool(*_args, **_kw):  # type: ignore
+            def _decorator(func):
+                return func
+
+            return _decorator
+
+        return object, AgentRuntime, Tool, False
+
+
+Agent, AgentRuntime, Tool, _OPENAI_AGENTS_AVAILABLE = _load_agents()
 
 
 def _read_log(limit: int) -> List[Dict[str, str]]:
