@@ -121,6 +121,7 @@ fi
 if [[ ! -f .env ]]; then
   echo "→ creating .env (edit credentials later)"
   cp .env.sample .env
+  chmod 600 .env
 fi
 
 # 3. local model fallback
