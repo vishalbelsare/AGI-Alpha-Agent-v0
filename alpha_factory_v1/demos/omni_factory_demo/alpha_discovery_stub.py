@@ -76,7 +76,7 @@ def discover_alpha(
         except Exception:
             picks = []
     if not picks:
-        picks = [random.choice(SAMPLE_ALPHA) for _ in range(max(1, num))]
+        picks = random.sample(SAMPLE_ALPHA, k=min(num, len(SAMPLE_ALPHA)))
 
     (_ledger_path(ledger) if ledger else DEFAULT_LEDGER).write_text(
         json.dumps(picks[0] if num == 1 else picks, indent=2)

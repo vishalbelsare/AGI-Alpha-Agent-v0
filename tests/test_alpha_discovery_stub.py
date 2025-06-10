@@ -30,6 +30,7 @@ class TestAlphaDiscoveryStub(unittest.TestCase):
             logged = json.loads(ledger.read_text())
             self.assertIsInstance(logged, list)
             self.assertEqual(len(logged), 2)
+            self.assertEqual(len(logged), len({json.dumps(i, sort_keys=True) for i in logged}))
 
 
 if __name__ == '__main__':  # pragma: no cover
