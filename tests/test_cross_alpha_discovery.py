@@ -74,13 +74,41 @@ class TestCrossAlphaDiscoveryStub(unittest.TestCase):
             self.assertEqual(len(logged), 2)
 
     def test_env_overrides_default_ledger(self) -> None:
-        default = Path(STUB).with_name("cross_alpha_log.json")
-        if default.exists():
-            default.unlink()
-        with tempfile.TemporaryDirectory() as tmp:
-            ledger = Path(tmp) / "env_log.json"
+        with tempfile.TemporaryDirectory() as home:
+            default = Path(home) / ".alpha_factory" / "cross_alpha_log.json"
+            with tempfile.TemporaryDirectory() as tmp:
+                ledger = Path(tmp) / "env_log.json"
+                env = os.environ.copy()
+                env["HOME"] = home
+                env["CROSS_ALPHA_LEDGER"] = str(ledger)
+                result = subprocess.run(
+                    [
+                        sys.executable,
+                        STUB,
+                        "-n",
+                        "1",
+                        "--seed",
+                        "3",
+                        "--model",
+                        "gpt-4o-mini",
+                    ],
+                    capture_output=True,
+                    text=True,
+                    env=env,
+                )
+                self.assertEqual(result.returncode, 0, result.stderr)
+                self.assertFalse(default.exists(), "default ledger should not be used")
+                self.assertTrue(ledger.exists())
+                data = json.loads(ledger.read_text())
+                self.assertIsInstance(data, list)
+                self.assertEqual(len(data), 1)
+
+    def test_default_ledger_creation(self) -> None:
+        with tempfile.TemporaryDirectory() as home:
             env = os.environ.copy()
-            env["CROSS_ALPHA_LEDGER"] = str(ledger)
+            env["HOME"] = home
+            env.pop("CROSS_ALPHA_LEDGER", None)
+            default = Path(home) / ".alpha_factory" / "cross_alpha_log.json"
             result = subprocess.run(
                 [
                     sys.executable,
@@ -88,7 +116,7 @@ class TestCrossAlphaDiscoveryStub(unittest.TestCase):
                     "-n",
                     "1",
                     "--seed",
-                    "3",
+                    "5",
                     "--model",
                     "gpt-4o-mini",
                 ],
@@ -97,9 +125,8 @@ class TestCrossAlphaDiscoveryStub(unittest.TestCase):
                 env=env,
             )
             self.assertEqual(result.returncode, 0, result.stderr)
-            self.assertFalse(default.exists(), "default ledger should not be used")
-            self.assertTrue(ledger.exists())
-            data = json.loads(ledger.read_text())
+            self.assertTrue(default.exists())
+            data = json.loads(default.read_text())
             self.assertIsInstance(data, list)
             self.assertEqual(len(data), 1)
 
