@@ -21,9 +21,12 @@ import json
 import random
 import os
 import contextlib
+import logging
 from pathlib import Path
 from typing import List, Dict
 from tempfile import NamedTemporaryFile
+
+logger = logging.getLogger(__name__)
 
 try:
     from filelock import FileLock
@@ -99,7 +102,8 @@ def discover_alpha(
             picks = json.loads(resp.choices[0].message.content)
             if isinstance(picks, dict):
                 picks = [picks]
-        except Exception:
+        except Exception as exc:
+            logger.warning("OpenAI request failed: %s", exc)
             picks = []
     if not picks:
         picks = random.sample(SAMPLE_ALPHA, k=min(num, len(SAMPLE_ALPHA)))
