@@ -2,6 +2,8 @@
 # SPDX-License-Identifier: Apache-2.0
 """Cross‑Industry alpha discovery helper.
 
+This script is part of a research prototype and does not implement real AGI.
+
 This minimal command‑line tool surfaces potential "alpha" opportunities
 across industries. It works **fully offline** using a small sample set but
 will query OpenAI when an ``OPENAI_API_KEY`` is configured for live ideas.
