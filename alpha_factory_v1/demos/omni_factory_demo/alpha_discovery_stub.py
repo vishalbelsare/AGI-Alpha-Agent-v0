@@ -37,6 +37,7 @@ SAMPLE_ALPHA: List[Dict[str, str]] = [
 
 DEFAULT_LEDGER = Path(__file__).with_name("omni_alpha_log.json")
 
+
 def _ledger_path(path: str | os.PathLike | None) -> Path:
     if path:
         return Path(path).expanduser().resolve()
@@ -61,14 +62,12 @@ def discover_alpha(
         random.seed(seed)
     picks: List[Dict[str, str]] = []
     if "openai" in globals() and os.getenv("OPENAI_API_KEY"):
-        prompt = (
-            "List "
-            f"{num} short cross-industry investment opportunities as JSON"
-        )
+        prompt = "List " f"{num} short cross-industry investment opportunities as JSON"
         try:
             resp = openai.ChatCompletion.create(
                 model="gpt-4o-mini",
                 messages=[{"role": "user", "content": prompt}],
+                response_format={"type": "json_object"},
             )
             picks = json.loads(resp.choices[0].message.content)  # type: ignore[index]
             if isinstance(picks, dict):
