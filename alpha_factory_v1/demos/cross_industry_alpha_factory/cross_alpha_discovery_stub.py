@@ -25,7 +25,7 @@ from pathlib import Path
 from typing import List, Dict
 
 with contextlib.suppress(ModuleNotFoundError):
-    import openai  # type: ignore
+    import openai
 
 SAMPLE_ALPHA: List[Dict[str, str]] = [
     {
@@ -45,7 +45,8 @@ SAMPLE_ALPHA: List[Dict[str, str]] = [
 
 DEFAULT_LEDGER = Path(__file__).with_name("cross_alpha_log.json")
 
-def _ledger_path(path: str | os.PathLike | None) -> Path:
+
+def _ledger_path(path: str | os.PathLike[str] | None) -> Path:
     if path:
         return Path(path).expanduser().resolve()
     env = os.getenv("CROSS_ALPHA_LEDGER")
@@ -82,16 +83,13 @@ def discover_alpha(
         random.seed(seed)
     picks: List[Dict[str, str]] = []
     if "openai" in globals() and os.getenv("OPENAI_API_KEY"):
-        prompt = (
-            "List "
-            f"{num} short cross-industry investment opportunities as JSON"
-        )
+        prompt = "List " f"{num} short cross-industry investment opportunities as JSON"
         try:
             resp = openai.ChatCompletion.create(
                 model=model,
                 messages=[{"role": "user", "content": prompt}],
             )
-            picks = json.loads(resp.choices[0].message.content)  # type: ignore[index]
+            picks = json.loads(resp.choices[0].message.content)
             if isinstance(picks, dict):
                 picks = [picks]
         except Exception:
@@ -99,7 +97,7 @@ def discover_alpha(
     if not picks:
         picks = [random.choice(SAMPLE_ALPHA) for _ in range(max(1, num))]
 
-    path = _ledger_path(ledger) if ledger else DEFAULT_LEDGER
+    path = _ledger_path(ledger)
     existing: List[Dict[str, str]] = []
     try:
         if path.exists():
