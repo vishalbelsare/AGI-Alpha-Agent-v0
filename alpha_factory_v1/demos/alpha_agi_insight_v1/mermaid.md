@@ -28,6 +28,18 @@ flowchart TD
 
 ```mermaid
 flowchart LR
+    SeedMint["Nova-Seed NFT\n(Merkle-proof metadata)"] --> Curve
+    subgraph MARK Bonding Curve
+        Curve --- BuyFlow[$AGI / USDC → SeedShare]
+        Curve --- SellFlow[SeedShare → $AGI / USDC]
+    end
+    Curve -->|Target Met + Validators 90 %| Permit[LaunchPermit NFT]
+    Permit --> SovereignDAO["👑 Sovereign DAO\n(initial treasury escrowed)"]
+```
+
+
+```mermaid
+flowchart LR
     JobSpec{{α-Job}}
     Agent(α-AGI Agent)
     Node[(Compute Node)]
