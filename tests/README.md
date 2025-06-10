@@ -17,15 +17,17 @@ These integration tests expect the `alpha_factory_v1` package to be importable.
    ```bash
    python scripts/check_python_deps.py
    ```
-4. Install any missing optional packages:
+4. Ensure `numpy`, `pyyaml` and `pandas` are installed. They ship with
+   `requirements-dev.txt` but might be missing in minimal setups.
+5. Install any missing optional packages:
    ```bash
-    python check_env.py --auto-install
-    ```
-    These commands download packages from PyPI, so ensure you have either
-    internet connectivity or a wheelhouse available via `--wheelhouse <dir>`
-    (or the `WHEELHOUSE` environment variable).
-    The full suite exercises features that depend on optional packages such as
-    `numpy`, `torch`, `pandas`, `prometheus_client`, `gymnasium`, `playwright`,
+   python check_env.py --auto-install
+   ```
+   These commands download packages from PyPI, so ensure you have either
+   internet connectivity or a wheelhouse available via `--wheelhouse <dir>`
+   (or the `WHEELHOUSE` environment variable).
+   The full suite exercises features that depend on optional packages such as
+   `numpy`, `torch`, `pandas`, `prometheus_client`, `gymnasium`, `playwright`,
    `httpx`, `uvicorn`, `git` and `hypothesis`.
    
    The test suite automatically attempts to install missing packages at
@@ -33,8 +35,9 @@ These integration tests expect the `alpha_factory_v1` package to be importable.
    `check_env.py --auto-install`.  Set the `WHEELHOUSE` environment
    variable to point to a local wheel directory when running offline so
    these installs can succeed without contacting PyPI.
-5. Set `PYTHONPATH=$(pwd)` or install the project in editable mode with `pip install -e .`.
-6. After installing **both** requirements files above, execute `pytest -q`.
+6. Set `PYTHONPATH=$(pwd)` or install the project in editable mode with `pip install -e .`.
+7. Before running the tests, execute `python check_env.py --auto-install` once
+   more (add `--wheelhouse <dir>` when offline), then run `pytest -q`.
 
 ### Offline install
 
