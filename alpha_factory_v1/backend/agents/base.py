@@ -132,9 +132,7 @@ def _kafka_producer() -> Optional[KafkaProducer]:
     try:
         return KafkaProducer(
             bootstrap_servers=[b.strip() for b in broker.split(",") if b.strip()],
-            value_serializer=lambda v: (
-                v if isinstance(v, bytes) else json.dumps(v).encode()
-            ),
+            value_serializer=lambda v: (v if isinstance(v, bytes) else json.dumps(v).encode()),
             linger_ms=250,
         )
     except KafkaError:
@@ -155,7 +153,7 @@ class AgentBase(abc.ABC):
 
     # Scheduling ────────────────────────────────────────────────────────────
     CYCLE_SECONDS: int | None = 60  # fixed-interval; None → use SCHED_SPEC
-    SCHED_SPEC: str | None = None   # cron-style, processed by aiocron
+    SCHED_SPEC: str | None = None  # cron-style, processed by aiocron
 
     # Runtime-injected by orchestrator ──────────────────────────────────────
     orchestrator: Any = None  # Fabric / bus / world-model / cfg
@@ -163,9 +161,7 @@ class AgentBase(abc.ABC):
     # ------------------------------------------------------------------ #
     def __init__(self) -> None:
         self._stop_evt: asyncio.Event = asyncio.Event()
-        self._metrics_run, self._metrics_err, self._metrics_lat = _prom_metrics(
-            self.NAME
-        )
+        self._metrics_run, self._metrics_err, self._metrics_lat = _prom_metrics(self.NAME)
         self._kafka = _kafka_producer()
 
     # ════ Life-cycle hooks ════
@@ -297,11 +293,20 @@ class AgentBase(abc.ABC):
         """
         self._weights_path = path
 
+    async def skill_test(self, payload: dict) -> dict:
+        """Execute a diagnostic skill test.
+
+        Agents may override this method to provide custom behaviour.
+        The default implementation returns ``{"ok": True}``.
+        """
+        return {"ok": True}
+
     # ────────────────────────────────────────────────────────────────────
     # Pretty representation (helps debugging & logging)
     # ────────────────────────────────────────────────────────────────────
     def __repr__(self) -> str:  # pragma: no cover
         return f"<{self.__class__.__name__} name={self.NAME!r} v{self.VERSION}>"
+
 
 # ───────────────────────────────────────────────────────────────────────────────
 # ░░░ 6. Tiny decorator to auto-register subclasses ░░░

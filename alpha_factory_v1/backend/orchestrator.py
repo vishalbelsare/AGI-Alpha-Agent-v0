@@ -55,11 +55,13 @@ try:
 except ModuleNotFoundError:  # fallback mode
     FastAPI = None  # type: ignore
 
-    class HTTPException(Exception): ...
+    class HTTPException(Exception):
+        ...
 
     PlainTextResponse = object  # type: ignore
 
-    def File(*_a, **_kw): ...
+    def File(*_a, **_kw):
+        ...
 
     Request = object  # type: ignore
 
@@ -113,7 +115,9 @@ try:
 except ModuleNotFoundError:  # pragma: no cover
 
     class _VecDummy:  # pylint: disable=too-few-public-methods
-        def add(self, *_a, **_kw): ...
+        def add(self, *_a, **_kw):
+            ...
+
         def search(self, *_a, **_kw):
             return []
 
@@ -121,7 +125,9 @@ except ModuleNotFoundError:  # pragma: no cover
             return []
 
     class _GraphDummy:  # pylint: disable=too-few-public-methods
-        def add(self, *_a, **_kw): ...
+        def add(self, *_a, **_kw):
+            ...
+
         def query(self, *_a, **_kw):
             return []
 
@@ -166,9 +172,14 @@ def _noop(*_a, **_kw):  # type: ignore
         def labels(self, *_a, **_kw):
             return self
 
-        def observe(self, *_a): ...
-        def inc(self, *_a): ...
-        def set(self, *_a): ...
+        def observe(self, *_a):
+            ...
+
+        def inc(self, *_a):
+            ...
+
+        def set(self, *_a):
+            ...
 
     return _N()
 
@@ -411,6 +422,16 @@ def _build_rest(runners: Dict[str, AgentRunner]) -> Optional[FastAPI]:
             inst.load_weights(td)  # type: ignore[attr-defined]
         return {"status": "ok"}
 
+    @app.post("/agent/{name}/skill_test")
+    async def _skill_test(request: Request, name: str):
+        payload = await request.json()
+        if name not in runners:
+            raise HTTPException(404, "Agent not found")
+        inst = runners[name].inst
+        if not hasattr(inst, "skill_test"):
+            raise HTTPException(501, "Agent does not support skill_test")
+        return await inst.skill_test(payload)  # type: ignore[func-returns-value]
+
     # ─── Memory-Fabric helper endpoints ──────────────────────────────
     @app.get("/memory/{agent}/recent")
     async def _recent(agent: str, n: int = 25):  # noqa: D401
@@ -497,11 +518,7 @@ async def _regression_guard(runners: Dict[str, AgentRunner]) -> None:
         except Exception:  # pragma: no cover - metrics optional
             continue
         history.append(score)
-        if (
-            len(history) == 3
-            and history[1] <= history[0] * 0.8
-            and history[2] <= history[1] * 0.8
-        ):
+        if len(history) == 3 and history[1] <= history[0] * 0.8 and history[2] <= history[1] * 0.8:
             runner = runners.get("aiga_evolver")
             if runner and runner.task:
                 runner.task.cancel()

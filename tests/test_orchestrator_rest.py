@@ -25,6 +25,9 @@ class DummyAgent:
     def load_weights(self, path: str) -> None:
         self.loaded = path
 
+    async def skill_test(self, payload: dict) -> dict:
+        return {"ok": True}
+
 
 class DummyRunner:
     def __init__(self, inst: DummyAgent) -> None:
@@ -75,6 +78,14 @@ class TestRestAPI(unittest.TestCase):
             self.assertEqual(resp.status_code, 200)
             self.assertEqual(resp.json(), {"status": "ok"})
             self.assertIsNotNone(runner.inst.loaded)
+
+            resp = client.post(
+                "/agent/dummy/skill_test",
+                json={"ping": 1},
+                headers=headers,
+            )
+            self.assertEqual(resp.status_code, 200)
+            self.assertEqual(resp.json(), {"ok": True})
 
             buf = io.BytesIO()
             with zipfile.ZipFile(buf, "w") as zf:
