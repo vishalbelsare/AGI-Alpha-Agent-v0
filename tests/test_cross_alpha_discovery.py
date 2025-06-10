@@ -8,6 +8,7 @@ from pathlib import Path
 import tempfile
 import types
 from unittest.mock import patch, Mock
+import threading
 
 STUB = "alpha_factory_v1/demos/cross_industry_alpha_factory/cross_alpha_discovery_stub.py"
 
@@ -140,6 +141,26 @@ class TestCrossAlphaDiscoveryStub(unittest.TestCase):
         openai_mock.ChatCompletion.create.assert_called_once()
         kwargs = openai_mock.ChatCompletion.create.call_args.kwargs
         self.assertEqual(kwargs.get("response_format"), {"type": "json_object"})
+
+    def test_concurrent_writes(self) -> None:
+        from alpha_factory_v1.demos.cross_industry_alpha_factory import (
+            cross_alpha_discovery_stub as stub,
+        )
+
+        with tempfile.TemporaryDirectory() as tmp:
+            ledger = Path(tmp) / "thread_log.json"
+
+            def worker(seed: int) -> None:
+                stub.discover_alpha(num=1, seed=seed, ledger=ledger, model="gpt-4o-mini")
+
+            threads = [threading.Thread(target=worker, args=(i,)) for i in range(5)]
+            for t in threads:
+                t.start()
+            for t in threads:
+                t.join()
+
+            data = json.loads(ledger.read_text())
+            self.assertEqual(len(data), 5)
 
 
 if __name__ == "__main__":  # pragma: no cover

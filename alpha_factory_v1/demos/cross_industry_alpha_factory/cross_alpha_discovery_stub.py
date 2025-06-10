@@ -23,6 +23,12 @@ import os
 import contextlib
 from pathlib import Path
 from typing import List, Dict
+from tempfile import NamedTemporaryFile
+
+try:
+    from filelock import FileLock
+except Exception:  # pragma: no cover - optional dependency
+    FileLock = None  # type: ignore
 
 with contextlib.suppress(ModuleNotFoundError):
     import openai
@@ -100,19 +106,25 @@ def discover_alpha(
 
     if ledger is not None:
         path = _ledger_path(ledger)
-        existing: List[Dict[str, str]] = []
-        try:
-            if path.exists():
-                data = json.loads(path.read_text())
-                if isinstance(data, dict):
-                    existing = [data]
-                elif isinstance(data, list):
-                    existing = data
-        except (json.JSONDecodeError, OSError):
-            existing = []
+        lock_ctx = FileLock(str(path) + ".lock") if FileLock is not None else contextlib.nullcontext()
+        with lock_ctx:
+            existing: List[Dict[str, str]] = []
+            try:
+                if path.exists():
+                    data = json.loads(path.read_text())
+                    if isinstance(data, dict):
+                        existing = [data]
+                    elif isinstance(data, list):
+                        existing = data
+            except (json.JSONDecodeError, OSError):
+                existing = []
 
-        existing.extend(picks if num != 1 else [picks[0]])
-        path.write_text(json.dumps(existing, indent=2))
+            existing.extend(picks if num != 1 else [picks[0]])
+            with NamedTemporaryFile("w", delete=False, dir=str(path.parent), encoding="utf-8") as tmp:
+                json.dump(existing, tmp, indent=2)
+                tmp.flush()
+                os.fsync(tmp.fileno())
+            os.replace(tmp.name, path)
     return picks
 
 
