@@ -3,6 +3,8 @@
 
 This note summarises how the cross‑industry demo combines multiple domain agents with the OpenAI Agents SDK, Google ADK and the Agent2Agent protocol.
 
+**Note:** This document outlines a conceptual research prototype. It does not represent a production-ready AGI system and should not be taken as financial advice.
+
 ## Architecture Overview
 
 ```
