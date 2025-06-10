@@ -1010,6 +1010,7 @@ PY
 ```bash
 git clone https://github.com/MontrealAI/AGI-Alpha-Agent-v0.git
 cd AGI-Alpha-Agent-v0/alpha_factory_v1/demos/cross_industry_alpha_factory
+# Set AUTO_COMMIT=1 to save generated assets back to the repo
 ./deploy_alpha_factory_cross_industry_demo.sh
 ```
 
