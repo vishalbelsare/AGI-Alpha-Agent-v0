@@ -20,6 +20,9 @@ All notable changes to this project are documented in this file.
   dashboard.
 - Documented `ALPHA_ASI_*` demo variables in README and AGENTS.md.
 - Removed outdated `alpha_asi_world_model_demo_v1.py` script.
+- Added cross-industry demo with [deploy script](../alpha_factory_v1/demos/cross_industry_alpha_factory/deploy_alpha_factory_cross_industry_demo.sh)
+  and [README](../alpha_factory_v1/demos/cross_industry_alpha_factory/README.md)
+  (introduced in commit `d0e1e2ed`).
 
 ## [1.1.0] - 2025-07-15
 ### Added
