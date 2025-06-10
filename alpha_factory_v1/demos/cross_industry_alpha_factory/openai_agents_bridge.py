@@ -98,7 +98,7 @@ class CrossIndustryAgent(Agent):
 
 
 def main() -> None:
-    runtime = AgentRuntime(api_key=None)
+    runtime = AgentRuntime(api_key=os.getenv("OPENAI_API_KEY"))
     agent = CrossIndustryAgent()
     runtime.register(agent)
     try:
