@@ -9,9 +9,9 @@ import logging
 from pathlib import Path
 from typing import List, Dict
 
-logger = logging.getLogger(__name__)
-
 from .cross_alpha_discovery_stub import SAMPLE_ALPHA, discover_alpha, _ledger_path
+
+logger = logging.getLogger(__name__)
 
 try:
     from openai_agents import Agent, AgentRuntime, Tool
