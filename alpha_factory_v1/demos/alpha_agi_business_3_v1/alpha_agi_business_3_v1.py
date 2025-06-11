@@ -16,7 +16,7 @@ import argparse
 import logging
 import asyncio
 import os
-from typing import Any, Dict, cast
+from typing import Any, cast
 
 try:  # optional OpenAI Agents integration
     from openai_agents import OpenAIAgent
@@ -31,7 +31,7 @@ log = logging.getLogger(__name__)
 class Orchestrator:
     """Source and sink for alpha signals."""
 
-    def collect_signals(self) -> Dict[str, Any]:
+    def collect_signals(self) -> dict[str, Any]:
         """Fetch a bundle of live signals.
 
         Returns a placeholder dictionary in this demo.  Production
@@ -55,7 +55,7 @@ class Orchestrator:
 class AgentFin:
     """Finance agent returning latent-work estimates."""
 
-    def latent_work(self, bundle: Dict[str, Any]) -> float:
+    def latent_work(self, bundle: dict[str, Any]) -> float:
         """Compute mispricing alpha from ``bundle``."""
 
         return 0.04
@@ -65,7 +65,7 @@ class AgentFin:
 class AgentRes:
     """Research agent estimating entropy."""
 
-    def entropy(self, bundle: Dict[str, Any]) -> float:
+    def entropy(self, bundle: dict[str, Any]) -> float:
         """Return inferred entropy from ``bundle``."""
 
         return 0.01
@@ -85,7 +85,7 @@ class AgentEne:
 class AgentGdl:
     """Gödel‑Looper guardian."""
 
-    def provable(self, weight_update: Dict[str, Any]) -> bool:
+    def provable(self, weight_update: dict[str, Any]) -> bool:
         """Validate a weight update via formal proof."""
 
         return True
@@ -119,7 +119,7 @@ async def _llm_comment(delta_g: float) -> str:
 class Model:
     """Persisted model whose weights evolve over time."""
 
-    def commit(self, weight_update: Dict[str, Any]) -> None:
+    def commit(self, weight_update: dict[str, Any]) -> None:
         """Commit the supplied weights after verification."""
 
         log.info("[Model] New weights committed (Gödel-proof verified)")
@@ -152,7 +152,7 @@ async def run_cycle_async(
     if delta_g < 0:
         orchestrator.post_alpha_job(id(bundle), delta_g)
 
-    weight_update: Dict[str, Any] = {}
+    weight_update: dict[str, Any] = {}
     if gdl_agent.provable(weight_update):
         model.commit(weight_update)
 
