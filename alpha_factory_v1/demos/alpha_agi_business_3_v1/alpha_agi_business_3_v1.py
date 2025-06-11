@@ -21,7 +21,10 @@ from typing import Any, cast
 try:  # optional OpenAI Agents integration
     from openai_agents import OpenAIAgent
 except Exception:  # pragma: no cover - offline fallback
-    OpenAIAgent = None
+    try:  # fall back to the new package name
+        from agents import OpenAIAgent
+    except Exception:
+        OpenAIAgent = None
 
 
 log = logging.getLogger(__name__)
