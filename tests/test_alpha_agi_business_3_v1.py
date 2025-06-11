@@ -18,7 +18,8 @@ class DummyModel(demo.Model):
 
 
 @pytest.mark.asyncio
-async def test_run_cycle_commits() -> None:
+async def test_run_cycle_commits(caplog: pytest.LogCaptureFixture) -> None:
+    caplog.set_level("INFO")
     model = DummyModel()
     await demo.run_cycle_async(
         demo.Orchestrator(),
@@ -29,9 +30,15 @@ async def test_run_cycle_commits() -> None:
         model,
     )
     assert model.committed
+    assert any("New weights committed" in record.message for record in caplog.records)
+
 
 @pytest.mark.asyncio
-async def test_run_cycle_negative_delta_g_posts_job() -> None:
+async def test_run_cycle_negative_delta_g_posts_job(
+    caplog: pytest.LogCaptureFixture,
+) -> None:
+    caplog.set_level("INFO")
+
     class LowFin(demo.AgentFin):
         def latent_work(self, bundle):
             return 0.0
@@ -53,6 +60,8 @@ async def test_run_cycle_negative_delta_g_posts_job() -> None:
         DummyModel(),
     )
     assert orch.called
+    assert any("Posting alpha job" in record.message for record in caplog.records)
+
 
 def test_cli_execution() -> None:
     result = subprocess.run(
@@ -69,6 +78,7 @@ def test_cli_execution() -> None:
         text=True,
     )
     assert result.returncode == 0, result.stderr
+
 
 @pytest.mark.asyncio
 async def test_llm_comment_offline() -> None:

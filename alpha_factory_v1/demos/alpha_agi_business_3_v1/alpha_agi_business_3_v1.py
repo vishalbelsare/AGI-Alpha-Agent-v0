@@ -44,8 +44,10 @@ class Orchestrator:
     def post_alpha_job(self, bundle_id: int, delta_g: float) -> None:
         """Broadcast a new job for agents when ``delta_g`` is favourable."""
 
-        print(
-            f"[Orchestrator] Posting alpha job for bundle {bundle_id} with ΔG={delta_g:.6f}"
+        log.info(
+            "[Orchestrator] Posting alpha job for bundle %s with ΔG=%.6f",
+            bundle_id,
+            delta_g,
         )
 
 
@@ -104,9 +106,7 @@ async def _llm_comment(delta_g: float) -> str:
         base_url=(None if os.getenv("OPENAI_API_KEY") else "http://ollama:11434/v1"),
     )
     try:
-        return await agent(
-            f"In one sentence, comment on ΔG={delta_g:.4f} for the business."
-        )
+        return await agent(f"In one sentence, comment on ΔG={delta_g:.4f} for the business.")
     except Exception as exc:  # pragma: no cover - network failures
         log.warning("LLM comment failed: %s", exc)
         return "LLM error"
@@ -119,7 +119,7 @@ class Model:
     def commit(self, weight_update: Dict[str, Any]) -> None:
         """Commit the supplied weights after verification."""
 
-        print("[Model] New weights committed (Gödel-proof verified)")
+        log.info("[Model] New weights committed (Gödel-proof verified)")
 
 
 async def run_cycle_async(
@@ -166,17 +166,9 @@ def run_cycle(
     """Execute one evaluation + commitment cycle, creating an event loop if needed."""
 
     if loop is None:
-        asyncio.run(
-            run_cycle_async(
-                orchestrator, fin_agent, res_agent, ene_agent, gdl_agent, model
-            )
-        )
+        asyncio.run(run_cycle_async(orchestrator, fin_agent, res_agent, ene_agent, gdl_agent, model))
     else:
-        loop.run_until_complete(
-            run_cycle_async(
-                orchestrator, fin_agent, res_agent, ene_agent, gdl_agent, model
-            )
-        )
+        loop.run_until_complete(run_cycle_async(orchestrator, fin_agent, res_agent, ene_agent, gdl_agent, model))
 
 
 async def main(argv: list[str] | None = None) -> None:
@@ -213,9 +205,7 @@ async def main(argv: list[str] | None = None) -> None:
 
     cycle = 0
     while True:
-        await run_cycle_async(
-            orchestrator, fin_agent, res_agent, ene_agent, gdl_agent, model
-        )
+        await run_cycle_async(orchestrator, fin_agent, res_agent, ene_agent, gdl_agent, model)
         cycle += 1
         if args.cycles and cycle >= args.cycles:
             break
