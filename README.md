@@ -958,6 +958,7 @@ Install the optional test dependencies with:
 
 ```bash
 pip install -r requirements-dev.txt
+pip install -r requirements-demo.txt  # adds numpy, torch and extras
 ```
 
 Install the project in editable mode so tests resolve imports:
@@ -966,9 +967,9 @@ pip install -e .
 python check_env.py --auto-install  # times out after 10 minutes
 ```
 Run `python check_env.py --auto-install` again before executing `pytest` to
-ensure optional dependencies are present. In offline setups pass
-`--wheelhouse <dir>` (or set `WHEELHOUSE`) so packages install from the local
-wheel cache.
+ensure optional dependencies are present. When offline, set `WHEELHOUSE` or pass
+`--wheelhouse <dir>` so packages install from the local wheel cache. The
+repository ships with a `wheels/` directory that can be used as this cache.
 The full test suite relies on optional packages including `numpy`, `torch`,
 `pandas`, `prometheus_client`, `gymnasium`, `playwright`, `httpx`, `uvicorn`,
 `git` and `hypothesis`.

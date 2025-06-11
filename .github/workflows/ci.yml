@@ -68,6 +68,10 @@ jobs:
           pip install -r requirements.lock
           pip install -r requirements-dev.txt
           pip install pytest pytest-cov pytest-benchmark mutmut
+      - name: Verify environment
+        run: |
+          python scripts/check_python_deps.py
+          python check_env.py --auto-install
       - uses: actions/setup-node@v4
         with:
           node-version-file: '.nvmrc'

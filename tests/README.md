@@ -32,11 +32,10 @@ These integration tests expect the `alpha_factory_v1` package to be importable.
    `numpy`, `torch`, `pandas`, `prometheus_client`, `gymnasium`, `playwright`,
    `httpx`, `uvicorn`, `git` and `hypothesis`.
    
-   The test suite automatically attempts to install missing packages at
-   session start when `numpy` or `torch` are unavailable by invoking
-   `check_env.py --auto-install`.  Set the `WHEELHOUSE` environment
-   variable to point to a local wheel directory when running offline so
-   these installs can succeed without contacting PyPI.
+   Tests are skipped when `numpy` or `torch` are missing. Pre-install them with
+   `python check_env.py --auto-install`. Set the `WHEELHOUSE` environment
+   variable to point to a local wheel directory when running offline so this
+   command succeeds without contacting PyPI.
 6. Set `PYTHONPATH=$(pwd)` or install the project in editable mode with `pip install -e .`.
 7. Before running the tests, execute `python check_env.py --auto-install` once
    more (add `--wheelhouse <dir>` when offline), then run `pytest -q`.
