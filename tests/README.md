@@ -69,6 +69,23 @@ before running `pytest`.
 
 Missing optional dependencies often cause failures. Re-run the environment check or pass `--wheelhouse` to install them offline.
 
+### Air-gapped test run
+
+With the wheelhouse prepared, execute the environment check and test suite while
+offline:
+
+```bash
+export WHEELHOUSE=$(pwd)/wheels
+python check_env.py --auto-install --wheelhouse "$WHEELHOUSE"
+PYTHONPATH=$(pwd) pytest -q
+```
+
+`check_env.py` first looks for the `WHEELHOUSE` variable. When it is unset the
+script falls back to installing from PyPI, which fails on hosts without network
+access. `pytest` inherits the variable and will attempt the same fallback if
+packages are missing, so always set `WHEELHOUSE` (or pass `--wheelhouse`) in
+air‑gapped setups.
+
 When running from the repository root without installation:
 
 ```bash
