@@ -285,6 +285,24 @@ You can also run the Dockerised version:
 # builds `alpha_business_v3:latest` using `Dockerfile` in this folder
 ```
 
+#### Example Session
+
+```bash
+$ python alpha_agi_business_3_v1.py --cycles 1 --loglevel info
+2025-06-11 17:16:10 INFO     | ΔH=0.04 ΔS=0.01 β=1.0 → ΔG=0.03
+2025-06-11 17:16:10 INFO     | LLM: LLM offline
+2025-06-11 17:16:10 INFO     | [Model] New weights committed (Gödel-proof verified)
+```
+
+#### Environment Setup
+
+- `OPENAI_API_KEY` – optional. When set, the demo uses OpenAI Agents to
+  generate a short LLM comment. Leave it unset to run in fully offline mode.
+- Python ≥3.11 with packages from `requirements.txt` installed. Install the
+  optional `openai_agents` package if you want SDK integration. The helper
+  script `run_business_3_demo.sh` builds a Docker image with all dependencies
+  preinstalled.
+
 ---
 
 <a id="9"></a>
