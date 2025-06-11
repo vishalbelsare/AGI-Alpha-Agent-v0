@@ -125,7 +125,8 @@ def main(argv: Optional[List[str]] = None) -> int:
         except subprocess.TimeoutExpired:
             print(
                 "Timed out installing baseline requirements. "
-                "Re-run with '--wheelhouse <path>' to install offline packages."
+                "Re-run with '--wheelhouse <path>' to install offline packages. "
+                "See docs/OFFLINE_SETUP.md."
             )
             return 1
         except subprocess.CalledProcessError as exc:
@@ -134,7 +135,8 @@ def main(argv: Optional[List[str]] = None) -> int:
             if any(kw in stderr.lower() for kw in ["connection", "temporary failure", "network", "resolve"]):
                 print(
                     "Network failure detected. Re-run with '--wheelhouse <path>' "
-                    "or set WHEELHOUSE to install offline packages."
+                    "or set WHEELHOUSE to install offline packages. "
+                    "See docs/OFFLINE_SETUP.md."
                 )
             return exc.returncode
 
@@ -167,7 +169,8 @@ def main(argv: Optional[List[str]] = None) -> int:
                 result = subprocess.run(cmd, capture_output=True, text=True, check=True, timeout=600)
             except subprocess.TimeoutExpired:
                 print(
-                    "Timed out installing packages. Re-run with '--wheelhouse <path>' " "to install from local wheels."
+                    "Timed out installing packages. Re-run with '--wheelhouse <path>' " "to install from local wheels. "
+                    "See docs/OFFLINE_SETUP.md."
                 )
                 return 1
             except subprocess.CalledProcessError as exc:
@@ -176,7 +179,8 @@ def main(argv: Optional[List[str]] = None) -> int:
                 if any(kw in stderr.lower() for kw in ["connection", "temporary failure", "network", "resolve"]):
                     print(
                         "Network failure detected. Re-run with '--wheelhouse <path>' "
-                        "or set WHEELHOUSE to install offline packages."
+                        "or set WHEELHOUSE to install offline packages. "
+                        "See docs/OFFLINE_SETUP.md."
                     )
                 return 1
             else:

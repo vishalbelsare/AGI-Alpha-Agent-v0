@@ -49,6 +49,7 @@ Opens **http://localhost:7860** with a Gradio portal to every demo. Works on ma
 
 Advanced workflows like the OpenAI Agents bridge require the `openai-agents`
 package and `OPENAI_API_KEY` set.
+For air‑gapped installs see [docs/OFFLINE_SETUP.md](../../docs/OFFLINE_SETUP.md).
 
 ---
 

@@ -285,6 +285,8 @@ these local wheels. Use the same variable when running `pre-commit` or tests:
 ```bash
 python check_env.py --auto-install --wheelhouse /media/wheels
 ```
+For a concise reference see
+[docs/OFFLINE_SETUP.md](../../../docs/OFFLINE_SETUP.md).
 
 ### 🎛️ Local Gradio Dashboard
 

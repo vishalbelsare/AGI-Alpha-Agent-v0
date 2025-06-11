@@ -164,7 +164,9 @@ Follow these steps when working without internet access.
 `WHEELHOUSE=/media/wheels` when running `pre-commit` or the tests so
 dependencies install from the local cache. See
 [Offline Setup](alpha_factory_v1/scripts/README.md#offline-setup) for more
-details. If package installation hangs for more than ten minutes,
+details. A short reference lives in
+[docs/OFFLINE_SETUP.md](docs/OFFLINE_SETUP.md). If package installation hangs
+for more than ten minutes,
 `check_env.py` will time out and suggest using `--wheelhouse` for
 offline installs.
 
