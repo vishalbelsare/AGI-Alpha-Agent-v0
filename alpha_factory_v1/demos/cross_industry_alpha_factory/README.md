@@ -117,6 +117,15 @@ The `requirements-demo.txt` file installs these extras, including
 
 or install the packages individually.
 
+### Testing
+Run the cross-industry discovery test to ensure the stub works:
+
+```bash
+pytest tests/test_cross_alpha_discovery.py
+```
+
+See [tests/README.md](../../../tests/README.md) for environment setup guidance.
+
 ### 🤖 OpenAI Agents bridge
 Expose the discovery helper via the OpenAI Agents SDK:
 ```bash
