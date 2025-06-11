@@ -22,6 +22,7 @@ pip install --no-index --find-links /path/to/wheels -r requirements.txt
 
 Ensure `pytest` and `prometheus_client` are present so the built-in tests and
 metrics exporter function correctly.
+See [docs/OFFLINE_SETUP.md](../../../docs/OFFLINE_SETUP.md) for more details.
 
 ### Running Tests
 

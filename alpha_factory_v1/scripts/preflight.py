@@ -137,7 +137,8 @@ def check_network(host: str = "pypi.org", timeout: float = 2.0) -> bool:
         socket.gethostbyname(host)
     except Exception:
         banner(
-            f"WARNING: Unable to resolve {host}. Use --wheelhouse for offline installs.",
+            f"WARNING: Unable to resolve {host}. Use --wheelhouse for offline installs."
+            " See docs/OFFLINE_SETUP.md for guidance.",
             "YELLOW",
         )
         return False

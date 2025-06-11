@@ -115,6 +115,8 @@ WHEELHOUSE=/media/wheels AUTO_INSTALL_MISSING=1 ./codex/setup.sh
 WHEELHOUSE=/media/wheels AUTO_INSTALL_MISSING=1 \
   python check_env.py --auto-install --wheelhouse /media/wheels
 ```
+See [docs/OFFLINE_SETUP.md](../../../docs/OFFLINE_SETUP.md) for a short
+reference.
 
 Set `NO_LLM=1` to disable the planning agent when no API key is available. The
 `deploy_alpha_asi_world_model_demo.sh` helper exports this variable

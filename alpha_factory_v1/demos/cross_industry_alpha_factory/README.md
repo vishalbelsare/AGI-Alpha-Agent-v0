@@ -68,6 +68,8 @@ Customize variables like `OPENAI_API_KEY`, `AGENTS_ENABLED`, `PROM_PORT` or
 python scripts/check_python_deps.py
 python check_env.py --auto-install  # add --wheelhouse <dir> when offline
 ```
+See [docs/OFFLINE_SETUP.md](../../../docs/OFFLINE_SETUP.md) for wheelhouse
+instructions.
 
 #### Pre-download Mixtral weights
 Pull the 8×7B model once and mount it during deployment:

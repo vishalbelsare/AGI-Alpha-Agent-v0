@@ -168,7 +168,8 @@ WHEELHOUSE=/tmp/wheels pip install -r requirements.txt
 
 The repository's setup script automatically uses a `wheels/` directory
 in the project root when present, so placing your pre-built wheels there
-also works.
+also works. See
+[docs/OFFLINE_SETUP.md](../../../docs/OFFLINE_SETUP.md) for a summary.
 
 ### Environment variables
 The demo consults a few environment variables when choosing a rewrite strategy

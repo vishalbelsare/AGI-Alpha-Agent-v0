@@ -133,6 +133,8 @@ Follow these steps when working **air‑gapped**:
 
 See [scripts/README.md](../../scripts/README.md#offline-setup) for details on
 creating the wheelhouse.
+Consult [docs/OFFLINE_SETUP.md](../../../docs/OFFLINE_SETUP.md) for a brief
+overview.
 
 ### Installing the OpenAI Agents SDK
 

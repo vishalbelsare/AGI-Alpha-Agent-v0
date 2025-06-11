@@ -540,6 +540,8 @@ WHEELHOUSE=/media/wheels pytest -q
 
 `playwright` and other heavy packages must exist in the wheelhouse for tests to
 pass offline.
+See [docs/OFFLINE_SETUP.md](../../../docs/OFFLINE_SETUP.md) for a concise
+summary.
 
 ### Troubleshooting
 
