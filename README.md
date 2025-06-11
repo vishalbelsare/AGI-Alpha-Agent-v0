@@ -683,6 +683,7 @@ notebooks install PyTorch from the [PyTorch wheel index](https://download.pytorc
 and pin Ray to the same version for compatibility.
 
 * [Solving AGI Governance](alpha_factory_v1/demos/solving_agi_governance/README.md) — Monte‑Carlo governance simulation with optional OpenAI‑Agents/ADK integration. [Colab](alpha_factory_v1/demos/solving_agi_governance/colab_solving_agi_governance.ipynb)
+* **Note:** The `alpha_agi_business_3_v1` demo is intentionally left out of the published package. Clone this repository to run it from source.
 
 | `USE_GPU` | PyTorch wheel URL |
 |:--------:|-------------------------------------------------|
