@@ -10,7 +10,11 @@ before attempting to resolve any remaining missing packages with
 local directory.
 
 The script prints a warning when packages are missing but continues to
-run so the demos remain usable in restricted setups.
+run so the demos remain usable in restricted setups.  It also performs a
+quick DNS lookup to detect whether the host has network access. When
+``--auto-install`` is used without connectivity and no ``--wheelhouse``
+is provided the script exits early with instructions rather than waiting
+for ``pip`` timeouts.
 """
 
 import importlib.util
@@ -18,6 +22,7 @@ import subprocess
 import os
 import sys
 import argparse
+import socket
 from pathlib import Path
 from typing import List, Optional
 
@@ -83,6 +88,15 @@ IMPORT_NAMES = {
 }
 
 
+def has_network() -> bool:
+    """Return ``True`` if DNS resolution for ``pypi.org`` succeeds."""
+    try:
+        socket.gethostbyname("pypi.org")
+        return True
+    except OSError:
+        return False
+
+
 def main(argv: Optional[List[str]] = None) -> int:
     parser = argparse.ArgumentParser(description="Validate runtime dependencies")
     parser.add_argument(
@@ -97,10 +111,18 @@ def main(argv: Optional[List[str]] = None) -> int:
 
     args = parser.parse_args(argv)
 
-    missing_core = warn_missing_core()
-
     wheelhouse = args.wheelhouse or os.getenv("WHEELHOUSE")
     auto = args.auto_install or os.getenv("AUTO_INSTALL_MISSING") == "1"
+
+    if auto and not wheelhouse and not has_network():
+        print(
+            "No network access detected. Re-run with '--wheelhouse <path>' "
+            "or set WHEELHOUSE to install packages from local wheels. "
+            "See docs/OFFLINE_SETUP.md."
+        )
+        return 1
+
+    missing_core = warn_missing_core()
 
     if auto and missing_core:
         cmd = [sys.executable, "-m", "pip", "install", "--quiet"]
