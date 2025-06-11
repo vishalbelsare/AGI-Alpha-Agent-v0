@@ -10,7 +10,7 @@ IFS=$'\n\t'; shopt -s lastpipe
 # Set AUTO_COMMIT=1 to automatically commit generated assets.
 
 usage(){
-  echo "Usage: $0 [--ci] [--skip-bench]" >&2
+  echo "Usage: $0 [--ci] [--skip-bench] [--model-path <dir>]" >&2
 }
 
 while [[ $# -gt 0 ]]; do
@@ -19,6 +19,8 @@ while [[ $# -gt 0 ]]; do
       CI=1;;
     --skip-bench)
       SKIP_BENCH=1;;
+    --model-path)
+      MODEL_PATH=$2; shift;;
     -h|--help)
       usage; exit 0;;
     *)
@@ -130,7 +132,11 @@ if [[ -z ${OPENAI_API_KEY:-} ]]; then
   OPENAI_API_BASE="http://local-llm:11434/v1"
   sed -i.bak 's|^OPENAI_API_BASE=.*|OPENAI_API_BASE=http://local-llm:11434/v1|' alpha_factory_v1/.env
   # Pin ollama 0.9.0 for reproducibility
-  patch local-llm '.services += {"local-llm":{image:"ollama/ollama:0.9.0",ports:["11434:11434"],volumes:["ollama:/root/.ollama"],environment:{"OLLAMA_MODELS":"mixtral:8x7b-instruct"}}}'
+  if [[ -n ${MODEL_PATH:-} ]]; then
+    patch local-llm ".services += {\"local-llm\":{image:\"ollama/ollama:0.9.0\",ports:[\"11434:11434\"],volumes:[\"${MODEL_PATH}:/models\"],environment:{\"OLLAMA_MODELS\":\"/models\"}}}"
+  else
+    patch local-llm '.services += {"local-llm":{image:"ollama/ollama:0.9.0",ports:["11434:11434"],volumes:["ollama:/root/.ollama"],environment:{"OLLAMA_MODELS":"mixtral:8x7b-instruct"}}}'
+  fi
 fi
 
 # core side-cars (pinned versions)
