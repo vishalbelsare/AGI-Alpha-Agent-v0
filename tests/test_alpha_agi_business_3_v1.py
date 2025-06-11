@@ -108,6 +108,29 @@ async def test_llm_comment_uses_local_model(monkeypatch: pytest.MonkeyPatch) -> 
     assert called["prompt"].startswith("In one sentence, comment on ΔG=0.1234")
 
 
+@pytest.mark.asyncio  # type: ignore[misc]
+async def test_llm_comment_no_openai(monkeypatch: pytest.MonkeyPatch) -> None:
+    """_llm_comment should rely on the local model when OpenAI is unavailable."""
+    called = {}
+
+    def fake_chat(prompt: str, cfg: object | None = None) -> str:
+        called["prompt"] = prompt
+        return "offline"
+
+    monkeypatch.delenv("OPENAI_API_KEY", raising=False)
+    removed = sys.modules.pop("openai_agents", None)
+    monkeypatch.setattr(demo.local_llm, "chat", fake_chat)
+
+    try:
+        out = await demo._llm_comment(-0.42)
+    finally:
+        if removed is not None:
+            sys.modules["openai_agents"] = removed
+
+    assert out == "offline"
+    assert called["prompt"].startswith("In one sentence, comment on ΔG=-0.4200")
+
+
 def test_run_cycle_sync_commits() -> None:
     model = DummyModel()
     demo.run_cycle(
