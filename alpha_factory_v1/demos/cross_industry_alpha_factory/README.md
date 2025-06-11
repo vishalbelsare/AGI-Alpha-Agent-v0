@@ -45,6 +45,9 @@ The notebook installs dependencies from `../requirements-colab.lock` for a quick
 Both flows autodetect `OPENAI_API_KEY`; when absent they inject a **Mixtral 8×7B**
 local LLM container so the demo works **fully offline**.
 
+Install the extras from `requirements-demo.txt` if you plan to run
+`cross_alpha_discovery_stub.py` or `openai_agents_bridge.py`.
+
 > **Prerequisite**: Docker 24+ with the `docker compose` plugin (or the
 > legacy `docker-compose` binary) must be installed.
 
