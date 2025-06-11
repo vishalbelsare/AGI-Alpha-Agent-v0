@@ -169,6 +169,24 @@ class TestCrossAlphaDiscoveryStub(unittest.TestCase):
         kwargs = openai_mock.ChatCompletion.create.call_args.kwargs
         self.assertEqual(kwargs.get("response_format"), {"type": "json_object"})
 
+    def test_openai_v1_response_format(self) -> None:
+        from alpha_factory_v1.demos.cross_industry_alpha_factory import (
+            cross_alpha_discovery_stub as stub,
+        )
+
+        resp = types.SimpleNamespace(choices=[types.SimpleNamespace(message=types.SimpleNamespace(content="[]"))])
+        openai_mock = types.SimpleNamespace(
+            chat=types.SimpleNamespace(completions=types.SimpleNamespace(create=Mock(return_value=resp)))
+        )
+
+        with patch.dict(os.environ, {"OPENAI_API_KEY": "x"}):
+            with patch.object(stub, "openai", openai_mock):
+                stub.discover_alpha(num=1, ledger=None, model="gpt-4o-mini")
+
+        openai_mock.chat.completions.create.assert_called_once()
+        kwargs = openai_mock.chat.completions.create.call_args.kwargs
+        self.assertEqual(kwargs.get("response_format"), {"type": "json_object"})
+
     def test_concurrent_writes(self) -> None:
         from alpha_factory_v1.demos.cross_industry_alpha_factory import (
             cross_alpha_discovery_stub as stub,

@@ -98,7 +98,12 @@ def discover_alpha(
     if "openai" in globals() and os.getenv("OPENAI_API_KEY"):
         prompt = "List " f"{num} short cross-industry investment opportunities as JSON"
         try:
-            resp = openai.ChatCompletion.create(
+            if hasattr(openai, "chat") and hasattr(openai.chat, "completions"):
+                create = openai.chat.completions.create
+            else:
+                create = openai.ChatCompletion.create
+
+            resp = create(
                 model=model,
                 messages=[{"role": "user", "content": prompt}],
                 response_format={"type": "json_object"},
