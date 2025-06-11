@@ -13,8 +13,8 @@ These integration tests expect the `alpha_factory_v1` package to be importable.
    ```bash
    pip install -r requirements-demo.txt
    ```
-   This also installs `openai>=1.82.0,<2.0` and `openai-agents>=0.0.16` for
-   the OpenAI Agents tests.
+   This also installs `openai>=1.82.0,<2.0`, `openai-agents` and `google-adk` so
+   the optional integration tests can run.
    3. Verify the core dependencies are present:
    ```bash
    python scripts/check_python_deps.py
@@ -103,6 +103,9 @@ pytest -q
 ```bash
 OPENAI_API_KEY=dummy pytest tests/test_meta_agentic_tree_search_demo.py::test_bridge_online_mode
 ```
+- The optional integration checks in `test_external_integrations.py` exercise
+  the real `openai_agents` and `google_adk` packages. Install them via
+  `requirements-demo.txt` or they will be skipped automatically.
 - The meta-agentic tree search tests also rely on `numpy` and `pyyaml`. These packages are included in `requirements-dev.txt`, so running `pip install -r requirements-dev.txt` will install them.
 
 ## Troubleshooting
