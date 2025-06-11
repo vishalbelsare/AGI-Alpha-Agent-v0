@@ -268,7 +268,8 @@ https://colab.research.google.com/github/MontrealAI/AGI-Alpha-Agent-v0/blob/main
 ```
 
 
-No `OPENAI_API_KEY`? It auto‑switches to **Llama‑3‑8B.gguf**.
+No `OPENAI_API_KEY`? Set `LLAMA_MODEL_PATH` to a local `.gguf` weight – for
+example **Llama‑3‑8B.gguf** – to enable offline inference.
 
 #### Quick Local Demo
 

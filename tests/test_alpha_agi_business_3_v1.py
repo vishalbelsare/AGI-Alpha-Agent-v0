@@ -91,6 +91,23 @@ async def test_llm_comment_offline() -> None:
     assert isinstance(msg, str)
 
 
+@pytest.mark.asyncio  # type: ignore[misc]
+async def test_llm_comment_uses_local_model(monkeypatch: pytest.MonkeyPatch) -> None:
+    called = {}
+
+    def fake_chat(prompt: str, cfg: object | None = None) -> str:
+        called["prompt"] = prompt
+        return "local"
+
+    monkeypatch.setattr(demo, "OpenAIAgent", None)
+    monkeypatch.setattr(demo.local_llm, "chat", fake_chat)
+
+    out = await demo._llm_comment(0.1234)
+
+    assert out == "local"
+    assert called["prompt"].startswith("In one sentence, comment on ΔG=0.1234")
+
+
 def test_run_cycle_sync_commits() -> None:
     model = DummyModel()
     demo.run_cycle(

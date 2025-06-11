@@ -19,6 +19,8 @@ import os
 import hashlib
 from typing import Any, cast
 
+from alpha_factory_v1.demos.alpha_agi_insight_v1.src.utils import local_llm
+
 try:  # optional OpenAI Agents integration
     from openai_agents import OpenAIAgent
 except Exception:  # pragma: no cover - offline fallback
@@ -102,7 +104,9 @@ async def _llm_comment(delta_g: float) -> str:
     # ``alpha_factory_v1.backend`` exposes a non-callable placeholder.
     # Guard against that scenario as well so offline tests succeed.
     if OpenAIAgent is None or not callable(OpenAIAgent):
-        return "LLM offline"
+        return local_llm.chat(
+            f"In one sentence, comment on ΔG={delta_g:.4f} for the business."
+        )
 
     agent = OpenAIAgent(
         model=os.getenv("MODEL_NAME", "gpt-4o-mini"),
