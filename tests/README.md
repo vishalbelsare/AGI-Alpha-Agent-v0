@@ -13,7 +13,9 @@ These integration tests expect the `alpha_factory_v1` package to be importable.
    ```bash
    pip install -r requirements-demo.txt
    ```
-3. Verify the core dependencies are present:
+   This also installs `openai>=1.82.0,<2.0` and `openai-agents>=0.0.16` for
+   the OpenAI Agents tests.
+   3. Verify the core dependencies are present:
    ```bash
    python scripts/check_python_deps.py
    ```
