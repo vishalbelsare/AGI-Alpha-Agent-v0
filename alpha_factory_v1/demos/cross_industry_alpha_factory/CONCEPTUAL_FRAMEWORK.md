@@ -23,9 +23,11 @@ user -> orchestrator (FastAPI)
 ## Typical Workflow
 
 1. Run `deploy_alpha_factory_cross_industry_demo.sh` or open the Colab notebook to launch the stack.
-2. (Optional) Start `openai_agents_bridge.py` to drive the discovery stub via the Agents SDK or ADK.
-3. Interact with the REST API or Grafana dashboards to monitor agent activity.
-4. The PPO trainer periodically updates each agent using rewards defined in `continual/rubric.json`.
+2. Install `requirements-demo.txt` if you want to use `cross_alpha_discovery_stub.py`
+   or the OpenAI Agents bridge.
+3. (Optional) Start `openai_agents_bridge.py` to drive the discovery stub via the Agents SDK or ADK.
+4. Interact with the REST API or Grafana dashboards to monitor agent activity.
+5. The PPO trainer periodically updates each agent using rewards defined in `continual/rubric.json`.
 
 The shipped agents are lightweight but illustrate how more sophisticated domain logic can plug into the orchestrator. Each agent subclass resides in `cross_industry_alpha_factory` and can be swapped for a production implementation.
 
