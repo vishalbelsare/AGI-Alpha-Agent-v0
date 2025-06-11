@@ -1,18 +1,10 @@
 -r requirements.txt
-pytest
 pytest-benchmark
-prometheus_client
 mypy
-fastapi
-opentelemetry-api
-cryptography
 hypothesis
 grpcio-tools
 pytest-httpx
 pre-commit
-
-numpy
-PyYAML
 types-PyYAML
 types-requests
 papermill

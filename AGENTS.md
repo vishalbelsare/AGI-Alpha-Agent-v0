@@ -69,6 +69,9 @@ Follow these steps when installing without internet access:
   ```bash
   pip-compile --generate-hashes --output-file requirements.lock requirements.txt
   ```
+  Run this command whenever you edit `requirements*.txt` so the lock file stays
+  in sync. The `verify-requirements-lock` hook checks for mismatches during
+  `pre-commit`.
 
 - Install from the lock file to reproduce identical environments:
   ```bash
