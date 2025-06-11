@@ -96,7 +96,7 @@ def discover_alpha(
         random.seed(seed)
     picks: List[Dict[str, str]] = []
     if "openai" in globals() and os.getenv("OPENAI_API_KEY"):
-        prompt = "List " f"{num} short cross-industry investment opportunities as JSON"
+        prompt = f"List {num} short cross-industry investment opportunities as JSON"
         try:
             if hasattr(openai, "chat") and hasattr(openai.chat, "completions"):
                 create = openai.chat.completions.create
