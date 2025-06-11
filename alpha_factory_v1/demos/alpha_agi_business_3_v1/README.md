@@ -256,7 +256,7 @@ helm install omega-lattice omega/omega-lattice \
 ```bash
 python -m venv venv && source venv/bin/activate
 pip install -r requirements.txt
-python -m omega_lattice.orchestrator --offline
+python -m alpha_factory_v1.demos.alpha_agi_business_3_v1 --offline
 ```
 
 ### 8.4 Colab Notebook
