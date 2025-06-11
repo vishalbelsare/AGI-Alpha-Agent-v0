@@ -298,11 +298,9 @@ $ python alpha_agi_business_3_v1.py --cycles 1 --loglevel info
 
 - `OPENAI_API_KEY` – optional. When set, the demo uses OpenAI Agents to
   generate a short LLM comment. Leave it unset to run in fully offline mode.
-- Python ≥3.11 with packages from `requirements.txt` installed.
-  The helper script `run_business_3_demo.sh` builds a Docker image with the demo
-  dependencies preinstalled **except** for `openai_agents`. Install it manually
-  with `pip install openai_agents` or add it to the Dockerfile if you need OpenAI
-  Agents integration.
+- Python ≥3.11 with packages from `requirements.txt` installed. The
+  `run_business_3_demo.sh` helper now builds a Docker image that includes
+  `openai_agents` by default.
 
 ---
 

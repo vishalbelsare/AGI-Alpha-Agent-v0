@@ -4,7 +4,9 @@ WORKDIR /app
 
 # Install demo dependencies
 COPY ../../../../requirements-demo.txt /tmp/requirements-demo.txt
-RUN pip install --no-cache-dir -r /tmp/requirements-demo.txt && rm /tmp/requirements-demo.txt
+RUN pip install --no-cache-dir -r /tmp/requirements-demo.txt \
+    && pip install --no-cache-dir openai-agents \
+    && rm /tmp/requirements-demo.txt
 
 # Copy only the demo package
 RUN mkdir -p alpha_factory_v1/demos
