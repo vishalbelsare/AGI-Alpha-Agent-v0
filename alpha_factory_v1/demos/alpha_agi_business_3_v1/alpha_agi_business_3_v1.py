@@ -16,7 +16,7 @@ import argparse
 import logging
 import asyncio
 import os
-from typing import Any, Dict
+from typing import Any, Dict, cast
 
 try:  # optional OpenAI Agents integration
     from openai_agents import OpenAIAgent
@@ -106,7 +106,10 @@ async def _llm_comment(delta_g: float) -> str:
         base_url=(None if os.getenv("OPENAI_API_KEY") else "http://ollama:11434/v1"),
     )
     try:
-        return await agent(f"In one sentence, comment on ΔG={delta_g:.4f} for the business.")
+        return cast(
+            str,
+            await agent(f"In one sentence, comment on ΔG={delta_g:.4f} for the business."),
+        )
     except Exception as exc:  # pragma: no cover - network failures
         log.warning("LLM comment failed: %s", exc)
         return "LLM error"
@@ -163,7 +166,16 @@ def run_cycle(
     model: Model,
     loop: asyncio.AbstractEventLoop | None = None,
 ) -> None:
-    """Execute one evaluation + commitment cycle, creating an event loop if needed."""
+    """Execute one evaluation cycle, creating an event loop if required."""
+
+    try:
+        running_loop = asyncio.get_running_loop()
+    except RuntimeError:
+        running_loop = None
+
+    if running_loop is not None:
+        running_loop.create_task(run_cycle_async(orchestrator, fin_agent, res_agent, ene_agent, gdl_agent, model))
+        return
 
     if loop is None:
         asyncio.run(run_cycle_async(orchestrator, fin_agent, res_agent, ene_agent, gdl_agent, model))

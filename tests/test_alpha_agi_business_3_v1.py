@@ -12,12 +12,12 @@ class DummyModel(demo.Model):
     def __init__(self) -> None:
         self.committed = False
 
-    def commit(self, weight_update: dict[str, object]) -> None:  # type: ignore[override]
+    def commit(self, weight_update: dict[str, object]) -> None:
         self.committed = True
         super().commit(weight_update)
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio  # type: ignore[misc]
 async def test_run_cycle_commits(caplog: pytest.LogCaptureFixture) -> None:
     caplog.set_level("INFO")
     model = DummyModel()
@@ -33,14 +33,14 @@ async def test_run_cycle_commits(caplog: pytest.LogCaptureFixture) -> None:
     assert any("New weights committed" in record.message for record in caplog.records)
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio  # type: ignore[misc]
 async def test_run_cycle_negative_delta_g_posts_job(
     caplog: pytest.LogCaptureFixture,
 ) -> None:
     caplog.set_level("INFO")
 
     class LowFin(demo.AgentFin):
-        def latent_work(self, bundle):
+        def latent_work(self, bundle: dict[str, object]) -> float:
             return 0.0
 
     class CaptureOrch(demo.Orchestrator):
@@ -80,7 +80,35 @@ def test_cli_execution() -> None:
     assert result.returncode == 0, result.stderr
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio  # type: ignore[misc]
 async def test_llm_comment_offline() -> None:
     msg = await demo._llm_comment(-0.1)
     assert isinstance(msg, str)
+
+
+def test_run_cycle_sync_commits() -> None:
+    model = DummyModel()
+    demo.run_cycle(
+        demo.Orchestrator(),
+        demo.AgentFin(),
+        demo.AgentRes(),
+        demo.AgentEne(),
+        demo.AgentGdl(),
+        model,
+    )
+    assert model.committed
+
+
+@pytest.mark.asyncio  # type: ignore[misc]
+async def test_run_cycle_async_context() -> None:
+    model = DummyModel()
+    demo.run_cycle(
+        demo.Orchestrator(),
+        demo.AgentFin(),
+        demo.AgentRes(),
+        demo.AgentEne(),
+        demo.AgentGdl(),
+        model,
+    )
+    await asyncio.sleep(0)
+    assert model.committed
