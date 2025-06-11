@@ -128,7 +128,7 @@ patch(){
 # offline Mixtral-8x7B if no API key
 if [[ -z ${OPENAI_API_KEY:-} ]]; then
   OPENAI_API_BASE="http://local-llm:11434/v1"
-  sed -i 's|^OPENAI_API_BASE=.*|OPENAI_API_BASE=http://local-llm:11434/v1|' alpha_factory_v1/.env
+  sed -i.bak 's|^OPENAI_API_BASE=.*|OPENAI_API_BASE=http://local-llm:11434/v1|' alpha_factory_v1/.env
   # Pin ollama 0.9.0 for reproducibility
   patch local-llm '.services += {"local-llm":{image:"ollama/ollama:0.9.0",ports:["11434:11434"],volumes:["ollama:/root/.ollama"],environment:{"OLLAMA_MODELS":"mixtral:8x7b-instruct"}}}'
 fi

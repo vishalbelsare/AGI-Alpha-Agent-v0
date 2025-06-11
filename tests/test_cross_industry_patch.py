@@ -48,8 +48,13 @@ exit 0
     )
 
     subprocess.run(["bash", str(script)], check=True, env=env, timeout=10)
+    bak = tmp_path / "AGI-Alpha-Agent-v0" / "alpha_factory_v1" / ".env.bak"
+    if bak.exists():
+        bak.unlink()
     first = yaml.safe_load(compose.read_text())
     subprocess.run(["bash", str(script)], check=True, env=env, timeout=10)
+    if bak.exists():
+        bak.unlink()
     second = yaml.safe_load(compose.read_text())
     return {"first": first, "second": second}
 
