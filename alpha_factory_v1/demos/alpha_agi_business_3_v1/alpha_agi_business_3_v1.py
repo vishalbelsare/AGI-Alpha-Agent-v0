@@ -14,8 +14,8 @@ from __future__ import annotations
 from dataclasses import dataclass
 import argparse
 import logging
-import time
 import asyncio
+import time
 import os
 from typing import Any, Dict
 
@@ -123,8 +123,14 @@ class Model:
         print("[Model] New weights committed (Gödel-proof verified)")
 
 
-def run_cycle(orchestrator: Orchestrator, fin_agent: AgentFin, res_agent: AgentRes,
-              ene_agent: AgentEne, gdl_agent: AgentGdl, model: Model) -> None:
+async def run_cycle_async(
+    orchestrator: Orchestrator,
+    fin_agent: AgentFin,
+    res_agent: AgentRes,
+    ene_agent: AgentEne,
+    gdl_agent: AgentGdl,
+    model: Model,
+) -> None:
     """Execute one evaluation + commitment cycle."""
 
     bundle = orchestrator.collect_signals()
@@ -138,7 +144,7 @@ def run_cycle(orchestrator: Orchestrator, fin_agent: AgentFin, res_agent: AgentR
 
     log.info("ΔH=%s ΔS=%s β=%s → ΔG=%s", delta_h, delta_s, beta, delta_g)
 
-    comment = asyncio.run(_llm_comment(delta_g))
+    comment = await _llm_comment(delta_g)
     log.info("LLM: %s", comment)
 
     if delta_g < 0:
@@ -149,7 +155,32 @@ def run_cycle(orchestrator: Orchestrator, fin_agent: AgentFin, res_agent: AgentR
         model.commit(weight_update)
 
 
-def main(argv: list[str] | None = None) -> None:
+def run_cycle(
+    orchestrator: Orchestrator,
+    fin_agent: AgentFin,
+    res_agent: AgentRes,
+    ene_agent: AgentEne,
+    gdl_agent: AgentGdl,
+    model: Model,
+    loop: asyncio.AbstractEventLoop | None = None,
+) -> None:
+    """Execute one evaluation + commitment cycle, creating an event loop if needed."""
+
+    if loop is None:
+        asyncio.run(
+            run_cycle_async(
+                orchestrator, fin_agent, res_agent, ene_agent, gdl_agent, model
+            )
+        )
+    else:
+        loop.run_until_complete(
+            run_cycle_async(
+                orchestrator, fin_agent, res_agent, ene_agent, gdl_agent, model
+            )
+        )
+
+
+async def main(argv: list[str] | None = None) -> None:
     """Entry point for command line execution."""
 
     ap = argparse.ArgumentParser(description="Run the Ω‑Lattice business demo")
@@ -183,12 +214,14 @@ def main(argv: list[str] | None = None) -> None:
 
     cycle = 0
     while True:
-        run_cycle(orchestrator, fin_agent, res_agent, ene_agent, gdl_agent, model)
+        await run_cycle_async(
+            orchestrator, fin_agent, res_agent, ene_agent, gdl_agent, model
+        )
         cycle += 1
         if args.cycles and cycle >= args.cycles:
             break
-        time.sleep(args.interval)
+        await asyncio.sleep(args.interval)
 
 
 if __name__ == "__main__":  # pragma: no cover - manual execution
-    main()
+    asyncio.run(main())
