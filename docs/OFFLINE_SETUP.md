@@ -34,3 +34,14 @@ python check_env.py --auto-install --wheelhouse "$WHEELHOUSE"
 Run `pytest -q` once the check succeeds.
 
 See [tests/README.md](../tests/README.md#offline-install) and [AGENTS.md](../AGENTS.md#offline-setup) for the full instructions.
+
+### Example: Business demo
+The business demo works offline when a wheelhouse is provided. Assuming
+the wheels live under `/media/wheels`:
+
+```bash
+export WHEELHOUSE=/media/wheels
+export AUTO_INSTALL_MISSING=1
+python alpha_factory_v1/demos/alpha_agi_business_v1/start_alpha_business.py \
+  --wheelhouse "$WHEELHOUSE"
+```
