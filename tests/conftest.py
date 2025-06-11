@@ -24,17 +24,8 @@ rocketry_stub.conds = conds_mod
 sys.modules.setdefault("rocketry", rocketry_stub)
 sys.modules.setdefault("rocketry.conds", conds_mod)
 
-
-def pytest_sessionstart(session: pytest.Session) -> None:
-    """Ensure core packages are installed at session start."""
-    missing = [name for name in ("numpy", "torch") if importlib.util.find_spec(name) is None]
-    if missing:
-        try:
-            import check_env
-        except Exception as exc:  # pragma: no cover - fallback just prints
-            print(f"check_env unavailable: {exc}")
-        else:
-            check_env.main(["--auto-install"])
+pytest.importorskip("numpy", reason="numpy required")
+pytest.importorskip("torch", reason="torch required")
 
 
 @pytest.fixture(scope="module")
