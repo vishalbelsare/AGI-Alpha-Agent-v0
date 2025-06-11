@@ -66,6 +66,16 @@ python scripts/check_python_deps.py
 python check_env.py --auto-install  # add --wheelhouse <dir> when offline
 ```
 
+#### Pre-download Mixtral weights
+Pull the 8×7B model once and mount it during deployment:
+
+```bash
+docker run --rm -v "$PWD/models:/models" ollama/ollama:0.9.0 pull mixtral:8x7b-instruct
+./deploy_alpha_factory_cross_industry_demo.sh --model-path "$PWD/models"
+```
+The script sets `OLLAMA_MODELS=/models` inside the container so no internet
+access is required at runtime.
+
 #### Colab Quick Start
 Click the badge above or run:
 ```bash
