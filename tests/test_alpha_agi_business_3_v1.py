@@ -2,6 +2,7 @@
 import asyncio
 import subprocess
 import sys
+import hashlib
 
 import pytest
 
@@ -46,9 +47,11 @@ async def test_run_cycle_negative_delta_g_posts_job(
     class CaptureOrch(demo.Orchestrator):
         def __init__(self) -> None:
             self.called = False
+            self.received_id = ""
 
-        def post_alpha_job(self, bundle_id: int, delta_g: float) -> None:
+        def post_alpha_job(self, bundle_id: str, delta_g: float) -> None:
             self.called = True
+            self.received_id = bundle_id
 
     orch = CaptureOrch()
     await demo.run_cycle_async(
@@ -59,8 +62,10 @@ async def test_run_cycle_negative_delta_g_posts_job(
         demo.AgentGdl(),
         DummyModel(),
     )
+    expected_id = hashlib.sha256(repr(demo.Orchestrator().collect_signals()).encode()).hexdigest()[:8]
     assert orch.called
-    assert any("Posting alpha job" in record.message for record in caplog.records)
+    assert orch.received_id == expected_id
+    assert any(f"Posting alpha job for bundle {expected_id}" in record.message for record in caplog.records)
 
 
 def test_cli_execution() -> None:

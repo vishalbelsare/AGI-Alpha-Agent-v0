@@ -16,6 +16,7 @@ import argparse
 import logging
 import asyncio
 import os
+import hashlib
 from typing import Any, cast
 
 try:  # optional OpenAI Agents integration
@@ -44,7 +45,7 @@ class Orchestrator:
 
         return {"signal": "example"}
 
-    def post_alpha_job(self, bundle_id: int, delta_g: float) -> None:
+    def post_alpha_job(self, bundle_id: str, delta_g: float) -> None:
         """Broadcast a new job for agents when ``delta_g`` is favourable."""
 
         log.info(
@@ -153,7 +154,8 @@ async def run_cycle_async(
     log.info("LLM: %s", comment)
 
     if delta_g < 0:
-        orchestrator.post_alpha_job(id(bundle), delta_g)
+        bundle_hash = hashlib.sha256(repr(bundle).encode()).hexdigest()[:8]
+        orchestrator.post_alpha_job(bundle_hash, delta_g)
 
     weight_update: dict[str, Any] = {}
     if gdl_agent.provable(weight_update):
