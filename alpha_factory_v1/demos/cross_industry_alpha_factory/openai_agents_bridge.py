@@ -4,7 +4,8 @@
 """OpenAI Agents SDK bridge for the cross-industry Alpha-Factory demo.
 
 Warning: The agent outputs are illustrative only and do not constitute
-financial advice.
+financial advice. Tool registration is skipped when the Agents SDK is
+missing.
 """
 
 from __future__ import annotations

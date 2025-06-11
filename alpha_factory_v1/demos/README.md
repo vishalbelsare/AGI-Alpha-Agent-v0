@@ -47,6 +47,9 @@ make demo-run        # RUN_MODE=web for dashboard
 ```
 Opens **http://localhost:7860** with a Gradio portal to every demo. Works on macOS, Linux, WSL 2 and Colab.
 
+Advanced workflows like the OpenAI Agents bridge require the `openai-agents`
+package and `OPENAI_API_KEY` set.
+
 ---
 
 ## 2 • Demo Showcase 🎮
