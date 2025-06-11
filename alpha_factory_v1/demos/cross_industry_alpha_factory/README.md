@@ -60,6 +60,12 @@ The installer writes a random `API_TOKEN` to `.env`; include it in the
 Customize variables like `OPENAI_API_KEY`, `AGENTS_ENABLED`, `PROM_PORT` or
 `RAY_PORT` by editing `../../.env` before deployment.
 
+> **Run this check before launching** the deploy script or Colab notebook:
+```bash
+python scripts/check_python_deps.py
+python check_env.py --auto-install  # add --wheelhouse <dir> when offline
+```
+
 #### Colab Quick Start
 Click the badge above or run:
 ```bash
