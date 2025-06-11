@@ -116,6 +116,8 @@ Python standard library.
   ```bash
   pip install -r requirements-demo.txt
   ```
+  This installs optional packages like `openai>=1.82.0,<2.0` and
+  `openai-agents>=0.0.16` used by the Agents bridge.
   See [tests/README.md](../../../tests/README.md) for full instructions.
 
 ### 9 · Running the Demo

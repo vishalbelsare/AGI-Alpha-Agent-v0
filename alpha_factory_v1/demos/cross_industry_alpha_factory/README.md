@@ -93,6 +93,8 @@ Install them all at once with:
 ```bash
 pip install -r requirements-demo.txt
 ```
+The `requirements-demo.txt` file installs these extras, including
+`openai>=1.82.0,<2.0` and `openai-agents>=0.0.16`.
 
 or install the packages individually.
 
