@@ -235,6 +235,10 @@ Offline mode → `ene_agent` resorts to GARCH / Kalman to estimate β.
 ```bash
 docker run -p 7860:7860 ghcr.io/montrealai/omega-lattice:latest
 ```
+You can also build the demo locally using the provided Dockerfile:
+```bash
+docker build -t alpha_business_v3:latest -f Dockerfile .
+```
 
 <a id="8.2"></a>
 ### 8.2 Helm / K8s
@@ -278,6 +282,7 @@ comment on the computed ΔG. Without it the demo uses an offline placeholder.
 You can also run the Dockerised version:
 ```bash
 ./run_business_3_demo.sh
+# builds `alpha_business_v3:latest` using `Dockerfile` in this folder
 ```
 
 ---
