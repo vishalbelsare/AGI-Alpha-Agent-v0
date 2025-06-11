@@ -233,7 +233,7 @@ Offline mode → `ene_agent` resorts to GARCH / Kalman to estimate β.
 ### 8.1 Docker One‑liner
 
 ```bash
-docker run -p 7860:7860 ghcr.io/montrealai/omega-lattice:latest
+docker run alpha_business_v3:latest
 ```
 You can also build the demo locally using the provided Dockerfile:
 ```bash
