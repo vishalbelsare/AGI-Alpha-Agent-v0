@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: Apache-2.0
+# NOTE: This demo is a research prototype and does not implement real AGI.
 """Self-contained Ω‑Lattice business demo.
 
 This module showcases a minimal zero‑entropy pipeline suitable for
