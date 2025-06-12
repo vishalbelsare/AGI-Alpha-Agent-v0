@@ -38,7 +38,7 @@ flowchart TD
 ## Disclaimer
 This repository is a conceptual research prototype. References to "AGI" and
 "superintelligence" describe aspirational goals and do not indicate the presence
-of a real general intelligence. Use at your own risk.
+of a real general intelligence. Use at your own risk. Nothing herein constitutes financial advice. MontrealAI and the maintainers accept no liability for losses incurred from using this software.
 
 
 # 🚀 [ 🎖️ α‑AGI Ascension 🌌 ]
@@ -370,7 +370,7 @@ curl -X POST http://localhost:8000/simulate \
 ## Disclaimer
 This repository is a conceptual research prototype. References to "AGI" and
 "superintelligence" describe aspirational goals and do not indicate the presence
-of a real general intelligence. Use at your own risk.
+of a real general intelligence. Use at your own risk. Nothing herein constitutes financial advice. MontrealAI and the maintainers accept no liability for losses incurred from using this software.
 
 ## Further Reading
 - [docs/DESIGN.md](docs/DESIGN.md) — architecture overview and agent roles.
