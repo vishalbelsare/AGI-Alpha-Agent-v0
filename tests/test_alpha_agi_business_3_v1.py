@@ -3,6 +3,7 @@ import asyncio
 import subprocess
 import sys
 import hashlib
+import os
 
 import pytest
 
@@ -86,7 +87,8 @@ def test_cli_execution() -> None:
 
 
 @pytest.mark.asyncio  # type: ignore[misc]
-async def test_llm_comment_offline() -> None:
+async def test_llm_comment_offline(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setenv("LOCAL_LLM_URL", "http://example.com/v1")
     msg = await demo._llm_comment(-0.1)
     assert isinstance(msg, str)
 
@@ -101,6 +103,7 @@ async def test_llm_comment_uses_local_model(monkeypatch: pytest.MonkeyPatch) -> 
 
     monkeypatch.setattr(demo, "OpenAIAgent", None)
     monkeypatch.setattr(demo.local_llm, "chat", fake_chat)
+    monkeypatch.setenv("LOCAL_LLM_URL", "http://example.com/v1")
 
     out = await demo._llm_comment(0.1234)
 
@@ -120,6 +123,7 @@ async def test_llm_comment_no_openai(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.delenv("OPENAI_API_KEY", raising=False)
     removed = sys.modules.pop("openai_agents", None)
     monkeypatch.setattr(demo.local_llm, "chat", fake_chat)
+    monkeypatch.setenv("LOCAL_LLM_URL", "http://example.com/v1")
 
     try:
         out = await demo._llm_comment(-0.42)

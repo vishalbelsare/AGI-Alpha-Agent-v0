@@ -109,7 +109,11 @@ async def _llm_comment(delta_g: float) -> str:
     agent = OpenAIAgent(
         model=os.getenv("MODEL_NAME", "gpt-4o-mini"),
         api_key=os.getenv("OPENAI_API_KEY"),
-        base_url=(None if os.getenv("OPENAI_API_KEY") else "http://ollama:11434/v1"),
+        base_url=(
+            None
+            if os.getenv("OPENAI_API_KEY")
+            else os.getenv("LOCAL_LLM_URL", "http://ollama:11434/v1")
+        ),
     )
     try:
         return cast(
