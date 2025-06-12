@@ -124,7 +124,7 @@ def main(argv: Optional[List[str]] = None) -> int:
 
     if auto and not wheelhouse and not has_network():
         print(
-            "No network access detected. Re-run with '--wheelhouse <path>' "
+            "No network access detected. Re-run with '--wheelhouse <dir>' "
             "or set WHEELHOUSE to install packages from local wheels. "
             "See docs/OFFLINE_SETUP.md."
         )
@@ -163,7 +163,7 @@ def main(argv: Optional[List[str]] = None) -> int:
         except subprocess.TimeoutExpired:
             print(
                 "Timed out installing baseline requirements. "
-                "Re-run with '--wheelhouse <path>' to install offline packages. "
+                "Re-run with '--wheelhouse <dir>' to install offline packages. "
                 "See docs/OFFLINE_SETUP.md.",
             )
             if not has_network() and not wheelhouse:
@@ -174,7 +174,7 @@ def main(argv: Optional[List[str]] = None) -> int:
             print("Failed to install baseline requirements", exc.returncode)
             if any(kw in stderr.lower() for kw in ["connection", "temporary failure", "network", "resolve"]):
                 print(
-                    "Network failure detected. Re-run with '--wheelhouse <path>' "
+                    "Network failure detected. Re-run with '--wheelhouse <dir>' "
                     "or set WHEELHOUSE to install offline packages. "
                     "See docs/OFFLINE_SETUP.md."
                 )
@@ -219,7 +219,7 @@ def main(argv: Optional[List[str]] = None) -> int:
                 )
             except subprocess.TimeoutExpired:
                 print(
-                    "Timed out installing packages. Re-run with '--wheelhouse <path>' to install from local wheels. "
+                    "Timed out installing packages. Re-run with '--wheelhouse <dir>' to install from local wheels. "
                     "See docs/OFFLINE_SETUP.md.",
                 )
                 if not has_network() and not wheelhouse:
@@ -230,7 +230,7 @@ def main(argv: Optional[List[str]] = None) -> int:
                 print("Automatic install failed with code", exc.returncode)
                 if any(kw in stderr.lower() for kw in ["connection", "temporary failure", "network", "resolve"]):
                     print(
-                        "Network failure detected. Re-run with '--wheelhouse <path>' "
+                        "Network failure detected. Re-run with '--wheelhouse <dir>' "
                         "or set WHEELHOUSE to install offline packages. "
                         "See docs/OFFLINE_SETUP.md."
                     )
