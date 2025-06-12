@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 """Light-weight dependency check for demos and tests.
 
 This helper validates that the Python packages required by the
