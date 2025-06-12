@@ -42,11 +42,15 @@ except Exception:  # pragma: no cover - offline fallback
 
 try:  # optional A2A message socket
     from a2a import A2ASocket  # type: ignore
-    _A2A = A2ASocket(
-        host=os.getenv("A2A_HOST", "localhost"),
-        port=int(os.getenv("A2A_PORT", "0")),
-        app_id="alpha_business_v3",
-    )
+    _port = int(os.getenv("A2A_PORT", "0"))
+    if _port > 0:
+        _A2A = A2ASocket(
+            host=os.getenv("A2A_HOST", "localhost"),
+            port=_port,
+            app_id="alpha_business_v3",
+        )
+    else:
+        _A2A = None
 except Exception:  # pragma: no cover - missing dependency
     A2ASocket = None  # type: ignore
     _A2A = None
