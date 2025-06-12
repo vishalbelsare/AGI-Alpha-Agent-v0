@@ -35,7 +35,8 @@ The notebook works entirely offline when no API key is provided.
 From the repository root, verify the environment and start the demo:
 
 ```bash
-python check_env.py --auto-install
+python check_env.py --auto-install  # may take several minutes
+# Press Ctrl+C to abort and rerun with '--timeout 300' to limit waiting
 ./quickstart.sh
 ```
 

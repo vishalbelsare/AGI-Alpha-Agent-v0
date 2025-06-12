@@ -109,11 +109,18 @@ def main(argv: Optional[List[str]] = None) -> int:
         "--wheelhouse",
         help="Optional path to a local wheelhouse for offline installs",
     )
+    parser.add_argument(
+        "--timeout",
+        type=int,
+        default=int(os.getenv("PIP_TIMEOUT", "600")),
+        help="Seconds before pip install operations abort (default: 600)",
+    )
 
     args = parser.parse_args(argv)
 
     wheelhouse = args.wheelhouse or os.getenv("WHEELHOUSE")
     auto = args.auto_install or os.getenv("AUTO_INSTALL_MISSING") == "1"
+    pip_timeout = args.timeout
 
     if auto and not wheelhouse and not has_network():
         print(
@@ -130,9 +137,13 @@ def main(argv: Optional[List[str]] = None) -> int:
         if wheelhouse:
             cmd += ["--no-index", "--find-links", wheelhouse]
         cmd += [PIP_NAMES.get(pkg, pkg) for pkg in missing_core]
-        print("Attempting install of core packages:", " ".join(cmd))
+        print(
+            f"Attempting install of core packages (timeout {pip_timeout}s):",
+            " ".join(cmd),
+            flush=True,
+        )
         try:
-            subprocess.run(cmd, check=True, timeout=600)
+            subprocess.run(cmd, check=True, timeout=pip_timeout)
         except subprocess.SubprocessError as exc:
             print("Failed to install core packages", getattr(exc, "returncode", ""))
             return 1
@@ -142,15 +153,21 @@ def main(argv: Optional[List[str]] = None) -> int:
         if wheelhouse:
             cmd += ["--no-index", "--find-links", wheelhouse]
         cmd += ["-r", str(req_file)]
-        print("Ensuring baseline requirements:", " ".join(cmd))
+        print(
+            f"Ensuring baseline requirements (timeout {pip_timeout}s):",
+            " ".join(cmd),
+            flush=True,
+        )
         try:
-            subprocess.run(cmd, check=True, timeout=600)
+            subprocess.run(cmd, check=True, timeout=pip_timeout)
         except subprocess.TimeoutExpired:
             print(
                 "Timed out installing baseline requirements. "
                 "Re-run with '--wheelhouse <path>' to install offline packages. "
-                "See docs/OFFLINE_SETUP.md."
+                "See docs/OFFLINE_SETUP.md.",
             )
+            if not has_network() and not wheelhouse:
+                print("No network connectivity detected.")
             return 1
         except subprocess.CalledProcessError as exc:
             stderr = exc.stderr or ""
@@ -187,14 +204,26 @@ def main(argv: Optional[List[str]] = None) -> int:
                 cmd += ["--no-index", "--find-links", wheelhouse]
             packages = [PIP_NAMES.get(pkg, pkg) for pkg in missing]
             cmd += packages
-            print("Attempting automatic install:", " ".join(cmd))
+            print(
+                f"Attempting automatic install (timeout {pip_timeout}s):",
+                " ".join(cmd),
+                flush=True,
+            )
             try:
-                result = subprocess.run(cmd, capture_output=True, text=True, check=True, timeout=600)
+                result = subprocess.run(
+                    cmd,
+                    capture_output=True,
+                    text=True,
+                    check=True,
+                    timeout=pip_timeout,
+                )
             except subprocess.TimeoutExpired:
                 print(
-                    "Timed out installing packages. Re-run with '--wheelhouse <path>' " "to install from local wheels. "
-                    "See docs/OFFLINE_SETUP.md."
+                    "Timed out installing packages. Re-run with '--wheelhouse <path>' to install from local wheels. "
+                    "See docs/OFFLINE_SETUP.md.",
                 )
+                if not has_network() and not wheelhouse:
+                    print("No network connectivity detected.")
                 return 1
             except subprocess.CalledProcessError as exc:
                 stderr = exc.stderr or ""
