@@ -115,6 +115,20 @@ def test_main_subprocess() -> None:
     assert "ΔG" in (result.stdout + result.stderr)
 
 
+def test_cli_entrypoint() -> None:
+    """Running the ``alpha-agi-business-3-v1`` script should output the ΔG message."""
+    env = os.environ.copy()
+    env["OPENAI_API_KEY"] = "dummy"
+    result = subprocess.run(
+        ["alpha-agi-business-3-v1", "--cycles", "1"],
+        capture_output=True,
+        text=True,
+        env=env,
+    )
+    assert result.returncode == 0, result.stderr
+    assert "ΔG" in (result.stdout + result.stderr)
+
+
 def test_main_stops_a2a(monkeypatch) -> None:
     """`_A2A.stop()` should be called when the loop exits."""
     mod = importlib.import_module(MODULE)
