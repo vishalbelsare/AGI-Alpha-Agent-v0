@@ -308,20 +308,27 @@ async def main(argv: list[str] | None = None) -> None:
     adk_client = ADKClient(os.getenv("ADK_HOST", "http://localhost:9000")) if ADKClient else None
 
     cycle = 0
-    while True:
-        await run_cycle_async(
-            orchestrator,
-            fin_agent,
-            res_agent,
-            ene_agent,
-            gdl_agent,
-            model,
-            adk_client,
-        )
-        cycle += 1
-        if args.cycles and cycle >= args.cycles:
-            break
-        await asyncio.sleep(args.interval)
+    try:
+        while True:
+            await run_cycle_async(
+                orchestrator,
+                fin_agent,
+                res_agent,
+                ene_agent,
+                gdl_agent,
+                model,
+                adk_client,
+            )
+            cycle += 1
+            if args.cycles and cycle >= args.cycles:
+                break
+            await asyncio.sleep(args.interval)
+    finally:
+        if _A2A:
+            try:
+                _A2A.stop()
+            except Exception:  # pragma: no cover - best effort
+                log.warning("Failed to stop A2A socket", exc_info=True)
 
 
 if __name__ == "__main__":  # pragma: no cover - manual execution

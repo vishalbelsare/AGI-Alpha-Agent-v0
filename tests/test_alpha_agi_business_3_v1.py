@@ -114,3 +114,37 @@ def test_main_subprocess() -> None:
     assert result.returncode == 0, result.stderr
     assert "ΔG" in (result.stdout + result.stderr)
 
+
+def test_main_stops_a2a(monkeypatch) -> None:
+    """`_A2A.stop()` should be called when the loop exits."""
+    mod = importlib.import_module(MODULE)
+
+    class DummySocket:
+        def __init__(self) -> None:
+            self.started = False
+            self.stopped = False
+
+        def start(self) -> None:
+            self.started = True
+
+        def stop(self) -> None:
+            self.stopped = True
+
+        def sendjson(self, *_a: object, **_kw: object) -> None:  # pragma: no cover - unused
+            pass
+
+    dummy = DummySocket()
+
+    monkeypatch.setattr(mod, "_A2A", dummy)
+    monkeypatch.setattr(mod, "ADKClient", None)
+
+    async def _llm(_: float) -> str:
+        return "ok"
+
+    monkeypatch.setattr(mod, "_llm_comment", _llm)
+
+    asyncio.run(mod.main(["--cycles", "1", "--interval", "0"]))
+
+    assert dummy.started
+    assert dummy.stopped
+
