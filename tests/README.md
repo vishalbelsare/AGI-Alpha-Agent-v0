@@ -40,6 +40,19 @@ These integration tests expect the `alpha_factory_v1` package to be importable.
 7. Before running the tests, execute `python check_env.py --auto-install` once
    more (add `--wheelhouse <dir>` when offline), then run `pytest -q`.
 
+### Pre-test checklist
+
+Run these commands before executing the suite:
+
+```bash
+python scripts/check_python_deps.py
+python check_env.py --auto-install  # add --wheelhouse <dir> when offline
+```
+
+`check_python_deps.py` frequently reports missing modules such as `numpy`, `yaml`
+and `pandas`. Installing them with `check_env.py` prevents ImportErrors when
+`pytest` collects the tests.
+
 ### Offline install
 
 Create a wheelhouse so the tests run without contacting PyPI. Build the wheels on
