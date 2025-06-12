@@ -23,3 +23,14 @@ Dockerfile*
 *.md
 alpha_factory_v1/tests/
 requests/tests/
+
+# Restrict build context for demo images
+alpha_factory_v1/demos/*
+!alpha_factory_v1/demos/__init__.py
+!alpha_factory_v1/demos/alpha_agi_business_3_v1/
+!alpha_factory_v1/demos/alpha_agi_business_3_v1/**
+!alpha_factory_v1/demos/alpha_agi_insight_v1/
+!alpha_factory_v1/demos/alpha_agi_insight_v1/**
+!alpha_factory_v1/__init__.py
+!alpha_factory_v1/demos/alpha_agi_insight_v1/requirements.lock
+!requirements-demo.txt

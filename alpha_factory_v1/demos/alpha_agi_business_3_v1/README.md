@@ -241,9 +241,12 @@ Offline mode → `ene_agent` resorts to GARCH / Kalman to estimate β.
 ```bash
 docker run alpha_business_v3:latest
 ```
-You can also build the demo locally using the provided Dockerfile:
+You can also build the demo locally using the provided Dockerfile.
+Run the command from the repository root so the `.dockerignore` rules
+trim the build context:
 ```bash
-docker build -t alpha_business_v3:latest -f Dockerfile .
+docker build -t alpha_business_v3:latest \
+    -f alpha_factory_v1/demos/alpha_agi_business_3_v1/Dockerfile .
 ```
 
 <a id="8.2"></a>
