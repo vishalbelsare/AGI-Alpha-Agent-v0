@@ -305,6 +305,8 @@ $ python alpha_agi_business_3_v1.py --cycles 1 --loglevel info
 
 - `OPENAI_API_KEY` – optional. When set, the demo uses OpenAI Agents to
   generate a short LLM comment. Leave it unset to run in fully offline mode.
+- `LOCAL_LLM_URL` – optional. Base URL for the local fallback model.
+  Defaults to `http://ollama:11434/v1`.
 - Python ≥3.11 with packages from `requirements.txt` installed. The
   `run_business_3_demo.sh` helper now builds a Docker image that includes
   `openai_agents` by default.
