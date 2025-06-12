@@ -46,6 +46,11 @@ a lightweight smoke check via:
 ```bash
 pytest -m 'not e2e'
 ```
+Running without a GPU is fully supported. The world model and evolution tests
+fall back to CPU execution and are automatically skipped when `torch` is
+absent. Other optional packages behave the same way—tests relying on
+`fastapi`, `playwright` or `httpx` use `pytest.importorskip()` so the suite
+continues even in minimal environments.
 6. Set `PYTHONPATH=$(pwd)` or install the project in editable mode with `pip install -e .`.
 7. Before running the tests, execute `python check_env.py --auto-install` once
    more (add `--wheelhouse <dir>` when offline), then run `pytest -q`.

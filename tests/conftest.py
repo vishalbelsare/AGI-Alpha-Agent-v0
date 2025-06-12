@@ -4,6 +4,10 @@ import sys
 import types
 import importlib.util
 
+# Skip early when heavy optional deps are missing to avoid stack traces
+pytest.importorskip("numpy", reason="numpy required")
+pytest.importorskip("torch", reason="torch required")
+
 try:  # skip all tests if the simulation module fails to import
     from src.simulation import replay
 except Exception as exc:  # pragma: no cover - environment issue
@@ -23,9 +27,6 @@ conds_mod.every = lambda *_: None
 rocketry_stub.conds = conds_mod
 sys.modules.setdefault("rocketry", rocketry_stub)
 sys.modules.setdefault("rocketry.conds", conds_mod)
-
-pytest.importorskip("numpy", reason="numpy required")
-pytest.importorskip("torch", reason="torch required")
 
 
 @pytest.fixture(scope="module")
