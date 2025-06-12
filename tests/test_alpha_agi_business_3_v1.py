@@ -95,10 +95,13 @@ def test_run_cycle_async_logs_delta_g(monkeypatch, caplog):
     assert any("ΔG" in r.getMessage() for r in caplog.records)
 
 
-def test_main_subprocess() -> None:
+def test_main_subprocess(tmp_path) -> None:
     """Running the demo via ``python -m`` should output the ΔG message."""
+    stub = tmp_path / "check_env.py"
+    stub.write_text("def main(args=None):\n    pass\n")
     env = os.environ.copy()
     env["OPENAI_API_KEY"] = "dummy"
+    env["PYTHONPATH"] = f"{tmp_path}:{env.get('PYTHONPATH', '')}"
     result = subprocess.run(
         [
             sys.executable,
@@ -115,10 +118,13 @@ def test_main_subprocess() -> None:
     assert "ΔG" in (result.stdout + result.stderr)
 
 
-def test_cli_entrypoint() -> None:
+def test_cli_entrypoint(tmp_path) -> None:
     """Running the ``alpha-agi-business-3-v1`` script should output the ΔG message."""
+    stub = tmp_path / "check_env.py"
+    stub.write_text("def main(args=None):\n    pass\n")
     env = os.environ.copy()
     env["OPENAI_API_KEY"] = "dummy"
+    env["PYTHONPATH"] = f"{tmp_path}:{env.get('PYTHONPATH', '')}"
     result = subprocess.run(
         ["alpha-agi-business-3-v1", "--cycles", "1"],
         capture_output=True,
@@ -151,6 +157,7 @@ def test_main_stops_a2a(monkeypatch) -> None:
 
     monkeypatch.setattr(mod, "_A2A", dummy)
     monkeypatch.setattr(mod, "ADKClient", None)
+    monkeypatch.setattr(mod, "check_env", types.SimpleNamespace(main=lambda *_a, **_k: None), raising=False)
 
     async def _llm(_: float) -> str:
         return "ok"

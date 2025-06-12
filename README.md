@@ -830,6 +830,7 @@ docker run --pull=always -p 8000:8000 ghcr.io/montrealai/alpha-factory:latest
 
 # Verify the Ω‑Lattice demo locally
 python alpha_factory_v1/demos/alpha_agi_business_3_v1/alpha_agi_business_3_v1.py --loglevel info
+# The entrypoint automatically verifies dependencies via `check_env.py`.
 ```
 
 Adjust `alpha_factory_v1/demos/alpha_asi_world_model/config.yaml` to tune the world-model loop. Key options include `env_batch` (parallel environments), `hidden` (latent state size) and `mcts_simulations` (MCTS rollouts per action).
