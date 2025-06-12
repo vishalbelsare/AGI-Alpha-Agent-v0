@@ -270,6 +270,17 @@ def run_cycle(
 async def main(argv: list[str] | None = None) -> None:
     """Entry point for command line execution."""
 
+    try:  # auto-verify environment when available
+        import importlib
+        _check_env = importlib.import_module("check_env")
+    except Exception:  # pragma: no cover - optional dependency
+        _check_env = None
+    if _check_env and hasattr(_check_env, "main"):
+        try:
+            _check_env.main([])
+        except Exception:  # pragma: no cover - best effort
+            log.warning("check_env.main failed", exc_info=True)
+
     ap = argparse.ArgumentParser(description="Run the Ω‑Lattice business demo")
     ap.add_argument("--loglevel", default="INFO", help="Logging level")
     ap.add_argument(
