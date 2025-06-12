@@ -266,8 +266,10 @@ helm install omega-lattice omega/omega-lattice \
 ```bash
 python -m venv venv && source venv/bin/activate
 pip install -r requirements.txt
-python -m alpha_factory_v1.demos.alpha_agi_business_3_v1 --offline
+python -m alpha_factory_v1.demos.alpha_agi_business_3_v1
 ```
+
+Offline mode activates automatically when `OPENAI_API_KEY` is unset.
 
 ### 8.4 Colab Notebook
 
