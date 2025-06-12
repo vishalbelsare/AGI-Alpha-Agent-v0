@@ -18,6 +18,8 @@ import logging
 import asyncio
 import os
 import hashlib
+import random
+import time
 from typing import Any, cast
 
 from alpha_factory_v1.demos.alpha_agi_insight_v1.src.utils import local_llm
@@ -64,8 +66,11 @@ class Orchestrator:
         implementations would gather market data, sensor readings,
         or any other real‑time metrics.
         """
-
-        return {"signal": "example"}
+        return {
+            "timestamp": time.time(),
+            "market_temp": random.uniform(0.8, 1.2),
+            "price_dislocation": random.gauss(0, 0.05),
+        }
 
     def post_alpha_job(self, bundle_id: str, delta_g: float) -> None:
         """Broadcast a new job for agents when ``delta_g`` is favourable."""
@@ -83,8 +88,7 @@ class AgentFin:
 
     def latent_work(self, bundle: dict[str, Any]) -> float:
         """Compute mispricing alpha from ``bundle``."""
-
-        return 0.04
+        return float(bundle.get("price_dislocation", 0))
 
 
 @dataclass(slots=True)
@@ -93,18 +97,16 @@ class AgentRes:
 
     def entropy(self, bundle: dict[str, Any]) -> float:
         """Return inferred entropy from ``bundle``."""
-
-        return 0.01
+        return abs(float(bundle.get("price_dislocation", 0))) / 4
 
 
 @dataclass(slots=True)
 class AgentEne:
     """Energy agent inferring market temperature ``β``."""
 
-    def market_temperature(self) -> float:
+    def market_temperature(self, bundle: dict[str, Any]) -> float:
         """Estimate current market temperature."""
-
-        return 1.0
+        return float(bundle.get("market_temp", random.uniform(0.9, 1.1)))
 
 
 @dataclass(slots=True)
@@ -169,7 +171,7 @@ async def run_cycle_async(
     bundle = orchestrator.collect_signals()
     delta_h = fin_agent.latent_work(bundle)
     delta_s = res_agent.entropy(bundle)
-    beta = ene_agent.market_temperature()
+    beta = ene_agent.market_temperature(bundle)
     if abs(beta) < 1e-9:
         log.warning("β is zero; skipping cycle")
         return
