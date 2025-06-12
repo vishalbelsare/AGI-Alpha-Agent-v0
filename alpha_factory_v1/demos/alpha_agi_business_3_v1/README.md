@@ -314,6 +314,8 @@ $ python alpha_agi_business_3_v1.py --cycles 1 --loglevel info
   `run_business_3_demo.sh` helper now builds a Docker image that includes
   `openai_agents` by default.
 - Copy `.env.example` in this folder to `.env` and adjust the values before running.
+- Before launching the demo, load the variables with `set -a; source .env; set +a` (use the PowerShell equivalent on Windows).
+- Run `python check_env.py --auto-install` after sourcing so optional dependencies install correctly.
 - `ADK_HOST` – optional. URL of the ADK gateway to forward cycle summaries.
 - `A2A_PORT` – enable gRPC A2A messages when set to a port number.
 
