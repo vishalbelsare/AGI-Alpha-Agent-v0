@@ -51,6 +51,13 @@ Advanced workflows like the OpenAI Agents bridge require the `openai-agents`
 package and `OPENAI_API_KEY` set.
 For air‑gapped installs see [docs/OFFLINE_SETUP.md](../../docs/OFFLINE_SETUP.md).
 
+Running the entire test suite also installs heavier optional packages such as
+`torch`. If those packages are missing, related tests are skipped. For a quick
+smoke test execute:
+```bash
+pytest -m 'not e2e'
+```
+
 ---
 
 ## 2 • Demo Showcase 🎮

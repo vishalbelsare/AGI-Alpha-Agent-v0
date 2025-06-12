@@ -30,17 +30,22 @@ These integration tests expect the `alpha_factory_v1` package to be importable.
    ```bash
    python check_env.py --auto-install
    ```
-   These commands download packages from PyPI, so ensure you have either
-   internet connectivity or a wheelhouse available via `--wheelhouse <dir>`
-   (or the `WHEELHOUSE` environment variable).
-   The full suite exercises features that depend on optional packages such as
-   `numpy`, `torch`, `pandas`, `prometheus_client`, `gymnasium`, `playwright`,
-   `httpx`, `uvicorn`, `git` and `hypothesis`.
-   
-   Tests are skipped when `numpy` or `torch` are missing. Pre-install them with
-   `python check_env.py --auto-install`. Set the `WHEELHOUSE` environment
-   variable to point to a local wheel directory when running offline so this
-   command succeeds without contacting PyPI.
+These commands download packages from PyPI, so ensure you have either
+internet connectivity or a wheelhouse available via `--wheelhouse <dir>`
+(or the `WHEELHOUSE` environment variable).
+The full suite exercises features that depend on optional packages such as
+`numpy`, `torch`, `pandas`, `prometheus_client`, `gymnasium`, `playwright`,
+`httpx`, `uvicorn`, `git` and `hypothesis`.
+
+Tests are skipped when `numpy` or `torch` are missing. Pre-install them with
+`python check_env.py --auto-install`. Set the `WHEELHOUSE` environment
+variable to point to a local wheel directory when running offline so this
+command succeeds without contacting PyPI. `torch` in particular is heavy and
+may take several minutes to install. When it is unavailable you can still run
+a lightweight smoke check via:
+```bash
+pytest -m 'not e2e'
+```
 6. Set `PYTHONPATH=$(pwd)` or install the project in editable mode with `pip install -e .`.
 7. Before running the tests, execute `python check_env.py --auto-install` once
    more (add `--wheelhouse <dir>` when offline), then run `pytest -q`.
