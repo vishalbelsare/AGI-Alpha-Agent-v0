@@ -87,11 +87,13 @@ class ArchiveService:
             _log.debug("Failed to rebuild novelty index", exc_info=True)
 
     def last_hash(self) -> str | None:
+        """Return the most recent entry hash or ``None`` if empty."""
         cur = self.conn.execute("SELECT hash FROM entries ORDER BY id DESC LIMIT 1")
         row = cur.fetchone()
         return row[0] if row else None
 
     def compute_merkle_root(self) -> str:
+        """Return the Merkle root over all stored entry hashes."""
         cur = self.conn.execute("SELECT hash FROM entries ORDER BY id")
         hashes = [row[0] for row in cur.fetchall() if isinstance(row[0], str)]
         valid: List[str] = []
@@ -110,6 +112,7 @@ class ArchiveService:
         *,
         parent: str | None = None,
     ) -> str:
+        """Add an entry and return the updated Merkle root."""
         parent = parent or self.last_hash()
         record = {"parent": parent, "spec": spec, "scores": dict(scores)}
         digest = blake3(json.dumps(record, sort_keys=True).encode()).hexdigest()
@@ -125,6 +128,7 @@ class ArchiveService:
         return self.compute_merkle_root()
 
     async def broadcast_merkle_root(self) -> None:
+        """Publish the current Merkle root via Solana or log it."""
         try:
             root = self.compute_merkle_root()
         except Exception as exc:  # pragma: no cover - corruption
@@ -164,6 +168,7 @@ class ArchiveService:
             await self.broadcast_merkle_root()
 
     def start_merkle_task(self, interval: int = 86_400) -> None:
+        """Schedule periodic Merkle root broadcasts."""
         if self._task is None:
             try:
                 loop = asyncio.get_running_loop()
@@ -173,6 +178,7 @@ class ArchiveService:
             self._task = loop.create_task(self._loop(interval))
 
     async def stop_merkle_task(self) -> None:
+        """Cancel the broadcast task if it is running."""
         if self._task:
             self._task.cancel()
             try:
@@ -182,6 +188,7 @@ class ArchiveService:
             self._task = None
 
     def close(self) -> None:
+        """Close the underlying database connection."""
         if self.conn:
             self.conn.close()
             self.conn = None  # type: ignore[assignment]

@@ -33,6 +33,7 @@ class FeasibilityCritic:
         return len(sa & sb) / len(sa | sb)
 
     def score(self, genome: str | Iterable[float]) -> float:
+        """Return a feasibility score based on Jaccard overlap."""
         tokens = str(genome).lower().split()
         best = 0.0
         for ex in self.examples:

@@ -17,9 +17,7 @@ def _ensure_db(path: Path) -> None:
             "CREATE TABLE IF NOT EXISTS tarballs("
             "id INTEGER PRIMARY KEY AUTOINCREMENT,path TEXT,cid TEXT,pinned INTEGER,ts REAL)"
         )
-        cx.execute(
-            "CREATE TABLE IF NOT EXISTS merkle(date TEXT PRIMARY KEY,root TEXT)"
-        )
+        cx.execute("CREATE TABLE IF NOT EXISTS merkle(date TEXT PRIMARY KEY,root TEXT)")
 
 
 class HashArchive:
@@ -40,6 +38,7 @@ class HashArchive:
         return hashlib.sha256(tarball.read_bytes()).hexdigest()
 
     def add_tarball(self, tarball: str | Path) -> str:
+        """Record ``tarball`` and return its content identifier (CID)."""
         path = Path(tarball)
         cid = self._ipfs_add(path)
         with sqlite3.connect(self.db_path) as cx:
@@ -50,6 +49,7 @@ class HashArchive:
         return cid
 
     def list_entries(self) -> List[Tuple[int, str, str, int]]:
+        """Return archive rows as ``(id, path, cid, pinned)`` tuples."""
         with sqlite3.connect(self.db_path) as cx:
             rows = list(cx.execute("SELECT id, path, cid, pinned FROM tarballs ORDER BY id"))
         return [(int(r[0]), str(r[1]), str(r[2]), int(r[3])) for r in rows]
@@ -65,6 +65,7 @@ class HashArchive:
         return hashes[0].hex()
 
     def merkle_root(self, date: str | None = None) -> str:
+        """Compute the Merkle root over entries for ``date`` or all entries."""
         with sqlite3.connect(self.db_path) as cx:
             if date:
                 rows = [
@@ -79,6 +80,7 @@ class HashArchive:
         return self._compute_root(rows)
 
     def publish_daily_root(self) -> str:
+        """Compute today's Merkle root and store it on disk."""
         date = time.strftime("%Y-%m-%d")
         root = self.merkle_root(date)
         with sqlite3.connect(self.db_path) as cx:
@@ -88,4 +90,3 @@ class HashArchive:
 
 
 __all__ = ["HashArchive"]
-

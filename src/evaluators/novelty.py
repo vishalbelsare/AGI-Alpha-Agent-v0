@@ -52,6 +52,7 @@ class NoveltyIndex:
         self.count = 0
 
     def add(self, text: str) -> None:
+        """Index the embedding of ``text`` and update the mean vector."""
         vec = embed(text)
         if self.index is not None:
             self.index.add(vec)
@@ -59,6 +60,7 @@ class NoveltyIndex:
         self.count += 1
 
     def divergence(self, text: str) -> float:
+        """Return the KL divergence between ``text`` and the index mean."""
         vec = embed(text)
         if self.count == 0:
             return 1.0

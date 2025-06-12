@@ -26,6 +26,7 @@ class GaussianParam:
         self.rng = rng or random.Random()
 
     def __call__(self, genome: List[float]) -> List[float]:
+        """Return ``genome`` perturbed by Gaussian noise within bounds."""
         low, high = self.bounds
         return [min(high, max(low, g + self.rng.gauss(0.0, self.std))) for g in genome]
 
@@ -38,6 +39,7 @@ class PromptRewrite:
         self.synonyms = {"improve": "enhance", "quick": "fast", "test": "trial"}
 
     def __call__(self, text: str) -> str:
+        """Replace a random word in ``text`` with a simple synonym."""
         words = text.split()
         if not words:
             return text
@@ -51,6 +53,7 @@ class CodePatch:
     """Return code with a small comment appended."""
 
     def __call__(self, code: str) -> str:
+        """Append a ``# patched`` comment to ``code``."""
         suffix = "# patched"
         if not code.endswith("\n"):
             code += "\n"
@@ -88,6 +91,7 @@ class SelfRewriteOperator:
         self._op = PromptRewrite(rng=self.rng)
 
     def __call__(self, text: str) -> str:
+        """Return ``text`` after applying a series of rewrites."""
         for _ in range(self.steps):
             if self.templates and self.rng.random() < self.reuse_rate:
                 text = self.rng.choice(self.templates)
@@ -122,11 +126,7 @@ class SelfRewriteOperator:
         import tempfile
 
         try:
-            root = (
-                Path(
-                    subprocess.check_output(["git", "rev-parse", "--show-toplevel"], text=True).strip()
-                )
-            )
+            root = Path(subprocess.check_output(["git", "rev-parse", "--show-toplevel"], text=True).strip())
         except subprocess.CalledProcessError:
             return False
 

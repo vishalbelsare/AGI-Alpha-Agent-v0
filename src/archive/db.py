@@ -83,11 +83,13 @@ class ArchiveDB:
             session.commit()
 
     def add(self, entry: ArchiveEntry) -> None:
+        """Insert or update ``entry`` in the database."""
         with Session(self.engine) as session:
             session.merge(_ArchiveRow(**dataclasses.asdict(entry)))
             session.commit()
 
     def get(self, h: str) -> ArchiveEntry | None:
+        """Return the entry matching ``h`` or ``None`` if missing."""
         with Session(self.engine) as session:
             row = session.get(_ArchiveRow, h)
             if row is None:
@@ -102,6 +104,7 @@ class ArchiveDB:
             )
 
     def history(self, start_hash: str) -> Iterator[ArchiveEntry]:
+        """Yield ancestral lineage starting from ``start_hash``."""
         current = self.get(start_hash)
         while current is not None:
             yield current

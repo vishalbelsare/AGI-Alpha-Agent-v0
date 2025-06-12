@@ -24,6 +24,7 @@ class ChaosMonkey:
         ]
 
     def mutate(self, text: str, case: str) -> str:
+        """Return ``text`` modified according to the specified ``case``."""
         match case:
             case "contradiction":
                 return text + " although the opposite is true"

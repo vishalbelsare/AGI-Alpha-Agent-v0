@@ -269,6 +269,7 @@ class FileToolsADK(adk.Agent):
         ),
     )
     def view_task(self, *, path: str, start: int = 0, end: Optional[int] = None) -> dict[str, str]:
+        """Return file contents between ``start`` and ``end``."""
         return {"text": view(path, start, end)}
 
     @adk.task(
@@ -289,6 +290,7 @@ class FileToolsADK(adk.Agent):
         output_schema=adk.JsonSchema({"type": "object", "properties": {"ok": {"type": "boolean"}}, "required": ["ok"]}),
     )
     def edit_task(self, *, path: str, start: int, end: Optional[int] = None, new_code: str) -> dict[str, bool]:
+        """Replace a range of lines in ``path`` with ``new_code``."""
         edit(path, start, end, new_code)
         return {"ok": True}
 
@@ -311,6 +313,7 @@ class FileToolsADK(adk.Agent):
         ),
     )
     def replace_task(self, *, path: str, pattern: str, repl: str) -> dict[str, int]:
+        """Perform a regex replacement in ``path``."""
         return {"count": replace(path, pattern, repl)}
 
     @adk.task(
@@ -332,6 +335,7 @@ class FileToolsADK(adk.Agent):
         ),
     )
     def view_lines_task(self, *, path: str, start: int, end: Optional[int] = None) -> dict[str, str]:
+        """Return inclusive line range from ``path``."""
         return {"text": view_lines(path, start, end)}
 
     @adk.task(
@@ -353,6 +357,7 @@ class FileToolsADK(adk.Agent):
         ),
     )
     def replace_str_task(self, *, path: str, old: str, new: str) -> dict[str, int]:
+        """Replace occurrences of ``old`` with ``new`` in ``path``."""
         return {"count": replace_str(path, old, new)}
 
     @adk.task(
@@ -372,6 +377,7 @@ class FileToolsADK(adk.Agent):
         output_schema=adk.JsonSchema({"type": "object", "properties": {"ok": {"type": "boolean"}}, "required": ["ok"]}),
     )
     def insert_after_task(self, *, path: str, anchor: str, code: str) -> dict[str, bool]:
+        """Insert ``code`` after ``anchor`` in ``path``."""
         insert_after(path, anchor, code)
         return {"ok": True}
 
@@ -382,4 +388,5 @@ class FileToolsADK(adk.Agent):
         output_schema=adk.JsonSchema({"type": "object", "properties": {"ok": {"type": "boolean"}}, "required": ["ok"]}),
     )
     def undo_task(self) -> dict[str, bool]:
+        """Undo the last edit applied via this tool."""
         return {"ok": undo_last_edit()}

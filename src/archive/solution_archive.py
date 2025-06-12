@@ -57,6 +57,7 @@ class SolutionArchive:
         return int(score // 10)
 
     def add(self, sector: str, approach: str, score: float, data: Mapping[str, Any]) -> None:
+        """Insert a solution entry grouped by sector and approach."""
         band = self._band(score)
         self.conn.execute(
             "INSERT INTO solutions(sector, approach, score, band, data, ts) VALUES (?,?,?,?,?,?)",
@@ -71,6 +72,7 @@ class SolutionArchive:
         approach: str | None = None,
         band: int | None = None,
     ) -> list[Solution]:
+        """Return solutions matching the provided filters."""
         clauses: list[str] = []
         params: list[Any] = []
         if sector is not None:
@@ -100,11 +102,13 @@ class SolutionArchive:
         return result
 
     def diversity_histogram(self) -> dict[tuple[str, str], int]:
+        """Return entry counts keyed by ``(sector, approach)``."""
         cur = self.conn.execute("SELECT sector, approach, COUNT(*) FROM solutions GROUP BY sector, approach")
         rows = cur.fetchall()
         return {(r[0], r[1]): int(r[2]) for r in rows}
 
     def close(self) -> None:
+        """Close the underlying connection."""
         if self.conn:
             self.conn.close()
             self.conn = None
