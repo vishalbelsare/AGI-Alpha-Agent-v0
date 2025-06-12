@@ -319,6 +319,7 @@ $ python alpha_agi_business_3_v1.py --cycles 1 --loglevel info
 - Run `python check_env.py --auto-install` after sourcing so optional dependencies install correctly.
 - `ADK_HOST` – optional. URL of the ADK gateway to forward cycle summaries.
 - `A2A_PORT` – enable gRPC A2A messages when set to a port number.
+- `A2A_HOST` – host for the A2A gRPC server. Defaults to `localhost`.
 
 #### Offline Usage
 
