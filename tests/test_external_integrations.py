@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 import importlib
 import types
 from unittest.mock import patch, AsyncMock
