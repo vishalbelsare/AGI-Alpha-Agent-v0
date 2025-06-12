@@ -118,6 +118,8 @@ Follow these steps when installing without internet access:
 - The unit tests rely on `fastapi`, `opentelemetry-api`, `openai-agents` and `google-adk`. `./codex/setup.sh` installs these packages automatically. When skipping the setup script, run
   `pip install -r requirements-dev.txt` or ensure `check_env.py` reports no
   missing packages before running `pytest`.
+  Install `requirements-demo.txt` as well when running tests that depend on
+  heavy extras such as `numpy` and `torch`.
 - Execute `pytest -q` (or `python -m alpha_factory_v1.scripts.run_tests`) and ensure the entire suite passes.
   If failures remain, document them in the PR description.
 - When running tests directly from the repository without installation, set `PYTHONPATH`
