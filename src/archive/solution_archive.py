@@ -3,15 +3,14 @@
 from __future__ import annotations
 
 import json
-import os
 import sqlite3
 import time
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Iterable, Mapping, Sequence
+from typing import Any, Mapping
 
 try:
-    import duckdb  # type: ignore
+    import duckdb
 except Exception:  # pragma: no cover - optional dependency
     duckdb = None
 
@@ -49,9 +48,7 @@ class SolutionArchive:
             )
             """
         )
-        self.conn.execute(
-            "CREATE INDEX IF NOT EXISTS idx_bins ON solutions(sector, approach, band)"
-        )
+        self.conn.execute("CREATE INDEX IF NOT EXISTS idx_bins ON solutions(sector, approach, band)")
         if isinstance(self.conn, sqlite3.Connection):
             self.conn.commit()
 
@@ -103,16 +100,14 @@ class SolutionArchive:
         return result
 
     def diversity_histogram(self) -> dict[tuple[str, str], int]:
-        cur = self.conn.execute(
-            "SELECT sector, approach, COUNT(*) FROM solutions GROUP BY sector, approach"
-        )
+        cur = self.conn.execute("SELECT sector, approach, COUNT(*) FROM solutions GROUP BY sector, approach")
         rows = cur.fetchall()
         return {(r[0], r[1]): int(r[2]) for r in rows}
 
     def close(self) -> None:
         if self.conn:
             self.conn.close()
-            self.conn = None  # type: ignore[assignment]
+            self.conn = None
 
 
 __all__ = ["Solution", "SolutionArchive"]
