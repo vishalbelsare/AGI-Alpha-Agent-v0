@@ -302,7 +302,7 @@ You can also run the Dockerised version:
 
 ```bash
 $ python alpha_agi_business_3_v1.py --cycles 1 --loglevel info
-2025-06-11 17:16:10 INFO     | ΔH=0.04 ΔS=0.01 β=1.0 → ΔG=0.03
+2025-06-11 17:16:10 INFO     | ΔH=0.027 ΔS=0.008 β=1.04 → ΔG=0.019
 2025-06-11 17:16:10 INFO     | LLM: LLM offline
 2025-06-11 17:16:10 INFO     | [Model] New weights committed (Gödel-proof verified)
 ```
