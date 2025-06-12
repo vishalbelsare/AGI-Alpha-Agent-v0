@@ -52,16 +52,19 @@ class Archive:
         metrics.dgm_lineage_depth.set(len(records))
 
     def add(self, meta: dict[str, Any], score: float) -> None:
+        """Insert an agent entry and update archive metrics."""
         with sqlite3.connect(self.path) as cx:
             cx.execute("INSERT INTO agents(meta, score) VALUES (?, ?)", (json.dumps(meta), score))
         self._update_metrics()
 
     def all(self) -> List[Agent]:
+        """Return all archived agents sorted by insertion order."""
         with sqlite3.connect(self.path) as cx:
             rows = list(cx.execute("SELECT id, meta, score FROM agents ORDER BY id"))
         return [Agent(id=r[0], meta=json.loads(r[1]), score=float(r[2])) for r in rows]
 
     def sample(self, k: int, *, lam: float = 10.0, alpha0: float = 0.5) -> List[Agent]:
+        """Draw ``k`` agents using a logistic ranking scheme."""
         agents = self.all()
         if not agents:
             return []

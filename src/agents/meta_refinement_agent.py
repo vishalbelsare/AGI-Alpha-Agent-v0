@@ -62,18 +62,17 @@ class MetaRefinementAgent:
             except Exception:
                 current = 0
             new_val = current + 1
-            diff = (
-                "--- a/metric.txt\n"
-                "+++ b/metric.txt\n"
-                "@@\n"
-                f"-{current}\n"
-                f"+{new_val}\n"
-            )
+            diff = "--- a/metric.txt\n" "+++ b/metric.txt\n" "@@\n" f"-{current}\n" f"+{new_val}\n"
             return diff
         return propose_diff(str(metric), goal)
 
     # ------------------------------------------------------------------
     def refine(self) -> bool:
+        """Generate and apply a patch addressing the detected bottleneck.
+
+        Returns:
+            bool: ``True`` if the patch was merged, ``False`` otherwise.
+        """
         logs = self._load_logs()
         bottleneck = self._detect_bottleneck(logs)
         if not bottleneck:

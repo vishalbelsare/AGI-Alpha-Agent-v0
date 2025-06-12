@@ -29,6 +29,7 @@ class LogicCritic:
         self.scale = max(len(self.examples) - 1, 1)
 
     def score(self, genome: str | Iterable[float]) -> float:
+        """Return a heuristic logic score for ``genome``."""
         key = str(genome).lower()
         pos = self.index.get(key, -1)
         base = (pos + 1) / (self.scale + 1) if pos >= 0 else 0.0

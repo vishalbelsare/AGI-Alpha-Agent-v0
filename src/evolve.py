@@ -50,9 +50,11 @@ class InMemoryArchive:
         metrics.dgm_lineage_depth.set(len(self._items))
 
     def all(self) -> Sequence[Candidate]:
+        """Return a copy of all archived candidates."""
         return list(self._items)
 
     async def accept(self, cand: Candidate) -> None:
+        """Add ``cand`` to the archive and update metrics."""
         self._items.append(cand)
         self._update_metrics()
 

@@ -59,6 +59,7 @@ class SelfImproverAgent(BaseAgent):
         self.allowed = list(allowed or ["**"])
 
     async def handle(self, _env: object) -> None:  # pragma: no cover - no messaging
+        """Ignore messages since this agent only operates locally."""
         return None
 
     def _check_allowed(self, diff: str) -> None:
@@ -68,6 +69,7 @@ class SelfImproverAgent(BaseAgent):
                 raise ValueError(f"file '{f}' not allowed")
 
     async def run_cycle(self) -> None:
+        """Apply the proposed patch if valid and update the metric file."""
         if git is None:
             raise RuntimeError("GitPython is required")
         diff = self.patch_file.read_text()

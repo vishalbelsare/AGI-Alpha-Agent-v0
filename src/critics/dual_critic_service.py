@@ -22,6 +22,7 @@ except Exception:  # pragma: no cover - optional
     JSONResponse = None  # type: ignore
 
 if FastAPI is not None:
+
     class CritiqueRequest(BaseModel):
         context: str
         response: str
@@ -79,6 +80,7 @@ class DualCriticService:
         return score, citations
 
     def score(self, context: str, response: str) -> Dict[str, Any]:
+        """Return logic and feasibility scores for ``response`` given ``context``."""
         logic = self.logic_score(context, response)
         feas, cites = self.feasibility_score(response)
         reasons = []
@@ -97,6 +99,7 @@ class DualCriticService:
 
     # ------------------------------------------------------------------
     def create_app(self) -> "FastAPI":
+        """Return a minimal FastAPI app exposing the ``/critique`` endpoint."""
         if FastAPI is None:
             raise RuntimeError("FastAPI not installed")
 
@@ -118,6 +121,7 @@ class DualCriticService:
         return json.dumps(result).encode()
 
     async def start_grpc(self, port: int) -> None:
+        """Launch a gRPC server listening on ``port``."""
         if grpc is None:
             raise RuntimeError("grpc not installed")
         server = grpc.aio.server()
@@ -133,12 +137,14 @@ class DualCriticService:
         self._server = server
 
     async def stop_grpc(self) -> None:
+        """Stop the running gRPC server if one exists."""
         if self._server:
             await self._server.stop(0)
             self._server = None
 
 
 # ─────────────────────────── FastAPI helper ─────────────────────────────
+
 
 def create_app(service: DualCriticService) -> "FastAPI":
     return service.create_app()
