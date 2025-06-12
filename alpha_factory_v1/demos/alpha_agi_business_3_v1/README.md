@@ -313,6 +313,8 @@ $ python alpha_agi_business_3_v1.py --cycles 1 --loglevel info
 - Python ≥3.11 with packages from `requirements.txt` installed. The
   `run_business_3_demo.sh` helper now builds a Docker image that includes
   `openai_agents` by default.
+- `ADK_HOST` – optional. URL of the ADK gateway to forward cycle summaries.
+- `A2A_PORT` – enable gRPC A2A messages when set to a port number.
 
 #### Offline Usage
 

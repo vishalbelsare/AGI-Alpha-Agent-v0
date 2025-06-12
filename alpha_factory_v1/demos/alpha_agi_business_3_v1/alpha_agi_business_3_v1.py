@@ -30,6 +30,25 @@ except ImportError:  # pragma: no cover - offline fallback
     except ImportError:
         OpenAIAgent = None
 
+try:  # optional Google ADK client
+    from google_adk import Client as ADKClient  # type: ignore
+except Exception:  # pragma: no cover - offline fallback
+    try:
+        from google.adk import Client as ADKClient  # type: ignore
+    except Exception:
+        ADKClient = None  # type: ignore[misc]
+
+try:  # optional A2A message socket
+    from a2a import A2ASocket  # type: ignore
+    _A2A = A2ASocket(
+        host=os.getenv("A2A_HOST", "localhost"),
+        port=int(os.getenv("A2A_PORT", "0")),
+        app_id="alpha_business_v3",
+    )
+except Exception:  # pragma: no cover - missing dependency
+    A2ASocket = None  # type: ignore
+    _A2A = None
+
 
 log = logging.getLogger(__name__)
 
@@ -143,6 +162,7 @@ async def run_cycle_async(
     ene_agent: AgentEne,
     gdl_agent: AgentGdl,
     model: Model,
+    adk_client: Any | None = None,
 ) -> None:
     """Execute one evaluation + commitment cycle."""
 
@@ -160,6 +180,21 @@ async def run_cycle_async(
     comment = await _llm_comment(delta_g)
     log.info("LLM: %s", comment)
 
+    if _A2A:
+        try:
+            _A2A.sendjson({"delta_g": delta_g})
+        except Exception:  # pragma: no cover - best effort
+            log.warning("A2A send failed", exc_info=True)
+
+    if adk_client is not None:
+        try:
+            if asyncio.iscoroutinefunction(getattr(adk_client, "run", None)):
+                await adk_client.run(comment)
+            elif hasattr(adk_client, "run"):
+                await asyncio.to_thread(adk_client.run, comment)
+        except Exception:  # pragma: no cover - best effort
+            log.warning("ADK client error", exc_info=True)
+
     if delta_g < 0:
         bundle_hash = hashlib.sha256(repr(bundle).encode()).hexdigest()[:8]
         orchestrator.post_alpha_job(bundle_hash, delta_g)
@@ -176,6 +211,7 @@ def run_cycle(
     ene_agent: AgentEne,
     gdl_agent: AgentGdl,
     model: Model,
+    adk_client: Any | None = None,
     loop: asyncio.AbstractEventLoop | None = None,
 ) -> None:
     """Execute one evaluation cycle, creating an event loop if required."""
@@ -186,13 +222,43 @@ def run_cycle(
         running_loop = None
 
     if running_loop is not None:
-        running_loop.create_task(run_cycle_async(orchestrator, fin_agent, res_agent, ene_agent, gdl_agent, model))
+        running_loop.create_task(
+            run_cycle_async(
+                orchestrator,
+                fin_agent,
+                res_agent,
+                ene_agent,
+                gdl_agent,
+                model,
+                adk_client,
+            )
+        )
         return
 
     if loop is None:
-        asyncio.run(run_cycle_async(orchestrator, fin_agent, res_agent, ene_agent, gdl_agent, model))
+        asyncio.run(
+            run_cycle_async(
+                orchestrator,
+                fin_agent,
+                res_agent,
+                ene_agent,
+                gdl_agent,
+                model,
+                adk_client,
+            )
+        )
     else:
-        loop.run_until_complete(run_cycle_async(orchestrator, fin_agent, res_agent, ene_agent, gdl_agent, model))
+        loop.run_until_complete(
+            run_cycle_async(
+                orchestrator,
+                fin_agent,
+                res_agent,
+                ene_agent,
+                gdl_agent,
+                model,
+                adk_client,
+            )
+        )
 
 
 async def main(argv: list[str] | None = None) -> None:
@@ -227,9 +293,25 @@ async def main(argv: list[str] | None = None) -> None:
     gdl_agent = AgentGdl()
     model = Model()
 
+    if _A2A:
+        try:
+            _A2A.start()
+        except Exception:  # pragma: no cover - best effort
+            log.warning("Failed to start A2A socket", exc_info=True)
+
+    adk_client = ADKClient(os.getenv("ADK_HOST", "http://localhost:9000")) if ADKClient else None
+
     cycle = 0
     while True:
-        await run_cycle_async(orchestrator, fin_agent, res_agent, ene_agent, gdl_agent, model)
+        await run_cycle_async(
+            orchestrator,
+            fin_agent,
+            res_agent,
+            ene_agent,
+            gdl_agent,
+            model,
+            adk_client,
+        )
         cycle += 1
         if args.cycles and cycle >= args.cycles:
             break
