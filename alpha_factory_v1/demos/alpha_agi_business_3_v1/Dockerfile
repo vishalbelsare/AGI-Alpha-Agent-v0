@@ -5,7 +5,7 @@ WORKDIR /app
 # Install demo dependencies
 COPY ../../../../requirements-demo.txt /tmp/requirements-demo.txt
 RUN pip install --no-cache-dir -r /tmp/requirements-demo.txt \
-    && pip install --no-cache-dir openai-agents \
+    && pip install --no-cache-dir openai-agents==0.0.16 \
     && rm /tmp/requirements-demo.txt
 
 # Copy only the demo package
