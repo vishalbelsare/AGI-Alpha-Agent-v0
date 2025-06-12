@@ -193,6 +193,15 @@ section of the α‑ASI world-model quickstart for a concise summary.
      https://huggingface.co/TheBloke/TinyLlama-1.1B-Chat-GGUF/resolve/main/TinyLlama-1.1B-Chat-v1.0.Q4_K_M.gguf
    export LLAMA_MODEL_PATH=~/.cache/llama/TinyLlama-1.1B-Chat-v1.0.Q4_K_M.gguf
    ```
+   Common weights and typical CPU throughput:
+
+   | Model | Size | ~tokens/s |
+   |-------|------|-----------|
+   | TinyLlama‑1.1B‑Chat Q4_K_M | 380 MB | ~20 |
+   | Llama‑3‑8B‑Instruct Q4_K_M | 4 GB | ~5 |
+   | Mixtral‑8×7B‑Instruct Q4_0 | 7 GB | ~3 |
+
+   Install `llama-cpp-python` or `ctransformers` to enable offline inference.
 
 4. **Fetch and build the browser assets** (requires **Node.js**) to run the Insight demo fully offline:
    ```bash
@@ -209,7 +218,8 @@ section of the α‑ASI world-model quickstart for a concise summary.
    ```
 
 6. **Enable offline inference** by setting ``AGI_INSIGHT_OFFLINE=1`` in
-   ``.env`` or the environment.
+   ``.env`` or the environment (ensure `llama-cpp-python` or `ctransformers`
+   is installed).
 
 7. **Disable broadcasting** to avoid network calls:
    ```bash
