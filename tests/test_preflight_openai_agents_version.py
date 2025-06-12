@@ -9,8 +9,10 @@ from alpha_factory_v1.scripts import preflight
 
 
 class TestPreflightOpenAIAgentsVersion(unittest.TestCase):
-    def _run_check(self, module_name: str, version: str) -> bool:
-        fake_mod = types.SimpleNamespace(__version__=version)
+    def _run_check(self, module_name: str, version: str | None) -> bool:
+        fake_mod = types.SimpleNamespace()
+        if version is not None:
+            fake_mod.__version__ = version
         orig_import_module = importlib.import_module
         orig_find_spec = importlib.util.find_spec
 
@@ -41,6 +43,11 @@ class TestPreflightOpenAIAgentsVersion(unittest.TestCase):
         for name in ("openai_agents", "agents"):
             with self.subTest(module=name):
                 self.assertTrue(self._run_check(name, "0.0.15"))
+
+    def test_missing_version_fails(self) -> None:
+        for name in ("openai_agents", "agents"):
+            with self.subTest(module=name):
+                self.assertFalse(self._run_check(name, None))
 
 
 if __name__ == "__main__":  # pragma: no cover - manual execution
