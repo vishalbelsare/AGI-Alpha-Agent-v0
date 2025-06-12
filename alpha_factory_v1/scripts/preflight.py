@@ -35,6 +35,7 @@ else:
 MIN_PY = (3, 11)
 MAX_PY = (3, 13)
 MEM_DIR = Path(os.getenv("AF_MEMORY_DIR", f"{tempfile.gettempdir()}/alphafactory"))
+MIN_OPENAI_AGENTS_VERSION = "0.0.14"
 
 COLORS = {
     "RED": "\033[31m",
@@ -149,7 +150,7 @@ def check_network(host: str = "pypi.org", timeout: float = 2.0) -> bool:
     return True
 
 
-def check_openai_agents_version(min_version: str = "0.0.14") -> bool:
+def check_openai_agents_version(min_version: str = MIN_OPENAI_AGENTS_VERSION) -> bool:
     """Verify the installed Agents runtime is new enough.
 
     This checks both the ``openai_agents`` and ``agents`` packages.
@@ -165,7 +166,13 @@ def check_openai_agents_version(min_version: str = "0.0.14") -> bool:
             return True
 
     mod = importlib.import_module(module_name)
-    version = getattr(mod, "__version__", "0")
+    if not hasattr(mod, "__version__"):
+        banner(
+            f"{module_name} missing __version__; >={min_version} required",
+            "RED",
+        )
+        return False
+    version = mod.__version__
     if _version_lt(version, min_version):
         banner(
             f"{module_name} {version} detected; >={min_version} required",
