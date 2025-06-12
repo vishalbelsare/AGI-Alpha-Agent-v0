@@ -41,7 +41,7 @@ playwright~=1.42
 
 # ─────────── LLM / Agents stack ────────────────────────────────────────
 openai>=1.82.0,<2.0       # GPT-4o & embeddings (sync with backend)
-openai-agents>=0.0.16   # **critical** – official Agents SDK
+openai-agents>=0.0.17   # **critical** – official Agents SDK
 anthropic>=0.21         # Claude & MCP bridge
 litellm>=1.31           # local gateway / fallback router
 tiktoken>=0.5

@@ -87,7 +87,7 @@ RUN if [ -f /tmp/requirements-lock.txt ]; then \
     fi && \
     # ⬇ Explicitly ensure critical agent frameworks are present
     pip install --no-cache-dir \
-        openai-agents>=0.0.16 \   # OpenAI Agents SDK (beta)
+        openai-agents>=0.0.17 \   # OpenAI Agents SDK (beta)
         "google-adk @ git+https://github.com/google/adk-python@main#egg=google-adk" \
         anthropic>=0.21 \
         gunicorn rocketry prometheus-client && \
