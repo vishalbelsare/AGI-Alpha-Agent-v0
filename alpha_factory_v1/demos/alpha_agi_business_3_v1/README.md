@@ -22,6 +22,7 @@ of a real general intelligence. Use at your own risk.
 - [`openai-agents`](https://openai.github.io/openai-agents-python/) `==0.0.17` is mandatory for online mode.
 - [`llama-cpp-python`](https://pypi.org/project/llama-cpp-python/) and [`ctransformers`](https://pypi.org/project/ctransformers/) enable the offline fallback.
 - Run `python check_env.py --auto-install` to fetch missing packages, or supply `--wheelhouse <dir>` when installing offline.
+  See [alpha_factory_v1/scripts/README.md](../../scripts/README.md#offline-setup) for details on building and using a wheelhouse.
 
 ## 📚 Table of Contents
 0. [Executive Summary](#0)
