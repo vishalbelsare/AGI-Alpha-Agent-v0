@@ -4,7 +4,7 @@
 set -euo pipefail
 
 script_dir="$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &>/dev/null && pwd )"
-root_dir="${script_dir%/*/*}"
+root_dir="$(git -C "$script_dir" rev-parse --show-toplevel 2>/dev/null || echo "${script_dir%/*/*/*}")"
 
 cd "$root_dir"
 
