@@ -15,9 +15,14 @@ These integration tests expect the `alpha_factory_v1` package to be importable.
    ```
    This also installs `openai>=1.82.0,<2.0`, `openai-agents` and `google-adk` so
    the optional integration tests can run.
-   3. Verify the core dependencies are present:
+3. Verify the core dependencies are present:
    ```bash
    python scripts/check_python_deps.py
+   ```
+   This script checks for required libraries such as `numpy`, `pyyaml` and `pandas`.
+   If any are missing, run:
+   ```bash
+   python check_env.py --auto-install
    ```
 4. Ensure `numpy`, `pyyaml` and `pandas` are installed. They ship with
    `requirements-dev.txt` but might be missing in minimal setups.
@@ -50,8 +55,8 @@ python check_env.py --auto-install  # add --wheelhouse <dir> when offline
 ```
 
 `check_python_deps.py` frequently reports missing modules such as `numpy`, `yaml`
-and `pandas`. Installing them with `check_env.py` prevents ImportErrors when
-`pytest` collects the tests.
+and `pandas`. Always run `python check_env.py --auto-install` after this check
+to install any missing packages before executing `pytest`.
 
 ### Offline install
 
