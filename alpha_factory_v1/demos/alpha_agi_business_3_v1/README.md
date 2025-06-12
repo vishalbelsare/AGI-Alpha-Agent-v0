@@ -19,7 +19,7 @@ of a real general intelligence. Use at your own risk.
 ## 🛠 Requirements
 
 - **Python ≥3.11**
-- [`openai-agents`](https://openai.github.io/openai-agents-python/) is mandatory for online mode.
+- [`openai-agents`](https://openai.github.io/openai-agents-python/) `>=0.0.16` is mandatory for online mode.
 - [`llama-cpp-python`](https://pypi.org/project/llama-cpp-python/) and [`ctransformers`](https://pypi.org/project/ctransformers/) enable the offline fallback.
 - Run `python check_env.py --auto-install` to fetch missing packages, or supply `--wheelhouse <dir>` when installing offline.
 
