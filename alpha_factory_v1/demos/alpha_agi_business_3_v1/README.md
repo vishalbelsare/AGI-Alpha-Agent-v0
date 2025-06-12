@@ -314,6 +314,17 @@ $ python alpha_agi_business_3_v1.py --cycles 1 --loglevel info
   `run_business_3_demo.sh` helper now builds a Docker image that includes
   `openai_agents` by default.
 
+#### Offline Usage
+
+Set `LLAMA_MODEL_PATH` to a local `.gguf` model and install either
+[`llama-cpp-python`](https://pypi.org/project/llama-cpp-python/) or
+[`ctransformers`](https://pypi.org/project/ctransformers/) so inference works
+without internet access.
+
+```bash
+LLAMA_MODEL_PATH=/path/model.gguf python alpha_agi_business_3_v1.py
+```
+
 ---
 
 <a id="9"></a>
