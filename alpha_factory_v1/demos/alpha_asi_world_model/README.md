@@ -62,6 +62,12 @@ pip install -r requirements.txt        # torch, fastapi, uvicorn…
 
 # All interactive helpers (`run_ui`, `run_headless`) require these packages.
 
+`torch` is by far the largest dependency. Tests that import it are skipped when
+the package is missing. For a short smoke test use:
+```bash
+pytest -m 'not e2e'
+```
+
 # new CLI (after `pip install -e .` at repo root)
 alpha-asi-demo --demo        # same as `python -m alpha_asi_world_model_demo --demo`
 alpha-asi-demo --demo --no-llm   # force-disable the optional LLM planner

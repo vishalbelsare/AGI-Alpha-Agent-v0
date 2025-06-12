@@ -50,6 +50,11 @@ Alternatively run natively:
 pip install -r requirements.txt
 python -m alpha_factory_v1.demos.muzero_planning
 ```
+The tests for this demo rely on `torch`, which can take a while to install.
+If it's absent, those tests are skipped. For a lightweight check run
+```bash
+pytest -m 'not e2e'
+```
 
 ### Optional `openai-agents`
 
