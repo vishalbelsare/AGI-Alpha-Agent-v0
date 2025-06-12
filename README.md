@@ -64,6 +64,10 @@ Strategic Edge:
 * Strategically validated methodologies guarantee consistent economic leadership.
 
 ## Quick Start
+**Local:** `./quickstart.sh` &nbsp;&nbsp;|&nbsp;&nbsp; **Docker:** `docker compose up --build`
+
+An interactive Colab notebook demonstrates the same zero‑data Insight search loop. Open [colab_alpha_agi_insight_demo.ipynb](alpha_factory_v1/demos/alpha_agi_insight_v0/colab_alpha_agi_insight_demo.ipynb) in Google Colab to try it online.
+
 Clone the repository and run the helper script to start the Insight demo locally:
 
 ```bash
