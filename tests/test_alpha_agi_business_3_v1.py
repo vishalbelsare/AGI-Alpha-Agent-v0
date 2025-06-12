@@ -3,6 +3,8 @@ import sys
 import types
 import asyncio
 import logging
+import os
+import subprocess
 from unittest import mock
 
 MODULE = "alpha_factory_v1.demos.alpha_agi_business_3_v1.alpha_agi_business_3_v1"
@@ -70,4 +72,24 @@ def test_run_cycle_async_logs_delta_g(monkeypatch, caplog):
     )
 
     assert any("ΔG=0.03" in r.getMessage() for r in caplog.records)
+
+
+def test_main_subprocess() -> None:
+    """Running the demo via ``python -m`` should output the ΔG message."""
+    env = os.environ.copy()
+    env["OPENAI_API_KEY"] = "dummy"
+    result = subprocess.run(
+        [
+            sys.executable,
+            "-m",
+            "alpha_factory_v1.demos.alpha_agi_business_3_v1",
+            "--cycles",
+            "1",
+        ],
+        capture_output=True,
+        text=True,
+        env=env,
+    )
+    assert result.returncode == 0, result.stderr
+    assert "ΔG=0.03" in (result.stdout + result.stderr)
 
