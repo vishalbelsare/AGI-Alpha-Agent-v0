@@ -165,7 +165,12 @@ Follow these steps when working without internet access.
      python check_env.py --auto-install --wheelhouse /media/wheels
    pip check
    ```
-`check_env.py` uses the wheels under `/media/wheels`. Set
+   When network access is unavailable, install packages directly from the
+   wheelhouse:
+   ```bash
+   WHEELHOUSE=/media/wheels pip install --no-index --find-links "$WHEELHOUSE" -r requirements.txt
+   ```
+   `check_env.py` uses the wheels under `/media/wheels`. Set
 `WHEELHOUSE=/media/wheels` when running `pre-commit` or the tests so
 dependencies install from the local cache. See
 [Offline Setup](alpha_factory_v1/scripts/README.md#offline-setup) for more
