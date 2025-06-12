@@ -46,6 +46,7 @@ alpha-agi-insight-production = "alpha_factory_v1.demos.alpha_agi_insight_v0.offi
 alpha-agi-insight-offline = "alpha_factory_v1.demos.alpha_agi_insight_v0.official_demo_zero_data:main"
 alpha-agi-insight-api = "alpha_factory_v1.demos.alpha_agi_insight_v0.api_server:main"
 alpha-agi-insight-dashboard = "alpha_factory_v1.demos.alpha_agi_insight_v0.insight_dashboard:main"
+alpha-agi-business-3-v1 = "alpha_factory_v1.demos.alpha_agi_business_3_v1.cli:main"
 alpha-agi-insight-v1 = "alpha_factory_v1.demos.alpha_agi_insight_v1.src.interface.cli:main"
 alpha-agi-insight-v1-api = "alpha_factory_v1.demos.alpha_agi_insight_v1.src.interface.api_server:main"
 aii = "alpha_factory_v1.demos.alpha_agi_insight_v1.src.interface.cli:main"

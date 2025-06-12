@@ -266,7 +266,7 @@ helm install omega-lattice omega/omega-lattice \
 ```bash
 python -m venv venv && source venv/bin/activate
 pip install -r requirements.txt
-python -m alpha_factory_v1.demos.alpha_agi_business_3_v1
+alpha-agi-business-3-v1
 ```
 
 Offline mode activates automatically when `OPENAI_API_KEY` is unset.
@@ -288,7 +288,7 @@ example **Llama‑3‑8B.gguf** – to enable offline inference.
 Run the standalone script directly to simulate one Ω‑Lattice cycle:
 
 ```bash
-python alpha_agi_business_3_v1.py --loglevel info
+alpha-agi-business-3-v1 --loglevel info
 ```
 If the **OpenAI Agents SDK** is installed, each cycle emits a concise LLM
 comment on the computed ΔG. Without it the demo uses an offline placeholder.
@@ -301,7 +301,7 @@ You can also run the Dockerised version:
 #### Example Session
 
 ```bash
-$ python alpha_agi_business_3_v1.py --cycles 1 --loglevel info
+$ alpha-agi-business-3-v1 --cycles 1 --loglevel info
 2025-06-11 17:16:10 INFO     | ΔH=0.027 ΔS=0.008 β=1.04 → ΔG=0.019
 2025-06-11 17:16:10 INFO     | LLM: LLM offline
 2025-06-11 17:16:10 INFO     | [Model] New weights committed (Gödel-proof verified)
@@ -331,7 +331,7 @@ Set `LLAMA_MODEL_PATH` to a local `.gguf` model and install either
 without internet access.
 
 ```bash
-LLAMA_MODEL_PATH=/path/model.gguf python alpha_agi_business_3_v1.py
+LLAMA_MODEL_PATH=/path/model.gguf alpha-agi-business-3-v1
 ```
 
 ---
