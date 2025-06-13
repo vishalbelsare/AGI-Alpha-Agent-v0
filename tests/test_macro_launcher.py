@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: Apache-2.0
-"""Tests for the Macro-Sentinel Docker launcher."""
+"""Tests for the Macro-Sentinel run script."""
 
 from __future__ import annotations
 
@@ -9,54 +9,69 @@ from pathlib import Path
 
 import pytest
 
-SCRIPT = Path(
-    "alpha_factory_v1/demos/macro_sentinel/macro_launcher.py"
-)
+RUN_SCRIPT = Path("alpha_factory_v1/demos/macro_sentinel/run_macro_demo.sh")
 
 
-@pytest.mark.skipif(
-    not SCRIPT.exists(), reason="script missing"
-)
-def test_macro_launcher_no_offline(monkeypatch: pytest.MonkeyPatch) -> None:
+def _run_script(tmp_path: Path, *, env: dict[str, str]) -> tuple[str, str]:
+    docker_log = tmp_path / "docker.log"
+    curl_log = tmp_path / "curl.log"
+    bin_dir = tmp_path / "bin"
+    bin_dir.mkdir()
+
+    docker_stub = bin_dir / "docker"
+    docker_stub.write_text(
+        "#!/usr/bin/env bash\n"
+        "echo \"$@\" >> \"$DOCKER_LOG\"\n"
+        "if [ \"$1\" = \"info\" ]; then echo \"{}\"; fi\n"
+        "if [ \"$1\" = \"version\" ]; then echo \"24.0.0\"; fi\n"
+        "exit 0\n"
+    )
+    docker_stub.chmod(0o755)
+
+    curl_stub = bin_dir / "curl"
+    curl_stub.write_text(
+        "#!/usr/bin/env bash\n"
+        "echo \"$@\" >> \"$CURL_LOG\"\n"
+        "exit 0\n"
+    )
+    curl_stub.chmod(0o755)
+
+    script_env = os.environ.copy()
+    script_env.update(env)
+    script_env.update(
+        {
+            "PATH": f"{bin_dir}:{script_env['PATH']}",
+            "DOCKER_LOG": str(docker_log),
+            "CURL_LOG": str(curl_log),
+        }
+    )
+
+    config = RUN_SCRIPT.parent / "config.env"
+    try:
+        result = subprocess.run(
+            [f"./{RUN_SCRIPT.name}"],
+            cwd=RUN_SCRIPT.parent,
+            env=script_env,
+            capture_output=True,
+            text=True,
+        )
+    finally:
+        if config.exists():
+            config.unlink()
+
+    assert result.returncode == 0, result.stderr
+    return docker_log.read_text(), curl_log.read_text()
+
+
+@pytest.mark.skipif(not RUN_SCRIPT.exists(), reason="script missing")
+def test_run_macro_demo_no_offline(tmp_path: Path) -> None:
     """`OPENAI_API_KEY` disables the offline profile."""
-    compose_calls: list[list[str]] = []
-
-    def fake_run(cmd: list[str], *a, **k) -> subprocess.CompletedProcess[str]:
-        if cmd[:2] == ["docker", "compose"]:
-            compose_calls.append(cmd)
-        return subprocess.CompletedProcess(cmd, 0, "", "")
-
-    monkeypatch.setattr(subprocess, "run", fake_run)
-    monkeypatch.setenv("OPENAI_API_KEY", "dummy-key")
-
-    mod = __import__(
-        "alpha_factory_v1.demos.macro_sentinel.macro_launcher", fromlist=["main"]
-    )
-    mod.main([])
-
-    cmd_str = " ".join(" ".join(c) for c in compose_calls)
-    assert "--profile offline" not in cmd_str
+    docker_log, _ = _run_script(tmp_path, env={"OPENAI_API_KEY": "dummy-key"})
+    assert "--profile offline" not in docker_log
 
 
-@pytest.mark.skipif(
-    not SCRIPT.exists(), reason="script missing"
-)
-def test_macro_launcher_health_check(monkeypatch: pytest.MonkeyPatch) -> None:
+@pytest.mark.skipif(not RUN_SCRIPT.exists(), reason="script missing")
+def test_run_macro_demo_health_check(tmp_path: Path) -> None:
     """Health gate should hit the expected endpoint."""
-    curl_calls: list[list[str]] = []
-
-    def fake_run(cmd: list[str], *a, **k) -> subprocess.CompletedProcess[str]:
-        if cmd[0] == "curl":
-            curl_calls.append(cmd)
-        return subprocess.CompletedProcess(cmd, 0, "", "")
-
-    monkeypatch.setattr(subprocess, "run", fake_run)
-    monkeypatch.setenv("OPENAI_API_KEY", "dummy-key")
-
-    mod = __import__(
-        "alpha_factory_v1.demos.macro_sentinel.macro_launcher", fromlist=["main"]
-    )
-    mod.main([])
-
-    urls = " ".join(" ".join(c) for c in curl_calls)
-    assert "http://localhost:7864/healthz" in urls
+    _, curl_log = _run_script(tmp_path, env={"OPENAI_API_KEY": "dummy-key"})
+    assert "http://localhost:7864/healthz" in curl_log
