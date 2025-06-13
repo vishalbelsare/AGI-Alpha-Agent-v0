@@ -18,6 +18,9 @@ All notable changes to this project are documented in this file.
   automated image deployment on tags and rollback on failure. Metrics are
   exported via OpenTelemetry and can be viewed in Grafana or the Streamlit
   dashboard.
+- Clarified that `numpy` and `pandas` are required for realistic results and
+  `check_env.py` now errors if they are missing unless `--allow-basic-fallback`
+  is provided.
 - Documented `ALPHA_ASI_*` demo variables in README and AGENTS.md.
 - Removed outdated `alpha_asi_world_model_demo_v1.py` script.
 - Added cross-industry demo with [deploy script](../alpha_factory_v1/demos/cross_industry_alpha_factory/deploy_alpha_factory_cross_industry_demo.sh)

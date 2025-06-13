@@ -74,6 +74,8 @@ Clone the repository and run the helper script to start the Insight demo locally
 git clone https://github.com/MontrealAI/AGI-Alpha-Agent-v0.git
 cd AGI-Alpha-Agent-v0
 python check_env.py --auto-install  # may run for several minutes
+# NumPy and pandas are required for realistic results; omit or add
+# `--allow-basic-fallback` to bypass this check.
 # Abort with Ctrl+C and rerun with '--timeout 300' to fail fast
 ./quickstart.sh
 Run `pre-commit run --all-files` after the dependencies finish installing.
@@ -786,6 +788,7 @@ Cells with \(Δ\mathcal F < 0\) glow 🔵 on Grafana; Ω‑Agents race to harves
 * Agents query `mem.search("supply shock beta>0.2")`  
 * Planner asks Neo4j: `MATCH (a)-[:CAUSES]->(b) WHERE b.delta_alpha > 5e6 RETURN path`
 * SQLite vector store fallback requires `numpy`
+* Realistic operation also relies on `pandas`
 
 ---
 
