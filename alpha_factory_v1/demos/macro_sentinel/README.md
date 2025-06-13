@@ -61,7 +61,9 @@ previous issue resolved, the launcher now reads `config.env` automatically when
 present.
 
 Offline sample data is fetched automatically the first time you run the
-launcher—no manual downloads required.
+launcher—no manual downloads required. These CSV snapshots mirror
+public data from the [demo‑assets](https://github.com/MontrealAI/demo-assets)
+repository and cover roughly March–April 2024 activity.
 
 *Dashboard:* http://localhost:7864
 *Health:*    http://localhost:7864/healthz
