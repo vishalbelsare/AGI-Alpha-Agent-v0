@@ -91,6 +91,8 @@ fully offline.
 | `PG_PASSWORD` | `alpha` | TimescaleDB superuser password |
 | `LIVE_FEED` | `0` | 1 uses live FRED/Etherscan feeds |
 | `ALPHA_FACTORY_ENABLE_ADK` | `0` | 1 exposes ADK gateway on port 9000 |
+| `PROMETHEUS_SCRAPE_INTERVAL` | `15s` | Metrics polling frequency |
+| `GRAFANA_ADMIN_PASSWORD` | `alpha` | Grafana admin password |
 
 Edit **`config.env`** or export variables before launch.
 
@@ -104,6 +106,18 @@ Edit **`config.env`** or export variables before launch.
 | Risk Metrics | `risk_metrics.json` |
 
 Pre‑provisioned at <http://localhost:3001>.
+
+### Accessing Grafana
+
+Open your browser to `http://localhost:3001` and log in with user `admin` and
+`GRAFANA_ADMIN_PASSWORD` (default `alpha`). The `Macro Events` and `Risk Metrics`
+dashboards load automatically.
+
+### Tuning Prometheus
+
+Adjust metric collection frequency by setting `PROMETHEUS_SCRAPE_INTERVAL` in
+`config.env` before launching, or edit `observability/prometheus.yml` for more
+advanced settings.
 
 ---
 
