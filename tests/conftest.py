@@ -6,7 +6,19 @@ import importlib.util
 
 # Skip early when heavy optional deps are missing to avoid stack traces
 pytest.importorskip("numpy", reason="numpy required")
-pytest.importorskip("torch", reason="torch required")
+
+_HAS_TORCH = importlib.util.find_spec("torch") is not None
+
+def pytest_configure(config: pytest.Config) -> None:
+    config.addinivalue_line(
+        "markers",
+        "requires_torch: mark test that depends on the torch package",
+    )
+
+
+def pytest_runtest_setup(item: pytest.Item) -> None:
+    if "requires_torch" in item.keywords and not _HAS_TORCH:
+        pytest.skip("torch required", allow_module_level=True)
 
 try:  # skip all tests if the simulation module fails to import
     from src.simulation import replay
