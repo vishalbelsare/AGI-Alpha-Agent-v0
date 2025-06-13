@@ -83,6 +83,17 @@ python agent_macro_entrypoint.py
 The entry point pulls minimal CSV snapshots if they are missing so you can run
 fully offline.
 
+### Offline installation
+
+```bash
+pip wheel -r requirements.txt -w /media/wheels
+WHEELHOUSE=/media/wheels AUTO_INSTALL_MISSING=1 \
+  python ../../check_env.py --auto-install --wheelhouse /media/wheels
+```
+
+This mirrors the repository's offline setup instructions so the demo works
+without internet access.
+
 ---
 
 ## ⚙️ Configuration
