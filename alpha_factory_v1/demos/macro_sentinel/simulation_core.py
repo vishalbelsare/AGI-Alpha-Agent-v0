@@ -56,6 +56,7 @@ DV01_TABLE = {2: 0.019, 5: 0.042, 10: 0.079, 30: 0.151}  # simplistic
 
 
 def _choose_dv01(years: int = 10) -> float:
+    """Return DV01 in USD per bp for the given swap tenor."""
     return DV01_TABLE.get(years, DV01_TABLE[10])
 
 
@@ -69,6 +70,7 @@ class MonteCarloSimulator:
 
     # ─────────── internal helpers ───────────
     def _drift_vec(self, obs: Dict[str, float]) -> Any:
+        """Return drift vector based on ``obs``."""
         slope = obs["yield_10y"] - obs["yield_3m"]
         mu_es = slope * self.beta_slope + obs["stable_flow"] * self.beta_flow
         if np is not None:
@@ -76,6 +78,7 @@ class MonteCarloSimulator:
         return [0.0, 0.0, mu_es]
 
     def _chol(self, high_vol: bool) -> Any:
+        """Return Cholesky matrix for the selected volatility regime."""
         if np is None:
             return None
         if not high_vol:
@@ -85,6 +88,7 @@ class MonteCarloSimulator:
 
     # ─────────── public API ───────────
     def simulate(self, obs: Dict[str, float]) -> Any:
+        """Simulate ES price factors given current observations."""
         if np is None or pd is None:  # simplified fallback
             vals = []
             for _ in range(self.n):
@@ -105,6 +109,7 @@ class MonteCarloSimulator:
 
     @staticmethod
     def var(s: Sequence[float], a: float = 0.05) -> Any:
+        """Return the ``a`` percentile minus one."""
         data = list(s)
         if np is not None:
             return float(np.percentile(data, a * 100)) - 1
@@ -114,6 +119,7 @@ class MonteCarloSimulator:
 
     @staticmethod
     def cvar(s: Sequence[float], a: float = 0.05) -> Any:
+        """Return expected value below the ``a`` percentile minus one."""
         data = list(s)
         if np is not None:
             thr = np.percentile(data, a * 100)
@@ -125,6 +131,7 @@ class MonteCarloSimulator:
 
     @staticmethod
     def skew(s: Sequence[float]) -> Any:
+        """Compute sample skewness of ``s``."""
         data = list(s)
         if np is not None:
             arr = np.array(data)
@@ -135,6 +142,16 @@ class MonteCarloSimulator:
         return sum((x - m) ** 3 for x in data) / len(data) / (std**3 if std else 1)
 
     def hedge(self, s: Sequence[float], port_usd: float, swap_tenor: int = 10) -> Dict[str, Any]:
+        """Return hedge notionals and risk metrics.
+
+        Args:
+            s: Scenario results as ES factors.
+            port_usd: Portfolio value in USD.
+            swap_tenor: Swap maturity in years.
+
+        Returns:
+            Dictionary with ES and DV01 notionals and metrics.
+        """
         var = self.var(s)
         cvar = self.cvar(s)
         dv01 = _choose_dv01(swap_tenor)
@@ -149,6 +166,7 @@ class MonteCarloSimulator:
 
     # convenience for UI
     def scenario_table(self, s: Sequence[float]) -> Any:
+        """Return median, VaR 5 % and stress 1 % rows for UI tables."""
         data = list(s)
         if np is not None and pd is not None:
             quant = np.percentile(data, [50, 95, 99])

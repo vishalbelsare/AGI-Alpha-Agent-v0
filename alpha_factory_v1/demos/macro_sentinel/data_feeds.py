@@ -107,6 +107,14 @@ async def _session() -> aiohttp.ClientSession:
 
 
 async def _http_json(url: str) -> Any:
+    """Return JSON from ``url`` using the shared session.
+
+    Args:
+        url: HTTP endpoint.
+
+    Returns:
+        Parsed JSON payload.
+    """
     s = await _session()
     async with s.get(url) as r:
         r.raise_for_status()
@@ -114,6 +122,7 @@ async def _http_json(url: str) -> Any:
 
 
 async def _http_text(url: str) -> str:
+    """Return raw text from ``url`` using the shared session."""
     s = await _session()
     async with s.get(url) as r:
         r.raise_for_status()
@@ -122,6 +131,7 @@ async def _http_text(url: str) -> str:
 
 # ───────────────────────── Live fetchers ─────────────────────────────
 async def _fred_latest(series: str) -> Optional[float]:
+    """Return the most recent FRED observation for ``series``."""
     if not FRED_KEY:
         return None
     url = (
@@ -138,6 +148,7 @@ _CACHE_SPEECH = deque(maxlen=10)
 
 
 async def _latest_fed_speech() -> Optional[str]:
+    """Return the latest Fed speech title or ``None`` if unchanged."""
     await _session()  # early check so RuntimeError propagates when aiohttp is missing
     try:
         xml = await _http_text(RSS_URL)
@@ -153,6 +164,7 @@ async def _latest_fed_speech() -> Optional[str]:
 
 
 async def _latest_stable_flow() -> Optional[float]:
+    """Return USD transferred in the latest stablecoin transaction."""
     if not ETHERSCAN_KEY:
         return None
     url = (
@@ -166,6 +178,7 @@ async def _latest_stable_flow() -> Optional[float]:
 
 
 async def _latest_cme_settle() -> Optional[float]:
+    """Return the latest futures price via the Deribit fallback."""
     # Deribit free endpoint as CME fallback
     try:
         url = f"https://www.deribit.com/api/v2/public/ticker?instrument_name={CME_SYMBOL}-PERPETUAL"
@@ -184,6 +197,7 @@ def _safe(f: Any, *a: Any, **kw: Any) -> None:
 
 
 def _push_db(evt: Dict[str, Any]):
+    """Persist ``evt`` to TimescaleDB when configured."""
     if not DB_URL:
         return
     import psycopg2
@@ -203,6 +217,7 @@ def _push_db(evt: Dict[str, Any]):
 
 
 def _push_redis(evt: Dict[str, Any]):
+    """Publish ``evt`` to a Redis stream when configured."""
     if not REDIS_URL:
         return
     import redis, json as _j
@@ -212,6 +227,7 @@ def _push_redis(evt: Dict[str, Any]):
 
 
 def _push_qdrant(evt: Dict[str, Any]):
+    """Insert ``evt`` into a Qdrant collection when configured."""
     if not VEC_URL:
         return
     import af_requests as requests, hashlib, json as _j
@@ -226,6 +242,7 @@ def _push_qdrant(evt: Dict[str, Any]):
 
 
 def _fanout(evt: Dict[str, Any]) -> None:
+    """Send ``evt`` to all configured output sinks."""
     _safe(_push_db, evt)
     _safe(_push_redis, evt)
     _safe(_push_qdrant, evt)
@@ -233,6 +250,14 @@ def _fanout(evt: Dict[str, Any]) -> None:
 
 # ───────────────────────── Main async generator ──────────────────────
 async def stream_macro_events(live: bool = False) -> AsyncIterator[Dict[str, Any]]:
+    """Yield macro events from offline CSVs or live APIs.
+
+    Args:
+        live: Pull from network sources when ``True``.
+
+    Yields:
+        Event dictionaries with timestamp, speech, yields, stable flow and ES settle.
+    """
     idx = 0
     while True:
         evt: Dict[str, Any] = {"timestamp": dt.datetime.now(dt.timezone.utc).isoformat()}
