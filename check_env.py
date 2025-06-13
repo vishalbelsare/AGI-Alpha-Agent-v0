@@ -109,7 +109,11 @@ def has_network() -> bool:
 
 
 def main(argv: Optional[List[str]] = None) -> int:
-    parser = argparse.ArgumentParser(description="Validate runtime dependencies")
+    parser = argparse.ArgumentParser(
+        description="Validate runtime dependencies",
+        epilog="Example: pip wheel -r requirements.txt -w /media/wheels",
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+    )
     parser.add_argument(
         "--auto-install",
         action="store_true",
@@ -140,9 +144,9 @@ def main(argv: Optional[List[str]] = None) -> int:
 
     if auto and not wheelhouse and not has_network():
         print(
-            "No network access detected. Re-run with '--wheelhouse <dir>' "
-            "or set WHEELHOUSE to install packages from local wheels. "
-            "See docs/OFFLINE_SETUP.md."
+            "Network unavailable. Build a wheelhouse as shown in AGENTS.md "
+            "and re-run with '--wheelhouse <dir>' (see "
+            "alpha_factory_v1/scripts/README.md)."
         )
         return 1
 
@@ -205,8 +209,8 @@ def main(argv: Optional[List[str]] = None) -> int:
         except subprocess.TimeoutExpired:
             print(
                 "Timed out installing baseline requirements. "
-                "Re-run with '--wheelhouse <dir>' to install offline packages. "
-                "See docs/OFFLINE_SETUP.md.",
+                "Build a wheelhouse as shown in AGENTS.md and re-run with "
+                "'--wheelhouse <dir>' (see alpha_factory_v1/scripts/README.md).",
             )
             if not has_network() and not wheelhouse:
                 print("No network connectivity detected.")
@@ -216,9 +220,9 @@ def main(argv: Optional[List[str]] = None) -> int:
             print("Failed to install baseline requirements", exc.returncode)
             if any(kw in stderr.lower() for kw in ["connection", "temporary failure", "network", "resolve"]):
                 print(
-                    "Network failure detected. Re-run with '--wheelhouse <dir>' "
-                    "or set WHEELHOUSE to install offline packages. "
-                    "See docs/OFFLINE_SETUP.md."
+                    "Network failure detected. Build a wheelhouse as shown in "
+                    "AGENTS.md and re-run with '--wheelhouse <dir>' (see "
+                    "alpha_factory_v1/scripts/README.md)."
                 )
             return exc.returncode
 
@@ -261,8 +265,8 @@ def main(argv: Optional[List[str]] = None) -> int:
                 )
             except subprocess.TimeoutExpired:
                 print(
-                    "Timed out installing packages. Re-run with '--wheelhouse <dir>' to install from local wheels. "
-                    "See docs/OFFLINE_SETUP.md.",
+                    "Timed out installing packages. Build a wheelhouse as shown in AGENTS.md and re-run with "
+                    "'--wheelhouse <dir>' (see alpha_factory_v1/scripts/README.md)."
                 )
                 if not has_network() and not wheelhouse:
                     print("No network connectivity detected.")
@@ -272,9 +276,9 @@ def main(argv: Optional[List[str]] = None) -> int:
                 print("Automatic install failed with code", exc.returncode)
                 if any(kw in stderr.lower() for kw in ["connection", "temporary failure", "network", "resolve"]):
                     print(
-                        "Network failure detected. Re-run with '--wheelhouse <dir>' "
-                        "or set WHEELHOUSE to install offline packages. "
-                        "See docs/OFFLINE_SETUP.md."
+                        "Network failure detected. Build a wheelhouse as shown in "
+                        "AGENTS.md and re-run with '--wheelhouse <dir>' (see "
+                        "alpha_factory_v1/scripts/README.md)."
                     )
                 return 1
             else:
