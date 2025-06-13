@@ -24,8 +24,9 @@ These integration tests expect the `alpha_factory_v1` package to be importable.
    ```bash
    python check_env.py --auto-install
    ```
-4. Ensure `numpy`, `pyyaml` and `pandas` are installed. They ship with
-   `requirements-dev.txt` but might be missing in minimal setups.
+4. Ensure `numpy`, `pyyaml`, `pandas` and `prometheus_client` are installed.
+   They ship with `requirements-dev.txt` but might be missing in minimal
+   setups.
 5. Install any missing optional packages:
    ```bash
    python check_env.py --auto-install
@@ -37,7 +38,8 @@ The full suite exercises features that depend on optional packages such as
 `numpy`, `torch`, `pandas`, `prometheus_client`, `gymnasium`, `playwright`,
 `httpx`, `uvicorn`, `git` and `hypothesis`.
 
-Tests are skipped when `numpy` or `torch` are missing. Pre-install them with
+Tests are skipped when `numpy`, `prometheus_client` or `torch` are missing.
+Pre-install them with
 `python check_env.py --auto-install`. Set the `WHEELHOUSE` environment
 variable to point to a local wheel directory when running offline so this
 command succeeds without contacting PyPI. `torch` in particular is heavy and
