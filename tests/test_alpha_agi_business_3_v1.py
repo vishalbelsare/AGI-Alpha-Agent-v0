@@ -39,6 +39,23 @@ def test_a2a_port_zero(monkeypatch):
     assert mod._A2A is None
 
 
+def test_a2a_port_invalid(monkeypatch):
+    """Invalid ``A2A_PORT`` values should not crash the import."""
+    dummy = types.ModuleType("a2a")
+
+    class DummySocket:
+        def __init__(self, *args, **kwargs) -> None:  # pragma: no cover - dummy
+            raise AssertionError("should not be instantiated")
+
+    dummy.A2ASocket = DummySocket
+    monkeypatch.setitem(sys.modules, "a2a", dummy)
+    monkeypatch.setenv("A2A_PORT", "abc")
+    if MODULE in sys.modules:
+        del sys.modules[MODULE]
+    mod = importlib.import_module(MODULE)
+    assert mod._A2A is None
+
+
 def test_llm_comment_offline(monkeypatch):
     """`_llm_comment` should use local_llm when OpenAIAgent is unavailable."""
     mod = importlib.import_module(MODULE)
