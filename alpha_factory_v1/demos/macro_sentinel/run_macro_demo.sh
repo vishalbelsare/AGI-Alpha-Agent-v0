@@ -113,7 +113,12 @@ declare -A SRC=(
   [cme_settles.csv]="https://raw.githubusercontent.com/MontrealAI/demo-assets/main/cme_settles.csv"
 )
 for f in "${!SRC[@]}"; do
-  curl -fsSL "${SRC[$f]}" -o "$offline_dir/$f"
+  if [[ -f "$offline_dir/$f" ]]; then
+    continue
+  fi
+  if ! curl -fsSL "${SRC[$f]}" -o "$offline_dir/$f"; then
+    warn "Failed to download ${SRC[$f]}"
+  fi
 done
 
 # ──────────────────────── compose profiles ────────────────────
