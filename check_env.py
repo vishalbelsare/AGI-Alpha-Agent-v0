@@ -14,7 +14,7 @@ The script prints a warning when packages are missing but continues to
 run so the demos remain usable in restricted setups. Missing ``numpy`` or
 ``pandas`` normally aborts execution with an error unless the
 ``--allow-basic-fallback`` flag is supplied. It also performs a
-quick DNS lookup to detect whether the host has network access. When
+quick TCP connection test to ``pypi.org`` to detect network access. When
 ``--auto-install`` is used without connectivity and no ``--wheelhouse``
 is provided the script exits early with instructions rather than waiting
 for ``pip`` timeouts.
@@ -115,11 +115,11 @@ IMPORT_NAMES = {
 }
 
 
-def has_network() -> bool:
-    """Return ``True`` if DNS resolution for ``pypi.org`` succeeds."""
+def has_network(timeout: float = 1.0) -> bool:
+    """Return ``True`` if ``pypi.org`` is reachable on port 443."""
     try:
-        socket.gethostbyname("pypi.org")
-        return True
+        with socket.create_connection(("pypi.org", 443), timeout=timeout):
+            return True
     except OSError:
         return False
 
@@ -166,9 +166,11 @@ def main(argv: Optional[List[str]] = None) -> int:
 
     if auto and not wheelhouse and not has_network():
         print(
-            "Network unavailable. Build a wheelhouse as shown in AGENTS.md "
-            "and re-run with '--wheelhouse <dir>' (see "
-            "alpha_factory_v1/scripts/README.md)."
+            "No network connectivity detected.\n"
+            "Build a wheelhouse, e.g.:\n"
+            "  pip wheel -r requirements.txt -w /path/to/wheels\n"
+            "Re-run with '--wheelhouse <dir>' or set WHEELHOUSE. See\n"
+            "alpha_factory_v1/scripts/README.md for details."
         )
         return 1
 
@@ -230,9 +232,11 @@ def main(argv: Optional[List[str]] = None) -> int:
             subprocess.run(cmd, check=True, timeout=pip_timeout)
         except subprocess.TimeoutExpired:
             print(
-                "Timed out installing baseline requirements. "
-                "Build a wheelhouse as shown in AGENTS.md and re-run with "
-                "'--wheelhouse <dir>' (see alpha_factory_v1/scripts/README.md).",
+                "Timed out installing baseline requirements.\n"
+                "Create a wheelhouse with:\n"
+                "  pip wheel -r requirements.txt -w /path/to/wheels\n"
+                "Then re-run with '--wheelhouse <dir>' (see "
+                "alpha_factory_v1/scripts/README.md)."
             )
             if not has_network() and not wheelhouse:
                 print("No network connectivity detected.")
@@ -242,8 +246,9 @@ def main(argv: Optional[List[str]] = None) -> int:
             print("Failed to install baseline requirements", exc.returncode)
             if any(kw in stderr.lower() for kw in ["connection", "temporary failure", "network", "resolve"]):
                 print(
-                    "Network failure detected. Build a wheelhouse as shown in "
-                    "AGENTS.md and re-run with '--wheelhouse <dir>' (see "
+                    "Network failure detected.\n"
+                    "Create a wheelhouse with 'pip wheel -r requirements.txt -w /path/to/wheels'\n"
+                    "and re-run with '--wheelhouse <dir>' (see "
                     "alpha_factory_v1/scripts/README.md)."
                 )
             return exc.returncode
@@ -287,8 +292,9 @@ def main(argv: Optional[List[str]] = None) -> int:
                 )
             except subprocess.TimeoutExpired:
                 print(
-                    "Timed out installing packages. Build a wheelhouse as shown in AGENTS.md and re-run with "
-                    "'--wheelhouse <dir>' (see alpha_factory_v1/scripts/README.md)."
+                    "Timed out installing packages.\n"
+                    "Create a wheelhouse with 'pip wheel -r requirements.txt -w /path/to/wheels'\n"
+                    "then re-run with '--wheelhouse <dir>' (see alpha_factory_v1/scripts/README.md)."
                 )
                 if not has_network() and not wheelhouse:
                     print("No network connectivity detected.")
@@ -298,8 +304,9 @@ def main(argv: Optional[List[str]] = None) -> int:
                 print("Automatic install failed with code", exc.returncode)
                 if any(kw in stderr.lower() for kw in ["connection", "temporary failure", "network", "resolve"]):
                     print(
-                        "Network failure detected. Build a wheelhouse as shown in "
-                        "AGENTS.md and re-run with '--wheelhouse <dir>' (see "
+                        "Network failure detected.\n"
+                        "Create a wheelhouse with 'pip wheel -r requirements.txt -w /path/to/wheels'\n"
+                        "and re-run with '--wheelhouse <dir>' (see "
                         "alpha_factory_v1/scripts/README.md)."
                     )
                 return 1

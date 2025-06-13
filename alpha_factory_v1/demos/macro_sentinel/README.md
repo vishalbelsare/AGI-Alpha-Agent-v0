@@ -83,6 +83,17 @@ python agent_macro_entrypoint.py
 The entry point pulls minimal CSV snapshots if they are missing so you can run
 fully offline.
 
+### Preparing a wheelhouse
+
+Build wheels on a machine with internet access so the demo can be installed
+offline:
+
+```bash
+pip wheel -r requirements.txt -w /path/to/wheels
+```
+
+Pass `--wheelhouse /path/to/wheels` to `check_env.py` as shown below.
+
 ### Offline installation
 
 ```bash
