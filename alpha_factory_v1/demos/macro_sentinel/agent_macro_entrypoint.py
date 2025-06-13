@@ -46,10 +46,24 @@ event_iter    = stream_macro_events(live=LIVE_FEED)   # async generator
 # ─────────────────────────── Tools ──────────────────────────────────
 @Tool("macro_event", "Stream the newest macro telemetry event.")
 async def macro_event() -> dict:
+    """Return the next macro event from the feed.
+
+    Returns:
+        Dictionary describing the latest macro telemetry event.
+    """
     return await anext(event_iter)
 
 @Tool("mc_risk", "Run Monte-Carlo risk. Returns hedge + scenario table.")
 async def mc_risk(event: dict, portfolio: float = PORTFOLIO_USD) -> dict:
+    """Run risk simulation and size a hedge.
+
+    Args:
+        event: Latest macro event used for the simulation.
+        portfolio: Portfolio value in USD.
+
+    Returns:
+        Dictionary with hedging information and return scenarios.
+    """
     factors = simulator.simulate(event)
     hedge   = simulator.hedge(factors, portfolio)
     scen    = simulator.scenario_table(factors).to_dict(orient="records")
@@ -57,6 +71,14 @@ async def mc_risk(event: dict, portfolio: float = PORTFOLIO_USD) -> dict:
 
 @Tool("order_stub", "Draft a JSON order for Micro-ES future.")
 async def order_stub(hedge: dict) -> dict:
+    """Create a stub futures order based on the hedge.
+
+    Args:
+        hedge: Hedge dictionary from :func:`mc_risk`.
+
+    Returns:
+        Order parameters for a market trade in Micro‑ES.
+    """
     notional = hedge["es_notional"]
     side     = "SELL" if notional > 0 else "BUY"
     qty      = max(int(abs(notional)//50_000), 1)    # 50 k USD ≈ 1 MES
@@ -64,6 +86,15 @@ async def order_stub(hedge: dict) -> dict:
 
 @Tool("explain", "Narrate risk & hedge for a PM.")
 async def explain(event: dict, hedge: dict) -> str:
+    """Explain the hedge rationale in prose.
+
+    Args:
+        event: Macro event driving the risk calculation.
+        hedge: Hedge dictionary produced by :func:`mc_risk`.
+
+    Returns:
+        Short narrative describing the hedge decision.
+    """
     prompt = (
         "You are a risk officer. In ~150 words, explain to a portfolio "
         "manager why the hedge below is sensible.\n\n"
