@@ -55,6 +55,11 @@ python ../../check_env.py    # verify optional dependencies
                               # (--live exports LIVE_FEED=1)
 ```
 
+Export `OPENAI_API_KEY` in your shell (or define it in `config.env`) before
+launching. If the variable is absent, the script runs in offline mode. With the
+previous issue resolved, the launcher now reads `config.env` automatically when
+present.
+
 Offline sample data is fetched automatically the first time you run the
 launcher—no manual downloads required.
 
