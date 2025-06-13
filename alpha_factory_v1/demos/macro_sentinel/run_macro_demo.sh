@@ -103,6 +103,12 @@ ALPHA_FACTORY_ENABLE_ADK=0
 EOF
 fi
 
+# Load OPENAI_API_KEY from config.env if not already set
+if [[ -z "${OPENAI_API_KEY:-}" && -f "$env_file" ]]; then
+  # shellcheck disable=SC1090
+  source "$env_file"
+fi
+
 # ──────────────────────── offline data ────────────────────────
 say "Syncing offline CSV snapshots"
 mkdir -p "$offline_dir"
