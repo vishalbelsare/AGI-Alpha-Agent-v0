@@ -40,3 +40,10 @@ To launch a job:
 Each workflow checks that the person triggering it matches
 `github.repository_owner`, so it executes only when the owner initiates the
 run.
+
+## Macro-Sentinel Demo
+
+A self-healing macro risk radar powered by multi-agent α‑AGI. The stack ingests
+macro telemetry, runs Monte-Carlo simulations and exposes a Gradio dashboard.
+See the [alpha_factory_v1/demos/macro_sentinel/README.md](../alpha_factory_v1/demos/macro_sentinel/README.md)
+for full instructions.
