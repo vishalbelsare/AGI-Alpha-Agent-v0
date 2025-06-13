@@ -11,7 +11,9 @@ before attempting to resolve any remaining missing packages with
 local directory.
 
 The script prints a warning when packages are missing but continues to
-run so the demos remain usable in restricted setups.  It also performs a
+run so the demos remain usable in restricted setups. Missing ``numpy`` or
+``pandas`` normally aborts execution with an error unless the
+``--allow-basic-fallback`` flag is supplied. It also performs a
 quick DNS lookup to detect whether the host has network access. When
 ``--auto-install`` is used without connectivity and no ``--wheelhouse``
 is provided the script exits early with instructions rather than waiting
@@ -123,12 +125,18 @@ def main(argv: Optional[List[str]] = None) -> int:
         default=int(os.getenv("PIP_TIMEOUT", "600")),
         help="Seconds before pip install operations abort (default: 600)",
     )
+    parser.add_argument(
+        "--allow-basic-fallback",
+        action="store_true",
+        help="Continue even if numpy or pandas are missing",
+    )
 
     args = parser.parse_args(argv)
 
     wheelhouse = args.wheelhouse or os.getenv("WHEELHOUSE")
     auto = args.auto_install or os.getenv("AUTO_INSTALL_MISSING") == "1"
     pip_timeout = args.timeout
+    allow_basic = args.allow_basic_fallback
 
     if auto and not wheelhouse and not has_network():
         print(
@@ -173,6 +181,14 @@ def main(argv: Optional[List[str]] = None) -> int:
         except subprocess.SubprocessError as exc:
             print("Failed to install core packages", getattr(exc, "returncode", ""))
             return 1
+        missing_core = warn_missing_core()
+
+    if missing_core and not allow_basic:
+        print(
+            "ERROR: numpy and pandas are required for realistic results. "
+            "Re-run with --allow-basic-fallback to bypass this check."
+        )
+        return 1
     req_file = Path(__file__).resolve().parent / "alpha_factory_v1" / "requirements.txt"
     if auto and req_file.exists():
         cmd = [sys.executable, "-m", "pip", "install", "--quiet"]
