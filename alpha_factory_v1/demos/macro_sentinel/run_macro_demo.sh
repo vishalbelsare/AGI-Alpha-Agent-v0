@@ -133,17 +133,19 @@ has_gpu && profiles+=(gpu)
 [[ -z "${OPENAI_API_KEY:-}" ]] && profiles+=(offline)
 (( LIVE )) && profiles+=(live-feed)
 export LIVE_FEED=${LIVE}
-profile_arg=""
-[[ ${#profiles[@]} -gt 0 ]] && profile_arg="--profile $(IFS=,;echo "${profiles[*]}")"
+profile_arg=()
+for p in "${profiles[@]}"; do
+  profile_arg+=(--profile "$p")
+done
 
 # ───────────────────────── Docker build ───────────────────────
 say "🚢 Building images (profiles: ${profiles[*]:-none})"
-docker compose -f "$compose_file" $profile_arg pull --quiet || true
-docker compose -f "$compose_file" $profile_arg build --pull
+docker compose -f "$compose_file" "${profile_arg[@]}" pull --quiet || true
+docker compose -f "$compose_file" "${profile_arg[@]}" build --pull
 
 # ───────────────────────── stack up ───────────────────────────
 say "🔄 Starting containers"
-docker compose --project-name alpha_macro -f "$compose_file" $profile_arg up -d
+docker compose --project-name alpha_macro -f "$compose_file" "${profile_arg[@]}" up -d
 
 # ─────────────────────── health gate & trap ───────────────────
 trap 'docker compose -p alpha_macro stop; exit 0' INT
