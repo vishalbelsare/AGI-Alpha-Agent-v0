@@ -72,6 +72,11 @@ env_file="$demo_dir/config.env"
 offline_dir="$demo_dir/offline_samples"
 cd "$root_dir"
 
+# ─────────────────────── dependency check ─────────────────────
+if ! python "$demo_dir/../../../check_env.py" --demo macro_sentinel --auto-install; then
+  die "Environment check failed. Run 'python ../../check_env.py --demo macro_sentinel --auto-install' and resolve any issues."
+fi
+
 # ──────────────────────── prerequisites ───────────────────────
 need docker
 docker compose version &>/dev/null || die "Docker Compose plug-in missing"
