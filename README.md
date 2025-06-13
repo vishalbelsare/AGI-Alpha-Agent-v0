@@ -138,6 +138,10 @@ AGI_INSIGHT_OFFLINE=1 alpha-agi-insight-v1 --episodes 5
 
 Setting ``AGI_INSIGHT_OFFLINE=1`` ensures the search loop never attempts network access.
 
+When the host cannot reach the internet the environment checker prints a warning
+and the demos continue in offline mode using any cached data. Optional downloads
+are skipped automatically.
+
 ### Meta-Agentic Tree Search Demo
 
 An offline-friendly reference implementation focused on recursive agent-to-agent rewrites lives in
