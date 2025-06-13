@@ -50,7 +50,7 @@ flowchart LR
 ```bash
 git clone https://github.com/MontrealAI/AGI-Alpha-Agent-v0.git
 cd AGI-Alpha-Agent-v0/alpha_factory_v1/demos/macro_sentinel
-python ../../check_env.py    # verify optional dependencies
+python ../../check_env.py --demo macro_sentinel    # verify optional dependencies
 ./run_macro_demo.sh           # add --live for real‑time collectors
                               # (--live exports LIVE_FEED=1)
 ```
@@ -88,7 +88,7 @@ fully offline.
 ```bash
 pip wheel -r requirements.txt -w /media/wheels
 WHEELHOUSE=/media/wheels AUTO_INSTALL_MISSING=1 \
-  python ../../check_env.py --auto-install --wheelhouse /media/wheels
+  python ../../check_env.py --demo macro_sentinel --auto-install --wheelhouse /media/wheels
 ```
 
 This mirrors the repository's offline setup instructions so the demo works

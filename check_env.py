@@ -18,6 +18,10 @@ quick DNS lookup to detect whether the host has network access. When
 ``--auto-install`` is used without connectivity and no ``--wheelhouse``
 is provided the script exits early with instructions rather than waiting
 for ``pip`` timeouts.
+
+Use ``--demo <name>`` to validate extra packages required by a specific
+demo. Currently ``macro_sentinel`` checks for ``gradio``, ``aiohttp`` and
+``qdrant-client``.
 """
 
 import importlib.util
@@ -74,6 +78,15 @@ REQUIRED = [
     "plotly",
 ]
 
+# Additional requirements for specific demos
+DEMO_PACKAGES = {
+    "macro_sentinel": [
+        "gradio",
+        "aiohttp",
+        "qdrant_client",
+    ],
+}
+
 # Optional integrations that may not be present in restricted environments.
 OPTIONAL = [
     "openai_agents",
@@ -90,8 +103,11 @@ PIP_NAMES = {
     "google.protobuf": "protobuf",
     "cachetools": "cachetools",
     "yaml": "PyYAML",
+    "gradio": "gradio",
+    "aiohttp": "aiohttp",
     "opentelemetry": "opentelemetry-api",
     "opentelemetry-api": "opentelemetry-api",
+    "qdrant_client": "qdrant-client",
 }
 
 IMPORT_NAMES = {
@@ -134,6 +150,10 @@ def main(argv: Optional[List[str]] = None) -> int:
         action="store_true",
         help="Continue even if numpy or pandas are missing",
     )
+    parser.add_argument(
+        "--demo",
+        help="Validate additional packages for the specified demo",
+    )
 
     args = parser.parse_args(argv)
 
@@ -141,6 +161,8 @@ def main(argv: Optional[List[str]] = None) -> int:
     auto = args.auto_install or os.getenv("AUTO_INSTALL_MISSING") == "1"
     pip_timeout = args.timeout
     allow_basic = args.allow_basic_fallback
+    demo = args.demo
+    extra_required = DEMO_PACKAGES.get(demo, [])
 
     if auto and not wheelhouse and not has_network():
         print(
@@ -228,7 +250,7 @@ def main(argv: Optional[List[str]] = None) -> int:
 
     missing_required: list[str] = []
     missing_optional: list[str] = []
-    for pkg in REQUIRED + OPTIONAL:
+    for pkg in REQUIRED + extra_required + OPTIONAL:
         import_name = IMPORT_NAMES.get(pkg, pkg)
         try:
             spec = importlib.util.find_spec(import_name)
