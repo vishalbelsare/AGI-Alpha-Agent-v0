@@ -73,6 +73,23 @@ python check_env.py --auto-install  # add --wheelhouse <dir> when offline
 and `pandas`. Always run `python check_env.py --auto-install` after this check
 to install any missing packages before executing `pytest`.
 
+### Wheelhouse quick start
+
+Build a local wheelhouse and run the environment check with `--wheelhouse` before
+starting the tests:
+
+```bash
+mkdir -p wheels
+pip wheel -r requirements.lock -w wheels
+pip wheel -r requirements-dev.txt -w wheels
+python check_env.py --auto-install --wheelhouse wheels
+PYTHONPATH=$(pwd) pytest -q
+```
+
+See [alpha_factory_v1/scripts/README.md](../alpha_factory_v1/scripts/README.md#offline-setup)
+for detailed steps. Skipping these commands typically leads to `pytest` errors
+about missing modules.
+
 ### Offline install
 
 Create a wheelhouse so the tests run without contacting PyPI. Build the wheels on
