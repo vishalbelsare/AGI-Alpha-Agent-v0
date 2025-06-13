@@ -46,9 +46,11 @@ class TestMacroSentinel(unittest.TestCase):
             orig = data_feeds.aiohttp
             data_feeds.aiohttp = None
             try:
-                with patch.object(data_feeds, "_fred_latest", new_callable=AsyncMock, return_value=None), patch.object(
-                    data_feeds, "_latest_stable_flow", new_callable=AsyncMock, return_value=None
-                ), patch.object(data_feeds, "_latest_cme_settle", new_callable=AsyncMock, return_value=None):
+                with (
+                    patch.object(data_feeds, "_fred_latest", new_callable=AsyncMock, return_value=None),
+                    patch.object(data_feeds, "_latest_stable_flow", new_callable=AsyncMock, return_value=None),
+                    patch.object(data_feeds, "_latest_cme_settle", new_callable=AsyncMock, return_value=None),
+                ):
                     it = data_feeds.stream_macro_events(live=True)
                     await anext(it)
             finally:
@@ -62,8 +64,9 @@ class TestMacroSentinel(unittest.TestCase):
         """_ensure_offline should write one row when downloads fail."""
         with tempfile.TemporaryDirectory() as tmpdir:
             tmp = Path(tmpdir)
-            with patch.object(data_feeds, "DATA_DIR", tmp), patch(
-                "alpha_factory_v1.demos.macro_sentinel.data_feeds.urlopen", side_effect=Exception
+            with (
+                patch.dict(os.environ, {"OFFLINE_DATA_DIR": tmpdir}),
+                patch("alpha_factory_v1.demos.macro_sentinel.data_feeds.urlopen", side_effect=Exception),
             ):
                 data_feeds._ensure_offline()
                 for name in data_feeds.OFFLINE_URLS:

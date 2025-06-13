@@ -29,7 +29,15 @@ from collections import deque
 from urllib.request import urlopen
 
 # ───────────────────────── Config from env ──────────────────────────
-DATA_DIR = pathlib.Path(__file__).parent / "offline_samples"
+_DEFAULT_DATA_DIR = pathlib.Path(__file__).parent / "offline_samples"
+
+
+def _data_dir() -> pathlib.Path:
+    """Return offline CSV directory from env or default."""
+    return pathlib.Path(os.getenv("OFFLINE_DATA_DIR", str(_DEFAULT_DATA_DIR)))
+
+
+DATA_DIR = _data_dir()
 
 FRED_KEY = os.getenv("FRED_API_KEY")
 ETHERSCAN_KEY = os.getenv("ETHERSCAN_API_KEY")
@@ -60,10 +68,11 @@ _DEFAULT_ROWS = {
 }
 
 
-def _ensure_offline():
-    DATA_DIR.mkdir(exist_ok=True)
+def _ensure_offline() -> None:
+    offline_dir = _data_dir()
+    offline_dir.mkdir(parents=True, exist_ok=True)
     for name, url in OFFLINE_URLS.items():
-        path = DATA_DIR / name
+        path = offline_dir / name
         if path.exists():
             continue
         try:
@@ -79,7 +88,7 @@ def _ensure_offline():
 
 
 def _csv(name: str) -> list[dict]:
-    with open(DATA_DIR / name, newline="") as f:
+    with open(_data_dir() / name, newline="") as f:
         return list(csv.DictReader(f))
 
 
