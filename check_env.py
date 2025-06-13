@@ -27,6 +27,14 @@ import socket
 from pathlib import Path
 from typing import List, Optional
 
+
+def check_pkg(pkg: str) -> bool:
+    """Return ``True`` if *pkg* is importable."""
+    try:
+        return importlib.util.find_spec(pkg) is not None
+    except Exception:  # pragma: no cover - importlib failure is unexpected
+        return False
+
 CORE = ["numpy", "yaml", "pandas"]
 
 
@@ -129,6 +137,24 @@ def main(argv: Optional[List[str]] = None) -> int:
             "See docs/OFFLINE_SETUP.md."
         )
         return 1
+
+    if auto:
+        for pkg in ("numpy", "prometheus_client"):
+            if not check_pkg(pkg):
+                cmd = [sys.executable, "-m", "pip", "install", "--quiet"]
+                if wheelhouse:
+                    cmd += ["--no-index", "--find-links", wheelhouse]
+                cmd += [PIP_NAMES.get(pkg, pkg)]
+                print(
+                    f"Ensuring {pkg} (timeout {pip_timeout}s):",
+                    " ".join(cmd),
+                    flush=True,
+                )
+                try:
+                    subprocess.run(cmd, check=True, timeout=pip_timeout)
+                except subprocess.SubprocessError as exc:
+                    print(f"Failed to install {pkg}", getattr(exc, "returncode", ""))
+                    return 1
 
     missing_core = warn_missing_core()
 
