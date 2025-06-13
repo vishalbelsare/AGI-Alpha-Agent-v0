@@ -24,6 +24,7 @@ packages = [
 
 [tool.setuptools.package-data]
 "alpha_factory_v1" = ["py.typed"]
+"alpha_factory_v1.demos.alpha_agi_insight_v1" = ["py.typed"]
 "src.interface.web_client" = ["dist/**"]
 "alpha_factory_v1.demos.alpha_agi_insight_v1.src.interface.web_client" = ["dist/**"]
 
