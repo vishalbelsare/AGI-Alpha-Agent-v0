@@ -49,6 +49,12 @@ except ModuleNotFoundError:  # SDK not installed
                 "Please install it with:  pip install openai-agents"
             )
 
+        def __call__(self, *args, **kwargs):  # noqa: D401
+            raise ModuleNotFoundError(
+                "The OpenAI Agents SDK is required for this operation. "
+                "Please install it with:  pip install openai-agents"
+            )
+
     # Expose typical top-level symbols so `from openai_agents import Agent`
     # fails with an informative message *at call-time* rather than import-time.
     for _name in (
