@@ -33,15 +33,15 @@ except ImportError:  # pragma: no cover - offline fallback
         OpenAIAgent = None
 
 try:  # optional Google ADK client
-    from google_adk import Client as ADKClient  # type: ignore
+    from google_adk import Client as ADKClient
 except Exception:  # pragma: no cover - offline fallback
     try:
-        from google.adk import Client as ADKClient  # type: ignore
+        from google.adk import Client as ADKClient
     except Exception:
-        ADKClient = None  # type: ignore[misc]
+        ADKClient = None
 
 try:  # optional A2A message socket
-    from a2a import A2ASocket  # type: ignore
+    from a2a import A2ASocket
     _port = int(os.getenv("A2A_PORT", "0"))
     if _port > 0:
         _A2A = A2ASocket(
@@ -52,7 +52,7 @@ try:  # optional A2A message socket
     else:
         _A2A = None
 except Exception:  # pragma: no cover - missing dependency
-    A2ASocket = None  # type: ignore
+    A2ASocket = None
     _A2A = None
 
 
@@ -130,7 +130,12 @@ async def _llm_comment(delta_g: float) -> str:
     # ``alpha_factory_v1.backend`` exposes a non-callable placeholder.
     # Guard against that scenario as well so offline tests succeed.
     if OpenAIAgent is None or not callable(OpenAIAgent):
-        return local_llm.chat(f"In one sentence, comment on ΔG={delta_g:.4f} for the business.")
+        return cast(
+            str,
+            local_llm.chat(
+                f"In one sentence, comment on ΔG={delta_g:.4f} for the business."
+            ),
+        )
 
     agent = OpenAIAgent(
         model=os.getenv("MODEL_NAME", "gpt-4o-mini"),
