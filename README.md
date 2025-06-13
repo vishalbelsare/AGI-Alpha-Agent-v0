@@ -142,6 +142,10 @@ When the host cannot reach the internet the environment checker prints a warning
 and the demos continue in offline mode using any cached data. Optional downloads
 are skipped automatically.
 
+Several demos ship with small CSV snapshots for offline mode. These samples
+mirror data from the [demo-assets](https://github.com/MontrealAI/demo-assets)
+repository and cover roughly March–April 2024.
+
 ### Meta-Agentic Tree Search Demo
 
 An offline-friendly reference implementation focused on recursive agent-to-agent rewrites lives in
