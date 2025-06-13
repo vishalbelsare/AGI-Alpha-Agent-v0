@@ -56,6 +56,8 @@ Python must report 3.11 or 3.12 and Docker Compose must be at least 2.5.
 - From the repository root, run `./codex/setup.sh` to install the project in editable mode
   with minimal runtime dependencies. This ensures all relative paths resolve correctly.
 - After installation, run `pre-commit run --all-files` once to verify formatting and hooks.
+- If the `pre-commit` command is missing, run `pip install pre-commit` and then
+  `pre-commit install`; see [Troubleshooting](#troubleshooting).
 ### Offline Setup
 
 Follow these steps when installing without internet access:
