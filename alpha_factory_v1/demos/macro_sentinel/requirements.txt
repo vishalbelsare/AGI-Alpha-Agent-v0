@@ -1,0 +1,8 @@
+# Macro-Sentinel demo dependencies
+# Reuse the main project requirements and add demo extras
+-r ../../requirements.txt
+openai-agents
+gradio
+aiohttp
+psycopg2-binary
+qdrant-client
