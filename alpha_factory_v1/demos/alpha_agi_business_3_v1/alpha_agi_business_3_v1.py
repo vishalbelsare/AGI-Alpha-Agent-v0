@@ -24,6 +24,8 @@ from typing import Any, cast
 
 from alpha_factory_v1.demos.alpha_agi_insight_v1.src.utils import local_llm
 
+log = logging.getLogger(__name__)
+
 try:  # optional OpenAI Agents integration
     from openai_agents import OpenAIAgent
 except ImportError:  # pragma: no cover - offline fallback
@@ -59,10 +61,6 @@ try:  # optional A2A message socket
 except Exception:  # pragma: no cover - missing dependency
     A2ASocket = None
     _A2A = None
-
-
-log = logging.getLogger(__name__)
-
 
 @dataclass(slots=True)
 class Orchestrator:
