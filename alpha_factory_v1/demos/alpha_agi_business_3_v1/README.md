@@ -322,6 +322,7 @@ $ alpha-agi-business-3-v1 --cycles 1 --loglevel info
 - `ADK_HOST` – optional. URL of the ADK gateway to forward cycle summaries.
 - `A2A_PORT` – enable gRPC A2A messages when set to a port number.
 - `A2A_HOST` – host for the A2A gRPC server. Defaults to `localhost`.
+- `LLAMA_N_CTX` – context-window size for local models. Defaults to `2048`.
 
 #### Offline Usage
 
