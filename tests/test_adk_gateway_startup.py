@@ -35,6 +35,7 @@ def test_maybe_launch_starts_uvicorn(stub_adk, monkeypatch):
     """maybe_launch should call uvicorn.run when ADK is enabled."""
     uvicorn = pytest.importorskip("uvicorn")
     from alpha_factory_v1.backend import adk_bridge as module
+
     module = importlib.reload(module)
 
     called = {}
@@ -57,3 +58,15 @@ def test_maybe_launch_starts_uvicorn(stub_adk, monkeypatch):
 
     module.maybe_launch(host="1.2.3.4", port=1234)
     assert called == {"app": module._ensure_router().app, "host": "1.2.3.4", "port": 1234}
+
+
+def test_openai_agents_stub_call(monkeypatch):
+    """Calling Agent from the shim should raise ModuleNotFoundError."""
+    sys.modules.pop("openai_agents", None)
+    sys.modules.pop("agents", None)
+    importlib.reload(importlib.import_module("alpha_factory_v1.backend"))
+
+    from openai_agents import Agent
+
+    with pytest.raises(ModuleNotFoundError, match="OpenAI Agents SDK is required"):
+        Agent()
