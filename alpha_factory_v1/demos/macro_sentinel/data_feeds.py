@@ -138,6 +138,7 @@ _CACHE_SPEECH = deque(maxlen=10)
 
 
 async def _latest_fed_speech() -> Optional[str]:
+    await _session()  # early check so RuntimeError propagates when aiohttp is missing
     try:
         xml = await _http_text(RSS_URL)
         title_start = xml.index("<title>") + 7
@@ -146,7 +147,7 @@ async def _latest_fed_speech() -> Optional[str]:
         if title not in _CACHE_SPEECH:
             _CACHE_SPEECH.append(title)
             return title
-    except Exception:
+    except (aiohttp.ClientError, ValueError):
         return None
     return None
 

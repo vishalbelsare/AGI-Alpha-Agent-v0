@@ -6,7 +6,7 @@ import tempfile
 from pathlib import Path
 import unittest
 from typing import Any, Dict
-from unittest.mock import patch
+from unittest.mock import patch, AsyncMock
 
 from alpha_factory_v1.demos.macro_sentinel import data_feeds, simulation_core
 
@@ -46,8 +46,11 @@ class TestMacroSentinel(unittest.TestCase):
             orig = data_feeds.aiohttp  # type: ignore[attr-defined]
             data_feeds.aiohttp = None  # type: ignore[attr-defined]
             try:
-                it = data_feeds.stream_macro_events(live=True)
-                await anext(it)
+                with patch.object(data_feeds, "_fred_latest", new_callable=AsyncMock, return_value=None), \
+                     patch.object(data_feeds, "_latest_stable_flow", new_callable=AsyncMock, return_value=None), \
+                     patch.object(data_feeds, "_latest_cme_settle", new_callable=AsyncMock, return_value=None):
+                    it = data_feeds.stream_macro_events(live=True)
+                    await anext(it)
             finally:
                 data_feeds.aiohttp = orig  # type: ignore[attr-defined]
                 os.environ.pop("LIVE_FEED", None)
