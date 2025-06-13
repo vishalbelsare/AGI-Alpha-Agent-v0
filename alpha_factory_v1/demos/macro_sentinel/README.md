@@ -80,7 +80,7 @@ repository and cover roughly March–April 2024 activity.
 
 ```bash
 pip install -r requirements.txt
-python agent_macro_entrypoint.py
+macro-sentinel  # or `python agent_macro_entrypoint.py`
 ```
 The entry point pulls minimal CSV snapshots if they are missing so you can run
 fully offline.
