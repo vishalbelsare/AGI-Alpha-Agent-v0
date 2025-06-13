@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import os
+import shutil
 import subprocess
 from pathlib import Path
 
@@ -75,3 +76,22 @@ def test_run_macro_demo_health_check(tmp_path: Path) -> None:
     """Health gate should hit the expected endpoint."""
     _, curl_log = _run_script(tmp_path, env={"OPENAI_API_KEY": "dummy-key"})
     assert "http://localhost:7864/healthz" in curl_log
+
+
+@pytest.mark.skipif(not RUN_SCRIPT.exists(), reason="script missing")
+def test_run_macro_demo_offline_download(tmp_path: Path) -> None:
+    """Missing offline CSVs should trigger downloads."""
+    offline_dir = RUN_SCRIPT.parent / "offline_samples"
+    backup = tmp_path / "offline_backup"
+    offline_dir.rename(backup)
+    offline_dir.mkdir()
+    try:
+        _, curl_log = _run_script(tmp_path, env={"OPENAI_API_KEY": "dummy-key"})
+    finally:
+        shutil.rmtree(offline_dir)
+        backup.rename(offline_dir)
+
+    assert "fed_speeches.csv" in curl_log
+    assert "yield_curve.csv" in curl_log
+    assert "stable_flows.csv" in curl_log
+    assert "cme_settles.csv" in curl_log
