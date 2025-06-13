@@ -56,6 +56,9 @@ continues even in minimal environments.
 6. Set `PYTHONPATH=$(pwd)` or install the project in editable mode with `pip install -e .`.
 7. Before running the tests, execute `python check_env.py --auto-install` once
    more (add `--wheelhouse <dir>` when offline), then run `pytest -q`.
+8. If `pre-commit` isn't found, install it with `pip install pre-commit` and run
+   `pre-commit install` once to enable the git hooks referenced in
+   [AGENTS.md](../AGENTS.md).
 
 ### Pre-test checklist
 
