@@ -15,6 +15,8 @@ No key             → Mixtral via Ollama (offline)
 
 Deploy via Docker (run_macro_demo.sh) or directly:
     python agent_macro_entrypoint.py
+
+This research prototype provides no financial advice.
 """
 
 from __future__ import annotations
