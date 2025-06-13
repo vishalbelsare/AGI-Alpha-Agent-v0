@@ -76,3 +76,58 @@ def test_run_macro_demo_offline_not_selected(tmp_path: Path) -> None:
     assert docker_log.exists()
     log = docker_log.read_text()
     assert "--profile offline" not in log
+
+
+def test_run_macro_demo_multiple_profiles(tmp_path: Path) -> None:
+    """Offline and live profiles should be passed separately."""
+    config = RUN_SCRIPT.parent / "config.env"
+    docker_log = tmp_path / "docker.log"
+    curl_log = tmp_path / "curl.log"
+    bin_dir = tmp_path / "bin"
+    bin_dir.mkdir()
+
+    docker_stub = bin_dir / "docker"
+    docker_stub.write_text(
+        "#!/usr/bin/env bash\n"
+        "echo \"$@\" >> \"$DOCKER_LOG\"\n"
+        "if [ \"$1\" = \"info\" ]; then echo \"{}\"; fi\n"
+        "if [ \"$1\" = \"version\" ]; then echo \"24.0.0\"; fi\n"
+        "exit 0\n"
+    )
+    docker_stub.chmod(0o755)
+
+    curl_stub = bin_dir / "curl"
+    curl_stub.write_text(
+        "#!/usr/bin/env bash\n"
+        "echo \"$@\" >> \"$CURL_LOG\"\n"
+        "out=\"\"\n"
+        "for ((i=1;i<=$#;i++)); do\n"
+        "  if [ \"${!i}\" = \"-o\" ]; then\n"
+        "    j=$((i+1))\n"
+        "    out=${!j}\n"
+        "  fi\n"
+        "done\n"
+        "if [ -n \"$out\" ]; then echo sample > \"$out\"; fi\n"
+        "echo OK\n"
+    )
+    curl_stub.chmod(0o755)
+
+    env = os.environ.copy()
+    env.update({
+        "PATH": f"{bin_dir}:{env['PATH']}",
+        "DOCKER_LOG": str(docker_log),
+        "CURL_LOG": str(curl_log),
+    })
+    env.pop("OPENAI_API_KEY", None)
+
+    try:
+        result = subprocess.run([f"./{RUN_SCRIPT.name}", "--live"], cwd=RUN_SCRIPT.parent, env=env, capture_output=True, text=True)
+    finally:
+        if config.exists():
+            config.unlink()
+
+    assert result.returncode == 0, result.stderr
+    assert docker_log.exists()
+    log = docker_log.read_text()
+    assert "--profile offline" in log
+    assert "--profile live-feed" in log
