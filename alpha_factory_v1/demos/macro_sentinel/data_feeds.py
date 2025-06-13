@@ -70,6 +70,7 @@ def _ensure_offline():
             with urlopen(url, timeout=5) as r, open(path, "wb") as f:
                 f.write(r.read())
         except Exception:
+            # Create a minimal placeholder when the download fails
             row = _DEFAULT_ROWS[name]
             with open(path, "w", newline="") as f:
                 writer = csv.DictWriter(f, row.keys())

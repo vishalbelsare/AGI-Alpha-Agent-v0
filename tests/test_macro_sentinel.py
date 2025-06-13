@@ -1,8 +1,12 @@
 # SPDX-License-Identifier: Apache-2.0
 import asyncio
 import os
+import csv
+import tempfile
+from pathlib import Path
 import unittest
 from typing import Any, Dict
+from unittest.mock import patch
 
 from alpha_factory_v1.demos.macro_sentinel import data_feeds, simulation_core
 
@@ -50,6 +54,18 @@ class TestMacroSentinel(unittest.TestCase):
 
         with self.assertRaises(RuntimeError):
             asyncio.run(run_live())
+
+    def test_ensure_offline_creates_placeholder_rows(self) -> None:
+        """_ensure_offline should write one row when downloads fail."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            tmp = Path(tmpdir)
+            with patch.object(data_feeds, "DATA_DIR", tmp), \
+                 patch("alpha_factory_v1.demos.macro_sentinel.data_feeds.urlopen", side_effect=Exception):
+                data_feeds._ensure_offline()
+                for name in data_feeds.OFFLINE_URLS:
+                    with open(tmp / name, newline="") as f:
+                        rows = list(csv.DictReader(f))
+                    self.assertEqual(len(rows), 1)
 
 
 if __name__ == "__main__":  # pragma: no cover
