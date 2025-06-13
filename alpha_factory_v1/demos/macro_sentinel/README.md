@@ -87,7 +87,7 @@ fully offline.
 | `TEMPERATURE` | `0.15` | LLM sampling temperature |
 | `FRED_API_KEY` | *(blank)* | Enables live yield‑curve collector |
 | `ETHERSCAN_API_KEY` | *(blank)* | Enables on‑chain stable‑flow collector |
-| `TW_BEARER_TOKEN` | *(blank)* | Enables Fed speech Twitter stream |
+| `TW_BEARER_TOKEN` | *(blank)* | Twitter/X API bearer token for Fed speech stream |
 | `PG_PASSWORD` | `alpha` | TimescaleDB superuser password |
 | `LIVE_FEED` | `0` | 1 uses live FRED/Etherscan feeds |
 | `ALPHA_FACTORY_ENABLE_ADK` | `0` | 1 exposes ADK gateway on port 9000 |

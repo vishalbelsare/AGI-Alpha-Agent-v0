@@ -152,7 +152,7 @@ services:
       <<: *common-env
       REDIS_URL: "redis://redis:6379"
       FRED_API_KEY: "${FRED_API_KEY:-}"
-      TWITTER_BEARER_TOKEN: "${TW_BEARER_TOKEN:-}"
+      TW_BEARER_TOKEN: "${TW_BEARER_TOKEN:-}"
     volumes:
       - ./collector:/collector:ro
     command: python /collector/collector.py
