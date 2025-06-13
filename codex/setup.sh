@@ -38,6 +38,9 @@ $PYTHON -m pip install --quiet "${wheel_opts[@]}" --upgrade pip setuptools wheel
 # Install pip-compile (pip-tools) early so hooks can verify lock files
 $PYTHON -m pip install --quiet "${wheel_opts[@]}" pip-tools
 
+# Install pre-commit for git hooks
+$PYTHON -m pip install --quiet "${wheel_opts[@]}" pre-commit
+
 # Install package in editable mode
 $PYTHON -m pip install --quiet "${wheel_opts[@]}" -e .
 
@@ -165,4 +168,7 @@ if [[ "${FETCH_BROWSER_ASSETS:-1}" != "0" ]]; then
   echo "Fetching Insight browser assets..."
   $PYTHON scripts/fetch_assets.py
 fi
+
+# Set up pre-commit hooks
+pre-commit install
 

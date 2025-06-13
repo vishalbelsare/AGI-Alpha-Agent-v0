@@ -207,6 +207,9 @@ def main(argv: list[str] | None = None) -> None:
     ok &= check_python()
     ok &= check_cmd("docker")
     ok &= check_cmd("git")
+    has_precommit = check_cmd("pre-commit")
+    if not has_precommit:
+        banner("Install pre-commit and run 'pre-commit install' to enable git hooks", "YELLOW")
     ok &= check_docker_daemon()
     ok &= check_docker_compose()
     if not args.offline:
