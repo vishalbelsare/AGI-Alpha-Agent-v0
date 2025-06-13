@@ -38,8 +38,10 @@ The full suite exercises features that depend on optional packages such as
 `numpy`, `torch`, `pandas`, `prometheus_client`, `gymnasium`, `playwright`,
 `httpx`, `uvicorn`, `git` and `hypothesis`.
 
-Tests are skipped when `numpy`, `prometheus_client` or `torch` are missing.
-Pre-install them with
+Tests are skipped when `numpy` or `prometheus_client` are missing. The
+`tests/conftest.py` helper checks for `torch` with `importlib.util.find_spec`
+and registers a `requires_torch` marker. Tests using this marker are skipped
+automatically when `torch` is absent. Pre-install these heavy dependencies with
 `python check_env.py --auto-install`. Set the `WHEELHOUSE` environment
 variable to point to a local wheel directory when running offline so this
 command succeeds without contacting PyPI. `torch` in particular is heavy and
