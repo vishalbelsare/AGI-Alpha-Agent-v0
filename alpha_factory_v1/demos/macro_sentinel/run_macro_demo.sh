@@ -50,6 +50,9 @@ Usage: $(basename "$0") [--live] [--reset] [--help]
   --live    Enable live macro collectors (requires API keys in config.env)
   --reset   Stop & purge containers + volumes before new start
   --help    Show this message
+
+Environment variables:
+  CONNECTIVITY_CHECK_URL  Probe URL for outbound HTTPS check (default: https://pypi.org)
 EOF
 }
 
@@ -80,7 +83,8 @@ fi
 # ──────────────────────── prerequisites ───────────────────────
 need docker
 docker compose version &>/dev/null || die "Docker Compose plug-in missing"
-curl -fsSL https://google.com &>/dev/null || warn "No outbound HTTPS — live mode may fail"
+CHECK_URL="${CONNECTIVITY_CHECK_URL:-https://pypi.org}"
+curl -fsSL "$CHECK_URL" &>/dev/null || warn "No outbound HTTPS — live mode may fail"
 
 # Optional reset
 if (( RESET )); then
