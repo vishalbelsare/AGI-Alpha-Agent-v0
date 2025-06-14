@@ -33,6 +33,11 @@ from typing import AsyncIterator, Dict, Any, Optional
 from collections import deque
 from urllib.request import urlopen
 
+# Source snapshot revision for offline CSVs
+# Update to match `DEMO_ASSETS_REV` in run_macro_demo.sh when refreshing
+# offline samples.
+DEMO_ASSETS_REV = os.getenv("DEMO_ASSETS_REV", "90fe9b623b3a0ae5475cf4fa8693d43cb5ba9ac5")
+
 # ───────────────────────── Config from env ──────────────────────────
 _DEFAULT_DATA_DIR = pathlib.Path(__file__).parent / "offline_samples"
 
@@ -59,10 +64,10 @@ VEC_URL = os.getenv("VECTOR_HOST")  # Qdrant
 
 # ───────────────────────── Helpers / offline CSV ────────────────────
 OFFLINE_URLS = {
-    "fed_speeches.csv": "https://raw.githubusercontent.com/MontrealAI/demo-assets/main/fed_speeches.csv",
-    "yield_curve.csv": "https://raw.githubusercontent.com/MontrealAI/demo-assets/main/yield_curve.csv",
-    "stable_flows.csv": "https://raw.githubusercontent.com/MontrealAI/demo-assets/main/stable_flows.csv",
-    "cme_settles.csv": "https://raw.githubusercontent.com/MontrealAI/demo-assets/main/cme_settles.csv",
+    "fed_speeches.csv": f"https://raw.githubusercontent.com/MontrealAI/demo-assets/{DEMO_ASSETS_REV}/fed_speeches.csv",
+    "yield_curve.csv": f"https://raw.githubusercontent.com/MontrealAI/demo-assets/{DEMO_ASSETS_REV}/yield_curve.csv",
+    "stable_flows.csv": f"https://raw.githubusercontent.com/MontrealAI/demo-assets/{DEMO_ASSETS_REV}/stable_flows.csv",
+    "cme_settles.csv": f"https://raw.githubusercontent.com/MontrealAI/demo-assets/{DEMO_ASSETS_REV}/cme_settles.csv",
 }
 
 _DEFAULT_ROWS = {

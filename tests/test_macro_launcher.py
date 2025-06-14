@@ -6,6 +6,7 @@ from __future__ import annotations
 import os
 import shutil
 import subprocess
+import re
 from pathlib import Path
 
 import pytest
@@ -149,3 +150,18 @@ def test_run_macro_demo_requires_curl(tmp_path: Path) -> None:
 
     assert result.returncode == 1
     assert "curl is required" in result.stderr
+
+
+def test_demo_assets_revision_pinned() -> None:
+    expected = "90fe9b623b3a0ae5475cf4fa8693d43cb5ba9ac5"
+    with open(RUN_SCRIPT) as f:
+        text = f.read()
+    m = re.search(r"DEMO_ASSETS_REV=\$\{DEMO_ASSETS_REV:-([0-9a-f]{40})\}", text)
+    assert m, "revision variable missing"
+    assert m.group(1) == expected
+
+    from alpha_factory_v1.demos.macro_sentinel import data_feeds
+
+    assert data_feeds.DEMO_ASSETS_REV == expected
+    for url in data_feeds.OFFLINE_URLS.values():
+        assert expected in url
