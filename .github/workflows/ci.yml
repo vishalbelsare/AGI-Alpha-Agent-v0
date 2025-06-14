@@ -72,7 +72,7 @@ jobs:
       - name: Verify environment
         run: |
           python scripts/check_python_deps.py
-          python check_env.py --auto-install
+          python check_env.py --auto-install --demo macro_sentinel
       - uses: actions/setup-node@v4
         with:
           node-version-file: '.nvmrc'

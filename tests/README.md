@@ -84,7 +84,7 @@ starting the tests:
 mkdir -p wheels
 pip wheel -r requirements.lock -w wheels
 pip wheel -r requirements-dev.txt -w wheels
-python check_env.py --auto-install --wheelhouse wheels
+python check_env.py --auto-install --demo macro_sentinel --wheelhouse wheels
 PYTHONPATH=$(pwd) pytest -q
 ```
 
@@ -96,13 +96,14 @@ about missing modules.
 
 Create a wheelhouse so the tests run without contacting PyPI. Build the wheels on
 a machine with connectivity and copy the directory to the offline host. Include
-`requirements.txt` and `requirements-dev.txt` (add the MuZero demo requirements if
-needed):
+`requirements.txt` and `requirements-dev.txt` (add the MuZero and Macro Sentinel
+demo requirements if needed):
 
 ```bash
 mkdir -p wheels
 pip wheel -r requirements.txt -w wheels
 pip wheel -r alpha_factory_v1/demos/muzero_planning/requirements.txt -w wheels
+pip wheel -r alpha_factory_v1/demos/macro_sentinel/requirements.txt -w wheels
 pip wheel -r requirements-dev.txt -w wheels
 ```
 
@@ -110,7 +111,7 @@ Install and run the tests without contacting PyPI:
 
 ```bash
 WHEELHOUSE=$(pwd)/wheels pip install --no-index --find-links "$WHEELHOUSE" -r requirements-dev.txt
-WHEELHOUSE=$(pwd)/wheels python check_env.py --auto-install --wheelhouse "$WHEELHOUSE"
+WHEELHOUSE=$(pwd)/wheels python check_env.py --auto-install --demo macro_sentinel --wheelhouse "$WHEELHOUSE"
 PYTHONPATH=$(pwd) WHEELHOUSE="$WHEELHOUSE" pytest -q
 ```
 
@@ -127,7 +128,7 @@ offline:
 
 ```bash
 export WHEELHOUSE=$(pwd)/wheels
-python check_env.py --auto-install --wheelhouse "$WHEELHOUSE"
+python check_env.py --auto-install --demo macro_sentinel --wheelhouse "$WHEELHOUSE"
 PYTHONPATH=$(pwd) pytest -q
 ```
 
