@@ -11,9 +11,10 @@ New in this revision
 ────────────────────
 ▪ Two-regime stochastic vol (Heston-lite) reacts to VIX spikes  
 ▪ DV01 hedge sizing computed from par-swap curve snapshot  
-▪ Sensitivity matrix cached in memory; < 30 ms / 20 k paths on laptop CPU  
-▪ `scenario_table()` helper returns P50 / P95 / P99 distributions for UI  
+▪ Sensitivity matrix cached in memory; < 30 ms / 20 k paths on laptop CPU
+▪ `scenario_table()` helper returns P50 / P95 / P99 distributions for UI
 ▪ 100 % self-contained; no external data fetch at import-time
+▪ Optional seed parameter enables deterministic results
 """
 
 from __future__ import annotations
@@ -29,10 +30,6 @@ except ModuleNotFoundError:  # pragma: no cover - simplified fallback
 from typing import Dict, Sequence, Any
 
 # ─────────────────────────  calibration constants  ──────────────────────────
-if np is not None:
-    RNG = np.random.default_rng()
-else:
-    RNG = random.Random(42)
 
 # Vol regimes empirically derived from 2013-2024 ES daily log-returns
 SIGMA_LOW, SIGMA_HIGH = 0.011, 0.028
@@ -63,11 +60,24 @@ def _choose_dv01(years: int = 10) -> float:
 
 # ─────────────────────────  simulator class  ────────────────────────────────
 class MonteCarloSimulator:
-    def __init__(self, n_paths: int = 20_000, horizon: int = 30):
+    """Simple Monte-Carlo engine for ES factor shocks."""
+
+    def __init__(self, n_paths: int = 20_000, horizon: int = 30, seed: int | None = None):
+        """Create a simulator.
+
+        Args:
+            n_paths: Number of Monte-Carlo scenarios.
+            horizon: Days to simulate.
+            seed: Optional RNG seed for deterministic results.
+        """
         self.n, self.h = n_paths, horizon
         self.dt = 1.0
         self.beta_slope = -8.1e-3  # from 2019-24 OLS
         self.beta_flow = 9.7e-5
+        if np is not None:
+            self.rng = np.random.default_rng(seed)
+        else:  # pragma: no cover - fallback
+            self.rng = random.Random(seed)
 
     # ─────────── internal helpers ───────────
     def _drift_vec(self, obs: Dict[str, float]) -> Any:
@@ -95,14 +105,14 @@ class MonteCarloSimulator:
             for _ in range(self.n):
                 val = 1.0
                 for _ in range(self.h):
-                    val *= 1.0 + random.gauss(0, 0.01)
+                    val *= 1.0 + self.rng.gauss(0, 0.01)
                 vals.append(val)
             return vals
         mu = self._drift_vec(obs)
-        high = RNG.random(self.n) < P_SWITCH  # regime flag per path
+        high = self.rng.random(self.n) < P_SWITCH  # regime flag per path
         chol = np.where(high[:, None, None], self._chol(True), CHOL_LOW)
 
-        noise = RNG.standard_normal((self.n, self.h, 3))
+        noise = self.rng.standard_normal((self.n, self.h, 3))
         shocks = (chol[:, None] @ noise[..., None]).squeeze(-1)
         steps = mu * self.dt + shocks
         log_es = steps[..., 2].sum(axis=1)
