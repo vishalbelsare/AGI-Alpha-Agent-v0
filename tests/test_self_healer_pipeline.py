@@ -27,7 +27,11 @@ def test_self_healer_applies_patch(tmp_path, monkeypatch):
 """
 
     monkeypatch.setattr(llm_client, "request_patch", lambda *_: patch)
-    monkeypatch.setattr(diff_utils, "parse_and_validate_diff", lambda diff: diff)
+    monkeypatch.setattr(
+        diff_utils,
+        "parse_and_validate_diff",
+        lambda diff, repo_dir, allowed_paths=None: diff,
+    )
     monkeypatch.setattr(self_healer.SelfHealer, "commit_and_push_fix", lambda self: "branch")
     monkeypatch.setattr(self_healer.SelfHealer, "create_pull_request", lambda self, branch: 1)
 

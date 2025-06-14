@@ -160,8 +160,10 @@ clone repo → [sandbox pytest] → error log
 ## 🛡️ Security & Ops
 
 * Container runs as **non‑root UID 1001**.  
-* Patch application sandboxed to `/tmp/demo_repo`.  
-* Rollback on any `patch` failure; originals restored.  
+* Patch application sandboxed to `/tmp/demo_repo`.
+* Rollback on any `patch` failure; originals restored.
+* Diff paths are validated relative to the cloned repository; any patch
+  touching files outside this tree is rejected.
 * **/__live** endpoint returns **200 OK** for readiness probes.
 
 ---

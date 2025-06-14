@@ -53,7 +53,9 @@ class SelfHealer:
         # Request a diff from LLM
         diff_response = llm_client.request_patch(prompt)
         # Validate that response is a unified diff
-        self.patch_diff = diff_utils.parse_and_validate_diff(diff_response)
+        self.patch_diff = diff_utils.parse_and_validate_diff(
+            diff_response, repo_dir=self.working_dir
+        )
         return self.patch_diff is not None
 
     def apply_patch(self):

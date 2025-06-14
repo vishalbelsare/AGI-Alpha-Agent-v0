@@ -1,6 +1,9 @@
 # SPDX-License-Identifier: Apache-2.0
 import os
+import shutil
 import tempfile
+from pathlib import Path
+
 from alpha_factory_v1.demos.self_healing_repo.agent_core import diff_utils
 
 
@@ -19,3 +22,16 @@ def test_apply_diff_success():
         success, output = diff_utils.apply_diff(diff, repo_dir=repo)
         assert success
         assert "patching file" in output.lower()
+
+
+def test_apply_diff_in_sample_calc(tmp_path: Path) -> None:
+    repo_src = Path("alpha_factory_v1/demos/self_healing_repo/sample_broken_calc")
+    repo = tmp_path / "repo"
+    shutil.copytree(repo_src, repo)
+
+    diff = """--- a/calc.py\n+++ b/calc.py\n@@\n-    return a - b\n+    return a + b\n"""
+
+    assert diff_utils.parse_and_validate_diff(diff, repo_dir=str(repo))
+    success, _ = diff_utils.apply_diff(diff, repo_dir=str(repo))
+    assert success
+    assert "a + b" in (repo / "calc.py").read_text()
