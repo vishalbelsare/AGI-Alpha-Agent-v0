@@ -38,7 +38,7 @@ x-health: &hc
 ################################################################################
 services:
   ollama:
-    image: ollama/ollama:latest
+    image: ollama/ollama:0.1.32
     profiles: ["offline"]          # docker compose --profile offline …
     environment:
       - OLLAMA_MODELS=mixtral:instruct
