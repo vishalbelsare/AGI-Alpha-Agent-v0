@@ -30,6 +30,8 @@ chmod +x run_selfheal_demo.sh
 ./run_selfheal_demo.sh
 ```
 
+Before launching the dashboard or running tests, run `python alpha_factory_v1/scripts/preflight.py` (or `python check_env.py --auto-install`) from the repository root to confirm all dependencies.
+
 Browse **http://localhost:7863** → hit **“Heal Repository”**.
 
 * No config needed; the agent clones a tiny repo with a deliberate bug.
@@ -75,14 +77,15 @@ WHEELHOUSE=/media/wheels python agent_selfheal_entrypoint.py
 ```
 
 The dashboard behaves the same, but all code comes from the bundled repo.
+See [../../scripts/README.md](../../scripts/README.md) for details on building a wheelhouse.
 
 ### Before running tests
 
-Ensure the required Python packages are present:
+Verify your environment first:
 
 ```bash
 python scripts/check_python_deps.py
-python check_env.py --auto-install  # use --wheelhouse <dir> when offline
+python alpha_factory_v1/scripts/preflight.py  # or python check_env.py --auto-install
 ```
 
 Missing dependencies will cause tests to be skipped or fail.
