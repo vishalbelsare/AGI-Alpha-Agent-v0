@@ -41,21 +41,23 @@ Browse **http://localhost:7863** → hit **“Heal Repository”**.
   `sample_broken_calc` repository.
 
 > **Note:** `run_selfheal_demo.sh` copies `config.env.sample` to `config.env` on the
-> first run. Edit this file to add your `OPENAI_API_KEY`, choose a `MODEL_NAME`,
-> tweak `TEMPERATURE`, and set other options.
+> first run. Edit this file to configure OpenAI or your local model.
+> Key settings include:
 
 ```bash
 OPENAI_API_KEY=
 MODEL_NAME="gpt-4o-mini"
 TEMPERATURE=0.3
 GRADIO_SHARE=0
+USE_LOCAL_LLM=true
+OLLAMA_BASE_URL="http://localhost:11434/v1"
 ```
 
-When `OPENAI_API_KEY` is blank the agent now falls back to a local
-model via Ollama. Set `USE_LOCAL_LLM=true` in `config.env` to force this
-behaviour even when a key is present. Use `OLLAMA_BASE_URL` to override
-the endpoint if the model runs elsewhere. The same file also lets you
-override `MODEL_NAME` and `TEMPERATURE` for custom tuning.
+When `OPENAI_API_KEY` is blank the agent falls back to the local model
+via Ollama. Set `USE_LOCAL_LLM=true` to force this behaviour even when
+a key is present. Use `OLLAMA_BASE_URL` when the model runs on a remote
+host. The same file also lets you override `MODEL_NAME` and
+`TEMPERATURE` for custom tuning.
 
 ### Quick start (Python)
 Prefer a local run without Docker?
@@ -115,10 +117,18 @@ The notebook sets `GRADIO_SHARE=1` so the dashboard URL appears automatically.
 | **2** | `suggest_patch` | LLM converts stack‑trace → unified diff |
 | **3** | `apply_patch_and_retst` | Diff applied atomically → tests pass |
 
-* Powered by **OpenAI Agents SDK v0.4** tool‑calling.  
-* **A2A protocol** ready: spin up multiple healers across micro‑repos.  
+* Powered by **OpenAI Agents SDK v0.4** tool‑calling.
+* **A2A protocol** ready: spin up multiple healers across micro‑repos.
 * **Model Context Protocol** streams only the diff—not the whole file—for
   context‑efficient reasoning.
+
+```
+clone repo → [sandbox pytest] → error log
+                    ↑             ↓
+        LLM diff ← [sandbox patch] ←┘
+                    ↓
+          [sandbox pytest] → commit+PR
+```
 
 ---
 
