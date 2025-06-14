@@ -20,7 +20,7 @@ GRADIO_SHARE = os.getenv("GRADIO_SHARE", "0") == "1"
 
 REPO_URL = "https://github.com/MontrealAI/sample_broken_calc.git"
 LOCAL_REPO = pathlib.Path(__file__).resolve().parent / "sample_broken_calc"
-CLONE_DIR = "/tmp/demo_repo"
+CLONE_DIR = os.getenv("CLONE_DIR", "/tmp/demo_repo")
 
 
 def clone_sample_repo() -> None:
