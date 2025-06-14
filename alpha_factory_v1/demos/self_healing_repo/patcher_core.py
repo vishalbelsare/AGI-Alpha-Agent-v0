@@ -26,7 +26,7 @@ All file‑system mutations stay **inside `repo_path`** for container safety.
 """
 
 from __future__ import annotations
-import subprocess, tempfile, pathlib, shutil, os, textwrap
+import subprocess, tempfile, pathlib, shutil, os, textwrap, re
 from typing import List, Tuple
 from typing import TYPE_CHECKING
 
@@ -66,24 +66,24 @@ def generate_patch(test_log: str, llm: OpenAIAgent, repo_path: str) -> str:
     3. Keep the patch minimal and idiomatic.
     """
     )
-    patch = llm(prompt).strip()
+    patch = str(llm(prompt)).strip()
     _sanity_check_patch(patch, pathlib.Path(repo_path))
     return patch
 
 
-def _sanity_check_patch(patch: str, repo_root: pathlib.Path):
+def _sanity_check_patch(patch: str, repo_root: pathlib.Path) -> None:
     """Ensure the diff only touches existing files to avoid LLM wildness."""
     touched = set()
     for line in patch.splitlines():
         if line.startswith(("--- ", "+++ ")):
-            path = line[4:].split("\t")[0].lstrip("ab/")  # strip diff prefixes
+            path = re.sub(r"^[ab]/", "", line[4:].split("\t")[0])
             touched.add(path)
     non_existing = touched - _existing_files(repo_root)
     if non_existing:
         raise ValueError(f"Patch refers to unknown files: {', '.join(non_existing)}")
 
 
-def apply_patch(patch: str, repo_path: str):
+def apply_patch(patch: str, repo_path: str) -> None:
     """Apply patch atomically with rollback on failure."""
     repo = pathlib.Path(repo_path)
     if shutil.which("patch") is None:
@@ -101,7 +101,7 @@ def apply_patch(patch: str, repo_path: str):
         # back up touched files
         for line in patch.splitlines():
             if line.startswith(("--- ", "+++ ")):
-                rel = line[4:].split("\t")[0].lstrip("ab/")
+                rel = re.sub(r"^[ab]/", "", line[4:].split("\t")[0])
                 file_path = repo / rel
                 if file_path.exists():
                     backup = file_path.with_suffix(".bak")
