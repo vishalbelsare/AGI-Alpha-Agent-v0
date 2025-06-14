@@ -7,10 +7,14 @@ Self‑Healing Repo demo
 3. Uses OpenAI Agents SDK to propose & apply a patch via patcher_core.
 4. Opens a Pull Request‑style diff in the dashboard and re‑runs tests.
 """
+import logging
 import os, subprocess, shutil, asyncio, time, pathlib, json
 import gradio as gr
 from openai_agents import Agent, OpenAIAgent, Tool
 from patcher_core import generate_patch, apply_patch
+
+logging.basicConfig(level=logging.INFO, format="%(levelname)s:%(name)s:%(message)s")
+logger = logging.getLogger(__name__)
 
 GRADIO_SHARE = os.getenv("GRADIO_SHARE", "0") == "1"
 
