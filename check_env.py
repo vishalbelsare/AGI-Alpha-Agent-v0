@@ -26,6 +26,7 @@ demo. Currently ``macro_sentinel`` checks for ``gradio``, ``aiohttp`` and
 
 import importlib.util
 import subprocess
+from alpha_factory_v1.scripts.preflight import check_openai_agents_version
 import os
 import sys
 import argparse
@@ -255,6 +256,7 @@ def main(argv: Optional[List[str]] = None) -> int:
 
     missing_required: list[str] = []
     missing_optional: list[str] = []
+    openai_agents_found = False
     for pkg in REQUIRED + extra_required + OPTIONAL:
         import_name = IMPORT_NAMES.get(pkg, pkg)
         try:
@@ -268,6 +270,8 @@ def main(argv: Optional[List[str]] = None) -> int:
                 missing_optional.append(pkg)
             else:
                 missing_required.append(pkg)
+        elif pkg == "openai_agents":
+            openai_agents_found = True
     missing = missing_required + missing_optional
     if missing:
         print("WARNING: Missing packages:", ", ".join(missing))
@@ -323,11 +327,15 @@ def main(argv: Optional[List[str]] = None) -> int:
                         ", ".join(missing_required),
                     )
                     return 1
+
         else:
             hint = "pip install " + " ".join(missing)
             if wheelhouse:
                 hint = f"pip install --no-index --find-links {wheelhouse} " + " ".join(missing)
             print("Some features may be degraded. Install with:", hint)
+
+    if openai_agents_found and not check_openai_agents_version():
+        return 1
 
     if not missing_required:
         print("Environment OK")
