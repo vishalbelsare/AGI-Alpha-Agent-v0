@@ -59,6 +59,18 @@ a key is present. Use `OLLAMA_BASE_URL` when the model runs on a remote
 host. The same file also lets you override `MODEL_NAME` and
 `TEMPERATURE` for custom tuning.
 
+### Windows (PowerShell)
+Run the same container with PowerShell:
+
+```powershell
+git clone https://github.com/MontrealAI/AGI-Alpha-Agent-v0.git
+cd AGI-Alpha-Agent-v0/alpha_factory_v1/demos/self_healing_repo
+winget install --id GnuWin32.Patch -e # install GNU patch (or `choco install patch`)
+docker compose -p alpha_selfheal -f docker-compose.selfheal.yml up -d --build
+```
+
+Before launching the dashboard or running tests, run `python alpha_factory_v1/scripts/preflight.py` (or `python check_env.py --auto-install`) from the repository root to confirm all dependencies. Stop the stack with `docker compose -p alpha_selfheal down`.
+
 ### Quick start (Python)
 Prefer a local run without Docker?
 ```bash
