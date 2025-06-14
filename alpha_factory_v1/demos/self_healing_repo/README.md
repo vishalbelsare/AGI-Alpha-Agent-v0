@@ -51,6 +51,11 @@ TEMPERATURE=0.3
 GRADIO_SHARE=0
 ```
 
+Set `USE_LOCAL_LLM=true` in `config.env` to force the agent to run the
+local Mixtral model when no API key is provided. The same file also lets
+you override `MODEL_NAME` and `TEMPERATURE` for custom models or
+tuning.
+
 ### Quick start (Python)
 Prefer a local run without Docker?
 ```bash
