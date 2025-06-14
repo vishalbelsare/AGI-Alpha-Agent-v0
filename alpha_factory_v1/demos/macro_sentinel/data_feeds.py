@@ -92,7 +92,8 @@ def _ensure_offline() -> None:
                 writer.writerow(row)
 
 
-def _csv(name: str) -> list[dict]:
+def _csv(name: str) -> list[dict[str, str]]:
+    """Return rows from an offline CSV file."""
     with open(_data_dir() / name, newline="") as f:
         return list(csv.DictReader(f))
 
@@ -140,7 +141,7 @@ async def _http_text(url: str) -> str:
     s = await _session()
     async with s.get(url) as r:
         r.raise_for_status()
-        return await r.text()
+        return str(await r.text())
 
 
 # ───────────────────────── Live fetchers ─────────────────────────────
@@ -158,7 +159,7 @@ async def _fred_latest(series: str) -> Optional[float]:
     return float(val) if val not in {"", "."} else None
 
 
-_CACHE_SPEECH = deque(maxlen=10)
+_CACHE_SPEECH: deque[str] = deque(maxlen=10)
 
 
 async def _latest_fed_speech() -> Optional[str]:
@@ -210,7 +211,7 @@ def _safe(f: Any, *a: Any, **kw: Any) -> None:
         pass
 
 
-def _push_db(evt: Dict[str, Any]):
+def _push_db(evt: Dict[str, Any]) -> None:
     """Persist ``evt`` to TimescaleDB when configured."""
     if not DB_URL:
         return
@@ -230,7 +231,7 @@ def _push_db(evt: Dict[str, Any]):
         )
 
 
-def _push_redis(evt: Dict[str, Any]):
+def _push_redis(evt: Dict[str, Any]) -> None:
     """Publish ``evt`` to a Redis stream when configured."""
     if not REDIS_URL:
         return
@@ -241,7 +242,7 @@ def _push_redis(evt: Dict[str, Any]):
     r.xadd("macro_stream", {"json": _j.dumps(evt)}, maxlen=10000)
 
 
-def _push_qdrant(evt: Dict[str, Any]):
+def _push_qdrant(evt: Dict[str, Any]) -> None:
     """Insert ``evt`` into a Qdrant collection when configured."""
     if not VEC_URL:
         return
