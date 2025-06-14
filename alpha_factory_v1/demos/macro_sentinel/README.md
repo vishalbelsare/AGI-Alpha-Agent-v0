@@ -122,6 +122,9 @@ WHEELHOUSE=/media/wheels AUTO_INSTALL_MISSING=1 \
 This mirrors the repository's offline setup instructions so the demo works
 without internet access.
 
+For a concise overview of the offline workflow see
+[the repository guide](../../../docs/OFFLINE_INSTALL.md).
+
 ---
 
 ## ⚙️ Configuration
