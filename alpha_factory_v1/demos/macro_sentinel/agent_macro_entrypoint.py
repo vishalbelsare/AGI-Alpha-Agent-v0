@@ -20,7 +20,11 @@ This research prototype provides no financial advice.
 """
 
 from __future__ import annotations
-import os, json, asyncio, contextlib
+
+import asyncio
+import contextlib
+import json
+import os
 from urllib import request
 try:
     import pandas as pd
