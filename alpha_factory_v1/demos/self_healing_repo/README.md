@@ -50,6 +50,7 @@ python agent_selfheal_entrypoint.py
 Then open **http://localhost:7863** and trigger **“Heal Repository”**.
 
 Set `GRADIO_SHARE=1` to expose a public link (useful on Colab).
+Set `TEMPERATURE=0.3` (0‑2) to tune patch creativity.
 
 ### Offline workflow
 

@@ -136,10 +136,12 @@ if __name__ == "__main__":
         from openai_agents import OpenAIAgent
     except ImportError as e:
         raise SystemExit("openai_agents package required. Install dependencies via requirements.txt") from e
+    _temp_env = os.getenv("TEMPERATURE")
     llm = OpenAIAgent(
         model=os.getenv("MODEL_NAME", "gpt-4o-mini"),
         api_key=os.getenv("OPENAI_API_KEY"),
         base_url=("http://ollama:11434/v1" if not os.getenv("OPENAI_API_KEY") else None),
+        temperature=float(_temp_env) if _temp_env is not None else None,
     )
     rc, out = validate_repo(args.repo)
     print(out)
