@@ -7,7 +7,7 @@ from alpha_factory_v1.demos.self_healing_repo import patcher_core
 
 
 class TestPatcherCore(unittest.TestCase):
-    def test_sanity_check_patch_nonexistent(self):
+    def test_sanity_check_patch_nonexistent(self) -> None:
         with tempfile.TemporaryDirectory() as repo:
             open(os.path.join(repo, "file.py"), "w").close()
             bad_patch = """--- a/missing.py
@@ -19,7 +19,26 @@ class TestPatcherCore(unittest.TestCase):
             with self.assertRaises(ValueError):
                 patcher_core._sanity_check_patch(bad_patch, pathlib.Path(repo))
 
-    def test_apply_patch_success_and_cleanup(self):
+    def test_nested_prefix_handling(self) -> None:
+        with tempfile.TemporaryDirectory() as repo:
+            os.makedirs(os.path.join(repo, "alpha"), exist_ok=True)
+            file_path = os.path.join(repo, "alpha", "test.py")
+            with open(file_path, "w") as fh:
+                fh.write("x = 1\n")
+            patch = """--- a/alpha/test.py
++++ b/alpha/test.py
+@@
+-x = 1
++x = 2
+"""
+            # Should not raise for valid nested path
+            patcher_core._sanity_check_patch(patch, pathlib.Path(repo))
+            patcher_core.apply_patch(patch, repo_path=repo)
+            with open(file_path) as fh:
+                data = fh.read()
+            self.assertIn("x = 2", data)
+
+    def test_apply_patch_success_and_cleanup(self) -> None:
         with tempfile.TemporaryDirectory() as repo:
             file_path = os.path.join(repo, "hello.txt")
             with open(file_path, "w") as fh:
@@ -37,7 +56,7 @@ class TestPatcherCore(unittest.TestCase):
             # ensure backup removed
             self.assertFalse(os.path.exists(file_path + ".bak"))
 
-    def test_apply_patch_failure_rollback(self):
+    def test_apply_patch_failure_rollback(self) -> None:
         with tempfile.TemporaryDirectory() as repo:
             file_path = os.path.join(repo, "hello.txt")
             with open(file_path, "w") as fh:
