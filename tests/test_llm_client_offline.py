@@ -1,6 +1,7 @@
 import importlib
 import sys
 import types
+from unittest.mock import Mock
 
 import pytest
 
@@ -41,3 +42,18 @@ def test_request_patch_no_api_key(monkeypatch: pytest.MonkeyPatch) -> None:
     client = _reload_client(monkeypatch, diff)
     out = client.request_patch([{"role": "user", "content": "fix"}])
     assert out == diff
+
+
+def test_request_patch_respects_model_env(monkeypatch: pytest.MonkeyPatch) -> None:
+    diff = "--- a/z\n+++ b/z\n@@\n-old\n+new\n"
+    openai_stub = types.ModuleType("openai")
+    create_mock = Mock(return_value={"choices": [{"message": {"content": diff}}]})
+    openai_stub.ChatCompletion = types.SimpleNamespace(create=create_mock)
+    monkeypatch.setitem(sys.modules, "openai", openai_stub)
+    monkeypatch.setenv("OPENAI_API_KEY", "x")
+    monkeypatch.setenv("OPENAI_MODEL", "test-model")
+    monkeypatch.setenv("USE_LOCAL_LLM", "false")
+    client = _reload_client(monkeypatch, diff)
+    client.request_patch([{"role": "user", "content": "fix"}])
+    assert create_mock.call_args.kwargs.get("model") == "test-model"
+

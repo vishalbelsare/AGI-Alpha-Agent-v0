@@ -16,7 +16,7 @@ def call_local_model(prompt_messages: list[dict[str, str]]) -> str:
         raise RuntimeError("openai_agents package is required for local LLM support") from exc
 
     base_url = os.getenv("OLLAMA_BASE_URL", "http://ollama:11434/v1")
-    model = os.getenv("MODEL_NAME", "mixtral-8x7b")
+    model = os.getenv("OPENAI_MODEL", "mixtral-8x7b")
     agent = OpenAIAgent(model=model, api_key=None, base_url=base_url)
     prompt = "\n".join(f"{m['role']}: {m['content']}" for m in prompt_messages)
     return str(agent(prompt))
