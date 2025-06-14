@@ -4,10 +4,11 @@ import logging
 import os
 import shutil
 import subprocess
+import tempfile
 
 logger = logging.getLogger(__name__)
 
-from . import diff_utils, llm_client, test_runner
+from . import diff_utils, llm_client, test_runner, sandbox
 
 class SelfHealer:
     def __init__(self, repo_url: str, commit_sha: str, base_branch: str = "main"):
@@ -32,11 +33,14 @@ class SelfHealer:
     def run_tests_collect_error(self):
         """Run the test suite and collect output if failures occur."""
         runner = test_runner.get_default_runner(self.working_dir)
-        success, output = runner.run_tests()
+        rc, output = sandbox.run_in_docker([
+            "pytest",
+            "-q",
+            "--color=no",
+        ], self.working_dir)
         self.test_results = output
-        if success:
-            return True  # All tests passed
-        # On failure, isolate the failing part of output (last traceback, etc.)
+        if rc == 0:
+            return True
         self.error_log = runner.extract_failure_log(output)
         return False
 
@@ -56,10 +60,19 @@ class SelfHealer:
         """Apply the proposed diff to the working directory."""
         if not self.patch_diff:
             raise RuntimeError("No patch to apply")
-        success, output = diff_utils.apply_diff(self.patch_diff, repo_dir=self.working_dir)
-        if not success:
+        with tempfile.NamedTemporaryFile("w", delete=False) as fh:
+            fh.write(self.patch_diff)
+            patch_file = fh.name
+        rc, output = sandbox.run_in_docker(
+            ["patch", "-p1", "-i", "/tmp/patch.diff"],
+            self.working_dir,
+            mounts={patch_file: "/tmp/patch.diff"},
+        )
+        os.unlink(patch_file)
+        if rc != 0:
             logger.error("Failed to apply patch:\n%s", output)
-        return success
+            return False
+        return True
 
     def commit_and_push_fix(self):
         """Commit the changes to a new branch and push to remote."""
