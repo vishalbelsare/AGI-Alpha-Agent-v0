@@ -2,7 +2,7 @@
 # Scrapes orchestrator metrics and itself
 
 global:
-  scrape_interval: 15s
+  scrape_interval: ${PROMETHEUS_SCRAPE_INTERVAL:-15s}
 
 scrape_configs:
   - job_name: 'macro_sentinel'
