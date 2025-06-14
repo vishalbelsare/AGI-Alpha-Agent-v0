@@ -62,6 +62,12 @@ launching. If the variable is absent, the script runs in offline mode. With the
 previous issue resolved, the launcher now reads `config.env` automatically when
 present.
 
+Offline mode requires an [Ollama](https://ollama.com) server with the
+`mixtral:instruct` model available at `http://localhost:11434`. The Docker
+stack provisions this container automatically via the `offline` profile, but
+when running bare‑metal or inside Colab you must manually start `ollama serve`
+first.
+
 Offline sample data is fetched automatically the first time you run the
 launcher—no manual downloads required. These CSV snapshots mirror
 public data from the [demo‑assets](https://github.com/MontrealAI/demo-assets)
