@@ -51,13 +51,15 @@ TEMPERATURE=0.3
 GRADIO_SHARE=0
 USE_LOCAL_LLM=true
 OLLAMA_BASE_URL="http://localhost:11434/v1"
+CLONE_DIR="/tmp/demo_repo"  # sandbox for patched repo
 ```
 
 When `OPENAI_API_KEY` is blank the agent falls back to the local model
 via Ollama. Set `USE_LOCAL_LLM=true` to force this behaviour even when
 a key is present. Use `OLLAMA_BASE_URL` when the model runs on a remote
 host. The same file also lets you override `MODEL_NAME` and
-`TEMPERATURE` for custom tuning.
+`TEMPERATURE` for custom tuning. Set `CLONE_DIR` if you want the
+repository clone to live elsewhere.
 
 ### Windows (PowerShell)
 Run the same container with PowerShell:
