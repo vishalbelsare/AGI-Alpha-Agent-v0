@@ -31,15 +31,15 @@ def parse_and_validate_diff(diff_text: str) -> str | None:
     return diff_text
 
 
-def apply_diff(diff_text: str, repo_dir: str) -> bool:
-    """Apply the unified diff to the repo_dir. Returns True if applied successfully."""
+def apply_diff(diff_text: str, repo_dir: str) -> tuple[bool, str]:
+    """Apply the unified diff to repo_dir. Returns (success, output)."""
     try:
-        # Use `patch` command to apply the diff
-        process = subprocess.run(["patch", "-p1"], input=diff_text, text=True, cwd=repo_dir, timeout=60)
+        process = subprocess.run(["patch", "-p1"], input=diff_text, text=True, cwd=repo_dir, timeout=60, capture_output=True)
+        output = (process.stdout or "") + (process.stderr or "")
         if process.returncode != 0:
-            logger.error("Patch command failed with code: %s", process.returncode)
-            return False
-        return True
+            logger.error("Patch command failed with code %s: %s", process.returncode, output)
+            return False, output
+        return True, output
     except Exception as e:
         logger.exception("Exception while applying patch: %s", e)
-        return False
+        return False, str(e)

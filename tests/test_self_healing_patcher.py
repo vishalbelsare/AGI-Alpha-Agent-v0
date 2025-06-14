@@ -74,8 +74,9 @@ class TestPatcherCore(unittest.TestCase):
             with open(file_path, "w") as fh:
                 fh.write("hello\n")
             bad_patch = "invalid diff"
-            with self.assertRaises(RuntimeError):
+            with self.assertRaises(RuntimeError) as cm:
                 patcher_core.apply_patch(bad_patch, repo_path=repo)
+            self.assertIn("patch command failed", str(cm.exception))
             with open(file_path) as fh:
                 self.assertEqual(fh.read(), "hello\n")
 
