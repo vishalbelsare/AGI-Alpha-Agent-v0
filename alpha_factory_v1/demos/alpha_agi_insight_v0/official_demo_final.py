@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# SPDX-License-Identifier: Apache-2.0
 """Entry point for the *Beyond Human Foresight* α‑AGI Insight demo.
 
 This wrapper automatically chooses the most capable runtime for the

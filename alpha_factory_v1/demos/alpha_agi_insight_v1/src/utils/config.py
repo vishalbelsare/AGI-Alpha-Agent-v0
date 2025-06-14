@@ -1,46 +1,28 @@
-"""Configuration helpers for the α‑AGI Insight demo."""
+# SPDX-License-Identifier: Apache-2.0
+"""Environment driven settings used by the agents and interfaces.
+
+The :class:`Settings` dataclass gathers options from ``.env`` files and
+environment variables. ``CFG`` is the default instance consumed throughout
+the demo.
+"""
 
 from __future__ import annotations
 
 import logging
 import os
-from dataclasses import dataclass
 from pathlib import Path
-from typing import Dict
+from typing import Any, Optional, Dict
+
+from alpha_factory_v1.utils.config_common import (
+    SettingsBase,
+    _load_dotenv,
+    _prefetch_vault,
+)
+
+from pydantic import Field
 
 
 _log = logging.getLogger(__name__)
-
-
-def _load_env_file(path: str | os.PathLike[str]) -> Dict[str, str]:
-    """Return key/value pairs from ``path``.
-
-    Falls back to a minimal parser when :mod:`python_dotenv` is unavailable.
-    """
-    try:  # pragma: no cover - optional dependency
-        from dotenv import dotenv_values
-
-        return {k: v for k, v in dotenv_values(path).items() if v is not None}
-    except Exception:  # noqa: BLE001 - any import/parsing error falls back
-        pass
-
-    data: Dict[str, str] = {}
-    for line in Path(path).read_text(encoding="utf-8").splitlines():
-        line = line.strip()
-        if not line or line.startswith("#") or "=" not in line:
-            continue
-        k, v = line.split("=", 1)
-        data[k.strip()] = v.strip().strip('"')
-    return data
-
-
-def _load_dotenv(path: str = ".env") -> None:
-    if Path(path).is_file():
-        for k, v in _load_env_file(path).items():
-            os.environ.setdefault(k, v)
-
-
-_load_dotenv()
 
 
 def _env_int(name: str, default: int) -> int:
@@ -50,26 +32,56 @@ def _env_int(name: str, default: int) -> int:
         return default
 
 
-@dataclass(slots=True)
-class Settings:
+def init_config(env_file: str = ".env") -> None:
+    """Load environment variables and refresh :data:`CFG`."""
+
+    _load_dotenv(env_file)
+    _prefetch_vault()
+    global CFG
+    CFG = Settings()
+
+
+class Settings(SettingsBase):
     """Environment-driven configuration."""
 
-    openai_api_key: str | None = os.getenv("OPENAI_API_KEY")
-    offline: bool = os.getenv("AGI_INSIGHT_OFFLINE", "0") == "1"
-    bus_port: int = _env_int("AGI_INSIGHT_BUS_PORT", 6006)
-    ledger_path: str = os.getenv("AGI_INSIGHT_LEDGER_PATH", "./ledger/audit.db")
-    broker_url: str | None = os.getenv("AGI_INSIGHT_BROKER_URL")
-    bus_token: str | None = os.getenv("AGI_INSIGHT_BUS_TOKEN")
-    bus_cert: str | None = os.getenv("AGI_INSIGHT_BUS_CERT")
-    bus_key: str | None = os.getenv("AGI_INSIGHT_BUS_KEY")
-    broadcast: bool = os.getenv("AGI_INSIGHT_BROADCAST", "1") == "1"
-    solana_rpc_url: str = os.getenv(
-        "AGI_INSIGHT_SOLANA_URL", "https://api.testnet.solana.com"
+    openai_api_key: Optional[str] = Field(default=None, alias="OPENAI_API_KEY")
+    offline: bool = Field(default=False, alias="AGI_INSIGHT_OFFLINE")
+    bus_port: int = Field(default=6006, alias="AGI_INSIGHT_BUS_PORT")
+    ledger_path: str = Field(default="./ledger/audit.db", alias="AGI_INSIGHT_LEDGER_PATH")
+    seed: Optional[int] = Field(default=None, alias="AGI_INSIGHT_SEED")
+    memory_path: Optional[str] = Field(default=None, alias="AGI_INSIGHT_MEMORY_PATH")
+    broker_url: Optional[str] = Field(default=None, alias="AGI_INSIGHT_BROKER_URL")
+    bus_token: Optional[str] = Field(default=None, alias="AGI_INSIGHT_BUS_TOKEN")
+    bus_cert: Optional[str] = Field(default=None, alias="AGI_INSIGHT_BUS_CERT")
+    bus_key: Optional[str] = Field(default=None, alias="AGI_INSIGHT_BUS_KEY")
+    bus_fail_limit: int = Field(default=3, alias="AGI_INSIGHT_BUS_FAIL_LIMIT")
+    alert_webhook_url: Optional[str] = Field(default=None, alias="ALERT_WEBHOOK_URL")
+    allow_insecure: bool = Field(default=False, alias="AGI_INSIGHT_ALLOW_INSECURE")
+    broadcast: bool = Field(default=True, alias="AGI_INSIGHT_BROADCAST")
+    solana_rpc_url: str = Field(default="https://api.testnet.solana.com", alias="AGI_INSIGHT_SOLANA_URL")
+    solana_wallet: Optional[str] = Field(default=None, alias="AGI_INSIGHT_SOLANA_WALLET")
+    solana_wallet_file: Optional[str] = Field(default=None, alias="AGI_INSIGHT_SOLANA_WALLET_FILE")
+    model_name: str = Field(default="gpt-4o-mini", alias="AGI_MODEL_NAME")
+    temperature: float = Field(default=0.2, alias="AGI_TEMPERATURE")
+    context_window: int = Field(default=8192, alias="AGI_CONTEXT_WINDOW")
+    json_logs: bool = Field(default=False, alias="AGI_INSIGHT_JSON_LOGS")
+    db_type: str = Field(default="sqlite", alias="AGI_INSIGHT_DB")
+    island_backends: Dict[str, str] = Field(
+        default_factory=lambda: {"default": "gpt-4o"},
+        alias="AGI_ISLAND_BACKENDS",
     )
-    solana_wallet: str | None = os.getenv("AGI_INSIGHT_SOLANA_WALLET")
-    solana_wallet_file: str | None = os.getenv("AGI_INSIGHT_SOLANA_WALLET_FILE")
 
-    def __post_init__(self) -> None:
+    def __init__(self, **data: Any) -> None:  # pragma: no cover - exercised in tests
+        super().__init__(**data)
+        raw = os.getenv("AGI_ISLAND_BACKENDS")
+        if raw and not data.get("island_backends"):
+            mapping = {}
+            for part in raw.split(","):
+                if "=" in part:
+                    k, v = part.split("=", 1)
+                    mapping[k.strip()] = v.strip()
+            if mapping:
+                self.island_backends = mapping
         if not self.openai_api_key:
             _log.warning("OPENAI_API_KEY missing – offline mode enabled")
             self.offline = True
@@ -77,9 +89,7 @@ class Settings:
             self.broadcast = False
         if not self.solana_wallet and self.solana_wallet_file:
             try:
-                self.solana_wallet = (
-                    Path(self.solana_wallet_file).read_text(encoding="utf-8").strip()
-                )
+                self.solana_wallet = Path(self.solana_wallet_file).read_text(encoding="utf-8").strip()
             except Exception as exc:  # pragma: no cover - optional
                 _log.warning("Failed to load wallet file %s: %s", self.solana_wallet_file, exc)
 

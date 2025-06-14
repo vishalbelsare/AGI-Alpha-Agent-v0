@@ -1,4 +1,292 @@
 ```mermaid
+flowchart TD
+    Insight["🎖️ α‑AGI Insight 👁️✨"]
+    Seeds["🌱💫 α-AGI Nova-Seeds 🔐"]
+    Mark["α-AGI MARK 🔮🌌✨"]
+    Sovereign["🎖️ α‑AGI Sovereign 👑✨"]
+    Biz["🌸 α‑AGI Business 👁️✨"]
+    Market["🪐 Marketplace 👁️✨"]
+    Jobs["📜 α‑AGI Jobs 👁️✨"]
+    Agents["👾👾👾🌌👾👾👾 α‑AGI Agents 👁️✨"]
+    Reservoir["💎 α‑AGI Value Reservoir"]
+    Architect["🎖️ α‑AGI Architect 🔱✨"]
+    Council["🔐 α‑AGI Council 👁️✨"]
+    Nodes["🖥️ α‑AGI Nodes 👁️✨"]
+
+    Insight --> Seeds --> Mark --> Sovereign
+    Sovereign --> Biz --> Market
+    Market -->|spawn| Jobs --> Agents
+    Agents -- success --> Reservoir
+    Jobs -- ΔΣUSD --> Reservoir
+    Reservoir -. reinvest .-> Seeds
+    Reservoir -. fund .-> Market
+    Agents <---> Nodes
+    Architect <--> Sovereign
+    Architect <--> Insight
+    Council --> Sovereign
+```
+
+```mermaid
+flowchart LR
+    SeedMint["Nova-Seed NFT\n(Merkle-proof metadata)"] --> Curve
+    subgraph MARK Bonding Curve
+        Curve --- BuyFlow[$AGI / USDC → SeedShare]
+        Curve --- SellFlow[SeedShare → $AGI / USDC]
+    end
+    Curve -->|Target Met + Validators 90 %| Permit[LaunchPermit NFT]
+    Permit --> SovereignDAO["👑 Sovereign DAO\n(initial treasury escrowed)"]
+```
+
+
+```mermaid
+flowchart LR
+    JobSpec{{α-Job}}
+    Agent(α-AGI Agent)
+    Node[(Compute Node)]
+    JobSpec -- escrow \$AGIALPHA --> Agent
+    Agent -- code & data --> Node
+    Node -- result + attest --> Agent
+    Agent -- proof --> JobSpec
+```
+
+
+
+
+```mermaid
+flowchart TD
+    subgraph Strategic Layer
+        Insight["α‑AGI Insight 👁️✨"] -- KG queries / updates --> KG[(Knowledge Graph)]
+        KG -- snapshot hash & context --> Seeds["🌱💫 α-AGI Nova-Seeds"]
+        Architect <-- telemetry & model weights --> KG
+    end
+    style KG fill:#1e293b,color:#fff,stroke:#4ade80
+```
+
+```mermaid
+flowchart TD
+    %% ───────────  CORE VALUE‑CREATION SPINE  ───────────
+    Insight["👁️ α‑AGI Insight"]
+    Seeds["🌱 Nova‑Seeds"]
+    MARK["🔮 MARK"]
+    Sovereign["👑 α‑AGI Sovereign"]
+    Market["🛒 α‑AGI Marketplace"]
+    Exec["⚙️ Jobs & Agents"]
+    Vault["💎 Infinite Value Reservoir"]
+
+    Insight --> Seeds
+    Seeds  --> MARK
+    MARK   --> Sovereign
+    Sovereign --> Market
+    Market --> Exec
+    Exec   --> Vault
+
+    %% ───────────  FEEDBACK VORTICES  ───────────
+    Vault  -. "reinvests capital" .-> Market
+    Vault  -. "funds exploration" .-> Seeds
+
+    Architect["🛠️ Architect"]
+    Architect -. "model tuning" .-> Insight
+    Architect -. "policy hot‑swap" .-> Sovereign
+
+    %% ───────────  GOVERNANCE & COMPUTE  ───────────
+    Council["⚖️ Validator Council"]
+    Council -. "audits" .-> Vault
+    Council -. "governs" .-> Sovereign
+
+    Nodes["🖥️ Compute Nodes"]
+    Exec  -. "compute spend" .-> Nodes
+
+    %% ───────────  STYLING  ───────────
+    classDef core   fill:#0f172a,color:#ffffff,stroke-width:0px
+    classDef accent fill:#4f46e5,color:#ffffff,stroke-width:0px
+    classDef gold   fill:#fbbf24,color:#000000,font-weight:bold,stroke-width:0px
+
+    class Insight,Seeds,MARK,Sovereign,Market,Exec core
+    class Vault gold
+    class Architect,Council,Nodes accent
+```
+
+
+
+
+```mermaid
+flowchart TD
+    %% ── STRATEGIC LAYER ──────────────────────────────────────────────
+    subgraph "🌌 Strategic Foresight Loop"
+        Insight["👁️✨ α‑AGI Insight"] -- "semantic / causal queries" --> KG[(🔗💎 Decision‑Relevant\nKnowledge Graph)]
+        DefIngest["📡 Ingestion Bots"] -- "real‑time edges\n+ provenance" --> KG
+        KG -- "snapshot CID 📜\n+ trust score" --> Seeds["🌱💫 α‑AGI Nova‑Seeds"]
+        Validator["🛡️ Validator Agents"] -- "path‑proof audits" --- KG
+        Architect["⚙️🧠 α‑AGI Architect"] <-. "telemetry ∆, model weights" .-> KG
+    end
+
+    %% ── VISUAL STYLES ────────────────────────────────────────────────
+    classDef dark   fill:#0f172a,color:#ffffff,stroke-width:0px;
+    classDef neon   fill:#1e293b,color:#ffffff,stroke:#4ade80,stroke-width:2px;
+    classDef seed   fill:#166534,color:#ffffff,stroke-width:0px;
+    classDef blue   fill:#0e7490,color:#ffffff,stroke-width:0px;
+    classDef violet fill:#7c3aed,color:#ffffff,stroke-width:0px;
+    classDef amber  fill:#b45309,color:#ffffff,stroke-width:0px;
+
+    class Insight dark
+    class KG neon
+    class Seeds seed
+    class DefIngest blue
+    class Validator violet
+    class Architect amber
+```
+
+```mermaid
+flowchart TD
+    %% ── STRATEGIC LAYER ──────────────────────────────────────────────
+    subgraph "🌌 Strategic Foresight Loop"
+        Insight["👁️✨ α‑AGI Insight"] -- "semantic / causal queries" --> KG[(🔗💎 Decision‑Relevant\nKnowledge Graph)]
+        DefIngest["📡 Ingestion Bots"] -- "real‑time edges\n+ provenance" --> KG
+        KG -- "snapshot CID 📜\n+ trust score" --> Seeds["🌱💫 α‑AGI Nova‑Seeds"]
+        Validator["🛡️ Validator Agents"] -- "path‑proof audits" --- KG
+        Architect["⚙️🧠 α‑AGI Architect"] <-. "telemetry ∆, model weights" .-> KG
+    end
+
+    %% ── VISUAL STYLES ────────────────────────────────────────────────
+    classDef dark   fill:#0f172a,color:#ffffff,stroke-width:0px;
+    classDef neon   fill:#1e293b,color:#ffffff,stroke:#4ade80,stroke-width:2px;
+    classDef seed   fill:#166534,color:#ffffff,stroke-width:0px;
+    classDef blue   fill:#0e7490,color:#ffffff,stroke-width:0px;
+    classDef violet fill:#7c3aed,color:#ffffff,stroke-width:0px;
+    classDef amber  fill:#b45309,color:#ffffff,stroke-width:0px;
+
+    class Insight dark
+    class KG neon
+    class Seeds seed
+    class DefIngest blue
+    class Validator violet
+    class Architect amber
+```
+
+```mermaid
+flowchart TD
+    %% ────────────── STRATEGIC LAYER ──────────────
+    subgraph "🌌 Strategic Foresight Loop"
+        Insight["👁️✨ α‑AGI Insight"] -- "semantic / causal queries" --> KG[(🔗💎 Decision‑Relevant\nKnowledge Graph)]
+        IngestBot["📡 Data Ingestion Bots"] -- "real‑time edges\n+ provenance" --> KG
+        KG -- "snapshot hash\n+ context" --> Seeds["🌱💫 α‑AGI Nova-Seeds"]
+        Validator["🛡️ Validator Agents"] -- "audit\nKG sub-graph" --> KG
+        Architect["⚙️🧠 α‑AGI Architect"] <-. "telemetry / model updates" .-> KG
+    end
+
+    %% ────────────── VISUAL STYLES ──────────────
+    classDef dark   fill:#0f172a,color:#ffffff,stroke-width:0px
+    classDef neon   fill:#1e293b,color:#ffffff,stroke:#4ade80,stroke-width:2px
+    classDef seed   fill:#166534,color:#ffffff,stroke-width:0px
+    classDef blue   fill:#0e7490,color:#ffffff,stroke-width:0px
+    classDef violet fill:#7c3aed,color:#ffffff,stroke-width:0px
+    classDef amber  fill:#d97706,color:#ffffff,stroke-width:0px
+
+    class Insight dark
+    class KG neon
+    class IngestBot blue
+    class Seeds seed
+    class Validator violet
+    class Architect amber
+```
+
+
+
+
+
+
+
+```mermaid
+%% α-AGI Insight • Parts 11-35 • High-Level System Graph
+%% Palette — C-A:red; C-B:orange; C-C:gold; C-D:yellowgreen; C-E:cyan; 
+%% C-F:cornflowerblue; C-G:violet; C-H:mediumpurple; C-I:magenta
+
+flowchart TD
+  %% ❖  Darwinian Search (C-A)
+  subgraph C-A[Darwinian Search 💡]
+    style C-A fill:#ffdddd,stroke:#ff5544,stroke-width:2px
+    P11["11 Darwin-Archive\nEngine"]
+    P12["12 Evolution\nRun Simulator"]
+    P13["13 Recursive\nEvaluator Evolution"]
+    P11 --> P12 --> P13
+  end
+  
+  %% ❖  Semantic / Temporal Topology (C-B)
+  subgraph C-B[Semantic-Temporal Topology 🌐]
+    style C-B fill:#ffebcc,stroke:#ff9944,stroke-width:2px
+    P14["14 Self-Gen\nTaxonomies"]
+    P15["15 Horizon-Adaptive\nMutation"]
+    P16["16 Semantic Terrain\n+ Auto-Curriculum"]
+  end
+  
+  %% ❖  Reflexive Evaluation (C-C)
+  subgraph C-C[Reflexive Evaluation 🔍]
+    style C-C fill:#fff8d6,stroke:#d4a017,stroke-width:2px
+    P17["17 Memory-Aug Oracles"]
+    P18["18 Meta-Generative\nReplay"]
+    P19["19 Discourse Arena\n(MARDA)"]
+  end
+  
+  %% ❖  Memetic Strategy (C-D)
+  subgraph C-D[Memetic Strategy 🧬]
+    style C-D fill:#d8f6d6,stroke:#66bb66,stroke-width:2px
+    P20["20 Meta-Memetic\nEmergence"]
+    P21["21 Frontier Entropy\nOptimiser"]
+  end
+  
+  %% ❖  Crypto / Privacy (C-E)
+  subgraph C-E[Zero-Knowledge Trust 🔐]
+    style C-E fill:#d6ffff,stroke:#00bcbc,stroke-width:2px
+    P22["22 ZK Proofs\nof Insight"]
+  end
+  
+  %% ❖  Meta-Infrastructure (C-F)
+  subgraph C-F[Meta-Infrastructure 🔧]
+    style C-F fill:#d6e8ff,stroke:#5b8def,stroke-width:2px
+    P23["23 Infrastructure\nSelf-Mod"]
+  end
+  
+  %% ❖  Foresight → Action Fusion (C-G)
+  subgraph C-G[Foresight→Action 🎯]
+    style C-G fill:#eed6ff,stroke:#aa55ff,stroke-width:2px
+    P24["24 Insight×Sovereign\nFusion"]
+    P25["25 Economic Memory\nCrystals"]
+    P26["26 Latent Loop\nHarvesting"]
+  end
+  
+  %% ❖  Ontological & Institutional (C-H)
+  subgraph C-H[Ontological & Institutional 🏛️]
+    style C-H fill:#e5d6ff,stroke:#8666ff,stroke-width:2px
+    P27["27 Ontological\nFusion Engine"]
+    P28["28 Autopoietic\nAgencies"]
+    P29["29 Adaptive\nAGI Firms"]
+    P30["30 Onto-Economic\nGravity Wells"]
+  end
+  
+  %% ❖  Civilization-Scale (C-I)
+  subgraph C-I[Civilization-Scale 🌏]
+    style C-I fill:#ffd6ff,stroke:#ff44cc,stroke-width:2px
+    P31["31 AGI-First\nCivilization Sim"]
+    P32["32 Treaty Genesis"]
+    P33["33 Treaty Cascades"]
+    P34["34 Autonomic\nForesight Mesh"]
+    P35["35 Self-Reflective\nTreaty Loops"]
+  end
+  
+  %% ⤷  Cross-Cluster Edges (simplified)
+  P13 --> P17
+  P16 --> P17
+  P17 --> P18 --> P20
+  P21 --> P24
+  P22 -. privacy .- P24
+  P24 --> P25 --> P26 --> P27
+  P27 --> P28 --> P29 --> P30 --> P31
+  P31 --> P32 --> P33 --> P34 --> P35
+  P35 -.feedback.- P17
+```
+
+
+```mermaid
 %% 🎖️ α‑AGI Insight 👁️✨ — Beyond Human Foresight — Official Demo
 %% Comprehensive architecture & workflow diagram (ZERO‑DATA)
 
@@ -258,7 +546,7 @@ flowchart TD
 ```mermaid
 %% Diagram 2: Repository layout
 graph TD
-    A0[alpha_agi_insight_v0/] --- A1[README.md]
+    A0[alpha_agi_insight_v1/] --- A1[README.md]
     A0 --- A2[requirements.txt]
     A0 --- SRC[src/]
     A0 --- TEST[tests/]
@@ -403,7 +691,7 @@ flowchart TD
 
 ```mermaid
 graph TD
-  ROOT["alpha_agi_insight_v0/"]
+  ROOT["alpha_agi_insight_v1/"]
   subgraph Root
     ROOT_README["README.md"]
     REQ["requirements.txt"]

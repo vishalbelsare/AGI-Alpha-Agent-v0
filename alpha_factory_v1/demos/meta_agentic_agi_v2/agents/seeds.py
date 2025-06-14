@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 """
 seeds.py – Curated “seed” agent portfolio for Alpha‑Factory v1
 =============================================================

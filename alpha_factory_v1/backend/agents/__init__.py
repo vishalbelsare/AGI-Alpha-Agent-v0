@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 """
 alpha_factory_v1.backend.agents
 ================================
@@ -75,13 +76,11 @@ try:  # Prometheus metrics
         Gauge as _Gauge,
         Histogram as _Histogram,
         CollectorRegistry,
-        REGISTRY as _REG,
     )  # type: ignore
+    from alpha_factory_v1.backend.metrics_registry import get_metric as _reg_metric
 
     def _get_metric(cls, name: str, desc: str, labels=None):
-        if name in getattr(_REG, "_names_to_collectors", {}):
-            return _REG._names_to_collectors[name]
-        return cls(name, desc, labels) if labels else cls(name, desc)
+        return _reg_metric(cls, name, desc, labels)
 
     def Counter(name: str, desc: str, labels=None):  # type: ignore[misc]
         return _get_metric(_Counter, name, desc, labels)
@@ -552,7 +551,7 @@ def _health_loop():
         )
 
 
-threading.Thread(target=_health_loop, daemon=True, name="agent-health").start()
+
 
 
 ##############################################################################
@@ -567,7 +566,25 @@ def _rescan_loop():  # pragma: no cover
         time.sleep(_RESCAN_SEC)
 
 
-threading.Thread(target=_rescan_loop, daemon=True, name="agent-rescan").start()
+_bg_started = False
+_health_thread: threading.Thread | None = None
+_rescan_thread: threading.Thread | None = None
+
+
+def start_background_tasks() -> None:
+    """Launch health monitor and rescan loops exactly once."""
+    global _bg_started, _health_thread, _rescan_thread
+    if _bg_started:
+        return
+    _bg_started = True
+    _health_thread = threading.Thread(
+        target=_health_loop, daemon=True, name="agent-health"
+    )
+    _rescan_thread = threading.Thread(
+        target=_rescan_loop, daemon=True, name="agent-rescan"
+    )
+    _health_thread.start()
+    _rescan_thread.start()
 
 
 ##############################################################################
@@ -647,4 +664,5 @@ __all__ = [
     "list_agents",
     "capability_agents",
     "get_agent",
+    "start_background_tasks",
 ]

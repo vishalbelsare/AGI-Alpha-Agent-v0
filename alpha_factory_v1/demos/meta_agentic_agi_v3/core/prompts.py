@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 
 """prompts.py – Prompt & Template & Lineage Registry (v0.3.0)
 =================================================================
@@ -169,7 +170,9 @@ _REFLEXION_1 = """[EXAMPLE]Reflect on the last architecture..."""
 _REFLEXION_2 = """Using the tips in ## WRONG Implementation..."""
 
 def get_reflexion_prompt(prev: Prompt | None) -> tuple[str, str]:
-    prev_txt = "" if prev is None else "Here is the previous agent you tried:\n" + json.dumps(prev, ensure_ascii=False) + "\n\n"
+    prev_txt = (
+        "" if prev is None else "Here is the previous agent you tried:\n" + json.dumps(prev, ensure_ascii=False) + "\n\n"
+    )
     return _REFLEXION_1.replace("[EXAMPLE]", prev_txt), _REFLEXION_2
 
 

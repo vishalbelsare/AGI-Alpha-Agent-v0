@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# SPDX-License-Identifier: Apache-2.0
 # one_click_install.sh -- Instant Alpha-Factory deploy
 # Usage: ./one_click_install.sh [installer flags]
 # Runs preflight checks then invokes install_alpha_factory_pro.sh

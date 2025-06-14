@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# SPDX-License-Identifier: Apache-2.0
 """Import a Grafana dashboard via HTTP API.
 
 This helper simplifies loading dashboards from JSON files into a running
@@ -20,11 +21,9 @@ import sys
 from pathlib import Path
 
 try:
-    import requests  # type: ignore
+    from requests import post  # type: ignore
 except Exception:  # pragma: no cover - fallback shim
     from af_requests import post  # type: ignore
-else:
-    from requests import post
 
 
 def main() -> None:

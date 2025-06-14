@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 """
 alpha_factory_v1/backend/__init__.py
 ────────────────────────────────────
@@ -43,6 +44,12 @@ except ModuleNotFoundError:  # SDK not installed
         """Stub that raises helpful errors when the real SDK is absent."""
 
         def __getattr__(self, item):  # noqa: D401
+            raise ModuleNotFoundError(
+                "The OpenAI Agents SDK is required for this operation. "
+                "Please install it with:  pip install openai-agents"
+            )
+
+        def __call__(self, *args, **kwargs):  # noqa: D401
             raise ModuleNotFoundError(
                 "The OpenAI Agents SDK is required for this operation. "
                 "Please install it with:  pip install openai-agents"

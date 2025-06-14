@@ -1,4 +1,11 @@
-"""OpenAI Agents SDK bridge for the AI-GA Meta-Evolution demo.
+# SPDX-License-Identifier: Apache-2.0
+# NOTE: This demo is a research prototype and does not implement real AGI.
+"""
+This module is part of a conceptual research prototype. References to
+'AGI' or 'superintelligence' describe aspirational goals and do not
+indicate the presence of real general intelligence. Use at your own risk.
+
+OpenAI Agents SDK bridge for the AI-GA Meta-Evolution demo.
 
 This script registers a minimal agent capable of driving the evolutionary
 loop via the OpenAI Agents runtime. It works fully offline when no
@@ -7,33 +14,34 @@ instance started by ``run_aiga_demo.sh``.
 """
 from __future__ import annotations
 
-import os
-
 try:  # optional dependency
     from openai_agents import Agent, AgentRuntime, OpenAIAgent, Tool
-except ImportError as exc:  # pragma: no cover - missing package
-    raise SystemExit(
-        "openai_agents package is required. Install with `pip install openai-agents`"
-    ) from exc
+except ImportError:  # pragma: no cover - fallback for legacy package
+    from agents import Agent, AgentRuntime, OpenAIAgent, Tool  # type: ignore
 
 try:
     from alpha_factory_v1.backend.adk_bridge import auto_register, maybe_launch
+
     ADK_AVAILABLE = True
 except Exception:  # pragma: no cover - optional
     ADK_AVAILABLE = False
 
-from meta_evolver import MetaEvolver
-from curriculum_env import CurriculumEnv
+if __package__ is None:
+    import sys
+    from pathlib import Path
+
+    sys.path.append(str(Path(__file__).resolve().parent))
+    __package__ = "alpha_factory_v1.demos.aiga_meta_evolution"
+
+from .meta_evolver import MetaEvolver
+from .curriculum_env import CurriculumEnv
+from .utils import build_llm
 
 
 # ---------------------------------------------------------------------------
 # LLM setup -----------------------------------------------------------------
 # ---------------------------------------------------------------------------
-LLM = OpenAIAgent(
-    model=os.getenv("MODEL_NAME", "gpt-4o-mini"),
-    api_key=os.getenv("OPENAI_API_KEY"),
-    base_url=(None if os.getenv("OPENAI_API_KEY") else os.getenv("OLLAMA_BASE_URL", "http://localhost:11434/v1")),
-)
+LLM = build_llm()
 
 # single MetaEvolver instance reused across tool invocations
 EVOLVER = MetaEvolver(env_cls=CurriculumEnv, llm=LLM)

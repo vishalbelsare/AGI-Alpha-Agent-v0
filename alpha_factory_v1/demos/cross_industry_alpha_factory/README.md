@@ -2,6 +2,13 @@
 *Out-learn • Out-think • Out-design • Out-strategise • Out-execute*
 [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/MontrealAI/AGI-Alpha-Agent-v0/blob/main/alpha_factory_v1/demos/cross_industry_alpha_factory/colab_deploy_alpha_factory_cross_industry_demo.ipynb)
 
+This demo is a conceptual research prototype. References to "AGI" and
+"superintelligence" describe aspirational goals and do not indicate the presence
+of a real general intelligence. Use at your own risk.
+
+See [CONCEPTUAL_FRAMEWORK.md](CONCEPTUAL_FRAMEWORK.md) for an architecture overview.
+
+> **⚠️ Disclaimer**: This demo is **for research and educational purposes only**. Nothing herein constitutes financial advice. MontrealAI and the maintainers accept no liability for losses incurred from using this software.
 
 ---
 
@@ -33,10 +40,13 @@ MuZero-style model-based search to stay sample-efficient.
 | **Docker script**<br>`deploy_alpha_factory_cross_industry_demo.sh` | dev-ops / prod | 8 min | any Ubuntu with Docker 24 |
 | **Colab notebook**<br>`colab_deploy_alpha_factory_cross_industry_demo.ipynb` | analysts / no install | 4 min | free Colab CPU |
 
-The notebook installs dependencies from `../requirements-colab.txt` for a quick setup.
+The notebook installs dependencies from `../requirements-colab.lock` for a quick setup.
 
 Both flows autodetect `OPENAI_API_KEY`; when absent they inject a **Mixtral 8×7B**
 local LLM container so the demo works **fully offline**.
+
+Install the extras from `requirements-demo.txt` if you plan to run
+`cross_alpha_discovery_stub.py` or `openai_agents_bridge.py`.
 
 > **Prerequisite**: Docker 24+ with the `docker compose` plugin (or the
 > legacy `docker-compose` binary) must be installed.
@@ -45,8 +55,31 @@ local LLM container so the demo works **fully offline**.
 ```bash
 git clone https://github.com/MontrealAI/AGI-Alpha-Agent-v0.git
 cd AGI-Alpha-Agent-v0/alpha_factory_v1/demos/cross_industry_alpha_factory
+cp .env.example ../../.env  # optional customization
 ./deploy_alpha_factory_cross_industry_demo.sh
 ```
+The installer writes a random `API_TOKEN` to `.env`; include it in the
+`Authorization` header when calling the REST API.
+Customize variables like `OPENAI_API_KEY`, `AGENTS_ENABLED`, `PROM_PORT` or
+`RAY_PORT` by editing `../../.env` before deployment.
+
+> **Run this check before launching** the deploy script or Colab notebook:
+```bash
+python scripts/check_python_deps.py
+python check_env.py --auto-install  # add --wheelhouse <dir> when offline
+```
+See [docs/OFFLINE_SETUP.md](../../../docs/OFFLINE_SETUP.md) for wheelhouse
+instructions.
+
+#### Pre-download Mixtral weights
+Pull the 8×7B model once and mount it during deployment:
+
+```bash
+docker run --rm -v "$PWD/models:/models" ollama/ollama:0.9.0 pull mixtral:8x7b-instruct
+./deploy_alpha_factory_cross_industry_demo.sh --model-path "$PWD/models"
+```
+The script sets `OLLAMA_MODELS=/models` inside the container so no internet
+access is required at runtime.
 
 #### Colab Quick Start
 Click the badge above or run:
@@ -61,6 +94,39 @@ python cross_alpha_discovery_stub.py --list
 ```
 Use `-n 3 --seed 42` to log three deterministic picks to
 `cross_alpha_log.json`. If `OPENAI_API_KEY` is set, the tool queries an LLM for fresh ideas. The model may be overridden with `--model` (default `gpt-4o-mini`).
+
+
+Environment variables controlling `cross_alpha_discovery_stub`:
+- `CROSS_ALPHA_LEDGER` – output ledger file. Defaults to `cross_alpha_log.json`. Use `--ledger` to override.
+- `CROSS_ALPHA_MODEL` – OpenAI model used when an API key is available. Defaults to `gpt-4o-mini`. Use `--model` to override.
+- `OPENAI_API_KEY` – enables live suggestions. Without it the tool falls back to the offline samples.
+- Install `filelock` if multiple runs write to the same ledger to ensure atomic updates.
+
+#### Optional libraries
+Certain extras unlock additional capabilities:
+
+- `openai` – live idea generation from a remote LLM when `OPENAI_API_KEY` is set.
+- `openai_agents` – exposes the Agents SDK bridge via `openai_agents_bridge.py`.
+- `filelock` – enables concurrent ledger writes.
+
+Install them all at once with:
+
+```bash
+pip install -r requirements-demo.txt
+```
+The `requirements-demo.txt` file installs these extras, including
+`openai>=1.82.0,<2.0` and `openai-agents>=0.0.16`.
+
+or install the packages individually.
+
+### Testing
+Run the cross-industry discovery test to ensure the stub works:
+
+```bash
+pytest tests/test_cross_alpha_discovery.py
+```
+
+See [tests/README.md](../../../tests/README.md) for environment setup guidance.
 
 ### 🤖 OpenAI Agents bridge
 Expose the discovery helper via the OpenAI Agents SDK:
@@ -83,7 +149,7 @@ When Google ADK is installed the bridge auto-registers with the ADK gateway as w
 | Ray dashboard | `http://localhost:8265` |
 | REST orchestrator | `http://localhost:8000` (`GET /healthz`) |
 
-All ports are configurable: set environment variables like `DASH_PORT` or `PROM_PORT` before running the installer.
+All ports are configurable: set environment variables like `DASH_PORT` or `PROM_PORT` before running the installer. The installer maps `DASH_PORT` (default `9000`) to Grafana's internal port `3000`. The Colab notebook tunnels this external port via `ngrok.connect(DASH_PORT)` so you can view the dashboard remotely.
 
 ---
 
@@ -167,9 +233,16 @@ with p95 latency < 180 ms.
 
 Community PRs welcome!
 
+### 11 · Teardown & cleanup
+Stop containers and wipe data volumes with:
+```bash
+docker compose -f alpha_factory_v1/docker-compose.yml down -v
+```
+To automate this step run `./teardown_alpha_factory_cross_industry_demo.sh`.
+
 ---
 
 ### References
 Clune 2019 · Sutton & Silver 2024 · MuZero 2020 
 
-© 2025 MONTREAL.AI — MIT License
+© 2025 MONTREAL.AI — Apache‑2.0 License

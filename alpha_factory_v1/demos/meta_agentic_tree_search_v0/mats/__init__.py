@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 """Core components for the Meta-Agentic Tree Search demo."""
 
 from .tree import Node, Tree

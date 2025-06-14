@@ -1,4 +1,6 @@
 #!/usr/bin/env python3
+# SPDX-License-Identifier: Apache-2.0
+# NOTE: This demo is a research prototype and does not implement real AGI.
 """Self-contained Ω‑Lattice business demo.
 
 This module showcases a minimal zero‑entropy pipeline suitable for
@@ -13,39 +15,77 @@ from __future__ import annotations
 from dataclasses import dataclass
 import argparse
 import logging
-import time
 import asyncio
 import os
-from typing import Any, Dict
+import hashlib
+import random
+import time
+from typing import Any, cast
 
-try:  # optional OpenAI Agents integration
-    from openai_agents import OpenAIAgent
-except Exception:  # pragma: no cover - offline fallback
-    OpenAIAgent = None
-
+from alpha_factory_v1.demos.alpha_agi_insight_v1.src.utils import local_llm
 
 log = logging.getLogger(__name__)
 
+try:  # optional OpenAI Agents integration
+    from openai_agents import OpenAIAgent
+except ImportError:  # pragma: no cover - offline fallback
+    try:  # fall back to the new package name
+        from agents import OpenAIAgent
+    except ImportError:
+        OpenAIAgent = None
+
+try:  # optional Google ADK client
+    from google_adk import Client as ADKClient
+except Exception:  # pragma: no cover - offline fallback
+    try:
+        from google.adk import Client as ADKClient
+    except Exception:
+        ADKClient = None
+
+try:  # optional A2A message socket
+    from a2a import A2ASocket
+    try:
+        _port = int(os.getenv("A2A_PORT", "0"))
+    except ValueError:  # pragma: no cover - invalid env var
+        log.warning("Invalid A2A_PORT=%r", os.getenv("A2A_PORT"))
+        _A2A = None
+    else:
+        if _port > 0:
+            _A2A = A2ASocket(
+                host=os.getenv("A2A_HOST", "localhost"),
+                port=_port,
+                app_id="alpha_business_v3",
+            )
+        else:
+            _A2A = None
+except Exception:  # pragma: no cover - missing dependency
+    A2ASocket = None
+    _A2A = None
 
 @dataclass(slots=True)
 class Orchestrator:
     """Source and sink for alpha signals."""
 
-    def collect_signals(self) -> Dict[str, Any]:
+    def collect_signals(self) -> dict[str, Any]:
         """Fetch a bundle of live signals.
 
         Returns a placeholder dictionary in this demo.  Production
         implementations would gather market data, sensor readings,
         or any other real‑time metrics.
         """
+        return {
+            "timestamp": time.time(),
+            "market_temp": random.uniform(0.8, 1.2),
+            "price_dislocation": random.gauss(0, 0.05),
+        }
 
-        return {"signal": "example"}
-
-    def post_alpha_job(self, bundle_id: int, delta_g: float) -> None:
+    def post_alpha_job(self, bundle_id: str, delta_g: float) -> None:
         """Broadcast a new job for agents when ``delta_g`` is favourable."""
 
-        print(
-            f"[Orchestrator] Posting alpha job for bundle {bundle_id} with ΔG={delta_g:.6f}"
+        log.info(
+            "[Orchestrator] Posting alpha job for bundle %s with ΔG=%.6f",
+            bundle_id,
+            delta_g,
         )
 
 
@@ -53,37 +93,34 @@ class Orchestrator:
 class AgentFin:
     """Finance agent returning latent-work estimates."""
 
-    def latent_work(self, bundle: Dict[str, Any]) -> float:
+    def latent_work(self, bundle: dict[str, Any]) -> float:
         """Compute mispricing alpha from ``bundle``."""
-
-        return 0.04
+        return float(bundle.get("price_dislocation", 0))
 
 
 @dataclass(slots=True)
 class AgentRes:
     """Research agent estimating entropy."""
 
-    def entropy(self, bundle: Dict[str, Any]) -> float:
+    def entropy(self, bundle: dict[str, Any]) -> float:
         """Return inferred entropy from ``bundle``."""
-
-        return 0.01
+        return abs(float(bundle.get("price_dislocation", 0))) / 4
 
 
 @dataclass(slots=True)
 class AgentEne:
     """Energy agent inferring market temperature ``β``."""
 
-    def market_temperature(self) -> float:
+    def market_temperature(self, bundle: dict[str, Any]) -> float:
         """Estimate current market temperature."""
-
-        return 1.0
+        return float(bundle.get("market_temp", random.uniform(0.9, 1.1)))
 
 
 @dataclass(slots=True)
 class AgentGdl:
     """Gödel‑Looper guardian."""
 
-    def provable(self, weight_update: Dict[str, Any]) -> bool:
+    def provable(self, weight_update: dict[str, Any]) -> bool:
         """Validate a weight update via formal proof."""
 
         return True
@@ -96,16 +133,26 @@ async def _llm_comment(delta_g: float) -> str:
     # ``alpha_factory_v1.backend`` exposes a non-callable placeholder.
     # Guard against that scenario as well so offline tests succeed.
     if OpenAIAgent is None or not callable(OpenAIAgent):
-        return "LLM offline"
+        return cast(
+            str,
+            local_llm.chat(
+                f"In one sentence, comment on ΔG={delta_g:.4f} for the business."
+            ),
+        )
 
     agent = OpenAIAgent(
         model=os.getenv("MODEL_NAME", "gpt-4o-mini"),
         api_key=os.getenv("OPENAI_API_KEY"),
-        base_url=(None if os.getenv("OPENAI_API_KEY") else "http://ollama:11434/v1"),
+        base_url=(
+            None
+            if os.getenv("OPENAI_API_KEY")
+            else os.getenv("LOCAL_LLM_URL", "http://ollama:11434/v1")
+        ),
     )
     try:
-        return await agent(
-            f"In one sentence, comment on ΔG={delta_g:.4f} for the business."
+        return cast(
+            str,
+            await agent(f"In one sentence, comment on ΔG={delta_g:.4f} for the business."),
         )
     except Exception as exc:  # pragma: no cover - network failures
         log.warning("LLM comment failed: %s", exc)
@@ -116,20 +163,27 @@ async def _llm_comment(delta_g: float) -> str:
 class Model:
     """Persisted model whose weights evolve over time."""
 
-    def commit(self, weight_update: Dict[str, Any]) -> None:
+    def commit(self, weight_update: dict[str, Any]) -> None:
         """Commit the supplied weights after verification."""
 
-        print("[Model] New weights committed (Gödel-proof verified)")
+        log.info("[Model] New weights committed (Gödel-proof verified)")
 
 
-def run_cycle(orchestrator: Orchestrator, fin_agent: AgentFin, res_agent: AgentRes,
-              ene_agent: AgentEne, gdl_agent: AgentGdl, model: Model) -> None:
+async def run_cycle_async(
+    orchestrator: Orchestrator,
+    fin_agent: AgentFin,
+    res_agent: AgentRes,
+    ene_agent: AgentEne,
+    gdl_agent: AgentGdl,
+    model: Model,
+    adk_client: Any | None = None,
+) -> None:
     """Execute one evaluation + commitment cycle."""
 
     bundle = orchestrator.collect_signals()
     delta_h = fin_agent.latent_work(bundle)
     delta_s = res_agent.entropy(bundle)
-    beta = ene_agent.market_temperature()
+    beta = ene_agent.market_temperature(bundle)
     if abs(beta) < 1e-9:
         log.warning("β is zero; skipping cycle")
         return
@@ -137,19 +191,103 @@ def run_cycle(orchestrator: Orchestrator, fin_agent: AgentFin, res_agent: AgentR
 
     log.info("ΔH=%s ΔS=%s β=%s → ΔG=%s", delta_h, delta_s, beta, delta_g)
 
-    comment = asyncio.run(_llm_comment(delta_g))
+    comment = await _llm_comment(delta_g)
     log.info("LLM: %s", comment)
 
-    if delta_g < 0:
-        orchestrator.post_alpha_job(id(bundle), delta_g)
+    if _A2A:
+        try:
+            _A2A.sendjson({"delta_g": delta_g})
+        except Exception:  # pragma: no cover - best effort
+            log.warning("A2A send failed", exc_info=True)
 
-    weight_update: Dict[str, Any] = {}
+    if adk_client is not None:
+        try:
+            if asyncio.iscoroutinefunction(getattr(adk_client, "run", None)):
+                await adk_client.run(comment)
+            elif hasattr(adk_client, "run"):
+                await asyncio.to_thread(adk_client.run, comment)
+        except Exception:  # pragma: no cover - best effort
+            log.warning("ADK client error", exc_info=True)
+
+    if delta_g < 0:
+        bundle_hash = hashlib.sha256(repr(bundle).encode()).hexdigest()[:8]
+        orchestrator.post_alpha_job(bundle_hash, delta_g)
+
+    weight_update: dict[str, Any] = {}
     if gdl_agent.provable(weight_update):
         model.commit(weight_update)
 
 
-def main(argv: list[str] | None = None) -> None:
+def run_cycle(
+    orchestrator: Orchestrator,
+    fin_agent: AgentFin,
+    res_agent: AgentRes,
+    ene_agent: AgentEne,
+    gdl_agent: AgentGdl,
+    model: Model,
+    adk_client: Any | None = None,
+    loop: asyncio.AbstractEventLoop | None = None,
+) -> None:
+    """Execute one evaluation cycle, creating an event loop if required."""
+
+    try:
+        running_loop = asyncio.get_running_loop()
+    except RuntimeError:
+        running_loop = None
+
+    if running_loop is not None:
+        running_loop.create_task(
+            run_cycle_async(
+                orchestrator,
+                fin_agent,
+                res_agent,
+                ene_agent,
+                gdl_agent,
+                model,
+                adk_client,
+            )
+        )
+        return
+
+    if loop is None:
+        asyncio.run(
+            run_cycle_async(
+                orchestrator,
+                fin_agent,
+                res_agent,
+                ene_agent,
+                gdl_agent,
+                model,
+                adk_client,
+            )
+        )
+    else:
+        loop.run_until_complete(
+            run_cycle_async(
+                orchestrator,
+                fin_agent,
+                res_agent,
+                ene_agent,
+                gdl_agent,
+                model,
+                adk_client,
+            )
+        )
+
+
+async def main(argv: list[str] | None = None) -> None:
     """Entry point for command line execution."""
+
+    try:  # auto-verify environment when available
+        import importlib
+        _check_env = importlib.import_module("check_env")
+    except Exception:  # pragma: no cover - optional dependency
+        _check_env = None
+    if _check_env and hasattr(_check_env, "main"):
+        try:
+            _check_env.main([])
+        except Exception:  # pragma: no cover - best effort
+            log.warning("check_env.main failed", exc_info=True)
 
     ap = argparse.ArgumentParser(description="Run the Ω‑Lattice business demo")
     ap.add_argument("--loglevel", default="INFO", help="Logging level")
@@ -180,14 +318,37 @@ def main(argv: list[str] | None = None) -> None:
     gdl_agent = AgentGdl()
     model = Model()
 
+    if _A2A:
+        try:
+            _A2A.start()
+        except Exception:  # pragma: no cover - best effort
+            log.warning("Failed to start A2A socket", exc_info=True)
+
+    adk_client = ADKClient(os.getenv("ADK_HOST", "http://localhost:9000")) if ADKClient else None
+
     cycle = 0
-    while True:
-        run_cycle(orchestrator, fin_agent, res_agent, ene_agent, gdl_agent, model)
-        cycle += 1
-        if args.cycles and cycle >= args.cycles:
-            break
-        time.sleep(args.interval)
+    try:
+        while True:
+            await run_cycle_async(
+                orchestrator,
+                fin_agent,
+                res_agent,
+                ene_agent,
+                gdl_agent,
+                model,
+                adk_client,
+            )
+            cycle += 1
+            if args.cycles and cycle >= args.cycles:
+                break
+            await asyncio.sleep(args.interval)
+    finally:
+        if _A2A:
+            try:
+                _A2A.stop()
+            except Exception:  # pragma: no cover - best effort
+                log.warning("Failed to stop A2A socket", exc_info=True)
 
 
 if __name__ == "__main__":  # pragma: no cover - manual execution
-    main()
+    asyncio.run(main())

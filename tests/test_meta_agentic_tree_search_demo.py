@@ -1,6 +1,8 @@
+# SPDX-License-Identifier: Apache-2.0
 import subprocess
 import sys
 import unittest
+import pytest
 from alpha_factory_v1.demos.meta_agentic_tree_search_v0.openai_agents_bridge import (
     DEFAULT_MODEL_NAME,
 )
@@ -151,6 +153,28 @@ class TestMetaAgenticTreeSearchDemo(unittest.TestCase):
         self.assertEqual(result.returncode, 0, result.stderr)
         self.assertIn("Best agents", result.stdout)
 
+    def test_run_demo_market_data(self) -> None:
+        import tempfile
+
+        with tempfile.NamedTemporaryFile("w", delete=False) as fh:
+            fh.write("6,6,6")
+            feed_path = fh.name
+        result = subprocess.run(
+            [
+                sys.executable,
+                "-m",
+                "alpha_factory_v1.demos.meta_agentic_tree_search_v0.run_demo",
+                "--episodes",
+                "2",
+                "--market-data",
+                feed_path,
+            ],
+            capture_output=True,
+            text=True,
+        )
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertIn("Best agents", result.stdout)
+
     def test_bridge_fallback(self) -> None:
         result = subprocess.run(
             [
@@ -196,6 +220,89 @@ class TestMetaAgenticTreeSearchDemo(unittest.TestCase):
             text=True,
         )
         self.assertEqual(result.returncode, 0, result.stderr)
+
+    def test_bridge_market_data(self) -> None:
+        import tempfile
+
+        with tempfile.NamedTemporaryFile("w", delete=False) as fh:
+            fh.write("6,6,6")
+            feed_path = fh.name
+
+        result = subprocess.run(
+            [
+                sys.executable,
+                "-m",
+                "alpha_factory_v1.demos.meta_agentic_tree_search_v0.openai_agents_bridge",
+                "--episodes",
+                "1",
+                "--market-data",
+                feed_path,
+            ],
+            capture_output=True,
+            text=True,
+        )
+        self.assertEqual(result.returncode, 0, result.stderr)
+
+    def test_bridge_market_data_output(self) -> None:
+        """Bridge handles CSV input and prints agent summary."""
+        import tempfile
+
+        with tempfile.NamedTemporaryFile("w", delete=False) as fh:
+            fh.write("1,2,3")
+            csv_file = fh.name
+
+        result = subprocess.run(
+            [
+                sys.executable,
+                "-m",
+                "alpha_factory_v1.demos.meta_agentic_tree_search_v0.openai_agents_bridge",
+                "--episodes",
+                "1",
+                "--market-data",
+                csv_file,
+            ],
+            capture_output=True,
+            text=True,
+        )
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertIn("Best agents", result.stdout)
+
+    def test_bridge_enable_adk(self) -> None:
+        """Bridge accepts the --enable-adk flag."""
+        result = subprocess.run(
+            [
+                sys.executable,
+                "-m",
+                "alpha_factory_v1.demos.meta_agentic_tree_search_v0.openai_agents_bridge",
+                "--episodes",
+                "1",
+                "--enable-adk",
+            ],
+            check=True,
+            capture_output=True,
+            text=True,
+        )
+        self.assertEqual(result.returncode, 0, result.stderr)
+
+
+def test_bridge_online_mode(monkeypatch) -> None:
+    pytest.importorskip("openai_agents")
+    monkeypatch.setenv("OPENAI_API_KEY", "dummy")
+    result = subprocess.run(
+        [
+            sys.executable,
+            "-m",
+            "alpha_factory_v1.demos.meta_agentic_tree_search_v0.openai_agents_bridge",
+            "--episodes",
+            "1",
+            "--rewriter",
+            "openai",
+        ],
+        capture_output=True,
+        text=True,
+    )
+    assert result.returncode == 0, result.stderr
+    assert "Best agents" in result.stdout
 
 
 if __name__ == "__main__":  # pragma: no cover

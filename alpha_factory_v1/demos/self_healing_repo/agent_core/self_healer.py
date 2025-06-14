@@ -1,6 +1,14 @@
+# SPDX-License-Identifier: Apache-2.0
 # self_healer.py
-import os, shutil, subprocess
-from agent_core import llm_client, test_runner, diff_utils
+import logging
+import os
+import shutil
+import subprocess
+import tempfile
+
+logger = logging.getLogger(__name__)
+
+from . import diff_utils, llm_client, test_runner, sandbox
 
 class SelfHealer:
     def __init__(self, repo_url: str, commit_sha: str, base_branch: str = "main"):
@@ -25,11 +33,14 @@ class SelfHealer:
     def run_tests_collect_error(self):
         """Run the test suite and collect output if failures occur."""
         runner = test_runner.get_default_runner(self.working_dir)
-        success, output = runner.run_tests()
+        rc, output = sandbox.run_in_docker([
+            "pytest",
+            "-q",
+            "--color=no",
+        ], self.working_dir)
         self.test_results = output
-        if success:
-            return True  # All tests passed
-        # On failure, isolate the failing part of output (last traceback, etc.)
+        if rc == 0:
+            return True
         self.error_log = runner.extract_failure_log(output)
         return False
 
@@ -49,8 +60,19 @@ class SelfHealer:
         """Apply the proposed diff to the working directory."""
         if not self.patch_diff:
             raise RuntimeError("No patch to apply")
-        success = diff_utils.apply_diff(self.patch_diff, repo_dir=self.working_dir)
-        return success
+        with tempfile.NamedTemporaryFile("w", delete=False) as fh:
+            fh.write(self.patch_diff)
+            patch_file = fh.name
+        rc, output = sandbox.run_in_docker(
+            ["patch", "-p1", "-i", "/tmp/patch.diff"],
+            self.working_dir,
+            mounts={patch_file: "/tmp/patch.diff"},
+        )
+        os.unlink(patch_file)
+        if rc != 0:
+            logger.error("Failed to apply patch:\n%s", output)
+            return False
+        return True
 
     def commit_and_push_fix(self):
         """Commit the changes to a new branch and push to remote."""
@@ -93,25 +115,25 @@ class SelfHealer:
         """Execute the full self-healing pipeline."""
         self.setup_repo()
         if self.run_tests_collect_error():
-            print("No failure detected, nothing to fix.")
+            logger.info("No failure detected, nothing to fix.")
             return None
-        print("Test failed, error log captured. Analyzing...")
+        logger.info("Test failed, error log captured. Analyzing...")
         self.analyze_and_propose_fix()
         if not self.patch_diff:
-            print("LLM did not return a valid patch. Aborting auto-fix.")
+            logger.warning("LLM did not return a valid patch. Aborting auto-fix.")
             return None
-        print("Patch received. Applying patch...")
+        logger.info("Patch received. Applying patch...")
         if not self.apply_patch():
-            print("Failed to apply patch. Aborting.")
+            logger.error("Failed to apply patch. Aborting.")
             return None
-        print("Patch applied. Re-running tests for verification...")
+        logger.info("Patch applied. Re-running tests for verification...")
         if not self.run_tests_collect_error():
             # If still failing after patch, we could iterate or abort.
-            print("Patch did not fix the issue. Consider manual intervention.")
+            logger.warning("Patch did not fix the issue. Consider manual intervention.")
             # (Optional) Could attempt another LLM iteration here.
             return None
-        print("Tests passed after patch! Preparing to commit and push fix...")
+        logger.info("Tests passed after patch! Preparing to commit and push fix...")
         branch = self.commit_and_push_fix()
         pr = self.create_pull_request(branch)
-        print(f"Opened Pull Request #{pr} for the fix.")
+        logger.info("Opened Pull Request #%s for the fix.", pr)
         return pr

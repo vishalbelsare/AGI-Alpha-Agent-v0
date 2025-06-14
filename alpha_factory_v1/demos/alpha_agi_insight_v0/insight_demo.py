@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# SPDX-License-Identifier: Apache-2.0
 """α‑AGI Insight demo using Meta‑Agentic Tree Search.
 
 This script predicts which industry sector will see the greatest AGI

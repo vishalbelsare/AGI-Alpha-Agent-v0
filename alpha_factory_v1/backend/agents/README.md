@@ -1,4 +1,5 @@
-# Alpha‑Factory v1 👁️✨ — Backend α‑AGI Agents Suite  
+# Alpha‑Factory v1 👁️✨ — Backend α‑AGI Agents Suite
+This repository is a conceptual research prototype. References to "AGI" and "superintelligence" describe aspirational goals and do not indicate the presence of a real general intelligence. Use at your own risk.
 *Out‑learn · Out‑think · Out‑design · Out‑strategise · Out‑execute*
 
 > Welcome, pioneer. You are gazing at the **command deck** of **Alpha‑Factory v1** — a cross‑industry swarm of autonomous α‑AGI Agents forged to harvest hidden alpha from every corner of the economy and alchemise it into value.  
@@ -209,7 +210,7 @@ graph TD
 ```bash
 git clone https://github.com/MontrealAI/AGI-Alpha-Agent-v0.git
 cd AGI-Alpha-Agent-v0/alpha_factory_v1
-pip install -r requirements.txt          # full‑fat install
+pip install -r requirements.lock         # full‑fat install
 python -m backend.orchestrator
 ```
 

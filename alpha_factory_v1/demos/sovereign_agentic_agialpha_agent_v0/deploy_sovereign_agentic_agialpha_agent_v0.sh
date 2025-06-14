@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# SPDX-License-Identifier: Apache-2.0
 # deploy_sovereign_agentic_agialpha_agent_v0.sh
 #
 # A single script that:

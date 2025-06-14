@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# SPDX-License-Identifier: Apache-2.0
 """Standalone launcher for the α‑AGI Insight demo.
 
 This convenience wrapper allows running the demo directly via

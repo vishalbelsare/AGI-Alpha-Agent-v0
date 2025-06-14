@@ -1,7 +1,7 @@
 FROM python:3.11-slim
 
 # install system deps
-RUN apt-get update && apt-get install -y --no-install-recommends build-essential && rm -rf /var/lib/apt/lists/*
+RUN apt-get update && apt-get install -y --no-install-recommends build-essential postgresql-client && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
 
@@ -11,7 +11,8 @@ RUN pip install --no-cache-dir -r /tmp/requirements.txt && rm /tmp/requirements.
 
 # copy project source
 COPY . /app
-COPY src/interface/web_client/dist /app/src/interface/web_client/dist
+# copy pre-built React bundle if available
+COPY src/interface/web_client/dist/ /app/src/interface/web_client/dist/
 
 # add non-root user
 RUN adduser --disabled-password --gecos '' afuser && chown -R afuser /app
@@ -20,6 +21,13 @@ RUN chmod +x /usr/local/bin/entrypoint.sh
 USER afuser
 
 ENV PYTHONUNBUFFERED=1
+ARG VITE_API_BASE_URL=/
+ENV VITE_API_BASE_URL=${VITE_API_BASE_URL}
+
+# verify the API server is responsive
+HEALTHCHECK --interval=30s --timeout=10s --retries=3 CMD \
+  curl -fsS http://localhost:8000/runs || exit 1
+
 EXPOSE 8000 8501 6006
 ENTRYPOINT ["entrypoint.sh"]
 CMD ["web"]

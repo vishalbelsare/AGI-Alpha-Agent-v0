@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 """
 fm.py – Foundation‑Model Abstraction Layer (v0.1.0)
 ===================================================

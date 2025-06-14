@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 """
 Tiny on‑disk trade‑ledger used by FinanceAgent.
 
@@ -65,7 +66,8 @@ class Portfolio:
             for line in db_path.read_text().splitlines():
                 try:
                     rec = Fill(**json.loads(line))
-                except Exception:
+                except (json.JSONDecodeError, TypeError, KeyError) as exc:
+                    logger.warning("Skipping corrupt fill record: %s", exc)
                     continue  # skip corrupt lines
                 self._apply(rec, persist=False)
 
@@ -106,7 +108,8 @@ class Portfolio:
             for line in fh:
                 try:
                     yield Fill(**json.loads(line))
-                except Exception:
+                except (json.JSONDecodeError, TypeError, KeyError) as exc:
+                    logger.warning("Skipping corrupt fill record: %s", exc)
                     continue
 
     def clear(self) -> None:

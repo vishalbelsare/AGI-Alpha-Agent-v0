@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 """Minimal ``requests``-like shim for offline environments.
 
 This module mirrors a very small portion of :mod:`requests` so that the

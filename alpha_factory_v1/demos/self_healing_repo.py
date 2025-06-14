@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 
 """alpha_factory_v1.demos.self_healing_repo
 ===========================================
@@ -37,7 +38,8 @@ Extra CLI flags:
 Environment variables:
 
 * ``OPENAI_API_KEY`` – enables full LLM reasoning (optional).
-* ``ALPHAFAC_ALLOW_LOCAL_CODE=1`` – same as ``--allow-local-code`` flag
+* ``ALPHA_FACTORY_ALLOW_LOCAL_CODE=1`` – same as ``--allow-local-code`` flag
+  (legacy ``ALPHAFAC_ALLOW_LOCAL_CODE`` is still honoured)
   (takes precedence).
 
 This script is **self‑contained** and production‑ready.  A non‑technical
@@ -124,7 +126,7 @@ def main(argv: Optional[list[str]] = None) -> None:
     args = _parse_args(argv)
 
     if args.allow_local_code:
-        os.environ["ALPHAFAC_ALLOW_LOCAL_CODE"] = "1"
+        os.environ["ALPHA_FACTORY_ALLOW_LOCAL_CODE"] = "1"
 
     agent = build_core_agent(
         name="Repo‑Doctor",

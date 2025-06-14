@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 """
 MuZero Planning demo – Cross‑industry Alpha‑Factory illustration.
 Runs a lightweight MuZero agent (MiniMu) on Gymnasium’s CartPole‑v1
@@ -8,22 +9,36 @@ Core algorithm follows the public pseudocode from Schrittwieser et al. (2020)
 but trimmed to <300 LoC for pedagogy.
 """
 
-import os, asyncio
+import os
+import sys
+from typing import Any
 
 # Optional Google ADK gateway for Agent-to-Agent federation
 try:
     from alpha_factory_v1.backend import adk_bridge
+
+    if not getattr(adk_bridge, "_ADK_OK", True):
+        print(
+            "Google ADK not installed. Install with: pip install google-adk \n"
+            "and set ALPHA_FACTORY_ENABLE_ADK=true to enable the gateway.",
+            file=sys.stderr,
+        )
 except Exception:  # pragma: no cover - optional dependency
     adk_bridge = None
+    print(
+        "Google ADK integration unavailable. Install with: pip install google-adk "
+        "and set ALPHA_FACTORY_ENABLE_ADK=true to enable the gateway.",
+        file=sys.stderr,
+    )
 
-try:  # gymnasium optional for offline testing
-    import gymnasium as gym
-except ModuleNotFoundError:  # pragma: no cover - fallback stub
-    from .minimuzero import gym
 
 try:  # OpenAI Agents SDK is optional
-    from openai_agents import Agent, AgentRuntime, Tool, OpenAIAgent
+    from agents import Agent, AgentRuntime, Tool, OpenAIAgent
 except Exception:  # pragma: no cover - provide graceful degrade
+    print(
+        "OpenAI Agents SDK not installed. Install with: pip install openai-agents",
+        file=sys.stderr,
+    )
 
     class OpenAIAgent:
         def __init__(self, *_, **__):
@@ -57,14 +72,17 @@ except Exception:  # pragma: no cover - provide graceful degrade
 
 try:
     import gradio as gr
+
+    _HAVE_GRADIO = True
 except ModuleNotFoundError:  # pragma: no cover - allow CLI help without gradio
+    print("Gradio not installed. Install with: pip install gradio", file=sys.stderr)
+
     class _MissingGradio:
         def __getattr__(self, name: str):  # noqa: D401
-            raise ModuleNotFoundError(
-                'gradio is required for this feature. Install with: pip install gradio'
-            )
+            raise ModuleNotFoundError("gradio is required for this feature. Install with: pip install gradio")
 
     gr = _MissingGradio()  # type: ignore[misc]
+    _HAVE_GRADIO = False
 
 # ── Minimal MuZero utilities --------------------------------------------------
 # (full implementation lives in demo/minimuzero.py, imported here)
@@ -102,7 +120,7 @@ class MuZeroAgent(Agent):
     name = "muzero_demo"
     tools = [run_episode]
 
-    async def policy(self, obs, ctx):  # type: ignore[override]
+    async def policy(self, obs: dict[str, Any] | Any, ctx: Any) -> object:  # type: ignore[override]
         steps = int(obs.get("steps", 500)) if isinstance(obs, dict) else 500
         return await run_episode(steps)
 
@@ -117,12 +135,15 @@ if adk_bridge and adk_bridge.adk_enabled():  # pragma: no cover - optional
 
 
 # ── Gradio UI -----------------------------------------------------------------
-def launch_dashboard():
+def launch_dashboard() -> None:
+    if not _HAVE_GRADIO:
+        raise RuntimeError("gradio is required for this feature. Install with: pip install gradio")
+
     with gr.Blocks(title="MuZero Planning Demo") as demo:
         vid = gr.Video(label="Live environment")
         log = gr.Markdown()
 
-        async def run():
+        async def run() -> tuple[list[bytes], str]:
             mu = MiniMu(env_id=ENV_ID)
             frames = []
             commentary = []

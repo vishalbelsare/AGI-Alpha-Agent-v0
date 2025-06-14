@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# SPDX-License-Identifier: Apache-2.0
 """Minimal FastAPI wrapper for the α‑AGI Insight demo.
 
 The server exposes a single ``/insight`` endpoint that runs the

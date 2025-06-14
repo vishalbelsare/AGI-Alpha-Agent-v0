@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# SPDX-License-Identifier: Apache-2.0
 """Launch the α‑AGI Insight official demo.
 
 This helper ensures the environment is verified before delegating to the

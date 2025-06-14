@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# SPDX-License-Identifier: Apache-2.0
 """Launch the Beyond Human Foresight variant of the α‑AGI Insight demo.
 
 This thin wrapper prints a short banner then delegates to

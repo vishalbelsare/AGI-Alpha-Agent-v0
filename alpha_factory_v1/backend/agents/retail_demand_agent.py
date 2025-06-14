@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 """backend.agents.retail_demand_agent
 ===================================================================
 Alpha‑Factory v1 👁️✨ — Multi‑Agent AGENTIC α‑AGI
@@ -84,6 +85,17 @@ try:
     import adk  # type: ignore
 except ModuleNotFoundError:  # pragma: no cover
     adk = None  # type: ignore
+try:
+    from aiohttp import ClientError as AiohttpClientError  # type: ignore
+except Exception:  # pragma: no cover - optional
+    AiohttpClientError = OSError  # type: ignore
+try:
+    from adk import ClientError as AdkClientError  # type: ignore[attr-defined]
+except Exception:  # pragma: no cover - optional
+
+    class AdkClientError(Exception):
+        pass
+
 
 # ---------------------------------------------------------------------------
 # Alpha‑Factory lightweight core imports  ------------------------------------
@@ -91,19 +103,13 @@ except ModuleNotFoundError:  # pragma: no cover
 from backend.agent_base import AgentBase  # pylint: disable=import-error
 from backend.agents import AgentMetadata, register_agent
 from backend.orchestrator import _publish  # structured‑event helper
+from alpha_factory_v1.utils.env import _env_int
 
 logger = logging.getLogger(__name__)
 
 # ---------------------------------------------------------------------------
 # Configuration dataclass  ---------------------------------------------------
 # ---------------------------------------------------------------------------
-
-
-def _env_int(name: str, default: int) -> int:
-    try:
-        return int(os.getenv(name, default))
-    except ValueError:
-        return default
 
 
 def _env_bool(name: str) -> bool:
@@ -293,7 +299,7 @@ class RetailDemandAgent(AgentBase):
             df = df.groupby(["sku", "date"], as_index=False)["demand"].sum()
             self._surrogate.fit(df)
             logger.info("[RD] surrogate retrained on %d rows", len(df))
-        except Exception as exc:  # noqa: BLE001
+        except (httpx.HTTPError, pd.errors.ParserError, OSError) as exc:
             logger.warning("Dataset refresh failed: %s", exc)
 
     # ------------------------------------------------------------------
@@ -346,7 +352,7 @@ class RetailDemandAgent(AgentBase):
                     max_tokens=200,
                 )
                 recs = json.loads(chat.choices[0].message.content)
-            except Exception as exc:  # noqa: BLE001
+            except (openai.OpenAIError, json.JSONDecodeError) as exc:
                 logger.warning("OpenAI rationale generation failed: %s", exc)
         return json.dumps(_wrap_mcp(self.NAME, recs))
 
@@ -359,8 +365,11 @@ class RetailDemandAgent(AgentBase):
             client = adk.Client()
             await client.register(node_type=self.NAME, metadata={"runtime": "alpha_factory"})
             logger.info("[RD] registered in ADK mesh id=%s", client.node_id)
-        except Exception as exc:  # noqa: BLE001
+        except (AdkClientError, AiohttpClientError, asyncio.TimeoutError, OSError) as exc:
             logger.warning("ADK registration failed: %s", exc)
+        except Exception as exc:  # pragma: no cover - unexpected
+            logger.exception("Unexpected ADK registration error: %s", exc)
+            raise
 
 
 # ---------------------------------------------------------------------------

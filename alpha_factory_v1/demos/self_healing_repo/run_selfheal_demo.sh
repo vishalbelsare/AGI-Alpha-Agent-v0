@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# SPDX-License-Identifier: Apache-2.0
 set -euo pipefail
 
 demo_dir="$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
@@ -9,6 +10,10 @@ cd "$root_dir"
 
 command -v docker >/dev/null 2>&1 || {
   echo "🚨  Docker is required → https://docs.docker.com/get-docker/"; exit 1; }
+
+command -v patch >/dev/null 2>&1 || {
+  echo "🚨  GNU patch is required. Install with: sudo apt-get update && sudo apt-get install -y patch";
+  exit 1; }
 
 [[ -f "$demo_dir/config.env" ]] || {
   echo "➕  Creating default config.env (edit to add OPENAI_API_KEY)"; 

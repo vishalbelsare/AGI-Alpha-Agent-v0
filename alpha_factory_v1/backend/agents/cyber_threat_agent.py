@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 """backend.agents.cyber_threat_agent
 ===================================================================
 Alpha‑Factory v1 👁️✨ — Multi‑Agent AGENTIC α‑AGI
@@ -89,6 +90,17 @@ try:
     import adk  # type: ignore
 except ModuleNotFoundError:  # pragma: no cover
     adk = None  # type: ignore
+try:
+    from aiohttp import ClientError as AiohttpClientError  # type: ignore
+except Exception:  # pragma: no cover - optional
+    AiohttpClientError = OSError  # type: ignore
+try:
+    from adk import ClientError as AdkClientError  # type: ignore[attr-defined]
+except Exception:  # pragma: no cover - optional
+
+    class AdkClientError(Exception):
+        pass
+
 
 try:
     from kafka import KafkaProducer  # type: ignore
@@ -101,19 +113,13 @@ except ModuleNotFoundError:  # pragma: no cover
 from backend.agent_base import AgentBase  # pylint: disable=import‑error
 from backend.agents import AgentMetadata, register_agent
 from backend.orchestrator import _publish  # reuse orchestrator event bus
+from alpha_factory_v1.utils.env import _env_int
 
 logger = logging.getLogger(__name__)
 
 # ---------------------------------------------------------------------------
 # Configuration structure
 # ---------------------------------------------------------------------------
-
-
-def _env_int(name: str, default: int) -> int:
-    try:
-        return int(os.getenv(name, default))
-    except ValueError:
-        return default
 
 
 def _env_float(name: str, default: float) -> float:
@@ -236,7 +242,10 @@ class CyberThreatAgent(AgentBase):
         return loop.run_until_complete(self._risk_snapshot())
 
     @tool(
-        description="Generate JSON patch/mitigation plan sequence ordered to maximise risk‑reduction under change‑window constraints."
+        description=(
+            "Generate JSON patch/mitigation plan sequence ordered to "
+            "maximise risk‑reduction under change‑window constraints."
+        )
     )
     def patch_plan(self) -> str:  # noqa: D401
         loop = asyncio.get_event_loop()
@@ -381,7 +390,7 @@ class CyberThreatAgent(AgentBase):
                 model="gpt-4o", messages=[{"role": "user", "content": prompt}], max_tokens=300
             )
             return json.loads(resp.choices[0].message.content)
-        except Exception as exc:  # noqa: BLE001
+        except (openai.OpenAIError, json.JSONDecodeError) as exc:
             logger.warning("OpenAI mitigation synthesis failed: %s", exc)
             return []
 
@@ -407,8 +416,11 @@ class CyberThreatAgent(AgentBase):
             client = adk.Client()
             await client.register(node_type=self.NAME, metadata={"runtime": "alpha_factory"})
             logger.info("[CT] registered in ADK mesh id=%s", client.node_id)
-        except Exception as exc:  # noqa: BLE001
+        except (AdkClientError, AiohttpClientError, asyncio.TimeoutError, OSError) as exc:
             logger.warning("ADK registration failed: %s", exc)
+        except Exception as exc:  # pragma: no cover - unexpected
+            logger.exception("Unexpected ADK registration error: %s", exc)
+            raise
 
 
 # ---------------------------------------------------------------------------

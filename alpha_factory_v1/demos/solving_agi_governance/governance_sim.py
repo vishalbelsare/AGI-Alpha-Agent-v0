@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 #!/usr/bin/env python3
 """Minimal Monte-Carlo simulation for the governance whitepaper demo.
 
@@ -11,6 +12,7 @@ from __future__ import annotations
 import argparse
 import random
 import os
+from typing import cast
 
 # Payoff matrix for a standard Prisoner's Dilemma (T > R > P > S)
 R, T, P, S = 3.0, 5.0, 1.0, 0.0
@@ -83,7 +85,10 @@ def summarise_with_agent(mean_coop: float, *, agents: int, rounds: int, delta: f
 
     try:  # optional dependency
         import openai
+    except Exception:
+        return base_msg
 
+    try:
         client = openai.OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
         completion = client.chat.completions.create(
             model="gpt-4o",
@@ -93,7 +98,13 @@ def summarise_with_agent(mean_coop: float, *, agents: int, rounds: int, delta: f
             ],
             max_tokens=60,
         )
-        return completion.choices[0].message.content.strip()
+        return cast(str, completion.choices[0].message.content).strip()
+    except openai.AuthenticationError:
+        return base_msg + " (OPENAI_API_KEY not set; using offline summary)"
+    except openai.APIConnectionError:
+        return base_msg + " (OpenAI connection error; using offline summary)"
+    except openai.RateLimitError:
+        return base_msg + " (OpenAI rate limit exceeded; using offline summary)"
     except Exception:
         return base_msg
 

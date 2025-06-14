@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# SPDX-License-Identifier: Apache-2.0
 """Production launcher for the α‑AGI Insight demo.
 
 This helper unifies environment validation with automatic runtime

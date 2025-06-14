@@ -1,9 +1,45 @@
 
-# Alpha‑Factory v1 👁️✨ — **META-AGENTIC** α‑AGI
+# **META-AGENTIC** α‑AGI 👁️✨
 
 **Out‑learn · Out‑think · Out‑design · Out‑strategise · Out‑execute**
 
+**Official and *pioneering* definition – Meta-Agentic (adj.)**: Describes an agent whose **primary role** is to **create, select, evaluate, or re‑configure other agents** and the rules governing their interactions, thereby exercising **second‑order agency** over a population of first‑order agents. *The term was **pioneered by [Vincent Boucher](https://www.linkedin.com/in/montrealai/), President of MONTREAL.AI**.*
+
+```mermaid
+flowchart TD
+    Insight["🎖️ α‑AGI Insight 👁️✨"]
+    Seeds["🌱💫 α-AGI Nova-Seeds 🔐"]
+    Mark["α-AGI MARK 🔮🌌✨"]
+    Sovereign["🎖️ α‑AGI Sovereign 👑✨"]
+    Biz["🌸 α‑AGI Business 👁️✨"]
+    Market["🪐 Marketplace 👁️✨"]
+    Jobs["📜 α‑AGI Jobs 👁️✨"]
+    Agents["👾👾👾🌌👾👾👾 α‑AGI Agents 👁️✨"]
+    Reservoir["💎 α‑AGI Value Reservoir"]
+    Architect["🎖️ α‑AGI Architect 🔱✨"]
+    Council["🔐 α‑AGI Council 👁️✨"]
+    Nodes["🖥️ α‑AGI Nodes 👁️✨"]
+
+    Insight --> Seeds --> Mark --> Sovereign
+    Sovereign --> Biz --> Market
+    Market -->|spawn| Jobs --> Agents
+    Agents -- success --> Reservoir
+    Jobs -- ΔΣUSD --> Reservoir
+    Reservoir -. reinvest .-> Seeds
+    Reservoir -. fund .-> Market
+    Agents <---> Nodes
+    Architect <--> Sovereign
+    Architect <--> Insight
+    Council --> Sovereign
+```
+
 ---
+
+## Disclaimer
+This repository is a conceptual research prototype. References to "AGI" and
+"superintelligence" describe aspirational goals and do not indicate the presence
+of a real general intelligence. Use at your own risk. Nothing herein constitutes financial advice. MontrealAI and the maintainers accept no liability for losses incurred from using this software.
+
 
 # 🚀 [ 🎖️ α‑AGI Ascension 🌌 ]
 
@@ -24,18 +60,61 @@ Meta‑Agentic mastery at global scale. α‑AGI Sovereign represents a revoluti
 
 Strategic Edge:
 
-* Decentralized autonomy ensures superior agility and resilience.  
+* Decentralized autonomy ensures superior agility and resilience.
 * Strategically validated methodologies guarantee consistent economic leadership.
 
+## Quick Start
+**Local:** `./quickstart.sh` &nbsp;&nbsp;|&nbsp;&nbsp; **Docker:** `docker compose up --build`
+
+An interactive Colab notebook demonstrates the same zero‑data Insight search loop. Open [colab_alpha_agi_insight_demo.ipynb](alpha_factory_v1/demos/alpha_agi_insight_v0/colab_alpha_agi_insight_demo.ipynb) in Google Colab to try it online.
+
+Clone the repository and run the helper script to start the Insight demo locally:
+
+```bash
+git clone https://github.com/MontrealAI/AGI-Alpha-Agent-v0.git
+cd AGI-Alpha-Agent-v0
+python check_env.py --auto-install  # may run for several minutes
+# NumPy and pandas are required for realistic results; omit or add
+# `--allow-basic-fallback` to bypass this check.
+# Abort with Ctrl+C and rerun with '--timeout 300' to fail fast
+./quickstart.sh
+Run `pre-commit run --all-files` after the dependencies finish installing.
+```
+
+Offline example using a local wheelhouse:
+
+```bash
+WHEELHOUSE=/media/wheels AUTO_INSTALL_MISSING=1 ./quickstart.sh
+```
+
+Or launch the full stack with Docker:
+
+```bash
+docker compose up --build
+```
+
+Detailed step‑by‑step instructions, including Colab usage,
+are available in [docs/quickstart.md](docs/quickstart.md).
+
+For advanced options, see the [5‑Minute Quick‑Start](#6-5-minute-quick-start)
+and [Docker Quickstart](#docker-quickstart) sections below.
+
 ### Running the Insight Demo
+
+For the browser-based version, see
+[insight_browser_v1/README.md](alpha_factory_v1/demos/alpha_agi_insight_v1/insight_browser_v1/README.md).
+It requires **Node.js ≥20**. Install the dependencies with
+`npm ci` and build the static assets with `npm run build` before launching.
+The repository includes a `.nvmrc` file so you can simply run `nvm use` to
+select the correct Node version.
 
 The α‑AGI Insight demo ships with an offline‑friendly command line interface.
 After installation, launch the official demo via:
 
 ```bash
-alpha-agi-beyond-foresight --episodes 5
-# Shorter alias
-alpha-agi-bhf --episodes 5
+alpha-agi-insight-v1 --episodes 5
+# Or run directly from the package
+python -m alpha_factory_v1.demos.alpha_agi_insight_v1 --episodes 5
 ```
 
 When API keys are configured the program automatically uses the OpenAI Agents
@@ -47,7 +126,7 @@ checks the environment, selects the best runtime and optionally starts the
 Google ADK gateway:
 
 ```bash
-alpha-agi-insight-final --episodes 5
+alpha-agi-insight-v1 --episodes 5
 ```
 
 This wrapper transparently falls back to the offline Meta‑Agentic Tree
@@ -56,10 +135,151 @@ Search when API credentials are absent, ensuring the demo runs anywhere.
 For a guaranteed offline run without external dependencies, use:
 
 ```bash
-alpha-agi-insight-offline --episodes 5
+AGI_INSIGHT_OFFLINE=1 alpha-agi-insight-v1 --episodes 5
 ```
 
-This wrapper sets ALPHA_AGI_OFFLINE=true before delegating to the production demo so the search loop never attempts network access.
+Setting ``AGI_INSIGHT_OFFLINE=1`` ensures the search loop never attempts network access.
+
+When the host cannot reach the internet the environment checker prints a warning
+and the demos continue in offline mode using any cached data. Optional downloads
+are skipped automatically.
+
+Several demos ship with small CSV snapshots for offline mode. These samples
+mirror data from the [demo-assets](https://github.com/MontrealAI/demo-assets)
+repository and cover roughly March–April 2024.
+
+### Meta-Agentic Tree Search Demo
+
+An offline-friendly reference implementation focused on recursive agent-to-agent rewrites lives in
+[meta_agentic_tree_search_v0/README.md](alpha_factory_v1/demos/meta_agentic_tree_search_v0/README.md).
+It demonstrates the best‑first search behind the other examples and runs without external APIs.
+
+<a name="63-offline-mode"></a>
+### Offline Mode
+
+Follow these steps when working without internet access.
+
+1. **Build a wheelhouse** on a machine with connectivity:
+   ```bash
+   mkdir -p /media/wheels
+   pip wheel -r requirements.txt -w /media/wheels
+   pip wheel -r requirements-dev.txt -w /media/wheels
+   ```
+
+2. **Install from the wheelhouse** and verify packages. The setup script
+   automatically uses a `wheels/` directory in the repository root when
+   `WHEELHOUSE` is unset:
+   ```bash
+   WHEELHOUSE=/media/wheels AUTO_INSTALL_MISSING=1 ./codex/setup.sh
+   WHEELHOUSE=/media/wheels AUTO_INSTALL_MISSING=1 \
+     python check_env.py --auto-install --wheelhouse /media/wheels
+   pip check
+   ```
+   When network access is unavailable, install packages directly from the
+   wheelhouse:
+   ```bash
+   WHEELHOUSE=/media/wheels pip install --no-index --find-links "$WHEELHOUSE" -r requirements.txt
+   ```
+   `check_env.py` uses the wheels under `/media/wheels`. Set
+`WHEELHOUSE=/media/wheels` when running `pre-commit` or the tests so
+dependencies install from the local cache. See
+[Offline Setup](alpha_factory_v1/scripts/README.md#offline-setup) for more
+details. A short reference lives in
+[docs/OFFLINE_SETUP.md](docs/OFFLINE_SETUP.md). If package installation hangs
+for more than ten minutes,
+`check_env.py` will time out and suggest using `--wheelhouse` for
+offline installs.
+
+Run the environment check again when the machine is completely
+air‑gapped:
+```bash
+python check_env.py --auto-install --wheelhouse /media/wheels
+```
+This mirrors the instructions in
+[alpha_factory_v1/scripts/README.md](alpha_factory_v1/scripts/README.md#offline-setup).
+
+See the [Wheelhouse Setup](alpha_factory_v1/demos/alpha_asi_world_model/docs/quickstart.md#wheelhouse-setup)
+section of the α‑ASI world-model quickstart for a concise summary.
+
+3. **Download a `.gguf` weight** and set ``LLAMA_MODEL_PATH``:
+   ```bash
+   mkdir -p ~/.cache/llama
+   curl -L -o ~/.cache/llama/TinyLlama-1.1B-Chat-v1.0.Q4_K_M.gguf \
+     https://huggingface.co/TheBloke/TinyLlama-1.1B-Chat-GGUF/resolve/main/TinyLlama-1.1B-Chat-v1.0.Q4_K_M.gguf
+   export LLAMA_MODEL_PATH=~/.cache/llama/TinyLlama-1.1B-Chat-v1.0.Q4_K_M.gguf
+   ```
+   Common weights and typical CPU throughput:
+
+   | Model | Size | ~tokens/s |
+   |-------|------|-----------|
+   | TinyLlama‑1.1B‑Chat Q4_K_M | 380 MB | ~20 |
+   | Llama‑3‑8B‑Instruct Q4_K_M | 4 GB | ~5 |
+   | Mixtral‑8×7B‑Instruct Q4_0 | 7 GB | ~3 |
+
+   Install `llama-cpp-python` or `ctransformers` to enable offline inference.
+
+4. **Fetch and build the browser assets** (requires **Node.js**) to run the Insight demo fully offline:
+   ```bash
+   cd alpha_factory_v1/demos/alpha_agi_insight_v1/insight_browser_v1
+   npm run fetch-assets
+   npm ci
+   npm run build
+   ```
+   Skipping this step or running without Node.js prevents the service worker
+   from being generated, so offline functionality is limited.
+5. **Skip browser downloads** when running the web demo tests offline:
+   ```bash
+   PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1 npm test
+   ```
+
+6. **Enable offline inference** by setting ``AGI_INSIGHT_OFFLINE=1`` in
+   ``.env`` or the environment (ensure `llama-cpp-python` or `ctransformers`
+   is installed).
+
+7. **Disable broadcasting** to avoid network calls:
+   ```bash
+   export AGI_INSIGHT_BROADCAST=0
+   ```
+
+8. **Seed the lineage database** from existing DGM logs using ``--import-dgm``.
+   ```bash
+   python -m alpha_factory_v1.demos.alpha_agi_insight_v1.src.interface.cli \
+     simulate --import-dgm path/to/dgm/logs
+   ```
+
+   Sample sector definitions live in
+
+   ``alpha_factory_v1/demos/alpha_agi_insight_v1/docs/sectors.sample.json``.
+   Pass this file with ``--sectors-file`` to forecast specific industries.
+
+   The built-in **Sector-Shock-10** dataset ships with the package and is
+   located using ``importlib.resources`` when running the demo. This allows
+   `simulate` to score forecasts even when the repository layout is not
+   available.
+
+Example (using ``--sectors-file`` to customise the simulation):
+
+```bash
+AGI_INSIGHT_OFFLINE=1 AGI_INSIGHT_BROADCAST=0 \
+python -m alpha_factory_v1.demos.alpha_agi_insight_v1.src.interface.cli simulate \
+  --curve linear --k 8 --x0 0.0 --llama-model-path "$LLAMA_MODEL_PATH" \
+  --offline --energy 2.0 --entropy 0.5 \
+  --mut-rate 0.1 --xover-rate 0.5 \
+  --sectors-file alpha_factory_v1/demos/alpha_agi_insight_v1/docs/sectors.sample.json
+```
+
+Produces output similar to:
+
+```
+OPENAI_API_KEY missing – offline mode enabled
+year | capability | affected
+-----+------------+---------
+1    | 0.88       |
+2    | 0.98       |
+3    | 1.00       |
+4    | 1.00       |
+5    | 1.00       |
+```
 
 
 ### 🎖️ α‑AGI Architect 👁️✨ — Foundational Operational Blueprint
@@ -134,31 +354,100 @@ Global markets seep *USD ✧ trillions/yr* in latent opportunity — “alph
 
 **Definition**: An **α‑AGI Business** 👁️✨ is an on‑chain autonomous enterprise (<name>.a.agi.eth) that unleashes a swarm of self‑improving agentic **α‑AGI agents** 👁️✨ (<name>.a.agent.agi.eth) to hunt down inefficiencies across any domain and transmute them into **$AGIALPHA**.
 
-**Official definition – Meta-Agentic (adj.)**: Describes an agent whose **primary role** is to **create, select, evaluate, or re‑configure other agents** and the rules governing their interactions, thereby exercising **second‑order agency** over a population of first‑order agents. *The term was **pioneered by [Vincent Boucher](https://www.linkedin.com/in/montrealai/), President of MONTREAL.AI**.*
-
 Built atop **OpenAI Agents SDK**, **Google ADK**, **A2A protocol**, and Anthropic’s **Model Context Protocol**, the stack runs cloud‑native *or* air‑gapped, hot‑swapping between frontier LLMs and distilled local models.
 
 ### TL;DR Quick Start
 ```bash
 git clone https://github.com/MontrealAI/AGI-Alpha-Agent-v0.git
 cd AGI-Alpha-Agent-v0
+python3 -m venv .venv
+source .venv/bin/activate
 # Install runtime dependencies
-pip install -r requirements.txt
+# Install runtime dependencies
+pip install -r requirements.lock  # pinned versions for deterministic setup
+# Optional ADK/MCP integration
+pip install google-adk mcp
 # Requires Python 3.11–3.12 (<3.13)
 ./quickstart.sh
-python -m webbrowser http://localhost:8000/docs
+Run `pre-commit run --all-files` after the dependencies finish installing.
+# Open http://localhost:8000/docs in your browser
+```
+The adapters initialise automatically when these optional packages are present.
+
+### Optional Packages
+
+Install these extras to unlock additional features:
+
+- `pip install gradio` – enables the MuZero planning dashboard.
+- `pip install openai-agents==0.0.17` – activates the official Agents runtime used for commentary.
+- `pip install google-adk` and set `ALPHA_FACTORY_ENABLE_ADK=true` – starts the Google ADK gateway for cross‑organisation agent exchange.
+
+To regenerate `requirements.lock` from `requirements.txt` with hashes, run:
+
+```bash
+pip-compile --generate-hashes --output-file requirements.lock requirements.txt
+```
+
+Once the API server is running you can launch a simulation:
+
+```bash
+curl -X POST http://localhost:8000/simulate \
+  -H "Authorization: Bearer $API_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{"horizon": 5, "pop_size": 6, "generations": 3, "mut_rate": 0.1, "xover_rate": 0.5, "curve": "linear", "energy": 1.0, "entropy": 1.0}'
 ```
 
 ## Disclaimer
-This repository is a conceptual research prototype. References to "AGI" and "superintelligence" describe aspirational goals and do not indicate the presence of a real general intelligence. Use at your own risk.
+This repository is a conceptual research prototype. References to "AGI" and
+"superintelligence" describe aspirational goals and do not indicate the presence
+of a real general intelligence. Use at your own risk. Nothing herein constitutes financial advice. MontrealAI and the maintainers accept no liability for losses incurred from using this software.
 
-Further technical details are documented separately:
-
-- The overall architecture, agent roles and algorithms are explained in [docs/DESIGN.md](docs/DESIGN.md).
-- REST and WebSocket endpoints are listed in [docs/API.md](docs/API.md).
+## Further Reading
+- [docs/DESIGN.md](docs/DESIGN.md) — architecture overview and agent roles.
+- [docs/API.md](docs/API.md) — REST API and CLI endpoints.
+- [docs/dgm_ops.md](docs/dgm_ops.md) — scheduler flags and lineage audit notes.
 - Release notes are maintained in [docs/CHANGELOG.md](docs/CHANGELOG.md).
+- The [v1.0 entry](docs/CHANGELOG.md#v10---2025-07-01) lists the CLI, web UI and security features.
+- A demo specific overview can be found in
+  [alpha_factory_v1/demos/alpha_agi_insight_v1/docs/DESIGN.md](alpha_factory_v1/demos/alpha_agi_insight_v1/docs/DESIGN.md).
+- TLS setup for the agent bus is documented in
+  [alpha_factory_v1/demos/alpha_agi_insight_v1/docs/bus_tls.md](alpha_factory_v1/demos/alpha_agi_insight_v1/docs/bus_tls.md).
 
 ---
+## Contributing
+See [AGENTS.md](AGENTS.md) for the full contributor guide.
+
+### Pre‑commit Hooks
+After running `./codex/setup.sh`, install the hooks and run a full check:
+
+```bash
+pip install pre-commit
+pre-commit install
+pre-commit run --all-files   # verify hooks after setup
+pre-commit run --files <paths>   # before each commit
+```
+Run `pre-commit run --all-files` once after the setup script to confirm
+everything is formatted correctly. These commands mirror the steps in
+[AGENTS.md](AGENTS.md) and keep commits consistent.
+Before opening a pull request, run `pre-commit run --all-files` to ensure
+all hooks succeed.
+Run `python check_env.py --auto-install` before invoking these commands so
+optional hook dependencies are installed. When working offline, pass
+`--wheelhouse <dir>` or set `WHEELHOUSE` to install from a local cache. If
+`pre-commit` isn't found, install it with `pip install pre-commit`.
+
+When editing the web UI, preserve existing ARIA labels so the interface
+remains accessible.
+
+### Development Setup
+Install the Python dependencies with the helper script:
+
+```bash
+scripts/setup_env.sh
+```
+
+The script checks for Python 3.11–3.12 and installs `requirements.txt` and
+`requirements-dev.txt`.
 
 ## 📜 Table of Contents
 0. [Design Philosophy](#0-design-philosophy)  
@@ -170,14 +459,27 @@ Further technical details are documented separately:
 6. [5‑Minute Quick‑Start 🚀](#6-5-minute-quick-start)
 6.1. [Running Tests 🧪](#61-running-tests)
 6.2. [Marketplace Demo Example 🛒](#62-marketplace-demo-example)
+6.3. [Offline Mode](#63-offline-mode)
+    - Set `LLAMA_MODEL_PATH` to the downloaded `.gguf` weight
+    - `AGI_INSIGHT_BROADCAST=0` disables blockchain broadcasting
+    - Example:
+      ```bash
+      AGI_INSIGHT_OFFLINE=1 AGI_INSIGHT_BROADCAST=0
+        python -m alpha_factory_v1.demos.alpha_agi_insight_v1.src.interface.cli
+        simulate --offline --energy 2.0 --entropy 0.5 \
+        --mut-rate 0.1 --xover-rate 0.5 \
+        --llama-model-path "$LLAMA_MODEL_PATH"
+      ```
 7. [Deployment Recipes 🍳](#7-deployment-recipes)
+7.1. [Deploying securely 🚀](#71-deploying-securely)
 8. [Governance & Compliance ⚖️](#8-governance--compliance)  
-9. [Observability 🔭](#9-observability)  
-10. [Extending the Mesh 🔌](#10-extending-the-mesh)  
-11. [Troubleshooting 🛠️](#11-troubleshooting)  
-12. [Roadmap 🛣️](#12-roadmap)  
-13. [Credits 🌟](#13-credits)  
-14. [License 📝](#14-license)
+9. [Observability 🔭](#9-observability)
+10. [Safety & Security 🛡️](#10-safety--security)
+11. [Extending the Mesh 🔌](#11-extending-the-mesh)
+12. [Troubleshooting 🛠️](#12-troubleshooting)
+13. [Roadmap 🛣️](#13-roadmap)
+14. [Credits 🌟](#14-credits)
+15. [License 📝](#15-license)
 
 ---
 
@@ -390,7 +692,7 @@ sequenceDiagram
 | # | Folder | Emoji | Lightning Pitch | Alpha Contribution | Start Locally |
 |---|--------|-------|-----------------|--------------------|---------------|
 |1|`aiga_meta_evolution`|🧬|Agents *evolve* new agents; genetic tests auto‑score fitness.|Expands strategy space, surfacing fringe alpha.|`cd alpha_factory_v1/demos/aiga_meta_evolution && ./run_aiga_demo.sh`|
-|2|`alpha_agi_business_v1`|🏦|Auto‑incorporates a digital‑first company end‑to‑end.|Shows AGI turning ideas → registered business.|`./alpha_factory_v1/demos/alpha_agi_business_v1/run_business_v1_demo.sh`|
+|2|`alpha_agi_business_v1`|🏦|Auto‑incorporates a digital‑first company end‑to‑end.|Shows AGI turning ideas → registered business.|`./alpha_factory_v1/demos/alpha_agi_business_v1/run_business_v1_demo.sh [--pull] [--gpu]` (docs: `http://localhost:8000/docs`)|
 |3|`alpha_agi_business_2_v1`|🏗|Iterates business model with live market data RAG.|Continuous adaptation → durable competitive alpha.|`./alpha_factory_v1/demos/alpha_agi_business_2_v1/run_business_2_demo.sh`|
 |4|`alpha_agi_business_3_v1`|📊|Financial forecasting & fundraising agent swarm.|Optimises capital stack for ROI alpha.|`./alpha_factory_v1/demos/alpha_agi_business_3_v1/run_business_3_demo.sh`|
 |5|`alpha_agi_marketplace_v1`|🛒|Peer‑to‑peer agent marketplace simulating price discovery.|Validates micro‑alpha extraction via agent barter.|`docker compose -f demos/docker-compose.marketplace.yml up`|
@@ -401,10 +703,22 @@ sequenceDiagram
 |10|`macro_sentinel`|🌐|GPT‑RAG news scanner auto‑hedges with CTA futures.|Shields portfolios from macro shocks.|`docker compose -f demos/docker-compose.macro.yml up`|
 |11|`muzero_planning`|♟|MuZero in 60 s; online world‑model with MCTS.|Distills planning research into a one‑command demo.|`./alpha_factory_v1/demos/muzero_planning/run_muzero_demo.sh`|
 |12|`self_healing_repo`|🩹|CI fails → agent crafts patch ⇒ PR green again.|Maintains pipeline uptime alpha.|`docker compose -f demos/docker-compose.selfheal.yml up`|
-|13|`meta_agentic_tree_search_v0`|🌳|Recursive agent rewrites via best‑first search.|Rapidly surfaces AGI-driven trading alpha.|`cd alpha_factory_v1/demos/meta_agentic_tree_search_v0 && python run_demo.py --episodes 10`|
-|14|`alpha_agi_insight_v0`|👁️|Zero‑data search ranking AGI‑disrupted sectors.|Forecasts sectors primed for AGI transformation.|`alpha-agi-beyond-foresight --episodes 5` or `alpha-agi-bhf --episodes 5`|
+|13|`meta_agentic_tree_search_v0`|🌳|Recursive agent rewrites via best‑first search.|Rapidly surfaces AGI-driven trading alpha.|`mats-bridge --episodes 3`|
+|14|`alpha_agi_insight_v1`|👁️|Zero‑data search ranking AGI‑disrupted sectors.|Forecasts sectors primed for AGI transformation.|`alpha-agi-insight-v1 --episodes 5`|
 
 > **Colab?** Each folder ships an `*.ipynb` that mirrors the Docker flow with free GPUs.
+
+The official Docker image bundles **PyTorch&nbsp;2.2.x** and **Ray&nbsp;2.10.0**. The
+notebooks install PyTorch from the [PyTorch wheel index](https://download.pytorch.org/whl)
+and pin Ray to the same version for compatibility.
+
+* [Solving AGI Governance](alpha_factory_v1/demos/solving_agi_governance/README.md) — Monte‑Carlo governance simulation with optional OpenAI‑Agents/ADK integration. [Colab](alpha_factory_v1/demos/solving_agi_governance/colab_solving_agi_governance.ipynb)
+* **Note:** The `alpha_agi_business_3_v1` demo is intentionally left out of the published package. Clone this repository to run it from source.
+
+| `USE_GPU` | PyTorch wheel URL |
+|:--------:|-------------------------------------------------|
+| `True`   | <https://download.pytorch.org/whl/cu118> |
+| `False`  | <https://download.pytorch.org/whl/cpu> |
 
 ### 4.1 · [α-ASI World-Model Demo 👁️✨](https://github.com/MontrealAI/AGI-Alpha-Agent-v0/tree/main/alpha_factory_v1/demos/alpha_asi_world_model)
 
@@ -474,6 +788,7 @@ Cells with \(Δ\mathcal F < 0\) glow 🔵 on Grafana; Ω‑Agents race to harves
 * Agents query `mem.search("supply shock beta>0.2")`  
 * Planner asks Neo4j: `MATCH (a)-[:CAUSES]->(b) WHERE b.delta_alpha > 5e6 RETURN path`
 * SQLite vector store fallback requires `numpy`
+* Realistic operation also relies on `pandas`
 
 ---
 
@@ -483,21 +798,28 @@ Cells with \(Δ\mathcal F < 0\) glow 🔵 on Grafana; Ω‑Agents race to harves
 git clone https://github.com/MontrealAI/AGI-Alpha-Agent-v0.git
 cd AGI-Alpha-Agent-v0
 ./quickstart.sh --preflight   # optional environment check
-python check_env.py --auto-install  # verify & auto-install deps
+python check_env.py --auto-install  # verify & auto-install deps (10 min timeout)
 # Install runtime dependencies
-pip install -r requirements.txt
-# (If this fails with a network error, rerun with --wheelhouse <path>)
+pip install -r requirements.lock
+# (If this fails with a network error, create a wheelhouse and rerun
+#  with --wheelhouse <path> or place the wheels under ./wheels)
+# Build a wheelhouse if the machine has no internet access:
+#   mkdir -p /media/wheels
+#   pip wheel -r requirements.txt -w /media/wheels
+#   pip wheel -r requirements-dev.txt -w /media/wheels
 ./quickstart.sh               # creates venv, installs deps, launches
 # Use `--wheelhouse /path/to/wheels` to install offline packages when
-# the host has no internet access. `WHEELHOUSE` should point to a
-# directory containing pre-downloaded wheels. Running
-# `python check_env.py --auto-install --wheelhouse /path/to/wheels`
-# installs any missing optional packages. Example offline setup:
+# the host has no internet access. The setup script automatically
+# sets `WHEELHOUSE` to `./wheels` when that directory exists. When
+# working offline, run `python check_env.py --auto-install --wheelhouse
+# /path/to/wheels` to verify and install packages. The setup script
+# exits with a message if neither network nor a wheelhouse are available.
+# Example offline workflow:
 #   export WHEELHOUSE=/media/wheels
-#   python check_env.py --auto-install --wheelhouse $WHEELHOUSE
-# The script prints this hint automatically if auto-install fails due to network errors.
-# open the docs in your browser
-python -m webbrowser http://localhost:8000/docs
+#   python check_env.py --auto-install --wheelhouse "$WHEELHOUSE"
+#   WHEELHOUSE=$WHEELHOUSE ./quickstart.sh
+#   WHEELHOUSE=$WHEELHOUSE pytest -q
+# Open http://localhost:8000/docs in your browser
 # Alternatively, ``python alpha_factory_v1/quickstart.py`` provides the same
 # workflow on Windows and other systems without Bash.
 
@@ -508,6 +830,7 @@ docker run --pull=always -p 8000:8000 ghcr.io/montrealai/alpha-factory:latest
 #   pip install -e .
 #   alpha-factory --list-agents
 #   alpha-asi-demo --demo   # launch the α‑ASI world‑model UI
+#   alpha-agi-insight-v1 orchestrator   # run the Insight orchestrator
 #
 # Or install directly from GitHub for a quick test:
 #   pip install git+https://github.com/MontrealAI/AGI-Alpha-Agent-v0.git
@@ -518,7 +841,49 @@ docker run --pull=always -p 8000:8000 ghcr.io/montrealai/alpha-factory:latest
 
 # Verify the Ω‑Lattice demo locally
 python alpha_factory_v1/demos/alpha_agi_business_3_v1/alpha_agi_business_3_v1.py --loglevel info
+# The entrypoint automatically verifies dependencies via `check_env.py`.
 ```
+
+Adjust `alpha_factory_v1/demos/alpha_asi_world_model/config.yaml` to tune the world-model loop. Key options include `env_batch` (parallel environments), `hidden` (latent state size) and `mcts_simulations` (MCTS rollouts per action).
+
+
+### Insight Browser Demo
+
+A browser-only Pareto explorer lives under
+`alpha_factory_v1/demos/alpha_agi_insight_v1/insight_browser_v1`.
+Build the PWA and open `dist/index.html` to run the demo locally.
+The quick-start guide `docs/insight_browser_quickstart.pdf` is copied to
+`dist/insight_browser_quickstart.pdf` during the build so it is available
+alongside the compiled assets.
+Set `window.DEBUG = true` before loading the page to expose debugging helpers
+such as `window.pop`.
+
+For evolutionary experiments you can run the optional
+[evolution worker](docs/DESIGN.md#evolution-worker) container and POST a tarball
+of agent code to `/mutate`.
+
+## Docker Quickstart
+Start the full stack using Docker Compose:
+```bash
+docker compose up --build
+```
+Browse the dashboard at <http://localhost:8080>.
+
+The same configuration can be installed via Helm:
+```bash
+helm upgrade --install alpha-demo ./infrastructure/helm-chart \
+  --values ./infrastructure/helm-chart/values.yaml \
+  --set env.RUN_MODE=web
+```
+This deploys the services to your local Kubernetes cluster.
+
+Generate TLS certificates for the gRPC bus using the bundled helper:
+```bash
+./infrastructure/gen_bus_certs.sh > .env.bus
+source .env.bus
+```
+The script prints `AGI_INSIGHT_BUS_CERT`, `AGI_INSIGHT_BUS_KEY` and
+`AGI_INSIGHT_BUS_TOKEN` which you can append to your `.env` file.
 
 ### .env Setup & Security
 Before running the orchestrator, copy `alpha_factory_v1/.env.sample` to `.env` and
@@ -527,9 +892,66 @@ replace all placeholder values with strong secrets. The sample sets
 services like Neo4j and Postgres using `openssl rand -base64 18` or a similar
 tool and **never deploy with the defaults**. The orchestrator will refuse to
 start if `NEO4J_PASSWORD` remains `REPLACE_ME` or is missing.
+Set `API_TOKEN` to a strong secret so that the REST API can authenticate
+incoming requests. Clients must send `Authorization: Bearer <token>`. Use
+`API_RATE_LIMIT` to limit requests per minute per IP (default `60`).
+If more than 5% of requests return HTTP `429` within a minute, the server calls
+`utils.alerts.send_alert` to report excessive throttling.
 Avoid storing private keys directly in `.env`. Instead set
 `AGI_INSIGHT_SOLANA_WALLET_FILE` to a file containing your hex-encoded wallet
 key and keep that file readable only by the orchestrator.
+To enable secure gRPC transport set `AGI_INSIGHT_BUS_CERT`,
+`AGI_INSIGHT_BUS_KEY` and `AGI_INSIGHT_BUS_TOKEN`. If these values are
+omitted and `AGI_INSIGHT_ALLOW_INSECURE=1`, the bus starts without TLS.
+See [bus_tls.md](alpha_factory_v1/demos/alpha_agi_insight_v1/docs/bus_tls.md)
+for instructions and example volume mounts.
+
+`.env.sample` notes that paths on Windows may require quotes (e.g., `C:\\path\\to\\file`).
+
+#### Supported Environment Variables
+
+| Variable | Default | Purpose |
+|----------|---------|---------|
+| `OPENAI_API_KEY` | _(empty)_ | API key for hosted models. Offline mode is used when empty. |
+| `NO_LLM` | `0` | Set to `1` to skip the LLM planner even when `OPENAI_API_KEY` is provided. |
+| `ALPHA_ASI_LLM_MODEL` | `gpt-4o-mini` | Planner model name used by the world model demo. |
+| `ALPHA_ASI_SEED` | `42` | Deterministic RNG seed for the demo (can also be set via `general.seed` in `config.yaml`). |
+| `ALPHA_ASI_MAX_STEPS` | `100000` | Learner steps before auto-stop. |
+| `ALPHA_ASI_BUFFER_LIMIT` | `50000` | Replay-buffer length. |
+| `ALPHA_ASI_TRAIN_BATCH` | `128` | SGD mini-batch size. |
+| `ALPHA_ASI_MAX_GRID` | `64` | Safety clamp on generated mazes. |
+| `ALPHA_ASI_HOST` | `0.0.0.0` | FastAPI bind address for the demo. |
+| `ALPHA_ASI_PORT` | `7860` | FastAPI port for the demo. |
+| `NEO4J_PASSWORD` | `REPLACE_ME` | Database password required by the orchestrator. |
+| `RUN_MODE` | `api` | Launch mode for Compose or Helm (`api`, `cli`, `web`). |
+| `PORT` | `8000` | REST API port. |
+| `AGI_INSIGHT_OFFLINE` | `0` | Set to `1` to force local inference models. |
+| `AGI_INSIGHT_BUS_PORT` | `6006` | gRPC bus port used by the demo. |
+| `AGI_INSIGHT_LEDGER_PATH` | `./ledger/audit.db` | Path to the local audit ledger. |
+| `AGI_INSIGHT_SECRET_BACKEND` | _(empty)_ | Set to `vault`, `aws` or `gcp` to load secrets from an external manager. |
+| `VAULT_ADDR`/`VAULT_TOKEN` | _(empty)_ | Connection details for HashiCorp Vault when using the `vault` backend. |
+| `AWS_REGION`/`OPENAI_API_KEY_SECRET_ID` | _(empty)_ | AWS Secrets Manager region and secret ID when using the `aws` backend. |
+| `GCP_PROJECT_ID`/`OPENAI_API_KEY_SECRET_ID` | _(empty)_ | GCP project and secret name when using the `gcp` backend. |
+| `AGI_INSIGHT_BUS_CERT` | _(empty)_ | Path to the gRPC bus certificate. |
+| `AGI_INSIGHT_BUS_KEY` | _(empty)_ | Private key matching `AGI_INSIGHT_BUS_CERT`. |
+| `AGI_INSIGHT_BUS_TOKEN` | _(empty)_ | Shared secret for bus authentication. |
+| `AGI_INSIGHT_ALLOW_INSECURE` | `0` | Set to `1` to run the bus without TLS when no certificate is provided. |
+| `API_TOKEN` | `REPLACE_ME_TOKEN` | Bearer token required by the REST API. |
+| `API_CORS_ORIGINS` | `*` | Comma-separated list of allowed CORS origins. |
+| `SANDBOX_CPU_SEC` | `2` | CPU time limit for sandboxed code. |
+| `SANDBOX_MEM_MB` | `256` | Memory cap for sandboxed code in MB. |
+| `MAX_RESULTS` | `100` | Maximum stored simulation results. |
+| `OTEL_ENDPOINT` | _(empty)_ | OTLP endpoint for anonymous telemetry. |
+| `ALPHA_FACTORY_ENABLE_ADK` | `false` | Set to `true` to start the Google ADK gateway. |
+| `ALPHA_FACTORY_ADK_PORT` | `9000` | Port for the ADK gateway when enabled. |
+| `ALPHA_FACTORY_ADK_TOKEN` | _(empty)_ | Optional auth token for the ADK gateway. |
+
+The values above mirror `.env.sample`. When running the stack with Docker
+Compose, adjust the environment section of
+`infrastructure/docker-compose.yml` to override any variable—such as the gRPC
+bus port or ledger path. Sandbox limits are described in [docs/sandbox.md](docs/sandbox.md).
+When the `firejail` binary is present, CodeGen snippets run inside `firejail --net=none --private` for stronger isolation.
+For a production-ready ADK setup see [PRODUCTION_GUIDE.md](alpha_factory_v1/demos/alpha_agi_business_v1/PRODUCTION_GUIDE.md).
 
 ### Finance Demo Quick‑Start
 
@@ -541,10 +963,10 @@ curl -L https://raw.githubusercontent.com/MontrealAI/AGI-Alpha-Agent-v0/main/alp
 
 The script pulls the signed demo container, runs a BTC/GLD strategy, prints open
 positions and P&L, and exposes the trace‑graph UI at
-<http://localhost:8088>.
+<http://localhost:${TRACE_WS_PORT}>.
 
 Need a different pair or port? Use environment variables:
-`STRATEGY=my_pair PORT_API=8001 bash deploy_alpha_factory_demo.sh`
+`STRATEGY=my_pair PORT_API=8001 TRACE_WS_PORT=9000 bash deploy_alpha_factory_demo.sh`
 
 No GPU → falls back to GGML Llama‑3‑8B‑Q4.
 No `OPENAI_API_KEY` → switches to local SBERT + heuristics.
@@ -571,7 +993,36 @@ Install the optional test dependencies with:
 
 ```bash
 pip install -r requirements-dev.txt
+pip install -r requirements-demo.txt  # adds numpy, torch and extras
 ```
+
+Install the project in editable mode so tests resolve imports:
+```bash
+pip install -e .
+python check_env.py --auto-install  # times out after 10 minutes
+```
+Run `python check_env.py --auto-install` again before executing `pytest` to
+ensure optional dependencies are present. When offline, set `WHEELHOUSE` or pass
+`--wheelhouse <dir>` so packages install from the local wheel cache. The
+repository ships with a `wheels/` directory that can be used as this cache.
+The full test suite relies on optional packages including `numpy`, `torch`,
+`pandas`, `prometheus_client`, `gymnasium`, `playwright`, `httpx`, `uvicorn`,
+`git` and `hypothesis`.
+
+#### Test Runtime
+
+Running `pytest` may take several minutes on the first run while caches are
+created. Execute the suite in verbose mode to see ongoing progress:
+
+```bash
+pytest -vv
+```
+
+After completion `pytest` prints a summary such as `### passed in 120.00s`.
+
+The suite includes `tests/test_api_rate_limit.py` which spins up
+`api_server.app` with `API_RATE_LIMIT=2` and verifies that exceeding the
+limit returns HTTP `429`.
 
 <a name="62-marketplace-demo-example"></a>
 ### 6.2 · Marketplace Demo Example 🛒
@@ -595,6 +1046,7 @@ PY
 ```bash
 git clone https://github.com/MontrealAI/AGI-Alpha-Agent-v0.git
 cd AGI-Alpha-Agent-v0/alpha_factory_v1/demos/cross_industry_alpha_factory
+# Set AUTO_COMMIT=1 to save generated assets back to the repo
 ./deploy_alpha_factory_cross_industry_demo.sh
 ```
 
@@ -602,12 +1054,25 @@ cd AGI-Alpha-Agent-v0/alpha_factory_v1/demos/cross_industry_alpha_factory
 
 ### 6.3 · Signing Agent Wheels 🔑
 Sign wheels dropped into `$AGENT_HOT_DIR` with the project ED25519 key.
+You need **OpenSSL** to create and verify signatures. Install it with
+`brew install openssl` on macOS or from the
+[OpenSSL Windows binaries](https://slproweb.com/products/Win32OpenSSL.html).
 Generate `<wheel>.whl.sig` via:
 
 ```bash
 openssl dgst -sha512 -binary <wheel>.whl |
   openssl pkeyutl -sign -inkey agent_signing.key |
   base64 -w0 > <wheel>.whl.sig
+```
+
+Keep `<wheel>.whl.sig` next to the wheel in `$AGENT_HOT_DIR`.
+
+Verify the signature (PowerShell example):
+
+```powershell
+Get-Content <wheel>.whl -Encoding Byte |
+  openssl dgst -sha512 -binary |
+  openssl pkeyutl -verify -pubin -inkey $env:AGENT_WHEEL_PUBKEY -sigfile <wheel>.whl.sig
 ```
 
 Add the base64 signature to `_WHEEL_SIGS` in
@@ -621,18 +1086,42 @@ uvicorn src.interface.api_server:app --reload
 streamlit run src/interface/web_app.py
 # React client
 cd src/interface/web_client
-npm install
+npm ci          # use the lock file for reproducible installs
 npm run dev       # http://localhost:5173
 # build production assets
-npm run build
+pnpm build
 python -m http.server --directory dist 9000
 ```
 Alternatively run inside Docker:
 ```bash
-docker compose build
-docker compose up
+# build the web client first so `dist/` exists
+make build_web
+# regenerate protobuf modules and Go stubs
+./tools/gen_proto_stubs.sh  # updates src/utils/a2a_pb2.py and tools/go_a2a_client/a2a.pb.go
+make compose-up  # builds and waits for healthy services
 ```
-Open <http://localhost:9000> in your browser.
+Run `./tools/gen_proto_stubs.sh` whenever `src/utils/a2a.proto` changes to keep the
+Python and Go stubs up to date.
+Open <http://localhost:8080> in your browser. When `RUN_MODE=web`, the container
+serves the static files from `src/interface/web_client/dist` using `python -m
+http.server`. The FastAPI demo also mounts this folder at `/` when present so the
+dashboard is reachable without additional tooling.
+
+Once running, Docker Compose marks the services **healthy** when:
+
+- `http://localhost:8000/healthz` returns status `200` for the orchestrator container.
+- `http://localhost:8000/status` exposes agent heartbeats and restart counts.
+  Use `alpha-agi-insight-v1 agents-status` to view the same data from the CLI.
+- `http://localhost:8080/` returns status `200` for the web container.
+
+The dashboard now plots a 3‑D scatter chart of effectiveness vs. risk vs.
+complexity from the final population.
+
+If Streamlit isn't installed or you're running on a headless server, use:
+```bash
+python -m src.interface.minimal_ui --text
+```
+to display the forecast results directly in the console.
 
 
 ---
@@ -647,12 +1136,17 @@ like `--cycle`, `--loglevel` and `--version`.
 Build the demo containers locally:
 
 ```bash
-cp .env.sample .env
+cp .env.sample .env  # fill in NEO4J_PASSWORD, API_TOKEN and optional PINNER_TOKEN
+chmod 600 alpha_factory_v1/.env
 cd infrastructure
 docker build -t alpha-demo .
 docker compose up -d
-# Dashboard available at <http://localhost:8501>
+# Dashboard available at <http://localhost:8080>
 ```
+
+The Compose stack restricts the agents worker using Docker resource limits. The
+`agents` service runs with `mem_limit: 8g`, `pids_limit: 512` and
+`network_mode: none` to prevent outbound traffic.
 
 The Helm chart under `infrastructure/helm-chart` mirrors this Compose
 setup:
@@ -661,8 +1155,12 @@ setup:
 helm upgrade --install alpha-demo ./infrastructure/helm-chart \
   --values ./infrastructure/helm-chart/values.yaml \
   --set env.RUN_MODE=web
-# → browse to <http://localhost:8501>
+# Enable persistent storage for the audit ledger
+#   --set persistence.enabled=true --set persistence.size=5Gi
+# → browse to <http://localhost:8080>
 ```
+
+`values.example.yaml` demonstrates typical overrides such as API tokens, service ports and replica counts.
 
 Terraform scripts in `infrastructure/terraform` provide GCP and AWS
 examples. Update the placeholder image and networking variables,
@@ -676,10 +1174,14 @@ terraform apply
 
 | Target | Command | Notes |
 |--------|---------|-------|
-| **Docker Compose** | `docker compose up -d` | Web UI on `localhost:8501` |
+| **Docker Compose** | `docker compose up -d` | Web UI on `localhost:8080` |
 | **Helm (K8s)** | `helm install af helm/alpha-factory` | `--set env.RUN_MODE=web` |
 | **AWS Fargate** | `./infra/deploy_fargate.sh` | set `container_image` & `subnets` |
 | **IoT Edge** | `python edge_runner.py --agents manufacturing,energy` | Jetson Nano |
+<a name="71-deploying-securely"></a>
+### 🚀 Deploying securely
+See [docs/deployment_security.md](docs/deployment_security.md) for TLS setup, API tokens and Vault usage. Mount secrets via Docker or Kubernetes and never commit them.
+
 
 ---
 
@@ -701,10 +1203,50 @@ terraform apply
 | Traces | OpenTelemetry | `trace_id` |
 | Dashboards | Grafana | `alpha-factory/trade-lifecycle.json` |
 
+Prometheus scrapes metrics from the API server at `/metrics`.
+
+By default traces and metrics print to ``stdout``. To export to a collector such
+as **Jaeger**, set ``OTEL_EXPORTER_OTLP_ENDPOINT`` and start Jaeger locally:
+
+```bash
+docker run -p 16686:16686 -p 4317:4317 jaegertracing/all-in-one
+```
+
+Set ``OTEL_ENDPOINT`` to enable anonymous dashboard telemetry. Users are
+prompted for consent before any metrics are sent.
+
+### Telemetry Queue
+Anonymous usage metrics are buffered in the browser under the
+`telemetryQueue` key in `localStorage`. Each record includes:
+
+- `ts` – the timestamp when the entry was recorded.
+- `session` – a deterministic SHA‑256 hash identifying the session.
+- `generations` – how many runs were executed.
+- `shares` – how many times results were shared.
+
+When the browser is online the queue is flushed to ``OTEL_ENDPOINT`` using
+`navigator.sendBeacon` with a `fetch` fallback. The queue holds at most 100
+entries and is persisted across page loads until sent. No personal data or IP
+addresses are stored.
+
+Telemetry can be disabled from the Analytics panel by clicking **Disable
+telemetry**. Clearing the `telemetryConsent` and `telemetryQueue` entries in
+browser storage also stops all transmissions.
+
 ---
 
-<a name="10-extending-the-mesh"></a>
-## 10 · Extending the Mesh 🔌
+<a name="10-safety--security"></a>
+## 10 · Safety & Security 🛡️
+
+The [policy runbook](docs/POLICY_RUNBOOK.md) outlines sandbox resource limits,
+timeout behaviour, required human review and rollback steps.
+Operational tips for the governance module reside in
+[docs/dgm_ops.md](docs/dgm_ops.md).
+
+---
+
+<a name="11-extending-the-mesh"></a>
+## 11 · Extending the Mesh 🔌
 ```python
 from backend.agents.base import AgentBase
 
@@ -724,8 +1266,8 @@ super = my_pkg.super_agent:MySuperAgent
 
 ---
 
-<a name="11-troubleshooting"></a>
-## 11 · Troubleshooting 🛠️
+<a name="12-troubleshooting"></a>
+## 12 · Troubleshooting 🛠️
 
 | Symptom | Cause | Fix |
 |---------|-------|-----|
@@ -735,8 +1277,8 @@ super = my_pkg.super_agent:MySuperAgent
 
 ---
 
-<a name="12-roadmap"></a>
-## 12 · Roadmap 🛣️
+<a name="13-roadmap"></a>
+## 13 · Roadmap 🛣️
 
 1. **RL‑on‑Execution** — slippage‑aware order routing  
 2. **Federated Mesh** — cross‑org agent exchange via ADK federation  
@@ -746,26 +1288,32 @@ super = my_pkg.super_agent:MySuperAgent
 
 ---
 
-<a name="13-credits"></a>
-## 13 · Credits 🌟
+<a name="14-credits"></a>
+## 14 · Credits 🌟
 
 [Vincent Boucher](https://www.linkedin.com/in/montrealai/)—pioneer in AI and President of [MONTREAL.AI](https://www.montreal.ai/) since 2003—dominated the [OpenAI Gym](https://web.archive.org/web/20170929214241/https://gym.openai.com/read-only.html) with **AI Agents** in 2016 and unveiled the seminal [**“Multi‑Agent AI DAO”**](https://www.quebecartificialintelligence.com/priorart) in 2017.
 
 Our **AGI ALPHA AGENT**, fuelled by the strictly‑utility **$AGIALPHA** token, now taps that foundation to unleash the ultimate α‑signal engine.
 
-<a name="14-license"></a>
-## 14 · License
+<a name="15-license"></a>
+## 15 · License
 
 This project is distributed under the [Apache 2.0](LICENSE) license.
 All community members are expected to follow our [Code of Conduct](CODE_OF_CONDUCT.md).
 Please report security issues via the process outlined in our [Security Policy](SECURITY.md).
 
-<a name="15-final-note"></a>
-## 15 · Final Note
+### Release Tweet
 
-As reminded in the [Disclaimer](#disclaimer), this repository represents a conceptual
-research prototype. Please use it responsibly and ensure all usage and
-contributions align with the project's [Apache 2.0 license](LICENSE).
+```
+🚀 New Alpha-Factory release! Offline dashboard, responsive UI and automated visual tests powered by Percy.
+```
+
+<a name="16-final-note"></a>
+## 16 · Final Note
+
+This repository is a conceptual research prototype. Please use it responsibly
+and ensure all usage and contributions align with the project's
+[Apache 2.0 license](LICENSE).
 ---
 
 *Made with ❤️ by the Alpha‑Factory Agentic Core Team — forging the tools that forge tomorrow.*
