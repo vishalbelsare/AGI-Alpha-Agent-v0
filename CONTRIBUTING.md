@@ -16,3 +16,21 @@ mypy --config-file mypy.ini alpha_factory_v1/demos/alpha_agi_insight_v1
 
 Replace the path with your demo directory as needed. The configuration excludes
 other modules so checks remain fast.
+
+## Running Tests
+
+Before running the test suite, ensure optional dependencies are installed. This
+project relies on packages such as `openai-agents` and `google-adk` for the
+integration tests.
+
+```bash
+python scripts/check_python_deps.py
+python check_env.py --auto-install  # add --wheelhouse <dir> when offline
+```
+
+The environment check installs any missing packages from PyPI (or from your
+wheelhouse when offline). Once it succeeds, execute the tests:
+
+```bash
+pytest -q
+```
