@@ -26,6 +26,9 @@
 set -Eeuo pipefail
 shopt -s inherit_errexit
 
+# Pinned demo-assets revision (override with env variable)
+DEMO_ASSETS_REV=${DEMO_ASSETS_REV:-90fe9b623b3a0ae5475cf4fa8693d43cb5ba9ac5}
+
 # ────────────────────────── helpers ──────────────────────────
 say()  { printf '\033[1;36m▶ %s\033[0m\n' "$*"; }
 warn() { printf '\033[1;33m⚠ %s\033[0m\n' "$*" >&2; }
@@ -135,10 +138,10 @@ say "Syncing offline CSV snapshots"
 mkdir -p "$offline_dir"
 mkdir -p "$placeholder_dir"
 declare -A SRC=(
-  [fed_speeches.csv]="https://raw.githubusercontent.com/MontrealAI/demo-assets/main/fed_speeches.csv"
-  [yield_curve.csv]="https://raw.githubusercontent.com/MontrealAI/demo-assets/main/yield_curve.csv"
-  [stable_flows.csv]="https://raw.githubusercontent.com/MontrealAI/demo-assets/main/stable_flows.csv"
-  [cme_settles.csv]="https://raw.githubusercontent.com/MontrealAI/demo-assets/main/cme_settles.csv"
+  [fed_speeches.csv]="https://raw.githubusercontent.com/MontrealAI/demo-assets/${DEMO_ASSETS_REV}/fed_speeches.csv"
+  [yield_curve.csv]="https://raw.githubusercontent.com/MontrealAI/demo-assets/${DEMO_ASSETS_REV}/yield_curve.csv"
+  [stable_flows.csv]="https://raw.githubusercontent.com/MontrealAI/demo-assets/${DEMO_ASSETS_REV}/stable_flows.csv"
+  [cme_settles.csv]="https://raw.githubusercontent.com/MontrealAI/demo-assets/${DEMO_ASSETS_REV}/cme_settles.csv"
 )
 for f in "${!SRC[@]}"; do
   if [[ -f "$offline_dir/$f" ]]; then

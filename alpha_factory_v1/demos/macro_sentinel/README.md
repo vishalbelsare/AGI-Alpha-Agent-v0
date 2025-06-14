@@ -74,6 +74,10 @@ launcher—no manual downloads required. These CSV snapshots mirror
 public data from the [demo‑assets](https://github.com/MontrealAI/demo-assets)
 repository and cover roughly March–April 2024 activity.
 
+These CSVs are pinned at revision `90fe9b623b3a0ae5475cf4fa8693d43cb5ba9ac5` of
+the demo-assets repo. Set `DEMO_ASSETS_REV=<sha>` to override when refreshing
+the snapshots.
+
 To reuse existing CSV snapshots or share them across projects,
 set `OFFLINE_DATA_DIR=/path/to/csvs` in your shell or `config.env`.
 
