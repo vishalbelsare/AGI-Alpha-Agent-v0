@@ -66,12 +66,16 @@ Offline mode requires an [Ollama](https://ollama.com) server with the
 `mixtral:instruct` model available at `http://localhost:11434`. The Docker
 stack provisions this container automatically via the `offline` profile, but
 when running bare‑metal or inside Colab you must manually start `ollama serve`
-first. If the server isn't on `localhost`, set the `OLLAMA_BASE_URL` environment variable (or edit `config.env`) to its full HTTP endpoint, e.g.: `export OLLAMA_BASE_URL=http://192.168.1.10:11434/v1`.
+first. If the server runs elsewhere, set
+`OLLAMA_BASE_URL=http://<host>:11434/v1` in your shell or `config.env`.
 
 Offline sample data is fetched automatically the first time you run the
 launcher—no manual downloads required. These CSV snapshots mirror
 public data from the [demo‑assets](https://github.com/MontrealAI/demo-assets)
 repository and cover roughly March–April 2024 activity.
+
+To reuse existing CSV snapshots or share them across projects,
+set `OFFLINE_DATA_DIR=/path/to/csvs` in your shell or `config.env`.
 
 *Dashboard:* http://localhost:7864
 *Health:*    http://localhost:7864/healthz
@@ -128,6 +132,7 @@ without internet access.
 | `TW_BEARER_TOKEN` | *(blank)* | Twitter/X API bearer token for Fed speech stream |
 | `PG_PASSWORD` | `alpha` | TimescaleDB superuser password |
 | `LIVE_FEED` | `0` | 1 uses live FRED/Etherscan feeds |
+| `OFFLINE_DATA_DIR` | `offline_samples/` | Path for CSV snapshots |
 | `DEFAULT_PORTFOLIO_USD` | `2000000` | Portfolio USD notional for Monte‑Carlo hedge sizing |
 | `ALPHA_FACTORY_ENABLE_ADK` | `0` | 1 exposes ADK gateway on port 9000 |
 | `PROMETHEUS_SCRAPE_INTERVAL` | `15s` | Metrics polling frequency |
