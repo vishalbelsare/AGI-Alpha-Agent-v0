@@ -43,8 +43,8 @@ class TestMacroSentinel(unittest.TestCase):
     def test_live_feed_requires_aiohttp(self) -> None:
         async def run_live() -> None:
             os.environ["LIVE_FEED"] = "1"
-            orig = data_feeds.aiohttp
-            data_feeds.aiohttp = None
+            orig = data_feeds.aiohttp  # type: ignore[attr-defined]
+            data_feeds.aiohttp = None  # type: ignore[attr-defined]
             try:
                 with (
                     patch.object(data_feeds, "_fred_latest", new_callable=AsyncMock, return_value=None),
@@ -54,7 +54,7 @@ class TestMacroSentinel(unittest.TestCase):
                     it = data_feeds.stream_macro_events(live=True)
                     await anext(it)
             finally:
-                data_feeds.aiohttp = orig
+                data_feeds.aiohttp = orig  # type: ignore[attr-defined]
                 os.environ.pop("LIVE_FEED", None)
 
         with self.assertRaises(RuntimeError):
@@ -92,6 +92,32 @@ class TestMacroSentinel(unittest.TestCase):
         self.assertIsInstance(factors, pd.Series)
         self.assertEqual(len(factors), 3)
         self.assertEqual(factors.name, "es_factor")
+
+    def test_latest_fed_speech_uses_feedparser(self) -> None:
+        async def run_once() -> str | None:
+            data_feeds._CACHE_SPEECH.clear()
+            with (
+                patch("alpha_factory_v1.demos.macro_sentinel.data_feeds._session", new_callable=AsyncMock),
+                patch("alpha_factory_v1.demos.macro_sentinel.data_feeds.feedparser.parse") as parse_mock,
+            ):
+                parse_mock.return_value = type("F", (), {"entries": [type("E", (), {"title": "Hello"})()]})()
+                result = await data_feeds._latest_fed_speech()
+                parse_mock.assert_called_once_with(data_feeds.RSS_URL)
+                return result
+
+        title = asyncio.run(run_once())
+        self.assertEqual(title, "Hello")
+
+        async def run_again() -> str | None:
+            with (
+                patch("alpha_factory_v1.demos.macro_sentinel.data_feeds._session", new_callable=AsyncMock),
+                patch("alpha_factory_v1.demos.macro_sentinel.data_feeds.feedparser.parse") as parse_mock,
+            ):
+                parse_mock.return_value = type("F", (), {"entries": [type("E", (), {"title": "Hello"})()]})()
+                return await data_feeds._latest_fed_speech()
+
+        title2 = asyncio.run(run_again())
+        self.assertIsNone(title2)
 
 
 if __name__ == "__main__":  # pragma: no cover

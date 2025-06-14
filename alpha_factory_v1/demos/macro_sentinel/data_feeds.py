@@ -29,7 +29,11 @@ try:  # aiohttp optional at test time
     import aiohttp
 except ModuleNotFoundError:  # pragma: no cover - offline fallback
     aiohttp = None
-from typing import AsyncIterator, Dict, Any, Optional
+try:  # feedparser optional at test time
+    import feedparser
+except ModuleNotFoundError:  # pragma: no cover - offline fallback
+    feedparser = None
+from typing import AsyncIterator, Dict, Any, Optional, cast
 from collections import deque
 from urllib.request import urlopen
 
@@ -170,15 +174,15 @@ _CACHE_SPEECH: deque[str] = deque(maxlen=10)
 async def _latest_fed_speech() -> Optional[str]:
     """Return the latest Fed speech title or ``None`` if unchanged."""
     await _session()  # early check so RuntimeError propagates when aiohttp is missing
+    if feedparser is None:
+        return None
     try:
-        xml = await _http_text(RSS_URL)
-        title_start = xml.index("<title>") + 7
-        title_end = xml.index("</title>", title_start)
-        title = xml[title_start:title_end]
-        if title not in _CACHE_SPEECH:
+        feed = feedparser.parse(RSS_URL)
+        title = cast(Optional[str], feed.entries[0].title) if feed.entries else None
+        if title and title not in _CACHE_SPEECH:
             _CACHE_SPEECH.append(title)
             return title
-    except (aiohttp.ClientError, ValueError):
+    except Exception:
         return None
     return None
 
@@ -240,7 +244,7 @@ def _push_redis(evt: Dict[str, Any]) -> None:
     """Publish ``evt`` to a Redis stream when configured."""
     if not REDIS_URL:
         return
-    import redis
+    import redis  # type: ignore
     import json as _j
 
     r = redis.from_url(REDIS_URL)
