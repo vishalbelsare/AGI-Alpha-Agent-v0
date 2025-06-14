@@ -21,6 +21,7 @@ This research prototype provides no financial advice.
 
 from __future__ import annotations
 import os, json, asyncio, contextlib
+from urllib import request
 try:
     import pandas as pd
     import gradio as gr
@@ -35,11 +36,31 @@ from openai_agents import Agent, OpenAIAgent, Tool
 from data_feeds import stream_macro_events
 from simulation_core import MonteCarloSimulator
 
+
+def _check_ollama(url: str) -> None:
+    """Verify an Ollama server is reachable."""
+    base = url.rstrip("/")
+    if base.endswith("/v1"):
+        base = base[:-3]
+    try:
+        request.urlopen(f"{base}/api/tags", timeout=3)
+    except Exception as exc:  # pragma: no cover - network check
+        raise RuntimeError(
+            f"Ollama not reachable at {base}. "
+            "Install it from https://ollama.com and run 'ollama serve'."
+        ) from exc
+
 # ─────────────────────────── LLM bridge ─────────────────────────────
+if os.getenv("OPENAI_API_KEY"):
+    base_url = None
+else:
+    base_url = os.getenv("OLLAMA_BASE_URL", "http://localhost:11434/v1")
+    _check_ollama(base_url)
+
 LLM = OpenAIAgent(
     model=os.getenv("MODEL_NAME", "gpt-4o-mini"),
     api_key=os.getenv("OPENAI_API_KEY") or None,
-    base_url=("http://ollama:11434/v1" if not os.getenv("OPENAI_API_KEY") else None),
+    base_url=base_url,
     temperature=float(os.getenv("TEMPERATURE", 0.15))
 )
 
