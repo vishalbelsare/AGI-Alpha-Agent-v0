@@ -24,6 +24,22 @@ class TestMacroSentinel(unittest.TestCase):
         self.assertIn("stable_flow", evt)
         self.assertIn("es_settle", evt)
 
+    def test_stream_macro_events_respects_poll_interval(self) -> None:
+        async def run_check() -> None:
+            with (
+                patch.dict(os.environ, {"POLL_INTERVAL_SEC": "2"}),
+                patch(
+                    "alpha_factory_v1.demos.macro_sentinel.data_feeds.asyncio.sleep",
+                    new_callable=AsyncMock,
+                ) as sleep_mock,
+            ):
+                it = data_feeds.stream_macro_events(live=False)
+                await anext(it)
+                await anext(it)
+                sleep_mock.assert_awaited_with(2.0)
+
+        asyncio.run(run_check())
+
     def test_montecarlo_hedge_basic(self) -> None:
         sim = simulation_core.MonteCarloSimulator(n_paths=500, horizon=5)
         factors = sim.simulate(
