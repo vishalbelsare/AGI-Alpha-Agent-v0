@@ -86,6 +86,7 @@ def _sanity_check_patch(patch: str, repo_root: pathlib.Path) -> None:
 def apply_patch(patch: str, repo_path: str) -> None:
     """Apply patch atomically with rollback on failure."""
     repo = pathlib.Path(repo_path)
+    _sanity_check_patch(patch, repo)
     if shutil.which("patch") is None:
         raise RuntimeError(
             '`patch` command not found. Install the utility, e.g., "sudo apt-get update && sudo apt-get install -y patch"'
