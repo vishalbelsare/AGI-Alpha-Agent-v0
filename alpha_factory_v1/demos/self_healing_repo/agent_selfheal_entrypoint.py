@@ -15,7 +15,18 @@ from patcher_core import generate_patch, apply_patch
 GRADIO_SHARE = os.getenv("GRADIO_SHARE", "0") == "1"
 
 REPO_URL = "https://github.com/MontrealAI/sample_broken_calc.git"
+LOCAL_REPO = pathlib.Path(__file__).resolve().parent / "sample_broken_calc"
 CLONE_DIR = "/tmp/demo_repo"
+
+
+def clone_sample_repo() -> None:
+    """Clone the example repo, falling back to the bundled copy."""
+    result = subprocess.run(["git", "clone", REPO_URL, CLONE_DIR], capture_output=True)
+    if result.returncode != 0:
+        if LOCAL_REPO.exists():
+            shutil.copytree(LOCAL_REPO, CLONE_DIR)
+        else:
+            result.check_returncode()
 
 # ── LLM bridge ────────────────────────────────────────────────────────────────
 LLM = OpenAIAgent(
@@ -56,7 +67,7 @@ async def launch_gradio():
         async def run_pipeline():
             if pathlib.Path(CLONE_DIR).exists():
                 shutil.rmtree(CLONE_DIR)
-            subprocess.run(["git", "clone", REPO_URL, CLONE_DIR], check=True)
+            clone_sample_repo()
             out1 = await run_tests()
             patch = (await suggest_patch())["patch"]
             out2 = await apply_and_test(patch)
@@ -70,4 +81,5 @@ async def launch_gradio():
 
 if __name__ == "__main__":
     asyncio.run(launch_gradio())
+
 
