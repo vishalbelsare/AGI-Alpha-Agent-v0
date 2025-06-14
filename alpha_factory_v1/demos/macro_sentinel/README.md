@@ -66,7 +66,7 @@ Offline mode requires an [Ollama](https://ollama.com) server with the
 `mixtral:instruct` model available at `http://localhost:11434`. The Docker
 stack provisions this container automatically via the `offline` profile, but
 when running bare‑metal or inside Colab you must manually start `ollama serve`
-first.
+first. Set `OLLAMA_BASE_URL` if the server listens on a different host or port.
 
 Offline sample data is fetched automatically the first time you run the
 launcher—no manual downloads required. These CSV snapshots mirror
@@ -122,6 +122,7 @@ without internet access.
 | `OPENAI_API_KEY` | *(blank)* | Use GPT‑4o when provided; offline Mixtral otherwise |
 | `MODEL_NAME` | `gpt-4o-mini` | Any OpenAI completion model |
 | `TEMPERATURE` | `0.15` | LLM sampling temperature |
+| `OLLAMA_BASE_URL` | `http://ollama:11434/v1` | Offline LLM endpoint |
 | `FRED_API_KEY` | *(blank)* | Enables live yield‑curve collector |
 | `ETHERSCAN_API_KEY` | *(blank)* | Enables on‑chain stable‑flow collector |
 | `TW_BEARER_TOKEN` | *(blank)* | Twitter/X API bearer token for Fed speech stream |
