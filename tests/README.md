@@ -62,7 +62,7 @@ continues even in minimal environments.
    `pre-commit install` once to enable the git hooks referenced in
    [AGENTS.md](../AGENTS.md).
 
-### Pre-test checklist
+### Before running tests
 
 Run these commands before executing the suite:
 
@@ -73,7 +73,8 @@ python check_env.py --auto-install  # add --wheelhouse <dir> when offline
 
 `check_python_deps.py` frequently reports missing modules such as `numpy`, `yaml`
 and `pandas`. Always run `python check_env.py --auto-install` after this check
-to install any missing packages before executing `pytest`.
+to install any missing packages before executing `pytest`. Missing
+dependencies will cause the suite to skip tests or fail entirely.
 
 ### Wheelhouse quick start
 
