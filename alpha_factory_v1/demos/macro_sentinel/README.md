@@ -19,6 +19,7 @@ This demonstration is a conceptual research prototype. Any references to AGI or 
 | **LLM fail‑over** | GPT‑4o when `OPENAI_API_KEY` present, Mixtral‑8x7B (Ollama) otherwise |
 | **Live + offline feeds** | FRED yield curve, Fed RSS speeches, Etherscan on‑chain flows |
 | **Risk engine** | 10 k × 30‑day 3‑factor Monte‑Carlo (< 20 ms CPU) |
+| **Seeded runs** | Use `MonteCarloSimulator(seed=42)` for reproducible results |
 | **Action layer** | Draft JSON orders for Micro‑ES futures (Alpaca stub) |
 | **Observability** | TimescaleDB, Redis stream, Prometheus & Grafana dashboard |
 | **A2A gateway** | Optional Google ADK server via `ALPHA_FACTORY_ENABLE_ADK=1` |
