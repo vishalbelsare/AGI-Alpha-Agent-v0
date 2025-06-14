@@ -18,6 +18,7 @@ This demo turns that fantasy into a clickable reality inside **Alpha‑Factory 
 ```bash
 git clone https://github.com/MontrealAI/AGI-Alpha-Agent-v0.git
 cd AGI-Alpha-Agent-v0/alpha_factory_v1/demos/self_healing_repo
+sudo apt-get update && sudo apt-get install -y patch  # install GNU patch
 chmod +x run_selfheal_demo.sh
 ./run_selfheal_demo.sh
 ```
@@ -36,7 +37,7 @@ Prefer a local run without Docker?
 python3 -m venv .venv && source .venv/bin/activate
 pip install -e ../../..
 pip install -r ../../backend/requirements.txt
-sudo apt-get update && sudo apt-get install -y patch
+sudo apt-get update && sudo apt-get install -y patch  # install GNU patch if missing
 python agent_selfheal_entrypoint.py
 ```
 Then open **http://localhost:7863** and trigger **“Heal Repository”**.

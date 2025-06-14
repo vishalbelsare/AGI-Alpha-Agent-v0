@@ -33,22 +33,27 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:  # avoid hard dependency unless actually used
     from openai_agents import OpenAIAgent
 
+
 # ─────────────────────────── helpers ─────────────────────────────────────────
 def _run(cmd: List[str], cwd: str) -> Tuple[int, str]:
     result = subprocess.run(cmd, cwd=cwd, capture_output=True, text=True)
     return result.returncode, result.stdout + result.stderr
 
+
 def validate_repo(repo_path: str, cmd: List[str] = ["pytest", "-q"]) -> Tuple[int, str]:
     """Return (exit_code, full_output)."""
     return _run(cmd, cwd=repo_path)
 
+
 def _existing_files(repo: pathlib.Path) -> set[str]:
     return {str(p.relative_to(repo)) for p in repo.rglob("*") if p.is_file()}
+
 
 # ────────────────────────── patch logic ─────────────────────────────────────
 def generate_patch(test_log: str, llm: OpenAIAgent, repo_path: str) -> str:
     """Ask the LLM to suggest a unified diff patch fixing the failure."""
-    prompt = textwrap.dedent(f"""
+    prompt = textwrap.dedent(
+        f"""
     You are an expert software engineer. A test suite failed as follows:
 
     ```text
@@ -59,10 +64,12 @@ def generate_patch(test_log: str, llm: OpenAIAgent, repo_path: str) -> str:
     1. Modify only existing files inside the repository.
     2. Do not add or delete entire files.
     3. Keep the patch minimal and idiomatic.
-    """)
+    """
+    )
     patch = llm(prompt).strip()
     _sanity_check_patch(patch, pathlib.Path(repo_path))
     return patch
+
 
 def _sanity_check_patch(patch: str, repo_root: pathlib.Path):
     """Ensure the diff only touches existing files to avoid LLM wildness."""
@@ -75,11 +82,14 @@ def _sanity_check_patch(patch: str, repo_root: pathlib.Path):
     if non_existing:
         raise ValueError(f"Patch refers to unknown files: {', '.join(non_existing)}")
 
+
 def apply_patch(patch: str, repo_path: str):
     """Apply patch atomically with rollback on failure."""
     repo = pathlib.Path(repo_path)
     if shutil.which("patch") is None:
-        raise RuntimeError("`patch` command not found. Install via apt-get install -y patch")
+        raise RuntimeError(
+            '`patch` command not found. Install the utility, e.g., "sudo apt-get update && sudo apt-get install -y patch"'
+        )
     backups = {}
 
     # write patch to temp file
@@ -113,8 +123,10 @@ def apply_patch(patch: str, repo_path: str):
             if bak.exists():
                 os.unlink(bak)
 
+
 if __name__ == "__main__":
     import argparse
+
     parser = argparse.ArgumentParser(description="Minimal self-healing CLI")
     parser.add_argument("--repo", default=".", help="Repository path")
     args = parser.parse_args()
