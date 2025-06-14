@@ -56,6 +56,7 @@ Usage: $(basename "$0") [--live] [--reset] [--help]
 
 Environment variables:
   CONNECTIVITY_CHECK_URL  Probe URL for outbound HTTPS check (default: https://pypi.org)
+  ALPHA_FACTORY_ADK_TOKEN  Optional ADK auth token
 EOF
 }
 

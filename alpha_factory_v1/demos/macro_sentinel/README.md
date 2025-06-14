@@ -140,6 +140,7 @@ without internet access.
 | `OFFLINE_DATA_DIR` | `offline_samples/` | Path for CSV snapshots |
 | `DEFAULT_PORTFOLIO_USD` | `2000000` | Portfolio USD notional for Monte‑Carlo hedge sizing |
 | `ALPHA_FACTORY_ENABLE_ADK` | `0` | 1 exposes ADK gateway on port 9000 |
+| `ALPHA_FACTORY_ADK_TOKEN` | *(blank)* | Require `x-alpha-factory-token` header when set |
 | `PROMETHEUS_SCRAPE_INTERVAL` | `15s` | Metrics polling frequency |
 | `GRAFANA_ADMIN_PASSWORD` | `alpha` | Grafana admin password |
 
