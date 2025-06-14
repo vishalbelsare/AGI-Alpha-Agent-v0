@@ -20,6 +20,19 @@ incurred from using this software.
 
 ---
 
+## 🛠 Requirements
+
+The demo expects a few extra packages:
+
+- [`openai_agents`](https://openai.github.io/openai-agents-python/)
+- [`gradio`](https://gradio.app/)
+- [`pytest`](https://docs.pytest.org/)
+- GNU `patch`
+
+`run_selfheal_demo.sh` verifies that `patch` is installed but does not check for
+`openai_agents`. If `openai_agents` is missing, the script falls back to the
+bundled local model.
+
 ## 🚀 Quick start (Docker)
 
 ```bash
