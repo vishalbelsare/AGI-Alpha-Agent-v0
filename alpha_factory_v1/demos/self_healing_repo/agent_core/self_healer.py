@@ -1,8 +1,11 @@
 # SPDX-License-Identifier: Apache-2.0
 # self_healer.py
+import logging
 import os
 import shutil
 import subprocess
+
+logger = logging.getLogger(__name__)
 
 from . import diff_utils, llm_client, test_runner
 
@@ -97,25 +100,25 @@ class SelfHealer:
         """Execute the full self-healing pipeline."""
         self.setup_repo()
         if self.run_tests_collect_error():
-            print("No failure detected, nothing to fix.")
+            logger.info("No failure detected, nothing to fix.")
             return None
-        print("Test failed, error log captured. Analyzing...")
+        logger.info("Test failed, error log captured. Analyzing...")
         self.analyze_and_propose_fix()
         if not self.patch_diff:
-            print("LLM did not return a valid patch. Aborting auto-fix.")
+            logger.warning("LLM did not return a valid patch. Aborting auto-fix.")
             return None
-        print("Patch received. Applying patch...")
+        logger.info("Patch received. Applying patch...")
         if not self.apply_patch():
-            print("Failed to apply patch. Aborting.")
+            logger.error("Failed to apply patch. Aborting.")
             return None
-        print("Patch applied. Re-running tests for verification...")
+        logger.info("Patch applied. Re-running tests for verification...")
         if not self.run_tests_collect_error():
             # If still failing after patch, we could iterate or abort.
-            print("Patch did not fix the issue. Consider manual intervention.")
+            logger.warning("Patch did not fix the issue. Consider manual intervention.")
             # (Optional) Could attempt another LLM iteration here.
             return None
-        print("Tests passed after patch! Preparing to commit and push fix...")
+        logger.info("Tests passed after patch! Preparing to commit and push fix...")
         branch = self.commit_and_push_fix()
         pr = self.create_pull_request(branch)
-        print(f"Opened Pull Request #{pr} for the fix.")
+        logger.info("Opened Pull Request #%s for the fix.", pr)
         return pr

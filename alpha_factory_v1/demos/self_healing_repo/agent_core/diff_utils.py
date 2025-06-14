@@ -1,7 +1,10 @@
 # SPDX-License-Identifier: Apache-2.0
 # diff_utils.py
+import logging
 import re
 import subprocess
+
+logger = logging.getLogger(__name__)
 
 ALLOWED_PATHS = ["alpha_factory_v1", "src", "tests"]  # example allowed directories
 
@@ -22,7 +25,7 @@ def parse_and_validate_diff(diff_text: str) -> str | None:
             if m:
                 file_path = m.group(1)
                 if not any(file_path.startswith(p + "/") for p in ALLOWED_PATHS):
-                    print(f"Diff touches disallowed path: {file_path}")
+                    logger.warning("Diff touches disallowed path: %s", file_path)
                     return None
     # (Additional checks: e.g., diff length, certain forbidden content can be added here.)
     return diff_text
@@ -34,9 +37,9 @@ def apply_diff(diff_text: str, repo_dir: str) -> bool:
         # Use `patch` command to apply the diff
         process = subprocess.run(["patch", "-p1"], input=diff_text, text=True, cwd=repo_dir, timeout=60)
         if process.returncode != 0:
-            print("Patch command failed with code:", process.returncode)
+            logger.error("Patch command failed with code: %s", process.returncode)
             return False
         return True
     except Exception as e:
-        print("Exception while applying patch:", e)
+        logger.exception("Exception while applying patch: %s", e)
         return False
