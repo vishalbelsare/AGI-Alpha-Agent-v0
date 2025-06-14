@@ -72,7 +72,10 @@ demo_dir="$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &>/dev/null && pwd )"
 root_dir="${demo_dir%/*/*}"
 compose_file="$demo_dir/docker-compose.macro.yml"
 env_file="$demo_dir/config.env"
-offline_dir="$demo_dir/offline_samples"
+# Allow custom offline directory via OFFLINE_DATA_DIR but keep
+# offline_samples as the source for bundled placeholders.
+placeholder_dir="$demo_dir/offline_samples"
+offline_dir="${OFFLINE_DATA_DIR:-$placeholder_dir}"
 cd "$root_dir"
 
 # ─────────────────────── dependency check ─────────────────────
@@ -121,6 +124,7 @@ fi
 # ──────────────────────── offline data ────────────────────────
 say "Syncing offline CSV snapshots"
 mkdir -p "$offline_dir"
+mkdir -p "$placeholder_dir"
 declare -A SRC=(
   [fed_speeches.csv]="https://raw.githubusercontent.com/MontrealAI/demo-assets/main/fed_speeches.csv"
   [yield_curve.csv]="https://raw.githubusercontent.com/MontrealAI/demo-assets/main/yield_curve.csv"
@@ -131,8 +135,19 @@ for f in "${!SRC[@]}"; do
   if [[ -f "$offline_dir/$f" ]]; then
     continue
   fi
-  if ! curl -fsSL "${SRC[$f]}" -o "$offline_dir/$f"; then
-    warn "Failed to download ${SRC[$f]}"
+  tmp="$offline_dir/$f.tmp"
+  if curl -fsSL "${SRC[$f]}" -o "$tmp"; then
+    mv "$tmp" "$offline_dir/$f"
+  else
+    rm -f "$tmp"
+    warn "Failed to download ${SRC[$f]} — using placeholder"
+    if [[ "$offline_dir" != "$placeholder_dir" && -f "$placeholder_dir/$f" ]]; then
+      cp "$placeholder_dir/$f" "$offline_dir/$f"
+    elif [[ -f "$placeholder_dir/$f" ]]; then
+      cp "$placeholder_dir/$f" "$offline_dir/$f"
+    else
+      die "Missing placeholder for $f"
+    fi
   fi
 done
 

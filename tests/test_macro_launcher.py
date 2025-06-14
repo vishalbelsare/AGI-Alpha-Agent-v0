@@ -13,7 +13,7 @@ import pytest
 RUN_SCRIPT = Path("alpha_factory_v1/demos/macro_sentinel/run_macro_demo.sh")
 
 
-def _run_script(tmp_path: Path, *, env: dict[str, str]) -> tuple[str, str]:
+def _run_script(tmp_path: Path, *, env: dict[str, str], curl_rc: int = 0) -> tuple[str, str]:
     docker_log = tmp_path / "docker.log"
     curl_log = tmp_path / "curl.log"
     bin_dir = tmp_path / "bin"
@@ -33,7 +33,7 @@ def _run_script(tmp_path: Path, *, env: dict[str, str]) -> tuple[str, str]:
     curl_stub.write_text(
         "#!/usr/bin/env bash\n"
         "echo \"$@\" >> \"$CURL_LOG\"\n"
-        "exit 0\n"
+        f"exit {curl_rc}\n"
     )
     curl_stub.chmod(0o755)
 
@@ -95,3 +95,23 @@ def test_run_macro_demo_offline_download(tmp_path: Path) -> None:
     assert "yield_curve.csv" in curl_log
     assert "stable_flows.csv" in curl_log
     assert "cme_settles.csv" in curl_log
+
+
+@pytest.mark.skipif(not RUN_SCRIPT.exists(), reason="script missing")
+def test_run_macro_demo_download_failure_fallback(tmp_path: Path) -> None:
+    """Failed downloads should copy placeholder CSVs."""
+    offline_dir = tmp_path / "data"
+    env = {
+        "OPENAI_API_KEY": "dummy-key",
+        "OFFLINE_DATA_DIR": offline_dir.as_posix(),
+    }
+    _run_script(tmp_path, env=env, curl_rc=1)
+    for f in [
+        "fed_speeches.csv",
+        "yield_curve.csv",
+        "stable_flows.csv",
+        "cme_settles.csv",
+    ]:
+        path = offline_dir / f
+        assert path.exists(), f"missing {f}"
+        assert path.stat().st_size > 0
