@@ -7,6 +7,7 @@ from pathlib import Path
 import unittest
 from typing import Any, Dict
 from unittest.mock import patch, AsyncMock
+import importlib
 
 from alpha_factory_v1.demos.macro_sentinel import data_feeds, simulation_core
 
@@ -134,6 +135,13 @@ class TestMacroSentinel(unittest.TestCase):
 
         title2 = asyncio.run(run_again())
         self.assertIsNone(title2)
+
+    def test_stable_token_env_override(self) -> None:
+        """STABLE_TOKEN should reflect the environment override."""
+        with patch.dict(os.environ, {"STABLE_TOKEN": "0x123"}):
+            mod = importlib.reload(data_feeds)
+            self.assertEqual(mod.STABLE_TOKEN, "0x123")
+        importlib.reload(data_feeds)
 
 
 if __name__ == "__main__":  # pragma: no cover

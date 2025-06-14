@@ -133,6 +133,7 @@ without internet access.
 | `OLLAMA_BASE_URL` | `http://ollama:11434/v1` | Offline LLM endpoint |
 | `FRED_API_KEY` | *(blank)* | Enables live yield‑curve collector |
 | `ETHERSCAN_API_KEY` | *(blank)* | Enables on‑chain stable‑flow collector |
+| `STABLE_TOKEN` | `0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606e48` | ERC‑20 token used for stablecoin flow tracking |
 | `TW_BEARER_TOKEN` | *(blank)* | Twitter/X API bearer token for Fed speech stream |
 | `PG_PASSWORD` | `alpha` | TimescaleDB superuser password |
 | `REDIS_PASSWORD` | *(blank)* | Optional password for the Redis cache |
