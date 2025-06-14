@@ -67,7 +67,14 @@ services:
 
   redis:
     image: redis:7-alpine
-    command: ["redis-server","--save","", "--appendonly","no"]
+    command:
+      - sh
+      - -c
+      - >-
+        redis-server --save '' --appendonly no
+        ${REDIS_PASSWORD:+--requirepass "$REDIS_PASSWORD"}
+    environment:
+      - REDIS_PASSWORD=${REDIS_PASSWORD:-}
     volumes:
       - redis_data:/data
     healthcheck:
@@ -90,9 +97,13 @@ services:
 ################################################################################
   prometheus:
     image: prom/prometheus:v2.52.0
+    environment:
+      - PROMETHEUS_SCRAPE_INTERVAL=${PROMETHEUS_SCRAPE_INTERVAL:-15s}
     volumes:
       - ./observability/prometheus.yml:/etc/prometheus/prometheus.yml:ro
-    command: ["--config.file=/etc/prometheus/prometheus.yml"]
+    command:
+      - --config.file=/etc/prometheus/prometheus.yml
+      - --config.expand-env
     ports: ["9090:9090"]
     restart: unless-stopped
 
@@ -124,7 +135,7 @@ services:
     environment:
       <<: *common-env
       DATABASE_URL: "postgresql://alpha:${PG_PASSWORD:-alpha}@timescaledb:5432/macro_ticks"
-      REDIS_URL: "redis://redis:6379"
+      REDIS_URL: "redis://:${REDIS_PASSWORD:-}@redis:6379"
       VECTOR_HOST: "qdrant:6333"
       OLLAMA_BASE_URL: "${OLLAMA_BASE_URL:-http://ollama:11434/v1}"
     volumes:
@@ -150,7 +161,7 @@ services:
     image: python:3.11-slim
     environment:
       <<: *common-env
-      REDIS_URL: "redis://redis:6379"
+      REDIS_URL: "redis://:${REDIS_PASSWORD:-}@redis:6379"
       FRED_API_KEY: "${FRED_API_KEY:-}"
       TW_BEARER_TOKEN: "${TW_BEARER_TOKEN:-}"
     volumes:

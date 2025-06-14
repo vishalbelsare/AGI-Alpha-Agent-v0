@@ -135,6 +135,7 @@ without internet access.
 | `ETHERSCAN_API_KEY` | *(blank)* | Enables on‑chain stable‑flow collector |
 | `TW_BEARER_TOKEN` | *(blank)* | Twitter/X API bearer token for Fed speech stream |
 | `PG_PASSWORD` | `alpha` | TimescaleDB superuser password |
+| `REDIS_PASSWORD` | *(blank)* | Optional password for the Redis cache |
 | `LIVE_FEED` | `0` | 1 uses live FRED/Etherscan feeds |
 | `POLL_INTERVAL_SEC` | `15` | Seconds between macro event polls (1 offline) |
 | `OFFLINE_DATA_DIR` | `offline_samples/` | Path for CSV snapshots |
