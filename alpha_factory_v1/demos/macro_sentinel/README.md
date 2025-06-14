@@ -90,6 +90,40 @@ set `OFFLINE_DATA_DIR=/path/to/csvs` in your shell or `config.env`.
 *Grafana:* http://localhost:3001 (admin/alpha)
 *ADK gateway:* http://localhost:9000 (when `ALPHA_FACTORY_ENABLE_ADK=1`)
 
+### ADK gateway
+
+Expose a Google ADK endpoint by setting `ALPHA_FACTORY_ENABLE_ADK=1` before
+launching the stack:
+
+```bash
+ALPHA_FACTORY_ENABLE_ADK=1 ./run_macro_demo.sh
+```
+
+Require an authentication header by also exporting `ALPHA_FACTORY_ADK_TOKEN`:
+
+```bash
+export ALPHA_FACTORY_ENABLE_ADK=1
+export ALPHA_FACTORY_ADK_TOKEN=mysecret
+./run_macro_demo.sh
+```
+
+Interact with the running gateway using `curl` or the `google-adk` CLI:
+
+```bash
+curl -X POST http://localhost:9000/v1/tasks \
+     -H "x-alpha-factory-token: mysecret" \
+     -H "Content-Type: application/json" \
+     -d '{"agent": "risk_agent", "content": "hedge 100 ES"}'
+
+google-adk create-task --host http://localhost:9000 \
+                       --agent risk_agent \
+                       --content "hedge 100 ES" \
+                       --token mysecret
+```
+
+See [`../../backend/adk_bridge.py`](../../backend/adk_bridge.py) for advanced
+configuration options such as custom bind addresses.
+
 ### Google Colab
 
 [Open the notebook ▶](colab_macro_sentinel.ipynb)
