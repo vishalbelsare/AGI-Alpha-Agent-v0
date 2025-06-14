@@ -99,6 +99,16 @@ WHEELHOUSE=/media/wheels python agent_selfheal_entrypoint.py
 The dashboard behaves the same, but all code comes from the bundled repo.
 See [../../scripts/README.md](../../scripts/README.md) for details on building a wheelhouse.
 
+### Manual healing
+
+You can run the patcher directly on any repository:
+
+```bash
+python patcher_core.py --repo <path>
+```
+
+Install the optional `openai_agents` package and the `patch` utility beforehand so the script can suggest and apply fixes.
+
 ### Before running tests
 
 Verify your environment first:
