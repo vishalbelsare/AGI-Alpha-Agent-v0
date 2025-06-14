@@ -22,6 +22,7 @@ def _run_script(tmp_path: Path, *, env: dict[str, str], curl_rc: int = 0) -> tup
     docker_stub = bin_dir / "docker"
     docker_stub.write_text(
         "#!/usr/bin/env bash\n"
+        "echo \"OLLAMA_BASE_URL=$OLLAMA_BASE_URL\" >> \"$DOCKER_LOG\"\n"
         "echo \"$@\" >> \"$DOCKER_LOG\"\n"
         "if [ \"$1\" = \"info\" ]; then echo \"{}\"; fi\n"
         "if [ \"$1\" = \"version\" ]; then echo \"24.0.0\"; fi\n"
@@ -115,3 +116,11 @@ def test_run_macro_demo_download_failure_fallback(tmp_path: Path) -> None:
         path = offline_dir / f
         assert path.exists(), f"missing {f}"
         assert path.stat().st_size > 0
+
+
+@pytest.mark.skipif(not RUN_SCRIPT.exists(), reason="script missing")
+def test_run_macro_demo_passes_base_url(tmp_path: Path) -> None:
+    """Custom OLLAMA_BASE_URL should reach docker compose."""
+    env = {"OLLAMA_BASE_URL": "http://example.com/v1"}
+    docker_log, _ = _run_script(tmp_path, env=env)
+    assert "OLLAMA_BASE_URL=http://example.com/v1" in docker_log

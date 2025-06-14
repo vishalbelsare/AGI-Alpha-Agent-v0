@@ -131,3 +131,16 @@ def test_run_macro_demo_multiple_profiles(tmp_path: Path) -> None:
     log = docker_log.read_text()
     assert "--profile offline" in log
     assert "--profile live-feed" in log
+
+
+def test_compose_base_url_substitution() -> None:
+    env = os.environ.copy()
+    env["OLLAMA_BASE_URL"] = "http://example.com/v1"
+    result = subprocess.run(
+        ["docker", "compose", "-f", str(COMPOSE_FILE), "config"],
+        check=True,
+        capture_output=True,
+        text=True,
+        env=env,
+    )
+    assert "http://example.com/v1" in result.stdout

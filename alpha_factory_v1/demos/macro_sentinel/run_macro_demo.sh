@@ -121,6 +121,14 @@ if [[ -z "${OPENAI_API_KEY:-}" && -f "$env_file" ]]; then
   source "$env_file"
 fi
 
+# Propagate custom Ollama endpoint
+if [[ -n "${OLLAMA_BASE_URL:-}" ]]; then
+  export OLLAMA_BASE_URL
+elif [[ -f "$env_file" ]]; then
+  base_url=$(grep -E '^OLLAMA_BASE_URL=' "$env_file" | cut -d= -f2-)
+  [[ -n "$base_url" ]] && export OLLAMA_BASE_URL="$base_url"
+fi
+
 # ──────────────────────── offline data ────────────────────────
 say "Syncing offline CSV snapshots"
 mkdir -p "$offline_dir"
