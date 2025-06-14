@@ -9,8 +9,17 @@ USE_LOCAL_LLM = os.getenv("USE_LOCAL_LLM", "false").lower() == "true"
 
 
 def call_local_model(prompt_messages: list[dict[str, str]]) -> str:
-    """Return a response from a local model (placeholder implementation)."""
-    return ""
+    """Return a response from a locally hosted model via OpenAI Agents."""
+    try:
+        from openai_agents import OpenAIAgent
+    except Exception as exc:  # pragma: no cover - optional dependency
+        raise RuntimeError("openai_agents package is required for local LLM support") from exc
+
+    base_url = os.getenv("OLLAMA_BASE_URL", "http://ollama:11434/v1")
+    model = os.getenv("MODEL_NAME", "mixtral-8x7b")
+    agent = OpenAIAgent(model=model, api_key=None, base_url=base_url)
+    prompt = "\n".join(f"{m['role']}: {m['content']}" for m in prompt_messages)
+    return str(agent(prompt))
 
 
 def build_prompt(error_log: str, code_dir: str) -> list[dict[str, str]]:
@@ -52,10 +61,8 @@ def extract_code_context(error_log: str, code_dir: str) -> str:
 
 def request_patch(prompt_messages: list[dict[str, str]]) -> str:
     """Call the LLM (OpenAI or local) to get a patch suggestion."""
-    if USE_LOCAL_LLM:
+    if USE_LOCAL_LLM or not OPENAI_API_KEY:
         return call_local_model(prompt_messages)
-    if not OPENAI_API_KEY:
-        raise RuntimeError("No OpenAI API key provided and not using local model.")
     openai.api_key = OPENAI_API_KEY
     # Use function calling to ensure output is a diff via a "function"
     functions = [
@@ -69,15 +76,12 @@ def request_patch(prompt_messages: list[dict[str, str]]) -> str:
             },
         }
     ]
-    try:
-        response = openai.ChatCompletion.create(  # type: ignore[attr-defined]
-            model=OPENAI_MODEL,
-            messages=prompt_messages,
-            functions=functions,
-            function_call={"name": "propose_patch"},  # force it to respond via the function
-        )
-    except Exception as e:
-        raise
+    response = openai.ChatCompletion.create(
+        model=OPENAI_MODEL,
+        messages=prompt_messages,
+        functions=functions,
+        function_call={"name": "propose_patch"},
+    )
     # If the model decided to call the function:
     choices = response.get("choices", [])
     if choices and choices[0].get("finish_reason") == "function_call":

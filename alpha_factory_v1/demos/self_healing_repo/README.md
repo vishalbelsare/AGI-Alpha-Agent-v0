@@ -51,10 +51,11 @@ TEMPERATURE=0.3
 GRADIO_SHARE=0
 ```
 
-Set `USE_LOCAL_LLM=true` in `config.env` to force the agent to run the
-local Mixtral model when no API key is provided. The same file also lets
-you override `MODEL_NAME` and `TEMPERATURE` for custom models or
-tuning.
+When `OPENAI_API_KEY` is blank the agent now falls back to a local
+model via Ollama. Set `USE_LOCAL_LLM=true` in `config.env` to force this
+behaviour even when a key is present. Use `OLLAMA_BASE_URL` to override
+the endpoint if the model runs elsewhere. The same file also lets you
+override `MODEL_NAME` and `TEMPERATURE` for custom tuning.
 
 ### Quick start (Python)
 Prefer a local run without Docker?
