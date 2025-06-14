@@ -66,7 +66,7 @@ Offline mode requires an [Ollama](https://ollama.com) server with the
 `mixtral:instruct` model available at `http://localhost:11434`. The Docker
 stack provisions this container automatically via the `offline` profile, but
 when running bare‑metal or inside Colab you must manually start `ollama serve`
-first. Set `OLLAMA_BASE_URL` if the server listens on a different host or port.
+first. If the server isn't on `localhost`, set the `OLLAMA_BASE_URL` environment variable (or edit `config.env`) to its full HTTP endpoint, e.g.: `export OLLAMA_BASE_URL=http://192.168.1.10:11434/v1`.
 
 Offline sample data is fetched automatically the first time you run the
 launcher—no manual downloads required. These CSV snapshots mirror
