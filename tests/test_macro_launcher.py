@@ -22,20 +22,16 @@ def _run_script(tmp_path: Path, *, env: dict[str, str], curl_rc: int = 0) -> tup
     docker_stub = bin_dir / "docker"
     docker_stub.write_text(
         "#!/usr/bin/env bash\n"
-        "echo \"OLLAMA_BASE_URL=$OLLAMA_BASE_URL\" >> \"$DOCKER_LOG\"\n"
-        "echo \"$@\" >> \"$DOCKER_LOG\"\n"
-        "if [ \"$1\" = \"info\" ]; then echo \"{}\"; fi\n"
-        "if [ \"$1\" = \"version\" ]; then echo \"24.0.0\"; fi\n"
+        'echo "OLLAMA_BASE_URL=$OLLAMA_BASE_URL" >> "$DOCKER_LOG"\n'
+        'echo "$@" >> "$DOCKER_LOG"\n'
+        'if [ "$1" = "info" ]; then echo "{}"; fi\n'
+        'if [ "$1" = "version" ]; then echo "24.0.0"; fi\n'
         "exit 0\n"
     )
     docker_stub.chmod(0o755)
 
     curl_stub = bin_dir / "curl"
-    curl_stub.write_text(
-        "#!/usr/bin/env bash\n"
-        "echo \"$@\" >> \"$CURL_LOG\"\n"
-        f"exit {curl_rc}\n"
-    )
+    curl_stub.write_text("#!/usr/bin/env bash\n" 'echo "$@" >> "$CURL_LOG"\n' f"exit {curl_rc}\n")
     curl_stub.chmod(0o755)
 
     script_env = os.environ.copy()
@@ -65,21 +61,21 @@ def _run_script(tmp_path: Path, *, env: dict[str, str], curl_rc: int = 0) -> tup
     return docker_log.read_text(), curl_log.read_text()
 
 
-@pytest.mark.skipif(not RUN_SCRIPT.exists(), reason="script missing")
+@pytest.mark.skipif(not RUN_SCRIPT.exists(), reason="script missing")  # type: ignore[misc]
 def test_run_macro_demo_no_offline(tmp_path: Path) -> None:
     """`OPENAI_API_KEY` disables the offline profile."""
     docker_log, _ = _run_script(tmp_path, env={"OPENAI_API_KEY": "dummy-key"})
     assert "--profile offline" not in docker_log
 
 
-@pytest.mark.skipif(not RUN_SCRIPT.exists(), reason="script missing")
+@pytest.mark.skipif(not RUN_SCRIPT.exists(), reason="script missing")  # type: ignore[misc]
 def test_run_macro_demo_health_check(tmp_path: Path) -> None:
     """Health gate should hit the expected endpoint."""
     _, curl_log = _run_script(tmp_path, env={"OPENAI_API_KEY": "dummy-key"})
     assert "http://localhost:7864/healthz" in curl_log
 
 
-@pytest.mark.skipif(not RUN_SCRIPT.exists(), reason="script missing")
+@pytest.mark.skipif(not RUN_SCRIPT.exists(), reason="script missing")  # type: ignore[misc]
 def test_run_macro_demo_offline_download(tmp_path: Path) -> None:
     """Missing offline CSVs should trigger downloads."""
     offline_dir = RUN_SCRIPT.parent / "offline_samples"
@@ -98,7 +94,7 @@ def test_run_macro_demo_offline_download(tmp_path: Path) -> None:
     assert "cme_settles.csv" in curl_log
 
 
-@pytest.mark.skipif(not RUN_SCRIPT.exists(), reason="script missing")
+@pytest.mark.skipif(not RUN_SCRIPT.exists(), reason="script missing")  # type: ignore[misc]
 def test_run_macro_demo_download_failure_fallback(tmp_path: Path) -> None:
     """Failed downloads should copy placeholder CSVs."""
     offline_dir = tmp_path / "data"
@@ -118,9 +114,38 @@ def test_run_macro_demo_download_failure_fallback(tmp_path: Path) -> None:
         assert path.stat().st_size > 0
 
 
-@pytest.mark.skipif(not RUN_SCRIPT.exists(), reason="script missing")
+@pytest.mark.skipif(not RUN_SCRIPT.exists(), reason="script missing")  # type: ignore[misc]
 def test_run_macro_demo_passes_base_url(tmp_path: Path) -> None:
     """Custom OLLAMA_BASE_URL should reach docker compose."""
     env = {"OLLAMA_BASE_URL": "http://example.com/v1"}
     docker_log, _ = _run_script(tmp_path, env=env)
     assert "OLLAMA_BASE_URL=http://example.com/v1" in docker_log
+
+
+@pytest.mark.skipif(not RUN_SCRIPT.exists(), reason="script missing")  # type: ignore[misc]
+def test_run_macro_demo_requires_curl(tmp_path: Path) -> None:
+    """Script should abort when curl is missing."""
+    bin_dir = tmp_path / "bin"
+    bin_dir.mkdir()
+
+    docker_stub = bin_dir / "docker"
+    docker_stub.write_text("#!/usr/bin/env bash\nexit 0\n")
+    docker_stub.chmod(0o755)
+
+    python_exe = shutil.which("python")
+    assert python_exe is not None
+    (bin_dir / "python").symlink_to(python_exe)
+
+    env = os.environ.copy()
+    env.update({"PATH": str(bin_dir), "DOCKER_LOG": "/dev/null", "CURL_LOG": "/dev/null"})
+
+    result = subprocess.run(
+        [f"./{RUN_SCRIPT.name}"],
+        cwd=RUN_SCRIPT.parent,
+        env=env,
+        capture_output=True,
+        text=True,
+    )
+
+    assert result.returncode == 1
+    assert "curl is required" in result.stderr
