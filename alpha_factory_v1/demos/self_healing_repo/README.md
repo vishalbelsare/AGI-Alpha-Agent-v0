@@ -25,8 +25,10 @@ chmod +x run_selfheal_demo.sh
 Browse **http://localhost:7863** → hit **“Heal Repository”**.
 
 * No config needed; the agent clones a tiny repo with a deliberate bug.
-* **With an OpenAI key** the agent uses GPT‑4o to reason about stack‑traces.  
+* **With an OpenAI key** the agent uses GPT‑4o to reason about stack‑traces.
 * **Offline?** Leave the key blank—Mixtral via Ollama drafts the patch.
+* If the remote clone fails, the demo falls back to the bundled
+  `sample_broken_calc` repository.
 
 ### Quick start (Python)
 Prefer a local run without Docker?
@@ -40,6 +42,19 @@ python agent_selfheal_entrypoint.py
 Then open **http://localhost:7863** and trigger **“Heal Repository”**.
 
 Set `GRADIO_SHARE=1` to expose a public link (useful on Colab).
+
+### Offline workflow
+
+When the host has no internet access, `agent_selfheal_entrypoint.py`
+automatically clones the included `sample_broken_calc` repository
+instead of pulling from GitHub. Install dependencies from a local
+wheelhouse and run the entrypoint directly:
+
+```bash
+WHEELHOUSE=/media/wheels python agent_selfheal_entrypoint.py
+```
+
+The dashboard behaves the same, but all code comes from the bundled repo.
 
 ---
 
