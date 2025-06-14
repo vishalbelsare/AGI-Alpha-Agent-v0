@@ -38,6 +38,17 @@ Browse **http://localhost:7863** → hit **“Heal Repository”**.
 * If the remote clone fails, the demo falls back to the bundled
   `sample_broken_calc` repository.
 
+> **Note:** `run_selfheal_demo.sh` copies `config.env.sample` to `config.env` on the
+> first run. Edit this file to add your `OPENAI_API_KEY`, choose a `MODEL_NAME`,
+> tweak `TEMPERATURE`, and set other options.
+
+```bash
+OPENAI_API_KEY=
+MODEL_NAME="gpt-4o-mini"
+TEMPERATURE=0.3
+GRADIO_SHARE=0
+```
+
 ### Quick start (Python)
 Prefer a local run without Docker?
 ```bash
