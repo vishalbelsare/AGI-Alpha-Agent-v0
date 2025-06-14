@@ -1,5 +1,6 @@
 # SPDX-License-Identifier: Apache-2.0
 # self_healer.py
+"""Automated test fixing workflow for the self-healing demo."""
 import logging
 import os
 import shutil
@@ -9,6 +10,7 @@ import tempfile
 logger = logging.getLogger(__name__)
 
 from . import diff_utils, llm_client, test_runner, sandbox
+
 
 class SelfHealer:
     def __init__(self, repo_url: str, commit_sha: str, base_branch: str = "main"):
@@ -33,11 +35,14 @@ class SelfHealer:
     def run_tests_collect_error(self):
         """Run the test suite and collect output if failures occur."""
         runner = test_runner.get_default_runner(self.working_dir)
-        rc, output = sandbox.run_in_docker([
-            "pytest",
-            "-q",
-            "--color=no",
-        ], self.working_dir)
+        rc, output = sandbox.run_in_docker(
+            [
+                "pytest",
+                "-q",
+                "--color=no",
+            ],
+            self.working_dir,
+        )
         self.test_results = output
         if rc == 0:
             return True
@@ -53,9 +58,7 @@ class SelfHealer:
         # Request a diff from LLM
         diff_response = llm_client.request_patch(prompt)
         # Validate that response is a unified diff
-        self.patch_diff = diff_utils.parse_and_validate_diff(
-            diff_response, repo_dir=self.working_dir
-        )
+        self.patch_diff = diff_utils.parse_and_validate_diff(diff_response, repo_dir=self.working_dir)
         return self.patch_diff is not None
 
     def apply_patch(self):
@@ -100,14 +103,10 @@ class SelfHealer:
         body += "\nPlease review the changes. If approved, this will close the failing issue."
         # Use GitHub API to create PR
         import af_requests as requests
+
         url = f"https://api.github.com/repos/{repo_owner}/{repo_name}/pulls"
         headers = {"Authorization": f"Bearer {gh_token}"}
-        json_data = {
-            "title": title,
-            "head": branch_name,
-            "base": self.base_branch,
-            "body": body
-        }
+        json_data = {"title": title, "head": branch_name, "base": self.base_branch, "body": body}
         response = requests.post(url, headers=headers, json=json_data)
         response.raise_for_status()
         pr_number = response.json().get("number")

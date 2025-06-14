@@ -1,5 +1,6 @@
 # SPDX-License-Identifier: Apache-2.0
 # llm_client.py
+"""LLM interface for generating patch suggestions."""
 import os, openai
 
 # Load config from env or default
