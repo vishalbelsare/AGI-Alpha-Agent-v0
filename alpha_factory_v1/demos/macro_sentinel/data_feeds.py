@@ -18,7 +18,12 @@ Highlights
 """
 
 from __future__ import annotations
-import os, csv, json, asyncio, datetime as dt, pathlib, random
+
+import asyncio
+import csv
+import os
+import pathlib
+import datetime as dt
 
 try:  # aiohttp optional at test time
     import aiohttp
@@ -229,7 +234,8 @@ def _push_redis(evt: Dict[str, Any]):
     """Publish ``evt`` to a Redis stream when configured."""
     if not REDIS_URL:
         return
-    import redis, json as _j
+    import redis
+    import json as _j
 
     r = redis.from_url(REDIS_URL)
     r.xadd("macro_stream", {"json": _j.dumps(evt)}, maxlen=10000)
@@ -239,7 +245,9 @@ def _push_qdrant(evt: Dict[str, Any]):
     """Insert ``evt`` into a Qdrant collection when configured."""
     if not VEC_URL:
         return
-    import af_requests as requests, hashlib, json as _j
+    import af_requests as requests
+    import hashlib
+    import json as _j
 
     vec = hashlib.sha256(evt["fed_speech"].encode()).digest()[:8]
     payload = {"points": [{"id": evt["timestamp"], "vector": list(vec), "payload": evt}]}

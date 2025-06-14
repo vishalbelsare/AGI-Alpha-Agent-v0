@@ -17,7 +17,8 @@ New in this revision
 """
 
 from __future__ import annotations
-import functools, datetime as dt, random
+
+import random
 
 try:  # optional deps
     import numpy as np
