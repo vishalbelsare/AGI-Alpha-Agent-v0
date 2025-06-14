@@ -56,7 +56,9 @@ class SelfHealer:
         """Apply the proposed diff to the working directory."""
         if not self.patch_diff:
             raise RuntimeError("No patch to apply")
-        success = diff_utils.apply_diff(self.patch_diff, repo_dir=self.working_dir)
+        success, output = diff_utils.apply_diff(self.patch_diff, repo_dir=self.working_dir)
+        if not success:
+            logger.error("Failed to apply patch:\n%s", output)
         return success
 
     def commit_and_push_fix(self):
