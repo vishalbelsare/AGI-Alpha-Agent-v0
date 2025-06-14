@@ -1,7 +1,11 @@
 # SPDX-License-Identifier: Apache-2.0
 # llm_client.py
 """LLM interface for generating patch suggestions."""
-import os, openai
+import logging
+import os
+import openai
+
+logger = logging.getLogger(__name__)
 
 # Load config from env or default
 OPENAI_MODEL = os.getenv("OPENAI_MODEL", "gpt-4-0613")
@@ -77,12 +81,19 @@ def request_patch(prompt_messages: list[dict[str, str]]) -> str:
             },
         }
     ]
-    response = openai.ChatCompletion.create(
-        model=OPENAI_MODEL,
-        messages=prompt_messages,
-        functions=functions,
-        function_call={"name": "propose_patch"},
-    )
+    try:
+        response = openai.ChatCompletion.create(
+            model=OPENAI_MODEL,
+            messages=prompt_messages,
+            functions=functions,
+            function_call={"name": "propose_patch"},
+        )
+    except openai.Error as exc:  # pragma: no cover - API error handling
+        logger.error("OpenAI API request failed: %s", exc)
+        return ""
+    except Exception as exc:  # pragma: no cover - generic safety net
+        logger.error("Unexpected error contacting OpenAI: %s", exc)
+        return ""
     # If the model decided to call the function:
     choices = response.get("choices", [])
     if choices and choices[0].get("finish_reason") == "function_call":
