@@ -42,6 +42,7 @@ def check_pkg(pkg: str) -> bool:
     except Exception:  # pragma: no cover - importlib failure is unexpected
         return False
 
+
 CORE = ["numpy", "yaml", "pandas"]
 
 
@@ -336,6 +337,9 @@ def main(argv: Optional[List[str]] = None) -> int:
 
     if openai_agents_found and not check_openai_agents_version():
         return 1
+
+    if demo == "macro_sentinel" and not os.getenv("ETHERSCAN_API_KEY"):
+        print("WARNING: ETHERSCAN_API_KEY is unset; Etherscan collector disabled")
 
     if not missing_required:
         print("Environment OK")
