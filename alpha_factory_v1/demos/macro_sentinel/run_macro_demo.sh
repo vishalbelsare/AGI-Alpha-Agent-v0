@@ -85,6 +85,7 @@ fi
 
 # ──────────────────────── prerequisites ───────────────────────
 need docker
+need curl
 docker compose version &>/dev/null || die "Docker Compose plug-in missing"
 CHECK_URL="${CONNECTIVITY_CHECK_URL:-https://pypi.org}"
 curl -fsSL "$CHECK_URL" &>/dev/null || warn "No outbound HTTPS — live mode may fail"
