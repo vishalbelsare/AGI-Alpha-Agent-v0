@@ -21,7 +21,13 @@ This research prototype provides no financial advice.
 
 from __future__ import annotations
 import os, json, asyncio, contextlib
-import pandas as pd, gradio as gr
+try:
+    import pandas as pd
+    import gradio as gr
+except ModuleNotFoundError as exc:  # pragma: no cover - runtime check
+    raise RuntimeError(
+        "Required packages missing. Run 'python ../../check_env.py --demo macro_sentinel --auto-install'"
+    ) from exc
 from fastapi import FastAPI
 from fastapi.responses import PlainTextResponse
 import uvicorn
