@@ -244,7 +244,7 @@ def _push_redis(evt: Dict[str, Any]) -> None:
     """Publish ``evt`` to a Redis stream when configured."""
     if not REDIS_URL:
         return
-    import redis  # type: ignore
+    import redis
     import json as _j
 
     r = redis.from_url(REDIS_URL)
@@ -286,6 +286,7 @@ async def stream_macro_events(live: bool = False) -> AsyncIterator[Dict[str, Any
         Event dictionaries with timestamp, speech, yields, stable flow and ES settle.
     """
     idx = 0
+    poll = float(os.getenv("POLL_INTERVAL_SEC", "15" if live else "1"))
     while True:
         evt: Dict[str, Any] = {"timestamp": dt.datetime.now(dt.timezone.utc).isoformat()}
         if live:
@@ -304,4 +305,4 @@ async def stream_macro_events(live: bool = False) -> AsyncIterator[Dict[str, Any
         _fanout(evt)
         yield evt
         idx = (idx + 1) % len(OFF_FED)
-        await asyncio.sleep(15 if live else 1)
+        await asyncio.sleep(poll)

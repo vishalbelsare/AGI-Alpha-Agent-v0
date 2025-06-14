@@ -136,6 +136,7 @@ without internet access.
 | `TW_BEARER_TOKEN` | *(blank)* | Twitter/X API bearer token for Fed speech stream |
 | `PG_PASSWORD` | `alpha` | TimescaleDB superuser password |
 | `LIVE_FEED` | `0` | 1 uses live FRED/Etherscan feeds |
+| `POLL_INTERVAL_SEC` | `15` | Seconds between macro event polls (1 offline) |
 | `OFFLINE_DATA_DIR` | `offline_samples/` | Path for CSV snapshots |
 | `DEFAULT_PORTFOLIO_USD` | `2000000` | Portfolio USD notional for Monte‑Carlo hedge sizing |
 | `ALPHA_FACTORY_ENABLE_ADK` | `0` | 1 exposes ADK gateway on port 9000 |
