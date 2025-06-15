@@ -147,6 +147,17 @@ python patcher_core.py --repo <path>
 
 Install the optional `openai_agents` package and the `patch` utility beforehand so the script can suggest and apply fixes.
 
+When the library is missing the CLI automatically falls back to the offline model via
+`agent_core.llm_client.call_local_model`. Configure the environment variables to
+match your local setup:
+
+```bash
+OPENAI_MODEL=mixtral-8x7b \
+TEMPERATURE=0.3 \
+OLLAMA_BASE_URL=http://localhost:11434/v1 \
+python patcher_core.py --repo <path>
+```
+
 ### Before running tests
 
 Verify your environment first:
