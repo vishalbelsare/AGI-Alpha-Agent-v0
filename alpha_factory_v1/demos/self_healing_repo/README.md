@@ -24,14 +24,12 @@ incurred from using this software.
 
 The demo expects a few extra packages:
 
-- [`openai_agents`](https://openai.github.io/openai-agents-python/)
+- [`openai_agents`](https://openai.github.io/openai-agents-python/) (required unless you rely on the offline fallback)
 - [`gradio`](https://gradio.app/)
 - [`pytest`](https://docs.pytest.org/)
 - GNU `patch`
 
-`run_selfheal_demo.sh` verifies that `patch` is installed but does not check for
-`openai_agents`. When the package is absent, the entrypoint now uses a minimal
-stub that calls the bundled offline model via `llm_client.call_local_model`.
+`run_selfheal_demo.sh` verifies that `patch` is installed but does not check for `openai_agents`. The library is required for normal online usage. When the package is missing, the entrypoint automatically falls back to a minimal stub that calls the bundled offline model via `llm_client.call_local_model`.
 
 ## 🚀 Quick start (Docker)
 
@@ -69,8 +67,7 @@ CLONE_DIR="/tmp/demo_repo"  # sandbox for patched repo
 
 When `OPENAI_API_KEY` is blank the agent falls back to the local model
 via Ollama. Set `USE_LOCAL_LLM=true` to force this behaviour even when
-a key is present. Use `OLLAMA_BASE_URL` when the model runs on a remote
-host. The same file also lets you override `OPENAI_MODEL` and
+a key is present. Set `OLLAMA_BASE_URL` to the base URL of your Ollama server (defaults to `http://ollama:11434/v1`) when the model runs on a remote host. The same file also lets you override `OPENAI_MODEL` and
 `TEMPERATURE` for custom tuning. **`OPENAI_MODEL` controls both the
 remote API model and the local one when `USE_LOCAL_LLM=true`.** Set
 `CLONE_DIR` if you want the repository clone to live elsewhere.
