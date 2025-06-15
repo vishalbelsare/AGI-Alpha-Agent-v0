@@ -49,14 +49,14 @@ Before launching the dashboard or running tests, run
 `python check_env.py --auto-install` or
 `python alpha_factory_v1/scripts/preflight.py` from the repository root.
 This installs any optional packages and validates your Python toolchain.
-When working offline pass `--wheelhouse <dir>` so packages install from a
+Set `WHEELHOUSE=<dir>` and pass `--wheelhouse <dir>` to `check_env.py` when offline so packages install from a
 local wheelhouse (see **Build a wheelhouse & run offline**).
 
 Browse **http://localhost:7863** → hit **“Heal Repository”**.
 
 * No config needed; the agent clones a tiny repo with a deliberate bug.
 * **With an OpenAI key** the agent uses GPT‑4o to reason about stack‑traces.
-* **Offline?** Leave the key blank—Mixtral via Ollama drafts the patch.
+* **Offline?** Leave the key blank—Mixtral via Ollama drafts the patch. Ensure the Mixtral model is downloaded locally.
 * If the remote clone fails, the demo falls back to the bundled
   `sample_broken_calc` repository.
 
