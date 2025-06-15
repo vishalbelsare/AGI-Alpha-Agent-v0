@@ -35,3 +35,14 @@ def test_apply_diff_in_sample_calc(tmp_path: Path) -> None:
     success, _ = diff_utils.apply_diff(diff, repo_dir=str(repo))
     assert success
     assert "a + b" in (repo / "calc.py").read_text()
+
+
+def test_parse_diff_rejects_oversized(tmp_path: Path) -> None:
+    repo_src = Path("alpha_factory_v1/demos/self_healing_repo/sample_broken_calc")
+    repo = tmp_path / "repo"
+    shutil.copytree(repo_src, repo)
+
+    long_lines = ["--- a/calc.py", "+++ b/calc.py", "@@"] + ["+x" for _ in range(diff_utils.MAX_DIFF_LINES + 1)]
+    big_diff = "\n".join(long_lines) + "\n"
+
+    assert diff_utils.parse_and_validate_diff(big_diff, repo_dir=str(repo)) is None
