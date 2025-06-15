@@ -96,7 +96,7 @@ class SelfHealer:
     def commit_and_push_fix(self):
         """Commit the changes to a new branch and push to remote."""
         branch_name = f"auto-fix/{generate_branch_name(self.error_log)}"
-        subprocess.run(["git", "checkout", "-b", branch_name], cwd=self.working_dir, check=True)
+        subprocess.run(["git", "checkout", "-B", branch_name], cwd=self.working_dir, check=True)
         subprocess.run(["git", "add", "."], cwd=self.working_dir, check=True)
         commit_msg = f"Auto-fix: {summarize_error(self.error_log)} [ci skip]"
         subprocess.run(["git", "commit", "-m", commit_msg], cwd=self.working_dir, check=True)
