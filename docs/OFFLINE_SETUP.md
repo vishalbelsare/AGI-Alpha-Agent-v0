@@ -9,7 +9,7 @@ Run these commands on a machine with connectivity:
 
 ```bash
 mkdir -p /media/wheels
-pip wheel -r requirements.txt -w /media/wheels
+pip wheel -r requirements.lock -w /media/wheels
 pip wheel -r requirements-dev.txt -w /media/wheels
 ```
 

@@ -6,9 +6,9 @@ machine with connectivity and copy it here:
 
 ```bash
 mkdir -p wheels
-pip wheel -r requirements.txt -w wheels
-pip wheel -r alpha_factory_v1/demos/muzero_planning/requirements.txt -w wheels
+pip wheel -r requirements.lock -w wheels
 pip wheel -r requirements-dev.txt -w wheels
+pip wheel -r alpha_factory_v1/demos/muzero_planning/requirements.txt -w wheels
 ```
 
 Set `WHEELHOUSE=$(pwd)/wheels` before running the setup script or tests:

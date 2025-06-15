@@ -162,7 +162,7 @@ Follow these steps when working without internet access.
 1. **Build a wheelhouse** on a machine with connectivity:
    ```bash
    mkdir -p /media/wheels
-   pip wheel -r requirements.txt -w /media/wheels
+   pip wheel -r requirements.lock -w /media/wheels
    pip wheel -r requirements-dev.txt -w /media/wheels
    ```
 
@@ -805,7 +805,7 @@ pip install -r requirements.lock
 #  with --wheelhouse <path> or place the wheels under ./wheels)
 # Build a wheelhouse if the machine has no internet access:
 #   mkdir -p /media/wheels
-#   pip wheel -r requirements.txt -w /media/wheels
+#   pip wheel -r requirements.lock -w /media/wheels
 #   pip wheel -r requirements-dev.txt -w /media/wheels
 ./quickstart.sh               # creates venv, installs deps, launches
 # Use `--wheelhouse /path/to/wheels` to install offline packages when
