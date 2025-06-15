@@ -16,7 +16,7 @@ apply_patch(patch: str, repo_path: str) -> None
     • Applies the diff atomically (uses GNU patch).
     • Creates a `.bak` backup per touched file and rolls back on failure.
 
-validate_repo(repo_path: str, cmd: list[str] = ["pytest", "-q"]) -> tuple[int,str]
+validate_repo(repo_path: str, cmd: Optional[list[str]] = None) -> tuple[int,str]
     • Runs the given command, returning (returncode, combined stdout+stderr).
 
 The trio forms a minimal, production‑ready healing loop while remaining
@@ -27,7 +27,7 @@ All file‑system mutations stay **inside `repo_path`** for container safety.
 
 from __future__ import annotations
 import subprocess, tempfile, pathlib, shutil, os, textwrap, re
-from typing import List, Tuple
+from typing import List, Tuple, Optional
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:  # avoid hard dependency unless actually used
@@ -40,8 +40,9 @@ def _run(cmd: List[str], cwd: str) -> Tuple[int, str]:
     return result.returncode, result.stdout + result.stderr
 
 
-def validate_repo(repo_path: str, cmd: List[str] = ["pytest", "-q"]) -> Tuple[int, str]:
+def validate_repo(repo_path: str, cmd: Optional[List[str]] = None) -> Tuple[int, str]:
     """Return (exit_code, full_output)."""
+    cmd = cmd or ["pytest", "-q"]
     return _run(cmd, cwd=repo_path)
 
 
