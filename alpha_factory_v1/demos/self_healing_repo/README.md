@@ -43,7 +43,7 @@ chmod +x run_selfheal_demo.sh
 ./run_selfheal_demo.sh
 ```
 
-Before launching the dashboard or running tests, run `python alpha_factory_v1/scripts/preflight.py` (or `python check_env.py --auto-install`) from the repository root to confirm all dependencies.
+Before launching the dashboard or running tests, run `python alpha_factory_v1/scripts/preflight.py` (or `python check_env.py --auto-install`) from the repository root to confirm all dependencies. If the machine has no internet access, build a wheelhouse and run `python check_env.py --auto-install --wheelhouse <dir>` first (see **Offline workflow**).
 
 Browse **http://localhost:7863** → hit **“Heal Repository”**.
 
@@ -104,16 +104,26 @@ Set `TEMPERATURE=0.3` (0‑2) to tune patch creativity.
 ### Offline workflow
 
 When the host has no internet access, `agent_selfheal_entrypoint.py`
-automatically clones the included `sample_broken_calc` repository
-instead of pulling from GitHub. Install dependencies from a local
-wheelhouse and run the entrypoint directly:
+clones the bundled `sample_broken_calc` repository instead of pulling
+from GitHub. Build a wheelhouse first so Python packages install
+without the network:
+
+```bash
+cd /path/to/AGI-Alpha-Agent-v0
+mkdir -p /media/wheels
+pip wheel -r requirements.lock -w /media/wheels
+pip wheel -r requirements-dev.txt -w /media/wheels
+python check_env.py --auto-install --wheelhouse /media/wheels
+```
+
+Then launch the entrypoint using that wheelhouse:
 
 ```bash
 WHEELHOUSE=/media/wheels python agent_selfheal_entrypoint.py
 ```
 
 The dashboard behaves the same, but all code comes from the bundled repo.
-See [../../scripts/README.md](../../scripts/README.md) for details on building a wheelhouse.
+Run `python alpha_factory_v1/scripts/preflight.py` (or `python check_env.py --auto-install --wheelhouse /media/wheels`) from the repository root to confirm dependencies before each run.
 
 ### Manual healing
 
