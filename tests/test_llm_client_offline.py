@@ -2,6 +2,7 @@
 import importlib
 import sys
 import types
+import builtins
 from unittest.mock import Mock
 
 import pytest
@@ -57,3 +58,37 @@ def test_request_patch_respects_model_env(monkeypatch: pytest.MonkeyPatch) -> No
     client = _reload_client(monkeypatch, diff)
     client.request_patch([{"role": "user", "content": "fix"}])
     assert create_mock.call_args.kwargs.get("model") == "test-model"
+
+
+def test_call_local_model_http(monkeypatch: pytest.MonkeyPatch) -> None:
+    called = {}
+
+    class DummyResp:
+        def json(self) -> dict:
+            return {"choices": [{"message": {"content": "ok"}}]}
+
+        def raise_for_status(self) -> None:
+            pass
+
+    def fake_post(url: str, json=None, timeout=None):
+        called["url"] = url
+        called["json"] = json
+        return DummyResp()
+
+    monkeypatch.setattr("af_requests.post", fake_post)
+
+    orig_import = builtins.__import__
+
+    def fake_import(name, globals=None, locals=None, fromlist=(), level=0):
+        if name == "openai_agents":
+            raise ModuleNotFoundError(name)
+        return orig_import(name, globals, locals, fromlist, level)
+
+    monkeypatch.setattr(builtins, "__import__", fake_import)
+    monkeypatch.setenv("OLLAMA_BASE_URL", "http://example.com/v1")
+
+    from alpha_factory_v1.demos.self_healing_repo.agent_core import llm_client
+
+    result = llm_client.call_local_model([{"role": "user", "content": "hi"}])
+    assert result == "ok"
+    assert called["url"] == "http://example.com/v1/chat/completions"

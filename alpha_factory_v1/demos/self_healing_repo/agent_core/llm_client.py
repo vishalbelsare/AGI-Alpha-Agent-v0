@@ -14,14 +14,30 @@ USE_LOCAL_LLM = os.getenv("USE_LOCAL_LLM", "false").lower() == "true"
 
 
 def call_local_model(prompt_messages: list[dict[str, str]]) -> str:
-    """Return a response from a locally hosted model via OpenAI Agents."""
+    """Return a response from a locally hosted model."""
+    base_url = os.getenv("OLLAMA_BASE_URL", "http://ollama:11434/v1").rstrip("/")
+    model = os.getenv("OPENAI_MODEL", "mixtral-8x7b")
+
     try:
         from openai_agents import OpenAIAgent
-    except Exception as exc:  # pragma: no cover - optional dependency
-        raise RuntimeError("openai_agents package is required for local LLM support") from exc
+    except Exception:  # openai_agents missing, fall back to direct HTTP call
+        url = f"{base_url}/chat/completions"
+        payload = {"model": model, "messages": prompt_messages}
+        try:  # prefer httpx if installed
+            import httpx
 
-    base_url = os.getenv("OLLAMA_BASE_URL", "http://ollama:11434/v1")
-    model = os.getenv("OPENAI_MODEL", "mixtral-8x7b")
+            response = httpx.post(url, json=payload, timeout=30)
+            response.raise_for_status()
+            data = response.json()
+        except Exception:
+            import af_requests as requests
+
+            response = requests.post(url, json=payload, timeout=30)
+            response.raise_for_status()
+            data = response.json()
+
+        return str(data.get("choices", [{}])[0].get("message", {}).get("content", ""))
+
     agent = OpenAIAgent(model=model, api_key=None, base_url=base_url)
     prompt = "\n".join(f"{m['role']}: {m['content']}" for m in prompt_messages)
     return str(agent(prompt))

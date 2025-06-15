@@ -41,7 +41,24 @@ def test_entrypoint_offline(monkeypatch):
         types.SimpleNamespace(Blocks=DummyBlocks, Markdown=DummyMarkdown, Button=DummyButton),
     )
 
-    monkeypatch.setattr(llm_client, "call_local_model", lambda msgs: "local")
+    called = {}
+
+    class DummyResp:
+        def __init__(self, text: str = "local") -> None:
+            self._data = {"choices": [{"message": {"content": text}}]}
+
+        def json(self) -> dict:
+            return self._data
+
+        def raise_for_status(self) -> None:
+            pass
+
+    def fake_post(url: str, json=None, timeout=None):
+        called["url"] = url
+        called["json"] = json
+        return DummyResp()
+
+    monkeypatch.setattr("af_requests.post", fake_post)
 
     orig_import = builtins.__import__
 
@@ -51,7 +68,9 @@ def test_entrypoint_offline(monkeypatch):
         return orig_import(name, globals, locals, fromlist, level)
 
     monkeypatch.setattr(builtins, "__import__", fake_import)
+    monkeypatch.setenv("OLLAMA_BASE_URL", "http://example.com/v1")
     sys.modules.pop("alpha_factory_v1.demos.self_healing_repo.agent_selfheal_entrypoint", None)
     entrypoint = importlib.import_module("alpha_factory_v1.demos.self_healing_repo.agent_selfheal_entrypoint")
 
     assert entrypoint.LLM("hi") == "local"
+    assert called["url"] == "http://example.com/v1/chat/completions"
