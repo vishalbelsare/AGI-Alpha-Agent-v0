@@ -10,7 +10,15 @@ __all__ = ["propose_diff"]
 
 
 def propose_diff(file_path: str, goal: str) -> str:
-    """Return a diff appending a placeholder comment with ``goal``."""
+    """Generate a diff that appends a TODO for ``goal``.
+
+    Args:
+        file_path: Repository file to modify.
+        goal: Short description of the planned change.
+
+    Returns:
+        Unified diff string for the update.
+    """
     p = Path(file_path)
     original = p.read_text(encoding="utf-8").splitlines()
     updated = original + [f"# TODO: {goal}"]

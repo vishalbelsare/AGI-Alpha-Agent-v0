@@ -73,6 +73,14 @@ __all__ = [
 
 
 def _safe_path(path: str | Path) -> Path:
+    """Return the resolved repository path.
+
+    Args:
+        path: File path relative to the repository.
+
+    Returns:
+        Absolute path inside the repository.
+    """
     p = Path(path).expanduser().resolve()
     if REPO_ROOT not in p.parents and p != REPO_ROOT:
         raise PermissionError(f"path '{p}' outside repository root")
@@ -80,7 +88,14 @@ def _safe_path(path: str | Path) -> Path:
 
 
 def _record_history(p: Path) -> None:
-    """Save the current contents of ``p`` for undo."""
+    """Record the current file contents for undo.
+
+    Args:
+        p: File path to snapshot.
+
+    Returns:
+        None.
+    """
     _EDIT_HISTORY.append((p, p.read_text(encoding="utf-8", errors="replace")))
 
 
@@ -88,7 +103,16 @@ def _record_history(p: Path) -> None:
 # Core helpers
 # ---------------------------------------------------------------------------
 def view(path: str | Path, start: int = 0, end: Optional[int] = None) -> str:
-    """Return lines ``start:end`` from ``path``."""
+    """Return a slice of lines from ``path``.
+
+    Args:
+        path: File to read.
+        start: Starting line index (0-based).
+        end: Exclusive end line index.
+
+    Returns:
+        The selected lines joined by newlines.
+    """
     p = _safe_path(path)
     lines = p.read_text(encoding="utf-8", errors="replace").splitlines()
     sliced = lines[start:end] if end is not None else lines[start:]
@@ -96,7 +120,17 @@ def view(path: str | Path, start: int = 0, end: Optional[int] = None) -> str:
 
 
 def edit(path: str | Path, start: int, end: Optional[int], new_code: str) -> None:
-    """Replace lines ``start:end`` in ``path`` with ``new_code``."""
+    """Replace a region of a file with new code.
+
+    Args:
+        path: File to modify.
+        start: First line index to replace.
+        end: Last line index to replace or ``None``.
+        new_code: Replacement text.
+
+    Returns:
+        None.
+    """
     p = _safe_path(path)
     _record_history(p)
     lines = p.read_text(encoding="utf-8", errors="replace").splitlines()
@@ -108,7 +142,16 @@ def edit(path: str | Path, start: int, end: Optional[int], new_code: str) -> Non
 
 
 def replace(path: str | Path, pattern: str, repl: str) -> int:
-    """Regex replace ``pattern`` with ``repl`` inside ``path``."""
+    """Regex replace ``pattern`` with ``repl`` in ``path``.
+
+    Args:
+        path: File to update.
+        pattern: Regular expression to search for.
+        repl: Replacement string.
+
+    Returns:
+        Number of substitutions made.
+    """
     p = _safe_path(path)
     text = p.read_text(encoding="utf-8", errors="replace")
     new_text, n = re.subn(pattern, repl, text, flags=re.MULTILINE)
@@ -119,13 +162,31 @@ def replace(path: str | Path, pattern: str, repl: str) -> int:
 
 
 def view_lines(path: str | Path, start: int, end: Optional[int]) -> str:
-    """Return lines ``start`` through ``end`` (1-indexed, inclusive)."""
+    """Return an inclusive line range from ``path``.
+
+    Args:
+        path: File to read.
+        start: 1-based starting line number.
+        end: Inclusive end line or ``None``.
+
+    Returns:
+        Requested lines joined by newlines.
+    """
     s = max(0, start - 1)
     return view(path, s, end)
 
 
 def replace_str(path: str | Path, old: str, new: str) -> int:
-    """Replace occurrences of ``old`` with ``new`` inside ``path``."""
+    """Replace occurrences of ``old`` with ``new`` in ``path``.
+
+    Args:
+        path: File to modify.
+        old: Text to search for.
+        new: Replacement text.
+
+    Returns:
+        Number of replacements made.
+    """
     p = _safe_path(path)
     text = p.read_text(encoding="utf-8", errors="replace")
     count = text.count(old)
@@ -136,7 +197,16 @@ def replace_str(path: str | Path, old: str, new: str) -> int:
 
 
 def insert_after(path: str | Path, anchor: str, code: str) -> None:
-    """Insert ``code`` after the first line containing ``anchor``."""
+    """Insert ``code`` after the first line containing ``anchor``.
+
+    Args:
+        path: File to modify.
+        anchor: Text marking the insertion point.
+        code: Code to insert.
+
+    Returns:
+        None.
+    """
     p = _safe_path(path)
     lines = p.read_text(encoding="utf-8", errors="replace").splitlines()
     for idx, line in enumerate(lines):
@@ -150,7 +220,11 @@ def insert_after(path: str | Path, anchor: str, code: str) -> None:
 
 
 def undo_last_edit() -> bool:
-    """Revert the last edit operation if possible."""
+    """Revert the last edit operation if possible.
+
+    Returns:
+        ``True`` if a previous edit was undone.
+    """
     if not _EDIT_HISTORY:
         return False
     p, text = _EDIT_HISTORY.pop()
