@@ -133,17 +133,25 @@ if __name__ == "__main__":
     parser.add_argument("--repo", default=".", help="Repository path")
     args = parser.parse_args()
 
+    _temp_env = os.getenv("TEMPERATURE")
     try:
         from openai_agents import OpenAIAgent
-    except ImportError as e:
-        raise SystemExit("openai_agents package required. Install dependencies via requirements.txt") from e
-    _temp_env = os.getenv("TEMPERATURE")
-    llm = OpenAIAgent(
-        model=os.getenv("OPENAI_MODEL", "gpt-4o-mini"),
-        api_key=os.getenv("OPENAI_API_KEY"),
-        base_url=("http://ollama:11434/v1" if not os.getenv("OPENAI_API_KEY") else None),
-        temperature=float(_temp_env) if _temp_env is not None else None,
-    )
+    except ModuleNotFoundError:
+        from .agent_core import llm_client
+
+        def llm(prompt: str) -> str:
+            """Offline fallback using the local LLM."""
+            return llm_client.call_local_model([{"role": "user", "content": prompt}])
+
+    else:
+        llm = OpenAIAgent(
+            model=os.getenv("OPENAI_MODEL", "gpt-4o-mini"),
+            api_key=os.getenv("OPENAI_API_KEY"),
+            base_url=(
+                "http://ollama:11434/v1" if not os.getenv("OPENAI_API_KEY") else None
+            ),
+            temperature=float(_temp_env) if _temp_env is not None else None,
+        )
     rc, out = validate_repo(args.repo)
     print(out)
     if rc != 0:
