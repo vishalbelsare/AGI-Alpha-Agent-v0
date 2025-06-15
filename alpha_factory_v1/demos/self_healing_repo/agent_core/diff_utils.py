@@ -21,7 +21,7 @@ def parse_and_validate_diff(
     repo_dir: str,
     allowed_paths: list[str] | None = None,
 ) -> str | None:
-"""Verify the LLM's output is a valid unified diff and meets safety criteria.
+    """Verify the LLM's output is a valid unified diff and meets safety criteria.
 
     Diffs that exceed ``MAX_DIFF_LINES`` or ``MAX_DIFF_BYTES`` are rejected to
     avoid accidentally applying huge patches.
