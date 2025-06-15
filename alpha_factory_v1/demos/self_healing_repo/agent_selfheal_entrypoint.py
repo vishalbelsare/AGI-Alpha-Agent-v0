@@ -82,14 +82,16 @@ async def suggest_patch():
     return {"patch": patch}
 
 
-@Tool(name="apply_patch_and_retst", description="apply patch & retest")
+@Tool(name="apply_and_test", description="apply patch & retest")
 async def apply_and_test(patch: str):
     apply_patch(patch, repo_path=CLONE_DIR)
     return await run_tests()
 
 
+apply_patch_and_retst = apply_and_test
+
 # ── Agent orchestration ───────────────────────────────────────────────────────
-agent = Agent(llm=LLM, tools=[run_tests, suggest_patch, apply_patch_and_retst], name="Repo‑Healer")
+agent = Agent(llm=LLM, tools=[run_tests, suggest_patch, apply_and_test], name="Repo‑Healer")
 
 
 async def launch_gradio():
