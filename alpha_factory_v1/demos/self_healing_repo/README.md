@@ -43,7 +43,14 @@ chmod +x run_selfheal_demo.sh
 
 Alternatively run `af demo heal` from the repository root after installation.
 
-Before launching the dashboard or running tests, run `python alpha_factory_v1/scripts/preflight.py` (or `python check_env.py --auto-install`) from the repository root to confirm all dependencies. If the machine has no internet access, build a wheelhouse and run `python check_env.py --auto-install --wheelhouse <dir>` first (see **Build a wheelhouse & run offline**).
+### Preflight check
+
+Before launching the dashboard or running tests, run
+`python check_env.py --auto-install` or
+`python alpha_factory_v1/scripts/preflight.py` from the repository root.
+This installs any optional packages and validates your Python toolchain.
+When working offline pass `--wheelhouse <dir>` so packages install from a
+local wheelhouse (see **Build a wheelhouse & run offline**).
 
 Browse **http://localhost:7863** → hit **“Heal Repository”**.
 
