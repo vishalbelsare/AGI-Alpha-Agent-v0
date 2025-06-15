@@ -107,3 +107,22 @@ def request_patch(prompt_messages: list[dict[str, str]]) -> str:
     # Otherwise, the model might have directly given an answer
     text = str(choices[0]["message"].get("content", ""))
     return text or ""
+
+
+def summarize_error(log: str) -> str:
+    """Return a short summary of the failure log."""
+    first_line = next((ln.strip() for ln in log.splitlines() if ln.strip()), "")
+    return first_line[:80]
+
+
+def _slugify(text: str) -> str:
+    import re
+
+    slug = re.sub(r"[^a-z0-9]+", "-", text.lower())
+    return re.sub(r"-+", "-", slug).strip("-")
+
+
+def generate_branch_name(log: str) -> str:
+    """Create a slugified branch name from the error summary."""
+    slug = _slugify(summarize_error(log))
+    return (slug[:30].rstrip("-")) or "auto-fix"
