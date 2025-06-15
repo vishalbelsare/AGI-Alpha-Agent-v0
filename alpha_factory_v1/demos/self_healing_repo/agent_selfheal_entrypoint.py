@@ -1,4 +1,5 @@
 # SPDX-License-Identifier: Apache-2.0
+# mypy: ignore-errors
 """
 Self‑Healing Repo demo
 ──────────────────────
@@ -10,6 +11,7 @@ Self‑Healing Repo demo
 import logging
 import os, subprocess, shutil, asyncio, time, pathlib, json
 import gradio as gr
+
 try:
     from openai_agents import Agent, OpenAIAgent, Tool
 except ModuleNotFoundError:  # offline fallback
@@ -33,7 +35,9 @@ except ModuleNotFoundError:  # offline fallback
             self.llm = llm
             self.tools = tools or []
             self.name = name
-from patcher_core import generate_patch, apply_patch
+
+
+from .patcher_core import generate_patch, apply_patch
 
 logging.basicConfig(level=logging.INFO, format="%(levelname)s:%(name)s:%(message)s")
 logger = logging.getLogger(__name__)

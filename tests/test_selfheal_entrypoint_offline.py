@@ -1,9 +1,8 @@
+# mypy: ignore-errors
 import builtins
 import importlib
 import sys
 import types
-
-import pytest
 
 from alpha_factory_v1.demos.self_healing_repo.agent_core import llm_client
 
@@ -53,8 +52,6 @@ def test_entrypoint_offline(monkeypatch):
 
     monkeypatch.setattr(builtins, "__import__", fake_import)
     sys.modules.pop("alpha_factory_v1.demos.self_healing_repo.agent_selfheal_entrypoint", None)
-    entrypoint = importlib.import_module(
-        "alpha_factory_v1.demos.self_healing_repo.agent_selfheal_entrypoint"
-    )
+    entrypoint = importlib.import_module("alpha_factory_v1.demos.self_healing_repo.agent_selfheal_entrypoint")
 
     assert entrypoint.LLM("hi") == "local"

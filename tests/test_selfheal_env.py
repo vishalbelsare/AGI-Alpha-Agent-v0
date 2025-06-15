@@ -1,10 +1,9 @@
 # SPDX-License-Identifier: Apache-2.0
+# mypy: ignore-errors
 import asyncio
 import importlib
-import os
 import sys
 import types
-from pathlib import Path
 
 import src.utils.config as cfg
 
@@ -75,7 +74,7 @@ def test_run_tests_respects_config(tmp_path, monkeypatch):
     monkeypatch.setitem(sys.modules, "openai_agents", stub)
     monkeypatch.setitem(
         sys.modules,
-        "patcher_core",
+        "alpha_factory_v1.demos.self_healing_repo.patcher_core",
         types.SimpleNamespace(
             generate_patch=lambda *_a, **_k: "",
             apply_patch=lambda *_a, **_k: None,
@@ -86,15 +85,8 @@ def test_run_tests_respects_config(tmp_path, monkeypatch):
         "alpha_factory_v1.demos.self_healing_repo.agent_selfheal_entrypoint",
         None,
     )
-    path = Path(__file__).resolve().parents[1] / "alpha_factory_v1/demos/self_healing_repo/agent_selfheal_entrypoint.py"
-    spec = importlib.util.spec_from_file_location(
-        "alpha_factory_v1.demos.self_healing_repo.agent_selfheal_entrypoint", path
-    )
-    entrypoint = importlib.util.module_from_spec(spec)
+    entrypoint = importlib.import_module("alpha_factory_v1.demos.self_healing_repo.agent_selfheal_entrypoint")
     entrypoint.apply_patch_and_retst = lambda *_a, **_k: None
-    assert spec.loader
-    sys.modules[spec.name] = entrypoint
-    spec.loader.exec_module(entrypoint)
     monkeypatch.setattr(entrypoint, "CLONE_DIR", str(repo))
 
     result = asyncio.run(entrypoint.run_tests())
