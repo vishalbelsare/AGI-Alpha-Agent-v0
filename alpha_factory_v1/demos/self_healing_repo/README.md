@@ -27,7 +27,7 @@ The demo expects a few extra packages:
 - [`openai_agents`](https://openai.github.io/openai-agents-python/) (required unless you rely on the offline fallback)
 - [`gradio`](https://gradio.app/)
 - [`pytest`](https://docs.pytest.org/)
-- GNU `patch`
+- Docker image `selfheal-sandbox:latest` built from `sandbox.Dockerfile` (includes GNU `patch`)
 
 `run_selfheal_demo.sh` verifies that `patch` is installed but does not check for `openai_agents`. The library is required for normal online usage. When the package is missing, the entrypoint automatically falls back to a minimal stub that calls the bundled offline model via `llm_client.call_local_model`.
 
@@ -36,8 +36,8 @@ The demo expects a few extra packages:
 ```bash
 git clone https://github.com/MontrealAI/AGI-Alpha-Agent-v0.git
 cd AGI-Alpha-Agent-v0/alpha_factory_v1/demos/self_healing_repo
-sudo apt-get update && sudo apt-get install -y patch  # install GNU patch
 chmod +x run_selfheal_demo.sh
+# The script builds the `selfheal-sandbox` image automatically
 ./run_selfheal_demo.sh
 ```
 
@@ -87,8 +87,8 @@ Run the same container with PowerShell:
 ```powershell
 git clone https://github.com/MontrealAI/AGI-Alpha-Agent-v0.git
 cd AGI-Alpha-Agent-v0/alpha_factory_v1/demos/self_healing_repo
-winget install --id GnuWin32.Patch -e # install GNU patch (or `choco install patch`)
 docker compose -p alpha_selfheal -f docker-compose.selfheal.yml up -d --build
+# docker compose builds the `selfheal-sandbox` image
 ```
 
 Before launching the dashboard or running tests, run `python alpha_factory_v1/scripts/preflight.py` (or `python check_env.py --auto-install`) from the repository root to confirm all dependencies. Stop the stack with `docker compose -p alpha_selfheal down`.

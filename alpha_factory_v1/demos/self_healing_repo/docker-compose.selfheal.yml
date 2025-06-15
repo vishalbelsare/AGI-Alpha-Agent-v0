@@ -28,5 +28,12 @@ services:
     volumes:
       - ollama_models:/root/.ollama
 
+  sandbox:
+    build:
+      context: ../../..
+      dockerfile: ../../sandbox.Dockerfile
+    image: selfheal-sandbox:latest
+    entrypoint: ["/bin/true"]
+
 volumes:
   ollama_models:
