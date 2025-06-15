@@ -11,15 +11,33 @@ logger = logging.getLogger(__name__)
 # means the entire repository is allowed.
 ALLOWED_PATHS: list[str] | None = None
 
+# Reject diffs that exceed these limits to avoid unbounded file modifications.
+MAX_DIFF_LINES = 1000
+MAX_DIFF_BYTES = 100_000
+
 
 def parse_and_validate_diff(
     diff_text: str,
     repo_dir: str,
     allowed_paths: list[str] | None = None,
 ) -> str | None:
-    """Verify the LLM's output is a valid unified diff and meets safety criteria."""
+"""Verify the LLM's output is a valid unified diff and meets safety criteria.
+
+    Diffs that exceed ``MAX_DIFF_LINES`` or ``MAX_DIFF_BYTES`` are rejected to
+    avoid accidentally applying huge patches.
+    """
     if not diff_text:
         return None
+
+    lines = diff_text.splitlines()
+    if len(lines) > MAX_DIFF_LINES or len(diff_text.encode("utf-8")) > MAX_DIFF_BYTES:
+        logger.warning(
+            "Diff too large: %s lines, %s bytes",
+            len(lines),
+            len(diff_text.encode("utf-8")),
+        )
+        return None
+
     # Basic unified diff check: should contain lines starting with '+++ ' and '--- '
     if "+++" not in diff_text or "---" not in diff_text:
         return None  # Not a diff format
