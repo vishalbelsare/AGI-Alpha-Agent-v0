@@ -176,6 +176,26 @@ python alpha_factory_v1/scripts/preflight.py  # or python check_env.py --auto-in
 
 Missing dependencies will cause tests to be skipped or fail.
 
+### GitHub Action `self_heal.yml`
+
+The directory includes `.github/workflows/self_heal.yml`—a workflow that
+monitors the main **CI** pipeline. When a `workflow_run` for **CI** on the
+`main` branch concludes with `failure`, GitHub downloads the test logs,
+checks out the failing commit and runs:
+
+```bash
+python alpha_factory_v1/demos/self_healing_repo/patcher_core.py --repo .
+```
+
+`patcher_core.py` drives the self‑healer. It analyzes the logs, proposes a
+patch and opens a pull request with the fix if the tests pass after applying
+the patch.
+
+Minimal setup:
+
+1. Store `OPENAI_API_KEY` as a repository secret under **Settings → Secrets → Actions**.
+2. Add a `GITHUB_TOKEN` secret with permission to push branches and open PRs.
+
 ---
 
 ## 🎓 Google Colab
