@@ -14,6 +14,7 @@ import os
 import pathlib
 import shutil
 import subprocess
+import sys
 
 import gradio as gr
 
@@ -46,6 +47,13 @@ from .patcher_core import generate_patch, apply_patch
 
 logging.basicConfig(level=logging.INFO, format="%(levelname)s:%(name)s:%(message)s")
 logger = logging.getLogger(__name__)
+
+if shutil.which("patch") is None:
+    logger.error(
+        '`patch` command not found. Install the utility, e.g., "sudo apt-get update && sudo apt-get install -y patch"'
+    )
+    sys.exit(1)
+
 
 GRADIO_SHARE = os.getenv("GRADIO_SHARE", "0") == "1"
 
