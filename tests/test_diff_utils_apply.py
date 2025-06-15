@@ -5,9 +5,11 @@ import tempfile
 from pathlib import Path
 
 from alpha_factory_v1.demos.self_healing_repo.agent_core import diff_utils
+import shutil as _shutil
+import pytest
 
 
-def test_apply_diff_failure_returns_output():
+def test_apply_diff_failure_returns_output() -> None:
     with tempfile.TemporaryDirectory() as repo:
         open(os.path.join(repo, "file.txt"), "w").close()
         success, output = diff_utils.apply_diff("bad diff", repo_dir=repo)
@@ -15,7 +17,17 @@ def test_apply_diff_failure_returns_output():
         assert "patch" in output.lower()
 
 
-def test_apply_diff_success():
+def test_apply_diff_missing_patch(monkeypatch: pytest.MonkeyPatch) -> None:
+    diff = """--- a/file.txt\n+++ b/file.txt\n@@\n-\n+ok\n"""
+    with tempfile.TemporaryDirectory() as repo:
+        open(os.path.join(repo, "file.txt"), "w").close()
+        monkeypatch.setattr(_shutil, "which", lambda _cmd: None)
+        success, output = diff_utils.apply_diff(diff, repo_dir=repo)
+        assert not success
+        assert output == "patch command not found"
+
+
+def test_apply_diff_success() -> None:
     diff = """--- a/file.txt\n+++ b/file.txt\n@@\n-\n+ok\n"""
     with tempfile.TemporaryDirectory() as repo:
         open(os.path.join(repo, "file.txt"), "w").close()

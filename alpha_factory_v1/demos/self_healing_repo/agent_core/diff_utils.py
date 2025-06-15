@@ -3,6 +3,7 @@
 import logging
 import re
 import subprocess
+import shutil
 from pathlib import Path
 
 logger = logging.getLogger(__name__)
@@ -43,11 +44,7 @@ def parse_and_validate_diff(
         return None  # Not a diff format
     repo_root = Path(repo_dir).resolve()
     allowed = allowed_paths if allowed_paths is not None else ALLOWED_PATHS
-    allowed_dirs = (
-        [repo_root.joinpath(p).resolve() for p in allowed]
-        if allowed
-        else [repo_root]
-    )
+    allowed_dirs = [repo_root.joinpath(p).resolve() for p in allowed] if allowed else [repo_root]
 
     for line in diff_text.splitlines():
         if line.startswith("+++ ") or line.startswith("--- "):
@@ -67,11 +64,24 @@ def parse_and_validate_diff(
 
 def apply_diff(diff_text: str, repo_dir: str) -> tuple[bool, str]:
     """Apply the unified diff to repo_dir. Returns (success, output)."""
+    if shutil.which("patch") is None:
+        return False, "patch command not found"
     try:
-        process = subprocess.run(["patch", "-p1"], input=diff_text, text=True, cwd=repo_dir, timeout=60, capture_output=True)
+        process = subprocess.run(
+            ["patch", "-p1"],
+            input=diff_text,
+            text=True,
+            cwd=repo_dir,
+            timeout=60,
+            capture_output=True,
+        )
         output = (process.stdout or "") + (process.stderr or "")
         if process.returncode != 0:
-            logger.error("Patch command failed with code %s: %s", process.returncode, output)
+            logger.error(
+                "Patch command failed with code %s: %s",
+                process.returncode,
+                output,
+            )
             return False, output
         return True, output
     except Exception as e:
