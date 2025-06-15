@@ -17,6 +17,9 @@ import subprocess
 import sys
 
 import gradio as gr
+from fastapi import FastAPI
+from fastapi.responses import PlainTextResponse
+import uvicorn
 
 try:
     from openai_agents import Agent, OpenAIAgent, Tool
@@ -107,11 +110,12 @@ apply_patch_and_retst = apply_and_test
 agent = Agent(llm=LLM, tools=[run_tests, suggest_patch, apply_and_test], name="Repo‑Healer")
 
 
-async def launch_gradio():
+def create_app() -> FastAPI:
+    """Build the Gradio UI and mount it on a FastAPI app."""
     with gr.Blocks(title="Self‑Healing Repo") as ui:
         log = gr.Markdown("# Output log\n")
 
-        async def run_pipeline():
+        async def run_pipeline() -> str:
             if pathlib.Path(CLONE_DIR).exists():
                 shutil.rmtree(CLONE_DIR)
             clone_sample_repo()
@@ -125,7 +129,20 @@ async def launch_gradio():
 
         run_btn = gr.Button("🩹 Heal Repository")
         run_btn.click(run_pipeline, outputs=log)
-    ui.launch(server_name="0.0.0.0", server_port=7863, share=GRADIO_SHARE)
+
+    app = FastAPI()
+
+    @app.get("/__live", response_class=PlainTextResponse, include_in_schema=False)
+    async def _live() -> str:  # noqa: D401
+        return "OK"
+
+    return gr.mount_gradio_app(app, ui, path="/")
+
+
+async def launch_gradio() -> None:
+    app = create_app()
+    server = uvicorn.Server(uvicorn.Config(app, host="0.0.0.0", port=7863, loop="asyncio"))
+    await server.serve()
 
 
 if __name__ == "__main__":
