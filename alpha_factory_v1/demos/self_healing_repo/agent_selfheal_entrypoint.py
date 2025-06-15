@@ -9,7 +9,12 @@ Self‑Healing Repo demo
 4. Opens a Pull Request‑style diff in the dashboard and re‑runs tests.
 """
 import logging
-import os, subprocess, shutil, asyncio, time, pathlib, json
+import asyncio
+import os
+import pathlib
+import shutil
+import subprocess
+
 import gradio as gr
 
 try:
