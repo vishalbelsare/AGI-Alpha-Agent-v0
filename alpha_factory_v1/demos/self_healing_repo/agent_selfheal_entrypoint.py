@@ -10,7 +10,29 @@ Self‑Healing Repo demo
 import logging
 import os, subprocess, shutil, asyncio, time, pathlib, json
 import gradio as gr
-from openai_agents import Agent, OpenAIAgent, Tool
+try:
+    from openai_agents import Agent, OpenAIAgent, Tool
+except ModuleNotFoundError:  # offline fallback
+    from .agent_core import llm_client
+
+    def Tool(*_a, **_kw):  # type: ignore
+        def _decorator(func):
+            return func
+
+        return _decorator
+
+    class OpenAIAgent:  # type: ignore
+        def __init__(self, *_, **__):
+            pass
+
+        def __call__(self, prompt: str) -> str:
+            return llm_client.call_local_model([{"role": "user", "content": prompt}])
+
+    class Agent:  # type: ignore
+        def __init__(self, llm=None, tools=None, name=None) -> None:
+            self.llm = llm
+            self.tools = tools or []
+            self.name = name
 from patcher_core import generate_patch, apply_patch
 
 logging.basicConfig(level=logging.INFO, format="%(levelname)s:%(name)s:%(message)s")

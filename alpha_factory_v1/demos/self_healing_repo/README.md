@@ -30,8 +30,8 @@ The demo expects a few extra packages:
 - GNU `patch`
 
 `run_selfheal_demo.sh` verifies that `patch` is installed but does not check for
-`openai_agents`. If `openai_agents` is missing, the script falls back to the
-bundled local model.
+`openai_agents`. When the package is absent, the entrypoint now uses a minimal
+stub that calls the bundled offline model via `llm_client.call_local_model`.
 
 ## 🚀 Quick start (Docker)
 
