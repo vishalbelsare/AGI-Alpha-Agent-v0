@@ -159,6 +159,10 @@ You can run the patcher directly on any repository:
 python patcher_core.py --repo <path>
 ```
 
+The CLI creates an `auto-fix/<date>-<hash>` branch when committing
+the patch. It uses `git checkout -B` so an existing branch with the
+same name will be overwritten.
+
 Install the optional `openai_agents` package and the `patch` utility beforehand so the script can suggest and apply fixes.
 
 When the library is missing the CLI automatically falls back to the offline model via
