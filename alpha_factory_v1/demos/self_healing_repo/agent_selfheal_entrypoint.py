@@ -87,8 +87,21 @@ LLM = OpenAIAgent(
 
 @Tool(name="run_tests", description="execute pytest on repo")
 async def run_tests():
-    result = subprocess.run(["pytest", "-q"], cwd=CLONE_DIR, capture_output=True, text=True)
-    return {"rc": result.returncode, "out": result.stdout + result.stderr}
+    """Run the project's tests with a timeout and no color codes."""
+    try:
+        result = subprocess.run(
+            ["pytest", "-q", "--color=no"],
+            cwd=CLONE_DIR,
+            capture_output=True,
+            text=True,
+            timeout=300,
+        )
+        rc = result.returncode
+        out = result.stdout + result.stderr
+    except subprocess.TimeoutExpired as exc:
+        rc = 1
+        out = f"Test run timed out after {exc.timeout} seconds."
+    return {"rc": rc, "out": out}
 
 
 @Tool(name="suggest_patch", description="propose code fix")

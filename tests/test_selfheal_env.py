@@ -4,6 +4,7 @@ import asyncio
 import importlib
 import sys
 import types
+import subprocess
 
 import src.utils.config as cfg
 
@@ -92,3 +93,33 @@ def test_run_tests_respects_config(tmp_path, monkeypatch):
     result = asyncio.run(entrypoint.run_tests())
     assert result["rc"] == 0
     assert agent_args.get("model") == "my-model"
+
+
+def test_run_tests_timeout(tmp_path, monkeypatch):
+    """run_tests should report a timeout error when pytest hangs."""
+    repo = tmp_path / "repo"
+    repo.mkdir()
+
+    monkeypatch.setitem(
+        sys.modules,
+        "gradio",
+        types.SimpleNamespace(Blocks=DummyBlocks, Markdown=DummyMarkdown, Button=DummyButton),
+    )
+
+    sys.modules.pop(
+        "alpha_factory_v1.demos.self_healing_repo.agent_selfheal_entrypoint",
+        None,
+    )
+    entrypoint = importlib.import_module(
+        "alpha_factory_v1.demos.self_healing_repo.agent_selfheal_entrypoint"
+    )
+    monkeypatch.setattr(entrypoint, "CLONE_DIR", str(repo))
+
+    def fake_run(*_a, **_k):
+        raise subprocess.TimeoutExpired(cmd=_a[0], timeout=300)
+
+    monkeypatch.setattr(subprocess, "run", fake_run)
+
+    result = asyncio.run(entrypoint.run_tests())
+    assert result["rc"] == 1
+    assert "timed out" in result["out"]
