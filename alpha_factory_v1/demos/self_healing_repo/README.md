@@ -191,8 +191,9 @@ Missing dependencies will cause tests to be skipped or fail.
 
 The directory includes `.github/workflows/self_heal.yml`—a workflow that
 monitors the main **CI** pipeline. When a `workflow_run` for **CI** on the
-`main` branch concludes with `failure`, GitHub downloads the test logs,
-checks out the failing commit and runs:
+`main` branch concludes with `failure`, GitHub downloads the test logs
+(saved as `pytest.log` in the CI workflow), checks out the failing commit
+and runs:
 
 ```bash
 python alpha_factory_v1/demos/self_healing_repo/patcher_core.py --repo .
