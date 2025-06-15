@@ -71,7 +71,7 @@ TEMPERATURE=0.3
 GRADIO_SHARE=0
 USE_LOCAL_LLM=true
 OLLAMA_BASE_URL="http://ollama:11434/v1"
-CLONE_DIR="/tmp/demo_repo"  # sandbox for patched repo
+# CLONE_DIR="/tmp/demo_repo"
 ```
 
 When `OPENAI_API_KEY` is blank the agent falls back to the local model
