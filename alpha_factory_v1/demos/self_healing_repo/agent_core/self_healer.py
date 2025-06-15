@@ -20,6 +20,19 @@ logger = logging.getLogger(__name__)
 
 
 class SelfHealer:
+    """Manage the self-healing workflow for failing tests.
+
+    This class clones the target repository at a specific commit, executes the
+    tests in an isolated environment, and sends any failures to an LLM for
+    analysis and patch generation. If the generated patch resolves the failure,
+    the fix is committed to a new branch and a pull request is opened.
+
+    Args:
+        repo_url: URL of the repository to clone.
+        commit_sha: Commit hash that produced the failing tests.
+        base_branch: Branch used as the PR base, defaults to ``"main"``.
+    """
+
     def __init__(self, repo_url: str, commit_sha: str, base_branch: str = "main"):
         self.repo_url = repo_url
         self.commit_sha = commit_sha
