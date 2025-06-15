@@ -258,7 +258,7 @@ clone repo → [sandbox pytest] → error log
 |---------|--------|
 | “patch: command not found” | Rebuild the Docker image; the Dockerfile now installs `patch` |
 | Port 7863 busy | Edit `ports:` in `docker-compose.selfheal.yml` |
-| LLM exceeds context | Patch diff is now chunked; increase `OPENAI_CONTEXT_WINDOW` env if needed |
+| LLM exceeds context | Reduce diff size; large patches may exceed the model's context window |
 
 ---
 
