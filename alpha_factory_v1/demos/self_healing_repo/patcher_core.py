@@ -26,8 +26,15 @@ All file‑system mutations stay **inside `repo_path`** for container safety.
 """
 
 from __future__ import annotations
-import subprocess, tempfile, pathlib, shutil, os, textwrap, re
-from typing import List, Tuple, Optional
+
+import os
+import pathlib
+import re
+import shutil
+import subprocess
+import tempfile
+import textwrap
+from typing import List, Optional, Tuple
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:  # avoid hard dependency unless actually used
@@ -147,9 +154,7 @@ if __name__ == "__main__":
         llm = OpenAIAgent(
             model=os.getenv("OPENAI_MODEL", "gpt-4o-mini"),
             api_key=os.getenv("OPENAI_API_KEY"),
-            base_url=(
-                "http://ollama:11434/v1" if not os.getenv("OPENAI_API_KEY") else None
-            ),
+            base_url=("http://ollama:11434/v1" if not os.getenv("OPENAI_API_KEY") else None),
             temperature=float(_temp_env) if _temp_env is not None else None,
         )
     rc, out = validate_repo(args.repo)
