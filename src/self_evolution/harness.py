@@ -19,6 +19,14 @@ IMAGE = os.getenv("SELF_EVOLUTION_IMAGE", "python:3.11-slim")
 
 
 def _run_tests(repo: Path) -> int:
+    """Run the repository's test suite in a Docker container.
+
+    Args:
+        repo: Path to the repository to test.
+
+    Returns:
+        The pytest return code.
+    """
     cmd = [
         "docker",
         "run",
@@ -36,7 +44,15 @@ def _run_tests(repo: Path) -> int:
 
 
 def apply_patch(repo: str | Path, diff: str) -> Tuple[bool, Path]:
-    """Apply ``diff`` to ``repo`` inside a sandbox and run tests."""
+    """Apply `diff` to `repo` in isolation and run the tests.
+
+    Args:
+        repo: Repository path to patch.
+        diff: Unified diff to apply.
+
+    Returns:
+        Tuple containing the test result and sandbox path.
+    """
     src = Path(repo).resolve()
     tmp = Path(tempfile.mkdtemp(prefix="self-evo-"))
     shutil.copytree(src, tmp, dirs_exist_ok=True)
@@ -47,7 +63,17 @@ def apply_patch(repo: str | Path, diff: str) -> Tuple[bool, Path]:
 
 
 def vote_and_merge(repo: str | Path, diff: str, registry: StakeRegistry, agent_id: str = "orch") -> bool:
-    """Apply patch and merge if tests pass and fitness improves."""
+    """Apply patch and merge into `repo` when tests pass and the metric improves.
+
+    Args:
+        repo: Repository path to modify.
+        diff: Unified diff to apply.
+        registry: Vote registry used for consensus.
+        agent_id: Identifier for the voting agent.
+
+    Returns:
+        ``True`` if the patch was merged into the repository.
+    """
     repo_path = Path(repo).resolve()
     proposal = hashlib.sha1(diff.encode()).hexdigest()
     baseline = float((repo_path / "metric.txt").read_text().strip())

@@ -33,6 +33,14 @@ _MIN_ENTROPY = 3.0
 
 
 def _full_name(node: ast.AST) -> str:
+    """Return the dotted name for ``node`` if possible.
+
+    Args:
+        node: AST node to inspect.
+
+    Returns:
+        Dotted attribute path or an empty string.
+    """
     if isinstance(node, ast.Name):
         return node.id
     if isinstance(node, ast.Attribute):
@@ -42,7 +50,14 @@ def _full_name(node: ast.AST) -> str:
 
 
 def is_code_safe(code: str) -> bool:
-    """Return ``True`` if ``code`` appears safe."""
+    """Check whether ``code`` appears safe.
+
+    Args:
+        code: Source code to analyse.
+
+    Returns:
+        ``True`` if no dangerous patterns are detected.
+    """
     lowered = code.lower()
     for pat in _DENY_PATTERNS:
         if re.search(pat, lowered):
@@ -67,7 +82,14 @@ def is_code_safe(code: str) -> bool:
 
 
 def is_patch_safe(diff: str) -> bool:
-    """Check added lines in ``diff`` for malicious code."""
+    """Validate that a patch does not introduce malicious code.
+
+    Args:
+        diff: Unified diff to examine.
+
+    Returns:
+        ``True`` if the patch looks safe.
+    """
 
     lines = diff.splitlines()
     if len(lines) > _LINE_LIMIT:
@@ -89,6 +111,14 @@ def is_patch_safe(diff: str) -> bool:
 
 
 def _shannon_entropy(text: str) -> float:
+    """Compute Shannon entropy for ``text``.
+
+    Args:
+        text: Input string.
+
+    Returns:
+        Entropy value measured in bits.
+    """
     if not text:
         return 0.0
     freq = Counter(text)
