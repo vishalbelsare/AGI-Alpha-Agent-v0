@@ -63,7 +63,7 @@ OPENAI_MODEL="gpt-4o-mini"
 TEMPERATURE=0.3
 GRADIO_SHARE=0
 USE_LOCAL_LLM=true
-OLLAMA_BASE_URL="http://localhost:11434/v1"
+OLLAMA_BASE_URL="http://ollama:11434/v1"
 CLONE_DIR="/tmp/demo_repo"  # sandbox for patched repo
 ```
 
