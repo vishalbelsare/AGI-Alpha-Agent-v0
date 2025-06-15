@@ -81,6 +81,11 @@ repos:
         entry: scripts/env_check.sh
         language: system
         pass_filenames: false
+      - id: py-compile
+        name: Validate Python syntax with py_compile
+        entry: python -m py_compile
+        language: python
+        types: [python]
       - id: eslint-insight-browser
         name: Lint Insight Browser with ESLint
         entry: scripts/run_eslint.sh
