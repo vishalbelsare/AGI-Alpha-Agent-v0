@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 """Utility to validate demo packages for basic production readiness."""
 
 import os

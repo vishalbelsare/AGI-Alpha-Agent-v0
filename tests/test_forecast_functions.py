@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 from unittest import TestCase
 
 from alpha_factory_v1.demos.alpha_agi_insight_v1.src.simulation import forecast
@@ -9,6 +10,12 @@ class TestForecastFunctions(TestCase):
         self.assertEqual(forecast.linear_curve(2.0), 1.0)
         self.assertAlmostEqual(forecast.exponential_curve(0.0), 0.0)
         self.assertAlmostEqual(forecast.exponential_curve(1.0), 1.0)
+        self.assertAlmostEqual(
+            forecast.exponential_curve(0.5, x0=0.0), forecast.exponential_curve(0.5)
+        )
+        self.assertGreater(
+            forecast.logistic_curve(0.1, k=2.0), forecast.logistic_curve(0.1)
+        )
         self.assertAlmostEqual(
             forecast.capability_growth(0.5, curve="linear"), 0.5
         )

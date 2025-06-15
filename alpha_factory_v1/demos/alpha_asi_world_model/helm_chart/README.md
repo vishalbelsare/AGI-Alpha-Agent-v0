@@ -1,5 +1,9 @@
-# α-ASI World-Model 🛰️ — Helm Chart 📦  
+# α-ASI World-Model 🛰️ — Helm Chart 📦
 *Alpha-Factory v1 👁️✨ • Multi-Agent AGENTIC α-AGI*
+
+This demo is a conceptual research prototype. References to "AGI" and
+"superintelligence" describe aspirational goals and do not indicate the
+presence of a real general intelligence. Use at your own risk.
 
 | Chart version | App version | License |
 |---------------|------------|---------|
@@ -63,7 +67,8 @@ xdg-open http://localhost:7860      # or just paste in browser
 | `image.tag` | `latest` | Pin to a digest for prod. |
 | `service.type` | `ClusterIP` | Switch to `LoadBalancer` or `Ingress` for public clouds. |
 | `resources.requests.cpu` | `250m` | Tweak for on-prem GPU nodes (see docs). |
-| `env.ALHPA_ASI_MAX_STEPS` | `100000` | Faster demo? Set to `20000`. |
+| `env.ALPHA_ASI_MAX_STEPS` | `100000` | Faster demo? Set to `20000`. |
+| `enableADK` | `false` | Set to `true` to expose the Google ADK gateway. |
 | `secretKeys.openai` | *(unset)* | Will be mounted to `OPENAI_API_KEY`. |
 
 ```yaml

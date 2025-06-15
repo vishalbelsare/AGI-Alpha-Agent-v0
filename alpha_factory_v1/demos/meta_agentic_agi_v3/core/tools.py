@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 
 """
 tools.py – Unified Tooling Orchestrator (v1.0.0)

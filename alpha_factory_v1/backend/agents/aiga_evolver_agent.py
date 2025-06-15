@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 """AIGA Evolver Agent – wraps the meta-evolution demo as a domain agent.
 
 This lightweight agent bridges :mod:`aiga_meta_evolution.meta_evolver`

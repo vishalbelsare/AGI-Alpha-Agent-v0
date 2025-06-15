@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 """
 search.py – Meta-Agentic α-AGI evolutionary search-loop
 ======================================================

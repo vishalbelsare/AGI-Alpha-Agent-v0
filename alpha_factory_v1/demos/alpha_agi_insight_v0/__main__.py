@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# SPDX-License-Identifier: Apache-2.0
 """Command line entrypoint for the α‑AGI Insight demo.
 
 This tiny wrapper lets users run ``python -m alpha_factory_v1.demos.alpha_agi_insight_v0``

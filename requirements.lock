@@ -1,0 +1,2 @@
+# Root dependency lock file
+-r alpha_factory_v1/requirements.lock

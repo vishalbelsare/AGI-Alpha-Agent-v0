@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 # Ensure the project root is importable when pytest cwd == tests/
 import sys, pathlib, os
 

@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 """Simple trade broker with optional Alpaca integration."""
 
 from __future__ import annotations

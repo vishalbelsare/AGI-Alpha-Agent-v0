@@ -8,7 +8,7 @@ This directory hosts the unit and smoke tests that keep the Alpha‑Factory stac
 ## Quick Start
 1. **Install dependencies**
    ```bash
-   python -m pip install -r alpha_factory_v1/backend/requirements.txt
+   python -m pip install -r alpha_factory_v1/backend/requirements.lock
    ```
    For a lightweight run you only need `pytest`:
    ```bash

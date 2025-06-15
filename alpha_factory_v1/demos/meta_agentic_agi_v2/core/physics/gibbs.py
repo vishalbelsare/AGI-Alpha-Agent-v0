@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 # core/physics/gibbs.py
 import numpy as np
 

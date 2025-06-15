@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 """Stub agents illustrating potential OpenAI SDK and Google ADK workflows.
 
 This module provides bare-bones agent classes demonstrating how the
@@ -14,6 +15,7 @@ from __future__ import annotations
 
 from typing import Any, Dict
 
+
 def _safe_import_agent(module_name: str, class_name: str) -> type:
     """Safely import an agent class, falling back to `object` if unavailable."""
     try:
@@ -24,6 +26,7 @@ def _safe_import_agent(module_name: str, class_name: str) -> type:
         return agent_class
     except Exception:  # pragma: no cover - optional dependency
         return object  # type: ignore
+
 
 Agent = _safe_import_agent("openai_agents", "Agent")  # OpenAI Agents SDK
 ADKAgent = _safe_import_agent("google_adk", "Agent")  # Google ADK

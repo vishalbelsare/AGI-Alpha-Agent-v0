@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 """
 ╭──────────────────────────────────────────────────────────────────────────────╮
 │  Alpha-Factory v1 👁️✨ — Multi-Agent AGENTIC α-AGI World-Model Demo          │
@@ -45,7 +46,7 @@ __all__: Final[List[str]] = [
     "__version__",
 ]
 
-__version__: Final[str] = "1.0.0"
+__version__: Final[str] = "1.1.0"
 
 # ──────────────────────────────────────────────────────────────────────────────
 #  Agent showcase (edu-doc string for auditors & newcomers)

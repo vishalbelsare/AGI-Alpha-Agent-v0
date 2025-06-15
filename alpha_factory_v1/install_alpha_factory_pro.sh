@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# SPDX-License-Identifier: Apache-2.0
 # install_alpha_factory_pro.sh  —  one‑stop builder *and* optional deployer
 # ─────────────────────────────────────────────────────────────────────────
 #   Original flags (still supported)
@@ -114,6 +115,7 @@ fi
 if [[ ! -f .env ]]; then
   echo "→ creating .env (edit credentials later)"
   cp .env.sample .env
+  chmod 600 .env
 fi
 
 # 3. local model fallback

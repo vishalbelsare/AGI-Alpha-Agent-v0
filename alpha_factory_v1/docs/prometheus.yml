@@ -5,9 +5,9 @@ global:
   scrape_interval: 15s
 
 scrape_configs:
-  - job_name: 'alphafactory'
+  - job_name: 'orchestrator'
     static_configs:
-      - targets: ['alphafactory:8000']
+      - targets: ['orchestrator:8000']
   - job_name: 'prometheus'
     static_configs:
       - targets: ['localhost:9090']

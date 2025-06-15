@@ -1,21 +1,35 @@
-"""Logging utilities for tamper-evident message tracking."""
+# SPDX-License-Identifier: Apache-2.0
+"""Structured logging and Merkle root broadcasting.
+
+The :class:`Ledger` class appends envelopes to a local database (SQLite by
+default) and can periodically broadcast the Merkle root to Solana.
+``setup`` configures console logging, optionally emitting JSON lines.
+"""
 
 from __future__ import annotations
 
+__all__ = ["Ledger", "setup", "logging"]
+
 import asyncio
+import contextlib
 import json
 import logging
 import sqlite3
-from dataclasses import asdict
+import os
+from datetime import datetime
+import dataclasses
 from pathlib import Path
 from typing import Iterable, List, cast
 
 try:  # optional dependency for colorized output
-    import coloredlogs  # type: ignore
+    import coloredlogs
 except Exception:  # pragma: no cover - optional
-    coloredlogs = None  # type: ignore
+    coloredlogs = None
 
 from . import messaging
+from .tracing import span
+from src.utils import a2a_pb2 as pb
+from google.protobuf import json_format
 
 try:  # optional dependency
     from blake3 import blake3
@@ -30,18 +44,42 @@ try:  # optional dependency
 except Exception:  # pragma: no cover - offline fallback
     AsyncClient = None
 
+try:  # optional dependency
+    import duckdb
+except Exception:  # pragma: no cover - optional
+    duckdb = None
+
+with contextlib.suppress(ModuleNotFoundError):
+    import psycopg2  # type: ignore
+
 _log = logging.getLogger(__name__)
 
 
-def setup(level: str = "INFO") -> None:
+class _JsonFormatter(logging.Formatter):
+    def format(self, record: logging.LogRecord) -> str:  # noqa: D401 - short
+        data = {
+            "ts": datetime.fromtimestamp(record.created).isoformat(timespec="seconds"),
+            "lvl": record.levelname,
+            "name": record.name,
+            "msg": record.getMessage(),
+        }
+        return json.dumps(data)
+
+
+def setup(level: str = "INFO", json_logs: bool = False) -> None:
     """Initialise the root logger if not configured."""
 
     if not logging.getLogger().handlers:
-        fmt = "%(asctime)s %(levelname)s %(name)s | %(message)s"
-        if coloredlogs is not None:
-            coloredlogs.install(level=level, fmt=fmt, datefmt="%Y-%m-%d %H:%M:%S")
+        if json_logs:
+            handler = logging.StreamHandler()
+            handler.setFormatter(_JsonFormatter())
+            logging.basicConfig(level=level, handlers=[handler])
         else:
-            logging.basicConfig(level=level, format=fmt, datefmt="%Y-%m-%d %H:%M:%S")
+            fmt = "%(asctime)s %(levelname)s %(name)s | %(message)s"
+            if coloredlogs is not None:
+                coloredlogs.install(level=level, fmt=fmt, datefmt="%Y-%m-%d %H:%M:%S")
+            else:
+                logging.basicConfig(level=level, format=fmt, datefmt="%Y-%m-%d %H:%M:%S")
 
 
 def _merkle_root(hashes: Iterable[str]) -> str:
@@ -60,7 +98,7 @@ def _merkle_root(hashes: Iterable[str]) -> str:
 
 
 class Ledger:
-    """Append-only SQLite ledger with optional Merkle root broadcasting."""
+    """Append-only ledger with optional Merkle root broadcasting."""
 
     def __init__(
         self,
@@ -68,22 +106,80 @@ class Ledger:
         rpc_url: str | None = None,
         wallet: str | None = None,
         broadcast: bool = True,
+        db: str | None = None,
     ) -> None:
         self.path = Path(path)
         self.path.parent.mkdir(parents=True, exist_ok=True)
-        self.conn = sqlite3.connect(str(self.path))
-        self.conn.execute(
-            """
-            CREATE TABLE IF NOT EXISTS messages (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                ts REAL,
-                sender TEXT,
-                recipient TEXT,
-                payload TEXT,
-                hash TEXT
+        db_type = db or os.getenv("AGI_INSIGHT_DB", "sqlite")
+        self.db_type = db_type
+        if db_type == "duckdb" and duckdb is not None:
+            self.conn = duckdb.connect(str(self.path))
+            self.conn.execute(
+                """
+                CREATE TABLE IF NOT EXISTS messages (
+                    id BIGINT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
+                    ts DOUBLE,
+                    sender TEXT,
+                    recipient TEXT,
+                    payload TEXT,
+                    hash TEXT
+                )
+                """
             )
-            """
-        )
+        elif db_type == "postgres":
+            if "psycopg2" not in globals():
+                _log.warning("AGI_INSIGHT_DB=postgres but psycopg2 not installed – falling back to sqlite")
+                self.conn = sqlite3.connect(str(self.path))
+                self.conn.execute(
+                    """
+                    CREATE TABLE IF NOT EXISTS messages (
+                        id INTEGER PRIMARY KEY AUTOINCREMENT,
+                        ts REAL,
+                        sender TEXT,
+                        recipient TEXT,
+                        payload TEXT,
+                        hash TEXT
+                    )
+                    """
+                )
+            else:
+                params = {
+                    "host": os.getenv("PGHOST"),
+                    "port": os.getenv("PGPORT", "5432"),
+                    "user": os.getenv("PGUSER"),
+                    "password": os.getenv("PGPASSWORD"),
+                    "dbname": os.getenv("PGDATABASE", "insight"),
+                }
+                self.conn = psycopg2.connect(**{k: v for k, v in params.items() if v is not None})
+                with self.conn, self.conn.cursor() as cur:
+                    cur.execute(
+                        """
+                        CREATE TABLE IF NOT EXISTS messages (
+                            id BIGSERIAL PRIMARY KEY,
+                            ts DOUBLE PRECISION,
+                            sender TEXT,
+                            recipient TEXT,
+                            payload TEXT,
+                            hash TEXT
+                        )
+                        """
+                    )
+        else:
+            if db_type == "duckdb" and duckdb is None:
+                _log.warning("AGI_INSIGHT_DB=duckdb but duckdb not installed – falling back to sqlite")
+            self.conn = sqlite3.connect(str(self.path))
+            self.conn.execute(
+                """
+                CREATE TABLE IF NOT EXISTS messages (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    ts REAL,
+                    sender TEXT,
+                    recipient TEXT,
+                    payload TEXT,
+                    hash TEXT
+                )
+                """
+            )
         self.conn.commit()
         self._task: asyncio.Task[None] | None = None
         self.rpc_url = rpc_url
@@ -92,28 +188,69 @@ class Ledger:
 
     def log(self, env: messaging.Envelope) -> None:
         """Hash ``env`` and append to the ledger."""
-
-        data = json.dumps(asdict(env), sort_keys=True).encode()
-        digest = blake3(data).hexdigest()
-        with self.conn:
-            self.conn.execute(
-                "INSERT INTO messages (ts, sender, recipient, payload, hash) VALUES (?, ?, ?, ?, ?)",
-                (env.ts, env.sender, env.recipient, json.dumps(env.payload), digest),
-            )
+        with span("ledger.log"):
+            assert self.conn is not None
+            if dataclasses.is_dataclass(env):
+                record = dataclasses.asdict(env)
+            elif isinstance(env, pb.Envelope):
+                record = json_format.MessageToDict(env, preserving_proto_field_name=True)
+            else:
+                record = env.__dict__
+            data = json.dumps(record, sort_keys=True).encode()
+            digest = blake3(data).hexdigest()
+            payload_json = json.dumps(record.get("payload", {}))
+            if self.db_type == "postgres":
+                with self.conn, self.conn.cursor() as cur:
+                    cur.execute(
+                        "INSERT INTO messages (ts, sender, recipient, payload, hash) VALUES (%s, %s, %s, %s, %s)",
+                        (env.ts, env.sender, env.recipient, payload_json, digest),
+                    )
+            else:
+                with self.conn:
+                    self.conn.execute(
+                        "INSERT INTO messages (ts, sender, recipient, payload, hash) VALUES (?, ?, ?, ?, ?)",
+                        (env.ts, env.sender, env.recipient, payload_json, digest),
+                    )
 
     def compute_merkle_root(self) -> str:
-        cur = self.conn.execute("SELECT hash FROM messages ORDER BY id")
-        hashes = [row[0] for row in cur.fetchall()]
+        assert self.conn is not None
+        if self.db_type == "postgres":
+            with self.conn.cursor() as cur:
+                cur.execute("SELECT hash FROM messages ORDER BY id")
+                raw_hashes = [row[0] for row in cur.fetchall()]
+        else:
+            cur = self.conn.execute("SELECT hash FROM messages ORDER BY id")
+            raw_hashes = [row[0] for row in cur.fetchall()]
+
+        hashes: List[str] = []
+        for h in raw_hashes:
+            if not isinstance(h, str) or not h:
+                continue
+            try:
+                bytes.fromhex(h)
+            except Exception:
+                continue
+            hashes.append(h)
+
         return _merkle_root(hashes)
 
     def tail(self, count: int = 10) -> List[dict[str, object]]:
         """Return the last ``count`` ledger entries."""
 
-        cur = self.conn.execute(
-            "SELECT ts, sender, recipient, payload FROM messages ORDER BY id DESC LIMIT ?",
-            (count,),
-        )
-        rows = cur.fetchall()
+        assert self.conn is not None
+        if self.db_type == "postgres":
+            with self.conn.cursor() as cur:
+                cur.execute(
+                    "SELECT ts, sender, recipient, payload FROM messages ORDER BY id DESC LIMIT %s",
+                    (count,),
+                )
+                rows = cur.fetchall()
+        else:
+            cur = self.conn.execute(
+                "SELECT ts, sender, recipient, payload FROM messages ORDER BY id DESC LIMIT ?",
+                (count,),
+            )
+            rows = cur.fetchall()
         result: List[dict[str, object]] = []
         for ts, sender, recipient, payload in reversed(rows):
             try:
@@ -124,7 +261,11 @@ class Ledger:
         return result
 
     async def broadcast_merkle_root(self) -> None:
-        root = self.compute_merkle_root()
+        try:
+            root = self.compute_merkle_root()
+        except Exception as exc:  # pragma: no cover - corruption
+            _log.warning("Failed to compute Merkle root: %s", exc)
+            return
         if AsyncClient is None or not self.broadcast:
             _log.info("Merkle root %s", root)
             return
@@ -179,4 +320,22 @@ class Ledger:
     def close(self) -> None:
         if self.conn:
             self.conn.close()
-            self.conn = None  # type: ignore[assignment]
+            self.conn = None
+
+    def __enter__(self) -> "Ledger":
+        """Return ``self`` for context manager support."""
+        return self
+
+    def __exit__(self, exc_type: object, exc: object, tb: object) -> None:
+        """Ensure the database connection is closed."""
+        self.close()
+
+    async def __aenter__(self) -> "Ledger":
+        """Start the Merkle broadcast task and return ``self``."""
+        self.start_merkle_task()
+        return self
+
+    async def __aexit__(self, exc_type: object, exc: object, tb: object) -> None:
+        """Stop the Merkle task and close the database."""
+        await self.stop_merkle_task()
+        self.close()

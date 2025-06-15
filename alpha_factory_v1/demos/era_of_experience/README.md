@@ -2,8 +2,10 @@
 Era‑of‑Experience Demo
 Alpha‑Factory v1 👁️✨ — Multi‑Agent AGENTIC α‑AGI
 Out‑learn · Out‑think · Out‑strategise · Out‑execute
-© 2025 MONTREAL.AI   MIT License
+© 2025 MONTREAL.AI   Apache‑2.0 License
 -->
+
+This repository is a conceptual research prototype. References to "AGI" and "superintelligence" describe aspirational goals and do not indicate the presence of a real general intelligence. Use at your own risk.
 
 <h1 align="center">🌌 Era of Experience — Your lifelong‑RL playground</h1>
 <p align="center">
@@ -53,9 +55,26 @@ Add `--live` to pull in real sensor feeds (wearables, RSS, etc.):
   * live trace‑graph 🪄
   * reward dashboards 📈
   * interactive chat / tool console 💬
-  * built‑in alpha detectors (yield curve & supply‑chain) 🔍
+  * built‑in alpha detectors (yield curve & supply‑chain) 🔍 — they read from
+    `alpha_factory_v1/demos/macro_sentinel/offline_samples/`, and the CSV
+    snapshots are already included in the repository
 
 > **Offline/Private mode** — leave `OPENAI_API_KEY=` blank in <code>config.env</code>; the stack falls back to <strong>Ollama ✕ Mixtral‑8x7B</strong> and stays air‑gapped.
+
+## Offline Setup
+
+When running without internet access:
+
+1. Pre-download `wearable_daily.csv` and `edu_progress.csv` from the
+   <a href="https://github.com/MontrealAI/demo-assets">demo-assets</a> repository.
+2. Place both files in `offline_samples/` before executing
+   <code>./run_experience_demo.sh</code> so the orchestrator can read them.
+3. If the environment check cannot reach PyPI, set `SKIP_ENV_CHECK=1` to skip
+   that step:
+   ```bash
+   SKIP_ENV_CHECK=1 ./run_experience_demo.sh
+   ```
+
 
 ### 🔧 Configure &amp; advanced usage
 
@@ -63,12 +82,17 @@ Add `--live` to pull in real sensor feeds (wearables, RSS, etc.):
 
    ```bash
    cp config.env.sample config.env
-   $EDITOR config.env      # set OPENAI_API_KEY, MODEL_NAME, LIVE_FEED, etc.
+   $EDITOR config.env      # set OPENAI_API_KEY, MODEL_NAME, PG_PASSWORD, LOG_LEVEL, LIVE_FEED, etc.
    ```
-   You may override the path for built-in offline samples with
-   `SAMPLE_DATA_DIR=/path/to/csvs`.
-   Sample CSVs (`wearable_daily.csv`, `edu_progress.csv`) are shipped in
-   `offline_samples/` so the demo also works without internet access.
+You may override the path for built-in offline samples by exporting
+`SAMPLE_DATA_DIR` before launching the demo:
+
+```bash
+SAMPLE_DATA_DIR=/path/to/csvs ./run_experience_demo.sh
+```
+
+Sample CSVs (`wearable_daily.csv`, `edu_progress.csv`) are shipped in
+`offline_samples/` so the demo also works without internet access.
 
 2. Enable real-time collectors and metrics with the `--live` flag:
 
@@ -137,6 +161,12 @@ Result: an agent that <strong>evolves faster than you can refresh the page</stro
 | `stub_agents.py` | Minimal agent classes for OpenAI SDK & ADK workflows |
 | `colab_era_of_experience.ipynb` | Cloud twin notebook |
 | `alpha_report.py` | CLI helper printing current offline alpha signals |
+
+Run it with local CSVs:
+
+```bash
+python alpha_report.py --data-dir path/to/offline_samples
+```
 
 ---
 
@@ -232,8 +262,10 @@ Verify the demo locally with Python's builtin test runner:
 python -m unittest tests.test_era_experience
 ```
 
-Run `python ../../../check_env.py --auto-install` first to ensure optional
-packages like `pytest` and `openai-agents` are available.
+Run `python ../../../check_env.py --auto-install` first and make sure it
+completes successfully before running any tests. Tests will fail if core
+packages such as `numpy` are missing, in addition to optional ones like
+`pytest` and `openai-agents`.
 
 ---
 
@@ -248,6 +280,6 @@ packages like `pytest` and `openai-agents` are available.
 
 ## 📜 License
 
-MIT. By using this repo you agree to cite **Montreal.AI Alpha‑Factory** if you build on top.
+Apache 2.0. By using this repo you agree to cite **Montreal.AI Alpha‑Factory** if you build on top.
 
 > **Alpha‑Factory** — forging intelligence that *out‑learns, out‑thinks, out‑executes*.

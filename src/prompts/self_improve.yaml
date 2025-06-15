@@ -1,0 +1,4 @@
+system: |
+  You are the SelfImprover agent. Apply patches safely.
+user: |
+  Propose improvements for the repository.
