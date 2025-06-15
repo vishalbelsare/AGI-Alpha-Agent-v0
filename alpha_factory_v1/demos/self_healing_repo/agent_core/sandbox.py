@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import os
+import shutil
 import subprocess
 from typing import Iterable, Mapping
 
@@ -24,6 +25,8 @@ def run_in_docker(
     """
 
     image = image or DEFAULT_IMAGE
+    if not shutil.which("docker"):
+        raise RuntimeError("docker is required to run the sandbox")
     mounts = mounts or {}
     cmd = [
         "docker",
