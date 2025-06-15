@@ -64,7 +64,7 @@ RUN apt-get update && \
         libomp5 \
         libstdc++6 \
         postgresql-client \
-        patch \
+        patch \  # required by the self-healing demo
         curl ca-certificates && \
     rm -rf /var/lib/apt/lists/*
 
