@@ -22,5 +22,5 @@ def build_llm() -> OpenAIAgent:
     return OpenAIAgent(
         model=os.getenv("MODEL_NAME", "gpt-4o-mini"),
         api_key=api_key,
-        base_url=None if api_key else os.getenv("OLLAMA_BASE_URL", "http://localhost:11434/v1"),
+        base_url=None if api_key else os.getenv("OLLAMA_BASE_URL", "http://ollama:11434/v1"),
     )

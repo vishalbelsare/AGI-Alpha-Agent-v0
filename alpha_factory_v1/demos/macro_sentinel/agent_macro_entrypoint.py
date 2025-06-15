@@ -66,7 +66,7 @@ def _check_ollama(url: str) -> None:
 if os.getenv("OPENAI_API_KEY"):
     base_url = None
 else:
-    base_url = os.getenv("OLLAMA_BASE_URL", "http://localhost:11434/v1")
+    base_url = os.getenv("OLLAMA_BASE_URL", "http://ollama:11434/v1")
     _check_ollama(base_url)
 
 LLM = OpenAIAgent(
