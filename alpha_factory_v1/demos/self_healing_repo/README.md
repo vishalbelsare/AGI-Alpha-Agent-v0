@@ -69,10 +69,17 @@ OPENAI_API_KEY=
 OPENAI_MODEL="gpt-4o-mini"
 TEMPERATURE=0.3
 GRADIO_SHARE=0
+SANDBOX_IMAGE="selfheal-sandbox:latest"
 USE_LOCAL_LLM=true
 OLLAMA_BASE_URL="http://ollama:11434/v1"
 # CLONE_DIR="/tmp/demo_repo"
 ```
+
+`SANDBOX_IMAGE` controls which container runs the patcher and the tests. When
+the variable is unset, `agent_core.sandbox` defaults to the upstream
+`python:3.11-slim` image, but that base image does **not** include GNU `patch`.
+Build the provided `sandbox.Dockerfile` to produce `selfheal-sandbox:latest`, or
+set `SANDBOX_IMAGE` to any custom image that bundles `patch`.
 
 When `OPENAI_API_KEY` is blank the agent falls back to the local model
 via Ollama. Set `USE_LOCAL_LLM=true` to force this behaviour even when
