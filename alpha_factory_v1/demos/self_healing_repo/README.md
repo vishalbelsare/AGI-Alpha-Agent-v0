@@ -43,7 +43,7 @@ chmod +x run_selfheal_demo.sh
 
 Alternatively run `af demo heal` from the repository root after installation.
 
-Before launching the dashboard or running tests, run `python alpha_factory_v1/scripts/preflight.py` (or `python check_env.py --auto-install`) from the repository root to confirm all dependencies. If the machine has no internet access, build a wheelhouse and run `python check_env.py --auto-install --wheelhouse <dir>` first (see **Offline workflow**).
+Before launching the dashboard or running tests, run `python alpha_factory_v1/scripts/preflight.py` (or `python check_env.py --auto-install`) from the repository root to confirm all dependencies. If the machine has no internet access, build a wheelhouse and run `python check_env.py --auto-install --wheelhouse <dir>` first (see **Build a wheelhouse & run offline**).
 
 Browse **http://localhost:7863** → hit **“Heal Repository”**.
 
@@ -104,18 +104,33 @@ Set `TEMPERATURE=0.3` (0‑2) to tune patch creativity.
 
 When the host has no internet access, `agent_selfheal_entrypoint.py`
 clones the bundled `sample_broken_calc` repository instead of pulling
-from GitHub. Build a wheelhouse first so Python packages install
-without the network:
+from GitHub.
 
-- `cd /path/to/AGI-Alpha-Agent-v0`
-- `mkdir -p /media/wheels`
-- `pip wheel -r requirements.lock -w /media/wheels`
-- `pip wheel -r requirements-dev.txt -w /media/wheels`
-- `python check_env.py --auto-install --wheelhouse /media/wheels`
+#### Build a wheelhouse & run offline
 
-Then launch the entrypoint using that wheelhouse:
+Create a wheelhouse so Python packages install without the network:
 
 ```bash
+cd /path/to/AGI-Alpha-Agent-v0
+mkdir -p /media/wheels
+pip wheel -r requirements.lock -w /media/wheels
+pip wheel -r requirements-dev.txt -w /media/wheels
+```
+
+Before each run install from the wheelhouse and set the required
+environment variables:
+
+```bash
+USE_LOCAL_LLM=true \
+OLLAMA_BASE_URL=http://localhost:11434/v1 \
+WHEELHOUSE=/media/wheels \
+python check_env.py --auto-install --wheelhouse $WHEELHOUSE
+```
+
+Launch the demo with the same variables:
+
+```bash
+USE_LOCAL_LLM=true OLLAMA_BASE_URL=http://localhost:11434/v1 \
 WHEELHOUSE=/media/wheels python -m alpha_factory_v1.demos.self_healing_repo.agent_selfheal_entrypoint
 ```
 
