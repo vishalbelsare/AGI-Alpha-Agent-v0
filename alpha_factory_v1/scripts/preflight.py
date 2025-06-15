@@ -36,6 +36,7 @@ MIN_PY = (3, 11)
 MAX_PY = (3, 13)
 MEM_DIR = Path(os.getenv("AF_MEMORY_DIR", f"{tempfile.gettempdir()}/alphafactory"))
 MIN_OPENAI_AGENTS_VERSION = "0.0.14"
+DEFAULT_SANDBOX_IMAGE = os.getenv("SANDBOX_IMAGE", "python:3.11-slim")
 
 COLORS = {
     "RED": "\033[31m",
@@ -107,6 +108,27 @@ def check_docker_compose() -> bool:
     except (subprocess.CalledProcessError, OSError):
         banner("docker compose missing", "RED")
         return False
+
+
+def check_patch_in_sandbox(image: str = DEFAULT_SANDBOX_IMAGE) -> bool:
+    """Return True if ``/usr/bin/patch`` exists inside ``image``."""
+    try:
+        result = subprocess.run(
+            ["docker", "run", "--rm", image, "test", "-x", "/usr/bin/patch"],
+            capture_output=True,
+            text=True,
+        )
+    except Exception as exc:  # pragma: no cover - unexpected failure
+        banner(f"Failed to start {image}: {exc}", "RED")
+        return False
+    if result.returncode == 0:
+        banner(f"patch found in {image}", "GREEN")
+        return True
+    banner(
+        f"/usr/bin/patch missing in {image}; build sandbox.Dockerfile or set SANDBOX_IMAGE",
+        "RED",
+    )
+    return False
 
 
 def check_pkg(pkg: str) -> bool:
@@ -212,6 +234,7 @@ def main(argv: list[str] | None = None) -> None:
         banner("Install pre-commit and run 'pre-commit install' to enable git hooks", "YELLOW")
     ok &= check_docker_daemon()
     ok &= check_docker_compose()
+    ok &= check_patch_in_sandbox()
     if not args.offline:
         check_network()
     # Always install pytest and prometheus_client for smooth local tests
