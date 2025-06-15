@@ -3,7 +3,7 @@ from pathlib import Path
 import shutil
 import subprocess
 
-from alpha_factory_v1.demos.self_healing_repo.agent_core import self_healer, llm_client, diff_utils, sandbox
+from alpha_factory_v1.demos.self_healing_repo.agent_core import self_healer, llm_client, diff_utils, sandbox, patcher_core
 
 
 def test_self_healer_applies_patch(tmp_path, monkeypatch):
@@ -36,18 +36,19 @@ def test_self_healer_applies_patch(tmp_path, monkeypatch):
     monkeypatch.setattr(self_healer.SelfHealer, "create_pull_request", lambda self, branch: 1)
 
     calls = []
+    applied = []
 
     def fake_run(cmd, repo_dir, *, image=None, mounts=None):
         calls.append(cmd)
-        if "pytest" in cmd:
-            result = subprocess.run(["pytest", "-q", "--color=no"], cwd=repo_dir, capture_output=True, text=True)
-            return result.returncode, result.stdout + result.stderr
-        if "patch" in cmd:
-            ok, out = diff_utils.apply_diff(patch, repo_dir=repo_dir)
-            return (0 if ok else 1), out
-        return 0, ""
+        result = subprocess.run(["pytest", "-q", "--color=no"], cwd=repo_dir, capture_output=True, text=True)
+        return result.returncode, result.stdout + result.stderr
+
+    def fake_apply(diff_text, repo_path):
+        applied.append(diff_text)
+        diff_utils.apply_diff(diff_text, repo_dir=repo_path)
 
     monkeypatch.setattr(sandbox, "run_in_docker", fake_run)
+    monkeypatch.setattr(patcher_core, "apply_patch", fake_apply)
 
     pr = healer.run()
 
@@ -57,4 +58,5 @@ def test_self_healer_applies_patch(tmp_path, monkeypatch):
     assert "1 passed" in healer.test_results
     assert pr == 1
     assert any("pytest" in c for c in calls)
-    assert any("patch" in c for c in calls)
+    assert applied
+

@@ -10,6 +10,7 @@ from .llm_client import (
 )
 from . import sandbox, test_runner
 
+from .. import patcher_core
 import logging
 import os
 import shutil
@@ -85,17 +86,10 @@ class SelfHealer:
         """Apply the proposed diff to the working directory."""
         if not self.patch_diff:
             raise RuntimeError("No patch to apply")
-        with tempfile.NamedTemporaryFile("w", delete=False) as fh:
-            fh.write(self.patch_diff)
-            patch_file = fh.name
-        rc, output = sandbox.run_in_docker(
-            ["patch", "-p1", "-i", "/tmp/patch.diff"],
-            self.working_dir,
-            mounts={patch_file: "/tmp/patch.diff"},
-        )
-        os.unlink(patch_file)
-        if rc != 0:
-            logger.error("Failed to apply patch:\n%s", output)
+        try:
+            patcher_core.apply_patch(self.patch_diff, repo_path=self.working_dir)
+        except Exception as exc:
+            logger.error("Failed to apply patch: %s", exc)
             return False
         return True
 
