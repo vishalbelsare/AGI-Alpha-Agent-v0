@@ -24,6 +24,9 @@ Within 60 seconds you will witness an agent <em>rewrite its own playbook</em> e
 
 - **Docker 24+** with the Compose plugin
 - At least **4 CPU cores** (or a modest GPU) for smooth local runs
+- **Python 3.11 or 3.12** available as `python3` for environment checks
+- Run `python3 ../../../check_env.py --demo era_experience --auto-install` and
+  ensure it completes successfully before starting the Docker stack.
 - *(Optional)* `OPENAI_API_KEY` for cloud LLMs — leave blank to use the built‑in Mixtral via Ollama
 - If running without `run_experience_demo.sh`, install the
   dependencies from `requirements.txt` and ensure the **OpenAI Agents SDK** is pinned at version `0.0.17`:
@@ -43,10 +46,12 @@ Within 60 seconds you will witness an agent <em>rewrite its own playbook</em> e
 ```bash
 git clone https://github.com/MontrealAI/AGI-Alpha-Agent-v0.git
 cd AGI-Alpha-Agent-v0/alpha_factory_v1/demos/era_of_experience
-python ../../../check_env.py --demo era_experience --auto-install  # optional env check
+python3 ../../../check_env.py --demo era_experience --auto-install
 chmod +x run_experience_demo.sh
 ./run_experience_demo.sh      # ← THAT’S IT
+
 ```
+Ensure the environment check finishes successfully before starting the Docker stack.
 
 Add `--live` to pull in real sensor feeds (wearables, RSS, etc.):
 
