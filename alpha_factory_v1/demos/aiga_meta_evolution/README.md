@@ -11,8 +11,10 @@
 
 # 🌌 Algorithms That Invent Algorithms — <br>**AI‑GA Meta‑Evolution Demo**
 
-> *“Why hand‑craft intelligence when evolution can author it for you?”* 
-> — Jeff Clune, *AI‑GAs: AI‑Generating Algorithms* (2019) 
+> *“Why hand‑craft intelligence when evolution can author it for you?”*
+> — Jeff Clune, *AI‑GAs: AI‑Generating Algorithms* (2019)
+
+[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/MontrealAI/AGI-Alpha-Agent-v0/blob/main/alpha_factory_v1/demos/aiga_meta_evolution/colab_aiga_meta_evolution.ipynb)
 
 A single‑command, browser‑based showcase of Clune’s **Three Pillars**:
 
@@ -115,6 +117,13 @@ export OLLAMA_BASE_URL="http://localhost:12345"
 
 Set `OPENAI_API_KEY` in your environment to enable cloud models. Without
 it the demo falls back to the bundled offline mixtral model.
+
+### Required environment variables
+
+| Variable | Purpose |
+| --- | --- |
+| `OPENAI_API_KEY` | Optional key for OpenAI models. When unset the notebook and demo use **Mixtral** via a local Ollama container. |
+| `WHEELHOUSE` | Directory of wheels for offline installs. Set before running `check_env.py --auto-install` in air-gapped setups. |
 
 ### Offline dependency setup
 
@@ -227,6 +236,8 @@ For step-by-step instructions on running the service in a production or workshop
 | <a href="https://colab.research.google.com/github/MontrealAI/AGI-Alpha-Agent-v0/blob/main/alpha_factory_v1/demos/aiga_meta_evolution/colab_aiga_meta_evolution.ipynb"><img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"></a> | Launches the same dashboard with an automatic public URL. Ideal for workshops & quick demos. |
 
 The Colab notebook also explains how to **upload a wheelhouse archive** for offline installs. Follow that section to set `WHEELHOUSE` and run `check_env.py --auto-install --wheelhouse` when the runtime lacks internet access.
+
+Supply `OPENAI_API_KEY` in the Colab session to access OpenAI models. When it is omitted, the notebook spins up an Ollama container and uses **Mixtral** as an offline fallback.
 
 ---
 
