@@ -96,10 +96,10 @@ class CrossIndustryAgent(Agent):
         if isinstance(obs, dict):
             action = obs.get("action")
             if action == "discover":
-                return await self.tools.discover(obs.get("num", 1))
+                return await discover(obs.get("num", 1))
             if action == "recent":
-                return await self.tools.recent_log(obs.get("limit", 5))
-        return await self.tools.list_samples()
+                return await recent_log(obs.get("limit", 5))
+        return await list_samples()
 
 
 def main() -> None:

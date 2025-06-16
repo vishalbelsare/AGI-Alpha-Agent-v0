@@ -9,6 +9,7 @@ import sys
 import types
 import unittest
 from unittest.mock import MagicMock, patch
+from unittest.mock import AsyncMock
 
 
 class TestCrossIndustryBridgeRuntime(unittest.TestCase):
@@ -92,6 +93,41 @@ class TestCrossIndustryBridgeRuntime(unittest.TestCase):
             runtime.register.assert_called_once()
             auto_reg.assert_called_once()
             maybe_launch.assert_called_once()
+
+    def test_policy_uses_tools(self) -> None:
+        stub = types.ModuleType("openai_agents")
+        stub.Agent = object
+        stub.AgentRuntime = MagicMock()
+
+        def _tool(*_a, **_k):
+            def _decorator(func):
+                return func
+
+            return _decorator
+
+        stub.Tool = _tool
+
+        with patch.dict(sys.modules, {"openai_agents": stub}):
+            sys.modules.pop(
+                "alpha_factory_v1.demos.cross_industry_alpha_factory.openai_agents_bridge",
+                None,
+            )
+            mod = importlib.import_module("alpha_factory_v1.demos.cross_industry_alpha_factory.openai_agents_bridge")
+            agent = mod.CrossIndustryAgent()
+
+            with (
+                patch.object(mod, "discover", new=AsyncMock(return_value="disc")),
+                patch.object(mod, "recent_log", new=AsyncMock(return_value="recent")),
+                patch.object(mod, "list_samples", new=AsyncMock(return_value="samples")),
+            ):
+                result = asyncio.run(agent.policy({"action": "discover"}, None))
+                self.assertEqual(result, "disc")
+
+                result = asyncio.run(agent.policy({"action": "recent"}, None))
+                self.assertEqual(result, "recent")
+
+                result = asyncio.run(agent.policy({}, None))
+                self.assertEqual(result, "samples")
 
 
 if __name__ == "__main__":  # pragma: no cover - manual run
