@@ -23,6 +23,13 @@ class TestBestAlpha(unittest.TestCase):
         }
         self.assertEqual(alpha_report.best_alpha(signals), signals["yield_curve"])
 
+    def test_gather_signals_returns_mapping(self) -> None:
+        """``gather_signals`` should return all expected signal keys."""
+        signals = alpha_report.gather_signals()
+        self.assertIsInstance(signals, dict)
+        for key in ("yield_curve", "supply_chain"):
+            self.assertIn(key, signals)
+
 
 if __name__ == "__main__":  # pragma: no cover
     unittest.main()
