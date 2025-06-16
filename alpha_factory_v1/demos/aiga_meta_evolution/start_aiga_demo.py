@@ -57,13 +57,14 @@ def ensure_deps() -> None:
     if checker.exists():
         env = os.environ.copy()
         env["AUTO_INSTALL_MISSING"] = "1"
-        result = subprocess.run([sys.executable, str(checker)], env=env, capture_output=True, text=True)
+        result = subprocess.run(
+            [sys.executable, str(checker)], env=env, capture_output=True, text=True
+        )
         if result.returncode != 0:
-            print(f"Dependency check failed with exit code {result.returncode}")
-            print("Output:")
-            print(result.stdout)
-            print("Errors:")
-            print(result.stderr)
+            print(result.stdout, end="")
+            if result.stderr:
+                print(result.stderr, end="", file=sys.stderr)
+            sys.exit(result.returncode)
 
 
 def main() -> None:
