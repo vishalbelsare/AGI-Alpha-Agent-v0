@@ -50,21 +50,33 @@ cd "$root_dir"                                # required for build context
 
 ################################### flags #####################################
 PROFILE_LIVE=0
+PORT=7860
 while [[ $# -gt 0 ]]; do
   case $1 in
-    --live) PROFILE_LIVE=1 ;;
+    --live)
+      PROFILE_LIVE=1
+      shift
+      ;;
+    --port)
+      PORT=${2:?"--port requires an argument"}
+      shift 2
+      ;;
     -h|--help)
       cat <<EOF
-Usage: ./run_experience_demo.sh [--live]
+Usage: ./run_experience_demo.sh [--live] [--port <num>]
 
---live   Start real-time collectors (wearables-sim, RSS feeds, etc.)
+--live       Start real-time collectors (wearables-sim, RSS feeds, etc.)
+--port <num> Web UI port to expose (default 7860)
 Place pre-downloaded CSVs in $SAMPLE_DATA_DIR (defaults to ./offline_samples/) for air-gapped runs.
 Set SKIP_ENV_CHECK=1 to bypass Python package checks.
 EOF
-      exit 0 ;;
-    *) die "Unknown flag: $1" ;;
+      exit 0
+      ;;
+    *)
+      die "Unknown flag: $1"
+      shift
+      ;;
   esac
-  shift
 done
 
 ################################# prereqs #####################################
@@ -127,18 +139,18 @@ profile_arg=""
 
 ################################ build & up ###################################
 say "🚢 Building images…"
-docker compose -f "$compose_file" $profile_arg pull --quiet || true
-docker compose -f "$compose_file" $profile_arg build --pull
+PORT="$PORT" docker compose -f "$compose_file" $profile_arg pull --quiet || true
+PORT="$PORT" docker compose -f "$compose_file" $profile_arg build --pull
 
 say "🔄 Starting stack…"
-docker compose --project-name alpha_experience -f "$compose_file" $profile_arg up -d
+PORT="$PORT" docker compose --project-name alpha_experience -f "$compose_file" $profile_arg up -d
 
 ################################ health gate ##################################
 say "⏳ Waiting for orchestrator health"
-health_wait 7860 40
+health_wait "$PORT" 40
 
 ################################ success ######################################
-printf '\n\033[1;32m🎉 Dashboard → http://localhost:7860\033[0m\n'
+printf '\n\033[1;32m🎉 Dashboard → http://localhost:%s\033[0m\n' "$PORT"
 echo "📜 Logs      → docker compose -p alpha_experience logs -f"
 echo "🛑 Stop      → docker compose -p alpha_experience down"
 echo "🧹 Purge     → docker compose -p alpha_experience down -v --remove-orphans"
