@@ -26,8 +26,10 @@ Within 60 seconds you will witness an agent <em>rewrite its own playbook</em> e
 - At least **4 CPU cores** (or a modest GPU) for smooth local runs
 - *(Optional)* `OPENAI_API_KEY` for cloud LLMs — leave blank to use the built‑in Mixtral via Ollama
 - If running without `run_experience_demo.sh`, install the
-  [`openai-agents`](https://openai.github.io/openai-agents-python/) SDK and
-  `gradio` via `pip install openai-agents gradio`.
+  dependencies from `requirements.txt` with:
+  ```bash
+  pip install -r requirements.txt
+  ```
   Then, you can run the script directly with a command like:
   ```bash
   SAMPLE_DATA_DIR=/path/to/csvs python agent_experience_entrypoint.py
@@ -39,7 +41,7 @@ Within 60 seconds you will witness an agent <em>rewrite its own playbook</em> e
 ```bash
 git clone https://github.com/MontrealAI/AGI-Alpha-Agent-v0.git
 cd AGI-Alpha-Agent-v0/alpha_factory_v1/demos/era_of_experience
-python ../../../check_env.py --auto-install  # optional env check
+python ../../../check_env.py --demo era_experience --auto-install  # optional env check
 chmod +x run_experience_demo.sh
 ./run_experience_demo.sh      # ← THAT’S IT
 ```
@@ -272,7 +274,7 @@ Verify the demo locally with Python's builtin test runner:
 python -m unittest tests.test_era_experience
 ```
 
-Run `python ../../../check_env.py --auto-install` first and make sure it
+Run `python ../../../check_env.py --demo era_experience --auto-install` first and make sure it
 completes successfully before running any tests. Tests will fail if core
 packages such as `numpy` are missing, in addition to optional ones like
 `pytest` and `openai-agents`.
