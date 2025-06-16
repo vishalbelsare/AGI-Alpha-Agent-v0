@@ -163,6 +163,16 @@ OPENAI_API_KEY=dummy pytest tests/test_meta_agentic_tree_search_demo.py::test_br
   `requirements-demo.txt` or they will be skipped automatically.
 - The meta-agentic tree search tests also rely on `numpy` and `pyyaml`. These packages are included in `requirements-dev.txt`, so running `pip install -r requirements-dev.txt` will install them.
 
+### Experience demo tests
+
+Run the Era‑of‑Experience checks without starting Docker:
+
+```bash
+pytest tests/test_experience_launcher.py tests/test_agent_experience_entrypoint.py
+```
+
+These tests verify the demo launcher script and the Python entrypoint with both OpenAI and Ollama settings.
+
 ## Troubleshooting
 
 ImportErrors during test collection usually mean optional packages are missing.
