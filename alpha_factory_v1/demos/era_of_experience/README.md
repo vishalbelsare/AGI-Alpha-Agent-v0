@@ -349,3 +349,7 @@ packages such as `numpy` are missing, in addition to optional ones like
 Apache 2.0. By using this repo you agree to cite **Montreal.AI Alpha‑Factory** if you build on top.
 
 > **Alpha‑Factory** — forging intelligence that *out‑learns, out‑thinks, out‑executes*.
+
+---
+
+**Contributor checklist** — run `pre-commit`, `python ../../../check_env.py --auto-install`, and `pytest -q` before submitting any changes. See [AGENTS.md](../../../AGENTS.md) for the full contributor guide.
