@@ -1,6 +1,8 @@
 # SPDX-License-Identifier: Apache-2.0
 import unittest
 import asyncio
+import os
+import time
 from typing import Any
 
 from alpha_factory_v1.demos.era_of_experience import agent_experience_entrypoint as demo
@@ -22,6 +24,23 @@ class TestEraOfExperience(unittest.TestCase):
         self.assertIsInstance(evt, dict)
         self.assertIn("kind", evt)
         self.assertIn("payload", evt)
+
+    def test_stream_rate_env_controls_interval(self) -> None:
+        os.environ["STREAM_RATE_HZ"] = "5"
+
+        async def grab_two() -> float:
+            gen = demo.experience_stream()
+            t1 = time.perf_counter()
+            await anext(gen)
+            t2 = time.perf_counter()
+            await anext(gen)
+            t3 = time.perf_counter()
+            return (t2 - t1 + t3 - t2) / 2
+
+        avg = asyncio.run(grab_two())
+        del os.environ["STREAM_RATE_HZ"]
+        self.assertLess(avg, 0.4)
+        self.assertGreater(avg, 0.1)
 
     def test_reward_backends_produce_floats(self) -> None:
         names = reward_backends.list_rewards()

@@ -81,6 +81,7 @@ TEMP = float(os.getenv("TEMPERATURE", "0.2"))
 LIVE_FEED = bool(int(os.getenv("LIVE_FEED", "0")))
 PORT = int(os.getenv("PORT", "7860"))
 LOG_LVL = os.getenv("LOG_LEVEL", "INFO").upper()
+STREAM_RATE = float(os.getenv("STREAM_RATE_HZ", "1"))
 
 logging.basicConfig(
     level=LOG_LVL,
@@ -109,6 +110,7 @@ async def experience_stream() -> AsyncIterator[Dict[str, Any]]:
     learn = ["Duolingo Spanish 10 min", "Khan Academy Calculus 15 min", "Read 'Nature' abstract"]
     health = ["Run 5 km", "Sleep 7 h 45 m", "Cycle 12 km", "Yoga 30 min"]
 
+    period = 1.0 / max(STREAM_RATE, 0.01)
     while True:
         uid += 1
         now = dt.datetime.now(dt.timezone.utc).isoformat()
@@ -118,7 +120,7 @@ async def experience_stream() -> AsyncIterator[Dict[str, Any]]:
             kind, payload = "learn", {"session": random.choice(learn)}
         evt = {"id": uid, "t": now, "user": random.choice(users), "kind": kind, "payload": payload}
         yield evt
-        await asyncio.sleep(1.5)  # ~0.66 Hz stream
+        await asyncio.sleep(period)
 
 
 # ────────────────────────────── sensor-motor tools ──────────────────────────
