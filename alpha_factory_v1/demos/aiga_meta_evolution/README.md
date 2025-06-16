@@ -87,6 +87,8 @@ git clone https://github.com/MontrealAI/AGI-Alpha-Agent-v0.git
 cd AGI-Alpha-Agent-v0
 AUTO_INSTALL_MISSING=1 python check_env.py  # verify deps offline/online
 pip install -r alpha_factory_v1/requirements.txt
+# install from requirements-demo.txt or add `gymnasium[classic-control]`
+# check_env.py --auto-install does not currently install gymnasium
 # ensures `openai-agents` and friends are installed
 python alpha_factory_v1/demos/aiga_meta_evolution/agent_aiga_entrypoint.py
 # offline machines can supply predownloaded wheels:

@@ -68,6 +68,7 @@ sentencepiece>=0.1.99
 
 # Genetic-algorithm engine (AIGA meta-evolution demo)
 deap>=1.4
+gymnasium[classic-control]>=0.29
 
 # ─────────── Finance & markets integration ────────────────────────────
 ccxt>=4.3               # exchange API client (Binance testnet, etc.)
