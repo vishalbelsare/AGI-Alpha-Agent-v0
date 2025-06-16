@@ -106,6 +106,18 @@ When running without internet access:
    SKIP_ENV_CHECK=1 ./run_experience_demo.sh
    ```
 
+Offline test workflow (after copying `/media/wheels`):
+
+- **Build** the wheel cache on a machine with internet access as shown above.
+- **Set** `WHEELHOUSE=/media/wheels` and run:
+  ```bash
+  python ../../../check_env.py --auto-install --wheelhouse "$WHEELHOUSE"
+  ```
+- **Run** the unit tests with the wheelhouse available:
+  ```bash
+  WHEELHOUSE=$WHEELHOUSE pytest -q
+  ```
+
 
 ### 🔧 Configure &amp; advanced usage
 
