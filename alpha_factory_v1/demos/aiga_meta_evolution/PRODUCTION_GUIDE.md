@@ -39,6 +39,14 @@ AUTO_INSTALL_MISSING=1 python check_env.py --auto-install --wheelhouse "$WHEELHO
 Run `python scripts/check_python_deps.py` first to verify core packages,
 then `AUTO_INSTALL_MISSING=1 python check_env.py --auto-install`.
 Provide this directory via `WHEELHOUSE` when installing on the production host.
+Regenerate the lock file whenever `requirements.txt` changes:
+
+```bash
+pip-compile --generate-hashes \
+    alpha_factory_v1/demos/aiga_meta_evolution/requirements.txt \
+    -o alpha_factory_v1/demos/aiga_meta_evolution/requirements.lock
+```
+The `verify-aiga-requirements-lock` pre-commit hook enforces this.
 Run `pre-commit run --all-files` after the dependencies finish installing.
    - Install the OpenAI Agents SDK if not already present:
     ```bash
