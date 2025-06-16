@@ -18,18 +18,27 @@ The AI‑GA Meta‑Evolution service is a conceptual research prototype. Referen
      tests.** The LLM features depend on having either `openai-agents` or
      `agents` available. The `google-adk` package is only needed when the ADK
      gateway is enabled.
-   - Build wheels for the demo requirements on a machine with internet access:
-     ```bash
-     pip wheel -r requirements.txt -w /path/to/wheels
-     ```
-   - When installing offline, set the wheelhouse before running `check_env.py`:
-     ```bash
-     export WHEELHOUSE=/path/to/wheels
-     AUTO_INSTALL_MISSING=1 python check_env.py --auto-install
-     ```
-   - Run `python scripts/check_python_deps.py` first to verify core packages,
-     then `AUTO_INSTALL_MISSING=1 python check_env.py --auto-install`.
-   - Provide this directory via `WHEELHOUSE` when installing on the production host.
+
+### Building a wheelhouse
+
+Create a wheelhouse if the production host lacks internet access.
+From the repository root:
+
+```bash
+pip wheel -r alpha_factory_v1/demos/aiga_meta_evolution/requirements.txt -w wheels
+```
+
+Copy the `wheels/` directory to the target machine and set `WHEELHOUSE`
+before running the environment check:
+
+```bash
+export WHEELHOUSE=$(pwd)/wheels
+AUTO_INSTALL_MISSING=1 python check_env.py --auto-install --wheelhouse "$WHEELHOUSE"
+```
+
+Run `python scripts/check_python_deps.py` first to verify core packages,
+then `AUTO_INSTALL_MISSING=1 python check_env.py --auto-install`.
+Provide this directory via `WHEELHOUSE` when installing on the production host.
 Run `pre-commit run --all-files` after the dependencies finish installing.
    - Install the OpenAI Agents SDK if not already present:
     ```bash
