@@ -78,7 +78,8 @@ need curl
 if [[ "${SKIP_ENV_CHECK:-0}" != "1" ]]; then
   if command -v python3 &>/dev/null && [[ -f ../check_env.py ]]; then
     say "Checking host Python packages"
-    python3 ../check_env.py --auto-install || warn "Environment check failed"
+    python3 ../check_env.py --demo era_experience --auto-install || \
+      warn "Environment check failed"
   fi
 fi
 

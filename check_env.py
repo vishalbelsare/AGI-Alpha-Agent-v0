@@ -87,6 +87,11 @@ DEMO_PACKAGES = {
         "aiohttp",
         "qdrant_client",
     ],
+    "era_experience": [
+        "openai_agents",
+        "gradio",
+        "sentence_transformers",
+    ],
 }
 
 # Optional integrations that may not be present in restricted environments.
@@ -107,6 +112,7 @@ PIP_NAMES = {
     "yaml": "PyYAML",
     "gradio": "gradio",
     "aiohttp": "aiohttp",
+    "sentence_transformers": "sentence-transformers",
     "opentelemetry": "opentelemetry-api",
     "opentelemetry-api": "opentelemetry-api",
     "qdrant_client": "qdrant-client",
