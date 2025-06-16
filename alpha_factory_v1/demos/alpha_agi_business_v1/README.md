@@ -323,6 +323,25 @@ the same helper agent is also exposed via an ADK gateway for A2A messaging.
 Visit `http://localhost:9000/docs` to explore the gateway when enabled (default port: 9000).
 To use a custom port, set the `GATEWAY_PORT` environment variable accordingly.
 
+#### Air‑gapped setup
+
+The bridge requires the `openai-agents` package and optionally `google-adk` when
+ADK federation is enabled. Build wheels on a machine with internet access:
+
+```bash
+pip wheel openai-agents google-adk -w /media/wheels
+```
+
+Install from this wheelhouse and verify the environment before launching the
+bridge:
+
+```bash
+python check_env.py --auto-install --wheelhouse /media/wheels
+WHEELHOUSE=/media/wheels python openai_agents_bridge.py --host http://localhost:8000
+```
+
+See [PRODUCTION_GUIDE.md](PRODUCTION_GUIDE.md) for detailed deployment tips.
+
 - The bridge exposes several helper tools:
 - `list_agents`
 - `trigger_discovery`
