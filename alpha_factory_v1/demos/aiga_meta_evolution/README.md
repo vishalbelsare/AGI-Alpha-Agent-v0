@@ -197,15 +197,25 @@ ALPHA_FACTORY_ENABLE_ADK=true python openai_agents_bridge.py &
 ```
 
 This publishes the tools over the **A2A protocol** so other agents can
-orchestrate evolution remotely.
-Set `ALPHA_FACTORY_ENABLE_ADK=1` in `config.env` to auto-start the gateway
-when running `./run_aiga_demo.sh`.
+orchestrate evolution remotely. Enable the gateway whenever you need to
+federate multiple Alpha‑Factory instances or let external clients control
+evolution. Set `ALPHA_FACTORY_ENABLE_ADK=1` in `config.env` to auto-start the
+gateway when running `./run_aiga_demo.sh`.
 
 Define `ALPHA_FACTORY_ADK_TOKEN` to require this token on every ADK request:
 
 ```env
 ALPHA_FACTORY_ENABLE_ADK=1
 ALPHA_FACTORY_ADK_TOKEN="my_secret_token"
+```
+
+Interact with the running gateway using `curl`:
+
+```bash
+curl -X POST http://localhost:9000/v1/tasks \
+     -H "x-alpha-factory-token: my_secret_token" \
+     -H "Content-Type: application/json" \
+     -d '{"agent": "aiga_evolver", "content": "evolve 1"}'
 ```
 
 The optional ADK gateway integrates with the OpenAI Agents SDK bridge and
