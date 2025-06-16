@@ -171,6 +171,24 @@ Sample CSVs (`wearable_daily.csv`, `edu_progress.csv`) are shipped in
        ./run_experience_demo.sh
    ```
 
+### Environment variables
+
+| Variable | Default | Purpose |
+|----------|---------|---------|
+| `OPENAI_API_KEY` | _(empty)_ | API key for hosted models. Offline mode is used when empty. |
+| `MODEL_NAME` | `gpt-4o-mini` | Planner model name. |
+| `TEMPERATURE` | `0.40` | LLM sampling temperature. |
+| `MAX_TOKENS` | `4096` | Token limit for reasoning and tool calls. |
+| `OLLAMA_MODEL` | `mixtral:instruct` | Offline fallback model pulled by Ollama. |
+| `LLM_BASE_URL` | `http://ollama:11434/v1` | Override the local LLM endpoint. |
+| `STREAM_RATE_HZ` | `1` | Synthetic experience events per second. |
+| `LIVE_FEED` | `0` | Set to `1` to mix in real sensor/web data. |
+| `FITNESS_REWARD_WEIGHT` | `0.50` | Weight on `fitness_reward()`. |
+| `EDUCATION_REWARD_WEIGHT` | `0.50` | Weight on `education_reward()`. |
+| `PG_PASSWORD` | `alpha` | TimescaleDB password for the live-feed logger. |
+| `LOG_LEVEL` | `INFO` | Logging verbosity. |
+| `PORT` | `7860` | Web UI port. |
+
 ---
 
 ## 🎓 Run on Colab (zero install)
