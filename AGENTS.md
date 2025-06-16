@@ -24,6 +24,8 @@ Please report security vulnerabilities as described in our [Security Policy](SEC
 - Keep `package-lock.json` under version control so `npm ci` reproduces the same
   dependency tree.
 - Run `python alpha_factory_v1/scripts/preflight.py` to validate these tools.
+- If the `pre-commit` command is missing, run `pip install pre-commit` so the
+  git hooks work correctly.
 
 Confirm installed versions:
 ```bash
@@ -346,6 +348,8 @@ The **Deploy — Kind** workflow provisions a local kind cluster, builds the Ins
   provide `--wheelhouse <dir>` or set `WHEELHOUSE` to your wheel cache.
 - If `pre-commit` reports "command not found", install it manually with
   `pip install pre-commit` and run `pre-commit install` once.
+- To reinstall the hooks, run `pip install -U pre-commit` and then
+  `pre-commit install` again.
 
 For detailed troubleshooting steps, see [`alpha_factory_v1/scripts/README.md`](alpha_factory_v1/scripts/README.md).
 
