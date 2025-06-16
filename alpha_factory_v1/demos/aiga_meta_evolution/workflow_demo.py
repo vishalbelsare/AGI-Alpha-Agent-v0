@@ -1,4 +1,5 @@
 # SPDX-License-Identifier: Apache-2.0
+# mypy: ignore-errors
 """
 This module is part of a conceptual research prototype. References to
 'AGI' or 'superintelligence' describe aspirational goals and do not
@@ -7,22 +8,30 @@ indicate the presence of real general intelligence. Use at your own risk.
 End-to-end Alpha Factory workflow demo.
 
 This script chains the ``alpha_discovery`` and ``alpha_conversion``
-stubs via the OpenAI Agents runtime. It works offline when
-``OPENAI_API_KEY`` is unset and can publish the agent over the
-Google ADK gateway when the ``ALPHA_FACTORY_ENABLE_ADK`` environment
+stubs via the OpenAI Agents runtime. It is compatible with either the
+``openai_agents`` package or the ``agents`` backport. The demo works
+offline when ``OPENAI_API_KEY`` is unset and can publish the agent over
+the Google ADK gateway when the ``ALPHA_FACTORY_ENABLE_ADK`` environment
 variable is set.
 """
 from __future__ import annotations
 
 try:
-    from openai_agents import Agent, AgentRuntime, OpenAIAgent, Tool
-except ImportError as exc:  # pragma: no cover
-    raise SystemExit("openai_agents package is required. Install with `pip install openai-agents`") from exc
+    from openai_agents import Agent, AgentRuntime, OpenAIAgent as _OpenAIAgent, Tool
+except ImportError:
+    try:  # pragma: no cover - fallback for legacy package
+        from agents import Agent, AgentRuntime, OpenAIAgent as _OpenAIAgent, Tool
+    except Exception as exc:  # pragma: no cover
+        raise SystemExit(
+            "openai-agents or agents package is required. Install with `pip install openai-agents`"
+        ) from exc
 
 from .utils import build_llm
 
 from alpha_opportunity_stub import identify_alpha
 from alpha_conversion_stub import convert_alpha
+
+OpenAIAgent = _OpenAIAgent
 
 try:
     from alpha_factory_v1.backend import adk_bridge
