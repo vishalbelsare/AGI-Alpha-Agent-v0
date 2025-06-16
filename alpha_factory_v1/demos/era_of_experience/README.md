@@ -134,6 +134,19 @@ Sample CSVs (`wearable_daily.csv`, `edu_progress.csv`) are shipped in
    `./run_experience_demo.sh`. The Grafana dashboard is available at
    `http://localhost:3001` (password `experience`).
 
+4. Override service endpoints when customizing deployments:
+
+   - `LLM_BASE_URL` changes the Ollama API base URL when `OPENAI_API_KEY` is unset.
+   - `PG_PASSWORD` sets the TimescaleDB password for the live-feed logger.
+
+   These keys are documented in `config.env.sample` and can be exported on the
+   command line:
+
+   ```bash
+   LLM_BASE_URL=http://my-ollama:11434/v1 PG_PASSWORD=secret \
+       ./run_experience_demo.sh
+   ```
+
 ---
 
 ## 🎓 Run on Colab (zero install)
