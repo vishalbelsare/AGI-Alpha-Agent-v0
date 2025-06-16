@@ -113,20 +113,33 @@ fi
 ############################## offline samples ################################
 say "Syncing offline experience snapshots in $offline_dir"
 mkdir -p "$offline_dir"
+if curl -sf https://example.com >/dev/null; then
+  offline_probe=0
+else
+  warn "Connectivity test failed – using empty placeholders"
+  offline_probe=1
+fi
 declare -A urls=(
   [wearable_daily.csv]=https://raw.githubusercontent.com/MontrealAI/demo-assets/main/wearable_daily.csv
   [edu_progress.csv]  =https://raw.githubusercontent.com/MontrealAI/demo-assets/main/edu_progress.csv
 )
-for f in "${!urls[@]}"; do
-  if [[ -f "$offline_dir/$f" ]]; then
-    say "Local file detected: $offline_dir/$f – skipping download"
-    continue  # local file already present
-  fi
-  if ! curl -sfL "${urls[$f]}" -o "$offline_dir/$f"; then
-    warn "Failed downloading $f – using empty placeholder"
+if (( offline_probe == 0 )); then
+  for f in "${!urls[@]}"; do
+    if [[ -f "$offline_dir/$f" ]]; then
+      say "Local file detected: $offline_dir/$f – skipping download"
+      continue  # local file already present
+    fi
+    if ! curl -sfL "${urls[$f]}" -o "$offline_dir/$f"; then
+      warn "Failed downloading $f – using empty placeholder"
+      : > "$offline_dir/$f"
+    fi
+  done
+else
+  for f in "${!urls[@]}"; do
+    [[ -f "$offline_dir/$f" ]] && continue
     : > "$offline_dir/$f"
-  fi
-done
+  done
+fi
 
 ################################# profiles ####################################
 profiles=()
