@@ -65,6 +65,13 @@ snapshots are already included in the repository
 
 > **Offline/Private mode** — leave `OPENAI_API_KEY=` blank in <code>config.env</code>; the stack falls back to <strong>Ollama ✕ Mixtral‑8x7B</strong> and stays air‑gapped.
 
+Customize the dataset directory by exporting `SAMPLE_DATA_DIR` (see
+`config.env.sample`) before launching the script:
+
+```bash
+SAMPLE_DATA_DIR=/path/to/csvs ./run_experience_demo.sh
+```
+
 ### 📒 Interactive notebook demo
 
 Run the self-contained Colab notebook to launch the experience demo without any local setup.
