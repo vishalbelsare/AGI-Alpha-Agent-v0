@@ -118,23 +118,26 @@ it the demo falls back to the bundled offline mixtral model.
 
 Follow these steps when working **air‑gapped**:
 
-- Build wheels using the same Python version as your virtual environment:
-  ```bash
-  mkdir -p /path/to/wheels
-  pip wheel -r ../../requirements.txt -w /path/to/wheels
-  pip wheel openai-agents google-adk -w /path/to/wheels
-  ```
+1. **Build the wheelhouse** once using the same Python version as your
+   virtual environment:
+   ```bash
+   mkdir -p /path/to/wheels
+   pip wheel -r ../../requirements.txt -w /path/to/wheels
+   pip wheel openai-agents google-adk -w /path/to/wheels
+   ```
 
-- Install from the wheelhouse so `check_env.py` can resolve all dependencies:
-  ```bash
-  WHEELHOUSE=/path/to/wheels AUTO_INSTALL_MISSING=1 \
-    python check_env.py --auto-install --wheelhouse "$WHEELHOUSE"
-  ```
+2. **Reuse the wheelhouse** whenever you install or check the environment:
+   ```bash
+   WHEELHOUSE=/path/to/wheels AUTO_INSTALL_MISSING=1 \
+     python check_env.py --auto-install --wheelhouse "$WHEELHOUSE"
+   ```
 
-See [scripts/README.md](../../scripts/README.md#offline-setup) for details on
-creating the wheelhouse.
-Consult [docs/OFFLINE_SETUP.md](../../../docs/OFFLINE_SETUP.md) for a brief
-overview.
+   Always run the command above before executing `pytest` or any demo so all
+   optional dependencies are installed correctly.
+
+See [alpha_factory_v1/scripts/README.md](../../scripts/README.md#offline-setup)
+for additional tips on creating and using a wheelhouse. Consult
+[docs/OFFLINE_SETUP.md](../../../docs/OFFLINE_SETUP.md) for a brief overview.
 
 ### Installing the OpenAI Agents SDK
 
