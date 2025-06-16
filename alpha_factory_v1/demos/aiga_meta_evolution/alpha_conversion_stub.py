@@ -64,7 +64,7 @@ def _ledger_path(path: str | os.PathLike[str] | None) -> Path:
 
 
 def convert_alpha(alpha: str, *, ledger: Path | None = None, model: str = "gpt-4o-mini") -> Dict[str, Any]:
-    """Return a plan dictionary and log to *ledger*."""
+    """Return a plan dictionary and optionally log to *ledger*."""
     plan: Dict[str, Any] = SAMPLE_PLAN.copy()
     if openai is not None and os.getenv("OPENAI_API_KEY"):
         prompt = (
@@ -84,7 +84,8 @@ def convert_alpha(alpha: str, *, ledger: Path | None = None, model: str = "gpt-4
         except json.JSONDecodeError as e:
             logging.error(f"Failed to parse JSON response: {e}. Falling back to SAMPLE_PLAN.")
             plan = SAMPLE_PLAN
-    (_ledger_path(ledger)).write_text(json.dumps(plan, indent=2))
+    if ledger is not None:
+        _ledger_path(ledger).write_text(json.dumps(plan, indent=2))
     return plan
 
 
@@ -100,13 +101,13 @@ def main(argv: list[str] | None = None) -> None:  # pragma: no cover - CLI wrapp
     p.add_argument("--no-log", action="store_true", help="do not write ledger file")
     args = p.parse_args(argv)
 
-    ledger = _ledger_path(args.ledger)
-    plan = convert_alpha(args.alpha, ledger=None if args.no_log else ledger, model=args.model)
-    if args.no_log:
-        ledger.unlink(missing_ok=True)
+    ledger = None if args.no_log else _ledger_path(args.ledger)
+    plan = convert_alpha(args.alpha, ledger=ledger, model=args.model)
     print(json.dumps(plan, indent=2))
-    if not args.no_log:
+    if ledger is not None:
         print(f"Logged to {ledger}")
+    else:
+        print("Ledger write skipped")
 
 
 if __name__ == "__main__":  # pragma: no cover
