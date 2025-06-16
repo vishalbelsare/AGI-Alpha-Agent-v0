@@ -79,8 +79,17 @@ When running without internet access:
    <a href="https://github.com/MontrealAI/demo-assets">demo-assets</a> repository.
 2. Place both files in `offline_samples/` before executing
    <code>./run_experience_demo.sh</code> so the orchestrator can read them.
-3. If the environment check cannot reach PyPI, set `SKIP_ENV_CHECK=1` to skip
-   that step:
+3. Build a wheelhouse on an online machine:
+   ```bash
+   pip wheel -r requirements.txt -w /media/wheels
+   ```
+   Copy `/media/wheels` to the offline host.
+4. Run the environment check with the wheelhouse:
+   ```bash
+   python ../../../check_env.py --auto-install --wheelhouse /media/wheels
+   ```
+5. If the environment check still cannot reach PyPI, set `SKIP_ENV_CHECK=1` to
+   skip that step:
    ```bash
    SKIP_ENV_CHECK=1 ./run_experience_demo.sh
    ```
