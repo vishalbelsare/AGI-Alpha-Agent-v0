@@ -1,4 +1,5 @@
 # SPDX-License-Identifier: Apache-2.0
+import os
 import pytest
 import sys
 import types
@@ -8,7 +9,11 @@ import importlib.util
 try:  # pragma: no cover - best effort environment setup
     from check_env import main as check_env_main
 
-    if check_env_main(["--auto-install"]):
+    wheelhouse = os.getenv("WHEELHOUSE")
+    args = ["--auto-install"]
+    if wheelhouse:
+        args += ["--wheelhouse", wheelhouse]
+    if check_env_main(args):
         pytest.skip(
             "Environment check failed, run 'python check_env.py --auto-install'",
             allow_module_level=True,

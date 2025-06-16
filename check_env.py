@@ -172,15 +172,27 @@ def main(argv: Optional[List[str]] = None) -> int:
     demo = args.demo
     extra_required = DEMO_PACKAGES.get(demo, [])
 
-    if auto and not wheelhouse and not has_network():
-        print(
-            "No network connectivity detected.\n"
-            "Build a wheelhouse, e.g.:\n"
-            "  pip wheel -r requirements.txt -w /path/to/wheels\n"
-            "Re-run with '--wheelhouse <dir>' or set WHEELHOUSE. See\n"
-            "alpha_factory_v1/scripts/README.md for details."
-        )
-        return 1
+    network_ok = has_network()
+    if auto and not wheelhouse and not network_ok:
+        missing_core = [pkg for pkg in CORE if not check_pkg(pkg)]
+        missing_required = []
+        for pkg in REQUIRED + extra_required:
+            import_name = IMPORT_NAMES.get(pkg, pkg)
+            try:
+                spec = importlib.util.find_spec(import_name)
+            except (ValueError, ModuleNotFoundError):
+                spec = None
+            if spec is None:
+                missing_required.append(pkg)
+        if missing_core or missing_required:
+            print(
+                "No network connectivity detected.\n"
+                "Build a wheelhouse, e.g.:\n"
+                "  pip wheel -r requirements.txt -w /path/to/wheels\n"
+                "Re-run with '--wheelhouse <dir>' or set WHEELHOUSE. See\n"
+                "alpha_factory_v1/scripts/README.md for details."
+            )
+            return 1
 
     if auto:
         for pkg in ("numpy", "prometheus_client"):
@@ -226,7 +238,17 @@ def main(argv: Optional[List[str]] = None) -> int:
         )
         return 1
     req_file = Path(__file__).resolve().parent / "alpha_factory_v1" / "requirements.txt"
-    if auto and req_file.exists():
+    missing_required_pre: list[str] = []
+    for pkg in REQUIRED + extra_required:
+        import_name = IMPORT_NAMES.get(pkg, pkg)
+        try:
+            spec = importlib.util.find_spec(import_name)
+        except (ValueError, ModuleNotFoundError):
+            spec = None
+        if spec is None:
+            missing_required_pre.append(pkg)
+
+    if auto and req_file.exists() and (wheelhouse or network_ok) and (missing_core or missing_required_pre):
         cmd = [sys.executable, "-m", "pip", "install", "--quiet"]
         if wheelhouse:
             cmd += ["--no-index", "--find-links", wheelhouse]
@@ -246,7 +268,7 @@ def main(argv: Optional[List[str]] = None) -> int:
                 "Then re-run with '--wheelhouse <dir>' (see "
                 "alpha_factory_v1/scripts/README.md)."
             )
-            if not has_network() and not wheelhouse:
+            if not network_ok and not wheelhouse:
                 print("No network connectivity detected.")
             return 1
         except subprocess.CalledProcessError as exc:
@@ -282,7 +304,7 @@ def main(argv: Optional[List[str]] = None) -> int:
     missing = missing_required + missing_optional
     if missing:
         print("WARNING: Missing packages:", ", ".join(missing))
-        if auto:
+        if auto and (wheelhouse or network_ok or missing_required):
             cmd = [sys.executable, "-m", "pip", "install", "--quiet"]
             if wheelhouse:
                 cmd += ["--no-index", "--find-links", wheelhouse]
@@ -307,7 +329,7 @@ def main(argv: Optional[List[str]] = None) -> int:
                     "Create a wheelhouse with 'pip wheel -r requirements.txt -w /path/to/wheels'\n"
                     "then re-run with '--wheelhouse <dir>' (see alpha_factory_v1/scripts/README.md)."
                 )
-                if not has_network() and not wheelhouse:
+                if not network_ok and not wheelhouse:
                     print("No network connectivity detected.")
                 return 1
             except subprocess.CalledProcessError as exc:
