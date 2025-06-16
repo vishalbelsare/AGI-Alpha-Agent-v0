@@ -105,6 +105,16 @@ Sample CSVs (`wearable_daily.csv`, `edu_progress.csv`) are shipped in
    The orchestrator automatically switches to offline mode whenever
    `OPENAI_API_KEY` is left empty.
 
+3. Launch Prometheus and Grafana with the `--profile observability` option:
+
+   ```bash
+   docker compose --profile observability up
+   ```
+
+   Or set `COMPOSE_PROFILES=observability` when running
+   `./run_experience_demo.sh`. The Grafana dashboard is available at
+   `http://localhost:3001` (password `experience`).
+
 ---
 
 ## 🎓 Run on Colab (zero install)
