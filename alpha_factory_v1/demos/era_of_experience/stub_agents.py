@@ -15,6 +15,12 @@ from __future__ import annotations
 
 from typing import Any, Dict
 
+from .agent_experience_entrypoint import web_search
+
+import logging
+
+logger = logging.getLogger(__name__)
+
 
 def _safe_import_agent(module_name: str, class_name: str) -> type:
     """Safely import an agent class, falling back to `object` if unavailable."""
@@ -35,10 +41,12 @@ ADKAgent = _safe_import_agent("google_adk", "Agent")  # Google ADK
 class ExperienceAgent(Agent):
     """Tiny wrapper around :class:`openai_agents.Agent`.
 
-    This stub illustrates where one could attach custom tools or reward
-    functions. The default ``act`` simply returns a placeholder action so
-    unit tests can run without an API key.
+    The example ``act`` method calls the ``web_search`` tool when the
+    OpenAI Agents SDK is present. Without the SDK it returns a no-op
+    action so tests run offline.
     """
+
+    tools = [web_search]
 
     def __init__(self, name: str | None = None, **kwargs: Any) -> None:  # type: ignore[override]
         name = name or "experience-agent"
@@ -48,15 +56,23 @@ class ExperienceAgent(Agent):
             super().__init__()
 
     async def act(self) -> Dict[str, Any]:  # type: ignore[override]
-        return {"action": "noop"}
+        if Agent is object:
+            return {"action": "noop"}
+        try:
+            return await self.tools.web_search("era of experience")
+        except Exception:
+            return {"action": "noop"}
 
 
 class FederatedExperienceAgent(ADKAgent):
     """Sketch of an ADK-compatible agent for A2A federation.
 
-    Real implementations would define ``handle_request`` to process A2A
-    messages. Here we return a minimal canned response.
+    ``handle_request`` logs the incoming payload and echoes it back when
+    Google's ADK library is installed. Without ADK the stub simply
+    returns the payload.
     """
 
     async def handle_request(self, payload: Dict[str, Any]) -> Dict[str, Any]:  # type: ignore[override]
+        if ADKAgent is not object:
+            logger.info("ADK request: %s", payload)
         return {"echo": payload}
