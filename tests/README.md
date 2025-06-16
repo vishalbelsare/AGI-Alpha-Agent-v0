@@ -180,6 +180,11 @@ pytest -q
 ```bash
 OPENAI_API_KEY=dummy pytest tests/test_meta_agentic_tree_search_demo.py::test_bridge_online_mode
 ```
+- `tests/test_aiga_agents_bridge.py` exercises the AI-GA bridge when
+  `openai_agents` is installed:
+```bash
+pytest tests/test_aiga_agents_bridge.py
+```
 - The optional integration checks in `test_external_integrations.py` exercise
   the real `openai_agents` and `google_adk` packages. Install them via
   `requirements-demo.txt` or they will be skipped automatically.
