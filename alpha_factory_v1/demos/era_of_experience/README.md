@@ -61,9 +61,15 @@ Add `--live` to pull in real sensor feeds (wearables, RSS, etc.):
   * interactive chat / tool console 💬
   * built‑in alpha detectors (yield curve & supply‑chain) 🔍 — they read from
     `alpha_factory_v1/demos/macro_sentinel/offline_samples/`, and the CSV
-    snapshots are already included in the repository
+snapshots are already included in the repository
 
 > **Offline/Private mode** — leave `OPENAI_API_KEY=` blank in <code>config.env</code>; the stack falls back to <strong>Ollama ✕ Mixtral‑8x7B</strong> and stays air‑gapped.
+
+### 📒 Interactive notebook demo
+
+Run the self-contained Colab notebook to launch the experience demo without any local setup.
+
+[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/MontrealAI/AGI-Alpha-Agent-v0/blob/main/alpha_factory_v1/demos/era_of_experience/colab_era_of_experience.ipynb)
 
 ## Offline Setup
 
