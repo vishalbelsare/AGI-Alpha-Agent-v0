@@ -26,10 +26,10 @@ Within 60 seconds you will witness an agent <em>rewrite its own playbook</em> e
 - At least **4 CPU cores** (or a modest GPU) for smooth local runs
 - *(Optional)* `OPENAI_API_KEY` for cloud LLMs — leave blank to use the built‑in Mixtral via Ollama
 - If running without `run_experience_demo.sh`, install the
-  dependencies from `requirements.txt` and ensure the **OpenAI Agents SDK** is at least version `0.0.14`:
+  dependencies from `requirements.txt` and ensure the **OpenAI Agents SDK** is pinned at version `0.0.17`:
   ```bash
   pip install -r requirements.txt
-  pip install 'openai-agents>=0.0.14'
+  pip install 'openai-agents==0.0.17'
   ```
   `check_env.py` validates the SDK version (see also `alpha_factory_v1/scripts/preflight.py`).
   Then, you can run the script directly with a command like:
