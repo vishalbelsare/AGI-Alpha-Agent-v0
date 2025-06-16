@@ -188,6 +188,7 @@ Sample CSVs (`wearable_daily.csv`, `edu_progress.csv`) are shipped in
 | `PG_PASSWORD` | `alpha` | TimescaleDB password for the live-feed logger. |
 | `LOG_LEVEL` | `INFO` | Logging verbosity. |
 | `PORT` | `7860` | Web UI port. |
+| `CONNECTIVITY_TEST_URL` | `https://example.com` | Probe used to detect internet access. |
 
 ---
 
