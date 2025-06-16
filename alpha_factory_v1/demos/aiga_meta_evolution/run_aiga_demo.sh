@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
 # SPDX-License-Identifier: Apache-2.0
+# This demo is a conceptual research prototype. References to "AGI" and
+# "superintelligence" describe aspirational goals and do not indicate the
+# presence of a real general intelligence. Use at your own risk.
 # ────────────────────────────────────────────────────────────────
 # AI-GA Meta-Evolution – one-command launcher
 # Works on: Linux, macOS, WSL2 (Docker Desktop ≥ 4.28)
