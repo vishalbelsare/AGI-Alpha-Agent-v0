@@ -93,6 +93,28 @@ See [alpha_factory_v1/scripts/README.md](../alpha_factory_v1/scripts/README.md#o
 for detailed steps. Skipping these commands typically leads to `pytest` errors
 about missing modules.
 
+### Offline quick start
+
+Build wheels on a machine with connectivity and reuse them offline:
+
+```bash
+mkdir -p wheels
+pip wheel -r requirements.txt -w wheels
+pip wheel -r requirements-dev.txt -w wheels
+pip wheel -r alpha_factory_v1/demos/aiga_meta_evolution/requirements.txt -w wheels
+```
+
+Copy the `wheels/` directory to the offline host and set `WHEELHOUSE`:
+
+```bash
+export WHEELHOUSE=/path/to/wheels
+python check_env.py --auto-install --wheelhouse "$WHEELHOUSE"
+PYTHONPATH=$(pwd) pytest -q
+```
+
+The environment check installs any missing packages from `WHEELHOUSE` so the
+tests run without contacting PyPI.
+
 ### Offline install
 
 Create a wheelhouse so the tests run without contacting PyPI. Build the wheels on
