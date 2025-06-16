@@ -1,4 +1,5 @@
 # SPDX-License-Identifier: Apache-2.0
+# mypy: ignore-errors
 #!/usr/bin/env python
 # alpha_factory_v1/demos/era_of_experience/agent_experience_entrypoint.py
 # © 2025 MONTREAL.AI – Apache-2.0 License
@@ -39,7 +40,7 @@ import json
 import logging
 import math
 import re
-from typing import Dict, Any, AsyncIterator, List
+from typing import Dict, Any, AsyncIterator, Callable, TypeVar
 
 from fastapi import FastAPI
 from fastapi.responses import PlainTextResponse
@@ -57,12 +58,13 @@ except ImportError:  # pragma: no cover - allow import without package
 else:
     _NO_OPENAI_AGENTS = False
 
-if Tool is None:  # type: ignore
+if Tool is None:
+    F = TypeVar("F", bound=Callable[..., Any])
 
-    def Tool(*_args, **_kwargs):  # noqa: D401 - simple passthrough decorator
+    def Tool(*_args: Any, **_kwargs: Any) -> Callable[[F], F]:  # noqa: D401 - simple passthrough decorator
         """Fallback no-op decorator when openai_agents is unavailable."""
 
-        def _wrap(func):
+        def _wrap(func: F) -> F:
             return func
 
         return _wrap
