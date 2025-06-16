@@ -240,6 +240,10 @@ async def _count_requests(request, call_next):
     now = time.time()
     window = now - 60
     times = [t for t in _REQUEST_LOG.get(ip, []) if t > window]
+    if not times:
+        _REQUEST_LOG.pop(ip, None)
+    else:
+        _REQUEST_LOG[ip] = times
     if len(times) >= RATE_LIMIT:
         return JSONResponse({"detail": "rate limit exceeded"}, status_code=429)
     times.append(now)
