@@ -10,7 +10,8 @@ Alpha conversion stub.
 Given a text description of an opportunity, output a short JSON plan
 for how one might capitalise on it. Works fully offline via a canned
 response but will query OpenAI when ``OPENAI_API_KEY`` is set and the
-``openai`` package is available.
+``openai`` package is available. Compatible with either the
+``openai_agents`` package or the ``agents`` backport.
 """
 from __future__ import annotations
 
@@ -27,6 +28,16 @@ logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(
 openai = None
 with contextlib.suppress(ModuleNotFoundError):
     import openai  # type: ignore
+
+try:
+    from openai_agents import OpenAIAgent  # noqa: F401
+except ImportError:
+    try:  # pragma: no cover - fallback for legacy package
+        from agents import OpenAIAgent  # noqa: F401
+    except Exception as exc:  # pragma: no cover - optional dependency
+        raise SystemExit(
+            "openai-agents or agents package is required. Install with `pip install openai-agents`"
+        ) from exc
 
 SAMPLE_PLAN: Dict[str, Any] = {
     "steps": [

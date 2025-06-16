@@ -4,7 +4,8 @@ This module is part of a conceptual research prototype. References to
 'AGI' or 'superintelligence' describe aspirational goals and do not
 indicate the presence of real general intelligence. Use at your own risk.
 
-Shared helpers for the AI-GA Meta-Evolution demo.
+Shared helpers for the AI-GA Meta-Evolution demo. Compatible with either the
+``openai_agents`` package or the ``agents`` backport.
 """
 from __future__ import annotations
 
@@ -12,8 +13,13 @@ import os
 
 try:
     from openai_agents import OpenAIAgent
-except Exception as exc:  # pragma: no cover - optional dependency
-    raise SystemExit("openai-agents package is required. Install with `pip install openai-agents`") from exc
+except ImportError:
+    try:  # pragma: no cover - fallback for legacy package
+        from agents import OpenAIAgent
+    except Exception as exc:  # pragma: no cover - optional dependency
+        raise SystemExit(
+            "openai-agents or agents package is required. Install with `pip install openai-agents`"
+        ) from exc
 
 
 def build_llm() -> OpenAIAgent:

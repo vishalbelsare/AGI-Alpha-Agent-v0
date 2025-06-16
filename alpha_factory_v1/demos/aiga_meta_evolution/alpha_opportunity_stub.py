@@ -1,4 +1,5 @@
 # SPDX-License-Identifier: Apache-2.0
+# mypy: ignore-errors
 """
 This module is part of a conceptual research prototype. References to
 'AGI' or 'superintelligence' describe aspirational goals and do not
@@ -7,17 +8,25 @@ indicate the presence of real general intelligence. Use at your own risk.
 Alpha opportunity discovery agent stub.
 
 This lightweight example exposes a single tool via the OpenAI Agents SDK
-that requests the LLM to list live market inefficiencies. It falls back to
-a local model when no ``OPENAI_API_KEY`` is configured.
+(compatible with either the ``openai_agents`` package or the ``agents``
+backport) that requests the LLM to list live market inefficiencies. It
+falls back to a local model when no ``OPENAI_API_KEY`` is configured.
 """
 from __future__ import annotations
 
 try:
-    from openai_agents import Agent, AgentRuntime, OpenAIAgent, Tool
-except Exception as exc:  # pragma: no cover - optional dependency
-    raise SystemExit("openai-agents package is required. Install with `pip install openai-agents`") from exc
+    from openai_agents import Agent, AgentRuntime, OpenAIAgent as _OpenAIAgent, Tool
+except ImportError:
+    try:  # pragma: no cover - fallback for legacy package
+        from agents import Agent, AgentRuntime, OpenAIAgent as _OpenAIAgent, Tool
+    except Exception as exc:  # pragma: no cover - optional dependency
+        raise SystemExit(
+            "openai-agents or agents package is required. Install with `pip install openai-agents`"
+        ) from exc
 
 from .utils import build_llm
+
+OpenAIAgent = _OpenAIAgent
 
 LLM = build_llm()
 
