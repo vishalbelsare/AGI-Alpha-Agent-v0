@@ -45,6 +45,7 @@ sample_dir="${SAMPLE_DATA_DIR:-$demo_dir/offline_samples}"
 sample_dir="$(realpath -m "$sample_dir")"
 offline_dir="$sample_dir"
 export SAMPLE_DATA_DIR="$sample_dir"
+CONNECTIVITY_TEST_URL="${CONNECTIVITY_TEST_URL:-https://example.com}"
 
 cd "$root_dir"                                # required for build context
 
@@ -113,7 +114,7 @@ fi
 ############################## offline samples ################################
 say "Syncing offline experience snapshots in $offline_dir"
 mkdir -p "$offline_dir"
-if curl -sf https://example.com >/dev/null; then
+if curl -sf "$CONNECTIVITY_TEST_URL" >/dev/null; then
   offline_probe=0
 else
   warn "Connectivity test failed – using empty placeholders"
