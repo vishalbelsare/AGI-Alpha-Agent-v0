@@ -331,8 +331,6 @@ if __name__ == "__main__":
     # register with agent mesh (optional)
     if AgentRuntime:
         AgentRuntime.register(SERVICE_NAME, f"http://localhost:{API_PORT}")
-    if A2ASocket:
-        service.evolver.start_socket()
     if adk_bridge and adk_bridge.adk_enabled():
         evolver_agent = EvolverAgent()
         adk_bridge.auto_register([evolver_agent])
