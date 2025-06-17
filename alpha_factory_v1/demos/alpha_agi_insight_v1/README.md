@@ -4,6 +4,9 @@
 © 2025 Montreal.AI — All rights reserved
 -->
 
+# α‑AGI Insight v1 — Beyond Human Foresight
+[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/MontrealAI/AGI-Alpha-Agent-v0/blob/main/alpha_factory_v1/demos/alpha_agi_insight_v1/colab_alpha_agi_insight_v1.ipynb)
+
 This repository is a conceptual research prototype. References to "AGI" and "superintelligence" describe aspirational goals and do not indicate the presence of a real general intelligence. Use at your own risk.
 
 <p align="center">
@@ -204,9 +207,11 @@ graph TD
 
 ## 2 Quick-start
 
-> **Prerequisites**  
-> • Python ≥ 3.11 • Git • Docker (only for container mode)  
+> **Prerequisites**
+> • Python ≥ 3.11 • Git • Docker (only for container mode)
 > *(Optional)* Node ≥ 20 + pnpm if you plan to rebuild the React front-end.
+
+Or try the hosted notebook: [colab_alpha_agi_insight_v1.ipynb](colab_alpha_agi_insight_v1.ipynb).
 
 ```bash
 # ❶ Clone & enter demo
