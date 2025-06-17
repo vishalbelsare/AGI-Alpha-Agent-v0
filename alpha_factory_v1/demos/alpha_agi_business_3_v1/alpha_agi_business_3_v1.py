@@ -131,25 +131,23 @@ class AgentGdl:
 async def _llm_comment(delta_g: float) -> str:
     """Return a short LLM comment on ``delta_g`` if OpenAI Agents is available."""
 
+    prompt = f"In one sentence, comment on ΔG={delta_g:.4f} for the business."
+
     # When the OpenAI Agents SDK is missing the shim in
     # ``alpha_factory_v1.backend`` exposes a non-callable placeholder.
     # Guard against that scenario as well so offline tests succeed.
     if OpenAIAgent is None or not callable(OpenAIAgent):
-        return cast(
-            str,
-            local_llm.chat(f"In one sentence, comment on ΔG={delta_g:.4f} for the business."),
-        )
+        return cast(str, local_llm.chat(prompt))
+
+    if not os.getenv("OPENAI_API_KEY"):
+        return cast(str, local_llm.chat(prompt))
 
     agent = OpenAIAgent(
         model=os.getenv("MODEL_NAME", "gpt-4o-mini"),
         api_key=os.getenv("OPENAI_API_KEY"),
-        base_url=(None if os.getenv("OPENAI_API_KEY") else os.getenv("LOCAL_LLM_URL", "http://ollama:11434/v1")),
     )
     try:
-        return cast(
-            str,
-            await agent(f"In one sentence, comment on ΔG={delta_g:.4f} for the business."),
-        )
+        return cast(str, await agent(prompt))
     except Exception as exc:  # pragma: no cover - network failures
         log.warning("LLM comment failed: %s", exc)
         return "LLM error"

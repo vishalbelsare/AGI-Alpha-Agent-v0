@@ -92,6 +92,26 @@ def test_llm_comment_online(monkeypatch: pytest.MonkeyPatch) -> None:
     assert not m_chat.called
 
 
+def test_llm_comment_no_api_key(monkeypatch: pytest.MonkeyPatch) -> None:
+    """Fallback to local LLM when ``OPENAI_API_KEY`` is empty."""
+    mod = importlib.import_module(MODULE)
+
+    class DummyAgent:
+        def __init__(self, *_a: object, **_k: object) -> None:  # pragma: no cover - should not run
+            raise AssertionError("should not be instantiated")
+
+        async def __call__(self, prompt: str) -> str:  # pragma: no cover - should not run
+            raise AssertionError("should not be called")
+
+    monkeypatch.setattr(mod, "OpenAIAgent", DummyAgent)
+    monkeypatch.setenv("OPENAI_API_KEY", "")
+    monkeypatch.setattr(mod.local_llm, "chat", lambda _p: "fallback")
+
+    result = asyncio.run(mod._llm_comment(0.1))
+
+    assert result == "fallback"
+
+
 def test_run_cycle_async_logs_delta_g(monkeypatch: pytest.MonkeyPatch, caplog: pytest.LogCaptureFixture) -> None:
     """One cycle should log the computed ΔG value."""
     mod = importlib.import_module(MODULE)
