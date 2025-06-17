@@ -64,7 +64,16 @@ def _ledger_path(path: str | os.PathLike[str] | None) -> Path:
 
 
 def convert_alpha(alpha: str, *, ledger: Path | None = None, model: str = "gpt-4o-mini") -> Dict[str, Any]:
-    """Return a plan dictionary and optionally log to *ledger*."""
+    """Generate a short execution plan for ``alpha``.
+
+    Args:
+        alpha: Opportunity description to convert.
+        ledger: Optional path to write the resulting JSON plan.
+        model: OpenAI model name when an API key is configured.
+
+    Returns:
+        Dictionary representation of the plan steps.
+    """
     plan: Dict[str, Any] = SAMPLE_PLAN.copy()
     if openai is not None and os.getenv("OPENAI_API_KEY"):
         prompt = (
@@ -90,6 +99,7 @@ def convert_alpha(alpha: str, *, ledger: Path | None = None, model: str = "gpt-4
 
 
 def main(argv: list[str] | None = None) -> None:  # pragma: no cover - CLI wrapper
+    """CLI for converting an opportunity into a plan."""
     p = argparse.ArgumentParser(description=__doc__)
     p.add_argument("--alpha", default="Generic opportunity", help="text description of the opportunity")
     p.add_argument("--ledger", help="path to ledger JSON file")

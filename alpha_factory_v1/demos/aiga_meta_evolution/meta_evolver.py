@@ -211,6 +211,17 @@ class MetaEvolver:
         *,
         start_socket: bool = False,
     ) -> None:
+        """Create a meta-evolution engine.
+
+        Args:
+            env_cls: Environment class to instantiate per evaluation.
+            pop_size: Number of genomes per generation.
+            elitism: How many top genomes carry over unchanged.
+            parallel: Whether to evaluate genomes in parallel.
+            checkpoint_dir: Directory for checkpoints.
+            llm: Optional LLM callback for commentary.
+            start_socket: Start the optional A2A socket.
+        """
         self.env_cls, self.pop_size, self.elitism = env_cls, pop_size, elitism
         self.parallel = parallel
         self.ckpt_dir = pathlib.Path(checkpoint_dir)
@@ -329,6 +340,7 @@ class MetaEvolver:
 
     # evolutionary loop ----------------------------------------------------
     def run_generations(self, n: int = 5):
+        """Evolve the population for ``n`` generations."""
         for _ in range(n):
             scores = self._evaluate_population()
             self._last_scores = scores
@@ -384,6 +396,7 @@ class MetaEvolver:
         self._last_scores.clear()
 
     def load(self, path: pathlib.Path | None = None):
+        """Restore state from ``path`` or the latest checkpoint."""
         if path is None:
             latest = max(self.ckpt_dir.glob("gen_*.json"), default=None)
             if not latest:
@@ -404,15 +417,18 @@ class MetaEvolver:
 
     # utils ----------------------------------------------------------------
     def population_sha(self) -> str:
+        """Return a hash of the current population."""
         concat = "".join(sorted(g.sha for g in self.population))
         return hashlib.sha256(concat.encode()).hexdigest()[:16]
 
     def history_plot(self):
+        """Return the fitness history as a ``pandas`` DataFrame."""
         import pandas as pd
 
         return pd.DataFrame(self.history, columns=["generation", "avg_fitness"])
 
     def latest_log(self):
+        """Return a textual summary of the best genome."""
         champ = self.best_genome or max(self.population, key=lambda g: sum(g.layers))
         msg = f"Champion {champ.sha}: {champ.to_json()}"
         if self.llm:
@@ -421,10 +437,12 @@ class MetaEvolver:
 
     @property
     def best_fitness(self) -> float:
+        """Best fitness score observed so far."""
         return self._best_fitness
 
     @property
     def best_architecture(self) -> str:
+        """JSON representation of the champion genome."""
         return self.best_genome.to_json() if self.best_genome else ""
 
 
