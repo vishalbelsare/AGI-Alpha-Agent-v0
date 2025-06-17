@@ -177,6 +177,13 @@ Expose the evolver to the **OpenAI Agents SDK** runtime:
 python alpha_factory_v1/demos/aiga_meta_evolution/openai_agents_bridge.py
 ```
 
+The runtime listens on port `5001` by default. Set `AGENTS_RUNTIME_PORT`
+to change the port:
+
+```bash
+AGENTS_RUNTIME_PORT=6001 python openai_agents_bridge.py
+```
+
 Requires the `openai-agents` or `agents` package (already installed above).
 If both are missing the script exits with an error.
 

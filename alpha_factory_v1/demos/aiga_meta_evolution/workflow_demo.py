@@ -27,6 +27,7 @@ except ImportError:
         ) from exc
 
 from .utils import build_llm
+import os
 
 from alpha_opportunity_stub import identify_alpha
 from alpha_conversion_stub import convert_alpha
@@ -71,8 +72,11 @@ class WorkflowAgent(Agent):
         return {"alpha": first, "plan": plan}
 
 
+AGENT_PORT = int(os.getenv("AGENTS_RUNTIME_PORT", "5001"))
+
+
 def main() -> None:
-    runtime = AgentRuntime(llm=LLM)
+    runtime = AgentRuntime(llm=LLM, port=AGENT_PORT)
     agent = WorkflowAgent()
     runtime.register(agent)
     print("Registered WorkflowAgent with runtime")
