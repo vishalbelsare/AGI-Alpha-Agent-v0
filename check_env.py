@@ -188,7 +188,11 @@ def has_network(timeout: float = 1.0) -> bool:
 def main(argv: Optional[List[str]] = None) -> int:
     parser = argparse.ArgumentParser(
         description="Validate runtime dependencies",
-        epilog="Example: pip wheel -r requirements-core.txt -w /media/wheels",
+        epilog=(
+            "Example: pip wheel -r requirements-core.txt -w /media/wheels\n"
+            "If no --wheelhouse is provided and the repository contains a"
+            " 'wheels/' directory, that path is used automatically."
+        ),
         formatter_class=argparse.RawDescriptionHelpFormatter,
     )
     parser.add_argument(
@@ -198,7 +202,10 @@ def main(argv: Optional[List[str]] = None) -> int:
     )
     parser.add_argument(
         "--wheelhouse",
-        help="Optional path to a local wheelhouse for offline installs",
+        help=(
+            "Optional path to a local wheelhouse for offline installs. "
+            "Defaults to <repo>/wheels when that directory exists."
+        ),
     )
     parser.add_argument(
         "--timeout",
@@ -224,6 +231,10 @@ def main(argv: Optional[List[str]] = None) -> int:
     args = parser.parse_args(argv)
 
     wheelhouse = args.wheelhouse or os.getenv("WHEELHOUSE")
+    if not wheelhouse:
+        default_wh = Path(__file__).resolve().parent / "wheels"
+        if default_wh.is_dir():
+            wheelhouse = str(default_wh)
     auto = args.auto_install or os.getenv("AUTO_INSTALL_MISSING") == "1"
     skip_net_check = args.skip_net_check
     pip_timeout = args.timeout
