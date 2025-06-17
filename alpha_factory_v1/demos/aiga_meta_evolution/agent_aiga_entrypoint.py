@@ -121,6 +121,7 @@ REQUEST_COUNTER = Counter("aiga_http_requests", "API requests", ["route"])
 
 # rate-limit state
 _REQUEST_LOG: dict[str, list[float]] = {}
+_RATE_LOCK = asyncio.Lock()
 
 # ---------------------------------------------------------------------------
 # LLM TOOLING ----------------------------------------------------------------
@@ -245,15 +246,18 @@ async def _count_requests(request, call_next):
     ip = request.client.host
     now = time.time()
     window = now - 60
-    times = [t for t in _REQUEST_LOG.get(ip, []) if t > window]
-    if not times:
-        _REQUEST_LOG.pop(ip, None)
-    else:
-        _REQUEST_LOG[ip] = times
-    if len(times) >= RATE_LIMIT:
+    async with _RATE_LOCK:
+        times = [t for t in _REQUEST_LOG.get(ip, []) if t > window]
+        if not times:
+            _REQUEST_LOG.pop(ip, None)
+        else:
+            _REQUEST_LOG[ip] = times
+        exceed = len(times) >= RATE_LIMIT
+        if not exceed:
+            times.append(now)
+            _REQUEST_LOG[ip] = times
+    if exceed:
         return JSONResponse({"detail": "rate limit exceeded"}, status_code=429)
-    times.append(now)
-    _REQUEST_LOG[ip] = times
     return await call_next(request)
 
 
