@@ -17,13 +17,13 @@ try:  # optional dependency
         ConsoleMetricExporter,
         PeriodicExportingMetricReader,
     )
-    from opentelemetry.sdk.metrics.export import OTLPMetricExporter  # type: ignore[attr-defined]
+    from opentelemetry.sdk.metrics.export import OTLPMetricExporter
     from opentelemetry.sdk.trace import TracerProvider
     from opentelemetry.sdk.trace.export import (
         BatchSpanProcessor,
         ConsoleSpanExporter,
     )
-    from opentelemetry.sdk.trace.export import OTLPSpanExporter  # type: ignore[attr-defined]
+    from opentelemetry.sdk.trace.export import OTLPSpanExporter
     metrics = otel_metrics
     trace = otel_trace
 except Exception:  # pragma: no cover - missing SDK
@@ -47,7 +47,7 @@ try:
     import prometheus_client
     from prometheus_client import Counter, Histogram
 except ModuleNotFoundError:  # pragma: no cover - optional
-    prometheus_client = None  # type: ignore
+    prometheus_client: Any | None = None
 
 
 def _noop(*_a: Any, **_kw: Any) -> Any:
