@@ -158,6 +158,8 @@ class CurriculumEnv(gym.Env):
 
     def reset_batch(self, batch_size: int):
         """Vectorised variant of :meth:`reset`."""
+        if batch_size <= 0:
+            raise ValueError("batch_size must be positive")
         obs, infos = zip(*(self.reset() for _ in range(batch_size)))
         return np.stack(obs), infos
 
