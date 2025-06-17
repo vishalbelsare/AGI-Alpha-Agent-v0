@@ -19,6 +19,11 @@ class CurriculumEnvTest(unittest.TestCase):
         self.assertIn("genome_id", info)
         self.assertLessEqual(info["difficulty"], 10)
 
+    def test_reset_batch_invalid_size(self):
+        env = ce.CurriculumEnv(genome=ce.EnvGenome(max_steps=10), size=6)
+        with self.assertRaises(ValueError):
+            env.reset_batch(0)
+
 
 @unittest.skipUnless(np and torch, "optional deps missing")
 class MetaEvolverTest(unittest.TestCase):
