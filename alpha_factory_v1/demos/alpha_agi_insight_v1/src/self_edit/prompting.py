@@ -6,7 +6,7 @@ from __future__ import annotations
 import argparse
 import os
 import random
-from typing import Callable, Optional
+from typing import Any, Callable, Optional
 
 from src.utils.config import CFG
 from alpha_factory_v1.demos.alpha_agi_insight_v1.src.utils import local_llm
@@ -14,7 +14,7 @@ from alpha_factory_v1.demos.alpha_agi_insight_v1.src.utils import local_llm
 try:  # pragma: no cover - optional dependency
     from alpha_factory_v1.backend.utils.llm_provider import LLMProvider
 except Exception:  # pragma: no cover - fallback
-    LLMProvider = None  # type: ignore[misc]
+    LLMProvider: Any | None = None
 
 
 def _get_llm() -> Callable[[str, Optional[str]], str]:

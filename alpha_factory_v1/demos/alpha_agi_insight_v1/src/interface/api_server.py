@@ -21,7 +21,7 @@ from collections import OrderedDict, deque
 from pathlib import Path
 from typing import Any, List, Set, TYPE_CHECKING, Literal
 
-from cachetools import TTLCache
+from cachetools import TTLCache  # type: ignore[import-not-found]
 
 if TYPE_CHECKING:  # pragma: no cover - typing only
     from typing import Protocol
@@ -56,11 +56,11 @@ try:
     import uvicorn
     from .problem_json import problem_response
 except Exception as exc:  # pragma: no cover - optional
-    FastAPI = None  # type: ignore
-    HTTPException = None  # type: ignore
-    BaseModel = object  # type: ignore
-    WebSocket = Any  # type: ignore
-    uvicorn = None  # type: ignore
+    FastAPI: Any | None = None
+    HTTPException: Any | None = None
+    BaseModel = object
+    WebSocket: Any | None = None
+    uvicorn: Any | None = None
     _IMPORT_ERROR = exc
 else:
     _IMPORT_ERROR = None

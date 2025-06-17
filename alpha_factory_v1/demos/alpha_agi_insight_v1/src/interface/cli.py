@@ -18,7 +18,7 @@ import random
 import time
 from importlib import resources
 from pathlib import Path
-from typing import Any, Iterable, List
+from typing import Any, Iterable, List, cast
 
 import click
 import af_requests as requests
@@ -298,7 +298,7 @@ def simulate(
 
     # evaluate forecast accuracy on the Sector-Shock-10 dataset
     try:
-        repo_root = Path(resources.files("alpha_factory_v1"))
+        repo_root = Path(str(resources.files("alpha_factory_v1")))
         if not (repo_root / "data" / "sector_shock_10").exists():
             raise FileNotFoundError
     except Exception:  # pragma: no cover - fallback for editable installs
@@ -490,8 +490,8 @@ def agents_status(watch: bool) -> None:
         )
         if resp.status_code != 200:
             raise click.ClickException(f"HTTP {resp.status_code}")
-        data = resp.json()
-        agents = data.get("agents", {})
+        data = cast(dict[str, Any], resp.json())
+        agents = cast(dict[str, Any], data.get("agents", {}))
         if isinstance(agents, dict):
             return [
                 {
@@ -501,7 +501,7 @@ def agents_status(watch: bool) -> None:
                 }
                 for name, info in agents.items()
             ]
-        return agents
+        return cast(list[dict[str, object]], agents)
 
     def render() -> None:
         rows = [(a.get("name"), f"{a.get('last_beat', 0):.0f}", a.get("restarts", 0)) for a in _fetch()]
@@ -608,7 +608,8 @@ def replay(since: float | None, count: int | None) -> None:
         limit = count or 1000
         rows = led.tail(limit)
         if since is not None:
-            rows = [r for r in rows if r["ts"] >= since]
+            since_val = since
+            rows = [r for r in rows if r["ts"] >= since_val]
         for row in rows:
             msg = f"{row['ts']:.2f} {row['sender']} -> {row['recipient']} {json.dumps(row['payload'])}"
             click.echo(msg)
@@ -632,12 +633,16 @@ def archive_ls(proof: bool, db_path: str) -> None:
         click.echo("No archive entries")
         return
     headers = ["id", "cid"]
-    rows = [(e[0], e[2]) for e in entries]
+    rows: list[tuple[str, str]] = [(e[0], e[2]) for e in entries]
     if proof:
         root = arch.merkle_root()
         headers.append("proof")
-        rows = [(r[0], r[1], root[:16]) for r in rows]
-    _rich_table(headers, rows)
+        rows_with_proof: list[tuple[str, str, str]] = [
+            (r[0], r[1], root[:16]) for r in rows
+        ]
+        _rich_table(headers, rows_with_proof)
+    else:
+        _rich_table(headers, rows)
 
 
 @main.command(name="evolve")
