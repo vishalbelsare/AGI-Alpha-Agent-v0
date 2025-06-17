@@ -315,6 +315,9 @@ $ alpha-agi-business-3-v1 --cycles 1 --loglevel info
   generate a short LLM comment. Leave it unset to run in fully offline mode.
 - `LOCAL_LLM_URL` – optional. Base URL for the local fallback model.
   Defaults to `http://ollama:11434/v1`.
+- Each variable can also be passed via command-line flags
+  (`--openai-api-key`, `--local-llm-url`, `--adk-host`,
+  `--a2a-port`, `--a2a-host`, `--llama-model-path`, `--llama-n-ctx`).
 - Python ≥3.11 with packages from `requirements.txt` installed. The
   `run_business_3_demo.sh` helper now builds a Docker image that includes
   `openai_agents` by default.
@@ -325,6 +328,7 @@ $ alpha-agi-business-3-v1 --cycles 1 --loglevel info
 - `A2A_PORT` – enable gRPC A2A messages when set to a port number.
 - `A2A_HOST` – host for the A2A gRPC server. Defaults to `localhost`.
 - `LLAMA_N_CTX` – context-window size for local models. Defaults to `2048`.
+- `LLAMA_MODEL_PATH` – path to a local `.gguf` weight file.
 
 #### Offline Usage
 
