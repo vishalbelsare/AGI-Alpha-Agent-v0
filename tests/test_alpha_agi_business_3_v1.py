@@ -255,6 +255,43 @@ def test_run_cycle_posts_job(monkeypatch: pytest.MonkeyPatch) -> None:
     assert len(calls) == 1
 
 
+def test_bundle_hash_stable(monkeypatch: pytest.MonkeyPatch) -> None:
+    """Bundle hash should remain stable across invocations."""
+    mod = importlib.import_module(MODULE)
+
+    orchestrator = mod.Orchestrator()
+    fin = mod.AgentFin()
+    res = mod.AgentRes()
+    ene = mod.AgentEne()
+    gdl = mod.AgentGdl()
+    model = mod.Model()
+
+    monkeypatch.setattr(fin, "latent_work", lambda _b: 0.0)
+    monkeypatch.setattr(res, "entropy", lambda _b: 1.0)
+    monkeypatch.setattr(ene, "market_temperature", lambda _b: 1.0)
+
+    calls: list[str] = []
+
+    def _post(bundle_id: str, delta_g: float) -> None:
+        calls.append(bundle_id)
+
+    monkeypatch.setattr(orchestrator, "post_alpha_job", _post)
+
+    async def _llm(_: float) -> str:
+        return "ok"
+
+    monkeypatch.setattr(mod, "_llm_comment", _llm)
+
+    monkeypatch.setattr(orchestrator, "collect_signals", lambda: dict([("b", 2), ("a", 1)]))
+    asyncio.run(mod.run_cycle_async(orchestrator, fin, res, ene, gdl, model, a2a_socket=None))
+
+    monkeypatch.setattr(orchestrator, "collect_signals", lambda: dict([("a", 1), ("b", 2)]))
+    asyncio.run(mod.run_cycle_async(orchestrator, fin, res, ene, gdl, model, a2a_socket=None))
+
+    assert len(calls) == 2
+    assert calls[0] == calls[1]
+
+
 def test_cli_flags_override_env(monkeypatch: pytest.MonkeyPatch) -> None:
     """CLI options should set env vars for the runtime helpers."""
     if MODULE in sys.modules:

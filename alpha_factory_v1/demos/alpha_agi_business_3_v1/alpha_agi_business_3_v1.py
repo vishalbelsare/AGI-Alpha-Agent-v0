@@ -18,6 +18,7 @@ import logging
 import asyncio
 import os
 import hashlib
+import json
 import random
 import time
 from typing import Any, cast
@@ -224,7 +225,7 @@ async def run_cycle_async(
                     log.warning("ADK client close error", exc_info=True)
 
     if delta_g < 0:
-        bundle_hash = hashlib.sha256(repr(bundle).encode()).hexdigest()[:8]
+        bundle_hash = hashlib.sha256(json.dumps(bundle, sort_keys=True).encode()).hexdigest()[:8]
         orchestrator.post_alpha_job(bundle_hash, delta_g)
 
     weight_update: dict[str, Any] = {}
