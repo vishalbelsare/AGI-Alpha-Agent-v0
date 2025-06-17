@@ -102,6 +102,7 @@ Build wheels on a machine with connectivity and reuse them offline:
 
 ```bash
 mkdir -p wheels
+pip wheel -r alpha_factory_v1/requirements-core.txt -w wheels
 pip wheel -r requirements.txt -w wheels
 pip wheel -r requirements-dev.txt -w wheels
 pip wheel -r alpha_factory_v1/demos/aiga_meta_evolution/requirements.txt -w wheels
@@ -112,7 +113,7 @@ Copy the `wheels/` directory to the offline host and set `WHEELHOUSE`:
 ```bash
 export WHEELHOUSE=/path/to/wheels
 python check_env.py --auto-install --wheelhouse "$WHEELHOUSE"
-PYTHONPATH=$(pwd) pytest -q
+PYTHONPATH=$(pwd) WHEELHOUSE="$WHEELHOUSE" pytest -q
 ```
 
 The environment check installs any missing packages from `WHEELHOUSE` so the
@@ -127,6 +128,7 @@ demo requirements if needed):
 
 ```bash
 mkdir -p wheels
+pip wheel -r alpha_factory_v1/requirements-core.txt -w wheels
 pip wheel -r requirements.txt -w wheels
 pip wheel -r alpha_factory_v1/demos/muzero_planning/requirements.txt -w wheels
 pip wheel -r alpha_factory_v1/demos/macro_sentinel/requirements.txt -w wheels
