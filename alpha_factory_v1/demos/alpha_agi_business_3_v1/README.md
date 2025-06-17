@@ -341,6 +341,14 @@ without internet access.
 LLAMA_MODEL_PATH=/path/model.gguf alpha-agi-business-3-v1
 ```
 
+#### Dependency Checks
+
+Commonly missing packages include `numpy`, `pandas` and `openai-agents`.
+Run `python check_env.py --auto-install` to ensure these are installed.
+When offline, pass `--wheelhouse <dir>` so `check_env.py` can use local
+wheels. The demo requires either network access or a wheelhouse containing
+the required packages.
+
 #### Minimal Example
 
 Install the demo with a local model and run one cycle:
