@@ -341,6 +341,17 @@ without internet access.
 LLAMA_MODEL_PATH=/path/model.gguf alpha-agi-business-3-v1
 ```
 
+#### Minimal Example
+
+Install the demo with a local model and run one cycle:
+
+```bash
+pip install -r requirements.txt llama-cpp-python
+LLAMA_MODEL_PATH=/path/model.gguf alpha-agi-business-3-v1
+```
+
+The `openai-agents` package is optional in this setup.
+
 ---
 
 <a id="9"></a>
