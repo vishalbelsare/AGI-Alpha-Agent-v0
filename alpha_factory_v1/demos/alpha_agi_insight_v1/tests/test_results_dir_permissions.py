@@ -8,8 +8,6 @@ import pytest
 pytest.importorskip("fastapi")
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[4]))
-
-os.environ.setdefault("API_TOKEN", "test-token")
 os.environ.setdefault("API_RATE_LIMIT", "1000")
 
 
