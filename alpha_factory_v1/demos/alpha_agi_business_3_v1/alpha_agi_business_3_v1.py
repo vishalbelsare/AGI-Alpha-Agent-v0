@@ -164,6 +164,29 @@ class Model:
         log.info("[Model] New weights committed (Gödel-proof verified)")
 
 
+async def _close_adk_client(client: Any) -> None:
+    """Attempt to gracefully close an ADK client."""
+
+    closer = getattr(client, "close", None)
+    if closer is not None:
+        try:
+            if asyncio.iscoroutinefunction(closer):
+                await closer()
+            else:
+                await asyncio.to_thread(closer)
+        except Exception:  # pragma: no cover - best effort
+            log.warning("Failed to close ADK client", exc_info=True)
+    elif hasattr(client, "__aexit__"):
+        aexit = getattr(client, "__aexit__")
+        try:
+            if asyncio.iscoroutinefunction(aexit):
+                await aexit(None, None, None)
+            else:
+                await asyncio.to_thread(aexit, None, None, None)
+        except Exception:  # pragma: no cover - best effort
+            log.warning("Failed to close ADK client", exc_info=True)
+
+
 async def run_cycle_async(
     orchestrator: Orchestrator,
     fin_agent: AgentFin,
@@ -205,24 +228,7 @@ async def run_cycle_async(
         except Exception:  # pragma: no cover - best effort
             log.warning("ADK client error", exc_info=True)
         finally:
-            closer = getattr(adk_client, "close", None)
-            if closer is not None:
-                try:
-                    if asyncio.iscoroutinefunction(closer):
-                        await closer()
-                    else:
-                        await asyncio.to_thread(closer)
-                except Exception:  # pragma: no cover - best effort
-                    log.warning("ADK client close error", exc_info=True)
-            elif hasattr(adk_client, "__aexit__"):
-                aexit = getattr(adk_client, "__aexit__")
-                try:
-                    if asyncio.iscoroutinefunction(aexit):
-                        await aexit(None, None, None)
-                    else:
-                        await asyncio.to_thread(aexit, None, None, None)
-                except Exception:  # pragma: no cover - best effort
-                    log.warning("ADK client close error", exc_info=True)
+            await _close_adk_client(adk_client)
 
     if delta_g < 0:
         bundle_hash = hashlib.sha256(json.dumps(bundle, sort_keys=True).encode()).hexdigest()[:8]
@@ -393,24 +399,7 @@ async def main(argv: list[str] | None = None) -> None:
             except Exception:  # pragma: no cover - best effort
                 log.warning("Failed to stop A2A socket", exc_info=True)
         if adk_client is not None:
-            closer = getattr(adk_client, "close", None)
-            if closer is not None:
-                try:
-                    if asyncio.iscoroutinefunction(closer):
-                        await closer()
-                    else:
-                        await asyncio.to_thread(closer)
-                except Exception:  # pragma: no cover - best effort
-                    log.warning("Failed to close ADK client", exc_info=True)
-            elif hasattr(adk_client, "__aexit__"):
-                aexit = getattr(adk_client, "__aexit__")
-                try:
-                    if asyncio.iscoroutinefunction(aexit):
-                        await aexit(None, None, None)
-                    else:
-                        await asyncio.to_thread(aexit, None, None, None)
-                except Exception:  # pragma: no cover - best effort
-                    log.warning("Failed to close ADK client", exc_info=True)
+            await _close_adk_client(adk_client)
 
 
 if __name__ == "__main__":  # pragma: no cover - manual execution
