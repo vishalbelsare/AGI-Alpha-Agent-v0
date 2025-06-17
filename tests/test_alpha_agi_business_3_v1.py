@@ -7,11 +7,13 @@ import logging
 import os
 import subprocess
 from unittest import mock
+import pytest
+from pathlib import Path
 
 MODULE = "alpha_factory_v1.demos.alpha_agi_business_3_v1.alpha_agi_business_3_v1"
 
 
-def test_adk_client_import(monkeypatch):
+def test_adk_client_import(monkeypatch: pytest.MonkeyPatch) -> None:
     dummy = types.ModuleType("google_adk")
 
     class Client:
@@ -25,7 +27,7 @@ def test_adk_client_import(monkeypatch):
     assert mod.ADKClient is Client
 
 
-def test_a2a_port_zero(monkeypatch):
+def test_a2a_port_zero(monkeypatch: pytest.MonkeyPatch) -> None:
     """`_A2A` should remain ``None`` when ``A2A_PORT=0``."""
     dummy = types.ModuleType("a2a")
 
@@ -42,7 +44,7 @@ def test_a2a_port_zero(monkeypatch):
     assert mod._A2A is None
 
 
-def test_a2a_port_invalid(monkeypatch):
+def test_a2a_port_invalid(monkeypatch: pytest.MonkeyPatch) -> None:
     """Invalid ``A2A_PORT`` values should not crash the import."""
     dummy = types.ModuleType("a2a")
 
@@ -59,7 +61,7 @@ def test_a2a_port_invalid(monkeypatch):
     assert mod._A2A is None
 
 
-def test_llm_comment_offline(monkeypatch):
+def test_llm_comment_offline(monkeypatch: pytest.MonkeyPatch) -> None:
     """`_llm_comment` should use local_llm when OpenAIAgent is unavailable."""
     mod = importlib.import_module(MODULE)
 
@@ -70,7 +72,7 @@ def test_llm_comment_offline(monkeypatch):
     assert result == "offline"
 
 
-def test_llm_comment_online(monkeypatch):
+def test_llm_comment_online(monkeypatch: pytest.MonkeyPatch) -> None:
     """`_llm_comment` should call OpenAIAgent when available."""
     mod = importlib.import_module(MODULE)
 
@@ -90,12 +92,11 @@ def test_llm_comment_online(monkeypatch):
     assert not m_chat.called
 
 
-def test_run_cycle_async_logs_delta_g(monkeypatch, caplog):
+def test_run_cycle_async_logs_delta_g(monkeypatch: pytest.MonkeyPatch, caplog: pytest.LogCaptureFixture) -> None:
     """One cycle should log the computed ΔG value."""
     mod = importlib.import_module(MODULE)
 
     caplog.set_level(logging.INFO)
-    monkeypatch.setattr(mod, "_A2A", None)
 
     async def _fake_comment(_: float) -> str:
         return "ok"
@@ -110,13 +111,14 @@ def test_run_cycle_async_logs_delta_g(monkeypatch, caplog):
             mod.AgentEne(),
             mod.AgentGdl(),
             mod.Model(),
+            a2a_socket=None,
         )
     )
 
     assert any("ΔG" in r.getMessage() for r in caplog.records)
 
 
-def test_main_subprocess(tmp_path) -> None:
+def test_main_subprocess(tmp_path: Path) -> None:
     """Running the demo via ``python -m`` should output the ΔG message."""
     stub = tmp_path / "check_env.py"
     stub.write_text("def main(args=None):\n    pass\n")
@@ -139,7 +141,7 @@ def test_main_subprocess(tmp_path) -> None:
     assert "ΔG" in (result.stdout + result.stderr)
 
 
-def test_cli_entrypoint(tmp_path) -> None:
+def test_cli_entrypoint(tmp_path: Path) -> None:
     """Running the ``alpha-agi-business-3-v1`` script should output the ΔG message."""
     stub = tmp_path / "check_env.py"
     stub.write_text("def main(args=None):\n    pass\n")
@@ -156,8 +158,8 @@ def test_cli_entrypoint(tmp_path) -> None:
     assert "ΔG" in (result.stdout + result.stderr)
 
 
-def test_main_stops_a2a(monkeypatch) -> None:
-    """`_A2A.stop()` should be called when the loop exits."""
+def test_main_stops_a2a(monkeypatch: pytest.MonkeyPatch) -> None:
+    """The A2A socket should start and stop when the loop exits."""
     mod = importlib.import_module(MODULE)
 
     class DummySocket:
@@ -175,8 +177,7 @@ def test_main_stops_a2a(monkeypatch) -> None:
             pass
 
     dummy = DummySocket()
-
-    monkeypatch.setattr(mod, "_A2A", dummy)
+    monkeypatch.setattr(mod, "A2ASocket", lambda *a, **k: dummy)
     monkeypatch.setattr(mod, "ADKClient", None)
     monkeypatch.setattr(mod, "check_env", types.SimpleNamespace(main=lambda *_a, **_k: None), raising=False)
 
@@ -191,11 +192,9 @@ def test_main_stops_a2a(monkeypatch) -> None:
     assert dummy.stopped
 
 
-def test_run_cycle_posts_job(monkeypatch) -> None:
+def test_run_cycle_posts_job(monkeypatch: pytest.MonkeyPatch) -> None:
     """`post_alpha_job` should be called once when ΔG < 0."""
     mod = importlib.import_module(MODULE)
-
-    monkeypatch.setattr(mod, "_A2A", None)
 
     orchestrator = mod.Orchestrator()
     fin = mod.AgentFin()
@@ -221,12 +220,22 @@ def test_run_cycle_posts_job(monkeypatch) -> None:
 
     monkeypatch.setattr(mod, "_llm_comment", _llm)
 
-    asyncio.run(mod.run_cycle_async(orchestrator, fin, res, ene, gdl, model))
+    asyncio.run(
+        mod.run_cycle_async(
+            orchestrator,
+            fin,
+            res,
+            ene,
+            gdl,
+            model,
+            a2a_socket=None,
+        )
+    )
 
     assert len(calls) == 1
 
 
-def test_cli_flags_override_env(monkeypatch) -> None:
+def test_cli_flags_override_env(monkeypatch: pytest.MonkeyPatch) -> None:
     """CLI options should set env vars for the runtime helpers."""
     if MODULE in sys.modules:
         del sys.modules[MODULE]
@@ -237,7 +246,7 @@ def test_cli_flags_override_env(monkeypatch) -> None:
     captured: dict[str, str] = {}
 
     async def _llm(_: float) -> str:
-        captured["api_key"] = os.getenv("OPENAI_API_KEY")
+        captured["api_key"] = os.getenv("OPENAI_API_KEY") or ""
         return "ok"
 
     class DummyADK:
@@ -260,7 +269,6 @@ def test_cli_flags_override_env(monkeypatch) -> None:
     monkeypatch.setattr(mod, "_llm_comment", _llm)
     monkeypatch.setattr(mod, "ADKClient", DummyADK)
     monkeypatch.setattr(mod, "A2ASocket", DummySock)
-    monkeypatch.setattr(mod, "_A2A", None)
 
     asyncio.run(
         mod.main(
@@ -286,7 +294,7 @@ def test_cli_flags_override_env(monkeypatch) -> None:
     assert captured["a2a"] == "cli-host:7777"
 
 
-def test_run_cycle_closes_adk_client(monkeypatch) -> None:
+def test_run_cycle_closes_adk_client(monkeypatch: pytest.MonkeyPatch) -> None:
     """`run_cycle_async` should close the ADK client when available."""
     mod = importlib.import_module(MODULE)
 
@@ -307,7 +315,6 @@ def test_run_cycle_closes_adk_client(monkeypatch) -> None:
     gdl = mod.AgentGdl()
     model = mod.Model()
 
-    monkeypatch.setattr(mod, "_A2A", None)
     monkeypatch.setattr(orchestrator, "collect_signals", lambda: {})
     monkeypatch.setattr(fin, "latent_work", lambda _b: 0.0)
     monkeypatch.setattr(res, "entropy", lambda _b: 1.0)
@@ -319,12 +326,23 @@ def test_run_cycle_closes_adk_client(monkeypatch) -> None:
     monkeypatch.setattr(mod, "_llm_comment", _llm)
 
     adk = DummyADK()
-    asyncio.run(mod.run_cycle_async(orchestrator, fin, res, ene, gdl, model, adk))
+    asyncio.run(
+        mod.run_cycle_async(
+            orchestrator,
+            fin,
+            res,
+            ene,
+            gdl,
+            model,
+            adk,
+            a2a_socket=None,
+        )
+    )
 
     assert adk.closed
 
 
-def test_main_closes_adk_client(monkeypatch) -> None:
+def test_main_closes_adk_client(monkeypatch: pytest.MonkeyPatch) -> None:
     """`main` should close the ADK client when the loop exits."""
     if MODULE in sys.modules:
         del sys.modules[MODULE]
@@ -357,8 +375,9 @@ def test_main_closes_adk_client(monkeypatch) -> None:
             pass
 
     adk = DummyADK()
+    dummy_sock = DummySock()
     monkeypatch.setattr(mod, "ADKClient", lambda *_a, **_kw: adk)
-    monkeypatch.setattr(mod, "_A2A", DummySock())
+    monkeypatch.setattr(mod, "A2ASocket", lambda *a, **k: dummy_sock)
 
     async def _llm(_: float) -> str:
         return "ok"
