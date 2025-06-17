@@ -136,11 +136,13 @@ Follow these steps when working **air‑gapped**:
 2. **Reuse the wheelhouse** whenever you install or check the environment:
    ```bash
    WHEELHOUSE=/path/to/wheels AUTO_INSTALL_MISSING=1 \
-     python check_env.py --auto-install --wheelhouse "$WHEELHOUSE"
+     python ../../check_env.py --auto-install --wheelhouse "$WHEELHOUSE"
    ```
 
    Always run the command above before executing `pytest` or any demo so all
-   optional dependencies are installed correctly.
+   optional dependencies are installed correctly. When **running tests offline**,
+   execute the same command first to ensure all extras install from your
+   wheelhouse.
 
 See [alpha_factory_v1/scripts/README.md](../../scripts/README.md#offline-setup)
 for additional tips on creating and using a wheelhouse. Consult
