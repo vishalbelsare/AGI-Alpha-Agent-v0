@@ -130,6 +130,7 @@ LLM = build_llm()
 
 @Tool(name="describe_candidate", description="Explain why this architecture might learn fast")
 async def describe_candidate(arch: str):
+    """Summarise why a given architecture could perform well."""
     return await LLM(f"In two sentences, explain why architecture '{arch}' might learn quickly.")
 
 
@@ -151,6 +152,7 @@ class AIGAMetaService:
 
     # -------- public ops --------
     async def evolve(self, gens: int = 1) -> None:
+        """Run ``gens`` generations of evolution."""
         async with self._lock:
             start = time.perf_counter()
             self.evolver.run_generations(gens)
@@ -159,6 +161,7 @@ class AIGAMetaService:
             STEP_LATENCY.observe(time.perf_counter() - start)
 
     async def checkpoint(self) -> None:
+        """Persist the current state to disk."""
         async with self._lock:
             self.evolver.save()
 
@@ -173,6 +176,7 @@ class AIGAMetaService:
             self.evolver.reset()
 
     async def best_alpha(self) -> Dict[str, Any]:
+        """Return the best architecture and a short description."""
         arch = self.evolver.best_architecture
         summary = await describe_candidate(arch)
         return {"architecture": arch, "fitness": self.evolver.best_fitness, "summary": summary}
@@ -187,9 +191,11 @@ class AIGAMetaService:
 
     # -------- dashboard helpers --------
     def history_plot(self):
+        """Return a ``pandas`` DataFrame of the fitness history."""
         return self.evolver.history_plot()
 
     def latest_log(self):
+        """Return a short summary of the current champion."""
         return self.evolver.latest_log()
 
 
@@ -253,6 +259,7 @@ async def _count_requests(request, call_next):
 
 @app.get("/health")
 async def read_health():
+    """Return service status and best fitness."""
     return {
         "status": "ok",
         "generations": int(GEN_COUNTER._value.get()),
@@ -262,11 +269,13 @@ async def read_health():
 
 @app.get("/metrics")
 async def metrics():
+    """Expose Prometheus metrics."""
     return generate_latest(), 200, {"Content-Type": CONTENT_TYPE_LATEST}
 
 
 @app.post("/evolve/{gens}")
 async def evolve_endpoint(gens: int, background_tasks: BackgroundTasks):
+    """Schedule ``gens`` generations in the background."""
     if gens < 1 or gens > MAX_GEN:
         raise HTTPException(400, f"gens must be 1–{MAX_GEN}")
     background_tasks.add_task(service.evolve, gens)
@@ -275,12 +284,14 @@ async def evolve_endpoint(gens: int, background_tasks: BackgroundTasks):
 
 @app.post("/checkpoint")
 async def checkpoint_endpoint(background_tasks: BackgroundTasks):
+    """Persist the current checkpoint asynchronously."""
     background_tasks.add_task(service.checkpoint)
     return {"msg": "checkpoint scheduled"}
 
 
 @app.post("/reset")
 async def reset_endpoint(background_tasks: BackgroundTasks):
+    """Reset the evolver state asynchronously."""
     background_tasks.add_task(service.reset)
     return {"msg": "reset scheduled"}
 

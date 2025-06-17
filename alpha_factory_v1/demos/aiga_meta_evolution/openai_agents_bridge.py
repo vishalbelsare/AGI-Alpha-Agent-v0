@@ -60,6 +60,7 @@ def _get_evolver() -> MetaEvolver:
 
 @Tool(name="evolve", description="Run N generations of evolution")  # type: ignore[misc]
 async def evolve(generations: int = 1) -> str:
+    """Advance the evolver by ``generations`` and return the latest log."""
     evolver = _get_evolver()
     evolver.run_generations(generations)
     return str(evolver.latest_log())
@@ -67,6 +68,7 @@ async def evolve(generations: int = 1) -> str:
 
 @Tool(name="best_alpha", description="Return current best architecture")  # type: ignore[misc]
 async def best_alpha() -> dict[str, float | str]:
+    """Return the best architecture seen so far."""
     evolver = _get_evolver()
     return {
         "architecture": evolver.best_architecture,
@@ -76,6 +78,7 @@ async def best_alpha() -> dict[str, float | str]:
 
 @Tool(name="checkpoint", description="Persist current state to disk")  # type: ignore[misc]
 async def checkpoint() -> str:
+    """Persist the current population to disk."""
     evolver = _get_evolver()
     evolver.save()
     return "checkpoint saved"
@@ -86,12 +89,14 @@ async def checkpoint() -> str:
     description="Return evolution history as a list of (generation, avg_fitness)",
 )  # type: ignore[misc]
 async def history() -> dict[str, list[tuple[int, float]]]:
+    """Return the recorded fitness history."""
     evolver = _get_evolver()
     return {"history": evolver.history}
 
 
 @Tool(name="reset", description="Reset evolution to generation zero")  # type: ignore[misc]
 async def reset() -> str:
+    """Reset the evolver to its initial state."""
     evolver = _get_evolver()
     evolver.reset()
     return "evolver reset"
@@ -113,6 +118,7 @@ AGENT_PORT = int(os.getenv("AGENTS_RUNTIME_PORT", "5001"))
 
 
 def main() -> None:
+    """Run the Evolver agent via the OpenAI Agents runtime."""
     _get_evolver()
     runtime = AgentRuntime(api_key=None, port=AGENT_PORT)
     agent = EvolverAgent()

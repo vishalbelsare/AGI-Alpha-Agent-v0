@@ -50,11 +50,13 @@ LLM = build_llm()
 
 @Tool(name="discover_alpha", description="List market opportunities in a domain")
 async def discover_alpha(domain: str = "finance") -> str:
+    """Return LLM-discovered opportunities for ``domain``."""
     return await identify_alpha(domain)
 
 
 @Tool(name="convert_alpha", description="Turn an opportunity into an execution plan")
 async def convert_alpha_tool(alpha: str) -> dict:
+    """Convert an opportunity string into a JSON plan."""
     return convert_alpha(alpha)
 
 
@@ -76,6 +78,7 @@ AGENT_PORT = int(os.getenv("AGENTS_RUNTIME_PORT", "5001"))
 
 
 def main() -> None:
+    """Run the workflow agent with a local runtime."""
     runtime = AgentRuntime(llm=LLM, port=AGENT_PORT)
     agent = WorkflowAgent()
     runtime.register(agent)
