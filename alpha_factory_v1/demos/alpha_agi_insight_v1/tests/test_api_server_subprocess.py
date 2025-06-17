@@ -12,7 +12,6 @@ import pytest
 # Ensure repository root is on the Python path for subprocess execution
 REPO_ROOT = Path(__file__).resolve().parents[4]
 os.environ.setdefault("PYTHONPATH", str(REPO_ROOT))
-os.environ.setdefault("API_TOKEN", "test-token")
 os.environ.setdefault("API_RATE_LIMIT", "1000")
 
 fastapi = pytest.importorskip("fastapi")
@@ -30,6 +29,7 @@ def _free_port() -> int:
 def test_docs_available() -> None:
     port = _free_port()
     env = os.environ.copy()
+    env.pop("API_TOKEN", None)
     env["PYTHONPATH"] = str(REPO_ROOT)
     cmd = [
         sys.executable,
@@ -65,6 +65,7 @@ def test_docs_available() -> None:
 def test_simulation_endpoints() -> None:
     port = _free_port()
     env = os.environ.copy()
+    env.pop("API_TOKEN", None)
     env["PYTHONPATH"] = str(REPO_ROOT)
     cmd = [
         sys.executable,
@@ -77,7 +78,7 @@ def test_simulation_endpoints() -> None:
     ]
     proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, env=env)
     url = f"http://127.0.0.1:{port}"
-    headers = {"Authorization": "Bearer test-token"}
+    headers = {"Authorization": "Bearer changeme"}
     try:
         for _ in range(100):
             try:

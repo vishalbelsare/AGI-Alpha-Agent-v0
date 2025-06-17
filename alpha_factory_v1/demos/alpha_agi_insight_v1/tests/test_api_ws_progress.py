@@ -12,8 +12,6 @@ from fastapi.testclient import TestClient
 
 # Ensure repository root is on the Python path
 sys.path.insert(0, str(Path(__file__).resolve().parents[4]))
-
-os.environ.setdefault("API_TOKEN", "test-token")
 os.environ.setdefault("API_RATE_LIMIT", "1000")
 
 
@@ -22,7 +20,7 @@ def test_ws_progress_receives_updates() -> None:
     from alpha_factory_v1.demos.alpha_agi_insight_v1.src.interface import api_server
 
     client = TestClient(api_server.app)
-    headers = {"Authorization": "Bearer test-token"}
+    headers = {"Authorization": "Bearer changeme"}
 
     with client.websocket_connect("/ws/progress", headers=headers) as ws:
         resp = client.post(
