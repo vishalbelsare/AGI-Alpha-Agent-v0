@@ -54,7 +54,7 @@ try:
     from fastapi.staticfiles import StaticFiles
     from fastapi.middleware.cors import CORSMiddleware
     from pydantic import BaseModel, Field
-import uvicorn
+    import uvicorn
     from .problem_json import problem_response
 except Exception as exc:  # pragma: no cover - optional
     FastAPI: Any | None = None
@@ -77,16 +77,12 @@ if app is not None:
 
     @app.on_event("startup")
     async def _start() -> None:
-        orch_mod = importlib.import_module(
-            "alpha_factory_v1.demos.alpha_agi_insight_v1.src.orchestrator"
-        )
+        orch_mod = importlib.import_module("alpha_factory_v1.demos.alpha_agi_insight_v1.src.orchestrator")
         app_f.state.orchestrator = orch_mod.Orchestrator()
         app_f.state.task = asyncio.create_task(app_f.state.orchestrator.run_forever())
         token = os.getenv("API_TOKEN")
         if not token:
-            logging.getLogger(__name__).warning(
-                "API_TOKEN not set; using insecure placeholder"
-            )
+            logging.getLogger(__name__).warning("API_TOKEN not set; using insecure placeholder")
             token = API_TOKEN_DEFAULT
         app_f.state.api_token = token
         _load_results()
@@ -157,6 +153,7 @@ if app is not None:
     )
     _max_results = int(os.getenv("MAX_RESULTS", "100"))
     _results_dir.mkdir(parents=True, exist_ok=True, mode=0o700)
+    os.chmod(_results_dir, 0o700)
 
     def _load_results() -> None:
         entries: list[tuple[float, ResultsResponse]] = []
