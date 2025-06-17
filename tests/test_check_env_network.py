@@ -28,9 +28,24 @@ def test_offline_with_wheelhouse(monkeypatch: pytest.MonkeyPatch) -> None:
     """Allow offline installs when --wheelhouse is provided."""
     _no_missing(monkeypatch)
     monkeypatch.setattr(check_env, "has_network", lambda: False)
-    def _fake_run(*_a, **_k):
+
+    from typing import Any
+
+    def _fake_run(*_a: Any, **_k: Any) -> subprocess.CompletedProcess[str]:
         return subprocess.CompletedProcess([], 0, "", "")
 
     monkeypatch.setattr(subprocess, "run", _fake_run)
     rc = check_env.main(["--auto-install", "--wheelhouse", "wheels"])
+    assert rc == 0
+
+
+def test_skip_net_check(monkeypatch: pytest.MonkeyPatch) -> None:
+    """Ensure --skip-net-check avoids connectivity checks."""
+    _no_missing(monkeypatch)
+
+    def _fail_net() -> bool:
+        raise AssertionError("has_network called")
+
+    monkeypatch.setattr(check_env, "has_network", _fail_net)
+    rc = check_env.main(["--auto-install", "--skip-net-check"])
     assert rc == 0

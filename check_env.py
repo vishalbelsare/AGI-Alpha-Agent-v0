@@ -215,29 +215,40 @@ def main(argv: Optional[List[str]] = None) -> int:
         "--demo",
         help="Validate additional packages for the specified demo",
     )
+    parser.add_argument(
+        "--skip-net-check",
+        action="store_true",
+        help="Skip the connectivity check to run quietly offline",
+    )
 
     args = parser.parse_args(argv)
 
     wheelhouse = args.wheelhouse or os.getenv("WHEELHOUSE")
     auto = args.auto_install or os.getenv("AUTO_INSTALL_MISSING") == "1"
+    skip_net_check = args.skip_net_check
     pip_timeout = args.timeout
     allow_basic = args.allow_basic_fallback
     demo = args.demo
     extra_required = DEMO_PACKAGES.get(demo, [])
 
-    network_ok = has_network() if not wheelhouse else True
-    if auto and not wheelhouse and not network_ok:
-        missing_core = [pkg for pkg in CORE if not check_pkg(pkg)]
-        missing_required_tmp = []
-        for pkg in REQUIRED + extra_required:
-            import_name = IMPORT_NAMES.get(pkg, pkg)
-            try:
-                spec = importlib.util.find_spec(import_name)
-            except (ValueError, ModuleNotFoundError):
-                spec = None
-            if spec is None:
-                missing_required_tmp.append(pkg)
-        if missing_core or missing_required_tmp:
+    missing_core = [pkg for pkg in CORE if not check_pkg(pkg)]
+    missing_required_tmp: list[str] = []
+    for pkg in REQUIRED + extra_required:
+        import_name = IMPORT_NAMES.get(pkg, pkg)
+        try:
+            spec = importlib.util.find_spec(import_name)
+        except (ValueError, ModuleNotFoundError):
+            spec = None
+        if spec is None:
+            missing_required_tmp.append(pkg)
+
+    if wheelhouse:
+        network_ok = True
+    elif skip_net_check:
+        network_ok = False
+    elif auto and (missing_core or missing_required_tmp):
+        network_ok = has_network()
+        if not network_ok:
             print(
                 "No network connectivity detected.\n"
                 "Build a wheelhouse, e.g.:\n"
@@ -246,8 +257,10 @@ def main(argv: Optional[List[str]] = None) -> int:
                 "alpha_factory_v1/scripts/README.md for details."
             )
             return 1
+    else:
+        network_ok = True
 
-    if auto:
+    if auto and (wheelhouse or network_ok):
         for pkg in ("numpy", "prometheus_client"):
             if not check_pkg(pkg):
                 cmd = [sys.executable, "-m", "pip", "install", "--quiet"]
@@ -267,7 +280,7 @@ def main(argv: Optional[List[str]] = None) -> int:
 
     missing_core = warn_missing_core()
 
-    if auto and missing_core:
+    if auto and missing_core and (wheelhouse or network_ok):
         cmd = [sys.executable, "-m", "pip", "install", "--quiet"]
         if wheelhouse:
             cmd += ["--no-index", "--find-links", wheelhouse]
@@ -358,7 +371,7 @@ def main(argv: Optional[List[str]] = None) -> int:
     missing = missing_required + missing_optional
     if missing:
         print("WARNING: Missing packages:", ", ".join(missing))
-        if auto and (wheelhouse or network_ok or missing_required):
+        if auto and (wheelhouse or network_ok):
             cmd = [sys.executable, "-m", "pip", "install", "--quiet"]
             if wheelhouse:
                 cmd += ["--no-index", "--find-links", wheelhouse]
