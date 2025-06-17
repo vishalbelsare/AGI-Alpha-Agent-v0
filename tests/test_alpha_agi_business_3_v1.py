@@ -352,6 +352,85 @@ def test_cli_flags_override_env(monkeypatch: pytest.MonkeyPatch) -> None:
     assert captured["a2a"] == "cli-host:7777"
 
 
+def test_cli_overrides_env(monkeypatch: pytest.MonkeyPatch) -> None:
+    """CLI options should override preset environment variables."""
+    if MODULE in sys.modules:
+        del sys.modules[MODULE]
+    mod = importlib.import_module(MODULE)
+
+    monkeypatch.setattr(mod, "check_env", types.SimpleNamespace(main=lambda *_a, **_k: None), raising=False)
+
+    monkeypatch.setenv("OPENAI_API_KEY", "env-key")
+    monkeypatch.setenv("ADK_HOST", "http://env-adk:8")
+    monkeypatch.setenv("A2A_PORT", "1234")
+    monkeypatch.setenv("A2A_HOST", "env-host")
+    monkeypatch.setenv("LOCAL_LLM_URL", "http://env-llm")
+    monkeypatch.setenv("LLAMA_MODEL_PATH", "/env/model.gguf")
+    monkeypatch.setenv("LLAMA_N_CTX", "99")
+
+    captured: dict[str, Any] = {}
+
+    async def _llm(_: float) -> str:
+        captured["api_key"] = os.getenv("OPENAI_API_KEY")
+        captured["local_llm_url"] = os.getenv("LOCAL_LLM_URL")
+        captured["llama_model_path"] = os.getenv("LLAMA_MODEL_PATH")
+        captured["llama_n_ctx"] = os.getenv("LLAMA_N_CTX")
+        return "ok"
+
+    class DummyADK:
+        def __init__(self, host: str) -> None:  # pragma: no cover - init only
+            captured["adk_host"] = host
+
+    class DummySock:
+        def __init__(self, host: str, port: int, app_id: str) -> None:
+            captured["a2a"] = f"{host}:{port}"  # pragma: no cover - record args
+
+        def start(self) -> None:  # pragma: no cover - unused
+            pass
+
+        def stop(self) -> None:  # pragma: no cover - unused
+            pass
+
+        def sendjson(self, *_a: object, **_kw: object) -> None:  # pragma: no cover - unused
+            pass
+
+    monkeypatch.setattr(mod, "_llm_comment", _llm)
+    monkeypatch.setattr(mod, "ADKClient", DummyADK)
+    monkeypatch.setattr(mod, "A2ASocket", DummySock)
+
+    asyncio.run(
+        mod.main(
+            [
+                "--cycles",
+                "1",
+                "--interval",
+                "0",
+                "--openai-api-key",
+                "cli-key",
+                "--adk-host",
+                "http://cli-adk:9",
+                "--a2a-port",
+                "7777",
+                "--a2a-host",
+                "cli-host",
+                "--local-llm-url",
+                "http://cli-llm",
+                "--llama-model-path",
+                "/cli/model.gguf",
+                "--llama-n-ctx",
+                "120",
+            ]
+        )
+    )
+
+    assert captured["api_key"] == "cli-key"
+    assert captured["adk_host"] == "http://cli-adk:9"
+    assert captured["a2a"] == "cli-host:7777"
+    assert captured["local_llm_url"] == "http://cli-llm"
+    assert captured["llama_model_path"] == "/cli/model.gguf"
+    assert captured["llama_n_ctx"] == "120"
+
+
 def test_run_cycle_closes_adk_client(monkeypatch: pytest.MonkeyPatch) -> None:
     """`run_cycle_async` should close the ADK client when available."""
     mod = importlib.import_module(MODULE)
