@@ -462,6 +462,7 @@ local development or customization. See the
 | `AGI_INSIGHT_SOLANA_WALLET_FILE` | Path to wallet key file | _unset_ |
 | `SIM_RESULTS_DIR` | Folder for simulation JSON results (created with mode `0700`) | `$ALPHA_DATA_DIR/simulations` |
 | `MAX_RESULTS` | Number of results to keep on disk | `100` |
+| `MAX_SIM_TASKS` | Maximum concurrent simulation tasks | `4` |
 | `BUSINESS_HOST` | Base orchestrator URL for bridges | `"http://localhost:8000"` |
 | `API_TOKEN` | Bearer token required by the REST API | `REPLACE_ME_TOKEN` |
 | `API_RATE_LIMIT` | Requests allowed per minute for the API server | `60` |

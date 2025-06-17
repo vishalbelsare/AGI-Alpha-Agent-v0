@@ -152,6 +152,8 @@ if app is not None:
         )
     )
     _max_results = int(os.getenv("MAX_RESULTS", "100"))
+    _max_sim_tasks = int(os.getenv("MAX_SIM_TASKS", "4"))
+    _sim_semaphore = asyncio.Semaphore(_max_sim_tasks)
     _results_dir.mkdir(parents=True, exist_ok=True, mode=0o700)
     os.chmod(_results_dir, 0o700)
 
@@ -335,6 +337,10 @@ if app is not None:
         )
         _save_result(result)
 
+    async def _bounded_run(sim_id: str, cfg: SimRequest) -> None:
+        async with _sim_semaphore:
+            await _background_run(sim_id, cfg)
+
     _load_results()
 
     @app.get("/healthz", response_class=PlainTextResponse, include_in_schema=False)
@@ -357,7 +363,7 @@ if app is not None:
     async def simulate(req: SimRequest, _: None = Depends(verify_token)) -> SimStartResponse | JSONResponse:
         try:
             sim_id = secrets.token_hex(8)
-            asyncio.create_task(_background_run(sim_id, req))
+            asyncio.create_task(_bounded_run(sim_id, req))
             return SimStartResponse(id=sim_id)
         except HTTPException as exc:
             return problem_response(exc)
