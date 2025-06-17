@@ -223,3 +223,63 @@ def test_run_cycle_posts_job(monkeypatch) -> None:
 
     assert len(calls) == 1
 
+
+def test_cli_flags_override_env(monkeypatch) -> None:
+    """CLI options should set env vars for the runtime helpers."""
+    if MODULE in sys.modules:
+        del sys.modules[MODULE]
+    mod = importlib.import_module(MODULE)
+
+    monkeypatch.setattr(mod, "check_env", types.SimpleNamespace(main=lambda *_a, **_k: None), raising=False)
+
+    captured: dict[str, str] = {}
+
+    async def _llm(_: float) -> str:
+        captured["api_key"] = os.getenv("OPENAI_API_KEY")
+        return "ok"
+
+    class DummyADK:
+        def __init__(self, host: str) -> None:  # pragma: no cover - init only
+            captured["adk_host"] = host
+
+    class DummySock:
+        def __init__(self, host: str, port: int, app_id: str) -> None:
+            captured["a2a"] = f"{host}:{port}"  # pragma: no cover - record args
+
+        def start(self) -> None:  # pragma: no cover - unused
+            pass
+
+        def stop(self) -> None:  # pragma: no cover - unused
+            pass
+
+        def sendjson(self, *_a: object, **_kw: object) -> None:  # pragma: no cover - unused
+            pass
+
+    monkeypatch.setattr(mod, "_llm_comment", _llm)
+    monkeypatch.setattr(mod, "ADKClient", DummyADK)
+    monkeypatch.setattr(mod, "A2ASocket", DummySock)
+    monkeypatch.setattr(mod, "_A2A", None)
+
+    asyncio.run(
+        mod.main(
+            [
+                "--cycles",
+                "1",
+                "--interval",
+                "0",
+                "--openai-api-key",
+                "cli-key",
+                "--adk-host",
+                "http://cli-adk:9",
+                "--a2a-port",
+                "7777",
+                "--a2a-host",
+                "cli-host",
+            ]
+        )
+    )
+
+    assert captured["api_key"] == "cli-key"
+    assert captured["adk_host"] == "http://cli-adk:9"
+    assert captured["a2a"] == "cli-host:7777"
+

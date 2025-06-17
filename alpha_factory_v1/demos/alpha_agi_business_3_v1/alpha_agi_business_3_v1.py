@@ -303,7 +303,44 @@ async def main(argv: list[str] | None = None) -> None:
         default=1.0,
         help="Seconds to sleep between cycles",
     )
+    ap.add_argument("--a2a-port", type=int, help="A2A gRPC port")
+    ap.add_argument("--a2a-host", help="A2A gRPC host")
+    ap.add_argument("--adk-host", help="ADK gateway host")
+    ap.add_argument("--local-llm-url", help="Base URL for the local model")
+    ap.add_argument("--llama-model-path", help="Path to local .gguf weights")
+    ap.add_argument("--llama-n-ctx", type=int, help="Context window for local models")
+    ap.add_argument("--openai-api-key", help="OpenAI API key")
     args = ap.parse_args(argv)
+
+    if args.openai_api_key is not None:
+        os.environ["OPENAI_API_KEY"] = args.openai_api_key
+    if args.local_llm_url is not None:
+        os.environ["LOCAL_LLM_URL"] = args.local_llm_url
+    if args.llama_model_path is not None:
+        os.environ["LLAMA_MODEL_PATH"] = args.llama_model_path
+    if args.llama_n_ctx is not None:
+        os.environ["LLAMA_N_CTX"] = str(args.llama_n_ctx)
+    if args.adk_host is not None:
+        os.environ["ADK_HOST"] = args.adk_host
+    if args.a2a_host is not None:
+        os.environ["A2A_HOST"] = args.a2a_host
+    if args.a2a_port is not None:
+        os.environ["A2A_PORT"] = str(args.a2a_port)
+
+    global _A2A
+    if args.a2a_port is not None:
+        port = args.a2a_port
+    else:
+        try:
+            port = int(os.getenv("A2A_PORT", "0"))
+        except ValueError:  # pragma: no cover - invalid env var
+            log.warning("Invalid A2A_PORT=%r", os.getenv("A2A_PORT"))
+            port = 0
+    if port > 0 and A2ASocket is not None:
+        host = args.a2a_host or os.getenv("A2A_HOST", "localhost")
+        _A2A = A2ASocket(host=host, port=port, app_id="alpha_business_v3")
+    else:
+        _A2A = None
 
     logging.basicConfig(
         level=args.loglevel.upper(),
