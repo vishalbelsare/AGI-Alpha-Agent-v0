@@ -965,6 +965,7 @@ for instructions and example volume mounts.
 | `SANDBOX_CPU_SEC` | `2` | CPU time limit for sandboxed code. |
 | `SANDBOX_MEM_MB` | `256` | Memory cap for sandboxed code in MB. |
 | `MAX_RESULTS` | `100` | Maximum stored simulation results. |
+| `MAX_SIM_TASKS` | `4` | Maximum concurrent simulation tasks. |
 | `OTEL_ENDPOINT` | _(empty)_ | OTLP endpoint for anonymous telemetry. |
 | `ALPHA_FACTORY_ENABLE_ADK` | `false` | Set to `true` to start the Google ADK gateway. |
 | `ALPHA_FACTORY_ADK_PORT` | `9000` | Port for the ADK gateway when enabled. |
