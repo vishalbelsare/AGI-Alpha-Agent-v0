@@ -250,7 +250,15 @@ python ../../../check_env.py --auto-install
 ```
 
 Set `WHEELHOUSE=/path/to/wheels` when offline to install from a local
-wheelhouse.
+wheelhouse. Create the wheelhouse first:
+
+```bash
+pip wheel -r requirements.lock -w /path/to/wheels
+```
+
+Then run `python ../../../check_env.py --auto-install` with `WHEELHOUSE`
+set. See [../../scripts/README.md#offline-setup](../../scripts/README.md#offline-setup)
+for detailed steps.
 
 ---
 
