@@ -6,6 +6,7 @@ import asyncio
 import logging
 import os
 import subprocess
+from typing import Any
 from unittest import mock
 import pytest
 from pathlib import Path
@@ -445,3 +446,53 @@ def test_main_closes_adk_client(monkeypatch: pytest.MonkeyPatch) -> None:
 
     assert mod._A2A.stopped
     assert adk.closed
+
+
+def test_run_cycle_uses_asyncio_run(monkeypatch: pytest.MonkeyPatch) -> None:
+    """`run_cycle` should call ``asyncio.run`` when no loop is running."""
+    mod = importlib.import_module(MODULE)
+
+    monkeypatch.setattr(asyncio, "get_running_loop", lambda: (_ for _ in ()).throw(RuntimeError()))
+
+    called: dict[str, Any] = {}
+
+    def fake_run(coro: Any) -> None:
+        called["coro"] = coro
+
+    monkeypatch.setattr(asyncio, "run", fake_run)
+
+    async def dummy_cycle(*_a: object, **_k: object) -> None:
+        pass
+
+    monkeypatch.setattr(mod, "run_cycle_async", dummy_cycle)
+
+    mod.run_cycle(mod.Orchestrator(), mod.AgentFin(), mod.AgentRes(), mod.AgentEne(), mod.AgentGdl(), mod.Model())
+
+    assert called.get("coro") is not None
+    assert getattr(called["coro"], "cr_code", None) is dummy_cycle.__code__
+
+
+def test_run_cycle_creates_task(monkeypatch: pytest.MonkeyPatch) -> None:
+    """`run_cycle` should schedule a task when called from within a loop."""
+    mod = importlib.import_module(MODULE)
+
+    class DummyLoop:
+        def __init__(self) -> None:
+            self.coro: Any | None = None
+
+        def create_task(self, coro: Any) -> None:
+            self.coro = coro
+
+    dummy_loop = DummyLoop()
+    monkeypatch.setattr(asyncio, "get_running_loop", lambda: dummy_loop)
+    monkeypatch.setattr(asyncio, "run", lambda _coro: (_ for _ in ()).throw(AssertionError("run called")))
+
+    async def dummy_cycle(*_a: object, **_k: object) -> None:
+        pass
+
+    monkeypatch.setattr(mod, "run_cycle_async", dummy_cycle)
+
+    mod.run_cycle(mod.Orchestrator(), mod.AgentFin(), mod.AgentRes(), mod.AgentEne(), mod.AgentGdl(), mod.Model())
+
+    assert dummy_loop.coro is not None
+    assert getattr(dummy_loop.coro, "cr_code", None) is dummy_cycle.__code__

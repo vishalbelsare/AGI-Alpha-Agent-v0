@@ -242,7 +242,6 @@ def run_cycle(
     model: Model,
     adk_client: Any | None = None,
     a2a_socket: Any | None = None,
-    loop: asyncio.AbstractEventLoop | None = None,
 ) -> None:
     """Execute one evaluation cycle, creating an event loop if required."""
 
@@ -266,32 +265,18 @@ def run_cycle(
         )
         return
 
-    if loop is None:
-        asyncio.run(
-            run_cycle_async(
-                orchestrator,
-                fin_agent,
-                res_agent,
-                ene_agent,
-                gdl_agent,
-                model,
-                adk_client,
-                a2a_socket,
-            )
+    asyncio.run(
+        run_cycle_async(
+            orchestrator,
+            fin_agent,
+            res_agent,
+            ene_agent,
+            gdl_agent,
+            model,
+            adk_client,
+            a2a_socket,
         )
-    else:
-        loop.run_until_complete(
-            run_cycle_async(
-                orchestrator,
-                fin_agent,
-                res_agent,
-                ene_agent,
-                gdl_agent,
-                model,
-                adk_client,
-                a2a_socket,
-            )
-        )
+    )
 
 
 async def main(argv: list[str] | None = None) -> None:
