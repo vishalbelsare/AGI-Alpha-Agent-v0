@@ -29,6 +29,8 @@ openai = None
 with contextlib.suppress(ModuleNotFoundError):
     import openai  # type: ignore
 
+OPENAI_TIMEOUT_SEC = int(os.getenv("OPENAI_TIMEOUT_SEC", "30"))
+
 try:
     from openai_agents import OpenAIAgent  # noqa: F401
 except ImportError:
@@ -83,6 +85,7 @@ def convert_alpha(alpha: str, *, ledger: Path | None = None, model: str = "gpt-4
             resp = openai.ChatCompletion.create(
                 model=model,
                 messages=[{"role": "user", "content": prompt}],
+                timeout=OPENAI_TIMEOUT_SEC,
             )
             plan = json.loads(resp.choices[0].message.content)
             if not isinstance(plan, dict):

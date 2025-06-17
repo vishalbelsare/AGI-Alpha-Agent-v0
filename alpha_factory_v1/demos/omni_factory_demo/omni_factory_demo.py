@@ -67,6 +67,8 @@ with contextlib.suppress(ModuleNotFoundError):
 with contextlib.suppress(ModuleNotFoundError):
     import openai_agents_sdk as oas  # type: ignore
 
+OPENAI_TIMEOUT_SEC = int(os.getenv("OPENAI_TIMEOUT_SEC", "30"))
+
 with contextlib.suppress(ModuleNotFoundError):
     import google_adk as gadk  # type: ignore
 
@@ -205,6 +207,7 @@ def _llm_one_liner(prompt: str) -> str:
             temperature=CFG.temperature,
             max_tokens=60,
             messages=[{"role": "user", "content": prompt}],
+            timeout=OPENAI_TIMEOUT_SEC,
         )
         return resp.choices[0].message.content.strip()  # type: ignore[index]
     except Exception:  # pragma: no cover – network/quotas/etc.

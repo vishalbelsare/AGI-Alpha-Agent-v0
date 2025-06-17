@@ -118,6 +118,9 @@ from backend.orchestrator import _publish  # re‑use event bus hook
 
 logger = logging.getLogger(__name__)
 
+# Timeout (seconds) for OpenAI API requests
+OPENAI_TIMEOUT_SEC = int(os.getenv("OPENAI_TIMEOUT_SEC", "30"))
+
 # ---------------------------------------------------------------------------
 # Env‑helper (robust env var parsing)
 # ---------------------------------------------------------------------------
@@ -291,6 +294,7 @@ class SupplyChainAgent(AgentBase):  # noqa: D101
                     model="gpt-4o",
                     messages=[{"role": "user", "content": prompt}],
                     max_tokens=200,
+                    timeout=OPENAI_TIMEOUT_SEC,
                 )
                 extra = json.loads(resp.choices[0].message.content)
                 recs.append(extra)

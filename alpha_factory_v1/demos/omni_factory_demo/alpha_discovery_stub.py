@@ -21,6 +21,8 @@ from typing import List, Dict
 with contextlib.suppress(ModuleNotFoundError):
     import openai  # type: ignore
 
+OPENAI_TIMEOUT_SEC = int(os.getenv("OPENAI_TIMEOUT_SEC", "30"))
+
 SAMPLE_ALPHA: List[Dict[str, str]] = [
     {
         "sector": "Energy",
@@ -68,6 +70,7 @@ def discover_alpha(
                 model="gpt-4o-mini",
                 messages=[{"role": "user", "content": prompt}],
                 response_format={"type": "json_object"},
+                timeout=OPENAI_TIMEOUT_SEC,
             )
             picks = json.loads(resp.choices[0].message.content)  # type: ignore[index]
             if isinstance(picks, dict):

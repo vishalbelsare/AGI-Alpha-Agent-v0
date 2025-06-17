@@ -88,8 +88,9 @@ def summarise_with_agent(mean_coop: float, *, agents: int, rounds: int, delta: f
     except Exception:
         return base_msg
 
+    timeout = int(os.getenv("OPENAI_TIMEOUT_SEC", "30"))
     try:
-        client = openai.OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+        client = openai.OpenAI(api_key=os.getenv("OPENAI_API_KEY"), timeout=timeout)
         completion = client.chat.completions.create(
             model="gpt-4o",
             messages=[
@@ -97,6 +98,7 @@ def summarise_with_agent(mean_coop: float, *, agents: int, rounds: int, delta: f
                 {"role": "user", "content": base_msg},
             ],
             max_tokens=60,
+            timeout=timeout,
         )
         return cast(str, completion.choices[0].message.content).strip()
     except openai.AuthenticationError:
