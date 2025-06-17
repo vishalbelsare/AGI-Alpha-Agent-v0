@@ -173,6 +173,7 @@ async def run_cycle_async(
     gdl_agent: AgentGdl,
     model: Model,
     adk_client: Any | None = None,
+    a2a_socket: Any | None = None,
 ) -> None:
     """Execute one evaluation + commitment cycle."""
 
@@ -190,9 +191,9 @@ async def run_cycle_async(
     comment = await _llm_comment(delta_g)
     log.info("LLM: %s", comment)
 
-    if _A2A:
+    if a2a_socket is not None:
         try:
-            _A2A.sendjson({"delta_g": delta_g})
+            a2a_socket.sendjson({"delta_g": delta_g})
         except Exception:  # pragma: no cover - best effort
             log.warning("A2A send failed", exc_info=True)
 
@@ -241,6 +242,7 @@ def run_cycle(
     gdl_agent: AgentGdl,
     model: Model,
     adk_client: Any | None = None,
+    a2a_socket: Any | None = None,
     loop: asyncio.AbstractEventLoop | None = None,
 ) -> None:
     """Execute one evaluation cycle, creating an event loop if required."""
@@ -260,6 +262,7 @@ def run_cycle(
                 gdl_agent,
                 model,
                 adk_client,
+                a2a_socket,
             )
         )
         return
@@ -274,6 +277,7 @@ def run_cycle(
                 gdl_agent,
                 model,
                 adk_client,
+                a2a_socket,
             )
         )
     else:
@@ -286,6 +290,7 @@ def run_cycle(
                 gdl_agent,
                 model,
                 adk_client,
+                a2a_socket,
             )
         )
 
@@ -357,6 +362,7 @@ async def main(argv: list[str] | None = None) -> None:
         _A2A = A2ASocket(host=host, port=port, app_id="alpha_business_v3")
     else:
         _A2A = None
+    a2a_socket = _A2A
 
     logging.basicConfig(
         level=args.loglevel.upper(),
@@ -371,9 +377,9 @@ async def main(argv: list[str] | None = None) -> None:
     gdl_agent = AgentGdl()
     model = Model()
 
-    if _A2A:
+    if a2a_socket:
         try:
-            _A2A.start()
+            a2a_socket.start()
         except Exception:  # pragma: no cover - best effort
             log.warning("Failed to start A2A socket", exc_info=True)
 
@@ -390,15 +396,16 @@ async def main(argv: list[str] | None = None) -> None:
                 gdl_agent,
                 model,
                 adk_client,
+                a2a_socket,
             )
             cycle += 1
             if args.cycles and cycle >= args.cycles:
                 break
             await asyncio.sleep(args.interval)
     finally:
-        if _A2A:
+        if a2a_socket:
             try:
-                _A2A.stop()
+                a2a_socket.stop()
             except Exception:  # pragma: no cover - best effort
                 log.warning("Failed to stop A2A socket", exc_info=True)
         if adk_client is not None:
