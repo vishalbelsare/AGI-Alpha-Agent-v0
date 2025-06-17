@@ -8,9 +8,9 @@ The AI‑GA Meta‑Evolution service is a conceptual research prototype. Referen
    - Set `OPENAI_API_KEY` to enable cloud models. Leave empty to run fully offline via the bundled Mixtral model.
    - Optionally enable the Google ADK gateway by setting `ALPHA_FACTORY_ENABLE_ADK=true`. A token can be enforced with `ALPHA_FACTORY_ADK_TOKEN`.
    - For API protection, set `AUTH_BEARER_TOKEN` or provide `JWT_PUBLIC_KEY`/`JWT_ISSUER` values.
-   - Verify all Python packages are available. Run from the project root:
+   - Verify all Python packages are available. Run from this directory:
      ```bash
-     AUTO_INSTALL_MISSING=1 python check_env.py --auto-install
+     AUTO_INSTALL_MISSING=1 python ../../check_env.py --auto-install
      ```
      This installs `openai-agents` (or the alternative `agents` package) and
      other requirements if they are missing.
@@ -33,11 +33,11 @@ before running the environment check:
 
 ```bash
 export WHEELHOUSE=$(pwd)/wheels
-AUTO_INSTALL_MISSING=1 python check_env.py --auto-install --wheelhouse "$WHEELHOUSE"
+AUTO_INSTALL_MISSING=1 python ../../check_env.py --auto-install --wheelhouse "$WHEELHOUSE"
 ```
 
 Run `python scripts/check_python_deps.py` first to verify core packages,
-then `AUTO_INSTALL_MISSING=1 python check_env.py --auto-install`.
+then `AUTO_INSTALL_MISSING=1 python ../../check_env.py --auto-install`.
 Provide this directory via `WHEELHOUSE` when installing on the production host.
 Regenerate the lock file whenever `requirements.txt` changes:
 
