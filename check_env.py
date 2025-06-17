@@ -225,7 +225,7 @@ def main(argv: Optional[List[str]] = None) -> int:
     demo = args.demo
     extra_required = DEMO_PACKAGES.get(demo, [])
 
-    network_ok = has_network()
+    network_ok = has_network() if not wheelhouse else True
     if auto and not wheelhouse and not network_ok:
         missing_core = [pkg for pkg in CORE if not check_pkg(pkg)]
         missing_required_tmp = []
