@@ -157,7 +157,14 @@ class CurriculumEnv(gym.Env):
         return self._obs(), {}
 
     def reset_batch(self, batch_size: int):
-        """Vectorised variant of :meth:`reset`."""
+        """Return stacked observations from consecutive ``reset`` calls.
+
+        This mirrors :class:`gymnasium.vector.VectorEnv.reset` but reuses the
+        current instance instead of creating separate environments. Each call to
+        :meth:`reset` generates a new random layout, so the returned batch
+        emulates independent resets while avoiding the overhead of multiple
+        objects.
+        """
         if batch_size <= 0:
             raise ValueError("batch_size must be positive")
         obs, infos = zip(*(self.reset() for _ in range(batch_size)))
