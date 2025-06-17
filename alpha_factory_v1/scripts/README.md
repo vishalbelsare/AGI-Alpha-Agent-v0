@@ -123,10 +123,15 @@ When working on an air‑gapped machine build wheels ahead of time and tell
 ## 🤖 CI / GitHub Actions usage
 
 ```yaml
+      - name: Verify environment
+        run: python check_env.py --auto-install --wheelhouse /path/to/wheels
       - name: Build & smoke‑test α‑Factory
         run: |
           chmod +x alpha_factory_v1/scripts/install_alpha_factory_pro.sh
           alpha_factory_v1/scripts/install_alpha_factory_pro.sh --deploy --no-ui
+      - name: Run tests
+        run: |
+          WHEELHOUSE=/path/to/wheels pytest -q
 ```
 
 *The `--no-ui` flag speeds up CI by skipping the React build.*
