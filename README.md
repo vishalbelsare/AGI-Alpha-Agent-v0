@@ -93,6 +93,25 @@ Or launch the full stack with Docker:
 docker compose up --build
 ```
 
+### Minimal Install
+
+The default `requirements.txt` pulls in a lean set of packages for the
+offline demos and tests:
+
+```bash
+pip install -r requirements.txt
+```
+
+### Full Feature Install
+
+Install the heavier extras for finance, graph back‑ends and large
+language models:
+
+```bash
+pip install -r alpha_factory_v1/requirements.txt
+# or set ALPHA_FACTORY_FULL=1 when running `check_env.py --auto-install`
+```
+
 Detailed step‑by‑step instructions, including Colab usage,
 are available in [docs/quickstart.md](docs/quickstart.md).
 

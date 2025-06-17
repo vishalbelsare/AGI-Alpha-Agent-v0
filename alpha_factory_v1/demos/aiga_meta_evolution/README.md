@@ -96,6 +96,9 @@ python alpha_factory_v1/demos/aiga_meta_evolution/agent_aiga_entrypoint.py
 python alpha_factory_v1/demos/aiga_meta_evolution/start_aiga_demo.py --help
 # or via module entrypoint
 python -m alpha_factory_v1.demos.aiga_meta_evolution --help
+# skip dependency checks or optional gateways via env flags:
+#   SKIP_DEPS_CHECK=1 ALPHA_FACTORY_ENABLE_ADK=0 \
+#   python alpha_factory_v1/demos/aiga_meta_evolution/start_aiga_demo.py
 ```
 
 Launch the **Ollama Mixtral** model in another terminal:

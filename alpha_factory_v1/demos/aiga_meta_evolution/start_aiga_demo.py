@@ -9,6 +9,9 @@ Cross-platform launcher for the AI-GA meta-evolution demo.
 
 This utility mirrors ``run_aiga_demo.sh`` for users without a POSIX shell.
 It orchestrates the Docker Compose stack and optionally tails the logs.
+Set ``SKIP_DEPS_CHECK=1`` to bypass the environment validation step.
+Use ``ALPHA_FACTORY_ENABLE_ADK=1`` to expose the Google ADK gateway and
+``ALPHA_FACTORY_FULL=1`` to verify heavy optional packages.
 """
 from __future__ import annotations
 

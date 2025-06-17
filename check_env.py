@@ -4,11 +4,12 @@
 This helper validates that the Python packages required by the
 Alpha‑Factory demos and unit tests are present.  When invoked with the
 ``--auto-install`` flag (or ``AUTO_INSTALL_MISSING=1`` environment
-variable) it ensures ``alpha_factory_v1/requirements.txt`` is installed
-before attempting to resolve any remaining missing packages with
-``pip``.  For air‑gapped environments supply ``--wheelhouse`` or set
-``WHEELHOUSE=/path/to/wheels`` so ``pip`` can resolve packages from a
-local directory.
+variable) it installs ``alpha_factory_v1/requirements-core.txt`` by
+default before attempting to resolve any remaining missing packages with
+``pip``.  Set ``ALPHA_FACTORY_FULL=1`` to install the heavier
+``requirements.txt`` instead.  For air‑gapped environments supply
+``--wheelhouse`` or set ``WHEELHOUSE=/path/to/wheels`` so ``pip`` can
+resolve packages from a local directory.
 
 The script prints a warning when packages are missing but continues to
 run so the demos remain usable in restricted setups. Missing ``numpy`` or
@@ -54,7 +55,9 @@ def warn_missing_core() -> List[str]:
     return missing
 
 
-REQUIRED = [
+FULL_FEATURE = os.getenv("ALPHA_FACTORY_FULL", "0").lower() in {"1", "true", "yes"}
+
+REQUIRED_BASE = [
     "pytest",
     "prometheus_client",
     "openai",
@@ -77,8 +80,37 @@ REQUIRED = [
     "websockets",
     "pytest_benchmark",
     "hypothesis",
+]
+
+HEAVY_EXTRAS = [
+    "openai_agents",
+    "google_adk",
+    "sentence_transformers",
+    "faiss",
+    "chromadb",
+    "scipy",
+    "ortools",
+    "transformers",
+    "accelerate",
+    "sentencepiece",
+    "deap",
+    "gymnasium",
+    "ccxt",
+    "yfinance",
+    "newsapi",
+    "feedparser",
+    "neo4j",
+    "psycopg2",
+    "networkx",
+    "sqlalchemy",
+    "noaa_sdk",
+    "llama_cpp_python",
+    "ctransformers",
+    "streamlit",
     "plotly",
 ]
+
+REQUIRED = REQUIRED_BASE + (HEAVY_EXTRAS if FULL_FEATURE else [])
 
 # Additional requirements for specific demos
 DEMO_PACKAGES = {
@@ -116,6 +148,27 @@ PIP_NAMES = {
     "opentelemetry": "opentelemetry-api",
     "opentelemetry-api": "opentelemetry-api",
     "qdrant_client": "qdrant-client",
+    "faiss": "faiss-cpu",
+    "scipy": "scipy",
+    "ortools": "ortools",
+    "transformers": "transformers",
+    "accelerate": "accelerate",
+    "sentencepiece": "sentencepiece",
+    "deap": "deap",
+    "gymnasium": "gymnasium[classic-control]",
+    "ccxt": "ccxt",
+    "yfinance": "yfinance",
+    "newsapi": "newsapi-python",
+    "feedparser": "feedparser",
+    "neo4j": "neo4j",
+    "psycopg2": "psycopg2-binary",
+    "networkx": "networkx",
+    "sqlalchemy": "SQLAlchemy",
+    "noaa_sdk": "noaa-sdk",
+    "llama_cpp_python": "llama-cpp-python",
+    "ctransformers": "ctransformers",
+    "streamlit": "streamlit",
+    "plotly": "plotly",
 }
 
 IMPORT_NAMES = {
@@ -135,7 +188,7 @@ def has_network(timeout: float = 1.0) -> bool:
 def main(argv: Optional[List[str]] = None) -> int:
     parser = argparse.ArgumentParser(
         description="Validate runtime dependencies",
-        epilog="Example: pip wheel -r requirements.txt -w /media/wheels",
+        epilog="Example: pip wheel -r requirements-core.txt -w /media/wheels",
         formatter_class=argparse.RawDescriptionHelpFormatter,
     )
     parser.add_argument(
@@ -175,7 +228,7 @@ def main(argv: Optional[List[str]] = None) -> int:
     network_ok = has_network()
     if auto and not wheelhouse and not network_ok:
         missing_core = [pkg for pkg in CORE if not check_pkg(pkg)]
-        missing_required = []
+        missing_required_tmp = []
         for pkg in REQUIRED + extra_required:
             import_name = IMPORT_NAMES.get(pkg, pkg)
             try:
@@ -183,12 +236,12 @@ def main(argv: Optional[List[str]] = None) -> int:
             except (ValueError, ModuleNotFoundError):
                 spec = None
             if spec is None:
-                missing_required.append(pkg)
-        if missing_core or missing_required:
+                missing_required_tmp.append(pkg)
+        if missing_core or missing_required_tmp:
             print(
                 "No network connectivity detected.\n"
                 "Build a wheelhouse, e.g.:\n"
-                "  pip wheel -r requirements.txt -w /path/to/wheels\n"
+                "  pip wheel -r requirements-core.txt -w /path/to/wheels\n"
                 "Re-run with '--wheelhouse <dir>' or set WHEELHOUSE. See\n"
                 "alpha_factory_v1/scripts/README.md for details."
             )
@@ -237,7 +290,8 @@ def main(argv: Optional[List[str]] = None) -> int:
             "Re-run with --allow-basic-fallback to bypass this check."
         )
         return 1
-    req_file = Path(__file__).resolve().parent / "alpha_factory_v1" / "requirements.txt"
+    req_name = "requirements.txt" if FULL_FEATURE else "requirements-core.txt"
+    req_file = Path(__file__).resolve().parent / "alpha_factory_v1" / req_name
     missing_required_pre: list[str] = []
     for pkg in REQUIRED + extra_required:
         import_name = IMPORT_NAMES.get(pkg, pkg)
@@ -264,7 +318,7 @@ def main(argv: Optional[List[str]] = None) -> int:
             print(
                 "Timed out installing baseline requirements.\n"
                 "Create a wheelhouse with:\n"
-                "  pip wheel -r requirements.txt -w /path/to/wheels\n"
+                "  pip wheel -r requirements-core.txt -w /path/to/wheels\n"
                 "Then re-run with '--wheelhouse <dir>' (see "
                 "alpha_factory_v1/scripts/README.md)."
             )
@@ -277,7 +331,7 @@ def main(argv: Optional[List[str]] = None) -> int:
             if any(kw in stderr.lower() for kw in ["connection", "temporary failure", "network", "resolve"]):
                 print(
                     "Network failure detected.\n"
-                    "Create a wheelhouse with 'pip wheel -r requirements.txt -w /path/to/wheels'\n"
+                    "Create a wheelhouse with 'pip wheel -r requirements-core.txt -w /path/to/wheels'\n"
                     "and re-run with '--wheelhouse <dir>' (see "
                     "alpha_factory_v1/scripts/README.md)."
                 )
@@ -326,7 +380,7 @@ def main(argv: Optional[List[str]] = None) -> int:
             except subprocess.TimeoutExpired:
                 print(
                     "Timed out installing packages.\n"
-                    "Create a wheelhouse with 'pip wheel -r requirements.txt -w /path/to/wheels'\n"
+                    "Create a wheelhouse with 'pip wheel -r requirements-core.txt -w /path/to/wheels'\n"
                     "then re-run with '--wheelhouse <dir>' (see alpha_factory_v1/scripts/README.md)."
                 )
                 if not network_ok and not wheelhouse:
@@ -338,7 +392,7 @@ def main(argv: Optional[List[str]] = None) -> int:
                 if any(kw in stderr.lower() for kw in ["connection", "temporary failure", "network", "resolve"]):
                     print(
                         "Network failure detected.\n"
-                        "Create a wheelhouse with 'pip wheel -r requirements.txt -w /path/to/wheels'\n"
+                        "Create a wheelhouse with 'pip wheel -r requirements-core.txt -w /path/to/wheels'\n"
                         "and re-run with '--wheelhouse <dir>' (see "
                         "alpha_factory_v1/scripts/README.md)."
                     )
