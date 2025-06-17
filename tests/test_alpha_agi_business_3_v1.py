@@ -10,10 +10,13 @@ from unittest import mock
 
 MODULE = "alpha_factory_v1.demos.alpha_agi_business_3_v1.alpha_agi_business_3_v1"
 
+
 def test_adk_client_import(monkeypatch):
     dummy = types.ModuleType("google_adk")
+
     class Client:
         pass
+
     dummy.Client = Client
     monkeypatch.setitem(sys.modules, "google_adk", dummy)
     if MODULE in sys.modules:
@@ -93,6 +96,7 @@ def test_run_cycle_async_logs_delta_g(monkeypatch, caplog):
 
     caplog.set_level(logging.INFO)
     monkeypatch.setattr(mod, "_A2A", None)
+
     async def _fake_comment(_: float) -> str:
         return "ok"
 
@@ -217,9 +221,7 @@ def test_run_cycle_posts_job(monkeypatch) -> None:
 
     monkeypatch.setattr(mod, "_llm_comment", _llm)
 
-    asyncio.run(
-        mod.run_cycle_async(orchestrator, fin, res, ene, gdl, model)
-    )
+    asyncio.run(mod.run_cycle_async(orchestrator, fin, res, ene, gdl, model))
 
     assert len(calls) == 1
 
@@ -283,3 +285,87 @@ def test_cli_flags_override_env(monkeypatch) -> None:
     assert captured["adk_host"] == "http://cli-adk:9"
     assert captured["a2a"] == "cli-host:7777"
 
+
+def test_run_cycle_closes_adk_client(monkeypatch) -> None:
+    """`run_cycle_async` should close the ADK client when available."""
+    mod = importlib.import_module(MODULE)
+
+    class DummyADK:
+        def __init__(self) -> None:
+            self.closed = False
+
+        async def run(self, _msg: str) -> None:
+            pass
+
+        def close(self) -> None:
+            self.closed = True
+
+    orchestrator = mod.Orchestrator()
+    fin = mod.AgentFin()
+    res = mod.AgentRes()
+    ene = mod.AgentEne()
+    gdl = mod.AgentGdl()
+    model = mod.Model()
+
+    monkeypatch.setattr(mod, "_A2A", None)
+    monkeypatch.setattr(orchestrator, "collect_signals", lambda: {})
+    monkeypatch.setattr(fin, "latent_work", lambda _b: 0.0)
+    monkeypatch.setattr(res, "entropy", lambda _b: 1.0)
+    monkeypatch.setattr(ene, "market_temperature", lambda _b: 1.0)
+
+    async def _llm(_: float) -> str:
+        return "ok"
+
+    monkeypatch.setattr(mod, "_llm_comment", _llm)
+
+    adk = DummyADK()
+    asyncio.run(mod.run_cycle_async(orchestrator, fin, res, ene, gdl, model, adk))
+
+    assert adk.closed
+
+
+def test_main_closes_adk_client(monkeypatch) -> None:
+    """`main` should close the ADK client when the loop exits."""
+    if MODULE in sys.modules:
+        del sys.modules[MODULE]
+    mod = importlib.import_module(MODULE)
+
+    monkeypatch.setattr(mod, "check_env", types.SimpleNamespace(main=lambda *_a, **_k: None), raising=False)
+
+    class DummyADK:
+        def __init__(self, *_a: object, **_kw: object) -> None:
+            self.closed = False
+
+        async def run(self, _msg: str) -> None:
+            pass
+
+        async def __aexit__(self, *_a: object, **_k: object) -> None:
+            self.closed = True
+
+    class DummySock:
+        def __init__(self) -> None:
+            self.started = False
+            self.stopped = False
+
+        def start(self) -> None:
+            self.started = True
+
+        def stop(self) -> None:
+            self.stopped = True
+
+        def sendjson(self, *_a: object, **_kw: object) -> None:
+            pass
+
+    adk = DummyADK()
+    monkeypatch.setattr(mod, "ADKClient", lambda *_a, **_kw: adk)
+    monkeypatch.setattr(mod, "_A2A", DummySock())
+
+    async def _llm(_: float) -> str:
+        return "ok"
+
+    monkeypatch.setattr(mod, "_llm_comment", _llm)
+
+    asyncio.run(mod.main(["--cycles", "1", "--interval", "0"]))
+
+    assert mod._A2A.stopped
+    assert adk.closed
