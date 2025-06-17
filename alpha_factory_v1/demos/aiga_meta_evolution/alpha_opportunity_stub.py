@@ -25,6 +25,7 @@ except ImportError:
         ) from exc
 
 from .utils import build_llm
+import os
 
 OpenAIAgent = _OpenAIAgent
 
@@ -70,7 +71,8 @@ def main(argv: list[str] | None = None) -> None:
         print(result)
         return
 
-    runtime = AgentRuntime(api_key=None)
+    agent_port = int(os.getenv("AGENTS_RUNTIME_PORT", "5001"))
+    runtime = AgentRuntime(api_key=None, port=agent_port)
     agent = AlphaDiscoveryAgent()
     runtime.register(agent)
     print("Registered AlphaDiscoveryAgent with runtime")

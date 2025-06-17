@@ -82,6 +82,13 @@ ALPHA_FACTORY_ENABLE_ADK=1 python openai_agents_bridge.py
 ALPHA_FACTORY_ADK_TOKEN=my_token python openai_agents_bridge.py
 ```
 
+The runtime listens on port `5001` by default. Override it by exporting
+`AGENTS_RUNTIME_PORT` before launching:
+
+```bash
+AGENTS_RUNTIME_PORT=6001 python openai_agents_bridge.py
+```
+
 The bridge exposes health checks at
 `http://localhost:${ALPHA_FACTORY_ADK_PORT}/healthz` (or `/docs`).
 

@@ -33,6 +33,7 @@ if __package__ is None:
     sys.path.append(str(Path(__file__).resolve().parent))
     __package__ = "alpha_factory_v1.demos.aiga_meta_evolution"
 
+import os
 from typing import cast
 
 from .meta_evolver import MetaEvolver
@@ -108,9 +109,12 @@ class EvolverAgent(Agent):  # type: ignore[misc]
         return cast(dict[str, float | str], await best_alpha())
 
 
+AGENT_PORT = int(os.getenv("AGENTS_RUNTIME_PORT", "5001"))
+
+
 def main() -> None:
     _get_evolver()
-    runtime = AgentRuntime(api_key=None)
+    runtime = AgentRuntime(api_key=None, port=AGENT_PORT)
     agent = EvolverAgent()
     runtime.register(agent)
     print("Registered EvolverAgent with runtime")
