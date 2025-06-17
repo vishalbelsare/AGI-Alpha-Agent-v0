@@ -19,7 +19,7 @@ def _free_port() -> int:
         return int(s.getsockname()[1])
 
 
-@pytest.fixture()
+@pytest.fixture()  # type: ignore[misc]
 def server() -> Iterator[str]:
     port = _free_port()
     config = uvicorn.Config(evolution_worker.app, host="127.0.0.1", port=port, log_level="warning")
@@ -52,5 +52,30 @@ def test_mutate_returns_child(server: str) -> None:
         r = client.post("/mutate", files=files)
         assert r.status_code == 200
         data = r.json()
+        assert isinstance(data, dict)
         assert "child" in data
         assert isinstance(data["child"], list)
+
+
+def test_mutate_cleanup_nested(server: str) -> None:
+    """Creating nested files should be cleaned up."""
+    import io
+    import tarfile
+
+    before = set(evolution_worker.STORAGE_PATH.iterdir()) if evolution_worker.STORAGE_PATH.exists() else set()
+
+    buf = io.BytesIO()
+    with tarfile.open(fileobj=buf, mode="w") as tf:
+        info = tarfile.TarInfo(name="dir1/dir2/file.txt")
+        data = b"nested"
+        info.size = len(data)
+        tf.addfile(info, io.BytesIO(data))
+    buf.seek(0)
+
+    with httpx.Client(base_url=server) as client:
+        files = {"tar": ("nested.tar", buf.read())}
+        r = client.post("/mutate", files=files)
+        assert r.status_code == 200
+
+    after = set(evolution_worker.STORAGE_PATH.iterdir()) if evolution_worker.STORAGE_PATH.exists() else set()
+    assert before == after

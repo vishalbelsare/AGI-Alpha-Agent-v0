@@ -10,6 +10,7 @@ self-improving agent could be evolved inside a container.
 from __future__ import annotations
 
 import os
+import shutil
 import tarfile
 import tempfile
 from pathlib import Path
@@ -46,16 +47,16 @@ STORAGE_PATH = Path(os.getenv("STORAGE_PATH", "/tmp/evolution"))
 app = FastAPI(title="Evolution Worker")
 
 
-class MutationResponse(BaseModel):
+class MutationResponse(BaseModel):  # type: ignore[misc]
     child: List[float]
 
 
-@app.on_event("startup")
+@app.on_event("startup")  # type: ignore[misc]
 async def _prepare() -> None:
     STORAGE_PATH.mkdir(parents=True, exist_ok=True)
 
 
-@app.post("/mutate", response_model=MutationResponse)
+@app.post("/mutate", response_model=MutationResponse)  # type: ignore[misc]
 async def mutate(
     tar: UploadFile | None = File(None),
     repo_url: str | None = Form(None),
@@ -84,13 +85,10 @@ async def mutate(
         child = pop[0].genome
         return MutationResponse(child=child)
     finally:
-        for p in tmp_path.rglob("*"):
-            if p.is_file():
-                p.unlink()
-        tmp_path.rmdir()
+        shutil.rmtree(tmp_path, ignore_errors=True)
 
 
-@app.get("/healthz")
+@app.get("/healthz")  # type: ignore[misc]
 async def healthz() -> str:
     """Liveness probe."""
 
