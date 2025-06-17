@@ -1,9 +1,11 @@
 # SPDX-License-Identifier: Apache-2.0
+# mypy: ignore-errors
 import unittest
 
 try:
     import numpy as np
     import torch
+    import gymnasium as gym
     from alpha_factory_v1.demos.aiga_meta_evolution import curriculum_env as ce
     from alpha_factory_v1.demos.aiga_meta_evolution import meta_evolver as me
 except Exception:  # pragma: no cover - optional deps may be missing
@@ -23,6 +25,15 @@ class CurriculumEnvTest(unittest.TestCase):
         env = ce.CurriculumEnv(genome=ce.EnvGenome(max_steps=10), size=6)
         with self.assertRaises(ValueError):
             env.reset_batch(0)
+
+    def test_reset_batch_matches_vector_env(self):
+        env_fn = lambda: ce.CurriculumEnv(genome=ce.EnvGenome(max_steps=10), size=6)
+        vec = gym.vector.SyncVectorEnv([env_fn for _ in range(3)])
+        obs_vec, _ = vec.reset()
+        env = env_fn()
+        obs, infos = env.reset_batch(3)
+        self.assertEqual(obs.shape, obs_vec.shape)
+        self.assertEqual(len(infos), 3)
 
 
 @unittest.skipUnless(np and torch, "optional deps missing")
