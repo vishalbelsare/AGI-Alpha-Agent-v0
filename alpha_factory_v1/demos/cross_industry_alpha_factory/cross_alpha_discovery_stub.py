@@ -28,6 +28,9 @@ from tempfile import NamedTemporaryFile
 
 logger = logging.getLogger(__name__)
 
+# Timeout (seconds) for OpenAI API requests
+OPENAI_TIMEOUT_SEC = int(os.getenv("OPENAI_TIMEOUT_SEC", "30"))
+
 try:
     from filelock import FileLock
 except Exception:  # pragma: no cover - optional dependency
@@ -107,6 +110,7 @@ def discover_alpha(
                 model=model,
                 messages=[{"role": "user", "content": prompt}],
                 response_format={"type": "json_object"},
+                timeout=OPENAI_TIMEOUT_SEC,
             )
             picks = json.loads(resp.choices[0].message.content)
             if isinstance(picks, dict):

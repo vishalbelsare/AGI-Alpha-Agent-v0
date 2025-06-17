@@ -12,6 +12,9 @@ OPENAI_MODEL = os.getenv("OPENAI_MODEL", "gpt-4-0613")
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 USE_LOCAL_LLM = os.getenv("USE_LOCAL_LLM", "false").lower() == "true"
 
+# Timeout (seconds) for OpenAI API requests
+OPENAI_TIMEOUT_SEC = int(os.getenv("OPENAI_TIMEOUT_SEC", "30"))
+
 
 def call_local_model(prompt_messages: list[dict[str, str]]) -> str:
     """Return a response from a locally hosted model."""
@@ -103,6 +106,7 @@ def request_patch(prompt_messages: list[dict[str, str]]) -> str:
             messages=prompt_messages,
             functions=functions,
             function_call={"name": "propose_patch"},
+            timeout=OPENAI_TIMEOUT_SEC,
         )
     except openai.Error as exc:  # pragma: no cover - API error handling
         logger.error("OpenAI API request failed: %s", exc)

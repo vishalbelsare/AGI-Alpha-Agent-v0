@@ -30,6 +30,10 @@ class TestGovernanceSim(unittest.TestCase):
                     stake=1.0,
                 )
         self.assertEqual(text, "ok")
+        mock_client.assert_called_once()
+        self.assertEqual(mock_client.call_args.kwargs.get("timeout"), 30)
+        kwargs = mock_client.return_value.chat.completions.create.call_args.kwargs
+        self.assertEqual(kwargs.get("timeout"), 30)
 
     def test_summary_auth_error(self) -> None:
         import openai

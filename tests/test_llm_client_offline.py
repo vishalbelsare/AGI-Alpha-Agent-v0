@@ -58,6 +58,7 @@ def test_request_patch_respects_model_env(monkeypatch: pytest.MonkeyPatch) -> No
     client = _reload_client(monkeypatch, diff)
     client.request_patch([{"role": "user", "content": "fix"}])
     assert create_mock.call_args.kwargs.get("model") == "test-model"
+    assert create_mock.call_args.kwargs.get("timeout") == client.OPENAI_TIMEOUT_SEC
 
 
 def test_call_local_model_http(monkeypatch: pytest.MonkeyPatch) -> None:

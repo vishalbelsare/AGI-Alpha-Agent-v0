@@ -96,6 +96,8 @@ except ModuleNotFoundError:  # pragma: no cover
     def tool(fn=None, **_):  # type: ignore
         return (lambda f: f)(fn) if fn else lambda f: f
 
+OPENAI_TIMEOUT_SEC = int(os.getenv("OPENAI_TIMEOUT_SEC", "30"))
+
 
 try:
     from kafka import KafkaProducer  # type: ignore
@@ -336,6 +338,7 @@ class BiotechAgent(AgentBase):
                 ],
                 temperature=0,
                 max_tokens=600,
+                timeout=OPENAI_TIMEOUT_SEC,
             )
             answer = chat.choices[0].message.content.strip()
         else:

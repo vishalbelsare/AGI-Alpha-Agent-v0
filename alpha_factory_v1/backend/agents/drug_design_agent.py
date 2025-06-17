@@ -93,6 +93,8 @@ except ModuleNotFoundError:  # pragma: no cover
     def tool(fn=None, **_kw):  # type: ignore
         return (lambda f: f)(fn) if fn else lambda f: f
 
+OPENAI_TIMEOUT_SEC = int(os.getenv("OPENAI_TIMEOUT_SEC", "30"))
+
 
 try:
     import adk  # type: ignore
@@ -481,6 +483,7 @@ class DrugDesignAgent(AgentBase):
         try:
             resp = await openai.ChatCompletion.acreate(
                 model="gpt-4o", messages=[{"role": "user", "content": prompt}], max_tokens=60
+                , timeout=OPENAI_TIMEOUT_SEC
             )
             return resp.choices[0].message.content.strip()
         except Exception as exc:  # noqa: BLE001

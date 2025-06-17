@@ -168,6 +168,7 @@ class TestCrossAlphaDiscoveryStub(unittest.TestCase):
         openai_mock.ChatCompletion.create.assert_called_once()
         kwargs = openai_mock.ChatCompletion.create.call_args.kwargs
         self.assertEqual(kwargs.get("response_format"), {"type": "json_object"})
+        self.assertEqual(kwargs.get("timeout"), stub.OPENAI_TIMEOUT_SEC)
 
     def test_openai_v1_response_format(self) -> None:
         from alpha_factory_v1.demos.cross_industry_alpha_factory import (
@@ -186,6 +187,7 @@ class TestCrossAlphaDiscoveryStub(unittest.TestCase):
         openai_mock.chat.completions.create.assert_called_once()
         kwargs = openai_mock.chat.completions.create.call_args.kwargs
         self.assertEqual(kwargs.get("response_format"), {"type": "json_object"})
+        self.assertEqual(kwargs.get("timeout"), stub.OPENAI_TIMEOUT_SEC)
 
     def test_concurrent_writes(self) -> None:
         from alpha_factory_v1.demos.cross_industry_alpha_factory import (

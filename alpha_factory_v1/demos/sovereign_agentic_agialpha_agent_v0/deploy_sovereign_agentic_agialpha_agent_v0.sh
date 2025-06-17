@@ -377,6 +377,7 @@ try:
     import openai
 except ImportError:
     openai = None
+OPENAI_TIMEOUT_SEC = int(os.getenv("OPENAI_TIMEOUT_SEC", "30"))
 
 # Attempt optional anthropic
 try:
@@ -764,7 +765,8 @@ class ReasoningAgent:
                 response = openai.ChatCompletion.create(
                     model=self.model_name,
                     messages=[{"role":"system","content":prompt}],
-                    temperature=0.7
+                    temperature=0.7,
+                    timeout=OPENAI_TIMEOUT_SEC
                 )
                 return response.choices[0].message.content.strip()
             except Exception as e:

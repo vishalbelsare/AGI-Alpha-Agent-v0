@@ -81,6 +81,8 @@ except ModuleNotFoundError:  # pragma: no cover
 
     openai = None  # type: ignore
 
+OPENAI_TIMEOUT_SEC = int(os.getenv("OPENAI_TIMEOUT_SEC", "30"))
+
 try:
     import adk  # type: ignore
 except ModuleNotFoundError:  # pragma: no cover
@@ -350,6 +352,7 @@ class RetailDemandAgent(AgentBase):
                     model="gpt-4o",
                     messages=[{"role": "user", "content": prompt}],
                     max_tokens=200,
+                    timeout=OPENAI_TIMEOUT_SEC,
                 )
                 recs = json.loads(chat.choices[0].message.content)
             except (openai.OpenAIError, json.JSONDecodeError) as exc:
