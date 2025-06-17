@@ -16,6 +16,7 @@ This repository is a conceptual research prototype. References to "AGI" and "sup
 
 <p align="center">
   <a href="#quickstart" aria-label="Jump to quickstart">Quick-start</a> •
+  <a href="#environment-setup">Environment Setup</a> •
   <a href="#architecture">Architecture</a> •
   <a href="#cli-usage">CLI</a> •
   <a href="#web-ui">Web UI</a> •
@@ -239,6 +240,17 @@ docker run -it --rm -p 8501:8501   -e OPENAI_API_KEY=$OPENAI_API_KEY   ghcr.io/m
 
 For offline builds or the browser-based PWA, see
 [insight_browser_v1/README.md](insight_browser_v1/README.md).
+
+## Environment Setup
+
+Before running the demo, install optional dependencies:
+
+```bash
+python ../../../check_env.py --auto-install
+```
+
+Set `WHEELHOUSE=/path/to/wheels` when offline to install from a local
+wheelhouse.
 
 ---
 
