@@ -44,6 +44,7 @@ except Exception:  # pragma: no cover - offline fallback
 
 try:  # optional A2A message socket
     from a2a import A2ASocket
+
     try:
         _port = int(os.getenv("A2A_PORT", "0"))
     except ValueError:  # pragma: no cover - invalid env var
@@ -61,6 +62,7 @@ try:  # optional A2A message socket
 except Exception:  # pragma: no cover - missing dependency
     A2ASocket = None
     _A2A = None
+
 
 @dataclass(slots=True)
 class Orchestrator:
@@ -135,19 +137,13 @@ async def _llm_comment(delta_g: float) -> str:
     if OpenAIAgent is None or not callable(OpenAIAgent):
         return cast(
             str,
-            local_llm.chat(
-                f"In one sentence, comment on ΔG={delta_g:.4f} for the business."
-            ),
+            local_llm.chat(f"In one sentence, comment on ΔG={delta_g:.4f} for the business."),
         )
 
     agent = OpenAIAgent(
         model=os.getenv("MODEL_NAME", "gpt-4o-mini"),
         api_key=os.getenv("OPENAI_API_KEY"),
-        base_url=(
-            None
-            if os.getenv("OPENAI_API_KEY")
-            else os.getenv("LOCAL_LLM_URL", "http://ollama:11434/v1")
-        ),
+        base_url=(None if os.getenv("OPENAI_API_KEY") else os.getenv("LOCAL_LLM_URL", "http://ollama:11434/v1")),
     )
     try:
         return cast(
@@ -208,6 +204,25 @@ async def run_cycle_async(
                 await asyncio.to_thread(adk_client.run, comment)
         except Exception:  # pragma: no cover - best effort
             log.warning("ADK client error", exc_info=True)
+        finally:
+            closer = getattr(adk_client, "close", None)
+            if closer is not None:
+                try:
+                    if asyncio.iscoroutinefunction(closer):
+                        await closer()
+                    else:
+                        await asyncio.to_thread(closer)
+                except Exception:  # pragma: no cover - best effort
+                    log.warning("ADK client close error", exc_info=True)
+            elif hasattr(adk_client, "__aexit__"):
+                aexit = getattr(adk_client, "__aexit__")
+                try:
+                    if asyncio.iscoroutinefunction(aexit):
+                        await aexit(None, None, None)
+                    else:
+                        await asyncio.to_thread(aexit, None, None, None)
+                except Exception:  # pragma: no cover - best effort
+                    log.warning("ADK client close error", exc_info=True)
 
     if delta_g < 0:
         bundle_hash = hashlib.sha256(repr(bundle).encode()).hexdigest()[:8]
@@ -280,6 +295,7 @@ async def main(argv: list[str] | None = None) -> None:
 
     try:  # auto-verify environment when available
         import importlib
+
         _check_env = importlib.import_module("check_env")
     except Exception:  # pragma: no cover - optional dependency
         _check_env = None
@@ -385,6 +401,25 @@ async def main(argv: list[str] | None = None) -> None:
                 _A2A.stop()
             except Exception:  # pragma: no cover - best effort
                 log.warning("Failed to stop A2A socket", exc_info=True)
+        if adk_client is not None:
+            closer = getattr(adk_client, "close", None)
+            if closer is not None:
+                try:
+                    if asyncio.iscoroutinefunction(closer):
+                        await closer()
+                    else:
+                        await asyncio.to_thread(closer)
+                except Exception:  # pragma: no cover - best effort
+                    log.warning("Failed to close ADK client", exc_info=True)
+            elif hasattr(adk_client, "__aexit__"):
+                aexit = getattr(adk_client, "__aexit__")
+                try:
+                    if asyncio.iscoroutinefunction(aexit):
+                        await aexit(None, None, None)
+                    else:
+                        await asyncio.to_thread(aexit, None, None, None)
+                except Exception:  # pragma: no cover - best effort
+                    log.warning("Failed to close ADK client", exc_info=True)
 
 
 if __name__ == "__main__":  # pragma: no cover - manual execution
