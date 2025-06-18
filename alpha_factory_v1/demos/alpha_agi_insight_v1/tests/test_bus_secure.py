@@ -29,7 +29,7 @@ def _gen_certs(tmp: Path) -> tuple[str, str, bytes, str]:
     subprocess.run(["bash", str(script)], cwd=tmp, check=True, capture_output=True)
     cert = tmp / "certs" / "bus.crt"
     key = tmp / "certs" / "bus.key"
-    token = "change_this_token"
+    token = "tok"
     ca = cert.read_bytes()
     return str(cert), str(key), ca, token
 
@@ -92,3 +92,11 @@ def test_bus_secure(tmp_path: Path) -> None:
 
     asyncio.run(run())
     assert len(received) == 1 and received[0].payload["v"] == 1
+
+
+def test_default_token_rejected(tmp_path: Path) -> None:
+    """Using the default token should fail when TLS is enabled."""
+    port = _free_port()
+    cert, key, _ca, _ = _gen_certs(tmp_path)
+    with pytest.raises(ValueError):
+        config.Settings(bus_port=port, bus_cert=cert, bus_key=key, bus_token="change_this_token")

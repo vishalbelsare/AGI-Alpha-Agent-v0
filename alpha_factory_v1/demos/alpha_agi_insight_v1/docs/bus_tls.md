@@ -25,6 +25,11 @@ AGI_INSIGHT_BUS_KEY=/path/to/certs/bus.key
 AGI_INSIGHT_BUS_TOKEN=change_this_token
 ```
 
+Change `AGI_INSIGHT_BUS_TOKEN` to a unique secret before starting the
+orchestrator. When TLS is enabled the application exits with a
+``ValueError`` if this variable is empty or still set to the default
+``change_this_token``.
+
 ### Windows (PowerShell)
 
 Install the [OpenSSL Windows binaries](https://slproweb.com/products/Win32OpenSSL.html) and run the equivalent commands:

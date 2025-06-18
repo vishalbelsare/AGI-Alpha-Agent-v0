@@ -28,7 +28,7 @@ def _gen_certs(tmp: Path) -> tuple[str, str, bytes, str]:
     subprocess.run(["bash", str(script)], cwd=tmp, check=True, capture_output=True)
     cert = tmp / "certs" / "bus.crt"
     key = tmp / "certs" / "bus.key"
-    token = "change_this_token"
+    token = "tok"
     ca = cert.read_bytes()
     return str(cert), str(key), ca, token
 

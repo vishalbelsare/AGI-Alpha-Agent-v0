@@ -92,6 +92,11 @@ class Settings(SettingsBase):
                 self.solana_wallet = Path(self.solana_wallet_file).read_text(encoding="utf-8").strip()
             except Exception as exc:  # pragma: no cover - optional
                 _log.warning("Failed to load wallet file %s: %s", self.solana_wallet_file, exc)
+        if self.bus_cert and self.bus_key:
+            if not self.bus_token or self.bus_token == "change_this_token":
+                raise ValueError(
+                    "AGI_INSIGHT_BUS_TOKEN must be set and cannot be 'change_this_token' when TLS is enabled"
+                )
 
 
 CFG = Settings()
