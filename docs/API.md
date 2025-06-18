@@ -107,7 +107,6 @@ Available commands are:
 - `agents-status` – list currently registered agents.
 - `replay` – replay ledger entries with a small delay for analysis.
 
-The CLI is also installed as the `alpha-agi-bhf` entry point for convenience.
 
 ### Endpoint Details
 

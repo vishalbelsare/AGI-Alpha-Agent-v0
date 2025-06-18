@@ -11,22 +11,24 @@ points to a text file, each non-empty line is treated as a sector name. The
 demo automatically integrates with the OpenAI Agents runtime and optionally the
 Google ADK gateway whenever credentials are present.
 
-**Quick Start:** run ``alpha-agi-insight --episodes 5`` or
-``alpha-agi-beyond-foresight --episodes 5`` to launch the final production demo
-with automatic environment selection. Both commands map to
-``official_demo_final.py`` and transparently choose between the hosted runtime
-and offline mode depending on available credentials.
+> **Note**
+> Older convenience entry points such as ``alpha-agi-insight`` were removed.
+> Run ``python official_demo_final.py`` (or ``run_demo.py``) directly to launch
+> the demo.
+
+**Quick Start:** run ``python official_demo_final.py --episodes 5`` to launch
+the final production demo with automatic environment selection. The script
+transparently chooses between the hosted runtime and offline mode depending on
+available credentials.
 The demo gracefully falls back to a zero-data offline search whenever API keys
 are absent.
 When running in hosted mode the same command exposes an OpenAI Agents tool and
 an optional Google ADK endpoint for seamless integration with other agent
 orchestrators.
-You may also run ``alpha-agi-insight-final`` for the same behaviour or
-
-``alpha-agi-insight-production`` to verify the environment and enable the
-optional ADK gateway when available. The companion
-``official_demo_production.py`` script offers identical behaviour and is
-recommended when deploying the demo in production settings.
+You may also run ``python official_demo_final.py`` for the same behaviour or
+``python official_demo_production.py`` to verify the environment and enable the
+optional ADK gateway when available. The companion script offers identical
+behaviour and is recommended when deploying the demo in production settings.
 
 ### Production Quickstart
 
@@ -35,18 +37,18 @@ environment checks, OpenAI Agents integration when available and graceful
 fallback to offline mode:
 
 ```bash
-alpha-agi-insight-final --episodes 5
+python official_demo_final.py --episodes 5
 ```
 
 ### Zero‑Data Quickstart
 
-For a guaranteed offline run with no external dependencies, invoke the
-``alpha-agi-insight-offline`` entrypoint. This wrapper sets
-``ALPHA_AGI_OFFLINE=true`` before delegating to the production demo so the
-search loop never attempts network access:
+For a guaranteed offline run with no external dependencies, run the demo
+with the ``--offline`` flag. This sets ``ALPHA_AGI_OFFLINE=true`` before
+delegating to the production script so the search loop never attempts
+network access:
 
 ```bash
-alpha-agi-insight-offline --episodes 5
+python official_demo_final.py --offline --episodes 5
 ```
 
 Highlights:
@@ -64,7 +66,7 @@ For an interactive walkthrough open `colab_alpha_agi_insight_demo.ipynb` directl
 For programmatic access launch the companion FastAPI server:
 
 ```bash
-alpha-agi-insight-api --port 8000
+python api_server.py --port 8000
 ```
 Send a POST request with a JSON payload like `{"episodes":5}` to `/insight` to
 retrieve the ranked sector list.
@@ -148,18 +150,18 @@ For a quick offline run from anywhere:
 python -m alpha_factory_v1.demos.alpha_agi_insight_v0 --offline --episodes 2
 ```
 
-When installed as a package the ``alpha-agi-insight-demo`` command provides the
-same behaviour without specifying the module path:
+Run the ``run_demo.py`` helper for the same behaviour without specifying the
+module path:
 
 ```bash
-alpha-agi-insight-demo --episodes 2
+python run_demo.py --episodes 2
 ```
 
-To expose the demo via the OpenAI Agents runtime (and optional ADK gateway), use
-the companion ``alpha-agi-insight-bridge`` command:
+To expose the demo via the OpenAI Agents runtime (and optional ADK gateway), run
+the ``openai_agents_bridge.py`` helper:
 
 ```bash
-alpha-agi-insight-bridge --episodes 5
+python openai_agents_bridge.py --episodes 5
 ```
 
 ### REST API
@@ -168,7 +170,7 @@ Launch a small FastAPI server that exposes the search loop via ``/insight``. The
 service runs entirely offline by default and mirrors the CLI options:
 
 ```bash
-alpha-agi-insight-api --port 8000
+python api_server.py --port 8000
 ```
 
 Send a POST request with JSON payload ``{"episodes":5}`` to ``/insight`` to
@@ -179,7 +181,7 @@ retrieve the ranking as structured data.
 Launch an interactive web dashboard for exploring the demo:
 
 ```bash
-alpha-agi-insight-dashboard
+python insight_dashboard.py
 ```
 
 The dashboard lets you tweak parameters and immediately visualise the ranked
@@ -204,12 +206,12 @@ To always verify dependencies before running, launch the companion
 python official_demo.py --episodes 5
 ```
 
-When installed as a package, the `alpha-agi-insight-official` command
-offers the same behaviour.
+The helper script ``official_demo.py`` offers the same behaviour when run
+directly:
 
 The standalone ``official_demo_final.py`` wrapper combines environment
 verification with automatic runtime selection. Invoke it directly or via
-the ``alpha-agi-insight-final`` command:
+``official_demo_final.py`` script:
 
 ```bash
 python official_demo_final.py --episodes 5
@@ -222,27 +224,26 @@ python official_demo_final.py --offline --episodes 2
 Use ``--enable-adk`` to expose the agent via the optional Google ADK gateway.
 Pass ``--list-sectors`` to display the resolved sector list without running the search.
 Use ``--dashboard`` to launch the interactive Streamlit dashboard instead of the CLI.
-Use ``--no-banner`` or set ``ALPHA_AGI_NO_BANNER=true`` to suppress the startup banner when embedding the demo in automated scripts. The same flag also works with ``alpha-agi-insight-production``.
+Use ``--no-banner`` or set ``ALPHA_AGI_NO_BANNER=true`` to suppress the startup banner when embedding the demo in automated scripts. The same flag also works with ``official_demo_production.py``.
 ``--adk-host`` and ``--adk-port`` customise the gateway bind address.
 Use ``--version`` to print the installed package version and exit.
-For production deployments launch ``official_demo_production.py`` or use the
-``alpha-agi-insight-production`` entrypoint. This variant verifies the
-environment by default and automatically selects between the hosted runtime
-and the offline CLI.  For a splashier startup message run
-``alpha-agi-beyond-foresight`` which displays a short banner before delegating
-to the same production demo:
+For production deployments launch ``official_demo_production.py``. This variant
+verifies the environment by default and automatically selects between the hosted
+runtime and the offline CLI. For a splashier startup message run
+``beyond_human_foresight.py`` which displays a short banner before delegating to
+the same production demo:
 
 ```bash
-alpha-agi-beyond-foresight --offline --episodes 2
+python beyond_human_foresight.py --offline --episodes 2
 ```
 To force a fully offline run regardless of environment configuration, launch the
-``alpha-agi-insight-offline`` entrypoint which wraps the official demo and sets
-``ALPHA_AGI_OFFLINE=true`` automatically:
+demo with the ``--offline`` flag which sets ``ALPHA_AGI_OFFLINE=true``
+automatically:
 
 ```bash
-alpha-agi-insight-offline --episodes 3
+python official_demo_final.py --offline --episodes 3
 ```
-The arguments mirror ``alpha-agi-insight-production``.
+The arguments mirror ``official_demo_production.py``.
 Use ``--version`` to show the installed package version and exit.
 
 ## Usage
@@ -335,4 +336,4 @@ LLM prompts and replies using the
 [Model Context Protocol](https://www.anthropic.com/news/model-context-protocol).
 This best-effort persistence operates transparently and never blocks the
 search loop.
-For additional command details, run `alpha-agi-insight-production --help`.
+For additional command details, run `python official_demo_production.py --help`.
