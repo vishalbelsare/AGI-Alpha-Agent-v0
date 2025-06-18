@@ -13,6 +13,7 @@ import sys
 from typing import Any, TYPE_CHECKING, cast
 
 from ..simulation import forecast, sector
+from .cli import DISCLAIMER
 
 try:  # pragma: no cover - optional dependency
     import streamlit as _st
@@ -83,12 +84,14 @@ def main(argv: list[str] | None = None) -> None:  # pragma: no cover - entry poi
         sys.exit("Streamlit not installed. Re-run with --text for console output.")
 
     if args.text or st is None:
+        print(DISCLAIMER)
         traj = _simulate(5, "logistic", 6, 3)
         for record in _disruption_df(traj).to_dict(orient="records"):
             print(f"{record['sector']}: year {record['year']}")
         return
 
     st.title("Disruption Forecast")
+    st.caption(DISCLAIMER)
     horizon = st.sidebar.slider("Horizon", 1, 20, 5)
     curve = st.sidebar.selectbox("Curve", ["logistic", "linear", "exponential"], index=0)
     pop_size = st.sidebar.slider("Population size", 2, 20, 6)
