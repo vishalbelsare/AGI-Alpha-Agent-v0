@@ -1,6 +1,6 @@
 <!--
   🎖️ α-AGI Insight 👁️✨ — Beyond Human Foresight
-  Production-grade Demo  ·  Version 1.0  (2025-05-24)
+  Version 1.1 (2025-07-15)
 © 2025 Montreal.AI — All rights reserved
 -->
 
