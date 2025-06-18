@@ -173,6 +173,18 @@ in the project root when present, so placing your pre-built wheels there
 also works. See
 [docs/OFFLINE_SETUP.md](../../../docs/OFFLINE_SETUP.md) for a summary.
 
+To regenerate the pinned lock file after editing `requirements.txt`, install
+[`pip-tools`](https://pypi.org/project/pip-tools/) and run:
+
+```bash
+pip install pip-tools          # one-time setup
+pip-compile --generate-hashes -o requirements.lock requirements.txt
+```
+
+Run `python scripts/verify_mats_requirements_lock.py` to confirm the lock file
+matches `requirements.txt` (the pre-commit hook invokes this helper
+automatically).
+
 ### Environment variables
 The demo consults a few environment variables when choosing a rewrite strategy
 and model. Set these if you do not pass ``--rewriter`` or ``--model`` on the
