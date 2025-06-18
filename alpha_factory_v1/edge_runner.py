@@ -23,6 +23,9 @@ from typing import Callable
 
 from alpha_factory_v1 import run as af_run, __version__
 from alpha_factory_v1.utils.env import _env_int
+from alpha_factory_v1.demos.alpha_agi_insight_v1.src.interface.cli import (
+    DISCLAIMER,
+)
 from src.utils.config import init_config
 
 log = logging.getLogger(__name__)
@@ -122,6 +125,7 @@ def main() -> None:
     flags.
     """
 
+    print(DISCLAIMER)
     init_config()
     args = parse_args()
 
@@ -152,7 +156,7 @@ def main() -> None:
 
     os.environ.setdefault("PGHOST", "sqlite")
 
-    af_run.run()
+    af_run.run(show_disclaimer=False)
 
 
 if __name__ == "__main__":

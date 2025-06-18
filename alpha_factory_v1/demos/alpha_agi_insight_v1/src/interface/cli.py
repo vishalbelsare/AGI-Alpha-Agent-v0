@@ -43,6 +43,8 @@ DISCLAIMER = (
     "research prototype. Use at your own risk."
 )
 
+__all__ = ["DISCLAIMER", "DisclaimerGroup"]
+
 
 class DisclaimerGroup(click.Group):
     """Group that prints a short disclaimer before any output."""

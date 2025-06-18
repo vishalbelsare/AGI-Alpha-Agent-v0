@@ -9,6 +9,7 @@ presence of a real general intelligence. Use at your own risk.
 All notable changes to this project are documented in this file.
 
 ## [Unreleased]
+- `alpha-factory` and `edge_runner.py` now print a short warning before startup.
 - Synced `openai`, `openai-agents` and `uvicorn` pins across requirements files
   and clarified why `requests` and `rich` differ between layers.
 - Documented `API_RATE_LIMIT`, `AGI_ISLAND_BACKENDS` and `ALERT_WEBHOOK_URL`

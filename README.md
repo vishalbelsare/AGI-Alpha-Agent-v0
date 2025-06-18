@@ -852,6 +852,7 @@ pip install -r requirements.lock
 docker run --pull=always -p 8000:8000 ghcr.io/montrealai/alpha-factory:latest
 
 # The `alpha-factory` CLI also works when the package is installed:
+# A short warning is printed before startup.
 #   pip install -e .
 #   alpha-factory --list-agents
 #   alpha-asi-demo --demo   # launch the α‑ASI world‑model UI
@@ -1159,6 +1160,7 @@ The repository bundles a lightweight `edge_runner.py` helper for running
 Alpha‑Factory on air‑gapped or resource‑constrained devices. The script
 forwards to `alpha_factory_v1.edge_runner` and exposes additional flags
 like `--cycle`, `--loglevel` and `--version`.
+It prints the same warning as the main CLI before launching.
 
 Build the demo containers locally:
 
