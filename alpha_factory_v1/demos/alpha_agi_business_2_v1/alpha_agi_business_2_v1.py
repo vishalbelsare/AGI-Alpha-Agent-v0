@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: Apache-2.0
+# NOTE: This demo is a research prototype. References to "AGI" or "superintelligence" describe aspirational goals and do not indicate the presence of real general intelligence. Use at your own risk. Nothing herein constitutes financial advice.
 """Alpha‑AGI Business v2 demo.
 
 Boots the Alpha‑Factory orchestrator with two minimal agents. The demo
@@ -62,9 +63,7 @@ class LLMCommentAgent(AgentBase):
             agent = OpenAIAgent(
                 model=os.getenv("MODEL_NAME", "gpt-4o-mini"),
                 api_key=os.getenv("OPENAI_API_KEY"),
-                base_url=None
-                if os.getenv("OPENAI_API_KEY")
-                else "http://ollama:11434/v1",
+                base_url=None if os.getenv("OPENAI_API_KEY") else "http://ollama:11434/v1",
             )
             insight = await agent("One sentence on today's market outlook")
         except Exception as exc:  # noqa: BLE001
