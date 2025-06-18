@@ -9,7 +9,7 @@ import random
 import sys
 import pathlib
 from pathlib import Path
-from typing import List, Optional, Any, cast
+from typing import List, Optional, Any
 
 if __package__ is None:  # pragma: no cover - allow execution via `python run_demo.py`
     # Add repository root so package imports resolve when executed directly
@@ -17,7 +17,8 @@ if __package__ is None:  # pragma: no cover - allow execution via `python run_de
     __package__ = "alpha_factory_v1.demos.meta_agentic_tree_search_v0"
 
 try:  # PyYAML optional for offline environments
-    import yaml  # type: ignore
+    import yaml as yaml_module
+    yaml: Any | None = yaml_module
 except Exception:  # pragma: no cover - fallback parser
     yaml = None
 
@@ -87,14 +88,16 @@ def run(
 
     rewrite_fn: Callable[[List[int]], List[int]]
     if rewriter == "openai":
+
         def rewrite_fn(ag: List[int]) -> List[int]:
             """Rewrite agents using the OpenAI model."""
-            return cast(List[int], openai_rewrite(ag, model=model))
+            return openai_rewrite(ag, model=model)
 
     elif rewriter == "anthropic":
+
         def rewrite_fn(ag: List[int]) -> List[int]:
             """Rewrite agents using the Anthropic model."""
-            return cast(List[int], anthropic_rewrite(ag, model=model))
+            return anthropic_rewrite(ag, model=model)
 
     else:
         rewrite_fn = meta_rewrite

@@ -8,7 +8,7 @@ Anthropic integrations used to tweak integer policies.
 from __future__ import annotations
 
 import logging
-import importlib
+import importlib.util
 import asyncio
 import os
 import time
@@ -98,7 +98,7 @@ def openai_rewrite(agents: List[int], model: str | None = None) -> List[int]:
             if have_adk:
                 from google_adk import agent2agent
 
-            from typing import Callable, cast
+            from typing import Callable, cast, List
 
             @Tool(name="improve_policy", description="Return an improved integer policy")  # type: ignore[misc]
             def improve_policy(policy: list[int]) -> list[int]:
@@ -125,15 +125,16 @@ def openai_rewrite(agents: List[int], model: str | None = None) -> List[int]:
 
                 return _parse_numbers(text, policy)
 
-            improve_policy = cast(Callable[[list[int]], list[int]], improve_policy)
+            improve_policy = cast(Callable[[List[int]], List[int]], improve_policy)
 
             class RewriterAgent(Agent):  # type: ignore[misc]
                 name = "mats_rewriter"
                 tools = [improve_policy]
 
                 async def policy(self, obs: object, _ctx: object) -> list[int]:
-                    cand = obs.get("policy", []) if isinstance(obs, dict) else obs
-                    return cast(list[int], improve_policy(list(cand)))
+                    cand_obj = obs.get("policy", []) if isinstance(obs, dict) else obs
+                    cand = cast(List[int], cand_obj)
+                    return cast(List[int], improve_policy(cand))
 
             agent = RewriterAgent()
 
