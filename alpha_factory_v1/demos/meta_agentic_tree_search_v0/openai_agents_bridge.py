@@ -14,7 +14,7 @@ import argparse
 import importlib.util
 import sys
 from pathlib import Path
-from typing import Any, cast
+from typing import cast
 
 DEFAULT_MODEL_NAME = os.getenv("OPENAI_MODEL", "gpt-4o")
 
