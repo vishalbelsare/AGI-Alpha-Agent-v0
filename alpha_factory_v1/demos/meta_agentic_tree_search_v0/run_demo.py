@@ -9,7 +9,7 @@ import random
 import sys
 import pathlib
 from pathlib import Path
-from typing import List, Optional, Any
+from typing import List, Optional, Any, cast
 
 if __package__ is None:  # pragma: no cover - allow execution via `python run_demo.py`
     # Add repository root so package imports resolve when executed directly
@@ -87,9 +87,15 @@ def run(
 
     rewrite_fn: Callable[[List[int]], List[int]]
     if rewriter == "openai":
-        rewrite_fn = lambda ag: openai_rewrite(ag, model=model)
+        def rewrite_fn(ag: List[int]) -> List[int]:
+            """Rewrite agents using the OpenAI model."""
+            return cast(List[int], openai_rewrite(ag, model=model))
+
     elif rewriter == "anthropic":
-        rewrite_fn = lambda ag: anthropic_rewrite(ag, model=model)
+        def rewrite_fn(ag: List[int]) -> List[int]:
+            """Rewrite agents using the Anthropic model."""
+            return cast(List[int], anthropic_rewrite(ag, model=model))
+
     else:
         rewrite_fn = meta_rewrite
     log_fh = None
