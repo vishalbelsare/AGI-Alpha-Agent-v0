@@ -5,6 +5,10 @@ import os
 import argparse
 from pathlib import Path
 
+from alpha_factory_v1.demos.alpha_agi_insight_v1.src.interface.cli import (
+    DISCLAIMER,
+)
+
 from .utils.env import _load_env_file
 
 from .scripts.preflight import main as preflight_main
@@ -64,9 +68,11 @@ def apply_env(args: argparse.Namespace) -> None:
         os.environ["LOGLEVEL"] = args.loglevel.upper()
 
 
-def run() -> None:
+def run(show_disclaimer: bool = True) -> None:
     """Entry point used by the ``alpha-factory`` console script."""
     args = parse_args()
+    if show_disclaimer:
+        print(DISCLAIMER)
     if args.version:
         print(__version__)
         return
