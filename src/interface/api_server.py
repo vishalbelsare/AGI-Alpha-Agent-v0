@@ -26,6 +26,9 @@ from alpha_factory_v1.demos.alpha_agi_insight_v1.src.utils import alerts
 from src.utils.config import init_config
 from src.monitoring import metrics
 from src.capsules import CapsuleFacts, ImpactScorer, load_capsule_facts
+from alpha_factory_v1.demos.alpha_agi_insight_v1.src.interface.cli import (
+    DISCLAIMER,
+)
 
 __all__ = [
     "app",
@@ -237,6 +240,7 @@ if app is not None:
 
     @app.on_event("startup")
     async def _start() -> None:
+        _log.warning(DISCLAIMER)
         orch_mod = importlib.import_module("alpha_factory_v1.demos.alpha_agi_insight_v1.src.orchestrator")
         app_f.state.orchestrator = orch_mod.Orchestrator()
         app_f.state.orch_task = asyncio.create_task(app_f.state.orchestrator.run_forever())
