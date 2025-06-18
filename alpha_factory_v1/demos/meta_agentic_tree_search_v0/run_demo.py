@@ -18,6 +18,7 @@ if __package__ is None:  # pragma: no cover - allow execution via `python run_de
 
 try:  # PyYAML optional for offline environments
     import yaml as yaml_module
+
     yaml: Any | None = yaml_module
 except Exception:  # pragma: no cover - fallback parser
     yaml = None
