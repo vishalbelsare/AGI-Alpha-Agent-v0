@@ -240,6 +240,7 @@ def main(argv: Optional[List[str]] = None) -> int:
     pip_timeout = args.timeout
     allow_basic = args.allow_basic_fallback
     demo = args.demo
+    wheel_msg = f" (wheelhouse: {wheelhouse})" if wheelhouse else ""
     extra_required = DEMO_PACKAGES.get(demo, [])
 
     missing_core = [pkg for pkg in CORE if not check_pkg(pkg)]
@@ -286,7 +287,10 @@ def main(argv: Optional[List[str]] = None) -> int:
                 try:
                     subprocess.run(cmd, check=True, timeout=pip_timeout)
                 except subprocess.SubprocessError as exc:
-                    print(f"Failed to install {pkg}", getattr(exc, "returncode", ""))
+                    print(
+                        f"Failed to install {pkg}{wheel_msg}",
+                        getattr(exc, "returncode", ""),
+                    )
                     return 1
 
     missing_core = warn_missing_core()
@@ -304,7 +308,10 @@ def main(argv: Optional[List[str]] = None) -> int:
         try:
             subprocess.run(cmd, check=True, timeout=pip_timeout)
         except subprocess.SubprocessError as exc:
-            print("Failed to install core packages", getattr(exc, "returncode", ""))
+            print(
+                f"Failed to install core packages{wheel_msg}",
+                getattr(exc, "returncode", ""),
+            )
             return 1
         missing_core = warn_missing_core()
 
@@ -346,12 +353,17 @@ def main(argv: Optional[List[str]] = None) -> int:
                 "Then re-run with '--wheelhouse <dir>' (see "
                 "alpha_factory_v1/scripts/README.md)."
             )
+            if wheelhouse:
+                print(f"Wheelhouse used: {wheelhouse}")
             if not network_ok and not wheelhouse:
                 print("No network connectivity detected.")
             return 1
         except subprocess.CalledProcessError as exc:
             stderr = exc.stderr or ""
-            print("Failed to install baseline requirements", exc.returncode)
+            print(
+                f"Failed to install baseline requirements{wheel_msg}",
+                exc.returncode,
+            )
             if any(kw in stderr.lower() for kw in ["connection", "temporary failure", "network", "resolve"]):
                 print(
                     "Network failure detected.\n"
@@ -407,12 +419,17 @@ def main(argv: Optional[List[str]] = None) -> int:
                     "Create a wheelhouse with 'pip wheel -r requirements-core.txt -w /path/to/wheels'\n"
                     "then re-run with '--wheelhouse <dir>' (see alpha_factory_v1/scripts/README.md)."
                 )
+                if wheelhouse:
+                    print(f"Wheelhouse used: {wheelhouse}")
                 if not network_ok and not wheelhouse:
                     print("No network connectivity detected.")
                 return 1
             except subprocess.CalledProcessError as exc:
                 stderr = exc.stderr or ""
-                print("Automatic install failed with code", exc.returncode)
+                print(
+                    f"Automatic install failed with code{wheel_msg}",
+                    exc.returncode,
+                )
                 if any(kw in stderr.lower() for kw in ["connection", "temporary failure", "network", "resolve"]):
                     print(
                         "Network failure detected.\n"
