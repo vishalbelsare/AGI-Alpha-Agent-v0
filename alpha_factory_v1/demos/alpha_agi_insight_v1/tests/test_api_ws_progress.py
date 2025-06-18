@@ -15,12 +15,13 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[4]))
 os.environ.setdefault("API_RATE_LIMIT", "1000")
 
 
-def test_ws_progress_receives_updates() -> None:
+def test_ws_progress_receives_updates(monkeypatch: pytest.MonkeyPatch) -> None:
     """A POST to /simulate should emit progress events over the WebSocket."""
     from alpha_factory_v1.demos.alpha_agi_insight_v1.src.interface import api_server
 
+    monkeypatch.setenv("API_TOKEN", "secret")
     client = TestClient(api_server.app)
-    headers = {"Authorization": "Bearer changeme"}
+    headers = {"Authorization": "Bearer secret"}
 
     with client.websocket_connect("/ws/progress", headers=headers) as ws:
         resp = client.post(

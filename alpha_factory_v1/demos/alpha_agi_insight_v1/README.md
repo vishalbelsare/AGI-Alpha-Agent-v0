@@ -482,8 +482,9 @@ local development or customization. See the
 
 `BUSINESS_HOST` sets the orchestrator URL used by helper commands to reach the REST API.
 
-`API_TOKEN` must be set to a non-empty value before launching the API server. The
-container exits during startup when this variable is empty.
+`API_TOKEN` must be set to a strong non-empty value before launching the API server.
+The container exits during startup when this variable is empty or still set to the
+default `changeme` placeholder.
 
 To secure the gRPC bus provide `AGI_INSIGHT_BUS_CERT`,
 `AGI_INSIGHT_BUS_KEY` and `AGI_INSIGHT_BUS_TOKEN`. When these are omitted set

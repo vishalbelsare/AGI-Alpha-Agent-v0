@@ -81,9 +81,8 @@ if app is not None:
         app_f.state.orchestrator = orch_mod.Orchestrator()
         app_f.state.task = asyncio.create_task(app_f.state.orchestrator.run_forever())
         token = os.getenv("API_TOKEN")
-        if not token:
-            logging.getLogger(__name__).warning("API_TOKEN not set; using insecure placeholder")
-            token = API_TOKEN_DEFAULT
+        if not token or token == API_TOKEN_DEFAULT:
+            raise RuntimeError("API_TOKEN must be set to a strong value (not empty or 'changeme').")
         app_f.state.api_token = token
         _load_results()
 
