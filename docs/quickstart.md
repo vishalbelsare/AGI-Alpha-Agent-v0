@@ -31,6 +31,14 @@ Build the wheelhouse before disconnecting from the network:
 export WHEELHOUSE="$(pwd)/wheels"
 ```
 Use this variable when running `check_env.py --auto-install` and `pytest`.
+When no network connection is available, install dependencies from the
+wheel cache with:
+
+```bash
+python check_env.py --auto-install --wheelhouse "$WHEELHOUSE"
+```
+
+See [docs/OFFLINE_INSTALL.md](OFFLINE_INSTALL.md) for detailed steps.
 
 ## Running the Colab notebook
 
