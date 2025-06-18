@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 # mypy: ignore-errors
 import builtins
 import importlib

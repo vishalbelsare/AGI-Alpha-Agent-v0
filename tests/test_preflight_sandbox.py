@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 import subprocess
 from alpha_factory_v1.scripts import preflight
 
@@ -16,4 +17,3 @@ def test_check_patch_in_sandbox_missing(monkeypatch):
 
     monkeypatch.setattr(subprocess, "run", fake_run)
     assert not preflight.check_patch_in_sandbox("img")
-
