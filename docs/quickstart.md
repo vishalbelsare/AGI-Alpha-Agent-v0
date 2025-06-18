@@ -17,8 +17,18 @@ This tutorial shows how to install the prerequisites, run the Colab notebook and
    python --version
    docker --version
    docker compose version
-   git --version
-   ```
+git --version
+```
+
+### Offline setup
+
+Build the wheelhouse before disconnecting from the network:
+
+```bash
+./tools/build_wheelhouse.sh
+export WHEELHOUSE="$(pwd)/wheels"
+```
+Use this variable when running `check_env.py --auto-install` and `pytest`.
 
 ## Running the Colab notebook
 
