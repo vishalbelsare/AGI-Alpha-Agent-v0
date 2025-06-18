@@ -1187,6 +1187,10 @@ helm upgrade --install alpha-demo ./infrastructure/helm-chart \
 
 `values.example.yaml` demonstrates typical overrides such as API tokens, service ports and replica counts.
 
+The Helm charts ship with placeholders like `NEO4J_PASSWORD` and
+`adminPassword` set to `REPLACE_ME`. Replace these with strong secrets
+in `values.yaml` or via `--set` before deploying.
+
 Terraform scripts in `infrastructure/terraform` provide GCP and AWS
 examples. Update the placeholder image and networking variables,
 then initialise and apply:
