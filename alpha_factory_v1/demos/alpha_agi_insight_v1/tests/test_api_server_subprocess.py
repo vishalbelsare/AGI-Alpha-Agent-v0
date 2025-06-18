@@ -29,7 +29,7 @@ def _free_port() -> int:
 def test_docs_available() -> None:
     port = _free_port()
     env = os.environ.copy()
-    env.pop("API_TOKEN", None)
+    env["API_TOKEN"] = "secret"
     env["PYTHONPATH"] = str(REPO_ROOT)
     cmd = [
         sys.executable,
@@ -65,7 +65,7 @@ def test_docs_available() -> None:
 def test_simulation_endpoints() -> None:
     port = _free_port()
     env = os.environ.copy()
-    env.pop("API_TOKEN", None)
+    env["API_TOKEN"] = "secret"
     env["PYTHONPATH"] = str(REPO_ROOT)
     cmd = [
         sys.executable,
@@ -78,7 +78,7 @@ def test_simulation_endpoints() -> None:
     ]
     proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, env=env)
     url = f"http://127.0.0.1:{port}"
-    headers = {"Authorization": "Bearer changeme"}
+    headers = {"Authorization": "Bearer secret"}
     try:
         for _ in range(100):
             try:
