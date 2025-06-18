@@ -190,8 +190,8 @@ The demo consults a few environment variables when choosing a rewrite strategy
 and model. Set these if you do not pass ``--rewriter`` or ``--model`` on the
 command line:
 
-- ``MATS_REWRITER`` – forces the rewrite engine to ``random``, ``openai`` or
-  ``anthropic``.
+- ``MATS_REWRITER`` – set in ``.env`` to force the rewrite engine to ``random``,
+  ``openai`` or ``anthropic``.
 - ``OPENAI_MODEL`` – default model used by the OpenAI rewriter and bridge
   (defaults to ``gpt-4o``).
 - ``ANTHROPIC_MODEL`` – model name for the Anthropic rewriter
