@@ -26,6 +26,8 @@ Please report security vulnerabilities as described in our [Security Policy](SEC
 - Run `python alpha_factory_v1/scripts/preflight.py` to validate these tools.
 - If the `pre-commit` command is missing, run `pip install pre-commit` so the
   git hooks work correctly.
+- Install `pytest` and `prometheus_client` using
+  `python check_env.py --auto-install` or `pip install pytest prometheus_client`.
 
 Confirm installed versions:
 ```bash
@@ -112,9 +114,9 @@ Follow these steps when installing without internet access:
   The `verify-alpha-colab-requirements-lock` hook relies on this lock file.
 
  - See [`alpha_factory_v1/scripts/README.md`](alpha_factory_v1/scripts/README.md) for additional offline tips.
-- Run `python scripts/check_python_deps.py` to quickly verify that `numpy`, `yaml` and `pandas` are installed. If it reports missing packages, execute `python check_env.py --auto-install` before running the tests. This step fetches packages from PyPI, so in air‑gapped setups you **must** pass `--wheelhouse <path>` or set `WHEELHOUSE` so `pip` installs from the local cache.
+- Run `python scripts/check_python_deps.py` **before running `pytest`** to quickly verify that `numpy`, `yaml` and `pandas` are installed. If it reports missing packages, execute `python check_env.py --auto-install` before running the tests. This step fetches packages from PyPI, so in air‑gapped setups you **must** pass `--wheelhouse <path>` or set `WHEELHOUSE` so `pip` installs from the local cache.
  - After setup, validate with `python check_env.py --auto-install`. This command reaches out to PyPI unless `--wheelhouse <path>` or the `WHEELHOUSE` environment variable is supplied. When working offline run `python check_env.py --auto-install --wheelhouse <path>` so optional packages install correctly. The test suite passes this variable to `check_env.py` automatically when set.
-- The unit tests rely on `fastapi`, `opentelemetry-api`, `openai-agents` and `google-adk`. `./codex/setup.sh` installs these packages automatically. When skipping the setup script, run
+- The unit tests rely on `fastapi`, `opentelemetry-api`, `openai-agents`, `google-adk`, `pytest` and `prometheus_client`. `./codex/setup.sh` installs these packages automatically. When skipping the setup script, run
   `pip install -r requirements-dev.txt` or ensure `check_env.py` reports no
   missing packages before running `pytest`.
   Install `requirements-demo.txt` as well when running tests that depend on
