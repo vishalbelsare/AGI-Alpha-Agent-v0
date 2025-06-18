@@ -4,23 +4,24 @@
 from __future__ import annotations
 
 import argparse
+import importlib.util
 import os
 import random
 import sys
 import pathlib
 from pathlib import Path
-from typing import List, Optional, Any
+from typing import Any, List, Optional, cast
 
 if __package__ is None:  # pragma: no cover - allow execution via `python run_demo.py`
     # Add repository root so package imports resolve when executed directly
     sys.path.append(str(pathlib.Path(__file__).resolve().parents[3]))
     __package__ = "alpha_factory_v1.demos.meta_agentic_tree_search_v0"
 
-try:  # PyYAML optional for offline environments
+if importlib.util.find_spec("yaml"):
     import yaml as yaml_module
 
     yaml: Any | None = yaml_module
-except Exception:  # pragma: no cover - fallback parser
+else:  # pragma: no cover - fallback parser
     yaml = None
 
 from .mats.tree import Node, Tree
@@ -92,13 +93,13 @@ def run(
 
         def rewrite_fn(ag: List[int]) -> List[int]:
             """Rewrite agents using the OpenAI model."""
-            return openai_rewrite(ag, model=model)
+            return cast(List[int], openai_rewrite(ag, model=model))
 
     elif rewriter == "anthropic":
 
         def rewrite_fn(ag: List[int]) -> List[int]:
             """Rewrite agents using the Anthropic model."""
-            return anthropic_rewrite(ag, model=model)
+            return cast(List[int], anthropic_rewrite(ag, model=model))
 
     else:
         rewrite_fn = meta_rewrite
