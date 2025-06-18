@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 import asyncio
 from fastapi import FastAPI
 from httpx import ASGITransport, AsyncClient
