@@ -67,7 +67,6 @@ exclude = [
     "alpha_factory_v1/demos/alpha_agi_business_3_v1/*",
     "alpha_factory_v1/demos/alpha_agi_business_v1/*",
     "alpha_factory_v1/demos/alpha_agi_insight_v0/*",
-    "alpha_factory_v1/demos/alpha_agi_insight_v1/*",
     "alpha_factory_v1/demos/alpha_agi_marketplace_v1/*",
     "alpha_factory_v1/demos/finance_alpha/*",
     "alpha_factory_v1/demos/macro_sentinel/*",
