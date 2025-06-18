@@ -22,6 +22,7 @@ from pathlib import Path
 from typing import Any, List, Set, TYPE_CHECKING, Literal
 
 from cachetools import TTLCache  # type: ignore[import-not-found]
+from .cli import DISCLAIMER
 
 if TYPE_CHECKING:  # pragma: no cover - typing only
     from typing import Protocol
@@ -49,7 +50,12 @@ try:
     from fastapi import FastAPI, HTTPException, WebSocket, Request, Depends
     from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
     from starlette.middleware.base import BaseHTTPMiddleware, RequestResponseEndpoint
-    from starlette.responses import Response, PlainTextResponse, JSONResponse
+    from starlette.responses import (
+        Response,
+        PlainTextResponse,
+        JSONResponse,
+        HTMLResponse,
+    )
     from fastapi.staticfiles import StaticFiles
     from fastapi.middleware.cors import CORSMiddleware
     from pydantic import BaseModel, Field
@@ -445,6 +451,15 @@ if app is not None:
             pass
         finally:
             _progress_ws.discard(websocket)
+
+    @app.get("/", include_in_schema=False)
+    async def root(request: Request) -> Response:
+        """Return the project disclaimer."""
+
+        accept = request.headers.get("accept", "").lower()
+        if "text/html" in accept:
+            return HTMLResponse(f"<p>{DISCLAIMER}</p>")
+        return PlainTextResponse(DISCLAIMER)
 
     # Serve the minimal React dashboard bundled with this demo
     web_dist = Path(__file__).resolve().parent / "web_client" / "dist"
