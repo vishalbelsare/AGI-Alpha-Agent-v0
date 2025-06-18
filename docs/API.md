@@ -250,3 +250,14 @@ Agents communicate over a lightweight gRPC bus. On connection clients must
 perform a simple handshake by sending the literal string `proto_schema=1` to the
 `/bus.Bus/Send` method. The server replies with the same string. After the
 handshake, JSON encoded envelopes defined by `a2a.proto` may be transmitted.
+
+## Offline usage
+
+When network access is unavailable, install optional packages from a wheelhouse:
+
+```bash
+python check_env.py --auto-install --wheelhouse <dir>
+```
+
+Refer to [docs/OFFLINE_INSTALL.md](OFFLINE_INSTALL.md) for step‑by‑step
+instructions.
