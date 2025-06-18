@@ -23,6 +23,21 @@ from typing import Any, Iterable, List, cast
 import click
 import af_requests as requests
 
+try:
+    from rich.console import Console
+    from rich.table import Table
+except Exception:  # pragma: no cover - optional
+    Console = None
+    Table = None
+
+from .. import orchestrator, self_improver
+from src.archive.hash_archive import HashArchive
+from src import scheduler
+from ..simulation import forecast, sector, mats
+from src.utils.visual import plot_pareto
+from ..utils import config, logging
+from src.eval.foresight import evaluate as foresight_evaluate
+
 DISCLAIMER = (
     "\N{WARNING SIGN} \N{GREEK SMALL LETTER ALPHA}\u2011AGI Insight is a conceptual "
     "research prototype. Use at your own risk."
@@ -40,20 +55,6 @@ class DisclaimerGroup(click.Group):
         click.echo(DISCLAIMER)
         return super().invoke(ctx)
 
-try:
-    from rich.console import Console
-    from rich.table import Table
-except Exception:  # pragma: no cover - optional
-    Console = None
-    Table = None
-
-from .. import orchestrator, self_improver
-from src.archive.hash_archive import HashArchive
-from src import scheduler
-from ..simulation import forecast, sector, mats
-from src.utils.visual import plot_pareto
-from ..utils import config, logging
-from src.eval.foresight import evaluate as foresight_evaluate
 
 console = Console() if Console else None
 
@@ -654,9 +655,7 @@ def archive_ls(proof: bool, db_path: str) -> None:
     if proof:
         root = arch.merkle_root()
         headers.append("proof")
-        rows_with_proof: list[tuple[str, str, str]] = [
-            (r[0], r[1], root[:16]) for r in rows
-        ]
+        rows_with_proof: list[tuple[str, str, str]] = [(r[0], r[1], root[:16]) for r in rows]
         _rich_table(headers, rows_with_proof)
     else:
         _rich_table(headers, rows)
