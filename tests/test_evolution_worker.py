@@ -79,3 +79,22 @@ def test_mutate_cleanup_nested(server: str) -> None:
 
     after = set(evolution_worker.STORAGE_PATH.iterdir()) if evolution_worker.STORAGE_PATH.exists() else set()
     assert before == after
+
+
+def test_mutate_rejects_traversal(server: str) -> None:
+    """Tarball members must not escape the extraction directory."""
+    import io
+    import tarfile
+
+    buf = io.BytesIO()
+    with tarfile.open(fileobj=buf, mode="w") as tf:
+        info = tarfile.TarInfo(name="../evil.txt")
+        data = b"bad"
+        info.size = len(data)
+        tf.addfile(info, io.BytesIO(data))
+    buf.seek(0)
+
+    with httpx.Client(base_url=server) as client:
+        files = {"tar": ("bad.tar", buf.read())}
+        r = client.post("/mutate", files=files)
+        assert r.status_code == 400
