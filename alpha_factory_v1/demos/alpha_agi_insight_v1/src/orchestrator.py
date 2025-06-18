@@ -1,4 +1,5 @@
 # SPDX-License-Identifier: Apache-2.0
+# This code is a conceptual research prototype.
 """Central process coordinating all Insight demo agents.
 
 The orchestrator instantiates each agent, relays messages via the
@@ -132,9 +133,7 @@ class Orchestrator:
             wallet=self.settings.solana_wallet,
             broadcast=self.settings.broadcast,
         )
-        self.solution_archive = SolutionArchive(
-            os.getenv("SOLUTION_ARCHIVE_PATH", "solutions.duckdb")
-        )
+        self.solution_archive = SolutionArchive(os.getenv("SOLUTION_ARCHIVE_PATH", "solutions.duckdb"))
         self.registry = StakeRegistry()
         self.island_pops: Dict[str, mats.Population] = {}
         self.experiment_pops: Dict[str, Dict[str, mats.Population]] = {"default": self.island_pops}
