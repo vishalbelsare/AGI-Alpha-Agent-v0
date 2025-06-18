@@ -14,6 +14,7 @@ import argparse
 import importlib.util
 import sys
 from pathlib import Path
+from typing import Any, cast
 
 DEFAULT_MODEL_NAME = os.getenv("OPENAI_MODEL", "gpt-4o")
 
@@ -23,7 +24,7 @@ MARKET_DATA: list[int] | None = None
 def verify_env() -> None:
     """Best-effort runtime dependency check."""
     try:
-        import check_env  # type: ignore
+        import check_env
 
         check_env.main([])
     except Exception as exc:  # pragma: no cover - best effort
@@ -42,17 +43,17 @@ except ValueError:
 has_oai = _spec is not None
 if has_oai:
     import openai_agents
-    from openai_agents import Agent, function_tool  # type: ignore
+    from openai_agents import Agent, function_tool
 
     if hasattr(openai_agents, "AgentRuntime"):
-        from openai_agents import AgentRuntime  # type: ignore
+        from openai_agents import AgentRuntime
     else:  # fallback shim for newer SDKs without AgentRuntime
         from agents.run import Runner
 
-        class AgentRuntime:  # type: ignore
-            def __init__(self, *_, **__):
+        class _FallbackAgentRuntime:
+            def __init__(self, *_: object, **__: object) -> None:
                 self._runner = Runner()
-                self._agent = None
+                self._agent: Agent | None = None
 
             def register(self, agent: Agent) -> None:
                 self._agent = agent
@@ -64,6 +65,8 @@ if has_oai:
                     raise RuntimeError("No agent registered")
                 asyncio.run(self._runner.run(self._agent, ""))
 
+        AgentRuntime = _FallbackAgentRuntime
+
     try:
         from .run_demo import run
     except ImportError:  # pragma: no cover - direct script execution
@@ -72,7 +75,7 @@ if has_oai:
     @function_tool(
         name_override="run_search",
         description_override="Run the MATS demo for a few episodes",
-    )
+    )  # type: ignore[misc]
     async def run_search(
         episodes: int = 10,
         target: int = 5,
@@ -96,13 +99,13 @@ if has_oai:
         )
         return f"completed {episodes} episodes toward target {target}"
 
-    class MATSAgent(Agent):
+    class MATSAgent(Agent):  # type: ignore[misc]
         """Tiny helper agent wrapping :func:`run_search`."""
 
         name = "mats_helper"
         tools = [run_search]
 
-        async def policy(self, obs, _ctx):  # type: ignore[override]
+        async def policy(self, obs: object, _ctx: object) -> str:
             episodes = int(obs.get("episodes", 10)) if isinstance(obs, dict) else 10
             target = int(obs.get("target", 5)) if isinstance(obs, dict) else 5
             model = obs.get("model") if isinstance(obs, dict) else None
@@ -110,13 +113,14 @@ if has_oai:
             market_data = (
                 [int(x) for x in obs.get("market_data", [])] if isinstance(obs, dict) and "market_data" in obs else None
             )
-            return await run_search(
+            result = await run_search(
                 episodes=episodes,
                 target=target,
                 model=model,
                 rewriter=rewriter,
                 market_data=market_data,
             )
+            return cast(str, result)
 
     def _run_runtime(
         episodes: int,
