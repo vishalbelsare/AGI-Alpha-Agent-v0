@@ -25,6 +25,29 @@ export AUTO_INSTALL_MISSING=1
 
 `check_env.py` reads them to install packages from the wheelhouse when the network is unavailable.
 
+### Prebuilt wheels for heavy dependencies
+`numpy` and `pandas` ship as binary wheels on PyPI. Grab them when
+constructing the wheelhouse so the offline installer does not attempt to
+compile these heavy packages from source:
+
+```bash
+pip wheel numpy pandas -w /media/wheels
+```
+
+Include any other large dependencies, such as `torch` or `scipy`, by passing
+their names to `pip wheel` or `pip download` with the versions pinned in
+`requirements.lock`.
+
+If the repository already contains a `wheels/` directory you can use it as the
+wheelhouse directly:
+
+```bash
+export WHEELHOUSE="$(pwd)/wheels"
+```
+
+Run `check_env.py --auto-install --wheelhouse "$WHEELHOUSE"` to install from
+this local cache.
+
 ## Verify packages
 Use the scripts below to confirm all requirements are satisfied:
 
