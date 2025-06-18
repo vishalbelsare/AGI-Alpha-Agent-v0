@@ -1,3 +1,5 @@
+This repository is a conceptual research prototype. References to "AGI" and "superintelligence" describe aspirational goals and do not indicate the presence of a real general intelligence. Use at your own risk. Nothing herein constitutes financial advice. MontrealAI and the maintainers accept no liability for losses incurred from using this software.
+
 ### 🔬 Browser-only Insight demo
 A zero-backend Pareto explorer lives in
 `demos/alpha_agi_insight_v1/insight_browser_v1/`. See the **Quick-Start** section below for a short walkthrough.
