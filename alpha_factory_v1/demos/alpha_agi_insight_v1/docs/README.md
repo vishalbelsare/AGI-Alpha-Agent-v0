@@ -31,3 +31,8 @@ Start the Insight demo with the repository root
 An interactive walkthrough is available in the Colab notebook
 [colab_alpha_agi_insight_v1.ipynb](../colab_alpha_agi_insight_v1.ipynb).
 
+
+## Configuration
+
+Before deploying the Helm charts, edit `alpha_factory_v1/helm/alpha-factory/values.yaml` and `alpha_factory_v1/helm/alpha-factory-remote/values.yaml`.
+Set `NEO4J_PASSWORD` to the real database password and configure a strong Grafana `adminPassword`.
