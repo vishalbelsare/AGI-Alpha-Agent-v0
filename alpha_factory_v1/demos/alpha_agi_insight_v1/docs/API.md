@@ -2,6 +2,8 @@
 
 This demo exposes a minimal REST and WebSocket interface implemented in `src.interface.api_server`. All requests must include `Authorization: Bearer $API_TOKEN`.
 
+This repository is a conceptual research prototype. References to "AGI" and "superintelligence" describe aspirational goals and do not indicate the presence of a real general intelligence. Use at your own risk. Nothing herein constitutes financial advice. MontrealAI and the maintainers accept no liability for losses incurred from using this software.
+
 | Endpoint | Query/Path Params | Payload | Example Response |
 |---------|------------------|---------|-----------------|
 | **POST `/simulate`** | – | `{ "horizon": 5, "pop_size": 6, "generations": 3 }` | `{ "id": "d4e5f6a7" }` |
