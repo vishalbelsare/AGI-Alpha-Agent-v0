@@ -23,6 +23,23 @@ from typing import Any, Iterable, List, cast
 import click
 import af_requests as requests
 
+DISCLAIMER = (
+    "\N{WARNING SIGN} \N{GREEK SMALL LETTER ALPHA}\u2011AGI Insight is a conceptual "
+    "research prototype. Use at your own risk."
+)
+
+
+class DisclaimerGroup(click.Group):
+    """Group that prints a short disclaimer before any output."""
+
+    def get_help(self, ctx: click.Context) -> str:  # pragma: no cover - CLI
+        help_text = super().get_help(ctx)
+        return f"{DISCLAIMER}\n\n{help_text}"
+
+    def invoke(self, ctx: click.Context) -> Any:  # pragma: no cover - CLI
+        click.echo(DISCLAIMER)
+        return super().invoke(ctx)
+
 try:
     from rich.console import Console
     from rich.table import Table
@@ -71,7 +88,7 @@ def _format_results(res: List[forecast.ForecastPoint]) -> None:
     _rich_table(["year", "capability", "affected"], rows)
 
 
-@click.group()
+@click.group(cls=DisclaimerGroup)
 def main() -> None:
     """α‑AGI Insight command line interface."""
 
