@@ -235,6 +235,12 @@ def main(argv: Optional[List[str]] = None) -> int:
         default_wh = Path(__file__).resolve().parent / "wheels"
         if default_wh.is_dir():
             wheelhouse = str(default_wh)
+
+    wheel_path = Path(wheelhouse).resolve() if wheelhouse else None
+    if wheel_path and not (wheel_path.is_dir() and any(wheel_path.glob("*.whl"))):
+        print(f"Wheelhouse {wheel_path} has no wheels; falling back to network installs")
+        wheel_path = None
+    wheelhouse = str(wheel_path) if wheel_path else None
     auto = args.auto_install or os.getenv("AUTO_INSTALL_MISSING") == "1"
     skip_net_check = args.skip_net_check
     pip_timeout = args.timeout
