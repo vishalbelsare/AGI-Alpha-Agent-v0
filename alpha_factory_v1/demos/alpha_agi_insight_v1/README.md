@@ -216,6 +216,19 @@ graph TD
 
 Or try the hosted notebook: [colab_alpha_agi_insight_v1.ipynb](colab_alpha_agi_insight_v1.ipynb).
 
+#### Offline notebook usage
+
+If the repository and wheelhouse are preloaded on the runtime, skip the `git clone`
+step and set `WHEELHOUSE` before executing the setup cell:
+
+```bash
+export WHEELHOUSE=/path/to/wheels
+python ../../../check_env.py --auto-install --wheelhouse "$WHEELHOUSE"
+```
+
+The notebook will install packages from the wheelhouse and continue without network
+access.
+
 ```bash
 # ❶ Clone & enter demo
 git clone https://github.com/MontrealAI/AGI-Alpha-Agent-v0.git
