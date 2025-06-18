@@ -558,7 +558,13 @@ pip wheel -r requirements.txt -w /media/wheels
 pip wheel -r requirements-dev.txt -w /media/wheels
 ```
 
-Set the wheelhouse before running the environment check and tests:
+Ensure `pytest` and `prometheus_client` wheels are available. Refer to
+[AGENTS.md](../../../AGENTS.md#offline-setup) and
+[docs/OFFLINE_SETUP.md](../../../docs/OFFLINE_SETUP.md) for the full
+wheelhouse procedure.
+
+Set the wheelhouse before running the environment check and tests. This
+installs the required packages from the local cache:
 
 ```bash
 WHEELHOUSE=/media/wheels python check_env.py --auto-install
