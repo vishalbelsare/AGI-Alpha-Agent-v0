@@ -61,11 +61,9 @@ Python must report 3.11 or 3.12 and Docker Compose must be at least 2.5.
 
 Follow these steps when installing without internet access:
 
-- Build wheels using the same Python version as your virtual environment:
+- Build wheels using the helper script:
   ```bash
-  mkdir -p /media/wheels
-  pip wheel -r requirements.txt -w /media/wheels
-  pip wheel -r requirements-dev.txt -w /media/wheels
+  ./tools/build_wheelhouse.sh
   ```
 
 - Generate a deterministic lock file with hashes:
@@ -82,18 +80,21 @@ Follow these steps when installing without internet access:
   ```
 
 - Install from the wheelhouse (the setup script automatically sets
-  `WHEELHOUSE` to the `wheels/` directory in the repository root when
-  that directory exists):
+  `WHEELHOUSE` to the `wheels/` directory when it exists):
   ```bash
-  WHEELHOUSE=/media/wheels AUTO_INSTALL_MISSING=1 ./codex/setup.sh
-  WHEELHOUSE=/media/wheels AUTO_INSTALL_MISSING=1 python check_env.py --auto-install --wheelhouse /media/wheels
+  export WHEELHOUSE="$(pwd)/wheels"
+  AUTO_INSTALL_MISSING=1 ./codex/setup.sh
+  python check_env.py --auto-install --wheelhouse "$WHEELHOUSE"
   ```
 
 - Verify package integrity:
   ```bash
   pip check
-  python check_env.py --auto-install --wheelhouse /media/wheels
+  python check_env.py --auto-install --wheelhouse "$WHEELHOUSE"
   ```
+
+- Set `WHEELHOUSE=$(pwd)/wheels` before running `check_env.py --auto-install`
+  and `pytest` when offline.
 
 - The setup script exits with an error if neither network access nor a
   wheelhouse is available. Build a wheelhouse as shown above and rerun
