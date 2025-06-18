@@ -1,3 +1,5 @@
+This repository is a conceptual research prototype. References to "AGI" and "superintelligence" describe aspirational goals and do not indicate the presence of a real general intelligence. Use at your own risk. Nothing herein constitutes financial advice. MontrealAI and the maintainers accept no liability for losses incurred from using this software.
+
 # alpha-factory-remote Helm Chart
 
 This chart deploys a remote worker pod for the **Alpha‑Factory** swarm. It packages a single worker container alongside optional Prometheus/Grafana monitoring via the `kube-prometheus-stack` dependency.

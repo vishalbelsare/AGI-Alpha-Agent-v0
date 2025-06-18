@@ -1,3 +1,5 @@
+This repository is a conceptual research prototype. References to "AGI" and "superintelligence" describe aspirational goals and do not indicate the presence of a real general intelligence. Use at your own risk. Nothing herein constitutes financial advice. MontrealAI and the maintainers accept no liability for losses incurred from using this software.
+
 # Alpha-Factory Backend
 
 This directory contains the production backend services for the Alpha-Factory stack. The primary entry point is `orchestrator.py`, which bootstraps agents, exposes REST and gRPC interfaces, and integrates optional components when the corresponding dependencies are installed.

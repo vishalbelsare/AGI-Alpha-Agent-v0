@@ -1,3 +1,5 @@
+This repository is a conceptual research prototype. References to "AGI" and "superintelligence" describe aspirational goals and do not indicate the presence of a real general intelligence. Use at your own risk. Nothing herein constitutes financial advice. MontrealAI and the maintainers accept no liability for losses incurred from using this software.
+
 # α‑AGI Insight v1 – Design Overview
 
 This document outlines the architecture of the **α‑AGI Insight** demo. The goal is to forecast AGI driven disruptions across economic sectors using a lightweight swarm of specialised agents. The demo runs fully offline when API keys are absent and exposes both a CLI and REST interface.
