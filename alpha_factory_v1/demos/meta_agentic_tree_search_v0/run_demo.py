@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import argparse
 import importlib.util
+import logging
 import os
 import random
 import sys
@@ -12,22 +13,25 @@ import pathlib
 from pathlib import Path
 from typing import Any, List, Optional, cast
 
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
 if __package__ is None:  # pragma: no cover - allow execution via `python run_demo.py`
     # Add repository root so package imports resolve when executed directly
     sys.path.append(str(pathlib.Path(__file__).resolve().parents[3]))
     __package__ = "alpha_factory_v1.demos.meta_agentic_tree_search_v0"
 
 if importlib.util.find_spec("yaml"):
-    import yaml as yaml_module
+    import yaml as yaml_module  # type: ignore
 
     yaml: Any | None = yaml_module
 else:  # pragma: no cover - fallback parser
     yaml = None
 
-from .mats.tree import Node, Tree
-from .mats.meta_rewrite import meta_rewrite, openai_rewrite, anthropic_rewrite
-from .mats.evaluators import evaluate
-from .mats.env import NumberLineEnv, LiveBrokerEnv
+from .mats.tree import Node, Tree  # noqa: E402
+from .mats.meta_rewrite import meta_rewrite, openai_rewrite, anthropic_rewrite  # noqa: E402
+from .mats.evaluators import evaluate  # noqa: E402
+from .mats.env import NumberLineEnv, LiveBrokerEnv  # noqa: E402
 
 
 def verify_environment() -> None:
@@ -37,9 +41,9 @@ def verify_environment() -> None:
 
         check_env.main([])
     except (ImportError, ModuleNotFoundError) as exc:  # pragma: no cover - optional helper
-        print(f"Environment verification failed: {exc}")
+        logger.warning("Environment verification failed: %s", exc)
     except Exception as exc:
-        print(f"Unexpected error during environment verification: {exc}")
+        logger.warning("Unexpected error during environment verification: %s", exc)
         raise
 
 
@@ -115,12 +119,12 @@ def run(
         child = Node(improved, reward=reward)
         tree.add_child(node, child)
         tree.backprop(child)
-        print(f"Episode {_+1:>3}: candidate {improved} → reward {reward:.3f}")
+        logger.info("Episode %3d: candidate %s → reward %.3f", _ + 1, improved, reward)
         if log_fh:
             log_fh.write(f"{_+1},{improved},{reward:.6f}\n")
     best = tree.best_leaf()
     score = best.reward / (best.visits or 1)
-    print(f"Best agents: {best.agents} score: {score:.3f}")
+    logger.info("Best agents: %s score: %.3f", best.agents, score)
     if log_fh:
         log_fh.write(f"best,{best.agents},{score:.6f}\n")
         log_fh.close()
