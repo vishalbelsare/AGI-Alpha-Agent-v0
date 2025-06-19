@@ -1,3 +1,4 @@
+# [See ../../../docs/DISCLAIMER_SNIPPET.md](../../../docs/DISCLAIMER_SNIPPET.md)
 # α‑AGI Insight Docs
 
 Documentation for the α‑AGI Insight demo.
