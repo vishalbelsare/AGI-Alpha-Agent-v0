@@ -70,6 +70,8 @@ before installing dependencies. The script invokes
 `scripts/fetch_assets.py` under the hood.
 
 See [`.env.sample`](.env.sample) for the full list of supported variables.
+The compiled `dist/` directory is not version controlled. Run the build script
+to create it before launching the demo.
 
 ## Build & Run
 Run `npm run fetch-assets` **before installing dependencies** to download the
