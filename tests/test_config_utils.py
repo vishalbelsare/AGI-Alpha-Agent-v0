@@ -10,6 +10,8 @@ import pytest
 
 import src.utils.config as cfg
 
+pytestmark = pytest.mark.smoke
+
 
 def test_load_dotenv(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     env = tmp_path / "sample.env"
