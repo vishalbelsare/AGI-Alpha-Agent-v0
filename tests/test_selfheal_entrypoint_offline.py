@@ -5,8 +5,6 @@ import importlib
 import sys
 import types
 
-from alpha_factory_v1.demos.self_healing_repo.agent_core import llm_client
-
 
 class DummyBlocks:
     def __init__(self, *a, **k):

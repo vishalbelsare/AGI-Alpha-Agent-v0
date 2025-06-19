@@ -6,7 +6,6 @@ from __future__ import annotations
 import importlib
 import importlib.util
 import os
-import sys
 import unittest
 from unittest.mock import MagicMock, patch
 
@@ -23,15 +22,16 @@ class TestInspectorBridgeRuntime(unittest.TestCase):
     def test_main_registers_agent(self) -> None:
         os.environ["ALPHA_FACTORY_ENABLE_ADK"] = "true"
         from alpha_factory_v1.backend import adk_bridge as _adk_bridge
+
         adk_bridge = importlib.reload(_adk_bridge)
 
         runtime = MagicMock()
-        with patch("openai_agents.AgentRuntime", return_value=runtime) as rt_cls, \
-                patch.object(adk_bridge, "auto_register") as auto_reg, \
-                patch.object(adk_bridge, "maybe_launch") as maybe_launch:
-            mod = importlib.reload(importlib.import_module(
-                "alpha_factory_v1.demos.alpha_asi_world_model.openai_agents_bridge"
-            ))
+        with patch("openai_agents.AgentRuntime", return_value=runtime) as rt_cls, patch.object(
+            adk_bridge, "auto_register"
+        ) as auto_reg, patch.object(adk_bridge, "maybe_launch") as maybe_launch:
+            mod = importlib.reload(
+                importlib.import_module("alpha_factory_v1.demos.alpha_asi_world_model.openai_agents_bridge")
+            )
             mod.main()
 
             rt_cls.assert_called_once_with(api_key=None)
