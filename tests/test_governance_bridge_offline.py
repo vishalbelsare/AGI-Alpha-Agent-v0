@@ -5,8 +5,6 @@ import builtins
 import subprocess
 import sys
 
-import pytest
-
 
 def test_governance_bridge_offline(monkeypatch):
     orig_import = builtins.__import__
