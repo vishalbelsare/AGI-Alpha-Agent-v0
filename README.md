@@ -86,7 +86,7 @@ Run `pre-commit run --all-files` after the dependencies finish installing.
 Offline example using a local wheelhouse:
 
 ```bash
-WHEELHOUSE=/media/wheels AUTO_INSTALL_MISSING=1 ./quickstart.sh
+WHEELHOUSE=$(pwd)/wheels AUTO_INSTALL_MISSING=1 ./quickstart.sh
 ```
 
 Or launch the full stack with Docker:
@@ -182,30 +182,28 @@ Follow these steps when working without internet access.
 
 1. **Build a wheelhouse** on a machine with connectivity:
    ```bash
-   mkdir -p /media/wheels
-   pip wheel -r requirements.lock -w /media/wheels
-   pip wheel -r requirements-dev.txt -w /media/wheels
+   ./scripts/build_offline_wheels.sh
+   export WHEELHOUSE="$(pwd)/wheels"
    ```
 
 2. **Install from the wheelhouse** and verify packages. The setup script
    automatically uses a `wheels/` directory in the repository root when
    `WHEELHOUSE` is unset:
    ```bash
-   WHEELHOUSE=/media/wheels AUTO_INSTALL_MISSING=1 ./codex/setup.sh
-WHEELHOUSE=/media/wheels AUTO_INSTALL_MISSING=1 \
-  python check_env.py --auto-install --wheelhouse /media/wheels
-  pip check
-```
+   AUTO_INSTALL_MISSING=1 ./codex/setup.sh
+   python check_env.py --auto-install --wheelhouse "$WHEELHOUSE"
+   pip check
+   ```
   When network access is unavailable, install packages directly from the
   wheelhouse:
 ```bash
-WHEELHOUSE=/media/wheels pip install --no-index --find-links "$WHEELHOUSE" -r requirements.txt
+pip install --no-index --find-links "$WHEELHOUSE" -r requirements.txt
 # Install demo extras offline
-WHEELHOUSE=/media/wheels pip install --no-index --find-links "$WHEELHOUSE" -r \
+pip install --no-index --find-links "$WHEELHOUSE" -r \
   alpha_factory_v1/demos/era_of_experience/requirements.lock
 ```
-  `check_env.py` uses the wheels under `/media/wheels`. Set
-`WHEELHOUSE=/media/wheels` when running `pre-commit` or the tests so
+ `check_env.py` uses the wheels under `$WHEELHOUSE`. Set
+`WHEELHOUSE="$WHEELHOUSE"` when running `pre-commit` or the tests so
 dependencies install from the local cache. See
 [Offline Setup](alpha_factory_v1/scripts/README.md#offline-setup) for more
 details. A short reference lives in
@@ -217,7 +215,7 @@ offline installs.
 Run the environment check again when the machine is completely
 air‑gapped:
 ```bash
-python check_env.py --auto-install --wheelhouse /media/wheels
+python check_env.py --auto-install --wheelhouse "$WHEELHOUSE"
 ```
 This mirrors the instructions in
 [alpha_factory_v1/scripts/README.md](alpha_factory_v1/scripts/README.md#offline-setup).
@@ -832,9 +830,7 @@ pip install -r requirements.lock
 # (If this fails with a network error, create a wheelhouse and rerun
 #  with --wheelhouse <path> or place the wheels under ./wheels)
 # Build a wheelhouse if the machine has no internet access:
-#   mkdir -p /media/wheels
-#   pip wheel -r requirements.lock -w /media/wheels
-#   pip wheel -r requirements-dev.txt -w /media/wheels
+#   ./scripts/build_offline_wheels.sh
 ./quickstart.sh               # creates venv, installs deps, launches
 # Use `--wheelhouse /path/to/wheels` to install offline packages when
 # the host has no internet access. The setup script automatically
@@ -843,7 +839,7 @@ pip install -r requirements.lock
 # /path/to/wheels` to verify and install packages. The setup script
 # exits with a message if neither network nor a wheelhouse are available.
 # Example offline workflow:
-#   export WHEELHOUSE=/media/wheels
+#   export WHEELHOUSE=$(pwd)/wheels
 #   python check_env.py --auto-install --wheelhouse "$WHEELHOUSE"
 #   WHEELHOUSE=$WHEELHOUSE ./quickstart.sh
 #   WHEELHOUSE=$WHEELHOUSE pytest -q

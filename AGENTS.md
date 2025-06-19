@@ -63,9 +63,9 @@ Python must report 3.11 or 3.12 and Docker Compose must be at least 2.5.
 
 Follow these steps when installing without internet access:
 
-- Build wheels using the helper script:
+ - Build wheels using the helper script:
   ```bash
-  ./tools/build_wheelhouse.sh
+  ./scripts/build_offline_wheels.sh
   ```
 
 - Generate a deterministic lock file with hashes:

@@ -17,6 +17,7 @@ All notable changes to this project are documented in this file.
 - Added [`src/tools/analyse_backtrack.py`](../src/tools/analyse_backtrack.py) for visualising archive backtracks.
 - Documented how to build a wheelhouse for offline installs and updated
   `tests/README.md` with the instructions.
+- Added `scripts/build_offline_wheels.sh` to gather wheels for all lock files.
 - Removed outdated `OPENAI_CONTEXT_WINDOW` reference from the self-healing repo demo.
 
 ## [1.0.3] - 2025-07-10
