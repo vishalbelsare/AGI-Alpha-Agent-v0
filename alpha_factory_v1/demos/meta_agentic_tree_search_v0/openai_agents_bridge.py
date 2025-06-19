@@ -12,9 +12,13 @@ from __future__ import annotations
 import os
 import argparse
 import importlib.util
+import logging
 import sys
 from pathlib import Path
 from typing import cast
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 DEFAULT_MODEL_NAME = os.getenv("OPENAI_MODEL", "gpt-4o")
 
@@ -28,7 +32,7 @@ def verify_env() -> None:
 
         check_env.main([])
     except Exception as exc:  # pragma: no cover - best effort
-        print(f"Environment verification failed: {exc}")
+        logger.warning("Environment verification failed: %s", exc)
 
 
 if __package__ is None:  # pragma: no cover - allow direct execution
@@ -146,11 +150,11 @@ if has_oai:
                 adk_bridge.auto_register([agent])
                 adk_bridge.maybe_launch()
             else:
-                print("ADK gateway disabled.")
+                logger.info("ADK gateway disabled.")
         except Exception as exc:  # pragma: no cover - ADK optional
-            print(f"ADK bridge unavailable: {exc}")
+            logger.warning("ADK bridge unavailable: %s", exc)
 
-        print("Registered MATSAgent with runtime")
+        logger.info("Registered MATSAgent with runtime")
         runtime.run()
 
 else:
@@ -226,7 +230,7 @@ def main(argv: list[str] | None = None) -> None:
         verify_env()
 
     if not has_oai:
-        print("openai-agents package is missing. Running offline demo...")
+        logger.info("openai-agents package is missing. Running offline demo...")
         run(
             episodes=args.episodes,
             target=args.target,

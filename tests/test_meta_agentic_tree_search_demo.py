@@ -24,7 +24,7 @@ class TestMetaAgenticTreeSearchDemo(unittest.TestCase):
             text=True,
         )
         self.assertEqual(result.returncode, 0, result.stderr)
-        self.assertIn("Best agents", result.stdout)
+        self.assertIn("Best agents", result.stderr)
 
     def test_run_demo_openai_rewriter(self) -> None:
         result = subprocess.run(
@@ -41,7 +41,7 @@ class TestMetaAgenticTreeSearchDemo(unittest.TestCase):
             text=True,
         )
         self.assertEqual(result.returncode, 0, result.stderr)
-        self.assertIn("Best agents", result.stdout)
+        self.assertIn("Best agents", result.stderr)
 
     def test_run_demo_anthropic_rewriter(self) -> None:
         result = subprocess.run(
@@ -58,7 +58,7 @@ class TestMetaAgenticTreeSearchDemo(unittest.TestCase):
             text=True,
         )
         self.assertEqual(result.returncode, 0, result.stderr)
-        self.assertIn("Best agents", result.stdout)
+        self.assertIn("Best agents", result.stderr)
 
     def test_env_rollout(self) -> None:
         from alpha_factory_v1.demos.meta_agentic_tree_search_v0.mats.env import (
@@ -118,7 +118,7 @@ class TestMetaAgenticTreeSearchDemo(unittest.TestCase):
             text=True,
         )
         self.assertEqual(result.returncode, 0, result.stderr)
-        self.assertIn("Best agents", result.stdout)
+        self.assertIn("Best agents", result.stderr)
 
     def test_run_demo_with_seed(self) -> None:
         result = subprocess.run(
@@ -135,7 +135,7 @@ class TestMetaAgenticTreeSearchDemo(unittest.TestCase):
             text=True,
         )
         self.assertEqual(result.returncode, 0, result.stderr)
-        self.assertIn("Best agents", result.stdout)
+        self.assertIn("Best agents", result.stderr)
 
     def test_run_demo_verify_env(self) -> None:
         result = subprocess.run(
@@ -151,7 +151,7 @@ class TestMetaAgenticTreeSearchDemo(unittest.TestCase):
             text=True,
         )
         self.assertEqual(result.returncode, 0, result.stderr)
-        self.assertIn("Best agents", result.stdout)
+        self.assertIn("Best agents", result.stderr)
 
     def test_run_demo_market_data(self) -> None:
         import tempfile
@@ -173,7 +173,7 @@ class TestMetaAgenticTreeSearchDemo(unittest.TestCase):
             text=True,
         )
         self.assertEqual(result.returncode, 0, result.stderr)
-        self.assertIn("Best agents", result.stdout)
+        self.assertIn("Best agents", result.stderr)
 
     def test_bridge_fallback(self) -> None:
         result = subprocess.run(
@@ -192,7 +192,7 @@ class TestMetaAgenticTreeSearchDemo(unittest.TestCase):
             text=True,
         )
         self.assertEqual(result.returncode, 0, result.stderr)
-        self.assertIn("offline demo", result.stdout.lower())
+        self.assertIn("offline demo", result.stderr.lower())
 
     def test_bridge_run_search_helper(self) -> None:
         import asyncio
@@ -265,7 +265,7 @@ class TestMetaAgenticTreeSearchDemo(unittest.TestCase):
             text=True,
         )
         self.assertEqual(result.returncode, 0, result.stderr)
-        self.assertIn("Best agents", result.stdout)
+        self.assertIn("Best agents", result.stderr)
 
     def test_bridge_enable_adk(self) -> None:
         """Bridge accepts the --enable-adk flag."""
@@ -285,7 +285,7 @@ class TestMetaAgenticTreeSearchDemo(unittest.TestCase):
         self.assertEqual(result.returncode, 0, result.stderr)
 
 
-def test_bridge_online_mode(monkeypatch) -> None:
+def test_bridge_online_mode(monkeypatch: pytest.MonkeyPatch) -> None:
     pytest.importorskip("openai_agents")
     monkeypatch.setenv("OPENAI_API_KEY", "dummy")
     result = subprocess.run(
@@ -302,7 +302,7 @@ def test_bridge_online_mode(monkeypatch) -> None:
         text=True,
     )
     assert result.returncode == 0, result.stderr
-    assert "Best agents" in result.stdout
+    assert "Best agents" in result.stderr
 
 
 if __name__ == "__main__":  # pragma: no cover
