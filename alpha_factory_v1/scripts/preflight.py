@@ -29,7 +29,7 @@ except ModuleNotFoundError:  # pragma: no cover
 else:
 
     def _version_lt(a: str, b: str) -> bool:
-        return Version(a) < Version(b)
+        return bool(Version(a) < Version(b))
 
 
 MIN_PY = (3, 11)

@@ -6,7 +6,7 @@ from __future__ import annotations
 import csv
 import random
 from pathlib import Path
-from typing import Dict, Tuple
+from typing import Dict, Tuple, cast
 
 import numpy as np
 
@@ -34,7 +34,7 @@ def _mutate(g: float) -> float:
 
 
 def _select_softmax(pop: list[_Candidate]) -> _Candidate:
-    return select_parent(pop, beta=1.0, gamma=0.0)
+    return cast(_Candidate, select_parent(pop, beta=1.0, gamma=0.0))
 
 
 def _run(strategy: str, iterations: int, *, seed: int) -> Tuple[float, float]:

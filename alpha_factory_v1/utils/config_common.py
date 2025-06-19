@@ -8,8 +8,24 @@ import os
 from pathlib import Path
 
 from alpha_factory_v1.utils.env import _load_env_file
-from pydantic_settings import BaseSettings, SettingsConfigDict
-from typing import ClassVar
+from typing import Any, ClassVar, Dict, TYPE_CHECKING, Protocol
+
+
+class _TypedBaseSettings(Protocol):
+    def model_dump(self) -> Dict[str, Any]:
+        ...
+
+
+if TYPE_CHECKING:
+    BaseSettings = _TypedBaseSettings
+    SettingsConfigDict = Dict[str, Any]
+else:  # pragma: no cover - runtime import
+    try:
+        from pydantic_settings import BaseSettings, SettingsConfigDict
+    except Exception:
+        from pydantic import BaseSettings
+
+        SettingsConfigDict = Dict[str, Any]
 
 _log = logging.getLogger(__name__)
 

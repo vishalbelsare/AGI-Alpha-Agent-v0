@@ -15,7 +15,7 @@ from .scripts.preflight import main as preflight_main
 from . import __version__
 
 
-def parse_args() -> argparse.Namespace:
+def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     """Return command line arguments for the launcher."""
     ap = argparse.ArgumentParser(description="Alpha-Factory launcher")
     ap.add_argument("--dev", action="store_true", help="Enable dev mode")
@@ -36,7 +36,7 @@ def parse_args() -> argparse.Namespace:
         action="store_true",
         help="List available agents and exit",
     )
-    return ap.parse_args()
+    return ap.parse_args(argv)
 
 
 def apply_env(args: argparse.Namespace) -> None:
