@@ -1,4 +1,5 @@
 # SPDX-License-Identifier: Apache-2.0
+# This code is a conceptual research prototype.
 """Analyse orchestrator logs and propose refinement patches."""
 
 from __future__ import annotations

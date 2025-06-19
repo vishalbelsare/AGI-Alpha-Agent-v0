@@ -1,4 +1,5 @@
 # SPDX-License-Identifier: Apache-2.0
+# This code is a conceptual research prototype.
 #!/usr/bin/env python3
 """Wrapper script forwarding to :mod:`alpha_factory_v1.edge_runner`."""
 from alpha_factory_v1.edge_runner import main
