@@ -155,8 +155,8 @@ class TestMetaAgenticTreeSearchDemo(unittest.TestCase):
         self.assertEqual(first.returncode, 0, first.stderr)
         self.assertEqual(second.returncode, 0, second.stderr)
 
-        first_line = [l for l in first.stderr.splitlines() if "Best agents" in l][-1]
-        second_line = [l for l in second.stderr.splitlines() if "Best agents" in l][-1]
+        first_line = [line for line in first.stderr.splitlines() if "Best agents" in line][-1]
+        second_line = [line for line in second.stderr.splitlines() if "Best agents" in line][-1]
 
         self.assertEqual(first_line, second_line)
 
