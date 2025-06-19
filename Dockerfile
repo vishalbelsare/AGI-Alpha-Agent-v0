@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 FROM python:3.11-slim
 
 # install build tools and pnpm for the React UI
