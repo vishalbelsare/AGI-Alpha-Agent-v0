@@ -46,11 +46,9 @@ pre-commit install
 pre-commit run --all-files
 ```
 
-### Air-Gapped Setup
+### Pre-commit in Air-Gapped Setups
 
-If `pre-commit` cannot fetch dependencies because the machine has no internet
-access, build a wheelhouse and set `WHEELHOUSE` before running the hooks. A
-helper script is provided:
+When offline, build the wheelhouse first and point `pre-commit` to it:
 
 ```bash
 ./scripts/build_offline_wheels.sh
@@ -58,4 +56,4 @@ export WHEELHOUSE="$(pwd)/wheels"
 pre-commit run --all-files
 ```
 
-See [AGENTS.md](AGENTS.md) for the full offline workflow.
+Refer to [AGENTS.md](AGENTS.md#pre-commit-in-air-gapped-setups) for detailed steps.
