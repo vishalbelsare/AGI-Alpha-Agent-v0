@@ -234,7 +234,7 @@ configured, falling back to the offline rewriter otherwise.
 ### Notebook quick start
 1. Click the “Open In Colab” badge at the top of this document.
 2. Execute the first cell to clone the repository and install dependencies.
-3. Optionally provide `OPENAI_API_KEY` or `ANTHROPIC_API_KEY` values in the second cell.
+3. Optionally provide `OPENAI_API_KEY` or `ANTHROPIC_API_KEY` values in the second cell. Leave the variable unset if you don't have a key.
 4. Run the demo cell to launch the search loop.
 5. Optionally invoke `openai_agents_bridge.py --verify-env` from a new cell to confirm your runtime.
 
