@@ -73,6 +73,22 @@ continues even in minimal environments.
    `pre-commit install` once to enable the git hooks referenced in
    [AGENTS.md](../AGENTS.md).
 
+### Wheelhouse requirement
+
+Offline environments must provide a directory of wheels so `check_env.py` and
+`pytest` can install packages without contacting PyPI. Build the wheelhouse
+from `requirements.lock` and point `WHEELHOUSE` to it before running the tests.
+Example:
+
+```bash
+mkdir -p wheels
+pip wheel -r requirements.lock -w wheels
+WHEELHOUSE=$(pwd)/wheels python check_env.py --auto-install --wheelhouse "$WHEELHOUSE"
+PYTHONPATH=$(pwd) WHEELHOUSE="$WHEELHOUSE" pytest -m 'not e2e' -q
+```
+
+Tests may skip when optional dependencies are unavailable.
+
 ### Before running tests
 
 Run these commands before executing the suite:
