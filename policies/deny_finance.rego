@@ -4,7 +4,10 @@ package codegen
 banned_hosts = {
     "api.alpaca.markets",
     "api.binance.com",
-    "api.polygon.io"
+    "api.polygon.io",
+    "api.kraken.com",
+    "api.coinbase.com",
+    "api.gemini.com"
 }
 
 deny[msg] {

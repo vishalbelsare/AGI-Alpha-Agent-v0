@@ -18,6 +18,10 @@ All notable changes to this project are documented in this file.
 - Documented how to build a wheelhouse for offline installs and updated
   `tests/README.md` with the instructions.
 - Removed outdated `OPENAI_CONTEXT_WINDOW` reference from the self-healing repo demo.
+
+## [1.0.3] - 2025-07-10
+- Extended OPA rules to block additional finance domains and detect exfiltration commands.
+- Documented policy update workflow in `docs/POLICY_RUNBOOK.md`.
 - Added CI workflow running lint, type checks, tests and Docker build with
   automated image deployment on tags and rollback on failure. Metrics are
   exported via OpenTelemetry and can be viewed in Grafana or the Streamlit

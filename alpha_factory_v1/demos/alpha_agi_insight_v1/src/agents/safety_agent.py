@@ -12,7 +12,7 @@ from .base_agent import BaseAgent
 from ..utils import messaging
 from ..utils.logging import Ledger
 from ..utils.tracing import span
-from src.utils.opa_policy import violates_insider_policy
+from src.utils.opa_policy import violates_insider_policy, violates_exfil_policy
 
 
 class SafetyGuardianAgent(BaseAgent):
@@ -40,7 +40,7 @@ class SafetyGuardianAgent(BaseAgent):
             text_parts = [str(v) for v in env.payload.values() if isinstance(v, str)]
             text = " ".join(text_parts)
             status = "ok"
-            if "import os" in code or violates_insider_policy(text):
+            if "import os" in code or violates_insider_policy(text) or violates_exfil_policy(text):
                 status = "blocked"
             payload = dict(env.payload)
             payload["status"] = status
