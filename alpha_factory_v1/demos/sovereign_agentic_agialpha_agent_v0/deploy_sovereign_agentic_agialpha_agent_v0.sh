@@ -730,6 +730,22 @@ class ReasoningAgent:
     def _safe_eval(self, expression: str) -> float:
         """Evaluate an arithmetic expression using the AST parser."""
         tree = ast.parse(expression, mode="eval")
+        allowed = (
+            ast.Expression,
+            ast.BinOp,
+            ast.UnaryOp,
+            ast.Constant,
+            ast.Add,
+            ast.Sub,
+            ast.Mult,
+            ast.Div,
+            ast.Pow,
+            ast.USub,
+            ast.Load,
+        )
+        for n in ast.walk(tree):
+            if not isinstance(n, allowed):
+                raise ValueError("Unsupported expression")
         return self._eval_node(tree.body)
 
     def tool_calculate(self, expression: str) -> str:
