@@ -880,7 +880,8 @@ Adjust `alpha_factory_v1/demos/alpha_asi_world_model/config.yaml` to tune the wo
 
 A browser-only Pareto explorer lives under
 `alpha_factory_v1/demos/alpha_agi_insight_v1/insight_browser_v1`.
-Build the PWA and open `dist/index.html` to run the demo locally.
+Run `npm run build` in that directory to generate the `dist/` assets
+(they are not stored in Git) then open `dist/index.html` to run the demo locally.
 The quick-start guide `docs/insight_browser_quickstart.pdf` is copied to
 `dist/insight_browser_quickstart.pdf` during the build so it is available
 alongside the compiled assets.
