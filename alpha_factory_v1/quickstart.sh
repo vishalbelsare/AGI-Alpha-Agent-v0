@@ -13,6 +13,15 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 cd "$SCRIPT_DIR/.."
 export PYTHONPATH="${PWD}:${PYTHONPATH:-}"
 
+# use local wheels when available
+if [[ -z "${WHEELHOUSE:-}" && -d wheels ]]; then
+  export WHEELHOUSE="$(pwd)/wheels"
+fi
+PIP_ARGS=()
+if [[ -n "${WHEELHOUSE:-}" ]]; then
+  PIP_ARGS=(--no-index --find-links "$WHEELHOUSE")
+fi
+
 usage() {
   cat <<EOF
 Usage: $0 [--preflight] [--skip-preflight] [orchestrator args...]
@@ -21,7 +30,8 @@ Bootstraps and launches Alpha-Factory in an isolated Python virtual environment.
   --preflight        Run environment checks and exit
   --skip-preflight   Skip automatic preflight checks before launching
   Pip install output logs to $PIP_LOG and failures abort the script.
-Any other options are passed directly to the orchestrator.
+  Set WHEELHOUSE to install packages from a local wheel cache.
+  Any other options are passed directly to the orchestrator.
 EOF
 }
 
@@ -59,10 +69,10 @@ VENV_DIR=".venv"
 if [ ! -d "$VENV_DIR" ]; then
   echo "→ Creating virtual environment"
   python3 -m venv "$VENV_DIR"
-  "$VENV_DIR/bin/pip" install -U pip >"$PIP_LOG" 2>&1 || { echo 'pip install failed'; exit 1; }
+  "$VENV_DIR/bin/pip" install "${PIP_ARGS[@]}" -U pip >"$PIP_LOG" 2>&1 || { echo 'pip install failed'; exit 1; }
   REQ="alpha_factory_v1/requirements.lock"
   [ -f "$REQ" ] || REQ="alpha_factory_v1/requirements.txt"
-  "$VENV_DIR/bin/pip" install -r "$REQ" >>"$PIP_LOG" 2>&1 || { echo 'pip install failed'; exit 1; }
+  "$VENV_DIR/bin/pip" install "${PIP_ARGS[@]}" -r "$REQ" >>"$PIP_LOG" 2>&1 || { echo 'pip install failed'; exit 1; }
 fi
 
 source "$VENV_DIR/bin/activate"

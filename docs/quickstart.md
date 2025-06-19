@@ -36,6 +36,7 @@ wheel cache with:
 
 ```bash
 python check_env.py --auto-install --wheelhouse "$WHEELHOUSE"
+WHEELHOUSE="$WHEELHOUSE" ./quickstart.sh
 ```
 
 See [docs/OFFLINE_INSTALL.md](OFFLINE_INSTALL.md) for detailed steps.
