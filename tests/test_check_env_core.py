@@ -2,6 +2,10 @@
 import importlib.util
 import check_env
 
+import pytest
+
+pytestmark = pytest.mark.smoke
+
 
 def test_check_env_errors_without_core(monkeypatch):
     calls = []

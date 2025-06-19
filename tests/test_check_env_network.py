@@ -5,6 +5,8 @@ import pytest
 import subprocess
 import check_env
 
+pytestmark = pytest.mark.smoke
+
 
 def _no_missing(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setattr(check_env, "REQUIRED", [])

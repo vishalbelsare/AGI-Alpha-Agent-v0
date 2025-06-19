@@ -50,7 +50,7 @@ command succeeds without contacting PyPI. `torch` in particular is heavy and
 may take several minutes to install. When it is unavailable you can still run
 a lightweight smoke check via:
 ```bash
-pytest -m 'not e2e'
+pytest -m smoke
 ```
 Running without a GPU is fully supported. The world model and evolution tests
 fall back to CPU execution and are automatically skipped when `torch` is
@@ -84,7 +84,7 @@ Example:
 mkdir -p wheels
 pip wheel -r requirements.lock -w wheels
 WHEELHOUSE=$(pwd)/wheels python check_env.py --auto-install --wheelhouse "$WHEELHOUSE"
-PYTHONPATH=$(pwd) WHEELHOUSE="$WHEELHOUSE" pytest -m 'not e2e' -q
+PYTHONPATH=$(pwd) WHEELHOUSE="$WHEELHOUSE" pytest -m smoke -q
 ```
 
 Tests may skip when optional dependencies are unavailable.
