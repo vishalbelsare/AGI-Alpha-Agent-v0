@@ -166,6 +166,7 @@ git clone https://github.com/MontrealAI/AGI-Alpha-Agent-v0.git
 cd AGI-Alpha-Agent-v0/alpha_factory_v1/demos/meta_agentic_tree_search_v0
 python -m venv .venv && source .venv/bin/activate
 pip install -r requirements.lock         # install pinned dependencies
+python ../../../check_env.py --auto-install  # fetch optional extras
 python run_demo.py --verify-env          # optional sanity check
 python run_demo.py --config configs/default.yaml --episodes 500 --target 5 --seed 42 --model gpt-4o
 # or equivalently
@@ -195,7 +196,9 @@ WHEELHOUSE=/tmp/wheels pip install -r requirements.txt
 
 The repository's setup script automatically uses a `wheels/` directory
 in the project root when present, so placing your pre-built wheels there
-also works. See
+also works. Set `WHEELHOUSE=/tmp/wheels` (or `$(pwd)/wheels`) before running
+`../../../check_env.py --auto-install` or `pytest` so the command installs from
+the local cache. See
 [docs/OFFLINE_SETUP.md](../../../docs/OFFLINE_SETUP.md) for a summary.
 
 To regenerate the pinned lock file after editing `requirements.txt`, install
