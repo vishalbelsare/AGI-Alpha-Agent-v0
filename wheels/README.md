@@ -4,13 +4,13 @@ This repository is a conceptual research prototype. References to "AGI" and "sup
 
 This directory stores prebuilt wheels so the MuZero Planning demo and
 unit tests can run without network access. Build the wheelhouse on a
-machine with connectivity and copy it here:
+machine with connectivity and copy it here. The helper script
+`tools/build_wheelhouse.sh` collects all required wheels from
+`requirements.lock`, `requirements-dev.txt`, `requirements-demo.lock`
+and each demo's `requirements.lock` file:
 
 ```bash
-mkdir -p wheels
-pip wheel -r requirements.lock -w wheels
-pip wheel -r requirements-dev.txt -w wheels
-pip wheel -r alpha_factory_v1/demos/muzero_planning/requirements.txt -w wheels
+./tools/build_wheelhouse.sh
 ```
 
 Set `WHEELHOUSE=$(pwd)/wheels` before running the setup script or tests:

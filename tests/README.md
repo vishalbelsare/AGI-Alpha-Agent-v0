@@ -57,9 +57,9 @@ fall back to CPU execution and are automatically skipped when `torch` is
 absent. Other optional packages behave the same way—tests relying on
 `fastapi`, `playwright` or `httpx` use `pytest.importorskip()` so the suite
 continues even in minimal environments.
-6. If the repository includes a `wheels/` directory, set `WHEELHOUSE=$(pwd)/wheels`
-   before running the environment check or tests so packages install from the
-   bundled wheelhouse.
+6. If the repository includes a `wheels/` directory, export
+   `WHEELHOUSE=$(pwd)/wheels` **before running** `python check_env.py --auto-install`
+   and `pytest` so packages install from the bundled wheelhouse.
 7. Set `PYTHONPATH=$(pwd)` or install the project in editable mode with `pip install -e .`.
 8. Export the wheel cache path and run the environment check before the suite:
    ```bash
@@ -113,12 +113,12 @@ dependencies will cause the suite to skip tests or fail entirely.
 ### Wheelhouse quick start
 
 Build a local wheelhouse and run the environment check with `--wheelhouse` before
-starting the tests:
+starting the tests. The `tools/build_wheelhouse.sh` helper collects wheels for
+`requirements.lock`, `requirements-dev.txt`, `requirements-demo.lock` and each
+demo's lock file:
 
 ```bash
-mkdir -p wheels
-pip wheel -r requirements.lock -w wheels
-pip wheel -r requirements-dev.txt -w wheels
+./tools/build_wheelhouse.sh
 python check_env.py --auto-install --demo macro_sentinel --wheelhouse wheels
 PYTHONPATH=$(pwd) pytest -q
 ```
@@ -129,14 +129,12 @@ about missing modules.
 
 ### Offline quick start
 
-Build wheels on a machine with connectivity and reuse them offline:
+Build wheels on a machine with connectivity and reuse them offline. The easiest
+way is to run `./tools/build_wheelhouse.sh`, which downloads wheels for all
+locked requirements:
 
 ```bash
-mkdir -p wheels
-pip wheel -r alpha_factory_v1/requirements-core.txt -w wheels
-pip wheel -r requirements.txt -w wheels
-pip wheel -r requirements-dev.txt -w wheels
-pip wheel -r alpha_factory_v1/demos/aiga_meta_evolution/requirements.txt -w wheels
+./tools/build_wheelhouse.sh
 ```
 
 Copy the `wheels/` directory to the offline host and set `WHEELHOUSE`:
@@ -153,17 +151,12 @@ tests run without contacting PyPI.
 ### Offline install
 
 Create a wheelhouse so the tests run without contacting PyPI. Build the wheels on
-a machine with connectivity and copy the directory to the offline host. Include
-`requirements.txt` and `requirements-dev.txt` (add the MuZero and Macro Sentinel
-demo requirements if needed):
+a machine with connectivity and copy the directory to the offline host. The
+`tools/build_wheelhouse.sh` script generates all necessary wheels from the lock
+files including the MuZero and Macro Sentinel demos:
 
 ```bash
-mkdir -p wheels
-pip wheel -r alpha_factory_v1/requirements-core.txt -w wheels
-pip wheel -r requirements.txt -w wheels
-pip wheel -r alpha_factory_v1/demos/muzero_planning/requirements.txt -w wheels
-pip wheel -r alpha_factory_v1/demos/macro_sentinel/requirements.txt -w wheels
-pip wheel -r requirements-dev.txt -w wheels
+./tools/build_wheelhouse.sh
 ```
 
 Install and run the tests without contacting PyPI:
