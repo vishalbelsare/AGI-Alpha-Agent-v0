@@ -21,6 +21,19 @@ simulation step that runs longer than the configured timeout to avoid runaway lo
 Policy changes and new agents require human code review before promotion. Features are
 verified in a staging environment with tests and manual inspection.
 
+## Policy Updates & Testing
+
+Rego policies live under `policies/`. After editing any `.rego` file, run:
+
+```bash
+pre-commit run --files policies/<file>.rego src/utils/opa_policy.py
+python check_env.py --auto-install
+pytest -q
+```
+
+The hooks ensure pattern updates load correctly and unit tests exercise the new
+rules. Document notable policy changes in `docs/CHANGELOG.md`.
+
 ## Rollback
 
 `git tag stable` tracks the last known good release. If a new deployment fails, check out
