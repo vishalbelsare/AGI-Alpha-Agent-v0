@@ -190,6 +190,7 @@ template). The sample file now lists every variable with its default value.
 | `MISTRAL_API_KEY` | Mistral credential | _(none)_ |
 | `TOGETHER_API_KEY` | Together credential | _(none)_ |
 | `GOOGLE_API_KEY` | Optional speech/vision credential | _(none)_ |
+| `GOOGLE_VERTEX_SA_KEY` | Service account key for Vertex micro-services | _(none)_ |
 | `POLYGON_API_KEY` | Polygon market data API | _(none)_ |
 | `ALPACA_KEY_ID` | Alpaca trading API key | _(none)_ |
 | `ALPACA_SECRET_KEY` | Alpaca trading API secret | _(none)_ |
@@ -216,6 +217,7 @@ template). The sample file now lists every variable with its default value.
 | `API_CORS_ORIGINS` | Comma-separated CORS origins for the API | `*` |
 | `ALPHA_KAFKA_BROKER` | Kafka broker address | _(none)_ |
 | `ALPHA_DATA_DIR` | Base data directory | `/data` |
+| `MATS_REWRITER` | Rewrite engine: `random`, `openai` or `anthropic` | _(none)_ |
 | `OTEL_EXPORTER_OTLP_ENDPOINT` | OTLP export endpoint | `http://tempo:4317` |
 | `VC_SIGNING_KEY_PATH` | Path to signing key | `/run/secrets/ed25519_private.key` |
 | `K8S_CPU_LIMIT` | Kubernetes CPU limit | `500m` |
@@ -230,11 +232,13 @@ template). The sample file now lists every variable with its default value.
 | `ALPHA_ASI_SEED` | Deterministic RNG seed for the world model demo (or `general.seed` in `config.yaml`) | `42` |
 | `ALPHA_ASI_MAX_STEPS` | Learner steps before auto-stop | `100000` |
 | `ALPHA_ASI_BUFFER_LIMIT` | Replay-buffer length | `50000` |
+| `ALPHA_ASI_HIDDEN` | MuZero hidden size | `128` |
 | `ALPHA_ASI_TRAIN_BATCH` | SGD mini-batch size | `128` |
 | `ALPHA_ASI_MAX_GRID` | Safety clamp on generated mazes | `64` |
 | `ALPHA_ASI_HOST` | FastAPI bind address for the demo | `0.0.0.0` |
 | `ALPHA_ASI_PORT` | FastAPI port for the demo | `7860` |
 | `ALPHA_ASI_LLM_MODEL` | Planner model used by the world model demo | `gpt-4o-mini` |
+| `NO_LLM` | Set to `1` to disable the planner even with a key | `0` |
 | `PROOF_THRESHOLD` | Minimum score to generate SNARK proof | `0.5` |
 | `CROSS_ALPHA_LEDGER` | Output ledger file for the cross‑industry alpha demo | `cross_alpha_log.json` |
 | `CROSS_ALPHA_MODEL` | OpenAI model for the discovery tool when `OPENAI_API_KEY` is set | `gpt-4o-mini` |
