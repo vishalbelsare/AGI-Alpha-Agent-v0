@@ -39,8 +39,10 @@ $PYTHON -m pip install --quiet "${wheel_opts[@]}" --upgrade pip setuptools wheel
 # Install pip-compile (pip-tools) early so hooks can verify lock files
 $PYTHON -m pip install --quiet "${wheel_opts[@]}" pip-tools
 
-# Install pre-commit for git hooks
-$PYTHON -m pip install --quiet "${wheel_opts[@]}" pre-commit
+# Ensure pre-commit is available for git hooks
+if ! command -v pre-commit >/dev/null; then
+  $PYTHON -m pip install --quiet "${wheel_opts[@]}" pre-commit
+fi
 
 # Install package in editable mode
 $PYTHON -m pip install --quiet "${wheel_opts[@]}" -e .
@@ -170,6 +172,8 @@ if [[ "${FETCH_BROWSER_ASSETS:-1}" != "0" ]]; then
   $PYTHON scripts/fetch_assets.py
 fi
 
-# Set up pre-commit hooks
-pre-commit install
+# Set up pre-commit hooks if available
+if command -v pre-commit >/dev/null; then
+  pre-commit install
+fi
 

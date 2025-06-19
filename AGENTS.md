@@ -26,8 +26,8 @@ Please report security vulnerabilities as described in our [Security Policy](SEC
 - Keep `package-lock.json` under version control so `npm ci` reproduces the same
   dependency tree.
 - Run `python alpha_factory_v1/scripts/preflight.py` to validate these tools.
-- If the `pre-commit` command is missing, run `pip install pre-commit` so the
-  git hooks work correctly.
+- Run `./codex/setup.sh` to install dependencies. The script automatically
+  installs `pre-commit` when missing and sets up the git hook.
 - Install `pytest` and `prometheus_client` using
   `python check_env.py --auto-install` or `pip install pytest prometheus_client`.
 
@@ -257,10 +257,10 @@ for modules, classes and functions.
   consistent style and type safety.
 - Run `mypy --config-file mypy.ini .` (or `pyright`) with a **strict** configuration. The
   `mypy.ini` configuration file is located at the repository root.
-- Install pre‑commit and set up the git hook:
+- Use `pre-commit` for linting and style checks. `./codex/setup.sh` installs it
+  when missing and configures the git hook:
 
 ```bash
-pip install pre-commit
 pre-commit install
 pre-commit run --all-files   # run once after installation
 pre-commit run --files <paths>   # before each commit
