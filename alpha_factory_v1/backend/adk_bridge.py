@@ -1,4 +1,5 @@
 # SPDX-License-Identifier: Apache-2.0
+# This code is a conceptual research prototype.
 # alpha_factory_v1/backend/adk_bridge.py
 # ============================================================================
 #  Alpha-Factory 👁️✨  ▸  Google ADK Bridge (Agent-to-Agent Federation Layer)
@@ -38,14 +39,15 @@ __all__ = [
 #  ➊  Feature flags & dynamic import
 # ─────────────────────────────────────────────────────────────────────────────
 _ENABLE = os.getenv("ALPHA_FACTORY_ENABLE_ADK", "false").lower() in {"1", "true", "yes", "on"}
-_TOKEN  = os.getenv("ALPHA_FACTORY_ADK_TOKEN") or None     # optional auth
-_HOST   = os.getenv("ALPHA_FACTORY_ADK_HOST", "0.0.0.0")
-_PORT   = int(os.getenv("ALPHA_FACTORY_ADK_PORT", "9000"))
+_TOKEN = os.getenv("ALPHA_FACTORY_ADK_TOKEN") or None  # optional auth
+_HOST = os.getenv("ALPHA_FACTORY_ADK_HOST", "0.0.0.0")
+_PORT = int(os.getenv("ALPHA_FACTORY_ADK_PORT", "9000"))
 
-try:                                # runtime optional dependency
-    import google_adk as adk        # pip install google-adk
+try:  # runtime optional dependency
+    import google_adk as adk  # pip install google-adk
+
     _ADK_OK = True
-except ModuleNotFoundError:         # graceful degradation
+except ModuleNotFoundError:  # graceful degradation
     _ADK_OK = False
     if _ENABLE:
         logger.warning(
@@ -53,6 +55,7 @@ except ModuleNotFoundError:         # graceful degradation
             "Run  ➜  pip install google-adk   or disable ADK via "
             "ALPHA_FACTORY_ENABLE_ADK=false."
         )
+
 
 # Guard-function lets callers know whether ADK functionality is live
 def adk_enabled() -> bool:
@@ -63,20 +66,20 @@ def adk_enabled() -> bool:
 # ─────────────────────────────────────────────────────────────────────────────
 #  ➋  Internal router & helpers
 # ─────────────────────────────────────────────────────────────────────────────
-_router: "adk.Router | None" = None           # created lazily
-_server_started: bool = False                 # idempotent launch() guard
+_router: "adk.Router | None" = None  # created lazily
+_server_started: bool = False  # idempotent launch() guard
 
 
 def _ensure_router() -> "adk.Router":
     """Instantiate a singleton ADK Router on first call."""
     global _router
-    if _router is None:                       # lazy import only when needed
+    if _router is None:  # lazy import only when needed
         _router = adk.Router()
         logger.info("Google ADK router initialised.")
     return _router
 
 
-def _auth_middleware():                       # injected only when token set
+def _auth_middleware():  # injected only when token set
     from fastapi import Request
     from fastapi.responses import JSONResponse
 
@@ -85,9 +88,7 @@ def _auth_middleware():                       # injected only when token set
         header = request.headers.get("x-alpha-factory-token", "")
         token_ok = (_TOKEN is None) or secrets.compare_digest(header, _TOKEN)
         if not token_ok:
-            return JSONResponse(
-                status_code=401, content={"error": "unauthorised ADK call"}
-            )
+            return JSONResponse(status_code=401, content={"error": "unauthorised ADK call"})
         return await call_next(request)
 
     return _mw
@@ -117,7 +118,7 @@ def auto_register(agents: Iterable[Any]) -> None:
         try:
             router.register_agent(_AF2ADKWrapper(ag))
             logger.debug("ADK ✔ registered agent '%s'", ag.name)
-        except Exception:                       # pragma: no cover
+        except Exception:  # pragma: no cover
             logger.exception("ADK ✖ could not register agent '%s'", ag)
 
 
@@ -146,7 +147,7 @@ def maybe_launch(*, host: str | None = None, port: int | None = None, **uvicorn_
     if _TOKEN:
         router.app.middleware("http")(_auth_middleware())
 
-    def _serve() -> None:                       # run inside daemon-thread
+    def _serve() -> None:  # run inside daemon-thread
         import uvicorn
 
         logger.info("ADK gateway listening on http://%s:%d  (A2A protocol)", host, port)
@@ -181,7 +182,7 @@ class _AF2ADKWrapper(adk.Agent):
                 result = await self._impl.run(prompt)
             else:
                 result = await asyncio.to_thread(self._impl.run, prompt)
-        except Exception as exc:                           # bubble up as ADK error payload
+        except Exception as exc:  # bubble up as ADK error payload
             logger.exception("Agent '%s' raised.", self._impl.name)
             raise adk.AgentException(str(exc)) from exc
 
@@ -196,9 +197,6 @@ class _AF2ADKWrapper(adk.Agent):
 #  ➎  Friendly log banner (once on import) – helps troubleshooting
 # ─────────────────────────────────────────────────────────────────────────────
 if adk_enabled():
-    logger.info(
-        "Google ADK support ENABLED  ➜  router will bind on %s:%d after `maybe_launch()`.",
-        _HOST, _PORT
-    )
+    logger.info("Google ADK support ENABLED  ➜  router will bind on %s:%d after `maybe_launch()`.", _HOST, _PORT)
 else:
     logger.info("Google ADK support disabled (flag=%s, import=%s).", _ENABLE, _ADK_OK)
