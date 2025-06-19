@@ -61,13 +61,15 @@ continues even in minimal environments.
    before running the environment check or tests so packages install from the
    bundled wheelhouse.
 7. Set `PYTHONPATH=$(pwd)` or install the project in editable mode with `pip install -e .`.
-8. Before running the tests, execute `python check_env.py --auto-install` once
-   more (add `--wheelhouse <dir>` when offline). For example:
+8. Export the wheel cache path and run the environment check before the suite:
    ```bash
-   python check_env.py --auto-install --wheelhouse /path/to/wheels
+   export WHEELHOUSE=/path/to/wheels
+   python check_env.py --auto-install --wheelhouse "$WHEELHOUSE"
+   PYTHONPATH=$(pwd) pytest -q
    ```
-   Then run `pytest -q`.
-9. If `pre-commit` isn't found, install it with `pip install pre-commit` and run
+9. Without a wheelhouse or internet access the environment check fails and
+   `tests/conftest.py` skips the entire suite.
+10. If `pre-commit` isn't found, install it with `pip install pre-commit` and run
    `pre-commit install` once to enable the git hooks referenced in
    [AGENTS.md](../AGENTS.md).
 
