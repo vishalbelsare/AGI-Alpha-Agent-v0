@@ -36,3 +36,26 @@ wheelhouse when offline). Once it succeeds, execute the tests:
 ```bash
 pytest -q
 ```
+
+## Pre-commit Hooks
+
+Install the git hooks once and run them before each commit:
+
+```bash
+pre-commit install
+pre-commit run --all-files
+```
+
+### Air-Gapped Setup
+
+If `pre-commit` cannot fetch dependencies because the machine has no internet
+access, build a wheelhouse and set `WHEELHOUSE` before running the hooks. A
+helper script is provided:
+
+```bash
+./scripts/build_offline_wheels.sh
+export WHEELHOUSE="$(pwd)/wheels"
+pre-commit run --all-files
+```
+
+See [AGENTS.md](AGENTS.md) for the full offline workflow.
