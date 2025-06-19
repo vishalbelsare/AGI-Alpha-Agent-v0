@@ -8,6 +8,8 @@ import sys
 
 import pytest
 
+pytestmark = pytest.mark.smoke
+
 
 def test_fallback_to_internal_shim() -> None:
     """``af_requests`` should expose the internal lightweight implementation when

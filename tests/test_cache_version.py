@@ -2,6 +2,11 @@
 from pathlib import Path
 import json
 
+import pytest
+
+pytestmark = pytest.mark.smoke
+
+
 def test_cache_version_matches_package() -> None:
     repo = Path(__file__).resolve().parents[1]
     browser = repo / "alpha_factory_v1/demos/alpha_agi_insight_v1/insight_browser_v1"

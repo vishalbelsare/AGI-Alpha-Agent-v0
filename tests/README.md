@@ -33,6 +33,14 @@ These integration tests expect the `alpha_factory_v1` package to be importable.
    ```bash
    python check_env.py --auto-install
    ```
+
+### Quick health check
+
+Run the smoke tests to confirm the core dependencies work:
+
+```bash
+pytest -m smoke
+```
 These commands download packages from PyPI, so ensure you have either
 internet connectivity or a wheelhouse available via `--wheelhouse <dir>`
 (or the `WHEELHOUSE` environment variable).

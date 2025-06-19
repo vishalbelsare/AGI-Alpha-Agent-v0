@@ -2,16 +2,23 @@
 import asyncio
 import unittest
 
+import pytest
 from alpha_factory_v1.backend.agents.ping_agent import PingAgent
+
+pytestmark = pytest.mark.smoke
+
 
 class DummyOrch:
     def __init__(self):
         self.published = []
+
     async def publish(self, topic, msg):
         self.published.append((topic, msg))
+
     async def subscribe(self, topic):
         if False:
             yield
+
 
 class TestPingAgent(unittest.TestCase):
     def test_run_cycle_publishes(self):
@@ -25,6 +32,7 @@ class TestPingAgent(unittest.TestCase):
         self.assertEqual(topic, "agent.ping")
         self.assertIn("agent", payload)
         self.assertEqual(payload["agent"], agent.NAME)
+
 
 if __name__ == "__main__":
     unittest.main()
