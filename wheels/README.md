@@ -5,13 +5,14 @@ This repository is a conceptual research prototype. References to "AGI" and "sup
 This directory stores prebuilt wheels so the MuZero Planning demo and
 unit tests can run without network access. Build the wheelhouse on a
 machine with connectivity and copy it here. The helper script
-`tools/build_wheelhouse.sh` collects all required wheels from
+`scripts/build_offline_wheels.sh` collects all required wheels from
 `requirements.lock`, `requirements-dev.txt`, `requirements-demo.lock`
 and each demo's `requirements.lock` file:
 
 ```bash
-./tools/build_wheelhouse.sh
+./scripts/build_offline_wheels.sh
 ```
+Run this command before executing `python check_env.py --auto-install --wheelhouse "$WHEELHOUSE"` and `pytest`.
 
 Set `WHEELHOUSE=$(pwd)/wheels` before running the setup script or tests:
 

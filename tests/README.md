@@ -113,15 +113,16 @@ dependencies will cause the suite to skip tests or fail entirely.
 ### Wheelhouse quick start
 
 Build a local wheelhouse and run the environment check with `--wheelhouse` before
-starting the tests. The `tools/build_wheelhouse.sh` helper collects wheels for
+starting the tests. The `scripts/build_offline_wheels.sh` helper collects wheels for
 `requirements.lock`, `requirements-dev.txt`, `requirements-demo.lock` and each
 demo's lock file:
 
 ```bash
-./tools/build_wheelhouse.sh
+./scripts/build_offline_wheels.sh
 python check_env.py --auto-install --demo macro_sentinel --wheelhouse wheels
 PYTHONPATH=$(pwd) pytest -q
 ```
+Always run `scripts/build_offline_wheels.sh` before executing the environment check and tests.
 
 See [alpha_factory_v1/scripts/README.md](../alpha_factory_v1/scripts/README.md#offline-setup)
 for detailed steps. Skipping these commands typically leads to `pytest` errors
@@ -130,12 +131,14 @@ about missing modules.
 ### Offline quick start
 
 Build wheels on a machine with connectivity and reuse them offline. The easiest
-way is to run `./tools/build_wheelhouse.sh`, which downloads wheels for all
+way is to run `./scripts/build_offline_wheels.sh`, which downloads wheels for all
 locked requirements:
 
 ```bash
-./tools/build_wheelhouse.sh
+./scripts/build_offline_wheels.sh
 ```
+Run this once before calling `check_env.py --auto-install --wheelhouse "$WHEELHOUSE"` or running the tests offline.
+Run this once before invoking `check_env.py --auto-install --wheelhouse "$WHEELHOUSE"` and `pytest`.
 
 Copy the `wheels/` directory to the offline host and set `WHEELHOUSE`:
 
@@ -152,12 +155,13 @@ tests run without contacting PyPI.
 
 Create a wheelhouse so the tests run without contacting PyPI. Build the wheels on
 a machine with connectivity and copy the directory to the offline host. The
-`tools/build_wheelhouse.sh` script generates all necessary wheels from the lock
+`scripts/build_offline_wheels.sh` script generates all necessary wheels from the lock
 files including the MuZero and Macro Sentinel demos:
 
 ```bash
-./tools/build_wheelhouse.sh
+./scripts/build_offline_wheels.sh
 ```
+Run this once before calling `check_env.py --auto-install --wheelhouse "$WHEELHOUSE"` or running the tests offline.
 
 Install and run the tests without contacting PyPI:
 

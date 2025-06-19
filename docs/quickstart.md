@@ -27,10 +27,10 @@ git --version
 Build the wheelhouse before disconnecting from the network:
 
 ```bash
-./tools/build_wheelhouse.sh
+./scripts/build_offline_wheels.sh
 export WHEELHOUSE="$(pwd)/wheels"
 ```
-Use this variable when running `check_env.py --auto-install` and `pytest`.
+Run this script before executing `python check_env.py --auto-install --wheelhouse "$WHEELHOUSE"` and `pytest`.
 When no network connection is available, install dependencies from the
 wheel cache with:
 
