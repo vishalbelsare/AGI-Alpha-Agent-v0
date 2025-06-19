@@ -86,5 +86,8 @@ exclude = [
     "*.ipynb",
 ]
 
+[tool.ruff.lint]
+extend-ignore = ["E402", "F401", "E401"]
+
 [tool.flake8]
 max-line-length = 120
