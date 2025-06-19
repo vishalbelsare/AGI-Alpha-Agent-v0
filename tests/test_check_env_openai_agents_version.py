@@ -1,5 +1,6 @@
 # SPDX-License-Identifier: Apache-2.0
 import importlib
+import importlib.util
 import types
 import unittest
 from typing import Any
@@ -35,7 +36,7 @@ class TestCheckEnvOpenAIAgentsVersion(unittest.TestCase):
             mock.patch.object(check_env, "OPTIONAL", [module_name]),
             mock.patch.object(check_env, "warn_missing_core", lambda: []),
         ):
-            return check_env.main([])
+            return int(check_env.main([]))
 
     def test_old_version_fails(self) -> None:
         for name in ("openai_agents", "agents"):
@@ -45,7 +46,7 @@ class TestCheckEnvOpenAIAgentsVersion(unittest.TestCase):
     def test_new_version_ok(self) -> None:
         for name in ("openai_agents", "agents"):
             with self.subTest(module=name):
-                self.assertEqual(self._run_check(name, "0.0.15"), 0)
+                self.assertEqual(self._run_check(name, "0.0.17"), 0)
 
     def test_missing_version_fails(self) -> None:
         for name in ("openai_agents", "agents"):
