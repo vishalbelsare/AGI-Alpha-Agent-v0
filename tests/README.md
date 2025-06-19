@@ -80,7 +80,14 @@ Run these commands before executing the suite:
 ```bash
 python scripts/check_python_deps.py
 python check_env.py --auto-install  # add --wheelhouse <dir> when offline
+# offline example using the bundled wheelhouse
+export WHEELHOUSE=$(pwd)/wheels
+python check_env.py --auto-install --wheelhouse "$WHEELHOUSE"
 ```
+
+When working offline, always export `WHEELHOUSE=$(pwd)/wheels` and run
+`python check_env.py --auto-install --wheelhouse "$WHEELHOUSE"` before executing
+`pytest`. This matches the instructions in [AGENTS.md](../AGENTS.md).
 
 `check_python_deps.py` frequently reports missing modules such as `numpy`, `yaml`
 and `pandas`. Always run `python check_env.py --auto-install` after this check
