@@ -137,6 +137,29 @@ class TestMetaAgenticTreeSearchDemo(unittest.TestCase):
         self.assertEqual(result.returncode, 0, result.stderr)
         self.assertIn("Best agents", result.stderr)
 
+    def test_run_demo_seed_repeat(self) -> None:
+        """Running the demo twice with the same seed yields identical results."""
+        cmd = [
+            sys.executable,
+            "-m",
+            "alpha_factory_v1.demos.meta_agentic_tree_search_v0.run_demo",
+            "--episodes",
+            "2",
+            "--seed",
+            "321",
+        ]
+
+        first = subprocess.run(cmd, capture_output=True, text=True)
+        second = subprocess.run(cmd, capture_output=True, text=True)
+
+        self.assertEqual(first.returncode, 0, first.stderr)
+        self.assertEqual(second.returncode, 0, second.stderr)
+
+        first_line = [l for l in first.stderr.splitlines() if "Best agents" in l][-1]
+        second_line = [l for l in second.stderr.splitlines() if "Best agents" in l][-1]
+
+        self.assertEqual(first_line, second_line)
+
     def test_run_demo_verify_env(self) -> None:
         result = subprocess.run(
             [
