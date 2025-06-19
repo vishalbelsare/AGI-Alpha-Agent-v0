@@ -106,9 +106,34 @@ the bridge to control the demo through API calls or the Agents runtime UI:
 ```bash
 mats-bridge --help
 ```
+Sample output:
+```text
+usage: mats-bridge [-h] [--episodes EPISODES] [--target TARGET]
+                   [--model MODEL] [--rewriter {random,openai,anthropic}]
+                   [--market-data MARKET_DATA] [--enable-adk] [--verify-env]
+
+OpenAI Agents bridge for MATS
+
+options:
+  -h, --help            show this help message and exit
+  --episodes EPISODES   Search episodes when offline
+  --target TARGET       Target integer when offline
+  --model MODEL         Optional model override
+  --rewriter {random,openai,anthropic}
+                        Rewrite strategy to use
+  --market-data MARKET_DATA
+                        CSV file with comma-separated integers for
+                        LiveBrokerEnv
+  --enable-adk          Enable the Google ADK gateway for remote control
+  --verify-env          Check runtime dependencies before launching
+```
 Run a quick environment check with ``--verify-env`` if desired:
 ```bash
 mats-bridge --verify-env --episodes 3 --target 4 --model gpt-4o
+```
+Typical invocation:
+```bash
+mats-bridge --verify-env --enable-adk --episodes 3 --target 4 --model gpt-4o
 ```
 The bridge exposes a small :func:`verify_env` helper that performs the same
 sanity check programmatically. Call it from Python or rely on the command
