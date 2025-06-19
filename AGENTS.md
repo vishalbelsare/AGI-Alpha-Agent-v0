@@ -55,7 +55,7 @@ Python must report 3.11 or 3.12 and Docker Compose must be at least 2.5.
   pip install -U pip
   ```
 - The script `alpha_factory_v1/scripts/preflight.py` enforces this requirement.
-- It verifies the optional `openai_agents` package is at least version `0.0.14`
+- It verifies the optional `openai_agents` package is at least version `0.0.17`
   when installed.
 - Run `./codex/setup.sh` from the repository root to install the project in editable mode with minimal runtime dependencies. The script installs `pre-commit` and sets up the git hook automatically. Execute it before contributing so all relative paths resolve correctly.
 - After installation, run `pre-commit run --all-files` once to verify formatting and hooks.

@@ -265,7 +265,7 @@ python ../../../check_env.py --auto-install
 ```
 
 `check_env.py` ensures the optional **`openai-agents`** package is at least
-version `0.0.14`. Verify manually with:
+version `0.0.17`. Verify manually with:
 
 ```bash
 python -c "import openai_agents, pkgutil; print(openai_agents.__version__)"

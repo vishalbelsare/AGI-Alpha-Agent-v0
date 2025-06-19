@@ -61,10 +61,10 @@ pytest -m 'not e2e'
 ### Optional `openai-agents`
 
 For narrated actions and tool calls, install `openai-agents` version
-`>=0.0.16`:
+`>=0.0.17`:
 
 ```bash
-pip install -U 'openai-agents>=0.0.16'
+pip install -U 'openai-agents>=0.0.17'
 ```
 
 Leaving `OPENAI_API_KEY` empty keeps the demo offline and falls back to
