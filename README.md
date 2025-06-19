@@ -1040,6 +1040,23 @@ The full test suite relies on optional packages including `numpy`, `torch`,
 `pandas`, `prometheus_client`, `gymnasium`, `playwright`, `httpx`, `uvicorn`,
 `git` and `hypothesis`.
 
+#### Wheelhouse Setup
+
+Tests install packages from PyPI unless a local wheelhouse is provided. Build
+one from `requirements.lock` and point `WHEELHOUSE` to it before verifying the
+environment and running the suite:
+
+```bash
+mkdir -p wheels
+pip wheel -r requirements.lock -w wheels
+export WHEELHOUSE=$(pwd)/wheels
+python check_env.py --auto-install --wheelhouse "$WHEELHOUSE"
+WHEELHOUSE="$WHEELHOUSE" pytest -q
+```
+
+If network access is unavailable and the variable is unset these commands fail
+instead of falling back to PyPI.
+
 #### Test Runtime
 
 Running `pytest` may take several minutes on the first run while caches are
