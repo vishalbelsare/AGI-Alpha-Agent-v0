@@ -355,7 +355,9 @@ async def _static_analysis_task() -> None:
     interval = int(os.getenv("STATIC_ANALYSIS_INTERVAL", str(7 * 24 * 3600)))
     semgrep = shutil.which("semgrep")
     if not semgrep:
-        _log.warning("semgrep not installed – static analysis disabled")
+        _log.warning(
+            "semgrep not found. Install with `pip install semgrep` " "or set STATIC_ANALYSIS_INTERVAL=0 to disable"
+        )
         return
     await asyncio.sleep(interval)
     while True:
