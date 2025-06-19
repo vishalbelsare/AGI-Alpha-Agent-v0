@@ -18,6 +18,7 @@ from urllib import request as _request
 # servers that reject requests without a UA and aids debugging/logging.
 _UA = "alpha-factory-requests/1.0"
 
+
 class RequestException(Exception):
     """Base exception raised for network errors."""
 
@@ -28,6 +29,7 @@ class HTTPError(RequestException, RuntimeError):
 
 class Timeout(RequestException):
     """Error for requests that timed out."""
+
 
 class Response:
     """Lightweight HTTP response container."""
@@ -62,6 +64,7 @@ class Response:
         """Raise :class:`HTTPError` if the status code signals an error."""
         if not self.ok:
             raise HTTPError(f"HTTP {self.status_code}")
+
 
 def _call(
     method: str,

@@ -32,4 +32,3 @@ except Exception:  # PackageNotFoundError or import failure
     sys.modules[__name__] = shim
     globals().update(shim.__dict__)
     sys.modules.setdefault("requests", shim)
-

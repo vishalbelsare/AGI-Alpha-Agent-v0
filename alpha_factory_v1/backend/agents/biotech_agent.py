@@ -60,6 +60,13 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
+from backend.agents.base import AgentBase  # pylint: disable=import-error
+from backend.agents import AgentMetadata, register_agent
+from backend.orchestrator import _publish  # pylint: disable=import-error
+from alpha_factory_v1.utils.env import _env_int
+
+logger = logging.getLogger(__name__)
+
 # ────────────────────────────── soft-optional deps ──────────────────────────
 try:
     import rdflib  # type: ignore
@@ -96,6 +103,7 @@ except ModuleNotFoundError:  # pragma: no cover
     def tool(fn=None, **_):  # type: ignore
         return (lambda f: f)(fn) if fn else lambda f: f
 
+
 OPENAI_TIMEOUT_SEC = int(os.getenv("OPENAI_TIMEOUT_SEC", "30"))
 
 
@@ -123,15 +131,6 @@ except Exception:  # pragma: no cover - optional
 
     class AdkClientError(Exception):
         pass
-
-
-# ───────────────────────────── Alpha-Factory locals ─────────────────────────
-from backend.agents.base import AgentBase  # pylint: disable=import-error
-from backend.agents import AgentMetadata, register_agent
-from backend.orchestrator import _publish  # pylint: disable=import-error
-from alpha_factory_v1.utils.env import _env_int
-
-logger = logging.getLogger(__name__)
 
 
 # ─────────────────────────── helper / governance utils ──────────────────────
