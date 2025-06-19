@@ -22,8 +22,6 @@ logger = logging.getLogger(__name__)
 
 DEFAULT_MODEL_NAME = os.getenv("OPENAI_MODEL", "gpt-4o")
 
-MARKET_DATA: list[int] | None = None
-
 
 def verify_env() -> None:
     """Best-effort runtime dependency check."""
@@ -92,8 +90,6 @@ if has_oai:
             os.environ.setdefault("OPENAI_MODEL", model)
         if rewriter:
             os.environ.setdefault("MATS_REWRITER", rewriter)
-        if market_data is None:
-            market_data = MARKET_DATA
         run(
             episodes=episodes,
             target=target,
@@ -109,6 +105,10 @@ if has_oai:
         name = "mats_helper"
         tools = [run_search]
 
+        def __init__(self, market_data: list[int] | None = None) -> None:
+            super().__init__()
+            self.market_data = market_data
+
         async def policy(self, obs: object, _ctx: object) -> str:
             episodes = int(obs.get("episodes", 10)) if isinstance(obs, dict) else 10
             target = int(obs.get("target", 5)) if isinstance(obs, dict) else 5
@@ -117,6 +117,8 @@ if has_oai:
             market_data = (
                 [int(x) for x in obs.get("market_data", [])] if isinstance(obs, dict) and "market_data" in obs else None
             )
+            if market_data is None:
+                market_data = self.market_data
             result = await run_search(
                 episodes=episodes,
                 target=target,
@@ -137,11 +139,8 @@ if has_oai:
             os.environ.setdefault("OPENAI_MODEL", model)
         if rewriter:
             os.environ.setdefault("MATS_REWRITER", rewriter)
-        if market_data is not None:
-            global MARKET_DATA
-            MARKET_DATA = list(market_data)
         runtime = AgentRuntime(api_key=os.getenv("OPENAI_API_KEY"))
-        agent = MATSAgent()
+        agent = MATSAgent(market_data=market_data)
         runtime.register(agent)
         try:
             from alpha_factory_v1.backend import adk_bridge
@@ -173,8 +172,6 @@ else:
         """Execute the search loop and return a summary string."""
         if model:
             os.environ.setdefault("OPENAI_MODEL", model)
-        if market_data is None:
-            market_data = MARKET_DATA
         run(
             episodes=episodes,
             target=target,
