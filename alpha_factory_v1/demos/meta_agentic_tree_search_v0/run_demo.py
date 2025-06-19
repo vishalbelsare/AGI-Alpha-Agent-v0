@@ -13,7 +13,6 @@ import pathlib
 from pathlib import Path
 from typing import Any, List, Optional, cast
 
-logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 if __package__ is None:  # pragma: no cover - allow execution via `python run_demo.py`
@@ -150,6 +149,7 @@ def load_config(path: Path) -> dict[str, Any]:
 
 
 def main(argv: List[str] | None = None) -> None:
+    logging.basicConfig(level=logging.INFO)
     parser = argparse.ArgumentParser(description="Run the Meta-Agentic Tree Search demo")
     parser.add_argument("--episodes", type=int, help="Number of search iterations")
     parser.add_argument("--config", type=Path, default=Path("configs/default.yaml"), help="YAML configuration")

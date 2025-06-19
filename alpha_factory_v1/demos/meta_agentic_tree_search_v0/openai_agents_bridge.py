@@ -17,7 +17,6 @@ import sys
 from pathlib import Path
 from typing import cast
 
-logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 DEFAULT_MODEL_NAME = os.getenv("OPENAI_MODEL", "gpt-4o")
@@ -192,6 +191,7 @@ else:
 
 
 def main(argv: list[str] | None = None) -> None:
+    logging.basicConfig(level=logging.INFO)
     parser = argparse.ArgumentParser(description="OpenAI Agents bridge for MATS")
     parser.add_argument("--episodes", type=int, default=10, help="Search episodes when offline")
     parser.add_argument("--target", type=int, default=5, help="Target integer when offline")
