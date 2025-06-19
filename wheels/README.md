@@ -2,9 +2,11 @@ This repository is a conceptual research prototype. References to "AGI" and "sup
 
 # Offline Wheelhouse
 
-This directory stores prebuilt wheels so the MuZero Planning demo and
-unit tests can run without network access. Build the wheelhouse on a
-machine with connectivity and copy it here. The helper script
+This directory normally stores prebuilt wheels so the MuZero Planning demo and
+unit tests can run without network access. **The wheelhouse is not committed**
+because some packages exceed GitHub's 100 MB size limit. Build the wheelhouse on
+a machine with connectivity and copy it here (or mount the directory) as
+needed. The helper script
 `scripts/build_offline_wheels.sh` collects all required wheels from
 `requirements.lock`, `requirements-dev.txt`, `requirements-demo.lock`
 and each demo's `requirements.lock` file:

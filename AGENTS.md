@@ -354,10 +354,12 @@ The **Deploy — Kind** workflow provisions a local kind cluster, builds the Ins
   if required.
  - Always execute `python check_env.py --auto-install` before running the tests
    or `pre-commit` so optional dependencies install correctly. When offline,
-   provide `--wheelhouse <dir>` or set `WHEELHOUSE` to your wheel cache. The
-   repository ships with a wheelhouse under `wheels/`; set
-   `WHEELHOUSE=$(pwd)/wheels` before running `pytest` to use these prebuilt
-   wheels.
+  provide `--wheelhouse <dir>` or set `WHEELHOUSE` to your wheel cache. The
+  repository no longer ships a full wheelhouse because some wheels exceed
+  GitHub's 100 MB size limit. Build the wheelhouse with
+  `scripts/build_offline_wheels.sh` on a machine with internet access and copy
+  the resulting directory to `wheels/`. Then set `WHEELHOUSE=$(pwd)/wheels`
+  before running `pytest`.
 - If `pre-commit` reports "command not found", install it manually with
   `pip install pre-commit` and run `pre-commit install` once.
 - To reinstall the hooks, run `pip install -U pre-commit` and then
