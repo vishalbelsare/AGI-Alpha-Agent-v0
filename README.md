@@ -406,6 +406,9 @@ Install these extras to unlock additional features:
 - `pip install openai-agents==0.0.17` – activates the official Agents runtime used for commentary.
 - `pip install google-adk` and set `ALPHA_FACTORY_ENABLE_ADK=true` – starts the Google ADK gateway for cross‑organisation agent exchange.
 
+Offline installations can omit these lines from the relevant `requirements.txt`
+files if the Agents SDK or ADK gateway are not needed.
+
 To regenerate `requirements.lock` from `requirements.txt` with hashes, run:
 
 ```bash

@@ -1,5 +1,6 @@
 # SPDX-License-Identifier: Apache-2.0
 import importlib
+import importlib.util
 import types
 import unittest
 from typing import Any
@@ -32,7 +33,7 @@ class TestPreflightOpenAIAgentsVersion(unittest.TestCase):
             mock.patch("importlib.import_module", side_effect=_fake_import),
             mock.patch("importlib.util.find_spec", side_effect=_fake_find_spec),
         ):
-            return preflight.check_openai_agents_version()
+            return bool(preflight.check_openai_agents_version())
 
     def test_old_version_fails(self) -> None:
         for name in ("openai_agents", "agents"):
@@ -42,7 +43,7 @@ class TestPreflightOpenAIAgentsVersion(unittest.TestCase):
     def test_new_version_ok(self) -> None:
         for name in ("openai_agents", "agents"):
             with self.subTest(module=name):
-                self.assertTrue(self._run_check(name, "0.0.15"))
+                self.assertTrue(self._run_check(name, "0.0.17"))
 
     def test_missing_version_fails(self) -> None:
         for name in ("openai_agents", "agents"):

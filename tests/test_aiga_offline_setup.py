@@ -33,7 +33,7 @@ def _make_wheel(directory: Path, name: str, version: str) -> Path:
 def test_openai_agents_installed_from_wheelhouse(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     wheelhouse = tmp_path / "wheels"
     wheelhouse.mkdir()
-    _make_wheel(wheelhouse, "openai-agents", "0.0.15")
+    _make_wheel(wheelhouse, "openai-agents", "0.0.17")
 
     monkeypatch.setattr(check_env, "CORE", [])
     monkeypatch.setattr(check_env, "REQUIRED", [])
@@ -45,4 +45,4 @@ def test_openai_agents_installed_from_wheelhouse(tmp_path: Path, monkeypatch: py
     rc = check_env.main(["--auto-install", "--wheelhouse", str(wheelhouse)])
     assert rc == 0
     mod = importlib.import_module("openai_agents")
-    assert getattr(mod, "__version__", "") == "0.0.15"
+    assert getattr(mod, "__version__", "") == "0.0.17"

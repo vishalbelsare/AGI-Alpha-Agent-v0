@@ -6,4 +6,6 @@ gymnasium>=0.29
 networkx>=3.3
 pyyaml>=6.0
 types-PyYAML
+openai-agents==0.0.17
+google-adk>=0.3.0
 
