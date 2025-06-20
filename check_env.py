@@ -35,6 +35,13 @@ import socket
 from pathlib import Path
 from typing import List, Optional
 
+NO_NETWORK_HINT = (
+    "No network connectivity detected and no wheelhouse was provided.\n"
+    "Build wheels with './scripts/build_offline_wheels.sh' on a machine with\n"
+    "internet access, then re-run using 'python check_env.py --auto-install\n"
+    "--wheelhouse <dir>' or set the WHEELHOUSE environment variable."
+)
+
 
 def check_pkg(pkg: str) -> bool:
     """Return ``True`` if *pkg* is importable."""
@@ -267,13 +274,7 @@ def main(argv: Optional[List[str]] = None) -> int:
     elif auto and (missing_core or missing_required_tmp):
         network_ok = has_network()
         if not network_ok:
-            print(
-                "No network connectivity detected.\n"
-                "Build a wheelhouse, e.g.:\n"
-                "  pip wheel -r requirements-core.txt -w /path/to/wheels\n"
-                "Re-run with '--wheelhouse <dir>' or set WHEELHOUSE. See\n"
-                "alpha_factory_v1/scripts/README.md for details."
-            )
+            print(NO_NETWORK_HINT)
             return 1
     else:
         network_ok = True
@@ -352,17 +353,9 @@ def main(argv: Optional[List[str]] = None) -> int:
         try:
             subprocess.run(cmd, check=True, timeout=pip_timeout)
         except subprocess.TimeoutExpired:
-            print(
-                "Timed out installing baseline requirements.\n"
-                "Create a wheelhouse with:\n"
-                "  pip wheel -r requirements-core.txt -w /path/to/wheels\n"
-                "Then re-run with '--wheelhouse <dir>' (see "
-                "alpha_factory_v1/scripts/README.md)."
-            )
+            print("Timed out installing baseline requirements.\n" + NO_NETWORK_HINT)
             if wheelhouse:
                 print(f"Wheelhouse used: {wheelhouse}")
-            if not network_ok and not wheelhouse:
-                print("No network connectivity detected.")
             return 1
         except subprocess.CalledProcessError as exc:
             stderr = exc.stderr or ""
@@ -371,12 +364,7 @@ def main(argv: Optional[List[str]] = None) -> int:
                 exc.returncode,
             )
             if any(kw in stderr.lower() for kw in ["connection", "temporary failure", "network", "resolve"]):
-                print(
-                    "Network failure detected.\n"
-                    "Create a wheelhouse with 'pip wheel -r requirements-core.txt -w /path/to/wheels'\n"
-                    "and re-run with '--wheelhouse <dir>' (see "
-                    "alpha_factory_v1/scripts/README.md)."
-                )
+                print("Network failure detected.\n" + NO_NETWORK_HINT)
             return exc.returncode
 
     missing_required: list[str] = []
@@ -420,15 +408,9 @@ def main(argv: Optional[List[str]] = None) -> int:
                     timeout=pip_timeout,
                 )
             except subprocess.TimeoutExpired:
-                print(
-                    "Timed out installing packages.\n"
-                    "Create a wheelhouse with 'pip wheel -r requirements-core.txt -w /path/to/wheels'\n"
-                    "then re-run with '--wheelhouse <dir>' (see alpha_factory_v1/scripts/README.md)."
-                )
+                print("Timed out installing packages.\n" + NO_NETWORK_HINT)
                 if wheelhouse:
                     print(f"Wheelhouse used: {wheelhouse}")
-                if not network_ok and not wheelhouse:
-                    print("No network connectivity detected.")
                 return 1
             except subprocess.CalledProcessError as exc:
                 stderr = exc.stderr or ""
@@ -437,12 +419,7 @@ def main(argv: Optional[List[str]] = None) -> int:
                     exc.returncode,
                 )
                 if any(kw in stderr.lower() for kw in ["connection", "temporary failure", "network", "resolve"]):
-                    print(
-                        "Network failure detected.\n"
-                        "Create a wheelhouse with 'pip wheel -r requirements-core.txt -w /path/to/wheels'\n"
-                        "and re-run with '--wheelhouse <dir>' (see "
-                        "alpha_factory_v1/scripts/README.md)."
-                    )
+                    print("Network failure detected.\n" + NO_NETWORK_HINT)
                 return 1
             else:
                 if result.returncode != 0:

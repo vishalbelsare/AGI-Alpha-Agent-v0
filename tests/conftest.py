@@ -7,17 +7,19 @@ import importlib.util
 
 # Ensure runtime dependencies are present before collecting tests
 try:  # pragma: no cover - best effort environment setup
-    from check_env import main as check_env_main
+    from check_env import main as check_env_main, has_network
 
     wheelhouse = os.getenv("WHEELHOUSE")
     args = ["--auto-install"]
     if wheelhouse:
         args += ["--wheelhouse", wheelhouse]
-    if check_env_main(args):
-        pytest.skip(
-            "Environment check failed, run 'python check_env.py --auto-install'",
-            allow_module_level=True,
-        )
+    rc = check_env_main(args)
+    if rc:
+        if not wheelhouse and not has_network():
+            reason = "no network and no wheelhouse; run 'python check_env.py --auto-install --wheelhouse <dir>'"
+        else:
+            reason = "Environment check failed, run 'python check_env.py --auto-install'"
+        pytest.skip(reason, allow_module_level=True)
 except Exception as exc:  # pragma: no cover - environment issue
     pytest.skip(f"check_env execution failed: {exc}", allow_module_level=True)
 
