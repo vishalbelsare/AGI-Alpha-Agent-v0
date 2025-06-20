@@ -6,6 +6,9 @@
 
 All notable changes to this project are documented in this file.
 
+## Breaking Changes Policy
+Incompatible updates are announced in advance whenever possible and remain deprecated for at least one minor release. Each release includes a dedicated "Breaking Changes" section describing removed features or behavioural differences. Consult that section when upgrading.
+
 ## Breaking Changes
 Any incompatible API updates will be clearly listed under this heading for each release.
 Downstream users should consult this section when upgrading.
