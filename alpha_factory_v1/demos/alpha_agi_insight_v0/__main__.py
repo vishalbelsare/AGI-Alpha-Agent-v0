@@ -13,10 +13,13 @@ from __future__ import annotations
 import argparse
 from . import insight_demo
 from ... import get_version
+from ...utils.disclaimer import DISCLAIMER
 import os
 
 
 def main(argv: list[str] | None = None) -> None:
+    print(DISCLAIMER)
+
     parser = argparse.ArgumentParser(description="Run the α‑AGI Insight demo")
     parser.add_argument(
         "--offline",
@@ -38,9 +41,9 @@ def main(argv: list[str] | None = None) -> None:
         insight_demo.main(remainder)
     else:
         from . import openai_agents_bridge
+
         openai_agents_bridge.main(remainder)
 
 
 if __name__ == "__main__":  # pragma: no cover
     main()
-
