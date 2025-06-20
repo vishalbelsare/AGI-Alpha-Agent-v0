@@ -3,6 +3,7 @@
 
 import os
 import sys
+from ..utils.disclaimer import DISCLAIMER
 
 DEFAULT_DIR = os.path.dirname(__file__)
 
@@ -55,6 +56,8 @@ def main(base_dir: str = DEFAULT_DIR, min_lines: int = 3, require_code_block: bo
 
 if __name__ == "__main__":
     import argparse
+
+    print(DISCLAIMER)
 
     parser = argparse.ArgumentParser(description="Validate demo directories")
     parser.add_argument(

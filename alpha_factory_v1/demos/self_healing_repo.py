@@ -56,6 +56,7 @@ import os
 import subprocess
 import sys
 from pathlib import Path
+from ..utils.disclaimer import DISCLAIMER
 from typing import Optional
 
 # ────────────────────────────────────────────────────────────────────────────────
@@ -64,6 +65,7 @@ from typing import Optional
 try:
     # OpenAI Agents SDK (>= 0.4.0)
     from agents import Runner  # type: ignore
+
     SDK_AVAILABLE = True
 except ModuleNotFoundError:  # pragma: no cover
     SDK_AVAILABLE = False
@@ -75,6 +77,7 @@ except ModuleNotFoundError:  # pragma: no cover
 
 # Alpha‑Factory shared utilities
 from alpha_factory_v1.backend.agent_factory import build_core_agent
+
 
 # ────────────────────────────────────────────────────────────────────────────────
 # Helper – commit patch once tests are green
@@ -99,6 +102,7 @@ def _commit_patch(repo_path: Path, message: str = "auto‑fix: CI green 🟢") -
     commit_hash = repo.head.commit.hexsha[:7]
     return f"Committed patch {commit_hash} on branch {branch_name}"
 
+
 # ────────────────────────────────────────────────────────────────────────────────
 # CLI entry‑point
 # ────────────────────────────────────────────────────────────────────────────────
@@ -114,15 +118,19 @@ def _parse_args(argv: Optional[list[str]] = None) -> argparse.Namespace:
     )
     parser.add_argument("--max-turns", type=int, default=6)
     parser.add_argument(
-        "--allow-local-code", action="store_true", default=False,
+        "--allow-local-code",
+        action="store_true",
+        default=False,
         help="Enable PythonTool local execution (DANGER)",
     )
     return parser.parse_args(argv)
+
 
 # ────────────────────────────────────────────────────────────────────────────────
 # Main logic
 # ────────────────────────────────────────────────────────────────────────────────
 def main(argv: Optional[list[str]] = None) -> None:
+    print(DISCLAIMER)
     args = _parse_args(argv)
 
     if args.allow_local_code:
@@ -131,18 +139,18 @@ def main(argv: Optional[list[str]] = None) -> None:
     agent = build_core_agent(
         name="Repo‑Doctor",
         instructions=(
-            "You are Repo‑Doctor, an elite senior software engineer. " 
-            "Your goal: make *all* pytest tests pass. " 
-            "Workflow: 1) run_pytest 2) if failures → open the failing file, " 
+            "You are Repo‑Doctor, an elite senior software engineer. "
+            "Your goal: make *all* pytest tests pass. "
+            "Workflow: 1) run_pytest 2) if failures → open the failing file, "
             "edit code, save, 3) rerun tests. Repeat until exit status 0. "
-            "Finally stage & commit the patch (or simulate if git is missing)." 
+            "Finally stage & commit the patch (or simulate if git is missing)."
         ),
     )
 
     task_prompt = (
         f"Our CI is red.  The repository is located at {args.repo}. "
         "Bring the suite back to green, produce a concise diff summary, and "
-        "commit to branch *auto‑fix*." 
+        "commit to branch *auto‑fix*."
     )
 
     if not SDK_AVAILABLE:
@@ -174,6 +182,7 @@ def main(argv: Optional[list[str]] = None) -> None:
     print("\n═══ FINAL AGENT OUTPUT ═══\n")
     print(result.final_output)
     print("\nDone.")
+
 
 # ────────────────────────────────────────────────────────────────────────────────
 if __name__ == "__main__":
