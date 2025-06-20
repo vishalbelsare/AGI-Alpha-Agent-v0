@@ -17,7 +17,7 @@ try:  # attempt to read the installed package version
 
     __version__ = _version(__name__)
 except Exception:  # pragma: no cover - fallback when not installed
-    __version__ = "1.1.0"
+    __version__ = "0.1.0-alpha"
 
 __all__ = ["backend", "demos", "ui", "run", "get_version"]
 
