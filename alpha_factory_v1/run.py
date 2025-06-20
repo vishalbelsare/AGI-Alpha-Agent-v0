@@ -6,9 +6,7 @@ import os
 import argparse
 from pathlib import Path
 
-from alpha_factory_v1.demos.alpha_agi_insight_v1.src.interface.cli import (
-    DISCLAIMER,
-)
+from .utils.disclaimer import DISCLAIMER
 
 from .utils.env import _load_env_file
 

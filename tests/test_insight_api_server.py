@@ -11,9 +11,7 @@ fastapi = pytest.importorskip("fastapi")
 from fastapi.testclient import TestClient  # noqa: E402
 
 from alpha_factory_v1.demos.alpha_agi_insight_v1.src.interface import api_server
-from alpha_factory_v1.demos.alpha_agi_insight_v1.src.interface.cli import (
-    DISCLAIMER,
-)
+from alpha_factory_v1.utils.disclaimer import DISCLAIMER
 
 
 @pytest.fixture()

@@ -38,10 +38,7 @@ from src.utils.visual import plot_pareto
 from ..utils import config, logging
 from src.eval.foresight import evaluate as foresight_evaluate
 
-DISCLAIMER = (
-    "\N{WARNING SIGN} \N{GREEK SMALL LETTER ALPHA}\u2011AGI Insight is a conceptual "
-    "research prototype. Use at your own risk."
-)
+from ....utils.disclaimer import DISCLAIMER
 
 __all__ = ["DISCLAIMER", "DisclaimerGroup"]
 
