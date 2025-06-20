@@ -228,6 +228,11 @@ OPENAI_API_KEY=dummy pytest tests/test_meta_agentic_tree_search_demo.py::test_br
 ```bash
 pytest tests/test_aiga_agents_bridge.py
 ```
+- `alpha_factory_v1/tests/test_cross_industry_alpha.py` exercises the
+  cross‑industry discovery helper:
+```bash
+pytest alpha_factory_v1/tests/test_cross_industry_alpha.py
+```
 - The optional integration checks in `test_external_integrations.py` exercise
   the real `openai_agents` and `google_adk` packages. Install them via
   `requirements-demo.txt` or they will be skipped automatically.
