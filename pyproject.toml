@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "alpha-factory-v1"
-version = "1.1.0"
+version = "0.1.0-alpha"
 description = "Alpha-Factory v1"
 readme = "README.md"
 requires-python = ">=3.11,<3.13"
