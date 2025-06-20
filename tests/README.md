@@ -75,8 +75,10 @@ continues even in minimal environments.
    python check_env.py --auto-install --wheelhouse "$WHEELHOUSE"
    PYTHONPATH=$(pwd) pytest -q
    ```
-9. Without a wheelhouse or internet access the environment check fails and
-   `tests/conftest.py` skips the entire suite.
+9. Without a wheelhouse or network access the environment check fails and
+   `tests/conftest.py` skips the entire suite with a concise "no network and no
+   wheelhouse" message. Provide `--wheelhouse <dir>` (or set `WHEELHOUSE`) to run
+   the tests offline.
 10. If `pre-commit` isn't found, install it with `pip install pre-commit` and run
    `pre-commit install` once to enable the git hooks referenced in
    [AGENTS.md](../AGENTS.md).
