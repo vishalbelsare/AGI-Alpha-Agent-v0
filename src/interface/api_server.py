@@ -244,6 +244,9 @@ if app is not None:
     @app.on_event("startup")
     async def _start() -> None:
         _log.warning(DISCLAIMER)
+        if API_TOKEN == "REPLACE_ME_TOKEN":
+            _log.error("API_TOKEN is set to the default 'REPLACE_ME_TOKEN'. " "Edit .env to use a strong secret.")
+            raise RuntimeError("API_TOKEN placeholder detected")
         orch_mod = importlib.import_module("alpha_factory_v1.demos.alpha_agi_insight_v1.src.orchestrator")
         app_f.state.orchestrator = orch_mod.Orchestrator()
         app_f.state.orch_task = asyncio.create_task(app_f.state.orchestrator.run_forever())
