@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: Apache-2.0
+# This script is a conceptual research prototype.
 """Verify a wheel's signature using OpenSSL."""
 
 from __future__ import annotations

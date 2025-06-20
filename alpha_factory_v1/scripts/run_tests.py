@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: Apache-2.0
+# This script is a conceptual research prototype.
 """Run Alpha-Factory unit tests.
 
 This helper prefers :mod:`pytest` if installed, falling back to

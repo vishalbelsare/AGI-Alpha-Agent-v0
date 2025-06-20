@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 # SPDX-License-Identifier: Apache-2.0
+# This script is a conceptual research prototype.
 """Ensure alpha_factory_v1/requirements-colab.lock matches requirements-colab.txt."""
 from __future__ import annotations
 

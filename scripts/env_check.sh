@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 # SPDX-License-Identifier: Apache-2.0
+# This script is a conceptual research prototype.
 # Verify core Python packages are present before running the full environment
 # check. ``check_python_deps.py`` now relies on ``python -m pip show`` for
 # speed and reliability.

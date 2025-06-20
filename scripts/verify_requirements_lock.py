@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 # SPDX-License-Identifier: Apache-2.0
+# This script is a conceptual research prototype.
 """Ensure requirements.lock is in sync with requirements.txt."""
 from __future__ import annotations
 

@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 # SPDX-License-Identifier: Apache-2.0
+# This script is a conceptual research prototype.
 """Download browser demo assets from IPFS or a mirror."""
 from __future__ import annotations
 
