@@ -432,6 +432,8 @@ curl -X POST http://localhost:8000/simulate \
 - [docs/API.md](docs/API.md) — REST API and CLI endpoints.
 - [docs/dgm_ops.md](docs/dgm_ops.md) — scheduler flags and lineage audit notes.
 - Release notes are maintained in [docs/CHANGELOG.md](docs/CHANGELOG.md).
+- See the [Breaking Changes](docs/CHANGELOG.md#breaking-changes) section for
+  upgrade warnings.
 - The [v1.0 entry](docs/CHANGELOG.md#v10---2025-07-01) lists the CLI, web UI and security features.
 - A demo specific overview can be found in
   [alpha_factory_v1/demos/alpha_agi_insight_v1/docs/DESIGN.md](alpha_factory_v1/demos/alpha_agi_insight_v1/docs/DESIGN.md).
