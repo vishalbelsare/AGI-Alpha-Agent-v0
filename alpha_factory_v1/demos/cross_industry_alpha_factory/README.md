@@ -249,16 +249,20 @@ with p95 latency < 180 ms.
 * **Custom LLM** → point `OPENAI_API_BASE` to your endpoint.
 * **Kubernetes** → `make helm && helm install alpha-factory chart/`.
 
+
+### 10 · Troubleshooting
+If the setup cell fails with `k6-python` errors, remove the package from `alpha_factory_v1/requirements-colab.txt` before running `pip install`. The load testing step is optional and works without this package.
+
 ---
 
-### 10 · Roadmap
+### 11 · Roadmap
 * Production Helm chart (HA Postgres + Redis event-bus) 
 * Replace mock PubMed / Carbon adapters with real connectors 
 * Grafana auto-generated dashboards from OpenTelemetry spans 
 
 Community PRs welcome!
 
-### 11 · Teardown & cleanup
+### 12 · Teardown & cleanup
 Stop containers and wipe data volumes with:
 ```bash
 docker compose -f alpha_factory_v1/docker-compose.yml down -v
