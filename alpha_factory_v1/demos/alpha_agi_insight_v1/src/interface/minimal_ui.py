@@ -13,7 +13,7 @@ import sys
 from typing import Any, TYPE_CHECKING, cast
 
 from ..simulation import forecast, sector
-from .cli import DISCLAIMER
+from ....utils.disclaimer import DISCLAIMER
 
 try:  # pragma: no cover - optional dependency
     import streamlit as _st

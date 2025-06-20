@@ -249,6 +249,8 @@ template). The sample file now lists every variable with its default value.
 - `.editorconfig` enforces UTF-8 encoding, LF line endings and the 120-character limit for Python and Markdown files.
 - Provide concise [Google style](https://google.github.io/styleguide/pyguide.html#381-docstrings) docstrings
 for modules, classes and functions.
+- Import `DISCLAIMER` from `alpha_factory_v1.utils.disclaimer` whenever scripts
+  need to print the standard disclaimer.
 - Format code with `black` (line length 120) and run `ruff check` or `flake8` for linting, if available.
 - `pyproject.toml` contains the configuration for `black`, `ruff` and `flake8`.
   Adjust lint settings there if needed.
