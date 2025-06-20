@@ -27,6 +27,7 @@ Downstream users should consult this section when upgrading.
 - Documented how to add new policies in `POLICY_RUNBOOK.md`.
 ## [0.1.0-alpha] - 2024-05-01
 - Initial alpha release.
+- Git tag `v0.1.0-alpha`.
 
 
 ## [1.0.3] - 2025-07-10
