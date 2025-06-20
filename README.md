@@ -469,9 +469,20 @@ Install the Python dependencies with the helper script:
 ```bash
 scripts/setup_env.sh
 ```
-
 The script checks for Python 3.11–3.12 and installs `requirements.txt` and
 `requirements-dev.txt`.
+
+When preparing an offline environment, build a wheelhouse on a machine with
+internet access:
+
+```bash
+./scripts/build_offline_wheels.sh
+```
+
+Copy the resulting `wheels/` directory to the target host and set
+`WHEELHOUSE=$(pwd)/wheels` before running `check_env.py` or the tests so
+packages install from the local cache. The repository does not ship these
+prebuilt wheels.
 
 ## 📜 Table of Contents
 0. [Design Philosophy](#0-design-philosophy)  
