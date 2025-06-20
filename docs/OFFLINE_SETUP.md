@@ -1,8 +1,8 @@
-[See docs/DISCLAIMER_SNIPPET.md](docs/DISCLAIMER_SNIPPET.md)
+[See docs/DISCLAIMER_SNIPPET.md](../docs/DISCLAIMER_SNIPPET.md)
 
 # Offline Setup Reference
 
-[See docs/DISCLAIMER_SNIPPET.md](docs/DISCLAIMER_SNIPPET.md)
+[See docs/DISCLAIMER_SNIPPET.md](../docs/DISCLAIMER_SNIPPET.md)
 
 This document summarises how to install the project without internet access.
 

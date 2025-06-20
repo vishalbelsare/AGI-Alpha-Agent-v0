@@ -1,7 +1,7 @@
-[See docs/DISCLAIMER_SNIPPET.md](docs/DISCLAIMER_SNIPPET.md)
+[See docs/DISCLAIMER_SNIPPET.md](../docs/DISCLAIMER_SNIPPET.md)
 
 ## Disclaimer
-[See docs/DISCLAIMER_SNIPPET.md](docs/DISCLAIMER_SNIPPET.md)
+[See docs/DISCLAIMER_SNIPPET.md](../docs/DISCLAIMER_SNIPPET.md)
 
 # DGM Operations Runbook
 
