@@ -186,12 +186,26 @@ IMPORT_NAMES = {
 
 
 def has_network(timeout: float = 1.0) -> bool:
-    """Return ``True`` if ``pypi.org`` is reachable on port 443."""
-    try:
-        with socket.create_connection(("pypi.org", 443), timeout=timeout):
-            return True
-    except OSError:
-        return False
+    """Return ``True`` if any of the test hosts is reachable.
+
+    The function attempts to connect to ``pypi.org``, ``1.1.1.1`` and
+    ``github.com`` in that order. It returns ``True`` as soon as one
+    connection succeeds and ``False`` only if all attempts fail.
+    """
+
+    hosts = [
+        ("pypi.org", 443),
+        ("1.1.1.1", 443),
+        ("github.com", 443),
+    ]
+
+    for host in hosts:
+        try:
+            with socket.create_connection(host, timeout=timeout):
+                return True
+        except OSError:
+            continue
+    return False
 
 
 def main(argv: Optional[List[str]] = None) -> int:
