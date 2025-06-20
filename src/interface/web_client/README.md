@@ -42,3 +42,29 @@ services:
     environment:
       VITE_API_BASE_URL: /api
 ```
+
+## Offline Setup
+
+Follow these steps to use the web client without internet access:
+
+- On a machine with network access, build the PNPM store and export it:
+
+```bash
+cd src/interface/web_client
+pnpm install
+pnpm store export > pnpm-store.tar
+```
+
+- Copy `pnpm-store.tar` to the offline host and import the cache:
+
+```bash
+pnpm store import pnpm-store.tar
+```
+
+- Either set `PNPM_HOME` to the imported store path or run installation in offline mode:
+
+```bash
+PNPM_HOME=~/.local/share/pnpm pnpm install --offline
+```
+
+This installs packages from the local cache without contacting the registry.
