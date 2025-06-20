@@ -17,6 +17,7 @@ All notable changes to this project are documented in this file.
   `tests/README.md` with the instructions.
 - Added `scripts/build_offline_wheels.sh` to gather wheels for all lock files.
 - Removed outdated `OPENAI_CONTEXT_WINDOW` reference from the self-healing repo demo.
+- Documented how to add new policies in `POLICY_RUNBOOK.md`.
 
 ## [1.0.3] - 2025-07-10
 - Extended OPA rules to block additional finance domains and detect exfiltration commands.

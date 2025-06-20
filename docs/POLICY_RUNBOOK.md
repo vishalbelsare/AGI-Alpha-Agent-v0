@@ -34,6 +34,29 @@ pytest -q
 The hooks ensure pattern updates load correctly and unit tests exercise the new
 rules. Document notable policy changes in `docs/CHANGELOG.md`.
 
+## Adding a new policy
+
+Create a new `.rego` file inside the `policies/` directory with the desired
+rules. After saving the file, format and validate it with:
+
+```bash
+pre-commit run --files policies/<file>.rego src/utils/opa_policy.py
+```
+
+The command ensures the policy loads via `src/utils/opa_policy.py` before
+committing.
+
+Example rule blocking a specific domain:
+
+```rego
+package codegen
+
+deny[msg] {
+    input.url == "api.example.com"
+    msg := "example domain blocked"
+}
+```
+
 ## Rollback
 
 `git tag stable` tracks the last known good release. If a new deployment fails, check out
