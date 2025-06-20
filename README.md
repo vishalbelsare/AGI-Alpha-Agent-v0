@@ -2,7 +2,6 @@ This repository is a conceptual research prototype. References to "AGI" and "sup
 
 
 # **META-AGENTIC** α‑AGI 👁️✨
-This repository is a conceptual research prototype. References to "AGI" and "superintelligence" describe aspirational goals and do not indicate the presence of a real general intelligence. Use at your own risk. Nothing herein constitutes financial advice. MontrealAI and the maintainers accept no liability for losses incurred from using this software.
 **Official and *pioneering* definition – Meta-Agentic (adj.)**: Describes an agent whose **primary role** is to **create, select, evaluate, or re‑configure other agents** and the rules governing their interactions, thereby exercising **second‑order agency** over a population of first‑order agents. *The term was **pioneered by [Vincent Boucher](https://www.linkedin.com/in/montrealai/), President of MONTREAL.AI**.*
 
 ```mermaid
@@ -1353,8 +1352,7 @@ Please report security issues via the process outlined in our [Security Policy](
 <a name="16-final-note"></a>
 ## 16 · Final Note
 
-This repository is a conceptual research prototype. Please use it responsibly
-and ensure all usage and contributions align with the project's
+Please ensure all usage and contributions align with the project's
 [Apache 2.0 license](LICENSE).
 ---
 
