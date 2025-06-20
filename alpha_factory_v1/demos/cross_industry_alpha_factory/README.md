@@ -66,6 +66,17 @@ The installer writes a random `API_TOKEN` to `.env`; include it in the
 Customize variables like `OPENAI_API_KEY`, `AGENTS_ENABLED`, `PROM_PORT` or
 `RAY_PORT` by editing `../../.env` before deployment.
 
+Example `.env` snippet:
+
+```bash
+OPENAI_API_KEY=sk-your-key
+CROSS_ALPHA_MODEL=gpt-4o-mini
+AGENTS_ENABLED="finance_agent biotech_agent climate_agent manufacturing_agent policy_agent"
+PROM_PORT=9090
+RAY_PORT=8265
+AUTO_COMMIT=1
+```
+
 > **Run this check before launching** the deploy script or Colab notebook:
 ```bash
 python scripts/check_python_deps.py
@@ -99,11 +110,22 @@ Use `-n 3 --seed 42` to log three deterministic picks to
 `cross_alpha_log.json`. If `OPENAI_API_KEY` is set, the tool queries an LLM for fresh ideas. The model may be overridden with `--model` (default `gpt-4o-mini`).
 
 
-Environment variables controlling `cross_alpha_discovery_stub`:
-- `CROSS_ALPHA_LEDGER` – output ledger file. Defaults to `cross_alpha_log.json`. Use `--ledger` to override.
-- `CROSS_ALPHA_MODEL` – OpenAI model used when an API key is available. Defaults to `gpt-4o-mini`. Use `--model` to override.
-- `OPENAI_API_KEY` – enables live suggestions. Without it the tool falls back to the offline samples.
-- Install `filelock` if multiple runs write to the same ledger to ensure atomic updates.
+### Environment variables
+| Variable | Default | Purpose |
+|---------|---------|---------|
+| `CROSS_ALPHA_LEDGER` | `cross_alpha_log.json` | Output ledger for `cross_alpha_discovery_stub`. |
+| `CROSS_ALPHA_MODEL` | `gpt-4o-mini` | Remote model used when `OPENAI_API_KEY` is set. |
+| `OPENAI_API_KEY` | _(empty)_ | Enables live suggestions. Offline samples are used when empty. |
+| `OPENAI_API_BASE` | `https://api.openai.com/v1` | API endpoint. Auto-set to `http://local-llm:11434/v1` when no API key. |
+| `OPENAI_TIMEOUT_SEC` | `30` | Request timeout for the OpenAI client. |
+| `AGENTS_ENABLED` | `"finance_agent biotech_agent climate_agent manufacturing_agent policy_agent"` | Agents launched by the deploy script. |
+| `DASH_PORT` | `9000` | External Grafana port. |
+| `PROM_PORT` | `9090` | Prometheus port. |
+| `RAY_PORT` | `8265` | Ray dashboard port. |
+| `API_TOKEN` | generated | Bearer token for the REST API. |
+| `AUTO_COMMIT` | `0` | Set to `1` to auto‑commit generated assets when not in CI. |
+
+Install `filelock` if multiple runs write to the same ledger to ensure atomic updates.
 
 #### Optional libraries
 Certain extras unlock additional capabilities:
