@@ -39,6 +39,12 @@ pytest -q
 
 ## Pre-commit Hooks
 
+Run `./codex/setup.sh` to install project dependencies. The script also
+installs `pre-commit` and all lint tools before configuring the git hook.
+If you skip the setup script, manually install these tools with
+`pip install pre-commit -r requirements-dev.txt` and then run
+`pre-commit install` once.
+
 Install the git hooks once and run them before each commit:
 
 ```bash
