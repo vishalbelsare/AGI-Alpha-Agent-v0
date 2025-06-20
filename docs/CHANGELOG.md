@@ -6,6 +6,10 @@
 
 All notable changes to this project are documented in this file.
 
+## Breaking Changes
+Any incompatible API updates will be clearly listed under this heading for each release.
+Downstream users should consult this section when upgrading.
+
 ## [Unreleased]
 - `alpha-factory` and `edge_runner.py` now print a short warning before startup.
 - Synced `openai`, `openai-agents` and `uvicorn` pins across requirements files
