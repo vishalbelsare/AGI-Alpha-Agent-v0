@@ -4,28 +4,40 @@
 
 This lightweight helper verifies that ``numpy``, ``yaml`` and ``pandas``
 along with a few core packages are installed.  It is intended as a fast
-pre-flight check before running the full environment
-validation or the test suite.
+pre-flight check before running the full environment validation or the
+test suite.
 
-When any package is missing the script prints a message
-and exits with an error, instructing the user to run
-``python check_env.py --auto-install`` for the complete
-setup.
+The check now calls ``python -m pip show`` for each package instead of
+importing the module.  When any package is missing the script prints a
+clear message instructing the user to run ``python check_env.py
+--auto-install`` and exits with a non-zero status.
 """
 
 from __future__ import annotations
 
-import importlib.util
+import subprocess
 import sys
 
 REQUIRED = ["numpy", "pytest", "yaml", "pandas"]
 
 
+def _pkg_installed(pkg: str) -> bool:
+    """Return ``True`` when ``pkg`` is installed.
+
+    The check uses ``python -m pip show`` for reliability when namespace
+    packages are involved.
+    """
+
+    result = subprocess.run(
+        [sys.executable, "-m", "pip", "show", pkg],
+        stdout=subprocess.DEVNULL,
+        stderr=subprocess.DEVNULL,
+    )
+    return result.returncode == 0
+
+
 def main() -> int:
-    missing: list[str] = []
-    for pkg in REQUIRED:
-        if importlib.util.find_spec(pkg) is None:
-            missing.append(pkg)
+    missing: list[str] = [pkg for pkg in REQUIRED if not _pkg_installed(pkg)]
     if missing:
         print("Missing packages:", ", ".join(missing))
         print("Run 'python check_env.py --auto-install' to install them.")
