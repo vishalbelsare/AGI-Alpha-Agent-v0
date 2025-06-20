@@ -56,6 +56,12 @@ header() {
 
 header
 
+# display project disclaimer before environment checks
+python3 - <<'PY'
+from alpha_factory_v1.utils.disclaimer import DISCLAIMER
+print(DISCLAIMER)
+PY
+
 # check python version
 python3 - <<'PY'
 import sys
