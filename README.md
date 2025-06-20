@@ -929,8 +929,9 @@ services like Neo4j and Postgres using `openssl rand -base64 18` or a similar
 tool and **never deploy with the defaults**. The orchestrator will refuse to
 start if `NEO4J_PASSWORD` remains `REPLACE_ME` or is missing.
 Set `API_TOKEN` to a strong secret so that the REST API can authenticate
-incoming requests. Clients must send `Authorization: Bearer <token>`. Use
-`API_RATE_LIMIT` to limit requests per minute per IP (default `60`).
+incoming requests. Clients must send `Authorization: Bearer <token>`.
+The server aborts if `API_TOKEN` equals `REPLACE_ME_TOKEN`.
+Use `API_RATE_LIMIT` to limit requests per minute per IP (default `60`).
 If more than 5% of requests return HTTP `429` within a minute, the server calls
 `utils.alerts.send_alert` to report excessive throttling.
 Avoid storing private keys directly in `.env`. Instead set
@@ -973,7 +974,7 @@ for instructions and example volume mounts.
 | `AGI_INSIGHT_BUS_KEY` | _(empty)_ | Private key matching `AGI_INSIGHT_BUS_CERT`. |
 | `AGI_INSIGHT_BUS_TOKEN` | _(empty)_ | Shared secret for bus authentication. |
 | `AGI_INSIGHT_ALLOW_INSECURE` | `0` | Set to `1` to run the bus without TLS when no certificate is provided. |
-| `API_TOKEN` | `REPLACE_ME_TOKEN` | Bearer token required by the REST API. |
+| `API_TOKEN` | `REPLACE_ME_TOKEN` | Bearer token required by the REST API. Startup fails if unchanged. |
 | `API_CORS_ORIGINS` | `*` | Comma-separated list of allowed CORS origins. |
 | `SANDBOX_CPU_SEC` | `2` | CPU time limit for sandboxed code. |
 | `SANDBOX_MEM_MB` | `256` | Memory cap for sandboxed code in MB. |
