@@ -28,6 +28,12 @@ Downstream users should consult this section when upgrading.
 ## [0.1.0-alpha] - 2024-05-01
 - Initial alpha release.
 - Git tag `v0.1.0-alpha`.
+- This tag points at commit `0ff79a4f`.
+- If cloning from a snapshot without tags, recreate it using:
+  ```bash
+  git tag -a v0.1.0-alpha 0ff79a4f -m "v0.1.0-alpha"
+  git push origin v0.1.0-alpha
+  ```
 
 
 ## [1.0.3] - 2025-07-10
