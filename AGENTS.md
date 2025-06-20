@@ -249,11 +249,11 @@ template). The sample file now lists every variable with its default value.
 - `.editorconfig` enforces UTF-8 encoding, LF line endings and the 120-character limit for Python and Markdown files.
 - Provide concise [Google style](https://google.github.io/styleguide/pyguide.html#381-docstrings) docstrings
 for modules, classes and functions.
-- Format code with `black` (line length 120) and run `ruff` or `flake8` for linting, if available.
+- Format code with `black` (line length 120) and run `ruff check` or `flake8` for linting, if available.
 - `pyproject.toml` contains the configuration for `black`, `ruff` and `flake8`.
   Adjust lint settings there if needed.
 - Ensure code is formatted before committing.
-- Run `ruff` or `flake8` and `mypy --strict` before committing to enforce
+- Run `ruff check` or `flake8` and `mypy --strict` before committing to enforce
   consistent style and type safety.
 - Run `mypy --config-file mypy.ini .` (or `pyright`) with a **strict** configuration. The
   `mypy.ini` configuration file is located at the repository root.

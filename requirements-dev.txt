@@ -8,3 +8,4 @@ pre-commit
 types-PyYAML
 types-requests
 papermill
+ruff
