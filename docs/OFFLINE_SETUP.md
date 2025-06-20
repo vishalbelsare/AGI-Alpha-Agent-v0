@@ -7,15 +7,20 @@
 This document summarises how to install the project without internet access.
 
 ## Build a wheelhouse
-Run these commands on a machine with connectivity:
+Run the helper script on a machine with connectivity:
 
 ```bash
-mkdir -p /media/wheels
-pip wheel -r requirements.lock -w /media/wheels
-pip wheel -r requirements-dev.txt -w /media/wheels
+./scripts/build_offline_wheels.sh
 ```
 
-Copy the directory to the offline host.
+This collects wheels for all lock files inside a `wheels/` directory. Copy this
+directory to the offline host.
+
+Set `WHEELHOUSE=$(pwd)/wheels` before running `check_env.py` or the tests:
+
+```bash
+export WHEELHOUSE=$(pwd)/wheels
+```
 
 ## Environment variables
 Set these before running the helper scripts:
@@ -28,12 +33,13 @@ export AUTO_INSTALL_MISSING=1
 `check_env.py` reads them to install packages from the wheelhouse when the network is unavailable.
 
 ### Prebuilt wheels for heavy dependencies
-`numpy` and `pandas` ship as binary wheels on PyPI. Grab them when
-constructing the wheelhouse so the offline installer does not attempt to
-compile these heavy packages from source:
+`numpy`, `PyYAML` and `pandas` ship as binary wheels on PyPI. These small wheels
+can be bundled with the repository so the smoke tests run offline. Grab them
+when constructing the wheelhouse so the installer does not attempt to compile
+them from source:
 
 ```bash
-pip wheel numpy pandas -w /media/wheels
+pip wheel numpy pyyaml pandas -w /media/wheels
 ```
 
 Include any other large dependencies, such as `torch` or `scipy`, by passing
