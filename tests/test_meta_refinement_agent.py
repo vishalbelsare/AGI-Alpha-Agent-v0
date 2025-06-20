@@ -47,3 +47,46 @@ def test_refinement_merges_patch(tmp_path: Path) -> None:
     assert (repo / "metric.txt").read_text().strip() == "2"
     generated = list((repo / "tests").glob("test_generated_*.py"))
     assert generated
+
+
+def test_refinement_no_bottleneck(tmp_path: Path) -> None:
+    repo = _make_repo(tmp_path)
+    logs = tmp_path / "logs"
+    logs.mkdir()
+
+    reg = StakeRegistry()
+    reg.set_stake("meta", 1.0)
+
+    agent = MetaRefinementAgent(repo, logs, reg)
+    with (
+        patch.object(MetaRefinementAgent, "_load_logs", return_value=[]),
+        patch.object(harness, "vote_and_merge") as vote,
+    ):
+        merged = agent.refine()
+
+    assert not merged
+    vote.assert_not_called()
+
+
+def test_refinement_rejected_patch(tmp_path: Path) -> None:
+    repo = _make_repo(tmp_path)
+    logs = tmp_path / "logs"
+    logs.mkdir()
+    (logs / "log.json").write_text(
+        "\n".join([
+            '{"hash":"h0","ts":0}',
+            '{"hash":"h1","ts":1}',
+            '{"hash":"h2","ts":5}'
+        ]),
+        encoding="utf-8",
+    )
+
+    reg = StakeRegistry()
+    reg.set_stake("meta", 1.0)
+
+    with patch.object(harness, "vote_and_merge", return_value=False):
+        agent = MetaRefinementAgent(repo, logs, reg)
+        merged = agent.refine()
+
+    assert not merged
+    assert (repo / "metric.txt").read_text().strip() == "1"
