@@ -65,9 +65,15 @@ fall back to CPU execution and are automatically skipped when `torch` is
 absent. Other optional packages behave the same way—tests relying on
 `fastapi`, `playwright` or `httpx` use `pytest.importorskip()` so the suite
 continues even in minimal environments.
-6. If the repository includes a `wheels/` directory, export
+6. Build the wheelhouse on a machine with connectivity:
+   ```bash
+   ./scripts/build_offline_wheels.sh
+   ```
+   Copy the resulting `wheels/` directory to the offline host and export
    `WHEELHOUSE=$(pwd)/wheels` **before running** `python check_env.py --auto-install`
-   and `pytest` so packages install from the bundled wheelhouse.
+   or `pytest` so packages install from the bundled wheels.
+   Bundling small wheels such as `numpy`, `pyyaml` and `pandas` allows the smoke
+   tests to run without contacting PyPI.
 7. Set `PYTHONPATH=$(pwd)` or install the project in editable mode with `pip install -e .`.
 8. Export the wheel cache path and run the environment check before the suite:
    ```bash

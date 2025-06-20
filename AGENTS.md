@@ -350,6 +350,10 @@ The **Deploy — Kind** workflow provisions a local kind cluster, builds the Ins
 ### Troubleshooting
 - If the stack fails to start, verify Docker and Docker Compose are running.
 - Setup errors usually mean Python is older than 3.11. Use Python 3.11 or 3.12 (>=3.11,<3.13).
+- When working offline, build the wheelhouse with `scripts/build_offline_wheels.sh` on a
+  machine with internet access, copy the `wheels/` directory to the repository root and set
+  `WHEELHOUSE=$(pwd)/wheels` before running `python check_env.py --auto-install` or the tests.
+  Bundling small wheels like `numpy`, `pyyaml` and `pandas` enables smoke tests without internet access.
 - Missing optional packages can cause test failures; first run
   `python scripts/check_python_deps.py` and then
   `python check_env.py --auto-install` (pass `--wheelhouse <path>` when offline)
@@ -360,8 +364,9 @@ The **Deploy — Kind** workflow provisions a local kind cluster, builds the Ins
   repository no longer ships a full wheelhouse because some wheels exceed
   GitHub's 100 MB size limit. Build the wheelhouse with
   `scripts/build_offline_wheels.sh` on a machine with internet access and copy
-  the resulting directory to `wheels/`. Then set `WHEELHOUSE=$(pwd)/wheels`
-  before running `pytest`.
+  the resulting directory to `wheels/`. Set `WHEELHOUSE=$(pwd)/wheels` and
+  consider bundling `numpy`, `pyyaml` and `pandas` so the smoke tests run without
+  contacting PyPI.
 - If `pre-commit` reports "command not found", install it manually with
   `pip install pre-commit` and run `pre-commit install` once.
 - To reinstall the hooks, run `pip install -U pre-commit` and then
