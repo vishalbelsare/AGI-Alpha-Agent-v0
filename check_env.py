@@ -32,6 +32,7 @@ import os
 import sys
 import argparse
 import socket
+import shutil
 from pathlib import Path
 from typing import List, Optional
 
@@ -446,6 +447,9 @@ def main(argv: Optional[List[str]] = None) -> int:
 
     if demo == "macro_sentinel" and not os.getenv("ETHERSCAN_API_KEY"):
         print("WARNING: ETHERSCAN_API_KEY is unset; Etherscan collector disabled")
+
+    if (shutil.which("pre-commit") or (Path(".git/hooks/pre-commit").exists())) and not shutil.which("ruff"):
+        print("WARNING: 'pre-commit' enabled but 'ruff' command not found")
 
     if not missing_required:
         print("Environment OK")
