@@ -39,8 +39,9 @@ from typing import List, Optional
 NO_NETWORK_HINT = (
     "No network connectivity detected and no wheelhouse was provided.\n"
     "Build wheels with './scripts/build_offline_wheels.sh' on a machine with\n"
-    "internet access, then re-run using 'python check_env.py --auto-install\n"
-    "--wheelhouse <dir>' or set the WHEELHOUSE environment variable."
+    "internet access, copy the resulting 'wheels/' directory to this host,\n"
+    "then re-run using 'python check_env.py --auto-install --wheelhouse <dir>'\n"
+    "or set the WHEELHOUSE environment variable."
 )
 
 

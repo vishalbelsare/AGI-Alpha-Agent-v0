@@ -176,7 +176,15 @@ Follow these steps when working without internet access.
 1. **Build a wheelhouse** on a machine with connectivity:
    ```bash
    ./scripts/build_offline_wheels.sh
-   export WHEELHOUSE="$(pwd)/wheels"
+   ```
+   The script collects all required wheels under `wheels/`. Copy this
+   directory to the offline host, for example using `scp` or a USB drive:
+   ```bash
+   scp -r wheels user@offline-host:/path/to/AGI-Alpha-Agent-v0/
+   ```
+   Then set the environment variable on the target machine:
+   ```bash
+   export WHEELHOUSE="/path/to/AGI-Alpha-Agent-v0/wheels"
    ```
 
 2. **Install from the wheelhouse** and verify packages. The setup script
