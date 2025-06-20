@@ -33,6 +33,7 @@ Downstream users should consult this section when upgrading.
   ```bash
   git tag -a v0.1.0-alpha 0ff79a4f -m "v0.1.0-alpha"
   git push origin v0.1.0-alpha
+  git tag            # verify the tag exists
   ```
 
 
