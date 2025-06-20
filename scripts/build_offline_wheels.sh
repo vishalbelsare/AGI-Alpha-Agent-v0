@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 # SPDX-License-Identifier: Apache-2.0
+# This script is a conceptual research prototype.
 # Collect wheels for offline installation.
 set -euo pipefail
 

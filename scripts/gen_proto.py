@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 # SPDX-License-Identifier: Apache-2.0
+# This script is a conceptual research prototype.
 """Generate protobuf modules from ``src/utils/a2a.proto``."""
 from __future__ import annotations
 
@@ -10,6 +11,7 @@ import shutil
 
 try:  # optional dependency
     import grpc_tools.protoc  # noqa: F401
+
     HAS_GRPC = True
 except ModuleNotFoundError:  # pragma: no cover - optional dependency
     HAS_GRPC = False

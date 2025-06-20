@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 # SPDX-License-Identifier: Apache-2.0
+# This script is a conceptual research prototype.
 """Pre-commit hook to detect private or pay-walled text in staged files."""
 from __future__ import annotations
 
@@ -58,9 +59,7 @@ def scan_file(path: Path) -> bool:
 
 
 def staged_files() -> Iterable[Path]:
-    result = subprocess.run(
-        ["git", "diff", "--cached", "--name-only"], capture_output=True, text=True
-    )
+    result = subprocess.run(["git", "diff", "--cached", "--name-only"], capture_output=True, text=True)
     if result.returncode != 0:
         raise RuntimeError(result.stderr)
     for line in result.stdout.splitlines():
@@ -79,9 +78,7 @@ def main() -> int:
             flagged.append(str(path))
 
     if flagged:
-        sys.stderr.write(
-            "Private or pay-walled text detected in:\n" + "\n".join(flagged) + "\n"
-        )
+        sys.stderr.write("Private or pay-walled text detected in:\n" + "\n".join(flagged) + "\n")
         sys.stderr.write("Set ALLOW_PRIVATE_TEXT=1 to override.\n")
         return 1
     return 0

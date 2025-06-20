@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 # SPDX-License-Identifier: Apache-2.0
+# This script is a conceptual research prototype.
 """Ensure meta_agentic_tree_search_v0 requirements.lock matches requirements.txt."""
 from __future__ import annotations
 
@@ -38,8 +39,10 @@ def main() -> int:
             if wheelhouse:
                 extra = f"--no-index --find-links {wheelhouse} "
             msg = (
-                "alpha_factory_v1/demos/meta_agentic_tree_search_v0/requirements.lock is outdated. Run 'pip-compile "
-                f"{extra}--quiet --generate-hashes alpha_factory_v1/demos/meta_agentic_tree_search_v0/requirements.txt -o "
+                "alpha_factory_v1/demos/meta_agentic_tree_search_v0/requirements.lock is outdated. "
+                "Run 'pip-compile "
+                f"{extra}--quiet --generate-hashes "
+                "alpha_factory_v1/demos/meta_agentic_tree_search_v0/requirements.txt -o "
                 "alpha_factory_v1/demos/meta_agentic_tree_search_v0/requirements.lock'\n"
             )
             sys.stderr.write(msg)
