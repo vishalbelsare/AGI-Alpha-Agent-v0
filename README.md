@@ -63,10 +63,10 @@ Strategic Edge:
 
 An interactive Colab notebook demonstrates the same zero‑data Insight search loop. Open [colab_alpha_agi_insight_v1.ipynb](alpha_factory_v1/demos/alpha_agi_insight_v1/colab_alpha_agi_insight_v1.ipynb) in Google Colab to try it online.
 
-Clone the repository and run the helper script to start the Insight demo locally:
+Clone the repository at the `v0.1.0-alpha` tag and run the helper script to start the Insight demo locally:
 
 ```bash
-git clone https://github.com/MontrealAI/AGI-Alpha-Agent-v0.git
+git clone --branch v0.1.0-alpha https://github.com/MontrealAI/AGI-Alpha-Agent-v0.git
 cd AGI-Alpha-Agent-v0
 python check_env.py --auto-install  # may run for several minutes
 # NumPy and pandas are required for realistic results; omit or add
@@ -380,8 +380,9 @@ Global markets seep *USD ✧ trillions/yr* in latent opportunity — “alph
 Built atop **OpenAI Agents SDK**, **Google ADK**, **A2A protocol**, and Anthropic’s **Model Context Protocol**, the stack runs cloud‑native *or* air‑gapped, hot‑swapping between frontier LLMs and distilled local models.
 
 ### TL;DR Quick Start
+Check out the `v0.1.0-alpha` tag for a reproducible environment.
 ```bash
-git clone https://github.com/MontrealAI/AGI-Alpha-Agent-v0.git
+git clone --branch v0.1.0-alpha https://github.com/MontrealAI/AGI-Alpha-Agent-v0.git
 cd AGI-Alpha-Agent-v0
 python3 -m venv .venv
 source .venv/bin/activate
@@ -830,8 +831,9 @@ Cells with \(Δ\mathcal F < 0\) glow 🔵 on Grafana; Ω‑Agents race to harves
 
 <a name="6-5-minute-quick-start"></a>
 ## 6 · 5‑Minute Quick‑Start 🚀
+This guide assumes the repository is cloned at `v0.1.0-alpha`.
 ```bash
-git clone https://github.com/MontrealAI/AGI-Alpha-Agent-v0.git
+git clone --branch v0.1.0-alpha https://github.com/MontrealAI/AGI-Alpha-Agent-v0.git
 cd AGI-Alpha-Agent-v0
 ./quickstart.sh --preflight   # optional environment check
 python check_env.py --auto-install  # verify & auto-install deps (10 min timeout)
@@ -868,7 +870,7 @@ docker run --pull=always -p 8000:8000 ghcr.io/montrealai/alpha-factory:latest
 #   alpha-agi-insight-v1 orchestrator   # run the Insight orchestrator
 #
 # Or install directly from GitHub for a quick test:
-#   pip install git+https://github.com/MontrealAI/AGI-Alpha-Agent-v0.git
+#   pip install git+https://github.com/MontrealAI/AGI-Alpha-Agent-v0.git@v0.1.0-alpha
 #   alpha-factory --list-agents
 
 # Automated one-click setup (builds & starts Docker stack)
@@ -1099,8 +1101,9 @@ PY
 ---
 
 ### 6.2 · Cross-Industry Demo Quick‑Start 🌐
+Clone the stable `v0.1.0-alpha` release:
 ```bash
-git clone https://github.com/MontrealAI/AGI-Alpha-Agent-v0.git
+git clone --branch v0.1.0-alpha https://github.com/MontrealAI/AGI-Alpha-Agent-v0.git
 cd AGI-Alpha-Agent-v0/alpha_factory_v1/demos/cross_industry_alpha_factory
 # Set AUTO_COMMIT=1 to save generated assets back to the repo
 ./deploy_alpha_factory_cross_industry_demo.sh
