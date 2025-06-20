@@ -13,6 +13,15 @@ Incompatible updates are announced in advance whenever possible and remain depre
 Any incompatible API updates will be clearly listed under this heading for each release.
 Downstream users should consult this section when upgrading.
 
+- **1.1.0** – `GraphMemory._fallback_query` now returns stub data when both
+  Neo4j and NetworkX are missing.
+- **1.0.3**
+  - `check_env.py` exits with an error if `numpy` or `pandas` are missing unless
+    `--allow-basic-fallback` is used.
+  - Removed `alpha_asi_world_model_demo_v1.py`.
+  - Removed `insight_browser_v1/dist/` from version control; run
+    `npm run build` to regenerate the assets.
+
 ## [Unreleased]
 - `alpha-factory` and `edge_runner.py` now print a short warning before startup.
 - Synced `openai`, `openai-agents` and `uvicorn` pins across requirements files
