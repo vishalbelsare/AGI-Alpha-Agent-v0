@@ -172,7 +172,9 @@ It demonstrates the best‑first search behind the other examples and runs witho
 <a name="63-offline-mode"></a>
 ### Offline Mode
 
-Follow these steps when working without internet access.
+Follow these steps when working without internet access. See
+[docs/OFFLINE_INSTALL.md#environment-variables](docs/OFFLINE_INSTALL.md#environment-variables)
+for a summary of required environment variables.
 
 1. **Build a wheelhouse** on a machine with connectivity:
    ```bash

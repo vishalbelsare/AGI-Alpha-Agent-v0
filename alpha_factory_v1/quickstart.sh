@@ -37,6 +37,7 @@ Bootstraps and launches Alpha-Factory in an isolated Python virtual environment.
   --skip-preflight   Skip automatic preflight checks before launching
   Pip install output logs to $PIP_LOG and failures abort the script.
   Set WHEELHOUSE to install packages from a local wheel cache.
+  See docs/OFFLINE_INSTALL.md#environment-variables for details.
   Any other options are passed directly to the orchestrator.
 EOF
 }
