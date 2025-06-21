@@ -26,8 +26,9 @@ Please report security vulnerabilities as described in our [Security Policy](SEC
 - Keep `package-lock.json` under version control so `npm ci` reproduces the same
   dependency tree.
 - Run `python alpha_factory_v1/scripts/preflight.py` to validate these tools.
-- Run `./codex/setup.sh` to install dependencies. The script automatically
-  installs `pre-commit` when missing and sets up the git hook.
+ - Run `./codex/setup.sh` to install project dependencies and set up the git
+   hooks. The script attempts to install `pre-commit` automatically. If
+   `pre-commit` isn't found, run `pip install pre-commit` and re-run the script.
 - Install `pytest` and `prometheus_client` using
   `python check_env.py --auto-install` or `pip install pytest prometheus_client`.
 
