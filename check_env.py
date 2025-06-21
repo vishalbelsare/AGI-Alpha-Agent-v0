@@ -33,11 +33,15 @@ import sys
 import argparse
 import socket
 import shutil
+import urllib
+import urllib.parse
+import urllib.request
 from pathlib import Path
 from typing import List, Optional
 
 NO_NETWORK_HINT = (
     "No network connectivity detected and no wheelhouse was provided.\n"
+    "Set HTTP_PROXY or HTTPS_PROXY if your environment requires a proxy.\n"
     "Build wheels with './scripts/build_offline_wheels.sh' on a machine with\n"
     "internet access, copy the resulting 'wheels/' directory to this host,\n"
     "then re-run using 'python check_env.py --auto-install --wheelhouse <dir>'\n"
@@ -188,16 +192,35 @@ IMPORT_NAMES = {
 def has_network(timeout: float = 1.0) -> bool:
     """Return ``True`` if any of the test hosts is reachable.
 
-    The function attempts to connect to ``pypi.org``, ``1.1.1.1`` and
-    ``github.com`` in that order. It returns ``True`` as soon as one
-    connection succeeds and ``False`` only if all attempts fail.
+    The function first checks for ``HTTP_PROXY`` or ``HTTPS_PROXY``
+    and attempts to connect to the proxy if defined. It then tries
+    ``pypi.org``, ``1.1.1.1`` and ``github.com`` in that order. If all
+    socket attempts fail, a ``HEAD`` request to ``https://pypi.org`` is
+    issued as a fallback so proxy-only environments still succeed.
     """
 
-    hosts = [
-        ("pypi.org", 443),
-        ("1.1.1.1", 443),
-        ("github.com", 443),
-    ]
+    hosts: list[tuple[str, int]] = []
+    proxy = os.getenv("HTTPS_PROXY") or os.getenv("HTTP_PROXY")
+    if proxy:
+        try:
+            parsed = urllib.parse.urlparse(proxy)
+            if parsed.hostname:
+                hosts.append(
+                    (
+                        parsed.hostname,
+                        parsed.port or (443 if parsed.scheme == "https" else 80),
+                    )
+                )
+        except Exception:
+            pass
+
+    hosts.extend(
+        [
+            ("pypi.org", 443),
+            ("1.1.1.1", 443),
+            ("github.com", 443),
+        ]
+    )
 
     for host in hosts:
         try:
@@ -205,7 +228,13 @@ def has_network(timeout: float = 1.0) -> bool:
                 return True
         except OSError:
             continue
-    return False
+
+    try:
+        req = urllib.request.Request("https://pypi.org", method="HEAD")
+        with urllib.request.urlopen(req, timeout=timeout):
+            return True
+    except Exception:
+        return False
 
 
 def main(argv: Optional[List[str]] = None) -> int:
