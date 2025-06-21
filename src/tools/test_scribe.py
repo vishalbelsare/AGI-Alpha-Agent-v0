@@ -16,5 +16,5 @@ def generate_test(repo: str | Path, check: str) -> Path:
     idx = len(list(tests_dir.glob("test_generated_*.py")))
     test_path = tests_dir / f"test_generated_{idx}.py"
     code = f"def test_generated_{idx}():\n    assert {check}\n"
-    test_path.write_text(code, encoding="utf-8")
+    test_path.write_text(code + "\n", encoding="utf-8")
     return test_path
