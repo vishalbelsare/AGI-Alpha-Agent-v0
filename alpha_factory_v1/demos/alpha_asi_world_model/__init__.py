@@ -20,6 +20,8 @@
 │  • Strict, regulator-friendly defaults: deterministic seed, telemetry opt-in │
 │    only, graceful exit on NaN / divergence (SafetyAgent).                    │
 ╰──────────────────────────────────────────────────────────────────────────────╯
+The ``__version__`` constant below denotes the demo revision and is
+independent from the :mod:`alpha_factory_v1` package version.
 """
 
 from __future__ import annotations
@@ -33,6 +35,7 @@ from typing import Final, List
 # Re-export the runnable demo components
 try:  # optional heavy deps (numpy, torch, etc.)
     from .alpha_asi_world_model_demo import CFG, Orchestrator, app, _main as _demo_cli  # noqa: F401
+
     _DEPS_AVAILABLE = True
 except Exception:  # pragma: no cover - missing optional deps
     CFG = Orchestrator = app = _demo_cli = None  # type: ignore
@@ -83,9 +86,7 @@ def run_headless(steps: int = 50_000) -> Orchestrator:  # pragma: no cover
         >>> assert orch.learner.buffer  # trained a bit
     """
     if not _DEPS_AVAILABLE:
-        raise ImportError(
-            "Optional dependencies missing; install requirements.txt to run"
-        )
+        raise ImportError("Optional dependencies missing; install requirements.txt to run")
 
     orch = Orchestrator()
 
@@ -111,9 +112,7 @@ def run_ui(
         >>> α.run_ui(port=9999)  # then open http://localhost:9999
     """
     if not _DEPS_AVAILABLE:
-        raise ImportError(
-            "Optional dependencies missing; install requirements.txt to run"
-        )
+        raise ImportError("Optional dependencies missing; install requirements.txt to run")
 
     uvicorn = _lazy_import_uvicorn()
     uvicorn.run(
@@ -134,6 +133,7 @@ if os.getenv("ALPHA_ASI_SILENT", "0") != "1":
         "type `help(alpha_asi_world_model)` for details - or - "
         "`alpha_asi_world_model.run_ui()` to launch the dashboard.\n"
     )
+
 
 # Expose a CLI entry-point (python -m alpha_asi_world_model)
 def _module_cli() -> None:  # pragma: no cover

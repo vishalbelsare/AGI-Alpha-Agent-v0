@@ -68,6 +68,7 @@ Clone the repository at the `v0.1.0-alpha` tag and run the helper script to star
 ```bash
 git clone --branch v0.1.0-alpha https://github.com/MontrealAI/AGI-Alpha-Agent-v0.git
 cd AGI-Alpha-Agent-v0
+python -c "import alpha_factory_v1; print(alpha_factory_v1.__version__)"  # prints 0.1.0-alpha
 python check_env.py --auto-install  # may run for several minutes
 # NumPy and pandas are required for realistic results; omit or add
 # `--allow-basic-fallback` to bypass this check.
