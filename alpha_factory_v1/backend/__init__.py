@@ -25,7 +25,7 @@ import logging
 import sys
 import types
 from pathlib import Path
-from typing import List, Dict
+from typing import Any, Awaitable, Callable, Dict, List, NoReturn
 import tempfile
 import json
 import secrets
@@ -43,13 +43,13 @@ except ModuleNotFoundError:  # SDK not installed
     class _MissingSDK:  # pylint: disable=too-few-public-methods
         """Stub that raises helpful errors when the real SDK is absent."""
 
-        def __getattr__(self, item):  # noqa: D401
+        def __getattr__(self, item: str) -> NoReturn:  # noqa: D401
             raise ModuleNotFoundError(
                 "The OpenAI Agents SDK is required for this operation. "
                 "Please install it with:  pip install openai-agents"
             )
 
-        def __call__(self, *args, **kwargs):  # noqa: D401
+        def __call__(self, *args: object, **kwargs: object) -> NoReturn:  # noqa: D401
             raise ModuleNotFoundError(
                 "The OpenAI Agents SDK is required for this operation. "
                 "Please install it with:  pip install openai-agents"
@@ -149,7 +149,11 @@ try:
 # ─────────────────────── zero-dependency HTTP fallback ────────────────────
 except ModuleNotFoundError:  # pragma: no cover
 
-    async def app(scope, receive, send):  # type: ignore  # noqa: D401, N802
+    async def app(
+        scope: Dict[str, Any],
+        receive: Callable[..., Awaitable[Any]],
+        send: Callable[..., Awaitable[Any]],
+    ) -> None:  # type: ignore  # noqa: D401, N802
         """Tiny HTTP-only ASGI app used when FastAPI is not installed."""
         if scope["type"] != "http":  # only handle plain HTTP
             return
