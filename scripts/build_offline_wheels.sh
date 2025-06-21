@@ -10,6 +10,11 @@ cd "$REPO_ROOT"
 
 mkdir -p wheels
 
+if [[ "${SMOKE_ONLY:-0}" == "1" ]]; then
+    pip wheel numpy pyyaml pandas prometheus_client -w wheels
+    exit 0
+fi
+
 pip wheel -r requirements.lock -w wheels
 pip wheel -r requirements-dev.txt -w wheels
 pip wheel -r requirements-demo.lock -w wheels
