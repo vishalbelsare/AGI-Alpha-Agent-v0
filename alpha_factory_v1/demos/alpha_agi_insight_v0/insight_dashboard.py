@@ -18,9 +18,7 @@ def main() -> None:
     try:
         import streamlit as st
     except Exception as exc:  # pragma: no cover - optional dep
-        raise SystemExit(
-            "Streamlit is required for the dashboard. Install via `pip install streamlit`."
-        ) from exc
+        raise SystemExit("Streamlit is required for the dashboard. Install via `pip install streamlit`.") from exc
 
     st.set_page_config(page_title="α‑AGI Insight Dashboard", page_icon="👁️")
     st.title("👁️ α‑AGI Insight — Beyond Human Foresight")
@@ -28,14 +26,10 @@ def main() -> None:
     st.sidebar.header("Configuration")
 
     episodes = st.sidebar.number_input("Episodes", min_value=1, max_value=50, value=5)
-    exploration = st.sidebar.number_input(
-        "Exploration", min_value=0.1, max_value=5.0, value=1.4, step=0.1
-    )
+    exploration = st.sidebar.number_input("Exploration", min_value=0.1, max_value=5.0, value=1.4, step=0.1)
     rewriter = st.sidebar.selectbox("Rewriter", ["random", "openai", "anthropic"], 0)
     target = st.sidebar.number_input("Target index", min_value=0, value=3)
-    sectors_text = st.sidebar.text_area(
-        "Sectors (comma separated)", ", ".join(DEFAULT_SECTORS)
-    )
+    sectors_text = st.sidebar.text_area("Sectors (comma separated)", ", ".join(DEFAULT_SECTORS))
     seed = st.sidebar.number_input("Seed", value=0)
     model = st.sidebar.text_input("Model", value="gpt-4o")
 

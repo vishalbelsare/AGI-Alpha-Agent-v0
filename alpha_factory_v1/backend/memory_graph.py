@@ -214,11 +214,7 @@ class GraphMemory:
                         return [(u, v) for u, v, _, _ in self._edges]
 
                     def out_edges(self, n, keys=True, data=True):
-                        return [
-                            (u, v, k, d)
-                            for u, v, k, d in self._edges
-                            if u == n
-                        ]
+                        return [(u, v, k, d) for u, v, k, d in self._edges if u == n]
 
                     def successors(self, n):
                         return [v for u, v, *_ in self._edges if u == n]

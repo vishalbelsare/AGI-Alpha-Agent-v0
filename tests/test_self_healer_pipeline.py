@@ -3,7 +3,13 @@ from pathlib import Path
 import shutil
 import subprocess
 
-from alpha_factory_v1.demos.self_healing_repo.agent_core import self_healer, llm_client, diff_utils, sandbox, patcher_core
+from alpha_factory_v1.demos.self_healing_repo.agent_core import (
+    self_healer,
+    llm_client,
+    diff_utils,
+    sandbox,
+    patcher_core,
+)
 
 
 def test_self_healer_applies_patch(tmp_path, monkeypatch):
@@ -160,4 +166,3 @@ def test_self_healer_does_not_push_on_failed_patch(tmp_path, monkeypatch, caplog
     assert calls
     assert not pushed
     assert any("did not fix" in rec.getMessage() for rec in caplog.records)
-

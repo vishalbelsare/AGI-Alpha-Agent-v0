@@ -20,6 +20,7 @@ import os
 BOTTLENECK_KEYWORD = "bottleneck"
 LONG_BONDS_KEYWORD = "long bonds"
 
+
 # ``alpha_detection`` is imported lazily so ``--data-dir`` can override
 # ``SAMPLE_DATA_DIR`` before the module resolves its paths.
 def _import_detectors():

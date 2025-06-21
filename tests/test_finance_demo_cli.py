@@ -34,7 +34,7 @@ exit 0
     _write_executable(bin_dir / "curl", "#!/usr/bin/env bash\necho '{}'\n")
     _write_executable(bin_dir / "jq", "#!/usr/bin/env bash\ncat >/dev/null\n")
     _write_executable(bin_dir / "lsof", "#!/usr/bin/env bash\nexit 1\n")
-    _write_executable(bin_dir / "sleep", "#!/usr/bin/env bash\n[ \"$1\" = \"3600\" ] && exit 1\nexit 0\n")
+    _write_executable(bin_dir / "sleep", '#!/usr/bin/env bash\n[ "$1" = "3600" ] && exit 1\nexit 0\n')
 
     env = os.environ.copy()
     env.update({"PATH": f"{bin_dir}:{env.get('PATH', '')}", "PORT_API": "8010", "STRATEGY": "btc_gld"})

@@ -64,8 +64,9 @@ def propose_diff(repo_path: str, spec: str) -> str:
     if _offline():
         return _fallback_diff(file_path, goal)
     prompt = (
-        "Generate a unified git diff for the repository at '{repo}'.\n"
-        "Apply the following change: {spec}".format(repo=repo_path, spec=spec)
+        "Generate a unified git diff for the repository at '{repo}'.\n" "Apply the following change: {spec}".format(
+            repo=repo_path, spec=spec
+        )
     )
     try:
         diff = _sync_chat(prompt)

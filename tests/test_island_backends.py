@@ -24,5 +24,3 @@ class TestIslandBackends(unittest.TestCase):
             elif name.endswith("_openai") or name == "planning":
                 # default island uses openai when island name 'openai'
                 pass
-
-

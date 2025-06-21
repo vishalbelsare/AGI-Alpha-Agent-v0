@@ -41,6 +41,4 @@ def test_snark_aggregate(tmp_path: Path) -> None:
     transcript.write_text(json.dumps(entries), encoding="utf-8")
 
     proof = aggregate_proof(transcript, [(e["hash"], e["score"]) for e in entries])
-    assert verify_aggregate_proof(
-        transcript, [(e["hash"], e["score"]) for e in entries], proof
-    )
+    assert verify_aggregate_proof(transcript, [(e["hash"], e["score"]) for e in entries], proof)

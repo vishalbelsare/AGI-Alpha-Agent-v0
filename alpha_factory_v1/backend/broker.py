@@ -32,6 +32,7 @@ class Order:
         """Return order as plain dictionary."""
         return asdict(self)
 
+
 def _alpaca_order(symbol: str, qty: int, side: str, key: str, secret: str) -> Dict[str, Any]:
     """Send an order to Alpaca Markets and return the JSON response."""
 
@@ -46,6 +47,7 @@ def _alpaca_order(symbol: str, qty: int, side: str, key: str, secret: str) -> Di
     r = requests.post(f"{ALPACA_BASE}/orders", json=data, headers=hdrs, timeout=4)
     r.raise_for_status()
     return r.json()
+
 
 # ── public API ───────────────────────────────────────────────────────────
 def place_order(symbol: str, qty: int, side: str, price: float) -> Dict[str, Any]:
@@ -79,4 +81,3 @@ def place_order(symbol: str, qty: int, side: str, price: float) -> Dict[str, Any
     log.info("Simulated order: %s %s %s@%.2f", side, qty, symbol, price)
     time.sleep(0.1)
     return Order(symbol, qty, side, price).to_dict()
-

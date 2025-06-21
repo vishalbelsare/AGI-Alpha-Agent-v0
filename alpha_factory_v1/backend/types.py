@@ -23,7 +23,8 @@ class TradeBrokerProtocol(Protocol):
     async def get_cash(self) -> float:
         """Return the available cash balance in the account currency."""
 
-    async def __aenter__(self) -> "TradeBrokerProtocol": ...
+    async def __aenter__(self) -> "TradeBrokerProtocol":
+        ...
 
     async def __aexit__(
         self,

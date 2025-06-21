@@ -22,12 +22,14 @@ _NEWSAPI_KEY = os.getenv("NEWSAPI_KEY")
 
 try:
     from newsapi import NewsApiClient  # type: ignore
+
     _NEWSAPI_OK = True
 except ModuleNotFoundError:
     _NEWSAPI_OK = False
 
 try:
     import feedparser  # type: ignore
+
     _FEED_OK = True
 except ModuleNotFoundError:
     _FEED_OK = False

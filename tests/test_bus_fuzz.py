@@ -42,9 +42,7 @@ def envelopes(draw: st.DrawFn) -> messaging.Envelope | types.SimpleNamespace:
         sender = draw(st.text(min_size=0, max_size=5))
         recipient = draw(st.text(min_size=0, max_size=5))
         ts = draw(st.floats(allow_nan=False, allow_infinity=False))
-        payload: dict[str, Any] = draw(
-            st.dictionaries(st.text(min_size=1, max_size=5), json_values, max_size=3)
-        )
+        payload: dict[str, Any] = draw(st.dictionaries(st.text(min_size=1, max_size=5), json_values, max_size=3))
         if big_payload:
             payload["data"] = draw(st.text(max_size=10000))
         env = messaging.Envelope(sender=sender, recipient=recipient, ts=ts)

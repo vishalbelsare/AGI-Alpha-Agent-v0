@@ -18,6 +18,7 @@ class TestPatcherCore(unittest.TestCase):
 """
             with self.assertRaises(ValueError):
                 patcher_core._sanity_check_patch(bad_patch, pathlib.Path(repo))
+
     def test_apply_patch_rejects_unknown_file(self) -> None:
         with tempfile.TemporaryDirectory() as repo:
             open(os.path.join(repo, "file.py"), "w").close()
@@ -29,7 +30,6 @@ class TestPatcherCore(unittest.TestCase):
 """
             with self.assertRaises(ValueError):
                 patcher_core.apply_patch(bad_patch, repo_path=repo)
-
 
     def test_nested_prefix_handling(self) -> None:
         with tempfile.TemporaryDirectory() as repo:

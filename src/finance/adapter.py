@@ -62,4 +62,3 @@ def propagate_shocks_to_tickers(shocks: Dict[str, float], *, map_path: str | Pat
         for ticker in tickers:
             impacts[ticker] = impacts.get(ticker, 0.0) + float(pct)
     return json.dumps(impacts)
-

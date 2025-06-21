@@ -7,9 +7,7 @@ import subprocess
 from pathlib import Path
 import pytest
 
-CRITICS = Path(
-    "alpha_factory_v1/demos/alpha_agi_insight_v1/insight_browser_v1/src/wasm/critics.js"
-)
+CRITICS = Path("alpha_factory_v1/demos/alpha_agi_insight_v1/insight_browser_v1/src/wasm/critics.js")
 
 
 @pytest.mark.skipif(not shutil.which("node"), reason="node not available")

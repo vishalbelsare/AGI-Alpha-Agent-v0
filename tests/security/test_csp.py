@@ -19,9 +19,7 @@ def test_csp_no_violations() -> None:
             violations = []
             page.on(
                 "console",
-                lambda msg: violations.append(msg.text)
-                if "Content Security Policy" in msg.text
-                else None,
+                lambda msg: violations.append(msg.text) if "Content Security Policy" in msg.text else None,
             )
             page.on("pageerror", lambda err: violations.append(str(err)))
             page.goto(url)
@@ -37,4 +35,3 @@ def test_csp_no_violations() -> None:
             browser.close()
     except PlaywrightError as exc:
         pytest.skip(f"Playwright browser not installed: {exc}")
-

@@ -21,7 +21,5 @@ def test_pin_failure_toast() -> None:
         page.evaluate("window.PINNER_TOKEN='tok'")
         context.route("https://api.web3.storage/**", lambda route: route.abort())
         page.click("text=Share")
-        page.wait_for_function(
-            "document.getElementById('toast').textContent.includes('pin failed')"
-        )
+        page.wait_for_function("document.getElementById('toast').textContent.includes('pin failed')")
         browser.close()

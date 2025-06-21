@@ -25,7 +25,7 @@ def test_metrics_update_during_sim() -> None:
             page.wait_for_function("document.querySelector('#worker-time').textContent.includes('ms')")
             page.wait_for_function("document.querySelector('#heap').textContent !== ''")
             page.wait_for_function("document.querySelector('#fps-value').textContent.includes('fps')")
-            page.click('#simulator-panel #sim-cancel')
+            page.click("#simulator-panel #sim-cancel")
             browser.close()
     except PlaywrightError as exc:
         pytest.skip(f"Playwright browser not installed: {exc}")

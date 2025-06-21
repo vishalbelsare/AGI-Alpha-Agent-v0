@@ -26,9 +26,11 @@ class TestInspectorBridgeRuntime(unittest.TestCase):
         adk_bridge = importlib.reload(_adk_bridge)
 
         runtime = MagicMock()
-        with patch("openai_agents.AgentRuntime", return_value=runtime) as rt_cls, patch.object(
-            adk_bridge, "auto_register"
-        ) as auto_reg, patch.object(adk_bridge, "maybe_launch") as maybe_launch:
+        with (
+            patch("openai_agents.AgentRuntime", return_value=runtime) as rt_cls,
+            patch.object(adk_bridge, "auto_register") as auto_reg,
+            patch.object(adk_bridge, "maybe_launch") as maybe_launch,
+        ):
             mod = importlib.reload(
                 importlib.import_module("alpha_factory_v1.demos.alpha_asi_world_model.openai_agents_bridge")
             )

@@ -21,12 +21,9 @@ class TestPhaseOrder:
             events.append(current)
             return 0.0, 0.01
 
-        asyncio.run(
-            evolve(op, evaluate, archive, max_cost=0.02, phase_hook=hook)
-        )
+        asyncio.run(evolve(op, evaluate, archive, max_cost=0.02, phase_hook=hook))
 
         assert Phase.SELF_MOD in events
         assert Phase.TASK_SOLVE in events
         first_task = events.index(Phase.TASK_SOLVE)
         assert all(e == Phase.SELF_MOD for e in events[:first_task])
-

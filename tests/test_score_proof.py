@@ -29,4 +29,3 @@ def test_score_proof_roundtrip(tmp_path: Path) -> None:
     proof = transcript.with_suffix(".proof").read_text()
     assert verify_score_proof([0.8, 0.4], 0.5, proof)
     assert verify_onchain(proof)
-

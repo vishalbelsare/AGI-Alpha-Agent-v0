@@ -10,9 +10,7 @@ class GeneticTestsTest(unittest.TestCase):
 
     def test_stochastic_zero_noise(self):
         genes = {"temperature": 0.7, "top_p": 0.9, "max_tokens": 128}
-        self.assertAlmostEqual(
-            gt.stochastic_fitness(genes, noise=0.0), gt.toy_fitness(genes), places=6
-        )
+        self.assertAlmostEqual(gt.stochastic_fitness(genes, noise=0.0), gt.toy_fitness(genes), places=6)
 
     def test_missing_gene_raises(self):
         with self.assertRaises(KeyError):

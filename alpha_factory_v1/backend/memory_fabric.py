@@ -174,7 +174,6 @@ tracer = trace.get_tracer(__name__) if "trace" in globals() else None  # type: i
 # ──────────────────────── EMBEDDING back-end ░────────────────
 
 
-
 def _load_embedder() -> Callable[[str], Sequence[float]]:
     """Return an embedding function with automatic fallback."""
 
@@ -512,9 +511,7 @@ class _GraphStore:
         if "GraphDatabase" not in globals():
             return
         try:
-            self._driver = GraphDatabase.driver(
-                CFG.NEO4J_URI, auth=(CFG.NEO4J_USER, CFG.NEO4J_PASSWORD)
-            )
+            self._driver = GraphDatabase.driver(CFG.NEO4J_URI, auth=(CFG.NEO4J_USER, CFG.NEO4J_PASSWORD))
             with self._driver.session() as s:
                 s.run("RETURN 1").single()
             self._mode = "neo4j"

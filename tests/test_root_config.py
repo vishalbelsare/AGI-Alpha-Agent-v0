@@ -9,6 +9,7 @@ def test_settings_loads_dotenv(tmp_path, monkeypatch):
     monkeypatch.chdir(tmp_path)
     monkeypatch.delenv("OPENAI_API_KEY", raising=False)
     import src.utils.config as cfg
+
     cfg.init_config()
     settings = cfg.Settings()
     assert settings.openai_api_key == "abc"
@@ -29,6 +30,7 @@ def test_settings_vault_auto(monkeypatch):
     monkeypatch.delenv("OPENAI_API_KEY", raising=False)
     monkeypatch.setitem(sys.modules, "hvac", types.SimpleNamespace(Client=FakeClient))
     import src.utils.config as cfg
+
     cfg.init_config()
     settings = cfg.Settings()
     assert settings.openai_api_key == "vault"
@@ -50,6 +52,7 @@ def test_vault_overrides_dotenv(tmp_path, monkeypatch):
     monkeypatch.setenv("VAULT_ADDR", "http://vault")
     monkeypatch.setitem(sys.modules, "hvac", types.SimpleNamespace(Client=FakeClient))
     import src.utils.config as cfg
+
     cfg.init_config()
     settings = cfg.Settings()
     assert settings.openai_api_key == "vault"
@@ -58,6 +61,7 @@ def test_vault_overrides_dotenv(tmp_path, monkeypatch):
 def test_settings_repr_masks_secret(monkeypatch):
     monkeypatch.setenv("OPENAI_API_KEY", "shh")
     import src.utils.config as cfg
+
     cfg.init_config()
     settings = cfg.Settings()
     rep = repr(settings)

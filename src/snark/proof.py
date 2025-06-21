@@ -55,9 +55,7 @@ def publish_score_proof(
     return cid
 
 
-def verify_score_proof(
-    scores: Sequence[float], threshold: float, proof: str
-) -> bool:
+def verify_score_proof(scores: Sequence[float], threshold: float, proof: str) -> bool:
     """Return ``True`` if ``proof`` matches ``generate_score_proof``."""
     try:
         expected = generate_score_proof(scores, threshold)

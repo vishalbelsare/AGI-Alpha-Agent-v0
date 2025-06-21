@@ -133,6 +133,7 @@ def auroc(truth: list[bool], scores: list[float]) -> float:
 
 def lead_time(truth: list[bool], pred: list[bool]) -> float:
     """Return ``pred`` onset minus ``truth`` onset."""
+
     def first_true(seq: list[bool]) -> int:
         for i, val in enumerate(seq):
             if val:
@@ -174,5 +175,6 @@ def score_trajectory(
     lead = lead_time(truth, preds)
     _append_metrics(Path(csv_path), name, f1, auc, lead)
     return {"f1": f1, "auroc": auc, "lead_time": lead}
+
 
 __all__ += ["f1_score", "auroc", "lead_time", "score_trajectory"]

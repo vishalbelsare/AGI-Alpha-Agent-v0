@@ -315,8 +315,6 @@ __all__ = [
     "DEFAULT_TOOLS",
     *(
         # Only export SDK symbols when they are genuinely available
-        ["Agent", "FileSearchTool", "WebSearchTool", "ComputerTool", "PythonTool"]
-        if SDK_AVAILABLE
-        else []
+        ["Agent", "FileSearchTool", "WebSearchTool", "ComputerTool", "PythonTool"] if SDK_AVAILABLE else []
     ),
 ]

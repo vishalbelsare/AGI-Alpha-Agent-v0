@@ -51,10 +51,7 @@ def test_improve_repo_cleanup(tmp_path: Path) -> None:
     patch_file.write_text(patch)
     log_file = tmp_path / "log.json"
 
-    delta, clone = self_improver.improve_repo(
-        str(repo_dir), str(patch_file), "metric.txt", str(log_file), cleanup=True
-    )
+    delta, clone = self_improver.improve_repo(str(repo_dir), str(patch_file), "metric.txt", str(log_file), cleanup=True)
 
     assert delta == 1
     assert not clone.exists()
-

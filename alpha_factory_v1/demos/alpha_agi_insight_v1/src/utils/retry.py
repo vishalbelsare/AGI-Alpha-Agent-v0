@@ -58,9 +58,7 @@ def with_retry(func: Callable[P, Any], *, max_tries: int = 3) -> Callable[P, Any
         async def wrapper_async(*args: P.args, **kwargs: P.kwargs) -> Any:
             for attempt in range(max_tries):
                 try:
-                    return await cast(Callable[P, Awaitable[T]], func)(
-                        *args, **kwargs
-                    )
+                    return await cast(Callable[P, Awaitable[T]], func)(*args, **kwargs)
                 except Exception as exc:  # pragma: no cover - runtime errors
                     if attempt + 1 >= max_tries:
                         raise

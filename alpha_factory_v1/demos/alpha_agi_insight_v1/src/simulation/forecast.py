@@ -120,9 +120,7 @@ def _innovation_gain(
         history = [1.0, 1.0, 1.0]
         base = lead_time._arima_baseline(history, 3)
         forecast_series = [b + x + y for b in base]
-        lead_impr = lead_time.lead_signal_improvement(
-            history, forecast_series, months=3, threshold=1.1
-        )
+        lead_impr = lead_time.lead_signal_improvement(history, forecast_series, months=3, threshold=1.1)
         lead_penalty = 1.0 - lead_impr
         return effectiveness, negative_evar, complexity, lead_penalty
 

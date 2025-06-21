@@ -82,4 +82,3 @@ def test_restart_backoff(monkeypatch):
     restart_delays = [d for d in delays if d not in (0, 2)]
     assert restart_delays[:2] == [1.0, 2.0]
     assert events.count("restart") >= 2
-

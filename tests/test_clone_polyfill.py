@@ -8,6 +8,7 @@ import pytest
 
 CLONE_JS = Path("src/utils/clone.js")
 
+
 @pytest.mark.skipif(not shutil.which("node"), reason="node not available")
 def test_clone_polyfill(tmp_path: Path) -> None:
     script = tmp_path / "run.mjs"

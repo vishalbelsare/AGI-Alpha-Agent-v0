@@ -59,4 +59,3 @@ def test_simulate_flow_uvicorn(uvicorn_server: str) -> None:
         assert "forecast" in data
         r2 = client.get("/results/does-not-exist", headers=headers)
         assert r2.status_code == 404
-

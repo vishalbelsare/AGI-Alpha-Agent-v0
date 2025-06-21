@@ -15,6 +15,7 @@ logger = logging.getLogger(__name__)
 
 try:
     from openai_agents import Agent, AgentRuntime, Tool
+
     HAS_OAI = True
 except ModuleNotFoundError:  # pragma: no cover - optional dep
     HAS_OAI = False
@@ -55,9 +56,7 @@ class GovernanceSimAgent(Agent):
 
 
 def _parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
-    ap = argparse.ArgumentParser(
-        description="Expose the governance simulation via OpenAI Agents runtime"
-    )
+    ap = argparse.ArgumentParser(description="Expose the governance simulation via OpenAI Agents runtime")
     ap.add_argument("-N", "--agents", type=int, default=100, help="agents when offline")
     ap.add_argument("-r", "--rounds", type=int, default=1000, help="rounds when offline")
     ap.add_argument("--delta", type=float, default=0.8, help="discount factor when offline")

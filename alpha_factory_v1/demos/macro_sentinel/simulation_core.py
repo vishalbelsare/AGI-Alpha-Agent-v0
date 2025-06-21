@@ -9,8 +9,8 @@ metrics, and **actionable hedge notionals** (equity + rates).
 
 New in this revision
 ────────────────────
-▪ Two-regime stochastic vol (Heston-lite) reacts to VIX spikes  
-▪ DV01 hedge sizing computed from par-swap curve snapshot  
+▪ Two-regime stochastic vol (Heston-lite) reacts to VIX spikes
+▪ DV01 hedge sizing computed from par-swap curve snapshot
 ▪ Sensitivity matrix cached in memory; < 30 ms / 20 k paths on laptop CPU
 ▪ `scenario_table()` helper returns P50 / P95 / P99 distributions for UI
 ▪ 100 % self-contained; no external data fetch at import-time

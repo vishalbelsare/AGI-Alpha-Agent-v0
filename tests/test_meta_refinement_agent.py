@@ -20,11 +20,7 @@ def test_refinement_merges_patch(tmp_path: Path) -> None:
     logs = tmp_path / "logs"
     logs.mkdir()
     (logs / "log.json").write_text(
-        "\n".join([
-            '{"hash":"h0","ts":0}',
-            '{"hash":"h1","ts":1}',
-            '{"hash":"h2","ts":5}'
-        ]),
+        "\n".join(['{"hash":"h0","ts":0}', '{"hash":"h1","ts":1}', '{"hash":"h2","ts":5}']),
         encoding="utf-8",
     )
 
@@ -73,11 +69,7 @@ def test_refinement_rejected_patch(tmp_path: Path) -> None:
     logs = tmp_path / "logs"
     logs.mkdir()
     (logs / "log.json").write_text(
-        "\n".join([
-            '{"hash":"h0","ts":0}',
-            '{"hash":"h1","ts":1}',
-            '{"hash":"h2","ts":5}'
-        ]),
+        "\n".join(['{"hash":"h0","ts":0}', '{"hash":"h1","ts":1}', '{"hash":"h2","ts":5}']),
         encoding="utf-8",
     )
 

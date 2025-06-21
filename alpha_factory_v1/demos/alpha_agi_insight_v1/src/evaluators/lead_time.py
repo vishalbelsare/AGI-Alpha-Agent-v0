@@ -47,5 +47,5 @@ def lead_signal_improvement(
         return 0.0
     return (base_idx - cand_idx) / base_idx
 
-__all__ = ["lead_signal_improvement"]
 
+__all__ = ["lead_signal_improvement"]

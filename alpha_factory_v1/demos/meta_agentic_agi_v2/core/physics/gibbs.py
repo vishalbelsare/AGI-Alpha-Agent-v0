@@ -2,6 +2,7 @@
 # core/physics/gibbs.py
 import numpy as np
 
+
 def free_energy(logp: np.ndarray, temperature: float, task_cost: float) -> float:
     """
     Gibbs / variational free energy (negative ELBO):

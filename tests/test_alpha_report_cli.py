@@ -9,9 +9,7 @@ class TestAlphaReportCLI(unittest.TestCase):
     """Ensure the alpha_report CLI runs with a custom data directory."""
 
     def test_run_with_data_dir(self) -> None:
-        data_dir = Path(
-            "alpha_factory_v1/demos/macro_sentinel/offline_samples"
-        ).as_posix()
+        data_dir = Path("alpha_factory_v1/demos/macro_sentinel/offline_samples").as_posix()
         result = subprocess.run(
             [
                 sys.executable,
@@ -28,4 +26,3 @@ class TestAlphaReportCLI(unittest.TestCase):
 
 if __name__ == "__main__":  # pragma: no cover
     unittest.main()
-

@@ -17,7 +17,7 @@ def _run_sim(page):
     page.click("#simulator-panel #sim-start")
     page.wait_for_function("window.pop && window.pop[0] && window.pop[0].umap")
     coords = page.evaluate("window.pop.map(p=>p.umap)")
-    page.click('#simulator-panel #sim-cancel')
+    page.click("#simulator-panel #sim-cancel")
     return coords
 
 
@@ -42,4 +42,3 @@ def test_umap_fallback_random_coordinates() -> None:
         pytest.skip(f"Playwright browser not installed: {exc}")
     assert first != second
     assert all(len(pt) == 2 for pt in first)
-

@@ -20,4 +20,3 @@ def test_spanish_labels() -> None:
         label_text = page.locator("#controls label").first.inner_text()
         assert "Semilla" in label_text
         browser.close()
-

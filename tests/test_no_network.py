@@ -13,26 +13,32 @@ COMPOSE_FILE = Path(__file__).resolve().parents[1] / "infrastructure" / "docker-
 
 @pytest.fixture(scope="module")
 def compose_stack() -> None:
-    subprocess.run([
-        "docker",
-        "compose",
-        "-f",
-        str(COMPOSE_FILE),
-        "up",
-        "-d",
-        "agents",
-    ], check=True)
-    try:
-        yield
-    finally:
-        subprocess.run([
+    subprocess.run(
+        [
             "docker",
             "compose",
             "-f",
             str(COMPOSE_FILE),
-            "down",
-            "-v",
-        ], check=False)
+            "up",
+            "-d",
+            "agents",
+        ],
+        check=True,
+    )
+    try:
+        yield
+    finally:
+        subprocess.run(
+            [
+                "docker",
+                "compose",
+                "-f",
+                str(COMPOSE_FILE),
+                "down",
+                "-v",
+            ],
+            check=False,
+        )
 
 
 def test_agents_no_outbound_network(compose_stack: None) -> None:

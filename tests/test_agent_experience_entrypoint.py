@@ -46,6 +46,7 @@ def _run_main(monkeypatch: pytest.MonkeyPatch, openai_key: str | None, base_url:
     def Tool(*_a, **_k):
         def dec(f):
             return f
+
         return dec
 
     class DummyMemory:

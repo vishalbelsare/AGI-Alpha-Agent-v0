@@ -3,6 +3,7 @@ from __future__ import annotations
 
 from .base import AgentBase
 
+
 class ResearchAgent(AgentBase):
     """Stub research agent harvesting external data."""
 

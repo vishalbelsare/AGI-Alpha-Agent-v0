@@ -110,9 +110,7 @@ def test_run_tests_timeout(tmp_path, monkeypatch):
         "alpha_factory_v1.demos.self_healing_repo.agent_selfheal_entrypoint",
         None,
     )
-    entrypoint = importlib.import_module(
-        "alpha_factory_v1.demos.self_healing_repo.agent_selfheal_entrypoint"
-    )
+    entrypoint = importlib.import_module("alpha_factory_v1.demos.self_healing_repo.agent_selfheal_entrypoint")
     monkeypatch.setattr(entrypoint, "CLONE_DIR", str(repo))
 
     def fake_run(*_a, **_k):

@@ -48,6 +48,7 @@ def prune_expired_tokens(buffer: dict[str, float]) -> None:
     for t in expired:
         buffer.pop(t, None)
 
+
 # --------------------------------------------------------------------- #
 # Zero‑copy JSON → bytes helper                                         #
 # --------------------------------------------------------------------- #
@@ -56,6 +57,7 @@ try:
 
     def _dumps(obj: _t.Any) -> bytes:  # noqa: D401
         return _json.dumps(obj)
+
 except ModuleNotFoundError:  # pragma: no cover
     import json as _json
 
@@ -135,8 +137,9 @@ class TraceHub:
             )
 
 
-# Singleton – imported by other modules
+# Singleton – imported by other modules
 hub = TraceHub()
+
 
 # --------------------------------------------------------------------- #
 # FastAPI / Starlette integration                                       #
@@ -182,11 +185,7 @@ def attach(app) -> None:  # noqa: D401
             init = await websocket.receive_json()
             # prune expired tokens before validation
             prune_expired_tokens(_api_buffer)
-            if not (
-                isinstance(init, dict)
-                and "csrf" in init
-                and init["csrf"] in _api_buffer
-            ):
+            if not (isinstance(init, dict) and "csrf" in init and init["csrf"] in _api_buffer):
                 await websocket.close(code=4401)  # 4401 = “unauthorised”
                 return
 

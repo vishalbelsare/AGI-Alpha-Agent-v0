@@ -2,6 +2,7 @@
 import time
 from src.archive.solution_archive import SolutionArchive
 
+
 def test_query_speed_and_histogram(tmp_path) -> None:
     arch = SolutionArchive(tmp_path / "sol.duckdb")
     for i in range(10000):

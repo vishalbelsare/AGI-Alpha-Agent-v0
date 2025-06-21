@@ -8,16 +8,22 @@ import pytest
 
 BROWSER_DIR = Path("alpha_factory_v1/demos/alpha_agi_insight_v1/insight_browser_v1")
 
+
 @pytest.mark.skipif(not shutil.which("npm"), reason="npm not available")
 def test_distribution_zip(tmp_path: Path) -> None:
     zip_path = BROWSER_DIR / "insight_browser.zip"
     if zip_path.exists():
         zip_path.unlink()
-    result = subprocess.run([
-        "npm",
-        "run",
-        "build:dist",
-    ], cwd=BROWSER_DIR, capture_output=True, text=True)
+    result = subprocess.run(
+        [
+            "npm",
+            "run",
+            "build:dist",
+        ],
+        cwd=BROWSER_DIR,
+        capture_output=True,
+        text=True,
+    )
     assert result.returncode == 0, result.stderr
     assert zip_path.exists(), "insight_browser.zip missing"
     assert zip_path.stat().st_size <= 3 * 1024 * 1024, "zip size exceeds 3 MiB"

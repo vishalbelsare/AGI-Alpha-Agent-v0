@@ -24,4 +24,3 @@ def test_install_button_shows_on_event() -> None:
             browser.close()
     except PlaywrightError as exc:
         pytest.skip(f"Playwright browser not installed: {exc}")
-

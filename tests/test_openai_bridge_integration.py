@@ -80,9 +80,7 @@ class TestBusinessAgentIntegration(unittest.TestCase):
             client.get.return_value = DummyResponse(["a"])
             client_cls.return_value = client
             result = asyncio.run(bridge.list_agents())
-        client.get.assert_awaited_once_with(
-            f"{bridge.HOST}/agents", headers=bridge.HEADERS, timeout=5
-        )
+        client.get.assert_awaited_once_with(f"{bridge.HOST}/agents", headers=bridge.HEADERS, timeout=5)
         self.assertEqual(result, ["a"])
 
     def test_trigger_discovery(self):
@@ -143,9 +141,7 @@ class TestBusinessAgentIntegration(unittest.TestCase):
             client.get.return_value = DummyResponse(text="healthy")
             client_cls.return_value = client
             result = asyncio.run(bridge.check_health())
-        client.get.assert_awaited_once_with(
-            f"{bridge.HOST}/healthz", headers=bridge.HEADERS, timeout=5
-        )
+        client.get.assert_awaited_once_with(f"{bridge.HOST}/healthz", headers=bridge.HEADERS, timeout=5)
         self.assertEqual(result, "healthy")
 
     def test_policy_dispatch_discover(self):

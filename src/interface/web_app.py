@@ -24,6 +24,7 @@ from alpha_factory_v1.demos.alpha_agi_insight_v1.src.utils.tracing import (
     agent_cycle_seconds,
     span,
 )
+
 try:
     import prometheus_client
 except Exception:  # pragma: no cover - optional

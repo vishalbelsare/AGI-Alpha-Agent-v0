@@ -33,6 +33,7 @@ from typing import Any, Dict
 try:  # pragma: no cover - optional dependency
     # OpenAI Agents SDK ≥ 0.0.13
     from agents import function_tool, RunContextWrapper  # type: ignore
+
     _HAVE_AGENTS = True
 except ModuleNotFoundError:  # pragma: no cover
     # Provide minimal fallbacks so the orchestrator can import the module.

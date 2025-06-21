@@ -41,10 +41,7 @@ def main() -> int:
         if path.suffix == ".ipynb":
             cell_text = first_markdown_cell(path)
             cell_normalized = "".join(cell_text.split())
-            has_disclaimer = (
-                "docs/DISCLAIMER_SNIPPET.md" in cell_text
-                or disclaimer_normalized in cell_normalized
-            )
+            has_disclaimer = "docs/DISCLAIMER_SNIPPET.md" in cell_text or disclaimer_normalized in cell_normalized
             if not has_disclaimer:
                 missing.append(path)
             continue

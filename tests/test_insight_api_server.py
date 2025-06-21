@@ -37,4 +37,3 @@ def test_root_disclaimer_html(client: TestClient) -> None:
     assert r.status_code == 200
     assert DISCLAIMER in r.text
     assert r.headers.get("content-type", "").startswith("text/html")
-

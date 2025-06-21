@@ -59,4 +59,5 @@ def select_parent_weighted(population: Sequence[Any]) -> Any:
     metrics.dgm_parents_selected_total.inc()
     return population[index]
 
+
 __all__ = ["select_parent", "select_parent_weighted"]

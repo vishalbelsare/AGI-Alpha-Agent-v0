@@ -7,4 +7,3 @@ def test_lead_signal_improvement_over_baseline() -> None:
     forecast = [1.2, 1.3, 1.4]
     score = lead_time.lead_signal_improvement(history, forecast, months=3, threshold=1.1)
     assert score >= 0.15
-

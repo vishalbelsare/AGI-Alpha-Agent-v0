@@ -36,7 +36,7 @@ __all__ = ["store", "store_sync"]
 
 _LOG = get_logger("alpha_factory.mcp")
 
-_ENDPOINT = os.getenv("MCP_ENDPOINT")          # http://host:port/v1
+_ENDPOINT = os.getenv("MCP_ENDPOINT")  # http://host:port/v1
 _TIMEOUT = float(os.getenv("MCP_TIMEOUT_SEC", 10))
 
 
@@ -75,4 +75,3 @@ def store_sync(messages: List[ChatMessage]) -> None:
     an event-loop (e.g. CLI utilities or unit tests).
     """
     asyncio.run(store(messages))
-

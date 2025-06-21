@@ -9,11 +9,7 @@ from pathlib import Path
 import pytest
 
 # Skip when nbformat, nbconvert or ipykernel is unavailable
-missing = [
-    name
-    for name in ("nbformat", "nbconvert", "ipykernel")
-    if importlib.util.find_spec(name) is None
-]
+missing = [name for name in ("nbformat", "nbconvert", "ipykernel") if importlib.util.find_spec(name) is None]
 if missing:
     reason = ", ".join(missing) + " missing"
     pytest.skip(reason, allow_module_level=True)

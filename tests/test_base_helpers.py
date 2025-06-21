@@ -4,6 +4,7 @@ import unittest
 
 from alpha_factory_v1.backend.agents import base as base_mod
 
+
 class TestPromMetrics(unittest.TestCase):
     def test_prom_metrics_none(self):
         orig_counter = base_mod.Counter
@@ -21,13 +22,17 @@ class TestPromMetrics(unittest.TestCase):
         class Dummy:
             def __init__(self, *_, **__):
                 self.label_arg = None
+
             def labels(self, name):
                 self.label_arg = name
                 return self
+
             def inc(self):
                 pass
+
             def set(self, v):
                 self.value = v
+
         orig_counter = base_mod.Counter
         orig_gauge = base_mod.Gauge
         base_mod.Counter = Dummy
@@ -39,6 +44,7 @@ class TestPromMetrics(unittest.TestCase):
         self.assertIsInstance(lat, Dummy)
         base_mod.Counter = orig_counter
         base_mod.Gauge = orig_gauge
+
 
 class TestKafkaProducer(unittest.TestCase):
     def test_no_broker(self):
@@ -60,6 +66,7 @@ class TestKafkaProducer(unittest.TestCase):
         class Stub:
             def __init__(self, bootstrap_servers=None, value_serializer=None, linger_ms=None):
                 self.args = (bootstrap_servers, value_serializer, linger_ms)
+
         os.environ["ALPHA_KAFKA_BROKER"] = "a:1,b:2 ,"
         orig = base_mod.KafkaProducer
         base_mod.KafkaProducer = Stub
@@ -69,9 +76,11 @@ class TestKafkaProducer(unittest.TestCase):
         base_mod.KafkaProducer = orig
         os.environ.pop("ALPHA_KAFKA_BROKER", None)
 
+
 class TestEnvSeconds(unittest.TestCase):
     def test_env_seconds(self):
         from alpha_factory_v1.backend.agents.ping_agent import _env_seconds, _MIN_INTERVAL
+
         os.environ.pop("X_INT", None)
         self.assertEqual(_env_seconds("X_INT", 42), 42)
         os.environ["X_INT"] = "2"
@@ -81,6 +90,7 @@ class TestEnvSeconds(unittest.TestCase):
         os.environ["X_INT"] = "bad"
         self.assertEqual(_env_seconds("X_INT", 7), 7)
         os.environ.pop("X_INT", None)
+
 
 if __name__ == "__main__":
     unittest.main()

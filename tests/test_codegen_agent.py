@@ -15,17 +15,19 @@ def test_execute_in_sandbox_stdout(monkeypatch) -> None:
     called = {}
 
     def fake_run(cmd):
-        called['cmd'] = cmd
+        called["cmd"] = cmd
+
         class P:
             stdout = '{"stdout":"x\\n","stderr":""}'
-            stderr = ''
+            stderr = ""
             returncode = 0
+
         return P()
 
     monkeypatch.setattr(codegen_agent, "secure_run", fake_run)
     agent = _make_agent()
     out, err = agent.execute_in_sandbox("print('x')")
-    assert called['cmd'][0].endswith('python') or 'python' in called['cmd'][0]
+    assert called["cmd"][0].endswith("python") or "python" in called["cmd"][0]
     assert out == "x\n"
     assert err == ""
 

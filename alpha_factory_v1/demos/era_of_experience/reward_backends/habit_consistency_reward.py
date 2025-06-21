@@ -31,7 +31,7 @@ The orchestrator should forward an *observation* that contains **at least**:
 ---------------------------------------------------------------------------
 Scoring
 -------
-1. First ever sighting of a habit: **+0.25**  
+1. First ever sighting of a habit: **+0.25**
    _Rationale_: seed exploration without overweighting cold‑start.
 
 2. Subsequent occurrences compute the elapsed hours ``Δ`` since *the SAME*
@@ -47,8 +47,8 @@ Scoring
 ---------------------------------------------------------------------------
 Implementation notes
 --------------------
-• **Thread‑safe**: a per‑process memory dictionary protected by a Lock.  
-• **Stateless config**: tweak thresholds via module‑level constants.  
+• **Thread‑safe**: a per‑process memory dictionary protected by a Lock.
+• **Stateless config**: tweak thresholds via module‑level constants.
 • **Zero deps**: std‑lib only — works offline, inside minimal containers.
 
 © 2025 Montreal.AI – Apache-2.0 License

@@ -17,7 +17,5 @@ def test_storage_access_toast() -> None:
         page = context.new_page()
         page.goto(url)
         page.wait_for_selector("#controls")
-        page.wait_for_function(
-            "document.getElementById('toast').textContent.includes('no storage access')"
-        )
+        page.wait_for_function("document.getElementById('toast').textContent.includes('no storage access')")
         browser.close()

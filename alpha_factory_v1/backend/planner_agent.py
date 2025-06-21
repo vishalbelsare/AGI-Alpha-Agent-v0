@@ -19,7 +19,6 @@ def _extract_json(text: str) -> Dict[str, Any]:
     return json.loads(match.group(0))
 
 
-
 class PlannerAgent(AgentBase):
     """LLM‑driven scheduler deciding which domain agent runs next.
 

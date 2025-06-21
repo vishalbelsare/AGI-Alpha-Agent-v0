@@ -105,4 +105,3 @@ def test_archive_service_broadcast(tmp_path) -> None:
         asyncio.run(svc.broadcast_merkle_root())
     assert captured["url"] == "http://rpc.test"
     assert captured["root"] == root
-

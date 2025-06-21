@@ -167,9 +167,7 @@ async def list_agents() -> list[str]:
 @Tool(name="trigger_discovery", description="Trigger the AlphaDiscoveryAgent")
 async def trigger_discovery() -> str:
     async with AsyncClient() as client:
-        resp = await client.post(
-            f"{HOST}/agent/alpha_discovery/trigger", headers=HEADERS, timeout=5
-        )
+        resp = await client.post(f"{HOST}/agent/alpha_discovery/trigger", headers=HEADERS, timeout=5)
     resp.raise_for_status()
     return "alpha_discovery queued"
 
@@ -177,9 +175,7 @@ async def trigger_discovery() -> str:
 @Tool(name="trigger_opportunity", description="Trigger the AlphaOpportunityAgent")
 async def trigger_opportunity() -> str:
     async with AsyncClient() as client:
-        resp = await client.post(
-            f"{HOST}/agent/alpha_opportunity/trigger", headers=HEADERS, timeout=5
-        )
+        resp = await client.post(f"{HOST}/agent/alpha_opportunity/trigger", headers=HEADERS, timeout=5)
     resp.raise_for_status()
     return "alpha_opportunity queued"
 
@@ -212,9 +208,7 @@ async def trigger_best_alpha() -> str:
 @Tool(name="trigger_execution", description="Trigger the AlphaExecutionAgent")
 async def trigger_execution() -> str:
     async with AsyncClient() as client:
-        resp = await client.post(
-            f"{HOST}/agent/alpha_execution/trigger", headers=HEADERS, timeout=5
-        )
+        resp = await client.post(f"{HOST}/agent/alpha_execution/trigger", headers=HEADERS, timeout=5)
     resp.raise_for_status()
     return "alpha_execution queued"
 
@@ -222,9 +216,7 @@ async def trigger_execution() -> str:
 @Tool(name="trigger_risk", description="Trigger the AlphaRiskAgent")
 async def trigger_risk() -> str:
     async with AsyncClient() as client:
-        resp = await client.post(
-            f"{HOST}/agent/alpha_risk/trigger", headers=HEADERS, timeout=5
-        )
+        resp = await client.post(f"{HOST}/agent/alpha_risk/trigger", headers=HEADERS, timeout=5)
     resp.raise_for_status()
     return "alpha_risk queued"
 
@@ -232,9 +224,7 @@ async def trigger_risk() -> str:
 @Tool(name="trigger_compliance", description="Trigger the AlphaComplianceAgent")
 async def trigger_compliance() -> str:
     async with AsyncClient() as client:
-        resp = await client.post(
-            f"{HOST}/agent/alpha_compliance/trigger", headers=HEADERS, timeout=5
-        )
+        resp = await client.post(f"{HOST}/agent/alpha_compliance/trigger", headers=HEADERS, timeout=5)
     resp.raise_for_status()
     return "alpha_compliance queued"
 
@@ -242,9 +232,7 @@ async def trigger_compliance() -> str:
 @Tool(name="trigger_portfolio", description="Trigger the AlphaPortfolioAgent")
 async def trigger_portfolio() -> str:
     async with AsyncClient() as client:
-        resp = await client.post(
-            f"{HOST}/agent/alpha_portfolio/trigger", headers=HEADERS, timeout=5
-        )
+        resp = await client.post(f"{HOST}/agent/alpha_portfolio/trigger", headers=HEADERS, timeout=5)
     resp.raise_for_status()
     return "alpha_portfolio queued"
 
@@ -252,9 +240,7 @@ async def trigger_portfolio() -> str:
 @Tool(name="trigger_planning", description="Trigger the PlanningAgent")
 async def trigger_planning() -> str:
     async with AsyncClient() as client:
-        resp = await client.post(
-            f"{HOST}/agent/planning/trigger", headers=HEADERS, timeout=5
-        )
+        resp = await client.post(f"{HOST}/agent/planning/trigger", headers=HEADERS, timeout=5)
     resp.raise_for_status()
     return "planning queued"
 
@@ -262,9 +248,7 @@ async def trigger_planning() -> str:
 @Tool(name="trigger_research", description="Trigger the ResearchAgent")
 async def trigger_research() -> str:
     async with AsyncClient() as client:
-        resp = await client.post(
-            f"{HOST}/agent/research/trigger", headers=HEADERS, timeout=5
-        )
+        resp = await client.post(f"{HOST}/agent/research/trigger", headers=HEADERS, timeout=5)
     resp.raise_for_status()
     return "research queued"
 
@@ -272,9 +256,7 @@ async def trigger_research() -> str:
 @Tool(name="trigger_strategy", description="Trigger the StrategyAgent")
 async def trigger_strategy() -> str:
     async with AsyncClient() as client:
-        resp = await client.post(
-            f"{HOST}/agent/strategy/trigger", headers=HEADERS, timeout=5
-        )
+        resp = await client.post(f"{HOST}/agent/strategy/trigger", headers=HEADERS, timeout=5)
     resp.raise_for_status()
     return "strategy queued"
 
@@ -282,9 +264,7 @@ async def trigger_strategy() -> str:
 @Tool(name="trigger_market_analysis", description="Trigger the MarketAnalysisAgent")
 async def trigger_market_analysis() -> str:
     async with AsyncClient() as client:
-        resp = await client.post(
-            f"{HOST}/agent/market_analysis/trigger", headers=HEADERS, timeout=5
-        )
+        resp = await client.post(f"{HOST}/agent/market_analysis/trigger", headers=HEADERS, timeout=5)
     resp.raise_for_status()
     return "market_analysis queued"
 
@@ -292,9 +272,7 @@ async def trigger_market_analysis() -> str:
 @Tool(name="trigger_memory", description="Trigger the MemoryAgent")
 async def trigger_memory() -> str:
     async with AsyncClient() as client:
-        resp = await client.post(
-            f"{HOST}/agent/memory/trigger", headers=HEADERS, timeout=5
-        )
+        resp = await client.post(f"{HOST}/agent/memory/trigger", headers=HEADERS, timeout=5)
     resp.raise_for_status()
     return "memory queued"
 
@@ -302,9 +280,7 @@ async def trigger_memory() -> str:
 @Tool(name="trigger_safety", description="Trigger the SafetyAgent")
 async def trigger_safety() -> str:
     async with AsyncClient() as client:
-        resp = await client.post(
-            f"{HOST}/agent/safety/trigger", headers=HEADERS, timeout=5
-        )
+        resp = await client.post(f"{HOST}/agent/safety/trigger", headers=HEADERS, timeout=5)
     resp.raise_for_status()
     return "safety queued"
 

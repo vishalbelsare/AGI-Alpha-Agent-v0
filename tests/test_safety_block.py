@@ -18,6 +18,7 @@ from google.protobuf import struct_pb2
 
 def test_malicious_message_blocked(tmp_path) -> None:
     if not hasattr(struct_pb2.Struct, "get"):
+
         def _get(self: struct_pb2.Struct, key: str, default=None):
             try:
                 return self[key]

@@ -37,7 +37,6 @@ __all__ = ["MarketData", "BaseMarketData", "PolygonMarketData", "BinanceMarketDa
 # ---------------------------------------------------------------------------#
 
 
-
 class BaseMarketData:  # pragma: no cover
     """Abstract async price‑feed interface with context manager sugar."""
 
@@ -239,5 +238,3 @@ class MarketData(BaseMarketData):
     def spot(self, symbol: str) -> float:
         """Blocking helper around *price* (for simple scripts / tests)."""
         return asyncio.run(self.price(symbol))
-
-

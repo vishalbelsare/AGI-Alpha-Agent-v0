@@ -26,4 +26,3 @@ def test_propagate_shocks_to_tickers() -> None:
     assert impacts["AMZN"] == pytest.approx(-0.05)
     # MSFT appears in apps and cloud_compute; only apps is provided
     assert impacts["MSFT"] == pytest.approx(0.02)
-

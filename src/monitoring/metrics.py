@@ -101,11 +101,19 @@ else:  # pragma: no cover - prometheus not installed
         def labels(self, *_a: Any, **_kw: Any) -> "_N":
             return self
 
-        def inc(self, *_a: Any, **_kw: Any) -> None: ...
+        def inc(self, *_a: Any, **_kw: Any) -> None:
+            ...
 
-        def set(self, *_a: Any, **_kw: Any) -> None: ...
+        def set(self, *_a: Any, **_kw: Any) -> None:
+            ...
 
-    dgm_tokens_total = dgm_cost_usd_total = dgm_children_total = dgm_parents_selected_total = (
+    dgm_tokens_total = (
+        dgm_cost_usd_total
+    ) = (
+        dgm_children_total
+    ) = (
+        dgm_parents_selected_total
+    ) = (
         dgm_children_admitted_total
     ) = (
         dgm_revives_total
@@ -115,8 +123,4 @@ else:  # pragma: no cover - prometheus not installed
         dgm_archive_mean
     ) = (
         dgm_lineage_depth
-    ) = (
-        dgm_gpu_hours_total
-    ) = (
-        dgm_fitness_gain_total
-    ) = dgm_gpu_hours_per_gain = dgm_gpu_seconds_per_gain = _N()
+    ) = dgm_gpu_hours_total = dgm_fitness_gain_total = dgm_gpu_hours_per_gain = dgm_gpu_seconds_per_gain = _N()

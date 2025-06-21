@@ -51,4 +51,3 @@ def test_research_agent_logs_exception():
     with mock.patch.object(research_agent.log, "warning") as warn:
         asyncio.run(agent.handle(env))
         warn.assert_called_once()
-

@@ -51,6 +51,4 @@ def test_results_checksum(tmp_path: Path, cfg: dict[str, int]) -> None:
     diff_bits = _hamming_dist(bytes.fromhex(checksum), bytes.fromhex(golden))
     max_bits = max(len(checksum), len(golden)) * 4
     diff_ratio = diff_bits / max_bits
-    assert diff_ratio <= 0.001, (
-        f"Checksum differs by {diff_ratio*100:.3f}% (threshold 0.1%)"
-    )
+    assert diff_ratio <= 0.001, f"Checksum differs by {diff_ratio*100:.3f}% (threshold 0.1%)"

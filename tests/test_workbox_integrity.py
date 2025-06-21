@@ -41,9 +41,7 @@ def test_workbox_hash_mismatch(tmp_path: Path) -> None:
             page = context.new_page()
             page.goto(url)
             page.wait_for_selector("#controls")
-            page.wait_for_function(
-                "document.getElementById('toast').textContent.includes('offline mode disabled')"
-            )
+            page.wait_for_function("document.getElementById('toast').textContent.includes('offline mode disabled')")
             assert page.evaluate("navigator.serviceWorker.controller") is None
             browser.close()
     except PlaywrightError as exc:

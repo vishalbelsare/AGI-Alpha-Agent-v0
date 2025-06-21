@@ -20,4 +20,3 @@ def test_chinese_labels() -> None:
         label_text = page.locator("#controls label").first.inner_text()
         assert "种子" in label_text
         browser.close()
-

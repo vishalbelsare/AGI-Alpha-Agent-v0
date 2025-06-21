@@ -8,13 +8,16 @@ import shutil
 import socket
 import af_requests as requests
 import pathlib
+
 try:
     import pytest
 except ModuleNotFoundError:  # pragma: no cover - allow unittest fallback
+
     class _DummyMark:
         def skipif(self, *_, **__):
             def wrapper(func):
                 return func
+
             return wrapper
 
     class _DummyPytest:
@@ -32,6 +35,7 @@ def _docker_available() -> bool:
     except Exception:
         return False
 
+
 def wait_port(host, port, timeout=30):
     end = time.time() + timeout
     while time.time() < end:
@@ -40,6 +44,7 @@ def wait_port(host, port, timeout=30):
                 return True
         time.sleep(1)
     raise TimeoutError(f"{host}:{port} not open")
+
 
 @pytest.mark.skipif(not _docker_available(), reason="docker not available")
 def test_container_build_and_ui():
@@ -54,5 +59,3 @@ def test_container_build_and_ui():
         assert r.status_code == 200
     finally:
         subprocess.run(["docker", "rm", "-f", cid])
-
-

@@ -8,16 +8,15 @@ from pathlib import Path
 
 import pytest
 
-TAXONOMY_TS = Path('src/taxonomy.ts')
+TAXONOMY_TS = Path("src/taxonomy.ts")
 
-@pytest.mark.skipif(not shutil.which('tsc') or not shutil.which('node'), reason='tsc/node not available')
+
+@pytest.mark.skipif(not shutil.which("tsc") or not shutil.which("node"), reason="tsc/node not available")
 def test_taxonomy_mine_and_prune(tmp_path: Path) -> None:
-    js_out = tmp_path / 'taxonomy.js'
-    subprocess.run([
-        'tsc', '--target', 'es2020', '--module', 'es2020', TAXONOMY_TS, '--outFile', js_out
-    ], check=True)
+    js_out = tmp_path / "taxonomy.js"
+    subprocess.run(["tsc", "--target", "es2020", "--module", "es2020", TAXONOMY_TS, "--outFile", js_out], check=True)
 
-    script = tmp_path / 'run.mjs'
+    script = tmp_path / "run.mjs"
     script.write_text(
         f"import {{ mineTaxonomy, pruneTaxonomy }} from '{js_out.resolve().as_posix()}';\n"
         "const runs = [\n"
@@ -29,6 +28,6 @@ def test_taxonomy_mine_and_prune(tmp_path: Path) -> None:
         "g = pruneTaxonomy(g, new Set(['A']));\n"
         "console.log(JSON.stringify(g));\n"
     )
-    result = subprocess.run(['node', script], capture_output=True, text=True, check=True)
+    result = subprocess.run(["node", script], capture_output=True, text=True, check=True)
     data = json.loads(result.stdout)
-    assert set(data['nodes'].keys()) == {'A'}
+    assert set(data["nodes"].keys()) == {"A"}

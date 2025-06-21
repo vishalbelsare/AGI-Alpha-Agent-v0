@@ -3,6 +3,7 @@ import json
 import unittest
 from pathlib import Path
 
+
 class TestBusinessNotebook(unittest.TestCase):
     def test_notebook_valid(self) -> None:
         nb_path = Path("alpha_factory_v1/demos/alpha_agi_business_v1/colab_alpha_agi_business_v1_demo.ipynb")
@@ -11,6 +12,7 @@ class TestBusinessNotebook(unittest.TestCase):
         self.assertIn("cells", data)
         self.assertIn("nbformat", data)
         self.assertGreaterEqual(data.get("nbformat", 0), 4)
+
 
 if __name__ == "__main__":  # pragma: no cover
     unittest.main()

@@ -146,9 +146,7 @@ class LocalLlamaProvider(BaseProvider):
             raise FileNotFoundError(f"Local model not found: {path}")
         self._llm = llama_cpp.Llama(model_path=path, n_ctx=n_ctx, logits_all=False)
 
-    def chat(
-        self, system: str, user: str, temperature: float = 0.4, max_tokens: int = 1024, **_
-    ) -> str:
+    def chat(self, system: str, user: str, temperature: float = 0.4, max_tokens: int = 1024, **_) -> str:
         prompt = f"<|system|>{system}\n<|user|>{user}\n<|assistant|>"
         out = self._llm(
             prompt,
@@ -164,10 +162,7 @@ class StubProvider(BaseProvider):
 
     def chat(self, system: str, user: str, **kw) -> str:  # type: ignore[override]
         LOG.debug("StubProvider called - offline mode.")
-        return (
-            "⚠️ Offline stub: no provider available.\n"
-            f"(Echo of last 120 chars of user prompt)\n\n{user[-120:]}"
-        )
+        return "⚠️ Offline stub: no provider available.\n" f"(Echo of last 120 chars of user prompt)\n\n{user[-120:]}"
 
 
 def auto_provider(spec: Optional[str] = None) -> BaseProvider:
@@ -255,9 +250,7 @@ class LineageDB:
 
     def fetch_events(self, since_id: int = 0) -> List[Dict[str, Any]]:
         cur = self._conn.execute("SELECT id,ts,kind,payload FROM events WHERE id>?", (since_id,))
-        return [
-            {"id": i, "ts": ts, "kind": k, "payload": json.loads(p)} for i, ts, k, p in cur.fetchall()
-        ]
+        return [{"id": i, "ts": ts, "kind": k, "payload": json.loads(p)} for i, ts, k, p in cur.fetchall()]
 
 
 # --------------------------------------------------------------------------- #
@@ -392,9 +385,7 @@ async def evolutionary_search(
         offspring: List[Candidate] = []
         for _ in range(pop_size):
             # Small in-context prompt (2 AZR tasks) → new agent code
-            ctx = "\n\n".join(
-                f"# Task:\n{t.program[:120]} …" for t in rng.sample(tasks, k=min(2, len(tasks)))
-            )
+            ctx = "\n\n".join(f"# Task:\n{t.program[:120]} …" for t in rng.sample(tasks, k=min(2, len(tasks))))
             prompt = (
                 "Write a *deterministic* Python function `agent(x)` that can solve tasks like:\n"
                 f"{ctx}\n\n"
@@ -422,7 +413,7 @@ async def evolutionary_search(
         population.sort(
             key=lambda c: (-c.metrics.get("correct", 0), len(c.code)),
         )
-        population = population[: pop_size]
+        population = population[:pop_size]
         best = population[0]
         db.agent(gen, best.code, best.metrics)
         LOG.info(
@@ -547,16 +538,11 @@ def parse_args() -> argparse.Namespace:
     p.add_argument(
         "-p",
         "--provider",
-        help="provider spec "
-        "(openai[:model] | anthropic[:model] | local[:/path/model.gguf] | stub)",
+        help="provider spec " "(openai[:model] | anthropic[:model] | local[:/path/model.gguf] | stub)",
     )
     p.add_argument("-g", "--gens", type=int, default=int(os.getenv("ALPHA_N_GEN", 8)))
-    p.add_argument(
-        "-n", "--pop_size", type=int, default=int(os.getenv("ALPHA_POP_SIZE", 6))
-    )
-    p.add_argument(
-        "-m", "--mode", choices=["cli", "streamlit", "api"], default="cli", help="deployment mode"
-    )
+    p.add_argument("-n", "--pop_size", type=int, default=int(os.getenv("ALPHA_POP_SIZE", 6)))
+    p.add_argument("-m", "--mode", choices=["cli", "streamlit", "api"], default="cli", help="deployment mode")
     p.add_argument(
         "--db",
         default=os.getenv("METAAGI_DB", "meta_agentic_agi.sqlite"),

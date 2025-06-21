@@ -56,4 +56,3 @@ def str_replace(path: str | Path, old: str, new: str, *, count: int = 0) -> int:
     if num:
         p.write_text(new_text, encoding="utf-8")
     return num
-

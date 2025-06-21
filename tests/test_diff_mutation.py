@@ -14,4 +14,3 @@ def test_propose_diff_smoke(tmp_path: Path) -> None:
     patcher_core.apply_patch(diff, repo_path=tmp_path)
     assert "extra feature" in target.read_text(encoding="utf-8")
     subprocess.check_call([sys.executable, "-m", "py_compile", str(target)])
-

@@ -24,6 +24,7 @@ try:  # optional dependency
         ConsoleSpanExporter,
     )
     from opentelemetry.sdk.trace.export import OTLPSpanExporter
+
     metrics = otel_metrics
     trace = otel_trace
 except Exception:  # pragma: no cover - missing SDK
@@ -55,11 +56,14 @@ def _noop(*_a: Any, **_kw: Any) -> Any:
         def labels(self, *_a: Any, **_kw: Any) -> "_N":
             return self
 
-        def observe(self, *_a: Any) -> None: ...
+        def observe(self, *_a: Any) -> None:
+            ...
 
-        def inc(self, *_a: Any) -> None: ...
+        def inc(self, *_a: Any) -> None:
+            ...
 
     return _N()
+
 
 if prometheus_client is not None:
     from alpha_factory_v1.backend.metrics_registry import get_metric as _reg_metric

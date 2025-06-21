@@ -30,9 +30,7 @@ def test_ios_panels_pyodide_fallback() -> None:
             page.wait_for_selector("#controls")
             page.wait_for_selector("#simulator-panel")
             page.wait_for_function("window.gen >= 3")
-            page.wait_for_function(
-                "document.querySelectorAll('#evolution-panel table tr').length > 1"
-            )
+            page.wait_for_function("document.querySelectorAll('#evolution-panel table tr').length > 1")
             page.wait_for_selector("#toast.show")
             assert "Pyodide" in page.inner_text("#toast")
             browser.close()

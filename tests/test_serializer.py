@@ -8,9 +8,7 @@ from pathlib import Path
 
 import pytest
 
-SERIALIZER = Path(
-    "alpha_factory_v1/demos/alpha_agi_insight_v1/insight_browser_v1/src/state/serializer.js"
-)
+SERIALIZER = Path("alpha_factory_v1/demos/alpha_agi_insight_v1/insight_browser_v1/src/state/serializer.js")
 
 
 @pytest.mark.skipif(not shutil.which("node"), reason="node not available")
@@ -34,9 +32,7 @@ def test_js_serializer_roundtrip(tmp_path: Path) -> None:
         "rngState": [1, 2, 3, 4],
     }
 
-    result = subprocess.run(
-        ["node", script, json.dumps(sample)], capture_output=True, text=True
-    )
+    result = subprocess.run(["node", script, json.dumps(sample)], capture_output=True, text=True)
     assert result.returncode == 0, result.stderr
     loaded = json.loads(result.stdout)
     assert loaded == sample
@@ -64,9 +60,7 @@ def test_js_serializer_rejects_invalid(tmp_path: Path, payload: dict) -> None:
         "  process.exit(1);\n"
         "}\n"
     )
-    result = subprocess.run(
-        ["node", script, json.dumps(payload)], capture_output=True, text=True
-    )
+    result = subprocess.run(["node", script, json.dumps(payload)], capture_output=True, text=True)
     assert result.returncode == 1
 
 

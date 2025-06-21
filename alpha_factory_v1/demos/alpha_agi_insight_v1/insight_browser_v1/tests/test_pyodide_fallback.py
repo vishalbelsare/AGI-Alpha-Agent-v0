@@ -19,4 +19,3 @@ def test_pyodide_fallback() -> None:
         page.wait_for_selector("#toast.show")
         assert "Pyodide" in page.inner_text("#toast")
         browser.close()
-

@@ -53,9 +53,7 @@ def test_restart_crashed_agent(monkeypatch: mock.Mock) -> None:
 
     settings = config.Settings(bus_port=0)
     monkeypatch.setattr(orchestrator, "Ledger", DummyLedger)
-    monkeypatch.setattr(
-        orchestrator.Orchestrator, "_init_agents", lambda self: [BoomAgent(self.bus, self.ledger)]
-    )
+    monkeypatch.setattr(orchestrator.Orchestrator, "_init_agents", lambda self: [BoomAgent(self.bus, self.ledger)])
 
     async def loop_no_catch(self: orchestrator.AgentRunner, bus, ledger) -> None:
         await self.agent.run_cycle()
