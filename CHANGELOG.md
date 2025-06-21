@@ -11,10 +11,12 @@ For the full changelog, see [docs/CHANGELOG.md](docs/CHANGELOG.md).
 - Initial alpha release.
 - Git tag `v0.1.0-alpha`.
 - This tag points at commit `0ff79a4f`.
-- If cloning from a snapshot without tags, recreate it using:
-  ```bash
-  git tag -a v0.1.0-alpha 0ff79a4f -m "v0.1.0-alpha"
-  git push origin v0.1.0-alpha
-  git tag            # verify the tag exists
-  ```
+ - If cloning from a snapshot without tags, recreate it using:
+    ```bash
+    # Verify the release tag
+    git tag -l v0.1.0-alpha
+    # Recreate the tag when missing
+    ./scripts/create_release_tag.sh HEAD
+    git push origin v0.1.0-alpha
+    ```
  - The package exposes `alpha_factory_v1.__version__ = "0.1.0-alpha"` at this release.
