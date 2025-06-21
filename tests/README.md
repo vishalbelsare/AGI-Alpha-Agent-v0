@@ -6,6 +6,18 @@ This repository is a conceptual research prototype. References to "AGI" and "sup
 
 These integration tests expect the `alpha_factory_v1` package to be importable.
 
+When running the suite without internet access you **must** prepare a local
+wheelhouse first:
+
+```bash
+./scripts/build_offline_wheels.sh
+```
+
+Copy the resulting `wheels/` directory to the offline host and set
+`WHEELHOUSE=$(pwd)/wheels` before executing `python check_env.py --auto-install`
+or `pytest`. The environment check in `tests/conftest.py` will abort when neither
+network access nor a wheelhouse is available.
+
 ## Setup
 
 1. Install the development requirements:
@@ -66,7 +78,7 @@ fall back to CPU execution and are automatically skipped when `torch` is
 absent. Other optional packages behave the same way—tests relying on
 `fastapi`, `playwright` or `httpx` use `pytest.importorskip()` so the suite
 continues even in minimal environments.
-6. Build the wheelhouse on a machine with connectivity:
+6. Build the wheelhouse on a machine with connectivity **(mandatory when offline)**:
    ```bash
    ./scripts/build_offline_wheels.sh
    ```
@@ -85,7 +97,8 @@ continues even in minimal environments.
 9. Without a wheelhouse or network access the environment check fails and
    `tests/conftest.py` skips the entire suite with a concise "no network and no
    wheelhouse" message. Provide `--wheelhouse <dir>` (or set `WHEELHOUSE`) to run
-   the tests offline.
+   the tests offline. Preparing this directory via `scripts/build_offline_wheels.sh`
+   is therefore a mandatory prerequisite when testing in air‑gapped setups.
 10. If `pre-commit` isn't found, install it with `pip install pre-commit` and run
    `pre-commit install` once to enable the git hooks referenced in
    [AGENTS.md](../AGENTS.md).
