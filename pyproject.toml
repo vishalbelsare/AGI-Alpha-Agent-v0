@@ -8,6 +8,7 @@ version = "0.1.0-alpha"
 description = "Alpha-Factory v1"
 readme = "README.md"
 requires-python = ">=3.11,<3.13"
+license = "Apache-2.0"
 
 [tool.setuptools]
 packages = [
