@@ -36,7 +36,7 @@ else:
 MIN_PY = (3, 11)
 MAX_PY = (3, 13)
 MEM_DIR = Path(os.getenv("AF_MEMORY_DIR", f"{tempfile.gettempdir()}/alphafactory"))
-MIN_OPENAI_AGENTS_VERSION = "0.0.17"
+MIN_OPENAI_AGENTS_VERSION = "0.0.19"
 DEFAULT_SANDBOX_IMAGE = os.getenv("SANDBOX_IMAGE", "python:3.11-slim")
 
 COLORS = {
@@ -198,10 +198,10 @@ def check_openai_agents_version(min_version: str = MIN_OPENAI_AGENTS_VERSION) ->
     version = mod.__version__
     if _version_lt(version, min_version):
         banner(
-            f"{module_name} {version} detected; >={min_version} required",
-            "RED",
+            f"{module_name} {version} detected; >={min_version} recommended",
+            "YELLOW",
         )
-        return False
+        return True
     banner(f"{module_name} {version} detected", "GREEN")
     return True
 

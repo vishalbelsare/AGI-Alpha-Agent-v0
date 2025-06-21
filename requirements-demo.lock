@@ -147,9 +147,9 @@ nvidia-nvjitlink-cu12==12.6.85
     #   torch
 nvidia-nvtx-cu12==12.6.77
     # via torch
-openai==1.86.0
+openai==1.90.0
     # via openai-agents
-openai-agents==0.0.17
+openai-agents==0.0.19
     # via -r requirements-demo.txt
 orjson==3.10.18
     # via gradio
