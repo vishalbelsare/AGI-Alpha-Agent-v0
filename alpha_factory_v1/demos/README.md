@@ -14,6 +14,10 @@ This repository is a conceptual research prototype. References to "AGI" and "sup
 > [Apache 2.0 license](../../LICENSE) and
 > [security policy](../../SECURITY.md) for details.
 
+Each demo package exposes its own ``__version__`` constant. These
+numbers indicate the demo revision and are independent from the
+main ``alpha_factory_v1`` package version.
+
 ## 🗺️ Navigator
 | Section | Why read it? |
 |---------|--------------|
