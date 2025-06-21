@@ -7,23 +7,25 @@ from pathlib import Path
 
 import pytest
 
-ENTROPY_TS = Path(
-    "alpha_factory_v1/demos/alpha_agi_insight_v1/insight_browser_v1/src/utils/entropy.ts"
-)
+ENTROPY_TS = Path("alpha_factory_v1/demos/alpha_agi_insight_v1/insight_browser_v1/src/utils/entropy.ts")
+
 
 @pytest.mark.skipif(not shutil.which("tsc") or not shutil.which("node"), reason="tsc/node not available")
 def test_pareto_entropy(tmp_path: Path) -> None:
     js_out = tmp_path / "entropy.js"
-    subprocess.run([
-        "tsc",
-        "--target",
-        "es2020",
-        "--module",
-        "es2020",
-        ENTROPY_TS,
-        "--outFile",
-        js_out,
-    ], check=True)
+    subprocess.run(
+        [
+            "tsc",
+            "--target",
+            "es2020",
+            "--module",
+            "es2020",
+            ENTROPY_TS,
+            "--outFile",
+            js_out,
+        ],
+        check=True,
+    )
 
     script = tmp_path / "run.mjs"
     script.write_text(

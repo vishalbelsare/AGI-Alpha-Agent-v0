@@ -46,30 +46,33 @@ __all__ = [
     "dump_lineage",
 ]
 
+
 # ----------------------------------------------------------------------
-# Multi‑objective handle                                                 
+# Multi‑objective handle
 # ----------------------------------------------------------------------
 class Objective(str):
     """Enumeration of supported search / optimisation objectives."""
-    FITNESS = "fitness"               # accuracy on ARC (primary)
-    TOKEN_COST = "token_cost"         # minimise $
-    LATENCY = "latency_ms"            # wall‑clock
-    CARBON = "gco2e"                  # sustainability
-    DIVERSITY = "diversity"           # embedding distance between prompts
+
+    FITNESS = "fitness"  # accuracy on ARC (primary)
+    TOKEN_COST = "token_cost"  # minimise $
+    LATENCY = "latency_ms"  # wall‑clock
+    CARBON = "gco2e"  # sustainability
+    DIVERSITY = "diversity"  # embedding distance between prompts
 
 
 # ----------------------------------------------------------------------
-# Prompt container                                                      
+# Prompt container
 # ----------------------------------------------------------------------
 class Prompt(TypedDict):
     """A minimal, yet explicit schema for a prompt variant."""
+
     thought: str
     name: str
-    code: str         # python code ‑ usually the forward() impl
+    code: str  # python code ‑ usually the forward() impl
 
     # optional metadata (auto‑filled)
     sha1: str
-    created: str      # ISO timestamp
+    created: str  # ISO timestamp
     parent: str | None
 
 
@@ -80,7 +83,7 @@ def _fingerprint(code: str) -> str:
 
 
 # ----------------------------------------------------------------------
-# Global in‑memory registry                                             
+# Global in‑memory registry
 # ----------------------------------------------------------------------
 _REGISTRY: Dict[str, Prompt] = {}
 
@@ -105,7 +108,7 @@ def get(name: str) -> Prompt:
 
 
 # ----------------------------------------------------------------------
-# Canonical system prompt & base template                               
+# Canonical system prompt & base template
 # ----------------------------------------------------------------------
 system_prompt: str = """You are a helpful assistant. Please return WELL‑FORMED JSON only."""
 
@@ -120,11 +123,12 @@ challenge.  [BASE TEMPLATE PLACEHOLDER – override by adding prompts.base.md]
 
 
 # ----------------------------------------------------------------------
-# Seed agents (imported lazily to keep this module lightweight)         
+# Seed agents (imported lazily to keep this module lightweight)
 # ----------------------------------------------------------------------
 def _load_seed(fname: str) -> str:
     p = Path(__file__).with_name(fname)
     return p.read_text() if p.exists() else f"# Missing seed file: {fname}"
+
 
 _SEED_FILES = {
     "Chain‑of‑Thought": "seed_cot_code.py",
@@ -145,17 +149,17 @@ for _name, _file in _SEED_FILES.items():
 
 
 # ----------------------------------------------------------------------
-# Prompt builders (compat shim for ADAS search loop)                    
+# Prompt builders (compat shim for ADAS search loop)
 # ----------------------------------------------------------------------
 def _archive_to_str(archive: List[Prompt]) -> str:
     return ",\n".join(json.dumps(p, ensure_ascii=False) for p in archive)
 
+
 def get_prompt(current_archive: List[Prompt]) -> tuple[str, str]:
     """Return `(system_prompt, user_prompt)` pair for the LLM."""
     archive_str = f"[{_archive_to_str(current_archive)}]"
-    user_prompt = (
-        BASE_TEMPLATE.replace("[ARCHIVE]", archive_str)
-        .replace("[EXAMPLE]", json.dumps(EXAMPLE_AGENT, ensure_ascii=False))
+    user_prompt = BASE_TEMPLATE.replace("[ARCHIVE]", archive_str).replace(
+        "[EXAMPLE]", json.dumps(EXAMPLE_AGENT, ensure_ascii=False)
     )
     return system_prompt, user_prompt
 
@@ -169,9 +173,12 @@ def get_init_archive() -> List[Prompt]:
 _REFLEXION_1 = """[EXAMPLE]Reflect on the last architecture..."""
 _REFLEXION_2 = """Using the tips in ## WRONG Implementation..."""
 
+
 def get_reflexion_prompt(prev: Prompt | None) -> tuple[str, str]:
     prev_txt = (
-        "" if prev is None else "Here is the previous agent you tried:\n" + json.dumps(prev, ensure_ascii=False) + "\n\n"
+        ""
+        if prev is None
+        else "Here is the previous agent you tried:\n" + json.dumps(prev, ensure_ascii=False) + "\n\n"
     )
     return _REFLEXION_1.replace("[EXAMPLE]", prev_txt), _REFLEXION_2
 
@@ -186,8 +193,9 @@ EXAMPLE_AGENT: Prompt = {
     "parent": None,
 }
 
+
 # ----------------------------------------------------------------------
-# Lineage / telemetry helpers                                           
+# Lineage / telemetry helpers
 # ----------------------------------------------------------------------
 def dump_lineage(path: str | Path = "registry_snapshot.json") -> None:
     """Write current registry to `path` (overwrites)."""

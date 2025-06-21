@@ -28,9 +28,7 @@ def _ensure(path: Path) -> None:
             )
             """
         )
-        cx.execute(
-            "CREATE TABLE IF NOT EXISTS merkle(date TEXT PRIMARY KEY, root TEXT)"
-        )
+        cx.execute("CREATE TABLE IF NOT EXISTS merkle(date TEXT PRIMARY KEY, root TEXT)")
 
 
 def _compute_root(hashes: Iterable[str]) -> str:
@@ -40,10 +38,7 @@ def _compute_root(hashes: Iterable[str]) -> str:
     while len(nodes) > 1:
         if len(nodes) % 2 == 1:
             nodes.append(nodes[-1])
-        nodes = [
-            hashlib.sha256(nodes[i] + nodes[i + 1]).digest()
-            for i in range(0, len(nodes), 2)
-        ]
+        nodes = [hashlib.sha256(nodes[i] + nodes[i + 1]).digest() for i in range(0, len(nodes), 2)]
     return nodes[0].hex()
 
 

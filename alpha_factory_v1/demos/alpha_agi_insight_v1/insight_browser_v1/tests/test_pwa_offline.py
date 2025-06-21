@@ -10,6 +10,7 @@ from playwright.sync_api import sync_playwright
 
 CID = "bafytestcid"
 
+
 def test_offline_pwa_and_share() -> None:
     dist = Path(__file__).resolve().parents[1] / "dist" / "index.html"
     url = dist.as_uri()
@@ -33,7 +34,9 @@ def test_offline_pwa_and_share() -> None:
         page.wait_for_selector("#controls")
 
         # Service worker should be ready
-        page.wait_for_function("navigator.serviceWorker && navigator.serviceWorker.controller || navigator.serviceWorker.ready")
+        page.wait_for_function(
+            "navigator.serviceWorker && navigator.serviceWorker.controller || navigator.serviceWorker.ready"
+        )
 
         # fetch JSON to populate cache
         assert page.evaluate("(await fetch('https://ipfs.io/ipfs/test.json')).ok")
@@ -49,14 +52,14 @@ def test_offline_pwa_and_share() -> None:
         assert page.evaluate("document.fonts && document.fonts.status === 'loaded'")
         assert page.evaluate("(await fetch('https://ipfs.io/ipfs/test.json')).ok")
         assert page.evaluate("typeof d3 !== 'undefined'")
-        assert page.evaluate('document.styleSheets.length > 0')
+        assert page.evaluate("document.styleSheets.length > 0")
 
         # i18n files should be served from cache
         assert page.evaluate("(await fetch('src/i18n/en.json')).ok")
 
         # critic examples should be available offline
         text = page.evaluate("async () => await (await fetch('./data/critics/innovations.txt')).text()")
-        assert 'Wheel' in text
+        assert "Wheel" in text
 
         # Provide PINNER_TOKEN and intercept Web3Storage API
         page.evaluate("window.PINNER_TOKEN='tok'")
@@ -65,7 +68,7 @@ def test_offline_pwa_and_share() -> None:
             lambda route: route.fulfill(
                 status=200,
                 content_type="application/json",
-                body='{\"cid\":\"%s\"}' % CID,
+                body='{"cid":"%s"}' % CID,
             ),
         )
         assert page.evaluate("typeof Web3Storage === 'function'")
@@ -89,13 +92,8 @@ def test_service_worker_registration_failure_toast() -> None:
         browser = p.chromium.launch()
         page = browser.new_page()
         page.add_init_script("window.DEBUG = true")
-        page.add_init_script(
-            "navigator.serviceWorker.register = () => Promise.reject('fail')"
-        )
+        page.add_init_script("navigator.serviceWorker.register = () => Promise.reject('fail')")
         page.goto(url)
         page.wait_for_selector("#controls")
-        page.wait_for_function(
-            "document.getElementById('toast').textContent.includes('offline mode disabled')"
-        )
+        page.wait_for_function("document.getElementById('toast').textContent.includes('offline mode disabled')")
         browser.close()
-

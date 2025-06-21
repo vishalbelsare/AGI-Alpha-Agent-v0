@@ -31,4 +31,3 @@ def test_merkle_root_ignores_corrupt_rows(tmp_path: Path) -> None:
     # further logging should still succeed
     ledger.log(messaging.Envelope(sender="c", recipient="d", payload={"v": 3}, ts=2.0))
     ledger.compute_merkle_root()
-

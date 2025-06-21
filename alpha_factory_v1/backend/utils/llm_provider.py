@@ -102,8 +102,11 @@ else:  # no-op stubs
         def labels(self, *_, **__):
             return self
 
-        def inc(self, *_, **__): ...
-        def observe(self, *_, **__): ...
+        def inc(self, *_, **__):
+            ...
+
+        def observe(self, *_, **__):
+            ...
 
     _CNT_REQ = _CNT_TOK = _HIST_LAT = _N()  # type: ignore
 

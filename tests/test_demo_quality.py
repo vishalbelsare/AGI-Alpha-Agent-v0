@@ -48,9 +48,7 @@ class TestDemoDirectoryCount(unittest.TestCase):
         demos = [
             d
             for d in os.listdir(base)
-            if os.path.isdir(os.path.join(base, d))
-            and not d.startswith(".")
-            and not d.startswith("__")
+            if os.path.isdir(os.path.join(base, d)) and not d.startswith(".") and not d.startswith("__")
         ]
         self.assertGreaterEqual(len(demos), 10)
 

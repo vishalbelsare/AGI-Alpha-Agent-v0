@@ -9,6 +9,7 @@ from ..types import TradeBrokerProtocol
 
 _LOG = get_logger(__name__)
 
+
 class SimulatedBroker(TradeBrokerProtocol):
     """Very small in-memory broker for tests and demos."""
 

@@ -7,6 +7,7 @@ from alpha_factory_v1.demos.alpha_agi_insight_v1.src.utils import config, messag
 from google.protobuf import struct_pb2
 
 if not hasattr(struct_pb2.Struct, "get"):
+
     def _get(self: struct_pb2.Struct, key: str, default=None):
         try:
             return self[key]

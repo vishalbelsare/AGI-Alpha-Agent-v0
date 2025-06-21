@@ -49,4 +49,3 @@ def test_crowding_distances() -> None:
 
     cd_second = {ind.fitness: ind.crowd for ind in fronts[1]}
     assert all(d == float("inf") for d in cd_second.values())
-

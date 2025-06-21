@@ -25,9 +25,7 @@ def _start_server(directory: Path):
 
 @pytest.mark.skipif(not shutil.which("npm"), reason="npm not installed")  # type: ignore[misc]
 def test_update_triggers_reload(tmp_path: Path) -> None:
-    repo = Path(__file__).resolve().parents[1] / (
-        "alpha_factory_v1/demos/alpha_agi_insight_v1/insight_browser_v1"
-    )
+    repo = Path(__file__).resolve().parents[1] / ("alpha_factory_v1/demos/alpha_agi_insight_v1/insight_browser_v1")
     subprocess.check_call(["npm", "run", "build"], cwd=repo)
 
     dist = repo / "dist"
@@ -47,9 +45,7 @@ def test_update_triggers_reload(tmp_path: Path) -> None:
             # rebuild to create a new service worker
             subprocess.check_call(["npm", "run", "build"], cwd=repo)
             page.evaluate("navigator.serviceWorker.getRegistration().then(r => r.update())")
-            page.wait_for_function(
-                "document.getElementById('toast').textContent.includes('Refreshing')"
-            )
+            page.wait_for_function("document.getElementById('toast').textContent.includes('Refreshing')")
             page.wait_for_function("performance.getEntriesByType('navigation').length > 1")
             assert page.evaluate("performance.getEntriesByType('navigation').length") >= 2
             browser.close()

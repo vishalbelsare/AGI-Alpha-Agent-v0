@@ -83,6 +83,7 @@ with contextlib.suppress(ModuleNotFoundError):
 
 # Fallback stubs so typing doesn’t explode when extras are absent ------------
 if "spaces" not in globals():  # pragma: no cover
+
     class _Dummy:  # pylint: disable=too-few-public-methods
         def __init__(self, *_, **__):
             pass
@@ -93,15 +94,20 @@ if "spaces" not in globals():  # pragma: no cover
     class Env:  # type: ignore
         pass
 
+
 if "oas" not in globals():
+
     class oas:  # type: ignore
         class Agent:
             def __init__(self, *_, **__):
                 pass
+
             def act(self, prompt: str) -> str:  # noqa: D401
-                return "{""action"": {""id"": 0}}"
+                return "{" "action" ": {" "id" ": 0}}"
+
 
 if "gadk" not in globals():
+
     class gadk:  # type: ignore
         class Skill:
             def __init__(self, *_, **__):
@@ -111,11 +117,12 @@ if "gadk" not in globals():
             def __init__(self, *_, **__):
                 pass
 
+
 ###############################################################################
 # Alpha‑Factory backbone                                                      #
 ###############################################################################
-from alpha_factory_v1.backend.orchestrator import Orchestrator               # noqa: E402
-from alpha_factory_v1.backend.world_model import wm                         # noqa: E402
+from alpha_factory_v1.backend.orchestrator import Orchestrator  # noqa: E402
+from alpha_factory_v1.backend.world_model import wm  # noqa: E402
 
 PLUGINS: list[ModuleType] = []
 
@@ -123,28 +130,30 @@ PLUGINS: list[ModuleType] = []
 # Immutable runtime configuration                                             #
 ###############################################################################
 CFG_DEFAULTS: dict[str, Any] = {
-    "LLM_MODEL":         "gpt-4o-mini",
-    "TEMPERATURE":       0.7,
-    "TOKENS_PER_TASK":   100,
-    "LEDGER_PATH":       "./omni_ledger.sqlite",
-    "SEED":              0,
+    "LLM_MODEL": "gpt-4o-mini",
+    "TEMPERATURE": 0.7,
+    "TOKENS_PER_TASK": 100,
+    "LEDGER_PATH": "./omni_ledger.sqlite",
+    "SEED": 0,
     "SUCCESS_THRESHOLD": 0.95,
-    "MAX_SIM_MINUTES":   240,
-    "MICRO_CURRICULUM":  "auto",      # easy→hard scheduler stub
-    "AGIALPHA_SUPPLY":   10_000_000,  # hard‑cap
+    "MAX_SIM_MINUTES": 240,
+    "MICRO_CURRICULUM": "auto",  # easy→hard scheduler stub
+    "AGIALPHA_SUPPLY": 10_000_000,  # hard‑cap
 }
+
 
 @dc.dataclass(frozen=True, slots=True)
 class Cfg:
-    llm_model:       str  = CFG_DEFAULTS["LLM_MODEL"]
-    temperature:     float = CFG_DEFAULTS["TEMPERATURE"]
-    tokens_per_task: int   = CFG_DEFAULTS["TOKENS_PER_TASK"]
-    ledger_path:     Path  = Path(CFG_DEFAULTS["LEDGER_PATH"])
-    seed:            int   = CFG_DEFAULTS["SEED"]
-    success_thresh:  float = CFG_DEFAULTS["SUCCESS_THRESHOLD"]
-    max_minutes:     int   = CFG_DEFAULTS["MAX_SIM_MINUTES"]
-    micro_curr:      str   = CFG_DEFAULTS["MICRO_CURRICULUM"]
-    max_supply:      int   = CFG_DEFAULTS["AGIALPHA_SUPPLY"]
+    llm_model: str = CFG_DEFAULTS["LLM_MODEL"]
+    temperature: float = CFG_DEFAULTS["TEMPERATURE"]
+    tokens_per_task: int = CFG_DEFAULTS["TOKENS_PER_TASK"]
+    ledger_path: Path = Path(CFG_DEFAULTS["LEDGER_PATH"])
+    seed: int = CFG_DEFAULTS["SEED"]
+    success_thresh: float = CFG_DEFAULTS["SUCCESS_THRESHOLD"]
+    max_minutes: int = CFG_DEFAULTS["MAX_SIM_MINUTES"]
+    micro_curr: str = CFG_DEFAULTS["MICRO_CURRICULUM"]
+    max_supply: int = CFG_DEFAULTS["AGIALPHA_SUPPLY"]
+
 
 def _cfg_from_env() -> dict[str, Any]:
     mapping: dict[str, str] = {
@@ -163,8 +172,10 @@ def _cfg_from_env() -> dict[str, Any]:
             cfg[key] = type(CFG_DEFAULTS[k])(val)
     return cfg
 
+
 CFG = Cfg(**_cfg_from_env())
 random.seed(CFG.seed)
+
 
 ###############################################################################
 # Prometheus metrics wrapper                                                  #
@@ -179,9 +190,10 @@ class _Metrics:
             return
         registry = CollectorRegistry()  # type: ignore[misc]
         self.avg_reward = Gauge("omni_avg_reward", "Average reward", registry=registry)  # type: ignore[misc]
-        self.episodes   = Gauge("omni_episode", "Episode index", registry=registry)     # type: ignore[misc]
-        self.tokens     = Gauge("omni_tokens", "Minted $AGIALPHA", registry=registry)   # type: ignore[misc]
+        self.episodes = Gauge("omni_episode", "Episode index", registry=registry)  # type: ignore[misc]
+        self.tokens = Gauge("omni_tokens", "Minted $AGIALPHA", registry=registry)  # type: ignore[misc]
         start_http_server(port, registry=registry)  # type: ignore[misc]
+
 
 METRICS: _Metrics  # populated in main()
 
@@ -195,6 +207,7 @@ _FALLBACK_SCENARIOS: tuple[str, ...] = (
     "Large protest blocks the central business district at lunch.",
 )
 
+
 def _llm_one_liner(prompt: str) -> str:
     """LLM helper with deterministic fallback."""
     if "openai" not in globals() or not os.getenv("OPENAI_API_KEY"):
@@ -202,7 +215,7 @@ def _llm_one_liner(prompt: str) -> str:
         return _FALLBACK_SCENARIOS[idx]
     try:
         openai.api_key = os.getenv("OPENAI_API_KEY")  # type: ignore[attr-defined]
-        resp = openai.ChatCompletion.create(           # type: ignore[attr-defined]
+        resp = openai.ChatCompletion.create(  # type: ignore[attr-defined]
             model=CFG.llm_model,
             temperature=CFG.temperature,
             max_tokens=60,
@@ -213,6 +226,7 @@ def _llm_one_liner(prompt: str) -> str:
     except Exception:  # pragma: no cover – network/quotas/etc.
         idx = abs(hash(prompt) + CFG.seed) % len(_FALLBACK_SCENARIOS)
         return _FALLBACK_SCENARIOS[idx]
+
 
 class TaskGenerator:
     """Maintains novelty history + (future) micro‑curriculum scheduling."""
@@ -233,21 +247,23 @@ class TaskGenerator:
         self._hist.append(scenario)
         return scenario
 
+
 ###############################################################################
 # 2. Minimal yet grounded smart‑city environment                              #
 ###############################################################################
 @dc.dataclass(slots=True)
 class _CityState:
-    power_ok:   float
+    power_ok: float
     traffic_ok: float
-    minute:     int
+    minute: int
+
 
 class SmartCityEnv(Env):  # type: ignore[misc]
     """Headless stochastic digital‑twin with two controllable levers."""
 
     metadata: Dict[str, str] = {}
-    action_space      = spaces.Box(low=0.0, high=1.0, shape=(2,))   # type: ignore[arg-type]
-    observation_space = spaces.Box(low=0.0, high=1.0, shape=(3,))   # type: ignore[arg-type]
+    action_space = spaces.Box(low=0.0, high=1.0, shape=(2,))  # type: ignore[arg-type]
+    observation_space = spaces.Box(low=0.0, high=1.0, shape=(3,))  # type: ignore[arg-type]
 
     def __init__(self) -> None:
         super().__init__()
@@ -256,7 +272,7 @@ class SmartCityEnv(Env):  # type: ignore[misc]
         self.scenario: str = "<cold‑start>"
 
     def _random_state(self) -> _CityState:
-        return _CityState(self.rng.uniform(.3, .9), self.rng.uniform(.3, .9), 0)
+        return _CityState(self.rng.uniform(0.3, 0.9), self.rng.uniform(0.3, 0.9), 0)
 
     # Gymnasium 0.29 API ----------------------------------------------------
     def reset(self, *, seed: int | None = None, options: Dict | None = None):  # type: ignore[override]
@@ -268,13 +284,13 @@ class SmartCityEnv(Env):  # type: ignore[misc]
     def step(self, action: Tuple[float, float]):  # type: ignore[override]
         repair, traffic = map(float, action)
         s = self.state
-        s.power_ok   = min(1.0, s.power_ok   + 0.65 * repair)
+        s.power_ok = min(1.0, s.power_ok + 0.65 * repair)
         s.traffic_ok = min(1.0, s.traffic_ok + 0.55 * traffic)
-        s.minute    += 1
+        s.minute += 1
 
-        reward     = (s.power_ok + s.traffic_ok) / 2
+        reward = (s.power_ok + s.traffic_ok) / 2
         terminated = reward >= CFG.success_thresh
-        truncated  = s.minute >= CFG.max_minutes
+        truncated = s.minute >= CFG.max_minutes
         return self._obs(), reward, terminated or truncated, truncated, {}
 
     def _obs(self) -> List[float]:
@@ -283,6 +299,7 @@ class SmartCityEnv(Env):  # type: ignore[misc]
 
     def solved(self) -> bool:
         return (self.state.power_ok + self.state.traffic_ok) / 2 >= CFG.success_thresh
+
 
 ###############################################################################
 # 3. $AGIALPHA ledger (SQLite, append‑only, human‑readable)                   #
@@ -297,17 +314,21 @@ CREATE TABLE IF NOT EXISTS ledger(
 );
 """
 
+
 def _ledger_init(path: Path) -> None:
     with sqlite3.connect(path) as conn:
         conn.executescript(_LEDGER_SCHEMA)
 
+
 def _checksum(ts: float, scen: str, tok: int, rew: float) -> str:
     return hashlib.sha256(f"{ts}{scen}{tok}{rew}".encode()).hexdigest()[:16]
+
 
 def _supply(conn: sqlite3.Connection) -> int:
     cur = conn.execute("SELECT SUM(tokens) FROM ledger")
     val = cur.fetchone()[0]
     return val or 0
+
 
 def _mint(path: Path, scenario: str, avg_reward: float) -> int:
     tokens = int(avg_reward * CFG.tokens_per_task)
@@ -321,6 +342,7 @@ def _mint(path: Path, scenario: str, avg_reward: float) -> int:
             (ts, scenario, tokens, avg_reward, _checksum(ts, scenario, tokens, avg_reward)),
         )
     return max(tokens, 0)
+
 
 ###############################################################################
 # 4. Success evaluator                                                        #
@@ -345,9 +367,11 @@ class SuccessEvaluator:
             qualitative = ans.startswith("yes")
         return numeric and qualitative
 
+
 ###############################################################################
 # 5. Planning layer abstraction (SDKs, WM fallback)                           #
 ###############################################################################
+
 
 def _plan(obs: List[float], scenario: str) -> Dict[str, Any]:
     """Hierarchical planner: SDK agent → Google ADK → WM fallback."""
@@ -384,9 +408,11 @@ def _plan(obs: List[float], scenario: str) -> Dict[str, Any]:
                 pass
     return {"action": {"id": 0}}
 
+
 ###############################################################################
 # 6. Plugin autoloader (agents, env augmentations, …)                         #
 ###############################################################################
+
 
 @functools.cache
 def _load_plugins(folder: Path | None = None) -> List[ModuleType]:
@@ -413,6 +439,7 @@ def _load_plugins(folder: Path | None = None) -> List[ModuleType]:
     PLUGINS = mods
     return mods
 
+
 ###############################################################################
 # 7. Single episode runner                                                    #
 ###############################################################################
@@ -430,7 +457,7 @@ async def _episode(
     for minute in range(CFG.max_minutes):
         plan = _plan(obs, scenario)
         act_id = plan.get("action", {}).get("id", 0)
-        repair  = 0.8 if act_id % 3 == 0 else 0.2
+        repair = 0.8 if act_id % 3 == 0 else 0.2
         traffic = 0.8 if act_id % 3 == 1 else 0.2
         obs, rew, done, _, _ = env.step((repair, traffic))
         cumulative += rew
@@ -452,20 +479,21 @@ async def _episode(
         if METRICS.avg_reward:
             METRICS.avg_reward.set(avg_reward)  # type: ignore[misc]
         if METRICS.episodes:
-            METRICS.episodes.set(episode_id)    # type: ignore[misc]
+            METRICS.episodes.set(episode_id)  # type: ignore[misc]
 
     print(msg)
+
 
 ###############################################################################
 # 8. Continuous open‑ended loop                                               #
 ###############################################################################
 async def _main_loop(max_episodes: int | None) -> None:
     # Orchestrator has no __init__ arguments – dev mode is handled via env vars
-    orch   = Orchestrator()
-    env    = SmartCityEnv()
-    tgen   = TaskGenerator()
+    orch = Orchestrator()
+    env = SmartCityEnv()
+    tgen = TaskGenerator()
     evaler = SuccessEvaluator()
-    eps    = 0
+    eps = 0
 
     _load_plugins()  # side‑effect import
 
@@ -477,23 +505,29 @@ async def _main_loop(max_episodes: int | None) -> None:
             print(f"[WARN] Episode {eps} crashed: {exc!r}")
         await asyncio.sleep(0)  # cooperative sched
 
+
 ###############################################################################
 # 9. CLI & graceful shutdown                                                  #
 ###############################################################################
 
+
 def _parse_cli(argv: List[str]) -> argparse.Namespace:
     p = argparse.ArgumentParser(prog="omni_factory_demo")
-    p.add_argument("--metrics-port", type=int, default=None,
-                   help="Expose Prometheus metrics on this port (disabled if lib missing)")
-    p.add_argument("--max-episodes", type=int, default=None,
-                   help="Stop after N episodes (default: endless)")
-    p.add_argument("--dry-run", action="store_true",
-                   help="Skip $AGIALPHA minting – CI friendly")
+    p.add_argument(
+        "--metrics-port",
+        type=int,
+        default=None,
+        help="Expose Prometheus metrics on this port (disabled if lib missing)",
+    )
+    p.add_argument("--max-episodes", type=int, default=None, help="Stop after N episodes (default: endless)")
+    p.add_argument("--dry-run", action="store_true", help="Skip $AGIALPHA minting – CI friendly")
     return p.parse_args(argv)
+
 
 ###############################################################################
 # Entry‑point                                                                 #
 ###############################################################################
+
 
 def main(argv: List[str] | None = None) -> None:  # noqa: D401
     """Module‑safe entry so `python -m …` works neatly."""
@@ -539,6 +573,7 @@ def main(argv: List[str] | None = None) -> None:  # noqa: D401
     finally:
         loop.close()
         print("Goodbye! ☮")
+
 
 if __name__ == "__main__":
     main(sys.argv[1:])

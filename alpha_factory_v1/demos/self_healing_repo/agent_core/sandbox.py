@@ -41,4 +41,3 @@ def run_in_docker(
     cmd += ["-w", "/app", image, *command]
     result = subprocess.run(cmd, capture_output=True, text=True)
     return result.returncode, (result.stdout or "") + (result.stderr or "")
-

@@ -76,6 +76,7 @@ def refresh_runtime_availability() -> bool:
     has_oai = _spec is not None and _has_key
     return has_oai
 
+
 if has_oai:
     from openai_agents import Agent, AgentRuntime, Tool  # type: ignore
 
@@ -245,15 +246,9 @@ else:
 
 
 def main(argv: list[str] | None = None) -> None:
-    parser = argparse.ArgumentParser(
-        description="OpenAI Agents bridge for the α‑AGI Insight demo"
-    )
-    parser.add_argument(
-        "--episodes", type=int, help="Search episodes when offline"
-    )
-    parser.add_argument(
-        "--target", type=int, help="Target sector index when offline"
-    )
+    parser = argparse.ArgumentParser(description="OpenAI Agents bridge for the α‑AGI Insight demo")
+    parser.add_argument("--episodes", type=int, help="Search episodes when offline")
+    parser.add_argument("--target", type=int, help="Target sector index when offline")
     parser.add_argument("--model", type=str, help="Model name override")
     parser.add_argument(
         "--rewriter",

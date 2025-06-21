@@ -22,4 +22,3 @@ def test_frontier_60fps() -> None:
         fps = float(fps_text.split()[0])
         assert fps >= 60.0
         browser.close()
-

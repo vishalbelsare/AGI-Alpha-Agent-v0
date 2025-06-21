@@ -146,4 +146,3 @@ class ModelProvider:
 
         # —— stub fallback (deterministic) ——
         return '{"agent":"FinanceAgent","reason":"stub"}'
-

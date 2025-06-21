@@ -26,6 +26,7 @@ class EventRecord(TypedDict):
     kind: str
     data: Any
 
+
 _log = logging.getLogger("alpha_factory.memory")
 if not _log.handlers:
     _hdl = logging.StreamHandler()

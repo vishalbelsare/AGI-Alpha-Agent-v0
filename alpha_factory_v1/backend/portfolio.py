@@ -93,8 +93,8 @@ class Portfolio:
             side=side,
         )
 
-        self._apply(fill)         # update positions + append to disk
-        self._broadcast(fill)     # fire‑and‑forget notification
+        self._apply(fill)  # update positions + append to disk
+        self._broadcast(fill)  # fire‑and‑forget notification
 
     def book(self) -> Dict[str, float]:
         """Return a copy of the current position book."""
@@ -130,9 +130,7 @@ class Portfolio:
     # ── internal helpers ──────────────────────────────────────────────────
     def _apply(self, fill: Fill, *, persist: bool = True) -> None:
         mult = 1 if fill.side == "BUY" else -1
-        self._positions[fill.symbol] = (
-            self._positions.get(fill.symbol, 0.0) + mult * fill.qty
-        )
+        self._positions[fill.symbol] = self._positions.get(fill.symbol, 0.0) + mult * fill.qty
         if persist:
             self._append(fill)
 
@@ -149,9 +147,7 @@ class Portfolio:
             elif msvcrt:
                 msvcrt.locking(fh.fileno(), msvcrt.LK_LOCK, 1)
             else:
-                logger.warning(
-                    "File locking unavailable; concurrent writes may corrupt the ledger"
-                )
+                logger.warning("File locking unavailable; concurrent writes may corrupt the ledger")
             fh.write(fill.to_json() + "\n")
         finally:
             try:
@@ -187,4 +183,3 @@ class Portfolio:
 
 
 __all__ = ["Portfolio", "Fill"]
-

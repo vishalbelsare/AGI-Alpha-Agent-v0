@@ -47,7 +47,9 @@ def test_self_healer_succeeds_with_local_llm(tmp_path: Path, monkeypatch: pytest
     calls = []
     applied = []
 
-    def fake_run(cmd: list[str], repo_dir: str, *, image: str | None = None, mounts: dict[str, str] | None = None) -> tuple[int, str]:
+    def fake_run(
+        cmd: list[str], repo_dir: str, *, image: str | None = None, mounts: dict[str, str] | None = None
+    ) -> tuple[int, str]:
         calls.append(cmd)
         res = subprocess.run(["pytest", "-q", "--color=no"], cwd=repo_dir, capture_output=True, text=True)
         return res.returncode, res.stdout + res.stderr
@@ -73,5 +75,3 @@ def test_self_healer_succeeds_with_local_llm(tmp_path: Path, monkeypatch: pytest
     assert llm_client.USE_LOCAL_LLM
     assert calls
     assert applied
-
-

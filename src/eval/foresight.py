@@ -48,4 +48,3 @@ def evaluate(repo_path: Path) -> dict[str, float]:
     if not rmses:
         raise FileNotFoundError(ds_dir)
     return {"rmse": statistics.mean(rmses), "lead_time": statistics.mean(leads)}
-

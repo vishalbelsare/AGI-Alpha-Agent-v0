@@ -36,7 +36,8 @@ from typing import List, Dict, Optional
 # ────────────────────────────────────────────────────────────────────
 # 0.  Provider-agnostic chat wrapper
 # ────────────────────────────────────────────────────────────────────
-class UnsupportedProvider(RuntimeError): ...
+class UnsupportedProvider(RuntimeError):
+    ...
 
 
 class DownloadError(RuntimeError):

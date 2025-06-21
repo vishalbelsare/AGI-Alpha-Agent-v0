@@ -20,20 +20,26 @@ if not shutil.which("docker") or psycopg2 is None:
 
 @pytest.fixture(scope="module")
 def pg_container():
-    cid = subprocess.check_output([
-        "docker",
-        "run",
-        "-d",
-        "-e",
-        "POSTGRES_USER=insight",
-        "-e",
-        "POSTGRES_PASSWORD=insight",
-        "-e",
-        "POSTGRES_DB=insight",
-        "-p",
-        "55432:5432",
-        "postgres:16-alpine",
-    ]).decode().strip()
+    cid = (
+        subprocess.check_output(
+            [
+                "docker",
+                "run",
+                "-d",
+                "-e",
+                "POSTGRES_USER=insight",
+                "-e",
+                "POSTGRES_PASSWORD=insight",
+                "-e",
+                "POSTGRES_DB=insight",
+                "-p",
+                "55432:5432",
+                "postgres:16-alpine",
+            ]
+        )
+        .decode()
+        .strip()
+    )
     try:
         for _ in range(30):
             res = subprocess.run(

@@ -3,6 +3,7 @@ import json
 import unittest
 from pathlib import Path
 
+
 class TestMarketplaceNotebook(unittest.TestCase):
     def test_notebook_valid(self) -> None:
         nb_path = Path("alpha_factory_v1/demos/alpha_agi_marketplace_v1/colab_alpha_agi_marketplace_demo.ipynb")

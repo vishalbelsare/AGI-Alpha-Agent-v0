@@ -348,17 +348,18 @@ def test_foresight_evaluate_nonzero_metrics() -> None:
 
 def test_simulate_llama_model_path_forecast_table(tmp_path: Path) -> None:
     """Ensure simulate prints a table with a local Llama model."""
-    cli_mod = pytest.importorskip(
-        "alpha_factory_v1.demos.alpha_agi_insight_v1.src.interface.cli"
-    )
+    cli_mod = pytest.importorskip("alpha_factory_v1.demos.alpha_agi_insight_v1.src.interface.cli")
 
     dummy = tmp_path / "weights.bin"
     dummy.touch()
 
     runner = CliRunner()
-    with patch.object(cli_mod, "asyncio"), patch.object(
-        cli_mod.orchestrator,
-        "Orchestrator",
+    with (
+        patch.object(cli_mod, "asyncio"),
+        patch.object(
+            cli_mod.orchestrator,
+            "Orchestrator",
+        ),
     ):
         res = runner.invoke(
             cli_mod.main,

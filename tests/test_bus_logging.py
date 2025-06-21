@@ -11,8 +11,8 @@ from alpha_factory_v1.demos.alpha_agi_insight_v1.src.utils import config, messag
 def test_bus_logs_start_stop(caplog: pytest.LogCaptureFixture) -> None:
     caplog.set_level(logging.INFO)
     cfg = config.Settings(bus_port=1234, broker_url="kafka:9092")
-    with mock.patch.object(messaging, "AIOKafkaProducer", None), \
-         mock.patch.object(messaging, "grpc", None):
+    with mock.patch.object(messaging, "AIOKafkaProducer", None), mock.patch.object(messaging, "grpc", None):
+
         async def run() -> None:
             async with messaging.A2ABus(cfg):
                 pass

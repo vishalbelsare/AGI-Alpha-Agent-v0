@@ -49,18 +49,22 @@ def _wait_rpc(url: str, timeout: int = 30) -> bool:
 @pytest.fixture(scope="module")
 def validator() -> str:
     port = _free_port()
-    cid = subprocess.check_output(
-        [
-            "docker",
-            "run",
-            "-d",
-            "-p",
-            f"{port}:8899",
-            "solanalabs/solana:edge",
-            "solana-test-validator",
-            "--quiet",
-        ]
-    ).decode().strip()
+    cid = (
+        subprocess.check_output(
+            [
+                "docker",
+                "run",
+                "-d",
+                "-p",
+                f"{port}:8899",
+                "solanalabs/solana:edge",
+                "solana-test-validator",
+                "--quiet",
+            ]
+        )
+        .decode()
+        .strip()
+    )
     url = f"http://localhost:{port}"
     try:
         if not _wait_rpc(url):
@@ -72,15 +76,11 @@ def validator() -> str:
 
 
 @pytest.mark.asyncio
-async def test_broadcast_merkle_root_local_validator(
-    tmp_path: Path, validator: str
-) -> None:
+async def test_broadcast_merkle_root_local_validator(tmp_path: Path, validator: str) -> None:
     ledger = Ledger(str(tmp_path / "ledger.db"), rpc_url=validator, broadcast=True)
     env = messaging.Envelope("a", "b", {"v": 1}, 0.0)
     ledger.log(env)
-    resp = requests.post(
-        validator, json={"jsonrpc": "2.0", "id": 1, "method": "getLatestBlockhash"}
-    )
+    resp = requests.post(validator, json={"jsonrpc": "2.0", "id": 1, "method": "getLatestBlockhash"})
     start_slot = resp.json()["result"]["context"]["slot"]
     try:
         await ledger.broadcast_merkle_root()
@@ -97,4 +97,3 @@ async def test_broadcast_merkle_root_local_validator(
     finally:
         await ledger.stop_merkle_task()
         ledger.close()
-

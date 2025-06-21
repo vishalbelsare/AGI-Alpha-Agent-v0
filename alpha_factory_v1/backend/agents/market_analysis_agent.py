@@ -3,6 +3,7 @@ from __future__ import annotations
 
 from .base import AgentBase
 
+
 class MarketAnalysisAgent(AgentBase):
     """Stub agent scanning market data for inefficiencies."""
 

@@ -66,8 +66,10 @@ from typing import Any, Callable, Dict, List, Optional, Sequence, Tuple, Union
 
 try:
     from importlib.util import find_spec
+
     if find_spec("deap") is not None:
         from deap import base, creator, tools  # pragma: no cover
+
         _DEAP_AVAILABLE = True
     else:
         _DEAP_AVAILABLE = False
@@ -245,24 +247,20 @@ class EvolutionEngine:
             template = self.cfg.genome_template
             if isinstance(template, Sequence):
                 genomes = [
-                    [random.uniform(-1.0, 1.0) for _ in range(len(template))]
-                    for _ in range(self.cfg.population_size)
+                    [random.uniform(-1.0, 1.0) for _ in range(len(template))] for _ in range(self.cfg.population_size)
                 ]
             else:
                 genomes = []
                 for _ in range(self.cfg.population_size):
                     g = {
-                        k: random.uniform(-1.0, 1.0) if isinstance(v, (int, float)) else v
-                        for k, v in template.items()
+                        k: random.uniform(-1.0, 1.0) if isinstance(v, (int, float)) else v for k, v in template.items()
                     }
                     genomes.append(g)
         self.population = [Individual(g) for g in genomes]
 
     # ----------------------------------------------------------------- Operators
 
-    def _default_crossover(
-        self, parent1: Genome, parent2: Genome
-    ) -> Tuple[Genome, Genome]:
+    def _default_crossover(self, parent1: Genome, parent2: Genome) -> Tuple[Genome, Genome]:
         if isinstance(parent1, list) and isinstance(parent2, list):
             cx_point = random.randrange(1, len(parent1))
             child1 = parent1[:cx_point] + parent2[cx_point:]
@@ -298,12 +296,8 @@ class EvolutionEngine:
         template = self.cfg.genome_template
         if isinstance(template, Sequence):
             n = len(template)
-            self.toolbox.register(
-                "attr_float", random.uniform, -1.0, 1.0  # type: ignore
-            )
-            self.toolbox.register(
-                "individual", tools.initRepeat, creator.Individual, self.toolbox.attr_float, n
-            )
+            self.toolbox.register("attr_float", random.uniform, -1.0, 1.0)  # type: ignore
+            self.toolbox.register("individual", tools.initRepeat, creator.Individual, self.toolbox.attr_float, n)
         else:
             raise NotImplementedError("DEAP only implemented for list genomes")
         self.toolbox.register("population", tools.initRepeat, list, self.toolbox.individual)
@@ -312,11 +306,7 @@ class EvolutionEngine:
         self.toolbox.register("select", tools.selTournament, tournsize=self.cfg.tournament_k)
         self.toolbox.register(
             "evaluate",
-            lambda ind: (
-                -self.task.evaluate(ind)
-                if self.task.minimize
-                else self.task.evaluate(ind)
-            ),
+            lambda ind: (-self.task.evaluate(ind) if self.task.minimize else self.task.evaluate(ind)),
         )
 
     # ---------------------------------------------------------------- Evolution
@@ -434,18 +424,10 @@ def _cli():
     import argparse
 
     parser = argparse.ArgumentParser(description="Run a standalone GA demo.")
-    parser.add_argument(
-        "--dims", type=int, default=6, help="Number of dimensions in sphere task"
-    )
-    parser.add_argument(
-        "--pop", type=int, default=30, help="Population size"
-    )
-    parser.add_argument(
-        "--gen", type=int, default=15, help="Generations"
-    )
-    parser.add_argument(
-        "--proc", type=int, default=1, help="Parallel evaluation processes"
-    )
+    parser.add_argument("--dims", type=int, default=6, help="Number of dimensions in sphere task")
+    parser.add_argument("--pop", type=int, default=30, help="Population size")
+    parser.add_argument("--gen", type=int, default=15, help="Generations")
+    parser.add_argument("--proc", type=int, default=1, help="Parallel evaluation processes")
     args = parser.parse_args()
 
     task = RandomFitnessTask(n_dimensions=args.dims)

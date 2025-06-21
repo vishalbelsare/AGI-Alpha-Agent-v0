@@ -45,7 +45,5 @@ def test_patcher_cli_offline(tmp_path, monkeypatch):
         lambda d, repo_path: applied.append((d, repo_path)),
     )
 
-    runpy.run_module(
-        "alpha_factory_v1.demos.self_healing_repo.patcher_core", run_name="__main__"
-    )
+    runpy.run_module("alpha_factory_v1.demos.self_healing_repo.patcher_core", run_name="__main__")
     assert applied

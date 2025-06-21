@@ -8,7 +8,20 @@ from alpha_factory_v1 import run
 
 class TestRunCLI(TestCase):
     def test_apply_env(self) -> None:
-        argv = ["prog", "--dev", "--port", "123", "--metrics-port", "9", "--a2a-port", "5", "--enabled", "A", "--loglevel", "debug"]
+        argv = [
+            "prog",
+            "--dev",
+            "--port",
+            "123",
+            "--metrics-port",
+            "9",
+            "--a2a-port",
+            "5",
+            "--enabled",
+            "A",
+            "--loglevel",
+            "debug",
+        ]
         with mock.patch.object(sys, "argv", argv):
             args = run.parse_args()
         with mock.patch.dict(os.environ, {}, clear=True):

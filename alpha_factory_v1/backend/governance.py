@@ -34,6 +34,7 @@ from typing import Any, Dict, List
 try:  # pragma: no cover - optional dependency
     from better_profanity import profanity
 except Exception:  # pragma: no cover - offline fallback
+
     class _StubProfanity:
         def load_censor_words(self) -> None:
             pass
@@ -67,7 +68,7 @@ _DANGER_PATTERNS: List[str] = [
 ]
 _EXTRA = os.getenv("GOVERNANCE_EXTRA_PATTERNS", "")
 if _EXTRA:
-    _DANGER_PATTERNS.extend(p.strip() for p in _EXTRA.split(',') if p.strip())
+    _DANGER_PATTERNS.extend(p.strip() for p in _EXTRA.split(",") if p.strip())
 _DANGER_RE = re.compile("|".join(_DANGER_PATTERNS), re.IGNORECASE)
 
 
@@ -96,10 +97,7 @@ class Governance:
 
     def describe(self) -> str:
         """Return a short human-readable summary of current policy."""
-        return (
-            f"Trade limit: {self.trade_limit}; "
-            f"danger patterns: {len(_DANGER_PATTERNS)}"
-        )
+        return f"Trade limit: {self.trade_limit}; " f"danger patterns: {len(_DANGER_PATTERNS)}"
 
     # ── content guard‑rail --------------------------------------------------
     def moderate(self, text: str) -> bool:
@@ -135,14 +133,24 @@ except ModuleNotFoundError:  # pragma: no cover - missing package
     _ot_trace_spec = None
 if _ot_trace_spec:
     from opentelemetry import trace as _trace  # type: ignore
+
     _tracer = _trace.get_tracer("alpha_factory")
 else:  # stub tracer
+
     class _DummySpan:
-        def __enter__(self): return self
-        def __exit__(self, *_): return False
-        def get_span_context(self): return type("ctx", (), {"trace_id": 0})()
+        def __enter__(self):
+            return self
+
+        def __exit__(self, *_):
+            return False
+
+        def get_span_context(self):
+            return type("ctx", (), {"trace_id": 0})()
+
     class _DummyTracer:  # pylint: disable=too-few-public-methods
-        def start_as_current_span(self, *_a, **_kw): return _DummySpan()
+        def start_as_current_span(self, *_a, **_kw):
+            return _DummySpan()
+
     _tracer = _DummyTracer()
 
 # Optional‑import VC helper library
@@ -150,12 +158,18 @@ _vc_spec = importlib.util.find_spec("vc")
 if _vc_spec:
     from vc import Credential, sign  # type: ignore
 else:
+
     class _DummyCred(dict):  # type: ignore
-        def __init__(self, **kw): super().__init__(kw)
+        def __init__(self, **kw):
+            super().__init__(kw)
+
     def _dummy_sign(c):  # pylint: disable=unused-argument
         class _Sig:
-            def store_ipfs(self): return None
+            def store_ipfs(self):
+                return None
+
         return _Sig()
+
     Credential, sign = _DummyCred, _dummy_sign  # type: ignore
 
 _VC_ENABLED = os.getenv("GOVERNANCE_DISABLE_CREDENTIALS", "false").lower() != "true"

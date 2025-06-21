@@ -13,4 +13,3 @@ class TestImports(unittest.TestCase):
 
 if __name__ == "__main__":  # pragma: no cover - manual execution
     unittest.main()
-

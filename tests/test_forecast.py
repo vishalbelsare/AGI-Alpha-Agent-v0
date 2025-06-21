@@ -123,6 +123,6 @@ def test_forecast_disruptions_seed_deterministic() -> None:
     sec2 = sector.Sector("x", energy=1.0, entropy=2.0, growth=0.1)
     traj1 = forecast.forecast_disruptions([sec1], 2, curve="linear", pop_size=2, generations=1, seed=123)
     traj2 = forecast.forecast_disruptions([sec2], 2, curve="linear", pop_size=2, generations=1, seed=123)
-    result1 = [ (p.year, p.sectors[0].energy, p.sectors[0].disrupted) for p in traj1 ]
-    result2 = [ (p.year, p.sectors[0].energy, p.sectors[0].disrupted) for p in traj2 ]
+    result1 = [(p.year, p.sectors[0].energy, p.sectors[0].disrupted) for p in traj1]
+    result2 = [(p.year, p.sectors[0].energy, p.sectors[0].disrupted) for p in traj2]
     assert result1 == result2

@@ -48,4 +48,3 @@ def test_apply_patch_rollback_on_failure(tmp_path: Path, monkeypatch: mock.Magic
 
     assert target.read_text(encoding="utf-8") == "hello\n"
     assert not (tmp_path / "hello.txt.bak").exists()
-

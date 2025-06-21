@@ -5,6 +5,7 @@ import statistics
 
 from alpha_factory_v1.backend.agents import finance_agent
 
+
 class TestFinanceUtils(unittest.TestCase):
     def test_pct_basic(self):
         self.assertAlmostEqual(finance_agent._pct(100.0, 110.0), 0.1)
@@ -15,10 +16,12 @@ class TestFinanceUtils(unittest.TestCase):
         mu = statistics.mean(returns)
         sig = statistics.pstdev(returns) or 1e-9
         expected = abs(mu + 2.326 * sig)
-        with patch.object(finance_agent, "np", None, create=True), \
-             patch.object(finance_agent, "skew", None, create=True), \
-             patch.object(finance_agent, "kurtosis", None, create=True), \
-             patch.object(finance_agent, "erfcinv", None, create=True):
+        with (
+            patch.object(finance_agent, "np", None, create=True),
+            patch.object(finance_agent, "skew", None, create=True),
+            patch.object(finance_agent, "kurtosis", None, create=True),
+            patch.object(finance_agent, "erfcinv", None, create=True),
+        ):
             self.assertAlmostEqual(finance_agent._cf_var(returns), expected)
 
     def test_cvar(self):

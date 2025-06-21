@@ -6,12 +6,15 @@ import time
 from alpha_factory_v1.backend import orchestrator
 from src.monitoring import metrics
 
+
 class DummyRunner:
     def __init__(self) -> None:
         async def _run() -> None:
             while True:
                 await asyncio.sleep(0.1)
+
         self.task = asyncio.create_task(_run())
+
 
 def test_regression_guard(monkeypatch) -> None:
     alerts: list[str] = []
@@ -36,4 +39,3 @@ def test_regression_guard(monkeypatch) -> None:
     assert runner.task.cancelled
     assert dur < 10
     assert alerts
-

@@ -1,10 +1,10 @@
 # SPDX-License-Identifier: Apache-2.0
 import unittest
+
 try:
     from alpha_factory_v1.demos.muzero_planning import minimuzero
 except ModuleNotFoundError as exc:  # pragma: no cover - optional deps missing
     minimuzero = None
-
 
 
 class MiniMuTest(unittest.TestCase):
@@ -27,5 +27,5 @@ class MiniMuTest(unittest.TestCase):
         self.assertGreaterEqual(len(frames), 0)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

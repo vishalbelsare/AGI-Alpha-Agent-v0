@@ -17,18 +17,19 @@ def _manual_root(hashes: list[str]) -> str:
     while len(nodes) > 1:
         if len(nodes) % 2 == 1:
             nodes.append(nodes[-1])
-        nodes = [
-            hashlib.sha256(nodes[i] + nodes[i + 1]).digest()
-            for i in range(0, len(nodes), 2)
-        ]
+        nodes = [hashlib.sha256(nodes[i] + nodes[i + 1]).digest() for i in range(0, len(nodes), 2)]
     return nodes[0].hex()
 
 
 def test_merkle_root_tracking(tmp_path: Path) -> None:
     db = tmp_path / "arch.db"
-    h1 = hashlib.sha256(json.dumps({"parent": "p", "child": "c1", "metrics": {"s": 1}}, sort_keys=True).encode()).hexdigest()
+    h1 = hashlib.sha256(
+        json.dumps({"parent": "p", "child": "c1", "metrics": {"s": 1}}, sort_keys=True).encode()
+    ).hexdigest()
     insert("p", "c1", {"s": 1}, db_path=db)
-    h2 = hashlib.sha256(json.dumps({"parent": "c1", "child": "c2", "metrics": {"s": 2}}, sort_keys=True).encode()).hexdigest()
+    h2 = hashlib.sha256(
+        json.dumps({"parent": "c1", "child": "c2", "metrics": {"s": 2}}, sort_keys=True).encode()
+    ).hexdigest()
     insert("c1", "c2", {"s": 2}, db_path=db)
     root = merkle_root(db_path=db)
     assert root == _manual_root([h1, h2])

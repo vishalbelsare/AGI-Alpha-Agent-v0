@@ -3,6 +3,7 @@ from __future__ import annotations
 
 from .base import AgentBase
 
+
 class PlanningAgent(AgentBase):
     """Simple stub agent planning tasks for the business demo."""
 

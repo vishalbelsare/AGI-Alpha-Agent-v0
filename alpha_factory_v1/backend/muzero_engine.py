@@ -63,8 +63,7 @@ if _backend_name:
     _LOG.info("MuZero back-end detected: %s", _backend_name)
 else:
     _LOG.warning(
-        "No MuZero back-end found – using heuristic planners "
-        "(install `pip install minizero` to enable full model)"
+        "No MuZero back-end found – using heuristic planners " "(install `pip install minizero` to enable full model)"
     )
 
 

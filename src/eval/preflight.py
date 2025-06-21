@@ -19,9 +19,7 @@ def run_preflight(repo_dir: str | Path = ".") -> None:
     """Run compilation and smoke tests inside ``repo_dir``."""
 
     repo = Path(repo_dir)
-    result = subprocess.run(
-        ["git", "ls-files", "*.py"], capture_output=True, text=True, cwd=repo
-    )
+    result = subprocess.run(["git", "ls-files", "*.py"], capture_output=True, text=True, cwd=repo)
     files = [f for f in result.stdout.splitlines() if f]
     if files:
         subprocess.run([sys.executable, "-m", "py_compile", *files], check=True, cwd=repo)

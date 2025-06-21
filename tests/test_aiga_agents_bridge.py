@@ -1,4 +1,5 @@
 """Integration tests for the AI-GA OpenAI Agents bridge."""
+
 from __future__ import annotations
 
 # SPDX-License-Identifier: Apache-2.0

@@ -170,10 +170,6 @@ class RiskManager:
         dd = self.drawdown_pct()
 
         if var > self.max_var_pct:
-            raise RiskLimitError(
-                f"VaR {var:.2%} exceeds hard limit {self.max_var_pct:.2%}"
-            )
+            raise RiskLimitError(f"VaR {var:.2%} exceeds hard limit {self.max_var_pct:.2%}")
         if dd > self.max_drawdown_pct:
-            raise RiskLimitError(
-                f"Draw‑down {dd:.2%} exceeds limit {self.max_drawdown_pct:.2%}"
-            )
+            raise RiskLimitError(f"Draw‑down {dd:.2%} exceeds limit {self.max_drawdown_pct:.2%}")

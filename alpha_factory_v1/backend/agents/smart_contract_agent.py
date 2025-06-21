@@ -86,6 +86,7 @@ except ModuleNotFoundError:  # pragma: no cover
     def tool(fn=None, **_):  # type: ignore
         return (lambda f: f)(fn) if fn else lambda f: f
 
+
 OPENAI_TIMEOUT_SEC = int(os.getenv("OPENAI_TIMEOUT_SEC", "30"))
 
 

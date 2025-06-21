@@ -22,7 +22,7 @@ from typing import Any, Final
 import httpx
 from tenacity import AsyncRetrying, retry_if_exception_type, stop_after_attempt, wait_exponential
 
-from .logger import get_logger          # tiny helper already in repo
+from .logger import get_logger  # tiny helper already in repo
 from .types import TradeBrokerProtocol  # = the `Protocol` shown above
 
 _LOG = get_logger(__name__)
@@ -122,6 +122,7 @@ class InteractiveBrokersBroker(TradeBrokerProtocol):  # noqa: D101
     # Helper calls (cached)                                              #
     # ------------------------------------------------------------------ #
     _acc: str | None = None
+
     async def _account(self) -> str:
         if self._acc:
             return self._acc
@@ -130,6 +131,7 @@ class InteractiveBrokersBroker(TradeBrokerProtocol):  # noqa: D101
         return self._acc
 
     _conids: dict[str, str] = {}
+
     async def _conid(self, symbol: str) -> str:
         if symbol in self._conids:
             return self._conids[symbol]
@@ -144,4 +146,3 @@ class InteractiveBrokersBroker(TradeBrokerProtocol):  # noqa: D101
 
     async def __aexit__(self, *_exc):
         await self._http.aclose()
-

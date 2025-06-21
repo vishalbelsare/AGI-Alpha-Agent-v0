@@ -49,9 +49,7 @@ def test_improve_repo_invalid_patch(tmp_path: Path) -> None:
     log_file = tmp_path / "log.json"
 
     with pytest.raises(ValueError):
-        self_improver.improve_repo(
-            str(repo_dir), str(patch_file), "metric.txt", str(log_file)
-        )
+        self_improver.improve_repo(str(repo_dir), str(patch_file), "metric.txt", str(log_file))
 
 
 def test_improve_repo_cleanup(tmp_path: Path) -> None:
@@ -64,9 +62,7 @@ def test_improve_repo_cleanup(tmp_path: Path) -> None:
     patch_file.write_text(patch)
     log_file = tmp_path / "log.json"
 
-    delta, clone = self_improver.improve_repo(
-        str(repo_dir), str(patch_file), "metric.txt", str(log_file), cleanup=True
-    )
+    delta, clone = self_improver.improve_repo(str(repo_dir), str(patch_file), "metric.txt", str(log_file), cleanup=True)
 
     assert delta == 1
     assert not clone.exists()
@@ -81,23 +77,27 @@ def test_improve_repo_requires_git(monkeypatch, tmp_path: Path) -> None:
 
     monkeypatch.setattr(self_improver, "git", None)
     with pytest.raises(RuntimeError):
-        self_improver.improve_repo(
-            str(repo_dir), str(patch_file), "metric.txt", str(log_file)
-        )
+        self_improver.improve_repo(str(repo_dir), str(patch_file), "metric.txt", str(log_file))
+
 
 from alpha_factory_v1.demos.alpha_agi_insight_v1.src.utils import config, messaging  # noqa: E402
 from src.agents.self_improver_agent import SelfImproverAgent  # noqa: E402
 from prometheus_client import REGISTRY  # noqa: E402
 
+
 class DummyLedger:
     def log(self, _env) -> None:
         pass
+
     def start_merkle_task(self, *_a, **_kw) -> None:
         pass
+
     async def stop_merkle_task(self) -> None:
         pass
+
     def close(self) -> None:
         pass
+
 
 @pytest.mark.asyncio
 async def test_self_improver_agent_apply(tmp_path: Path) -> None:
@@ -126,8 +126,10 @@ async def test_self_improver_agent_rollback(monkeypatch, tmp_path: Path) -> None
     bus = messaging.A2ABus(config.Settings(bus_port=0))
     agent = SelfImproverAgent(bus, DummyLedger(), str(repo_dir), str(patch_file), allowed=["metric.txt"])
     orig_commit = git.Repo(repo_dir).head.commit.hexsha
+
     def fail_commit(self, *a, **k):
         raise RuntimeError("boom")
+
     monkeypatch.setattr(git.index.base.IndexFile, "commit", fail_commit)
     with pytest.raises(RuntimeError):
         await agent.run_cycle()

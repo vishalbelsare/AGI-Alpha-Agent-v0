@@ -6,12 +6,12 @@ import unittest
 from pathlib import Path
 import tempfile
 
-STUB = 'alpha_factory_v1/demos/omni_factory_demo/alpha_discovery_stub.py'
+STUB = "alpha_factory_v1/demos/omni_factory_demo/alpha_discovery_stub.py"
 
 
 class TestAlphaDiscoveryStub(unittest.TestCase):
     def test_list_option(self) -> None:
-        result = subprocess.run([sys.executable, STUB, '--list'], capture_output=True, text=True)
+        result = subprocess.run([sys.executable, STUB, "--list"], capture_output=True, text=True)
         self.assertEqual(result.returncode, 0)
         data = json.loads(result.stdout)
         self.assertIsInstance(data, list)
@@ -19,9 +19,9 @@ class TestAlphaDiscoveryStub(unittest.TestCase):
 
     def test_sampling(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
-            ledger = Path(tmp) / 'log.json'
+            ledger = Path(tmp) / "log.json"
             result = subprocess.run(
-                [sys.executable, STUB, '-n', '2', '--seed', '1', '--ledger', str(ledger)],
+                [sys.executable, STUB, "-n", "2", "--seed", "1", "--ledger", str(ledger)],
                 capture_output=True,
                 text=True,
             )
@@ -33,5 +33,5 @@ class TestAlphaDiscoveryStub(unittest.TestCase):
             self.assertEqual(len(logged), len({json.dumps(i, sort_keys=True) for i in logged}))
 
 
-if __name__ == '__main__':  # pragma: no cover
+if __name__ == "__main__":  # pragma: no cover
     unittest.main()

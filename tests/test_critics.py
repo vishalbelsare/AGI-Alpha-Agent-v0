@@ -69,6 +69,7 @@ def test_grpc_scoring() -> None:
 
 pytest.importorskip("pytest_benchmark")
 
+
 @pytest.mark.benchmark(group="critics")  # type: ignore[misc]
 def test_latency_benchmark(benchmark: Any) -> None:
     service = DualCriticService(["alpha"])

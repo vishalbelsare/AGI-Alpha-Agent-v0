@@ -73,9 +73,7 @@ def test_session_id_deterministic() -> None:
         page.evaluate("window.dispatchEvent(new Event('beforeunload'))")
         first = page.evaluate("window.beacon[1]")
         page.reload()
-        page.evaluate(
-            "navigator.sendBeacon=(...a)=>{window.beacon=a;return true;}"
-        )
+        page.evaluate("navigator.sendBeacon=(...a)=>{window.beacon=a;return true;}")
         page.wait_for_selector("#controls")
         page.click("text=Share")
         page.evaluate("window.dispatchEvent(new Event('beforeunload'))")
@@ -134,12 +132,7 @@ def test_queue_limit_and_fetch_fallback() -> None:
         page.wait_for_selector("#controls")
         page.click("text=Share")
         page.evaluate("window.dispatchEvent(new Event('beforeunload'))")
-        assert (
-            page.evaluate(
-                "JSON.parse(localStorage.getItem('telemetryQueue')).length"
-            )
-            == 100
-        )
+        assert page.evaluate("JSON.parse(localStorage.getItem('telemetryQueue')).length") == 100
         page.evaluate(
             "window.fetch=(...a)=>{window.fetchArgs=a;return Promise.resolve({status:200});};"
             "Object.defineProperty(navigator,'onLine',{get:()=>true});"
@@ -169,12 +162,7 @@ def test_queue_never_exceeds_cap() -> None:
         for _ in range(105):
             page.click("text=Share")
             page.evaluate("window.dispatchEvent(new Event('beforeunload'))")
-        assert (
-            page.evaluate(
-                "JSON.parse(localStorage.getItem('telemetryQueue')).length"
-            )
-            == 100
-        )
+        assert page.evaluate("JSON.parse(localStorage.getItem('telemetryQueue')).length") == 100
         browser.close()
 
 

@@ -48,11 +48,13 @@ def test_lineage_detail(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None
     monkeypatch.setenv("API_RATE_LIMIT", "1000")
     monkeypatch.setenv("ARCHIVE_PATH", str(tmp_path / "a.db"))
     from src.archive import Archive
+
     arch = Archive(tmp_path / "a.db")
     arch.add({"diff": "root"}, 0.1)
     arch.add({"parent": 1, "diff": "child"}, 0.2)
 
     from src.interface import api_server as mod
+
     api = importlib.reload(mod)
 
     client = TestClient(cast(Any, api.app))

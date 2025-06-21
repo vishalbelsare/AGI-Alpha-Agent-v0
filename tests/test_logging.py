@@ -33,9 +33,7 @@ def test_compute_merkle_root(tmp_path: Path) -> None:
     assert computed == manual
 
 
-def test_broadcast_merkle_root_logs_root_when_disabled(
-    tmp_path: Path, caplog: pytest.LogCaptureFixture
-) -> None:
+def test_broadcast_merkle_root_logs_root_when_disabled(tmp_path: Path, caplog: pytest.LogCaptureFixture) -> None:
     ledger = Ledger(str(tmp_path / "l.db"), broadcast=False)
     env = messaging.Envelope(sender="a", recipient="b", payload={"v": 1}, ts=0.0)
     ledger.log(env)

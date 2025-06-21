@@ -29,12 +29,14 @@ class TestAIGABridgeRuntime(unittest.TestCase):
         stub.Tool = _tool
 
         env_stub = types.ModuleType("curriculum_env")
+
         class DummyEnv:
             pass
 
         env_stub.CurriculumEnv = DummyEnv
 
         evo_stub = types.ModuleType("meta_evolver")
+
         class DummyEvolver:
             def __init__(self, *a, **k) -> None:
                 pass
@@ -66,16 +68,12 @@ class TestAIGABridgeRuntime(unittest.TestCase):
                 "alpha_factory_v1.backend.adk_bridge": adk_stub,
             },
         ):
-            sys.modules.pop(
-                "alpha_factory_v1.demos.aiga_meta_evolution.utils", None
-            )
+            sys.modules.pop("alpha_factory_v1.demos.aiga_meta_evolution.utils", None)
             sys.modules.pop(
                 "alpha_factory_v1.demos.aiga_meta_evolution.openai_agents_bridge",
                 None,
             )
-            mod = importlib.import_module(
-                "alpha_factory_v1.demos.aiga_meta_evolution.openai_agents_bridge"
-            )
+            mod = importlib.import_module("alpha_factory_v1.demos.aiga_meta_evolution.openai_agents_bridge")
 
             dummy = MagicMock()
             dummy.best_architecture = "arch"
@@ -101,17 +99,20 @@ class TestAIGABridgeRuntime(unittest.TestCase):
         stub.Agent = object
         stub.AgentRuntime = object
         stub.OpenAIAgent = fake_openai_agent
+
         def _tool(*_a, **_k):
             def _decorator(func):
                 return func
 
             return _decorator
+
         stub.Tool = _tool
 
         env_stub = types.ModuleType("curriculum_env")
         env_stub.CurriculumEnv = object
 
         evo_stub = types.ModuleType("meta_evolver")
+
         class DummyEvolver:
             def __init__(self, *a, **k) -> None:
                 pass
@@ -124,30 +125,29 @@ class TestAIGABridgeRuntime(unittest.TestCase):
         backend_stub = types.ModuleType("backend")
         backend_stub.adk_bridge = adk_stub
 
-        with patch.dict(
-            sys.modules,
-            {
-                "openai_agents": stub,
-                "alpha_factory_v1.demos.aiga_meta_evolution.curriculum_env": env_stub,
-                "alpha_factory_v1.demos.aiga_meta_evolution.meta_evolver": evo_stub,
-                "alpha_factory_v1.backend": backend_stub,
-                "alpha_factory_v1.backend.adk_bridge": adk_stub,
-            },
-        ), patch.dict(
-            os.environ,
-            {"OPENAI_API_KEY": "", "OLLAMA_BASE_URL": "http://example.com"},
-            clear=False,
+        with (
+            patch.dict(
+                sys.modules,
+                {
+                    "openai_agents": stub,
+                    "alpha_factory_v1.demos.aiga_meta_evolution.curriculum_env": env_stub,
+                    "alpha_factory_v1.demos.aiga_meta_evolution.meta_evolver": evo_stub,
+                    "alpha_factory_v1.backend": backend_stub,
+                    "alpha_factory_v1.backend.adk_bridge": adk_stub,
+                },
+            ),
+            patch.dict(
+                os.environ,
+                {"OPENAI_API_KEY": "", "OLLAMA_BASE_URL": "http://example.com"},
+                clear=False,
+            ),
         ):
-            sys.modules.pop(
-                "alpha_factory_v1.demos.aiga_meta_evolution.utils", None
-            )
+            sys.modules.pop("alpha_factory_v1.demos.aiga_meta_evolution.utils", None)
             sys.modules.pop(
                 "alpha_factory_v1.demos.aiga_meta_evolution.openai_agents_bridge",
                 None,
             )
-            mod = importlib.import_module(
-                "alpha_factory_v1.demos.aiga_meta_evolution.openai_agents_bridge"
-            )
+            mod = importlib.import_module("alpha_factory_v1.demos.aiga_meta_evolution.openai_agents_bridge")
 
             self.assertEqual(mod.LLM.base_url, "http://example.com")
 
@@ -199,16 +199,12 @@ class TestAIGABridgeRuntime(unittest.TestCase):
                 "alpha_factory_v1.backend.adk_bridge": adk_stub,
             },
         ):
-            sys.modules.pop(
-                "alpha_factory_v1.demos.aiga_meta_evolution.utils", None
-            )
+            sys.modules.pop("alpha_factory_v1.demos.aiga_meta_evolution.utils", None)
             sys.modules.pop(
                 "alpha_factory_v1.demos.aiga_meta_evolution.openai_agents_bridge",
                 None,
             )
-            mod = importlib.import_module(
-                "alpha_factory_v1.demos.aiga_meta_evolution.openai_agents_bridge"
-            )
+            mod = importlib.import_module("alpha_factory_v1.demos.aiga_meta_evolution.openai_agents_bridge")
 
             dummy = MagicMock()
             dummy.history = [(1, 0.5)]

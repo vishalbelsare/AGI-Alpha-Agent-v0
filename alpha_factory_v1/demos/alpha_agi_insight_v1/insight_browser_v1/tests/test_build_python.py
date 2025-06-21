@@ -29,9 +29,14 @@ const out = spawnSync('python', ['-'], {{
 if (out.error) {{ throw out.error; }}
 process.exit(out.status);
 """
-    res = subprocess.run([
-        "node",
-        "-e",
-        node_code,
-    ], cwd=browser_dir, capture_output=True, text=True)
+    res = subprocess.run(
+        [
+            "node",
+            "-e",
+            node_code,
+        ],
+        cwd=browser_dir,
+        capture_output=True,
+        text=True,
+    )
     assert res.returncode == 0, res.stderr

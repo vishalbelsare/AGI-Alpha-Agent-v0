@@ -13,11 +13,15 @@ SCRIPT = Path("alpha_factory_v1/demos/aiga_meta_evolution/start_aiga_demo.py")
 
 def test_start_aiga_demo_help() -> None:
     """--help prints usage information."""
-    result = subprocess.run([
-        sys.executable,
-        str(SCRIPT),
-        "--help",
-    ], capture_output=True, text=True)
+    result = subprocess.run(
+        [
+            sys.executable,
+            str(SCRIPT),
+            "--help",
+        ],
+        capture_output=True,
+        text=True,
+    )
     assert result.returncode == 0
     assert "usage" in result.stdout.lower()
 

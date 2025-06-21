@@ -15,4 +15,3 @@ def test_score_variance_under_two_sigma() -> None:
         mean = statistics.mean(vals)
         sigma = statistics.pstdev(vals)
         assert all(abs(v - mean) < 2 * sigma + 1e-12 for v in vals)
-

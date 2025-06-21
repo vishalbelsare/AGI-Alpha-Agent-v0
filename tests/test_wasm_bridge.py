@@ -7,20 +7,14 @@ from pathlib import Path
 
 import pytest
 
-BRIDGE = Path(
-    "alpha_factory_v1/demos/alpha_agi_insight_v1/insight_browser_v1/src/wasm/bridge.js"
-)
-LIB = Path(
-    "alpha_factory_v1/demos/alpha_agi_insight_v1/insight_browser_v1/lib/pyodide.js"
-)
+BRIDGE = Path("alpha_factory_v1/demos/alpha_agi_insight_v1/insight_browser_v1/src/wasm/bridge.js")
+LIB = Path("alpha_factory_v1/demos/alpha_agi_insight_v1/insight_browser_v1/lib/pyodide.js")
 
 
 @pytest.mark.skipif(not shutil.which("node"), reason="node not available")
 def test_pyodide_load_failure(tmp_path: Path) -> None:
     bridge_copy = tmp_path / "bridge.mjs"
-    text = BRIDGE.read_text().replace(
-        "../lib/pyodide.js", LIB.resolve().as_posix()
-    )
+    text = BRIDGE.read_text().replace("../lib/pyodide.js", LIB.resolve().as_posix())
     bridge_copy.write_text(text)
 
     script = tmp_path / "run.mjs"

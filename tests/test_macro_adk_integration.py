@@ -46,8 +46,9 @@ def test_macro_entrypoint_launch(monkeypatch: pytest.MonkeyPatch) -> None:
     mod_path = "alpha_factory_v1.demos.macro_sentinel.agent_macro_entrypoint"
     sys.modules.pop(mod_path, None)
 
-    with patch("alpha_factory_v1.backend.adk_bridge.auto_register"), \
-         patch("alpha_factory_v1.backend.adk_bridge.maybe_launch") as maybe_launch:
+    with (
+        patch("alpha_factory_v1.backend.adk_bridge.auto_register"),
+        patch("alpha_factory_v1.backend.adk_bridge.maybe_launch") as maybe_launch,
+    ):
         importlib.import_module(mod_path)
         maybe_launch.assert_called_once_with()
-

@@ -43,9 +43,7 @@ def compute_fitness(results: Iterable[Mapping[str, Any]]) -> dict[str, dict[str,
     for dataset, items in grouped.items():
         total = len(items)
         passed = sum(1 for i in items if i.get("pass"))
-        avg_ms = (
-            sum(int(i.get("time_ms", 0)) for i in items) / total if total else 0.0
-        )
+        avg_ms = sum(int(i.get("time_ms", 0)) for i in items) / total if total else 0.0
         metrics[dataset] = {"pass_rate": passed / total if total else 0.0, "avg_ms": avg_ms}
 
     return metrics

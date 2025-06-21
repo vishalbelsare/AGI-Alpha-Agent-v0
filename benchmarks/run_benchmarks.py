@@ -12,6 +12,7 @@ from time import perf_counter_ns
 
 ROOT = Path(__file__).parent
 
+
 def _discover_tasks(dataset: str) -> list[tuple[str, str]]:
     """Return list of (task_id, module_name)."""
     tasks = []
@@ -22,6 +23,7 @@ def _discover_tasks(dataset: str) -> list[tuple[str, str]]:
         task_id = f"{dataset}/{path.stem}"
         tasks.append((task_id, module_name))
     return tasks
+
 
 def run_task(task_id: str, module_name: str) -> dict[str, object]:
     t0 = perf_counter_ns()
@@ -34,6 +36,7 @@ def run_task(task_id: str, module_name: str) -> dict[str, object]:
         passed = False
     elapsed_ms = int((perf_counter_ns() - t0) / 1_000_000)
     return {"task_id": task_id, "pass": passed, "time_ms": elapsed_ms}
+
 
 def main() -> None:
     # Ensure the repository root is on sys.path so benchmark modules import
@@ -49,6 +52,7 @@ def main() -> None:
         for task_id, module in _discover_tasks(ds):
             results.append(run_task(task_id, module))
     json.dump(results, sys.stdout)
+
 
 if __name__ == "__main__":  # pragma: no cover
     main()

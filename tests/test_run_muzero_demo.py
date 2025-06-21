@@ -10,7 +10,6 @@ import subprocess
 from pathlib import Path
 
 
-
 def test_run_muzero_demo_invokes_docker(tmp_path: Path) -> None:
     repo_root = Path(__file__).resolve().parents[1]
     src = repo_root / "alpha_factory_v1"
@@ -22,9 +21,7 @@ def test_run_muzero_demo_invokes_docker(tmp_path: Path) -> None:
     bin_dir = tmp_path / "bin"
     bin_dir.mkdir()
     docker_stub = bin_dir / "docker"
-    docker_stub.write_text(
-        f"#!/usr/bin/env bash\necho \"$@\" >> '{log_file}'\nexit 0\n"
-    )
+    docker_stub.write_text(f"#!/usr/bin/env bash\necho \"$@\" >> '{log_file}'\nexit 0\n")
     docker_stub.chmod(0o755)
 
     with socket.socket() as s:

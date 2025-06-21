@@ -10,6 +10,7 @@ import pytest
 
 SEMGRP_BIN = shutil.which("semgrep")
 
+
 @pytest.mark.skipif(not SEMGRP_BIN, reason="semgrep not installed")
 def test_semgrep_blocks_malicious_diff() -> None:
     bad_sol = """

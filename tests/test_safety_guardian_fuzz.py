@@ -15,7 +15,6 @@ from alpha_factory_v1.demos.alpha_agi_insight_v1.src.agents import safety_agent 
 from alpha_factory_v1.demos.alpha_agi_insight_v1.src.utils import config, messaging  # noqa: E402
 
 
-
 class DummyBus:
     def __init__(self, settings: config.Settings) -> None:
         self.settings = settings

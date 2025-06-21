@@ -231,7 +231,7 @@ class ManufacturingAgent(AgentBase):
 
     @tool(
         description=(
-            'Optimise a production schedule. Arg JSON '
+            "Optimise a production schedule. Arg JSON "
             '{"jobs": [...], "due_dates": [...], "energy_rate": {m: kwh_per_min}, '
             '"maintenance": [{"machine": str, "start": int, "end": int}]}'
         )
@@ -243,7 +243,7 @@ class ManufacturingAgent(AgentBase):
 
     @tool(
         description=(
-            'Repair an existing schedule with new job set. '
+            "Repair an existing schedule with new job set. "
             'Arg JSON {"baseline": {...}, "jobs_add": [...], "due_dates": [...]} '
         )
     )

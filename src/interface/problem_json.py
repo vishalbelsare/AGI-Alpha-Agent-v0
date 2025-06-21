@@ -20,9 +20,7 @@ def problem_response(exc: HTTPException) -> JSONResponse:
     except Exception:  # pragma: no cover - unknown status code
         title = str(exc.status_code)
 
-    detail = (
-        exc.detail if isinstance(exc.detail, str) else str(exc.detail) if exc.detail else ""
-    )
+    detail = exc.detail if isinstance(exc.detail, str) else str(exc.detail) if exc.detail else ""
 
     body: dict[str, Any] = {"type": "about:blank", "title": title, "status": exc.status_code}
     if detail:
@@ -33,4 +31,3 @@ def problem_response(exc: HTTPException) -> JSONResponse:
         content=body,
         media_type="application/problem+json",
     )
-

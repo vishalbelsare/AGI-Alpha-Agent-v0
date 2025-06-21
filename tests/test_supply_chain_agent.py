@@ -20,6 +20,7 @@ class TestSupplyChainAgent(unittest.TestCase):
         self.assertEqual(mcp["payload"], payload)
         raw = json.dumps(payload, separators=(",", ":"))
         import hashlib
+
         self.assertEqual(mcp["digest"], hashlib.sha256(raw.encode()).hexdigest())
 
     def test_plan_cycle_structure(self):

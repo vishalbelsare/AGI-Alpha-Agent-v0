@@ -25,4 +25,3 @@ def test_max_results_eviction(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -
     assert len(api._simulations) == 2
     assert list(api._simulations.keys()) == ["id1", "id2"]
     assert not (tmp_path / "id0.json").exists()
-

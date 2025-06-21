@@ -31,4 +31,5 @@ def get_logger(name: str, level: str | int | None = None) -> logging.Logger:
         logger.setLevel(level_val.upper())
     return logger
 
+
 __all__ = ["get_logger"]

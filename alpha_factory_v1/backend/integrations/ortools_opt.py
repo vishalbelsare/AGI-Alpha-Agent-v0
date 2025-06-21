@@ -62,7 +62,7 @@ def solve_vrp(
 
     Returns
     -------
-    List of routes, each a list of location indices.  
+    List of routes, each a list of location indices.
     In fallback mode we create one vehicle per demand.
     """
     if _ORTOOLS_OK:
@@ -115,10 +115,7 @@ def _solve_jobshop_ortools(
         _LOG.warning("CP-SAT did not find a solution – falling back to greedy")
         return _solve_jobshop_greedy(jobs)
 
-    return {
-        key: (int(solver.Value(var[0])), int(solver.Value(var[1])))
-        for key, var in task_vars.items()
-    }
+    return {key: (int(solver.Value(var[0])), int(solver.Value(var[1]))) for key, var in task_vars.items()}
 
 
 def _solve_vrp_ortools(
@@ -148,9 +145,7 @@ def _solve_vrp_ortools(
     )
 
     search_params = pywrapcp.DefaultRoutingSearchParameters()
-    search_params.first_solution_strategy = (
-        routing_enums_pb2.FirstSolutionStrategy.PATH_CHEAPEST_ARC
-    )
+    search_params.first_solution_strategy = routing_enums_pb2.FirstSolutionStrategy.PATH_CHEAPEST_ARC
     solution = routing.SolveWithParameters(search_params)
 
     if solution is None:

@@ -90,6 +90,7 @@ try:  # Prometheus metrics
 
     def Histogram(name: str, desc: str, labels=None):  # type: ignore[misc]
         return _get_metric(_Histogram, name, desc, labels)
+
 except ModuleNotFoundError:  # pragma: no cover
     Counter = Gauge = Histogram = CollectorRegistry = None  # type: ignore
 
@@ -551,9 +552,6 @@ def _health_loop():
         )
 
 
-
-
-
 ##############################################################################
 #                  hot-dir rescanner (live wheel drop-ins)                   #
 ##############################################################################
@@ -577,12 +575,8 @@ def start_background_tasks() -> None:
     if _bg_started:
         return
     _bg_started = True
-    _health_thread = threading.Thread(
-        target=_health_loop, daemon=True, name="agent-health"
-    )
-    _rescan_thread = threading.Thread(
-        target=_rescan_loop, daemon=True, name="agent-rescan"
-    )
+    _health_thread = threading.Thread(target=_health_loop, daemon=True, name="agent-health")
+    _rescan_thread = threading.Thread(target=_rescan_loop, daemon=True, name="agent-rescan")
     _health_thread.start()
     _rescan_thread.start()
 

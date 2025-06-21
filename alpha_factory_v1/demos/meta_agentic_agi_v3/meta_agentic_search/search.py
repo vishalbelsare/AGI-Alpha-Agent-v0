@@ -78,7 +78,8 @@ WEIGHTS = dict(accuracy=-1.0, latency=0.3, cost=0.2, carbon=0.2, novelty=-0.1)
 ###############################################################################
 # 2 · LLM Client abstraction (sync + async)
 ###############################################################################
-class LLMError(RuntimeError): ...
+class LLMError(RuntimeError):
+    ...
 
 
 @dataclass(slots=True)

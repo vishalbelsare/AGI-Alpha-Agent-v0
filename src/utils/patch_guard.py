@@ -49,12 +49,7 @@ def is_patch_valid(diff: str) -> bool:
         return False
 
     # Reject diffs touching only test files
-    if all(
-        f.startswith("tests/")
-        or "/tests/" in f
-        or f.split("/")[-1].startswith("test_")
-        for f in files
-    ):
+    if all(f.startswith("tests/") or "/tests/" in f or f.split("/")[-1].startswith("test_") for f in files):
         return False
 
     return True

@@ -8,12 +8,11 @@ OpenAI Agents runtime. Works offline when no API key is configured.
 from __future__ import annotations
 
 import os
+
 try:
     from openai_agents import Agent, AgentRuntime, Tool
 except ModuleNotFoundError as exc:  # pragma: no cover - graceful degradation
-    raise SystemExit(
-        "openai-agents package is missing. Install with `pip install openai-agents`"
-    ) from exc
+    raise SystemExit("openai-agents package is missing. Install with `pip install openai-agents`") from exc
 
 from meta_agentic_agi_demo import meta_loop
 
@@ -44,6 +43,7 @@ def main() -> None:
     # Optional cross-process federation via Google ADK
     try:
         from alpha_factory_v1.backend import adk_bridge
+
         if adk_bridge.adk_enabled():
             adk_bridge.auto_register([agent])
             adk_bridge.maybe_launch()

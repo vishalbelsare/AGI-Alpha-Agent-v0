@@ -3,6 +3,7 @@ from __future__ import annotations
 
 from .base import AgentBase
 
+
 class MemoryAgent(AgentBase):
     """Stub retrieval-augmented memory store."""
 

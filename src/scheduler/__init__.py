@@ -99,10 +99,7 @@ class SelfImprovementScheduler:
             if delta > 0:
                 metrics.dgm_fitness_gain_total.inc(delta)
             if metrics.dgm_fitness_gain_total._value.get() > 0:
-                ratio = (
-                    metrics.dgm_gpu_hours_total._value.get()
-                    / metrics.dgm_fitness_gain_total._value.get()
-                )
+                ratio = metrics.dgm_gpu_hours_total._value.get() / metrics.dgm_fitness_gain_total._value.get()
                 metrics.dgm_gpu_hours_per_gain.set(ratio)
             if not self._first_round_done:
                 self._results[job] = delta

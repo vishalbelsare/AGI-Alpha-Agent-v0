@@ -345,7 +345,8 @@ class FinanceAgent(AgentBase):
         else:
 
             class _NoOp:  # noqa: D401
-                def set(self, *_): ...
+                def set(self, *_):
+                    ...
 
             self.pnl_g = _NoOp()
 

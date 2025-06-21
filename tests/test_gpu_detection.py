@@ -4,9 +4,8 @@ import subprocess
 from pathlib import Path
 import pytest
 
-LLM = Path(
-    "alpha_factory_v1/demos/alpha_agi_insight_v1/insight_browser_v1/src/utils/llm.js"
-)
+LLM = Path("alpha_factory_v1/demos/alpha_agi_insight_v1/insight_browser_v1/src/utils/llm.js")
+
 
 @pytest.mark.skipif(not shutil.which("node"), reason="node not available")
 def test_llm_gpu_backend(tmp_path: Path) -> None:

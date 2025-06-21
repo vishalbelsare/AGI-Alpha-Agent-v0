@@ -40,9 +40,7 @@ def main() -> None:
     sys.stdout.write("\n")
     avg_ms = sum(d["time_ms"] for d in data) / len(data)
     if avg_ms > 300_000:  # 5 minutes
-        raise SystemExit(
-            f"Average runtime {avg_ms/1000:.1f}s exceeds 5 minute limit (total {elapsed_ms/1000:.1f}s)"
-        )
+        raise SystemExit(f"Average runtime {avg_ms/1000:.1f}s exceeds 5 minute limit (total {elapsed_ms/1000:.1f}s)")
 
 
 if __name__ == "__main__":  # pragma: no cover
