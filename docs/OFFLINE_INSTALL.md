@@ -32,6 +32,18 @@ Use `check_env.py` to install any missing packages from the wheelhouse:
 python check_env.py --auto-install --wheelhouse /media/wheels
 ```
 
+## Environment variables
+Set these variables when running offline so the helper scripts install
+packages from the local wheel cache and Insight never attempts network
+access:
+
+| Variable | Purpose |
+|----------|---------|
+| `WHEELHOUSE` | Directory containing prebuilt wheels. |
+| `AUTO_INSTALL_MISSING` | Set to `1` to automatically install missing packages. |
+| `AGI_INSIGHT_OFFLINE` | Set to `1` to force local inference models. |
+| `AGI_INSIGHT_BROADCAST` | Set to `0` to disable network broadcasting. |
+
 ## 4. Launch Macro-Sentinel
 Start the demo with offline data feeds:
 
