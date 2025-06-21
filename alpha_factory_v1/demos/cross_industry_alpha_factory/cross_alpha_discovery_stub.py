@@ -96,6 +96,9 @@ def discover_alpha(
     Returns:
         A list of dictionaries with ``sector`` and ``opportunity`` keys.
     """
+    if num < 1:
+        raise ValueError("num must be >= 1")
+
     if seed is not None:
         random.seed(seed)
     picks: List[Dict[str, str]] = []
@@ -177,7 +180,12 @@ def main(argv: List[str] | None = None) -> None:  # pragma: no cover - CLI wrapp
         return
 
     ledger = None if args.no_log else _ledger_path(args.ledger)
-    picks = discover_alpha(args.num, seed=args.seed, ledger=ledger, model=args.model)
+    try:
+        picks = discover_alpha(args.num, seed=args.seed, ledger=ledger, model=args.model)
+    except ValueError as exc:
+        print(f"Error: {exc}")
+        return
+
     print(json.dumps(picks[0] if args.num == 1 else picks, indent=2))
     if ledger is not None:
         print(f"Logged to {ledger}")
