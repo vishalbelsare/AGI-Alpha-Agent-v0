@@ -33,11 +33,6 @@ flowchart TD
 ```
 
 ---
-
-## Disclaimer
-[See docs/DISCLAIMER_SNIPPET.md](docs/DISCLAIMER_SNIPPET.md)
-
-
 ## Humanity’s Structured Rise to Economic Supremacy via Strategic AGI Mastery
 
 ### 🎖️ α‑AGI Insight 👁️✨ — Beyond Human Foresight
@@ -426,9 +421,6 @@ curl -X POST http://localhost:8000/simulate \
   -H "Content-Type: application/json" \
   -d '{"horizon": 5, "pop_size": 6, "generations": 3, "mut_rate": 0.1, "xover_rate": 0.5, "curve": "linear", "energy": 1.0, "entropy": 1.0}'
 ```
-
-## Disclaimer
-[See docs/DISCLAIMER_SNIPPET.md](docs/DISCLAIMER_SNIPPET.md)
 
 ## Further Reading
 - [docs/DESIGN.md](docs/DESIGN.md) — architecture overview and agent roles.

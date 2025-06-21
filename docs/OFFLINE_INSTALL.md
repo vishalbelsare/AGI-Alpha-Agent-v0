@@ -2,7 +2,6 @@
 
 # Offline Installation Quickstart
 
-[See docs/DISCLAIMER_SNIPPET.md](../docs/DISCLAIMER_SNIPPET.md)
 
 This guide summarises how to install the project without internet access and run the Macro-Sentinel demo.
 
