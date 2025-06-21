@@ -133,14 +133,27 @@ def check_patch_in_sandbox(image: str = DEFAULT_SANDBOX_IMAGE) -> bool:
 
 
 def check_pkg(pkg: str) -> bool:
-    """Return True if *pkg* is importable."""
+    """Return True if *pkg* or its fallback is importable."""
+
     try:
         import importlib.util
 
-        found = importlib.util.find_spec(pkg) is not None
+        module = pkg
+        spec = importlib.util.find_spec(module)
+
+        if module == "openai_agents" and spec is None:
+            module = "agents"
+            spec = importlib.util.find_spec(module)
+
+        found = spec is not None
     except Exception:  # pragma: no cover - importlib failure is unexpected
         found = False
-    banner(f"{pkg} {'found' if found else 'missing'}", "GREEN" if found else "RED")
+        module = pkg
+
+    banner(
+        f"{module if found else pkg} {'found' if found else 'missing'}",
+        "GREEN" if found else "RED",
+    )
     return found
 
 
