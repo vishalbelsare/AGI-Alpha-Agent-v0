@@ -1,5 +1,10 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: Apache-2.0
+# This code is a conceptual research prototype.
+# References to "AGI" and "superintelligence" describe aspirational goals
+# and do not indicate the presence of a real general intelligence.
+# Use at your own risk. Nothing herein constitutes financial advice.
+# MontrealAI and the maintainers accept no liability for losses incurred.
 """Streamlit dashboard for the α‑AGI Insight demo."""
 from __future__ import annotations
 
