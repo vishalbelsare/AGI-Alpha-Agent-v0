@@ -90,6 +90,7 @@ Downstream users should consult this section when upgrading.
 - `simulate` command now accepts `--energy` and `--entropy` to set initial
   sector values. The React dashboard exposes matching input fields.
 - Version constant ``__version__`` defined in ``alpha_factory_v1.demos.alpha_agi_insight_v1.__init__``.
+- Version constant ``__version__`` defined in ``alpha_factory_v1.demos.cross_industry_alpha_factory.__init__``.
 
 ## [v1.0] - 2025-07-01
 - CLI commands `simulate`, `show-results`, `agents-status` and `replay` for running and inspecting forecasts.
