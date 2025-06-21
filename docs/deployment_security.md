@@ -2,8 +2,6 @@
 
 # Secure Deployment
 
-[See docs/DISCLAIMER_SNIPPET.md](../docs/DISCLAIMER_SNIPPET.md)
-
 This guide explains how to protect Alpha-Factory in production.
 
 ## TLS configuration
