@@ -1,4 +1,5 @@
 # SPDX-License-Identifier: Apache-2.0
+# mypy: disable-error-code=unused-ignore
 """
 This module is part of a conceptual research prototype. References to
 'AGI' or 'superintelligence' describe aspirational goals and do not
@@ -52,7 +53,7 @@ except ImportError:  # pragma: no cover
 try:  # optional dependency
     from openai_agents import OpenAIAgent, Tool
 except ImportError as exc:  # pragma: no cover - missing package
-    raise SystemExit("openai_agents package is required. Install with `pip install openai-agents`") from exc
+    raise ImportError("openai_agents package is required. Install with `pip install openai-agents`") from exc
 try:
     from alpha_factory_v1.backend import adk_bridge
 except Exception:  # pragma: no cover - optional dependency

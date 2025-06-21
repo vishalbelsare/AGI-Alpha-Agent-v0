@@ -5,34 +5,11 @@ from httpx import ASGITransport, AsyncClient
 from typing import Any
 
 import sys
+import pytest
+
+pytest.importorskip("openai_agents")
 import types
 
-stub = types.ModuleType("stub_agents")
-
-
-class DummyRuntime:
-    def __init__(self, *a, **k):
-        pass
-
-    def register(self, *a, **k):
-        pass
-
-
-class DummyOA:
-    def __init__(self, *a, **k):
-        pass
-
-    async def __call__(self, _t):
-        return "ok"
-
-
-stub.Agent = object
-stub.AgentRuntime = DummyRuntime
-stub.OpenAIAgent = DummyOA
-stub.Tool = lambda *a, **k: (lambda f: f)
-
-sys.modules.setdefault("openai_agents", stub)
-sys.modules.setdefault("agents", stub)
 a2a_mod = sys.modules.setdefault("a2a", types.ModuleType("a2a"))
 a2a_mod.A2ASocket = lambda *a, **k: None
 gr_mod = sys.modules.setdefault("gradio", types.ModuleType("gradio"))

@@ -272,6 +272,8 @@ OPENAI_API_KEY=dummy pytest tests/test_meta_agentic_tree_search_demo.py::test_br
 ```bash
 pytest tests/test_aiga_agents_bridge.py
 ```
+- `tests/test_rate_lock.py` checks the request rate limiter and
+  skips automatically when `openai_agents` is missing.
 - `alpha_factory_v1/tests/test_cross_industry_alpha.py` exercises the
   cross‑industry discovery helper:
 ```bash
