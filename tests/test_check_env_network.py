@@ -3,6 +3,7 @@
 
 import pytest
 import subprocess
+import urllib.request
 import check_env
 
 pytestmark = pytest.mark.smoke
@@ -53,6 +54,9 @@ def test_skip_net_check(monkeypatch: pytest.MonkeyPatch) -> None:
 def test_has_network_fallback(monkeypatch: pytest.MonkeyPatch) -> None:
     """Return True when later test hosts are reachable."""
 
+    monkeypatch.delenv("HTTP_PROXY", raising=False)
+    monkeypatch.delenv("HTTPS_PROXY", raising=False)
+
     attempts = []
 
     class _Sock:
@@ -76,6 +80,9 @@ def test_has_network_fallback(monkeypatch: pytest.MonkeyPatch) -> None:
 def test_has_network_all_fail(monkeypatch: pytest.MonkeyPatch) -> None:
     """Return False when none of the hosts are reachable."""
 
+    monkeypatch.delenv("HTTP_PROXY", raising=False)
+    monkeypatch.delenv("HTTPS_PROXY", raising=False)
+
     attempts = []
 
     def _connect(_addr: tuple[str, int], timeout: float = 1.0) -> None:
@@ -85,3 +92,55 @@ def test_has_network_all_fail(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setattr(check_env.socket, "create_connection", _connect)  # type: ignore[attr-defined]
     assert check_env.has_network() is False
     assert len(attempts) >= 3
+
+
+def test_has_network_with_proxy(monkeypatch: pytest.MonkeyPatch) -> None:
+    """Ensure proxy variables are consulted for connectivity."""
+
+    attempts: list[tuple[str, int]] = []
+
+    class _Sock:
+        def __enter__(self) -> "_Sock":
+            return self
+
+        def __exit__(self, *exc: object) -> None:
+            pass
+
+    def _connect(addr: tuple[str, int], timeout: float = 1.0) -> _Sock:
+        attempts.append(addr)
+        if addr[0] == "proxy.local":
+            return _Sock()
+        raise OSError
+
+    monkeypatch.setenv("HTTP_PROXY", "http://proxy.local:8080")
+    monkeypatch.setenv("HTTPS_PROXY", "http://proxy.local:8080")
+    monkeypatch.setattr(check_env.socket, "create_connection", _connect)  # type: ignore[attr-defined]
+    assert check_env.has_network() is True
+    assert attempts[0] == ("proxy.local", 8080)
+
+
+def test_has_network_head_fallback(monkeypatch: pytest.MonkeyPatch) -> None:
+    """Use urllib as fallback when socket connections fail."""
+
+    def _connect(_addr: tuple[str, int], timeout: float = 1.0) -> None:
+        raise OSError
+
+    called: list[str] = []
+
+    class _Resp:
+        def __enter__(self) -> "_Resp":
+            return self
+
+        def __exit__(self, *exc: object) -> None:
+            pass
+
+    def _urlopen(req: object, timeout: float = 1.0) -> _Resp:
+        called.append(getattr(req, "full_url", ""))
+        return _Resp()
+
+    monkeypatch.setenv("HTTP_PROXY", "http://proxy.local:3128")
+    monkeypatch.setenv("HTTPS_PROXY", "http://proxy.local:3128")
+    monkeypatch.setattr(check_env.socket, "create_connection", _connect)  # type: ignore[attr-defined]
+    monkeypatch.setattr(urllib.request, "urlopen", _urlopen)
+    assert check_env.has_network() is True
+    assert called and called[0].startswith("https://")
