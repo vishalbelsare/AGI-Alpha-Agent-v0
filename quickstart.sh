@@ -9,5 +9,7 @@
 # Wrapper script for alpha_factory_v1/quickstart.sh
 # Provides a friendly top-level entry point.
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+cd "$SCRIPT_DIR"
+python check_env.py --auto-install
 exec "$SCRIPT_DIR/alpha_factory_v1/quickstart.sh" "$@"
 
