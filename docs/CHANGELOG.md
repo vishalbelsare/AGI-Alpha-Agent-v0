@@ -44,7 +44,10 @@ Downstream users should consult this section when upgrading.
   git push origin v0.1.0-alpha
   git tag            # verify the tag exists
   ```
- - The package exposes `alpha_factory_v1.__version__ = "0.1.0-alpha"` at this release.
+- The package exposes `alpha_factory_v1.__version__ = "0.1.0-alpha"` at this release.
+
+### Breaking Changes
+- None.
 
 
 ## [1.0.3] - 2025-07-10
