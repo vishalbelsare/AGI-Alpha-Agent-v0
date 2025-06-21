@@ -8,10 +8,12 @@
 4. Execute `pytest -q` and ensure all tests pass.
 5. Build the web client with `make build_web`.
 6. Update `docs/CHANGELOG.md` with the new version.
-7. Commit changes and tag the release: `git tag -s vX.Y.Z -m "vX.Y.Z"`.
-   Ensure `pre-commit run --all-files`, `python check_env.py --auto-install` and
-   `pytest -q` all succeed before creating the tag. When offline, pass
-   `--wheelhouse <dir>` to `check_env.py` and run the tests from that wheelhouse.
+7. Commit changes and tag the release using `./scripts/create_release_tag.sh <commit>`.
+   The helper creates the annotated tag `v0.1.0-alpha` (defaults to `HEAD` when
+   no commit is provided). Ensure `pre-commit run --all-files`,
+   `python check_env.py --auto-install` and `pytest -q` all succeed before
+   creating the tag. When offline, pass `--wheelhouse <dir>` to `check_env.py`
+   and run the tests from that wheelhouse.
 8. Push commits and tags to GitHub.
 9. The `CI` workflow builds the image and uploads release artifacts.
 
