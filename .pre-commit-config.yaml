@@ -94,10 +94,11 @@ repos:
         language: system
         pass_filenames: false
       - id: verify-disclaimer-snippet
-        name: Verify Markdown files include disclaimer snippet
+        name: Verify Markdown and notebook files include disclaimer snippet
         entry: python scripts/verify_disclaimer_snippet.py
         language: python
         pass_filenames: false
+        files: \.(md|ipynb)$
       - id: py-compile
         name: Validate Python syntax with py_compile
         entry: python -m py_compile
