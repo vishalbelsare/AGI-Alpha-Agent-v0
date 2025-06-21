@@ -828,7 +828,9 @@ Cells with \(Δ\mathcal F < 0\) glow 🔵 on Grafana; Ω‑Agents race to harves
 
 <a name="6-5-minute-quick-start"></a>
 ## 6 · 5‑Minute Quick‑Start 🚀
-This guide assumes the repository is cloned at `v0.1.0-alpha`.
+This guide assumes the repository is cloned at `v0.1.0-alpha`. The walkthrough
+requires the `numpy`, `yaml` and `pandas` packages which `check_env.py` installs
+automatically when run with `--auto-install`.
 ```bash
 git clone --branch v0.1.0-alpha https://github.com/MontrealAI/AGI-Alpha-Agent-v0.git
 cd AGI-Alpha-Agent-v0
