@@ -2,7 +2,6 @@
 
 # Offline Setup Guide
 
-[See docs/DISCLAIMER_SNIPPET.md](../docs/DISCLAIMER_SNIPPET.md)
 
 This guide explains how to prepare and use a wheelhouse so `check_env.py` and the
 setup scripts work without internet access.
