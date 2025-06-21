@@ -1064,6 +1064,12 @@ WHEELHOUSE="$WHEELHOUSE" pytest -q
 If network access is unavailable and the variable is unset these commands fail
 instead of falling back to PyPI.
 
+#### Offline or Restricted Environments
+
+Run `./scripts/build_offline_wheels.sh` to populate a wheelhouse on a
+machine with internet access, then set `WHEELHOUSE=<path>` before executing
+the tests so dependencies install from this local cache.
+
 #### Test Runtime
 
 Running `pytest` may take several minutes on the first run while caches are
