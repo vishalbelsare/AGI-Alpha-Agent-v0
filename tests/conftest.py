@@ -1,5 +1,6 @@
 # SPDX-License-Identifier: Apache-2.0
 import os
+import warnings
 import pytest
 import sys
 import types
@@ -13,6 +14,12 @@ try:  # pragma: no cover - best effort environment setup
     args = ["--auto-install"]
     if wheelhouse:
         args += ["--wheelhouse", wheelhouse]
+    elif not has_network():  # warn when offline with no wheelhouse
+        warnings.warn(
+            "Neither network access nor a wheelhouse was detected. "
+            "Run './scripts/build_offline_wheels.sh' and set WHEELHOUSE before testing.",
+            RuntimeWarning,
+        )
     rc = check_env_main(args)
     if rc:
         if not wheelhouse and not has_network():
