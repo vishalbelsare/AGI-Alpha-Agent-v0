@@ -20,6 +20,10 @@ class TestCrossIndustryAlpha(unittest.TestCase):
         self.assertIsInstance(picks, list)
         self.assertEqual(len(picks), 1)
 
+    def test_discover_alpha_invalid_num(self) -> None:
+        with self.assertRaises(ValueError):
+            stub.discover_alpha(num=0, ledger=None, model="gpt-4o-mini")
+
     def test_discover_alpha_online(self) -> None:
         resp = types.SimpleNamespace(choices=[types.SimpleNamespace(message=types.SimpleNamespace(content="[]"))])
         openai_mock = types.SimpleNamespace(ChatCompletion=types.SimpleNamespace(create=Mock(return_value=resp)))
