@@ -4,6 +4,11 @@ This repository is a conceptual research prototype. References to "AGI" and "sup
 # SPDX-License-Identifier: Apache-2.0
 # 🧪 Root Test Suite
 
+Tests require internet connectivity to fetch missing dependencies or a local
+wheelhouse built with `scripts/build_offline_wheels.sh`. Always run
+`python check_env.py --auto-install --wheelhouse <dir>` before `pytest` so the
+environment can install packages from the wheel cache when offline.
+
 These integration tests expect the `alpha_factory_v1` package to be importable.
 
 When running the suite without internet access you **must** prepare a local
