@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 """
 backend.agents.biotech_agent
 ====================================================================
@@ -59,6 +60,13 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
+from backend.agents.base import AgentBase  # pylint: disable=import-error
+from backend.agents import AgentMetadata, register_agent
+from backend.orchestrator import _publish  # pylint: disable=import-error
+from alpha_factory_v1.utils.env import _env_int
+
+logger = logging.getLogger(__name__)
+
 # ────────────────────────────── soft-optional deps ──────────────────────────
 try:
     import rdflib  # type: ignore
@@ -96,6 +104,9 @@ except ModuleNotFoundError:  # pragma: no cover
         return (lambda f: f)(fn) if fn else lambda f: f
 
 
+OPENAI_TIMEOUT_SEC = int(os.getenv("OPENAI_TIMEOUT_SEC", "30"))
+
+
 try:
     from kafka import KafkaProducer  # type: ignore
 except ModuleNotFoundError:  # pragma: no cover
@@ -110,21 +121,19 @@ try:
     import adk  # type: ignore
 except ModuleNotFoundError:  # pragma: no cover
     adk = None  # type: ignore
+try:
+    from aiohttp import ClientError as AiohttpClientError  # type: ignore
+except Exception:  # pragma: no cover - optional
+    AiohttpClientError = OSError  # type: ignore
+try:
+    from adk import ClientError as AdkClientError  # type: ignore[attr-defined]
+except Exception:  # pragma: no cover - optional
 
-# ───────────────────────────── Alpha-Factory locals ─────────────────────────
-from backend.agents.base import AgentBase  # pylint: disable=import-error
-from backend.agents import AgentMetadata, register_agent
-from backend.orchestrator import _publish  # pylint: disable=import-error
-
-logger = logging.getLogger(__name__)
+    class AdkClientError(Exception):
+        pass
 
 
 # ─────────────────────────── helper / governance utils ──────────────────────
-def _env_int(key: str, default: int) -> int:  # robust ENV→int
-    try:
-        return int(os.getenv(key, default))
-    except ValueError:
-        return default
 
 
 def _now() -> str:  # ISO-UTC
@@ -328,6 +337,7 @@ class BiotechAgent(AgentBase):
                 ],
                 temperature=0,
                 max_tokens=600,
+                timeout=OPENAI_TIMEOUT_SEC,
             )
             answer = chat.choices[0].message.content.strip()
         else:
@@ -405,8 +415,11 @@ class BiotechAgent(AgentBase):
             client = adk.Client()
             await client.register(node_type=self.NAME, metadata={"kg": str(self.cfg.kg_file)})
             logger.info("[BT] registered in ADK mesh id=%s", client.node_id)
-        except Exception as exc:
+        except (AdkClientError, AiohttpClientError, asyncio.TimeoutError, OSError) as exc:
             logger.warning("ADK registration failed: %s", exc)
+        except Exception as exc:  # pragma: no cover - unexpected
+            logger.exception("Unexpected ADK registration error: %s", exc)
+            raise
 
 
 # ───────────────────────────── registry hook ────────────────────────────────

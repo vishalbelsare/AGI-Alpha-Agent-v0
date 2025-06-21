@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 """Example plugin for OMNI-Factory demo.
 
 Provides a simple policy that nudges the planner
@@ -20,4 +21,3 @@ def heuristic_policy(obs: List[float]) -> dict[str, Any]:
 
 def register() -> None:
     print("[plugin] example_agent_plugin registered")
-

@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 """Alpaca Markets adapter.
 ==========================
 
@@ -46,8 +47,10 @@ _API = os.getenv(
 )
 _HEADERS = {"APCA-API-KEY-ID": _KEY, "APCA-API-SECRET-KEY": _SECRET}
 
+
 class AlpacaBroker(TradeBrokerProtocol):  # noqa: D101
     """Asynchronous trade broker for the Alpaca REST API."""
+
     _retry = AsyncRetrying(
         wait=wait_exponential(multiplier=1.5, min=1, max=30),
         stop=stop_after_attempt(4),

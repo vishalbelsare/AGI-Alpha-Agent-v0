@@ -1,6 +1,8 @@
+# SPDX-License-Identifier: Apache-2.0
 # core/physics/gibbs.py
 from math import exp, log
 from typing import Sequence
+
 
 def free_energy(logp: Sequence[float], temperature: float, task_cost: float) -> float:
     """

@@ -1,4 +1,11 @@
 #!/usr/bin/env bash
+# SPDX-License-Identifier: Apache-2.0
+# This repository is a conceptual research prototype. References to "AGI" and
+# "superintelligence" describe aspirational goals and do not indicate the
+# presence of a real general intelligence. Use at your own risk. Nothing herein
+# constitutes financial advice. MontrealAI and the maintainers accept no
+# liability for losses incurred from using this software.
+# See docs/DISCLAIMER_SNIPPET.md
 # Alpha-Factory Quickstart Launcher
 # Professional production-ready script to bootstrap and run Alpha-Factory v1
 set -Eeuo pipefail
@@ -12,6 +19,15 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 cd "$SCRIPT_DIR/.."
 export PYTHONPATH="${PWD}:${PYTHONPATH:-}"
 
+# use local wheels when available
+if [[ -z "${WHEELHOUSE:-}" && -d wheels ]]; then
+  export WHEELHOUSE="$(pwd)/wheels"
+fi
+PIP_ARGS=()
+if [[ -n "${WHEELHOUSE:-}" ]]; then
+  PIP_ARGS=(--no-index --find-links "$WHEELHOUSE")
+fi
+
 usage() {
   cat <<EOF
 Usage: $0 [--preflight] [--skip-preflight] [orchestrator args...]
@@ -20,7 +36,9 @@ Bootstraps and launches Alpha-Factory in an isolated Python virtual environment.
   --preflight        Run environment checks and exit
   --skip-preflight   Skip automatic preflight checks before launching
   Pip install output logs to $PIP_LOG and failures abort the script.
-Any other options are passed directly to the orchestrator.
+  Set WHEELHOUSE to install packages from a local wheel cache.
+  See docs/OFFLINE_INSTALL.md#environment-variables for details.
+  Any other options are passed directly to the orchestrator.
 EOF
 }
 
@@ -45,6 +63,12 @@ header() {
 
 header
 
+# display project disclaimer before environment checks
+python3 - <<'PY'
+from alpha_factory_v1.utils.disclaimer import DISCLAIMER
+print(DISCLAIMER)
+PY
+
 # check python version
 python3 - <<'PY'
 import sys
@@ -58,10 +82,10 @@ VENV_DIR=".venv"
 if [ ! -d "$VENV_DIR" ]; then
   echo "→ Creating virtual environment"
   python3 -m venv "$VENV_DIR"
-  "$VENV_DIR/bin/pip" install -U pip >"$PIP_LOG" 2>&1 || { echo 'pip install failed'; exit 1; }
+  "$VENV_DIR/bin/pip" install "${PIP_ARGS[@]}" -U pip >"$PIP_LOG" 2>&1 || { echo 'pip install failed'; exit 1; }
   REQ="alpha_factory_v1/requirements.lock"
   [ -f "$REQ" ] || REQ="alpha_factory_v1/requirements.txt"
-  "$VENV_DIR/bin/pip" install -r "$REQ" >>"$PIP_LOG" 2>&1 || { echo 'pip install failed'; exit 1; }
+  "$VENV_DIR/bin/pip" install "${PIP_ARGS[@]}" -r "$REQ" >>"$PIP_LOG" 2>&1 || { echo 'pip install failed'; exit 1; }
 fi
 
 source "$VENV_DIR/bin/activate"

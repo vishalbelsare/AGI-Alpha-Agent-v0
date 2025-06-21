@@ -1,13 +1,23 @@
-"""Placeholder meta-rewrite function."""
+# SPDX-License-Identifier: Apache-2.0
+"""Policy rewrite helpers for the MATS demo.
+
+The module provides :func:`meta_rewrite` along with optional OpenAI and
+Anthropic integrations used to tweak integer policies.
+"""
 
 from __future__ import annotations
 
-import random
 import logging
+import importlib.util
+import asyncio
+import os
+import time
+import re
+import random
 from typing import List
 
 try:  # pragma: no cover - optional httpx dependency
-    import httpx  # type: ignore
+    import httpx
 except Exception:  # noqa: BLE001 - optional dependency may be absent
     httpx = None
 
@@ -23,20 +33,19 @@ def store_sync(messages: list[dict[str, str]]) -> None:
     try:
         httpx.post(f"{endpoint}/context", json=payload, timeout=timeout)
     except Exception:  # noqa: BLE001 - never raise on logging failures
-        logging.getLogger(__name__).debug(
-            "MCP push failed – continuing without persistence", exc_info=True
-        )
-
-import importlib
-import asyncio
-import os
-import time
-import re
-import threading
+        logging.getLogger(__name__).debug("MCP push failed – continuing without persistence", exc_info=True)
 
 
 def meta_rewrite(agents: List[int]) -> List[int]:
-    """Return a modified copy of ``agents`` with a small random change."""
+    """Return ``agents`` with one element randomly tweaked.
+
+    Args:
+        agents: Current candidate policy.
+
+    Returns:
+        Modified policy list.
+    """
+
     new_agents = list(agents)
     idx = random.randrange(len(new_agents))
     new_agents[idx] += random.choice([-1, 1])
@@ -44,11 +53,14 @@ def meta_rewrite(agents: List[int]) -> List[int]:
 
 
 def _parse_numbers(text: str, fallback: List[int]) -> List[int]:
-    """Return integers parsed from ``text`` or a simple increment fallback.
+    """Return integers parsed from ``text`` with a fallback.
 
-    The helper ensures the returned list has the same length as ``fallback`` so
-    the rest of the demo remains stable even when the LLM response is malformed
-    or incomplete. If ``fallback`` is an empty list, an empty list is returned.
+    Args:
+        text: Raw text containing numbers.
+        fallback: Policy used when parsing fails.
+
+    Returns:
+        List of integers matching the length of ``fallback``.
     """
     numbers = [int(n) for n in re.findall(r"-?\d+", text)]
     if not fallback:
@@ -59,16 +71,17 @@ def _parse_numbers(text: str, fallback: List[int]) -> List[int]:
 
 
 def openai_rewrite(agents: List[int], model: str | None = None) -> List[int]:
-    """Improve ``agents`` using OpenAI Agents SDK and Google ADK when available.
+    """Rewrite ``agents`` using the OpenAI Agents SDK when possible.
 
-    The routine falls back to :func:`meta_rewrite` when the required
-    libraries are missing or any error occurs.  This keeps the demo
-    functional in fully offline environments. When the optional
-    dependencies are present, a tiny ``RewriterAgent`` is instantiated
-    and invoked once to illustrate how the Agents SDK could be wired
-    into the search loop.  The implementation uses ``asyncio`` under the
-    hood but exposes a synchronous API so the rest of the demo can run
-    without an event loop.
+    Args:
+        agents: Policy to rewrite.
+        model: Optional model name.
+
+    Returns:
+        Modified policy list.
+
+    Falls back to :func:`meta_rewrite` when dependencies are missing or
+    any error occurs.
     """
 
     have_oai = importlib.util.find_spec("openai_agents") is not None
@@ -77,22 +90,19 @@ def openai_rewrite(agents: List[int], model: str | None = None) -> List[int]:
 
     if have_oai and have_openai and os.getenv("OPENAI_API_KEY"):
         try:  # pragma: no cover - optional integration
-            from openai_agents import Agent, Tool  # type: ignore
-            import openai  # type: ignore
+            from openai_agents import Agent, Tool
+            from openai import OpenAI
 
             oai_model = model or os.getenv("OPENAI_MODEL", "gpt-4o")
 
             if have_adk:
-                from google_adk import agent2agent  # type: ignore
+                from google_adk import agent2agent
 
-            @Tool(
-                name="improve_policy", description="Return an improved integer policy"
-            )
+            from typing import Callable, cast, List
+
+            @Tool(name="improve_policy", description="Return an improved integer policy")  # type: ignore[misc]
             def improve_policy(policy: list[int]) -> list[int]:
-                prompt = (
-                    "Given the current integer policy "
-                    f"{policy}, suggest a slightly improved list of integers."
-                )
+                prompt = "Given the current integer policy " f"{policy}, suggest a slightly improved list of integers."
                 messages = [
                     {
                         "role": "system",
@@ -101,7 +111,8 @@ def openai_rewrite(agents: List[int], model: str | None = None) -> List[int]:
                     {"role": "user", "content": prompt},
                 ]
                 try:
-                    response = openai.ChatCompletion.create(
+                    client = OpenAI()
+                    response = client.chat.completions.create(
                         model=oai_model,
                         messages=messages,
                         max_tokens=20,
@@ -114,13 +125,16 @@ def openai_rewrite(agents: List[int], model: str | None = None) -> List[int]:
 
                 return _parse_numbers(text, policy)
 
-            class RewriterAgent(Agent):
+            improve_policy = cast(Callable[[List[int]], List[int]], improve_policy)
+
+            class RewriterAgent(Agent):  # type: ignore[misc]
                 name = "mats_rewriter"
                 tools = [improve_policy]
 
-                async def policy(self, obs, _ctx):  # type: ignore[override]
-                    cand = obs.get("policy", []) if isinstance(obs, dict) else obs
-                    return improve_policy(list(cand))
+                async def policy(self, obs: object, _ctx: object) -> list[int]:
+                    cand_obj = obs.get("policy", []) if isinstance(obs, dict) else obs
+                    cand = cast(List[int], cand_obj)
+                    return cast(List[int], improve_policy(cand))
 
             agent = RewriterAgent()
 
@@ -147,22 +161,25 @@ def openai_rewrite(agents: List[int], model: str | None = None) -> List[int]:
 
 
 def anthropic_rewrite(agents: List[int], model: str | None = None) -> List[int]:
-    """Improve ``agents`` using the Anthropic API when available."""
+    """Rewrite ``agents`` using the Anthropic API when available.
+
+    Args:
+        agents: Policy to rewrite.
+        model: Optional model name.
+
+    Returns:
+        Modified policy list.
+    """
 
     have_anthropic = importlib.util.find_spec("anthropic") is not None
     if have_anthropic and os.getenv("ANTHROPIC_API_KEY"):
         try:  # pragma: no cover - optional integration
-            import anthropic  # type: ignore
+            import anthropic
 
-            claude_model = model or os.getenv(
-                "ANTHROPIC_MODEL", "claude-3-opus-20240229"
-            )
+            claude_model = model or os.getenv("ANTHROPIC_MODEL", "claude-3-opus-20240229")
             client = anthropic.Anthropic(api_key=os.getenv("ANTHROPIC_API_KEY"))
 
-            prompt = (
-                "Given the current integer policy "
-                f"{agents}, suggest a slightly improved list of integers."
-            )
+            prompt = "Given the current integer policy " f"{agents}, suggest a slightly improved list of integers."
 
             messages = [{"role": "user", "content": prompt}]
             msg = client.messages.create(

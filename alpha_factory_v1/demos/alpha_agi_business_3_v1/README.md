@@ -1,3 +1,8 @@
+[See docs/DISCLAIMER_SNIPPET.md](../../../docs/DISCLAIMER_SNIPPET.md)
+This repository is a conceptual research prototype. References to "AGI" and "superintelligence" describe aspirational goals and do not indicate the presence of a real general intelligence. Use at your own risk. Nothing herein constitutes financial advice. MontrealAI and the maintainers accept no liability for losses incurred from using this software.
+Each demo package exposes its own `__version__` constant. The value marks the revision of that demo only and does not reflect the overall Alpha‑Factory release version.
+
+
 
 # 🏛️ Large‑Scale α‑AGI Business 3 👁️✨ — **Omega‑Grade Edition**  
 > **Alpha‑Factory v1 → Ω‑Lattice v0**  
@@ -11,6 +16,20 @@ high‑stakes prod cluster right now.
 > **Definition**: An **α‑AGI Business** 👁️✨ (`<name>.a.agi.eth`) is an antifragile, self‑governing multi‑agent  👁️✨ (`<name>.a.agent.agi.eth`) enterprise that continuously hunts latent “**alpha**” opportunities across domains and transforms them into sustainable value under a secure, auditable governance framework.
 
 ---
+## Disclaimer
+This repository is a conceptual research prototype. References to "AGI" and
+"superintelligence" describe aspirational goals and do not indicate the presence
+of a real general intelligence. Use at your own risk. Nothing herein constitutes
+financial advice. MontrealAI and the maintainers accept no liability for losses
+incurred from using this software.
+
+## 🛠 Requirements
+
+- **Python ≥3.11**
+- [`openai-agents`](https://openai.github.io/openai-agents-python/) `==0.0.17` is mandatory for online mode.
+- [`llama-cpp-python`](https://pypi.org/project/llama-cpp-python/) and [`ctransformers`](https://pypi.org/project/ctransformers/) enable the offline fallback.
+- Run `python check_env.py --auto-install` to fetch missing packages, or supply `--wheelhouse <dir>` when installing offline.
+  See [alpha_factory_v1/scripts/README.md](../../scripts/README.md#offline-setup) for details on building and using a wheelhouse.
 
 ## 📚 Table of Contents
 0. [Executive Summary](#0)
@@ -228,7 +247,14 @@ Offline mode → `ene_agent` resorts to GARCH / Kalman to estimate β.
 ### 8.1 Docker One‑liner
 
 ```bash
-docker run -p 7860:7860 ghcr.io/montrealai/omega-lattice:latest
+docker run alpha_business_v3:latest
+```
+You can also build the demo locally using the provided Dockerfile.
+Run the command from the repository root so the `.dockerignore` rules
+trim the build context:
+```bash
+docker build -t alpha_business_v3:latest \
+    -f alpha_factory_v1/demos/alpha_agi_business_3_v1/Dockerfile .
 ```
 
 <a id="8.2"></a>
@@ -247,8 +273,10 @@ helm install omega-lattice omega/omega-lattice \
 ```bash
 python -m venv venv && source venv/bin/activate
 pip install -r requirements.txt
-python -m omega_lattice.orchestrator --offline
+alpha-agi-business-3-v1
 ```
+
+Offline mode activates automatically when `OPENAI_API_KEY` is unset.
 
 ### 8.4 Colab Notebook
 
@@ -259,21 +287,83 @@ https://colab.research.google.com/github/MontrealAI/AGI-Alpha-Agent-v0/blob/main
 ```
 
 
-No `OPENAI_API_KEY`? It auto‑switches to **Llama‑3‑8B.gguf**.
+No `OPENAI_API_KEY`? Set `LLAMA_MODEL_PATH` to a local `.gguf` weight – for
+example **Llama‑3‑8B.gguf** – to enable offline inference.
 
 #### Quick Local Demo
 
 Run the standalone script directly to simulate one Ω‑Lattice cycle:
 
 ```bash
-python alpha_agi_business_3_v1.py --loglevel info
+alpha-agi-business-3-v1 --loglevel info
 ```
 If the **OpenAI Agents SDK** is installed, each cycle emits a concise LLM
 comment on the computed ΔG. Without it the demo uses an offline placeholder.
 You can also run the Dockerised version:
 ```bash
 ./run_business_3_demo.sh
+# builds `alpha_business_v3:latest` using `Dockerfile` in this folder
 ```
+
+#### Example Session
+
+```bash
+$ alpha-agi-business-3-v1 --cycles 1 --loglevel info
+2025-06-11 17:16:10 INFO     | ΔH=0.027 ΔS=0.008 β=1.04 → ΔG=0.019
+2025-06-11 17:16:10 INFO     | LLM: LLM offline
+2025-06-11 17:16:10 INFO     | [Model] New weights committed (Gödel-proof verified)
+```
+
+#### Environment Setup
+
+- `OPENAI_API_KEY` – optional. When set, the demo uses OpenAI Agents to
+  generate a short LLM comment. Leave it unset to run in fully offline mode.
+- `LOCAL_LLM_URL` – optional. Base URL for the local fallback model.
+  Defaults to `http://ollama:11434/v1`.
+- Each variable can also be passed via command-line flags
+  (`--openai-api-key`, `--local-llm-url`, `--adk-host`,
+  `--a2a-port`, `--a2a-host`, `--llama-model-path`, `--llama-n-ctx`).
+- Python ≥3.11 with packages from `requirements.txt` installed. The
+  `run_business_3_demo.sh` helper now builds a Docker image that includes
+  `openai_agents` by default.
+- Copy `.env.example` in this folder to `.env` and adjust the values before running.
+- Before launching the demo, load the variables with `set -a; source .env; set +a` (use the PowerShell equivalent on Windows).
+- Run `python check_env.py --auto-install` after sourcing so optional dependencies install correctly.
+- `ADK_HOST` – optional. URL of the ADK gateway to forward cycle summaries.
+- `A2A_PORT` – enable gRPC A2A messages when set to a port number.
+- `A2A_HOST` – host for the A2A gRPC server. Defaults to `localhost`.
+- `LLAMA_N_CTX` – context-window size for local models. Defaults to `2048`.
+- `LLAMA_MODEL_PATH` – path to a local `.gguf` weight file.
+
+#### Offline Usage
+
+Set `LLAMA_MODEL_PATH` to a local `.gguf` model and install either
+[`llama-cpp-python`](https://pypi.org/project/llama-cpp-python/) or
+[`ctransformers`](https://pypi.org/project/ctransformers/) so inference works
+without internet access.
+
+```bash
+LLAMA_MODEL_PATH=/path/model.gguf alpha-agi-business-3-v1
+```
+
+#### Dependency Checks
+
+Commonly missing packages include `numpy`, `pandas` and `openai-agents`.
+Run `python check_env.py --auto-install` to ensure these are installed.
+When offline, pass `--wheelhouse <dir>` so `check_env.py` can use local
+wheels. The demo requires either network access or a wheelhouse containing
+the required packages.
+
+#### Minimal Example
+
+Install the demo with a local model and run one cycle:
+
+```bash
+pip install -r requirements.txt llama-cpp-python
+LLAMA_MODEL_PATH=/path/model.gguf alpha-agi-business-3-v1
+```
+
+The `openai-agents` package is optional in this setup.
 
 ---
 

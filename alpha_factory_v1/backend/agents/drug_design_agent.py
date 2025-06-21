@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 """backend.agents.drug_design_agent
 ===================================================================
 Alpha‑Factory v1 👁️✨ — Multi‑Agent AGENTIC α‑AGI
@@ -93,10 +94,24 @@ except ModuleNotFoundError:  # pragma: no cover
         return (lambda f: f)(fn) if fn else lambda f: f
 
 
+OPENAI_TIMEOUT_SEC = int(os.getenv("OPENAI_TIMEOUT_SEC", "30"))
+
+
 try:
     import adk  # type: ignore
 except ModuleNotFoundError:  # pragma: no cover
     adk = None  # type: ignore
+try:
+    from aiohttp import ClientError as AiohttpClientError  # type: ignore
+except Exception:  # pragma: no cover - optional
+    AiohttpClientError = OSError  # type: ignore
+try:
+    from adk import ClientError as AdkClientError  # type: ignore[attr-defined]
+except Exception:  # pragma: no cover - optional
+
+    class AdkClientError(Exception):
+        pass
+
 
 try:
     import selfies as sf  # type: ignore
@@ -109,19 +124,13 @@ except ModuleNotFoundError:  # pragma: no cover
 from backend.agent_base import AgentBase  # pylint: disable=import-error
 from backend.agents import AgentMetadata, register_agent  # pylint: disable=import-error
 from backend.orchestrator import _publish  # pylint: disable=import-error
+from alpha_factory_v1.utils.env import _env_int
 
 logger = logging.getLogger(__name__)
 
 # ---------------------------------------------------------------------------
 # Environment & governance helpers -----------------------------------------
 # ---------------------------------------------------------------------------
-
-
-def _env_int(var: str, default: int) -> int:
-    try:
-        return int(os.getenv(var, default))
-    except ValueError:
-        return default
 
 
 def _env_float(var: str, default: float) -> float:
@@ -474,7 +483,10 @@ class DrugDesignAgent(AgentBase):
         )
         try:
             resp = await openai.ChatCompletion.acreate(
-                model="gpt-4o", messages=[{"role": "user", "content": prompt}], max_tokens=60
+                model="gpt-4o",
+                messages=[{"role": "user", "content": prompt}],
+                max_tokens=60,
+                timeout=OPENAI_TIMEOUT_SEC,
             )
             return resp.choices[0].message.content.strip()
         except Exception as exc:  # noqa: BLE001
@@ -490,8 +502,11 @@ class DrugDesignAgent(AgentBase):
             client = adk.Client()
             await client.register(node_type=self.NAME)
             logger.info("[DD] registered mesh id=%s", client.node_id)
-        except Exception as exc:  # noqa: BLE001
+        except (AdkClientError, AiohttpClientError, asyncio.TimeoutError, OSError) as exc:
             logger.warning("ADK register failed: %s", exc)
+        except Exception as exc:  # pragma: no cover - unexpected
+            logger.exception("Unexpected ADK registration error: %s", exc)
+            raise
 
 
 # ---------------------------------------------------------------------------

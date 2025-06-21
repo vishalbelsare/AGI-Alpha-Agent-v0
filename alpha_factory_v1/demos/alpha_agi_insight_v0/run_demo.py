@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# SPDX-License-Identifier: Apache-2.0
 """Standalone launcher for the α‑AGI Insight demo.
 
 This convenience wrapper allows running the demo directly via
@@ -17,9 +18,7 @@ if __package__ is None:  # pragma: no cover - allow execution via `python run_de
 
 import importlib
 
-main = importlib.import_module(
-    "alpha_factory_v1.demos.alpha_agi_insight_v0.__main__"
-).main
+main = importlib.import_module("alpha_factory_v1.demos.alpha_agi_insight_v0.__main__").main
 
 if __name__ == "__main__":  # pragma: no cover
     main()

@@ -1,6 +1,8 @@
+# SPDX-License-Identifier: Apache-2.0
 import unittest
 
 from alpha_factory_v1.backend import alpha_model as am
+
 
 class AlphaModelTest(unittest.TestCase):
     def test_momentum(self):
@@ -33,9 +35,9 @@ class AlphaModelTest(unittest.TestCase):
         with self.assertRaises(ValueError):
             am.momentum([1, 2], lookback=0)
         with self.assertRaises(ValueError):
-            am.sma_crossover([1]*5, fast=0, slow=1)
+            am.sma_crossover([1] * 5, fast=0, slow=1)
         with self.assertRaises(ValueError):
-            am.sma_crossover([1]*5, fast=5, slow=3)
+            am.sma_crossover([1] * 5, fast=5, slow=3)
         with self.assertRaises(ValueError):
             am.ema([1], span=0)
         with self.assertRaises(ValueError):

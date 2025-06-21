@@ -1,6 +1,8 @@
+# SPDX-License-Identifier: Apache-2.0
 import unittest
 
 from alpha_factory_v1.backend.agents import list_agents, get_agent, AGENT_REGISTRY, list_capabilities
+
 
 class TestAgentsIntegrity(unittest.TestCase):
     def test_all_agents_instantiable(self):
@@ -33,6 +35,7 @@ class TestAgentsIntegrity(unittest.TestCase):
 
     def test_step_coroutine(self):
         import inspect
+
         for name in list_agents():
             meta = AGENT_REGISTRY[name]
             try:
@@ -41,6 +44,7 @@ class TestAgentsIntegrity(unittest.TestCase):
                 continue
             if hasattr(agent, "step"):
                 self.assertTrue(inspect.iscoroutinefunction(agent.step))
+
 
 if __name__ == "__main__":  # pragma: no cover - manual execution
     unittest.main()

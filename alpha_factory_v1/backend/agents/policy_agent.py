@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 """backend.agents.policy_agent
 ===================================================================
 Alpha‑Factory v1 👁️✨ — Multi‑Agent AGENTIC α‑AGI
@@ -78,6 +79,9 @@ except ModuleNotFoundError:  # pragma: no cover
         return (lambda f: f)(fn) if fn else lambda f: f
 
 
+OPENAI_TIMEOUT_SEC = int(os.getenv("OPENAI_TIMEOUT_SEC", "30"))
+
+
 try:
     from kafka import KafkaProducer  # type: ignore
 except ModuleNotFoundError:  # pragma: no cover
@@ -92,6 +96,17 @@ try:
     import adk  # type: ignore
 except ModuleNotFoundError:  # pragma: no cover
     adk = None  # type: ignore
+try:
+    from aiohttp import ClientError as AiohttpClientError  # type: ignore
+except Exception:  # pragma: no cover - optional
+    AiohttpClientError = OSError  # type: ignore
+try:
+    from adk import ClientError as AdkClientError  # type: ignore[attr-defined]
+except Exception:  # pragma: no cover - optional
+
+    class AdkClientError(Exception):
+        pass
+
 
 try:
     import httpx  # type: ignore
@@ -335,6 +350,7 @@ class PolicyAgent(AgentBase):
                 ],
                 temperature=0,
                 max_tokens=700,
+                timeout=OPENAI_TIMEOUT_SEC,
             )
             answer = chat.choices[0].message.content.strip()
         else:
@@ -367,8 +383,11 @@ class PolicyAgent(AgentBase):
             client = adk.Client()
             await client.register(node_type=self.NAME, metadata={"corpus": str(self.cfg.corpus_dir)})
             logger.info("[PL] registered in ADK mesh id=%s", client.node_id)
-        except Exception as exc:  # noqa: BLE001
+        except (AdkClientError, AiohttpClientError, asyncio.TimeoutError, OSError) as exc:
             logger.warning("ADK registration failed: %s", exc)
+        except Exception as exc:  # pragma: no cover - unexpected
+            logger.exception("Unexpected ADK registration error: %s", exc)
+            raise
 
 
 # ────────────────────────────────────────────────────────────────────────────

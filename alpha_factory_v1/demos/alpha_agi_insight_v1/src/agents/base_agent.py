@@ -1,45 +1,105 @@
-"""Shared base class for insight agents."""
+# SPDX-License-Identifier: Apache-2.0
+"""Base class shared by all Insight demo agents.
+
+The class wires each agent into the :class:`~..utils.messaging.A2ABus` and
+provides helper methods for sending and receiving envelopes. Subclasses
+implement :meth:`handle` to process messages and :meth:`run_cycle` for
+periodic behaviour.
+"""
 from __future__ import annotations
 
 import time
 from typing import Any, TYPE_CHECKING
+from google.protobuf import struct_pb2
+
+try:
+    from alpha_factory_v1.backend.utils.llm_provider import LLMProvider
+except Exception:  # pragma: no cover - optional
+    LLMProvider = None  # type: ignore[misc]
 
 from ..utils import messaging
+from .adk_adapter import ADKAdapter
+from .mcp_adapter import MCPAdapter
 
 if TYPE_CHECKING:  # pragma: no cover - type hint only
     from ..utils.logging import Ledger
 
 try:
-    from openai.agents import AgentContext
-except Exception:  # pragma: no cover - optional
-    AgentContext = object
+    from openai.agents import AgentContext as _AgentContext
 
-try:
-    import adk
+    AgentContext: type | None = _AgentContext
 except Exception:  # pragma: no cover - optional
-    adk = None
+    AgentContext = None
 
 
 class BaseAgent:
-    """Abstract agent."""
+    """Abstract agent type used by specialised agents."""
 
     name: str
 
-    def __init__(self, name: str, bus: messaging.A2ABus, ledger: "Ledger") -> None:
-        self.name = name
+    def __init__(
+        self,
+        name: str,
+        bus: messaging.A2ABus,
+        ledger: "Ledger",
+        *,
+        backend: str = "gpt-4o",
+        island: str = "default",
+    ) -> None:
+        self.island = island
+        self.backend = backend
+        self.name = f"{name}_{island}" if island != "default" else name
         self.bus = bus
         self.ledger = ledger
-        self.oai_ctx = AgentContext() if isinstance(AgentContext, type) else None
-        self.adk_client = adk.Client() if adk else None
-        self.bus.subscribe(name, self._on_envelope)
+        self.llm = None
+        if backend.startswith("gpt") and AgentContext is not None:
+            try:
+                self.oai_ctx = AgentContext(
+                    model=bus.settings.model_name,
+                    temperature=bus.settings.temperature,
+                    context_window=bus.settings.context_window,
+                )
+            except TypeError:
+                try:
+                    self.oai_ctx = AgentContext(
+                        model=bus.settings.model_name,
+                        temperature=bus.settings.temperature,
+                    )
+                except Exception:
+                    self.oai_ctx = AgentContext()
+        else:
+            self.oai_ctx = None
+            if LLMProvider is not None:
+                try:
+                    self.llm = LLMProvider(
+                        temperature=bus.settings.temperature,
+                        max_tokens=bus.settings.context_window,
+                    )
+                except Exception:
+                    self.llm = LLMProvider() if LLMProvider is not None else None
+        self.adk = ADKAdapter() if ADKAdapter.is_available() else None
+        self.mcp = MCPAdapter() if MCPAdapter.is_available() else None
+        self._handler = self._on_envelope
+        self.bus.subscribe(self.name, self._handler)
 
     async def _on_envelope(self, env: messaging.Envelope) -> None:
         await self.handle(env)
 
     async def emit(self, recipient: str, payload: Any) -> None:
-        env = messaging.Envelope(self.name, recipient, payload, time.time())
+        env = messaging.Envelope(
+            sender=self.name,
+            recipient=recipient,
+            payload=struct_pb2.Struct(),
+            ts=time.time(),
+        )
+        if isinstance(payload, dict):
+            env.payload.update(payload)
         self.ledger.log(env)
         self.bus.publish(recipient, env)
+
+    def close(self) -> None:
+        """Unsubscribe the agent from the bus."""
+        self.bus.unsubscribe(self.name, self._handler)
 
     async def handle(self, env: messaging.Envelope) -> None:  # pragma: no cover - interface
         raise NotImplementedError

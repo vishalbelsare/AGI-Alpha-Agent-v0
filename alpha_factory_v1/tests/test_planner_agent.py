@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 import unittest
 import asyncio
 import tempfile
@@ -31,7 +32,7 @@ class DummyGov:
 class PlannerAgentTest(unittest.TestCase):
     def setUp(self):
         self.tmpdir = tempfile.TemporaryDirectory()
-        self.memory = Memory(self.tmpdir.name)
+        self.memory = Memory(directory=self.tmpdir.name)
         self.gov = DummyGov()
         # Disable Prometheus metrics to avoid duplicate registry errors
         import backend.agents.base as base

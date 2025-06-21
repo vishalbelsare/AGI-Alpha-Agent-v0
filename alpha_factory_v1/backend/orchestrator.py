@@ -1,4 +1,5 @@
 # SPDX-License-Identifier: Apache-2.0
+# This code is a conceptual research prototype.
 """
 alpha_factory_v1.backend.orchestrator
 =====================================
@@ -27,7 +28,7 @@ Run examples
         python -m alpha_factory_v1.backend.orchestrator --dev
 
     # container
-    docker compose -f demos/docker-compose.cross_industry.yml up
+    ./alpha_factory_v1/demos/cross_industry_alpha_factory/deploy_alpha_factory_cross_industry_demo.sh
 """
 
 from __future__ import annotations
@@ -48,8 +49,9 @@ from typing import Any, Dict, List, Optional
 
 # ────────────────────────── soft-imports (all optional) ───────────────
 try:
-    from fastapi import FastAPI, HTTPException, File, Request
+    from fastapi import FastAPI, HTTPException, File, Request, Depends
     from fastapi.responses import PlainTextResponse
+    from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
     import uvicorn
 except ModuleNotFoundError:  # fallback mode
     FastAPI = None  # type: ignore
@@ -63,6 +65,12 @@ except ModuleNotFoundError:  # fallback mode
         ...
 
     Request = object  # type: ignore
+
+    def Depends(*_a, **_kw):  # type: ignore
+        return None
+
+    HTTPBearer = object  # type: ignore
+    HTTPAuthorizationCredentials = object  # type: ignore
 
 with contextlib.suppress(ModuleNotFoundError):
     import grpc
@@ -92,7 +100,15 @@ with contextlib.suppress(ModuleNotFoundError):
 
 
 # ───────────────────── mandatory local imports ────────────────────────
-from backend.agents import list_agents, get_agent  # auto-disc helpers
+from backend.agents import (
+    list_agents,
+    get_agent,
+    start_background_tasks,
+)  # auto-disc helpers
+from alpha_factory_v1.utils.env import _env_int
+from src.monitoring import metrics
+from collections import deque
+from alpha_factory_v1.demos.alpha_agi_insight_v1.src.utils import alerts
 
 # Memory fabric is optional → graceful stub when absent
 try:
@@ -100,7 +116,9 @@ try:
 except ModuleNotFoundError:  # pragma: no cover
 
     class _VecDummy:  # pylint: disable=too-few-public-methods
-        def add(self, *_a, **_kw): ...
+        def add(self, *_a, **_kw):
+            ...
+
         def search(self, *_a, **_kw):
             return []
 
@@ -108,7 +126,9 @@ except ModuleNotFoundError:  # pragma: no cover
             return []
 
     class _GraphDummy:  # pylint: disable=too-few-public-methods
-        def add(self, *_a, **_kw): ...
+        def add(self, *_a, **_kw):
+            ...
+
         def query(self, *_a, **_kw):
             return []
 
@@ -121,15 +141,6 @@ except ModuleNotFoundError:  # pragma: no cover
 
 # ────────────────────────── configuration ─────────────────────────────
 ENV = os.getenv
-
-
-def _env_int(name: str, default: int) -> int:
-    """Return ``int`` environment value or ``default`` if conversion fails."""
-
-    try:
-        return int(ENV(name, default))
-    except (TypeError, ValueError):
-        return default
 
 
 DEV_MODE = ENV("DEV_MODE", "false").lower() == "true" or "--dev" in sys.argv
@@ -162,20 +173,23 @@ def _noop(*_a, **_kw):  # type: ignore
         def labels(self, *_a, **_kw):
             return self
 
-        def observe(self, *_a): ...
-        def inc(self, *_a): ...
-        def set(self, *_a): ...
+        def observe(self, *_a):
+            ...
+
+        def inc(self, *_a):
+            ...
+
+        def set(self, *_a):
+            ...
 
     return _N()
 
 
 if "Histogram" in globals():
-    from prometheus_client import REGISTRY as _REG
+    from alpha_factory_v1.backend.metrics_registry import get_metric as _reg_metric
 
     def _get_metric(cls, name: str, desc: str, labels=None):
-        if name in getattr(_REG, "_names_to_collectors", {}):
-            return _REG._names_to_collectors[name]
-        return cls(name, desc, labels) if labels else cls(name, desc)
+        return _reg_metric(cls, name, desc, labels)
 
     MET_LAT = _get_metric(Histogram, "af_agent_cycle_latency_ms", "Per-cycle latency", ["agent"])
     MET_ERR = _get_metric(Counter, "af_agent_cycle_errors_total", "Exceptions per agent", ["agent"])
@@ -338,11 +352,24 @@ def _build_rest(runners: Dict[str, AgentRunner]) -> Optional[FastAPI]:
     if FastAPI is None:
         return None
 
+    token = os.getenv("API_TOKEN")
+    if not token:
+        raise RuntimeError("API_TOKEN environment variable must be set")
+
+    security = HTTPBearer()
+
+    async def verify_token(
+        credentials: HTTPAuthorizationCredentials = Depends(security),
+    ) -> None:
+        if credentials.credentials != token:
+            raise HTTPException(status_code=403, detail="Invalid token")
+
     app = FastAPI(
         title="Alpha-Factory Orchestrator",
         version="3.0.0",
         docs_url="/docs",
         redoc_url=None,
+        dependencies=[Depends(verify_token)],
     )
 
     @app.get("/healthz", response_class=PlainTextResponse)
@@ -395,6 +422,16 @@ def _build_rest(runners: Dict[str, AgentRunner]) -> Optional[FastAPI]:
                 zf.extractall(td)
             inst.load_weights(td)  # type: ignore[attr-defined]
         return {"status": "ok"}
+
+    @app.post("/agent/{name}/skill_test")
+    async def _skill_test(request: Request, name: str):
+        payload = await request.json()
+        if name not in runners:
+            raise HTTPException(404, "Agent not found")
+        inst = runners[name].inst
+        if not hasattr(inst, "skill_test"):
+            raise HTTPException(501, "Agent does not support skill_test")
+        return await inst.skill_test(payload)  # type: ignore[func-returns-value]
 
     # ─── Memory-Fabric helper endpoints ──────────────────────────────
     @app.get("/memory/{agent}/recent")
@@ -471,6 +508,27 @@ async def _hb_watch(runners: Dict[str, AgentRunner]) -> None:
         await asyncio.sleep(5)
 
 
+# ──────────────────── Metric regression guard ───────────────────────
+async def _regression_guard(runners: Dict[str, AgentRunner]) -> None:
+    history: deque[float] = deque(maxlen=3)
+    while True:
+        await asyncio.sleep(1)
+        try:
+            sample = metrics.dgm_best_score.collect()[0].samples[0]
+            score = float(sample.value)
+        except Exception:  # pragma: no cover - metrics optional
+            continue
+        history.append(score)
+        if len(history) == 3 and history[1] <= history[0] * 0.8 and history[2] <= history[1] * 0.8:
+            runner = runners.get("aiga_evolver")
+            if runner and runner.task:
+                runner.task.cancel()
+                with contextlib.suppress(asyncio.CancelledError):
+                    await runner.task
+            alerts.send_alert("Evolution paused due to metric regression")
+            history.clear()
+
+
 # ───────────────────────────── main() ────────────────────────────────
 async def _main() -> None:
     # ─── Basic startup checks ───────────────────────────────────────
@@ -480,6 +538,8 @@ async def _main() -> None:
             "Edit .env or your Docker secrets to configure a strong password."
         )
         sys.exit(1)
+
+    start_background_tasks()
 
     # ─── Discover/instantiate agents ─────────────────────────────────
     avail = list_agents()
@@ -498,6 +558,7 @@ async def _main() -> None:
         log.info("REST UI →  http://localhost:%d/docs", PORT)
 
     # ─── Kick off auxiliary subsystems ───────────────────────────────
+    asyncio.create_task(_regression_guard(runners))
     await asyncio.gather(_serve_grpc(runners), _adk_register(), _hb_watch(runners))
 
     # ─── Graceful shutdown handling ──────────────────────────────────

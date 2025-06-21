@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 import asyncio
 import unittest
 from types import SimpleNamespace
@@ -49,10 +50,13 @@ class PingAgentTest(unittest.TestCase):
         class DummyMetric:
             def __init__(self, *a, **k):
                 self.calls = []
+
             def inc(self, *a, **k):
                 self.calls.append("inc")
+
             def set(self, *a, **k):
                 self.calls.append("set")
+
             def observe(self, *a, **k):
                 self.calls.append("observe")
 

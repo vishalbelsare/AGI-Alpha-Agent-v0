@@ -1,10 +1,11 @@
+# SPDX-License-Identifier: Apache-2.0
 """backend.agents.supply_chain_agent
 ===================================================================
 Alpha‑Factory v1 👁️✨ — Multi‑Agent AGENTIC α‑AGI
 -------------------------------------------------------------------
 Supply‑Chain Domain‑Agent  🌐🚚 — production‑grade implementation
 ===================================================================
-Copyright (c) 2025 Montreal.AI — MIT‑licensed
+Copyright (c) 2025 Montreal.AI — Apache‑2.0 licensed
 
 This module implements **SupplyChainAgent**, an antifragile, cross‑industry
 optimizer that continuously mines global logistics signals to surface *alpha*
@@ -96,6 +97,17 @@ try:
     import adk  # Google Agent Development Kit
 except ModuleNotFoundError:  # pragma: no cover
     adk = None  # type: ignore
+try:
+    from aiohttp import ClientError as AiohttpClientError  # type: ignore
+except Exception:  # pragma: no cover - optional
+    AiohttpClientError = OSError  # type: ignore
+try:
+    from adk import ClientError as AdkClientError  # type: ignore[attr-defined]
+except Exception:  # pragma: no cover - optional
+
+    class AdkClientError(Exception):
+        pass
+
 
 # ---------------------------------------------------------------------------
 # Alpha‑Factory local imports (lightweight, no heavy deps)
@@ -105,6 +117,9 @@ from backend.agents import AgentMetadata, register_agent  # pylint: disable=impo
 from backend.orchestrator import _publish  # re‑use event bus hook
 
 logger = logging.getLogger(__name__)
+
+# Timeout (seconds) for OpenAI API requests
+OPENAI_TIMEOUT_SEC = int(os.getenv("OPENAI_TIMEOUT_SEC", "30"))
 
 # ---------------------------------------------------------------------------
 # Env‑helper (robust env var parsing)
@@ -279,6 +294,7 @@ class SupplyChainAgent(AgentBase):  # noqa: D101
                     model="gpt-4o",
                     messages=[{"role": "user", "content": prompt}],
                     max_tokens=200,
+                    timeout=OPENAI_TIMEOUT_SEC,
                 )
                 extra = json.loads(resp.choices[0].message.content)
                 recs.append(extra)
@@ -305,8 +321,11 @@ class SupplyChainAgent(AgentBase):  # noqa: D101
             client = adk.Client()
             await client.register(node_type=self.NAME)
             logger.info("[SC] registered with ADK mesh as %s", client.node_id)
-        except Exception as exc:  # noqa: BLE001
+        except (AdkClientError, AiohttpClientError, asyncio.TimeoutError, OSError) as exc:
             logger.warning("ADK registration failed: %s", exc)
+        except Exception as exc:  # pragma: no cover - unexpected
+            logger.exception("Unexpected ADK registration error: %s", exc)
+            raise
 
 
 # ---------------------------------------------------------------------------

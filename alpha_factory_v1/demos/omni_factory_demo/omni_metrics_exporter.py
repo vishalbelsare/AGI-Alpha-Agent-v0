@@ -10,16 +10,16 @@ Prometheus 2.x exposition format – **no third-party libraries required**.
 ─────────────────────────────────────────────────────────────────────────────
 Served metrics
 ──────────────
-Counter  ▸ omni_tokens_minted_total           – all $AGIALPHA ever minted  
-Gauge    ▸ omni_tokens_minted_last            – tokens minted by last task  
-Gauge    ▸ omni_avg_reward_last               – average reward of last task  
-Counter  ▸ omni_tasks_total                   – rows in ledger table  
-Gauge    ▸ omni_supply_cap                    – hard-cap (env or DB)  
-Gauge    ▸ omni_supply_utilisation_percent    – minted ÷ hard-cap × 100  
-Gauge    ▸ omni_ledger_file_mtime_seconds     – UNIX mtime of the ledger  
-Gauge    ▸ omni_ledger_file_size_bytes        – on-disk size of the ledger  
-Gauge    ▸ omni_build_info{version=…,py=…}    – always 1 (label-only metric)  
-Gauge    ▸ omni_export_timestamp              – UNIX time of this scrape  
+Counter  ▸ omni_tokens_minted_total           – all $AGIALPHA ever minted
+Gauge    ▸ omni_tokens_minted_last            – tokens minted by last task
+Gauge    ▸ omni_avg_reward_last               – average reward of last task
+Counter  ▸ omni_tasks_total                   – rows in ledger table
+Gauge    ▸ omni_supply_cap                    – hard-cap (env or DB)
+Gauge    ▸ omni_supply_utilisation_percent    – minted ÷ hard-cap × 100
+Gauge    ▸ omni_ledger_file_mtime_seconds     – UNIX mtime of the ledger
+Gauge    ▸ omni_ledger_file_size_bytes        – on-disk size of the ledger
+Gauge    ▸ omni_build_info{version=…,py=…}    – always 1 (label-only metric)
+Gauge    ▸ omni_export_timestamp              – UNIX time of this scrape
 
 Each request recomputes the values in **O(1)** SQL; the exporter therefore
 acts as a *live reflection* of the ledger without persistent RAM state.
@@ -31,8 +31,8 @@ Healthcheck
 ─────────────────────────────────────────────────────────────────────────────
 Run modes
 ─────────
-• Default: starts a threaded HTTP server (`ThreadingHTTPServer`).  
-• `--oneshot` flag prints a single scrape to stdout (shell / CI friendly).  
+• Default: starts a threaded HTTP server (`ThreadingHTTPServer`).
+• `--oneshot` flag prints a single scrape to stdout (shell / CI friendly).
 
 The script is **drop-in replacement-safe** for any earlier `omni_metrics_exporter.py`.
 """
@@ -49,11 +49,11 @@ from typing import Final, List
 
 # ─────────────────────────── Configuration constants ──────────────────────────
 DEFAULT_LEDGER: Final[Path] = Path("./omni_ledger.sqlite").resolve()
-DEFAULT_HOST:   Final[str]  = "0.0.0.0"
-DEFAULT_PORT:   Final[int]  = 9137
-TOKEN_SYMBOL:   Final[str]  = "$AGIALPHA"
-HARD_CAP_ENV:   Final[str]  = "OMNI_AGIALPHA_SUPPLY"
-EXPORTER_VERSION: Final[str] = "1.0.0"      # bump on functional change
+DEFAULT_HOST: Final[str] = "0.0.0.0"
+DEFAULT_PORT: Final[int] = 9137
+TOKEN_SYMBOL: Final[str] = "$AGIALPHA"
+HARD_CAP_ENV: Final[str] = "OMNI_AGIALPHA_SUPPLY"
+EXPORTER_VERSION: Final[str] = "1.0.0"  # bump on functional change
 
 # ────────────────────────────── Metric template ───────────────────────────────
 _HELP_BLOCK = f"""
@@ -79,6 +79,7 @@ _HELP_BLOCK = f"""
 # TYPE omni_export_timestamp gauge
 """.strip()
 
+
 # ──────────────────────────────── Core logic ──────────────────────────────────
 def _load_hard_cap(conn: sqlite3.Connection) -> int:
     """Return token supply hard-cap (env override » DB fallback » default)."""
@@ -88,8 +89,7 @@ def _load_hard_cap(conn: sqlite3.Connection) -> int:
             return int(env_val)
         except ValueError:
             print(
-                f"[omni-exporter] WARNING: invalid {HARD_CAP_ENV}={env_val!r} – "
-                "ignoring.",
+                f"[omni-exporter] WARNING: invalid {HARD_CAP_ENV}={env_val!r} – " "ignoring.",
                 file=sys.stderr,
             )
     # DB schema may evolve; keep ultra-simple & resilient
@@ -101,6 +101,7 @@ def _load_hard_cap(conn: sqlite3.Connection) -> int:
         pass
     return 10_000_000  # legacy demo default
 
+
 def _scrape_metrics(ledger: Path) -> str:
     """
     Harvest metrics from *ledger* and return a fully-formed OpenMetrics string.
@@ -109,9 +110,7 @@ def _scrape_metrics(ledger: Path) -> str:
     totals = last_tokens = last_reward = tasks = cap = 0
     if ledger.exists():
         with sqlite3.connect(ledger) as conn:
-            rows = conn.execute(
-                "SELECT tokens, avg_reward FROM ledger ORDER BY ts"
-            ).fetchall()
+            rows = conn.execute("SELECT tokens, avg_reward FROM ledger ORDER BY ts").fetchall()
             tasks = len(rows)
             if tasks:
                 totals = sum(r[0] for r in rows)
@@ -120,7 +119,7 @@ def _scrape_metrics(ledger: Path) -> str:
     # FS metadata (works even if ledger missing → 0)
     stat = ledger.stat() if ledger.exists() else None
     mtime = int(stat.st_mtime) if stat else 0
-    size  = stat.st_size if stat else 0
+    size = stat.st_size if stat else 0
     utilisation = (totals / cap * 100) if cap else 0.0
 
     lines: List[str] = [_HELP_BLOCK]
@@ -139,6 +138,7 @@ def _scrape_metrics(ledger: Path) -> str:
     )
     lines.append(f"omni_export_timestamp {int(time.time())}")
     return "\n".join(lines) + "\n"
+
 
 # ───────────────────────────── HTTP request handler ───────────────────────────
 class _Handler(http.server.BaseHTTPRequestHandler):
@@ -173,39 +173,42 @@ class _Handler(http.server.BaseHTTPRequestHandler):
         self.end_headers()
         self.wfile.write(body)
 
+
 class _ThreadingHTTPServer(http.server.ThreadingHTTPServer):
     """Expose ledger path on the server instance for handler access."""
+
     def __init__(self, addr, handler, ledger: Path):
         super().__init__(addr, handler)
         self.ledger: Path = ledger
+
 
 # ────────────────────────────── Entry points ──────────────────────────────────
 def _serve_forever(host: str, port: int, ledger: Path) -> None:
     with _ThreadingHTTPServer((host, port), _Handler, ledger) as srv:
         print(
-            f"[omni-exporter] Serving metrics at http://{host}:{port}/metrics "
-            f"(ledger: {ledger}) – Ctrl-C to quit."
+            f"[omni-exporter] Serving metrics at http://{host}:{port}/metrics " f"(ledger: {ledger}) – Ctrl-C to quit."
         )
         try:
             srv.serve_forever()
         except KeyboardInterrupt:
             print("\n[omni-exporter] Stopping – goodbye.")
 
+
 def _oneshot(ledger: Path) -> None:
     """Print a single scrape payload (CI / debugging convenience)."""
     sys.stdout.write(_scrape_metrics(ledger))
 
+
 def _parse_cli() -> argparse.Namespace:
     p = argparse.ArgumentParser(description="OMNI-Factory Prometheus exporter")
-    p.add_argument("--host", default=DEFAULT_HOST,
-                   help=f"Bind address (default: {DEFAULT_HOST})")
-    p.add_argument("-p", "--port", type=int, default=DEFAULT_PORT,
-                   help=f"TCP port (default: {DEFAULT_PORT})")
-    p.add_argument("--ledger", type=Path, default=DEFAULT_LEDGER,
-                   help=f"Path to omni_ledger.sqlite (default: {DEFAULT_LEDGER})")
-    p.add_argument("--oneshot", action="store_true",
-                   help="Emit metrics to stdout once and exit")
+    p.add_argument("--host", default=DEFAULT_HOST, help=f"Bind address (default: {DEFAULT_HOST})")
+    p.add_argument("-p", "--port", type=int, default=DEFAULT_PORT, help=f"TCP port (default: {DEFAULT_PORT})")
+    p.add_argument(
+        "--ledger", type=Path, default=DEFAULT_LEDGER, help=f"Path to omni_ledger.sqlite (default: {DEFAULT_LEDGER})"
+    )
+    p.add_argument("--oneshot", action="store_true", help="Emit metrics to stdout once and exit")
     return p.parse_args()
+
 
 # ────────────────────────────────── MAIN ───────────────────────────────────────
 if __name__ == "__main__":  # pragma: no cover

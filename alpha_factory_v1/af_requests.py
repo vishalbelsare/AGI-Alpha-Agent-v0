@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 """Minimal ``requests``-like shim for offline environments.
 
 This module mirrors a very small portion of :mod:`requests` so that the
@@ -8,6 +9,7 @@ tests and demos.  Only the most common HTTP verbs and features are supported.
 from __future__ import annotations
 
 import json as _json
+from typing import Any, Mapping
 from urllib import error as _error
 from urllib import parse as _parse
 from urllib import request as _request
@@ -15,6 +17,7 @@ from urllib import request as _request
 # Default User-Agent header mimicking the real requests library.  Helps with
 # servers that reject requests without a UA and aids debugging/logging.
 _UA = "alpha-factory-requests/1.0"
+
 
 class RequestException(Exception):
     """Base exception raised for network errors."""
@@ -27,13 +30,20 @@ class HTTPError(RequestException, RuntimeError):
 class Timeout(RequestException):
     """Error for requests that timed out."""
 
+
 class Response:
     """Lightweight HTTP response container."""
 
-    def __init__(self, status_code: int, content: bytes, headers: dict | None = None, url: str = "") -> None:
+    def __init__(
+        self,
+        status_code: int,
+        content: bytes,
+        headers: Mapping[str, str] | None = None,
+        url: str = "",
+    ) -> None:
         self.status_code = status_code
         self.content = content
-        self.headers = headers or {}
+        self.headers: dict[str, str] = dict(headers) if headers is not None else {}
         self.url = url
 
     @property
@@ -43,7 +53,7 @@ class Response:
         except UnicodeDecodeError:
             return self.content.decode("latin1", errors="replace")
 
-    def json(self):
+    def json(self) -> Any:
         return _json.loads(self.text)
 
     @property
@@ -55,14 +65,15 @@ class Response:
         if not self.ok:
             raise HTTPError(f"HTTP {self.status_code}")
 
+
 def _call(
     method: str,
     url: str,
     *,
-    params: dict | None = None,
-    json: dict | None = None,
-    data: dict | bytes | None = None,
-    headers: dict | None = None,
+    params: Mapping[str, str] | None = None,
+    json: Mapping[str, Any] | None = None,
+    data: Mapping[str, str] | bytes | None = None,
+    headers: Mapping[str, str] | None = None,
     timeout: float | None = None,
 ) -> Response:
     if params:
@@ -100,8 +111,8 @@ def _call(
 def get(
     url: str,
     *,
-    params: dict | None = None,
-    headers: dict | None = None,
+    params: Mapping[str, str] | None = None,
+    headers: Mapping[str, str] | None = None,
     timeout: float | None = None,
 ) -> Response:
     """Perform a simple HTTP GET request."""
@@ -111,10 +122,10 @@ def get(
 def post(
     url: str,
     *,
-    params: dict | None = None,
-    json: dict | None = None,
-    data: dict | bytes | None = None,
-    headers: dict | None = None,
+    params: Mapping[str, str] | None = None,
+    json: Mapping[str, Any] | None = None,
+    data: Mapping[str, str] | bytes | None = None,
+    headers: Mapping[str, str] | None = None,
     timeout: float | None = None,
 ) -> Response:
     """Perform a minimal HTTP POST request."""
@@ -132,10 +143,10 @@ def post(
 def put(
     url: str,
     *,
-    params: dict | None = None,
-    json: dict | None = None,
-    data: dict | bytes | None = None,
-    headers: dict | None = None,
+    params: Mapping[str, str] | None = None,
+    json: Mapping[str, Any] | None = None,
+    data: Mapping[str, str] | bytes | None = None,
+    headers: Mapping[str, str] | None = None,
     timeout: float | None = None,
 ) -> Response:
     """HTTP PUT request."""
@@ -153,8 +164,8 @@ def put(
 def delete(
     url: str,
     *,
-    params: dict | None = None,
-    headers: dict | None = None,
+    params: Mapping[str, str] | None = None,
+    headers: Mapping[str, str] | None = None,
     timeout: float | None = None,
 ) -> Response:
     """HTTP DELETE request."""

@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 """Thin client for the α‑AGI Marketplace demo."""
 
 from __future__ import annotations
@@ -76,14 +77,7 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     # so the test suite (which invokes this module from within the package
     # directory) resolves to the expected duplicated path. ``strict=False``
     # avoids ``FileNotFoundError`` when the path does not exist in normal usage.
-    sample_job = (
-        Path.cwd()
-        / "alpha_factory_v1"
-        / "demos"
-        / "alpha_agi_marketplace_v1"
-        / "examples"
-        / "sample_job.json"
-    )
+    sample_job = Path.cwd() / "alpha_factory_v1" / "demos" / "alpha_agi_marketplace_v1" / "examples" / "sample_job.json"
     if not sample_job.exists():
         sample_job = Path(__file__).resolve().parent / "examples" / "sample_job.json"
     ap.add_argument("job_file", nargs="?", default=str(sample_job))
@@ -100,4 +94,3 @@ def main(argv: list[str] | None = None) -> None:
 
 if __name__ == "__main__":
     main()
-

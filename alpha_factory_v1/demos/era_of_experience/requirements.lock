@@ -1,0 +1,6 @@
+# Auto-generated lock file for Era-of-Experience demo
+-r ../../requirements.lock
+
+gradio==5.34.0
+openai-agents==0.0.17
+sentence-transformers==4.1.0

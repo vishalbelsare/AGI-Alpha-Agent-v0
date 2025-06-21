@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 import os
 import math
 
@@ -10,4 +11,3 @@ def position_size(price: float) -> int:
     dollar_limit = MAX_PCT_CAPITAL * ACCOUNT_EQUITY
     lots = math.floor(dollar_limit / price)
     return max(1, min(lots, 100))  # cap to 100 shares for demo
-

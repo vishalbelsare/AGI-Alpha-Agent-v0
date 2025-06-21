@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# SPDX-License-Identifier: Apache-2.0
 ###############################################################################
 #  run_macro_demo.sh — Macro-Sentinel • Alpha-Factory v1 👁️✨
 #
@@ -25,6 +26,9 @@
 set -Eeuo pipefail
 shopt -s inherit_errexit
 
+# Pinned demo-assets revision (override with env variable)
+DEMO_ASSETS_REV=${DEMO_ASSETS_REV:-90fe9b623b3a0ae5475cf4fa8693d43cb5ba9ac5}
+
 # ────────────────────────── helpers ──────────────────────────
 say()  { printf '\033[1;36m▶ %s\033[0m\n' "$*"; }
 warn() { printf '\033[1;33m⚠ %s\033[0m\n' "$*" >&2; }
@@ -49,6 +53,10 @@ Usage: $(basename "$0") [--live] [--reset] [--help]
   --live    Enable live macro collectors (requires API keys in config.env)
   --reset   Stop & purge containers + volumes before new start
   --help    Show this message
+
+Environment variables:
+  CONNECTIVITY_CHECK_URL  Probe URL for outbound HTTPS check (default: https://pypi.org)
+  ALPHA_FACTORY_ADK_TOKEN  Optional ADK auth token
 EOF
 }
 
@@ -68,13 +76,23 @@ demo_dir="$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &>/dev/null && pwd )"
 root_dir="${demo_dir%/*/*}"
 compose_file="$demo_dir/docker-compose.macro.yml"
 env_file="$demo_dir/config.env"
-offline_dir="$demo_dir/offline_samples"
+# Allow custom offline directory via OFFLINE_DATA_DIR but keep
+# offline_samples as the source for bundled placeholders.
+placeholder_dir="$demo_dir/offline_samples"
+offline_dir="${OFFLINE_DATA_DIR:-$placeholder_dir}"
 cd "$root_dir"
+
+# ─────────────────────── dependency check ─────────────────────
+if ! python "$demo_dir/../../../check_env.py" --demo macro_sentinel --auto-install; then
+  die "Environment check failed. Run 'python ../../check_env.py --demo macro_sentinel --auto-install' and resolve any issues."
+fi
 
 # ──────────────────────── prerequisites ───────────────────────
 need docker
+need curl
 docker compose version &>/dev/null || die "Docker Compose plug-in missing"
-curl -fsSL https://google.com &>/dev/null || warn "No outbound HTTPS — live mode may fail"
+CHECK_URL="${CONNECTIVITY_CHECK_URL:-https://pypi.org}"
+curl -fsSL "$CHECK_URL" &>/dev/null || warn "No outbound HTTPS — live mode may fail"
 
 # Optional reset
 if (( RESET )); then
@@ -102,17 +120,48 @@ ALPHA_FACTORY_ENABLE_ADK=0
 EOF
 fi
 
+# Load OPENAI_API_KEY from config.env if not already set
+if [[ -z "${OPENAI_API_KEY:-}" && -f "$env_file" ]]; then
+  # shellcheck disable=SC1090
+  source "$env_file"
+fi
+
+# Propagate custom Ollama endpoint
+if [[ -n "${OLLAMA_BASE_URL:-}" ]]; then
+  export OLLAMA_BASE_URL
+elif [[ -f "$env_file" ]]; then
+  base_url=$(grep -E '^OLLAMA_BASE_URL=' "$env_file" | cut -d= -f2-)
+  [[ -n "$base_url" ]] && export OLLAMA_BASE_URL="$base_url"
+fi
+
 # ──────────────────────── offline data ────────────────────────
 say "Syncing offline CSV snapshots"
 mkdir -p "$offline_dir"
+mkdir -p "$placeholder_dir"
 declare -A SRC=(
-  [fed_speeches.csv]="https://raw.githubusercontent.com/MontrealAI/demo-assets/main/fed_speeches.csv"
-  [yield_curve.csv]="https://raw.githubusercontent.com/MontrealAI/demo-assets/main/yield_curve.csv"
-  [stable_flows.csv]="https://raw.githubusercontent.com/MontrealAI/demo-assets/main/stable_flows.csv"
-  [cme_settles.csv]="https://raw.githubusercontent.com/MontrealAI/demo-assets/main/cme_settles.csv"
+  [fed_speeches.csv]="https://raw.githubusercontent.com/MontrealAI/demo-assets/${DEMO_ASSETS_REV}/fed_speeches.csv"
+  [yield_curve.csv]="https://raw.githubusercontent.com/MontrealAI/demo-assets/${DEMO_ASSETS_REV}/yield_curve.csv"
+  [stable_flows.csv]="https://raw.githubusercontent.com/MontrealAI/demo-assets/${DEMO_ASSETS_REV}/stable_flows.csv"
+  [cme_settles.csv]="https://raw.githubusercontent.com/MontrealAI/demo-assets/${DEMO_ASSETS_REV}/cme_settles.csv"
 )
 for f in "${!SRC[@]}"; do
-  curl -fsSL "${SRC[$f]}" -o "$offline_dir/$f"
+  if [[ -f "$offline_dir/$f" ]]; then
+    continue
+  fi
+  tmp="$offline_dir/$f.tmp"
+  if curl -fsSL "${SRC[$f]}" -o "$tmp"; then
+    mv "$tmp" "$offline_dir/$f"
+  else
+    rm -f "$tmp"
+    warn "Failed to download ${SRC[$f]} — using placeholder"
+    if [[ "$offline_dir" != "$placeholder_dir" && -f "$placeholder_dir/$f" ]]; then
+      cp "$placeholder_dir/$f" "$offline_dir/$f"
+    elif [[ -f "$placeholder_dir/$f" ]]; then
+      cp "$placeholder_dir/$f" "$offline_dir/$f"
+    else
+      die "Missing placeholder for $f"
+    fi
+  fi
 done
 
 # ──────────────────────── compose profiles ────────────────────
@@ -121,17 +170,19 @@ has_gpu && profiles+=(gpu)
 [[ -z "${OPENAI_API_KEY:-}" ]] && profiles+=(offline)
 (( LIVE )) && profiles+=(live-feed)
 export LIVE_FEED=${LIVE}
-profile_arg=""
-[[ ${#profiles[@]} -gt 0 ]] && profile_arg="--profile $(IFS=,;echo "${profiles[*]}")"
+profile_arg=()
+for p in "${profiles[@]}"; do
+  profile_arg+=(--profile "$p")
+done
 
 # ───────────────────────── Docker build ───────────────────────
 say "🚢 Building images (profiles: ${profiles[*]:-none})"
-docker compose -f "$compose_file" $profile_arg pull --quiet || true
-docker compose -f "$compose_file" $profile_arg build --pull
+docker compose -f "$compose_file" "${profile_arg[@]}" pull --quiet || true
+docker compose -f "$compose_file" "${profile_arg[@]}" build --pull
 
 # ───────────────────────── stack up ───────────────────────────
 say "🔄 Starting containers"
-docker compose --project-name alpha_macro -f "$compose_file" $profile_arg up -d
+docker compose --project-name alpha_macro -f "$compose_file" "${profile_arg[@]}" up -d
 
 # ─────────────────────── health gate & trap ───────────────────
 trap 'docker compose -p alpha_macro stop; exit 0' INT

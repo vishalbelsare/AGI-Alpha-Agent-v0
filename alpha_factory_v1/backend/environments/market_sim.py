@@ -1,7 +1,9 @@
+# SPDX-License-Identifier: Apache-2.0
 from __future__ import annotations
 
 import random
 from typing import Tuple, List
+
 
 class MarketEnv:
     """Minimal stochastic market environment for demo purposes."""
@@ -60,5 +62,6 @@ class MarketEnv:
 
     def __repr__(self) -> str:  # noqa: D401
         return f"MarketEnv(price={self.price:.2f}, position={self.position})"
+
 
 __all__ = ["MarketEnv"]

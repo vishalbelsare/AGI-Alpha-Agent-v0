@@ -60,7 +60,7 @@ jobs:
           pip install ruff mypy
 
       - name: 🧹 Ruff lint
-        run: ruff .
+        run: ruff check .
 
       - name: 🏷️ Mypy type‑check
         run: mypy alpha_factory_v1/demos/alpha_asi_world_model --strict

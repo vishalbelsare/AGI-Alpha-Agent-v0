@@ -1,6 +1,8 @@
+# SPDX-License-Identifier: Apache-2.0
 import json
 import unittest
 from pathlib import Path
+
 
 class TestMetaAgenticNotebook(unittest.TestCase):
     """Validate the shipped meta-agentic demo notebooks."""
@@ -19,7 +21,10 @@ class TestMetaAgenticNotebook(unittest.TestCase):
         self._check_notebook(Path("alpha_factory_v1/demos/meta_agentic_agi_v2/colab_meta_agentic_agi_v2.ipynb"))
 
     def test_mats_notebook_valid(self) -> None:
-        self._check_notebook(Path("alpha_factory_v1/demos/meta_agentic_tree_search_v0/colab_meta_agentic_tree_search.ipynb"))
+        self._check_notebook(
+            Path("alpha_factory_v1/demos/meta_agentic_tree_search_v0/colab_meta_agentic_tree_search.ipynb")
+        )
+
 
 if __name__ == "__main__":  # pragma: no cover
     unittest.main()

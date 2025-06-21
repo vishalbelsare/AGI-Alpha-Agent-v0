@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 import json
 import logging
 import random
@@ -16,7 +17,6 @@ def _extract_json(text: str) -> Dict[str, Any]:
     if not match:
         raise ValueError("no JSON object found")
     return json.loads(match.group(0))
-
 
 
 class PlannerAgent(AgentBase):

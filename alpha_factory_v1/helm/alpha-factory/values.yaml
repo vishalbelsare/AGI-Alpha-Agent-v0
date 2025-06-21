@@ -24,14 +24,14 @@ env:
   NEWSAPI_KEY: ""
   NEO4J_URI: bolt://neo4j:7687
   NEO4J_USER: neo4j
-  NEO4J_PASSWORD: changeme
+  NEO4J_PASSWORD: REPLACE_ME  # Set the real database password before deployment
   LLM_PROVIDER: openai
   MODEL_NAME: gpt-4-turbo
   PORT: "8000"
   METRICS_PORT: "9090"
   A2A_PORT: "8000"
   TRACE_WS_PORT: "8088"
-  LOGLEVEL: INFO
+  LOG_LEVEL: INFO
   ALPHA_KAFKA_BROKER: ""
   ALPHA_DATA_DIR: /data
   OTEL_EXPORTER_OTLP_ENDPOINT: http://tempo:4317
@@ -63,7 +63,7 @@ prometheus:
 
 grafana:
   enabled: true
-  adminPassword: changeme
+  adminPassword: REPLACE_ME  # Set a strong password before deployment
   defaultDashboardsEnabled: false
   sidecar:
     dashboards:

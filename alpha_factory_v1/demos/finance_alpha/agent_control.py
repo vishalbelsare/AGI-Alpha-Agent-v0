@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# SPDX-License-Identifier: Apache-2.0
 """Minimal helper to drive the FinanceAgent programmatically.
 
 This script uses the OpenAI Agents SDK when available and falls back to

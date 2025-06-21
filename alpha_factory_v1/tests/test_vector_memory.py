@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 import unittest
 
 import alpha_factory_v1.backend.memory_vector as mv
@@ -6,9 +7,7 @@ import alpha_factory_v1.backend.memory_vector as mv
 class VectorMemoryTest(unittest.TestCase):
     def setUp(self):
         self._orig_embed = mv._embed
-        mv._embed = lambda texts: [
-            [float(len(t)), float(sum(t.encode()))] for t in texts
-        ]
+        mv._embed = lambda texts: [[float(len(t)), float(sum(t.encode()))] for t in texts]
 
     def tearDown(self):
         mv._embed = self._orig_embed
@@ -22,6 +21,7 @@ class VectorMemoryTest(unittest.TestCase):
         agent, text, score = hits[0]
         self.assertEqual(agent, "agent")
         self.assertEqual(text, "hello world")
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 import unittest
 import asyncio
 import io
@@ -16,6 +17,7 @@ from alpha_factory_v1.backend.agents import (
     get_agent,
 )
 from alpha_factory_v1.backend.agents.base import AgentBase
+
 
 class TestAgentRegistryFunctions(unittest.TestCase):
     def setUp(self):
@@ -63,6 +65,7 @@ class TestAgentRegistryFunctions(unittest.TestCase):
     def test_ping_capability_present(self):
         # diagnostics capability should map to the ping agent
         from alpha_factory_v1.backend.agents.ping_agent import PingAgent
+
         meta = AgentMetadata(
             name=PingAgent.NAME,
             cls=PingAgent,
@@ -96,6 +99,7 @@ class TestAgentRegistryFunctions(unittest.TestCase):
     def test_get_agent_health_queue(self):
         from alpha_factory_v1.backend import agents as agents_mod
         from queue import Queue
+
         saved_q = agents_mod._HEALTH_Q
         agents_mod._HEALTH_Q = Queue()
 
@@ -140,6 +144,7 @@ class TestAgentRegistryFunctions(unittest.TestCase):
         self.assertEqual(detail[0]["version"], "1.2")
         self.assertIn("bar", detail[0]["capabilities"])
 
+
 class TestPingAgentDisabled(unittest.TestCase):
     def test_ping_agent_skipped_when_env_set(self):
         code = "import alpha_factory_v1.backend.agents as mod; print('ping' in mod.AGENT_REGISTRY)"
@@ -160,6 +165,7 @@ class TestRegisterDecorator(unittest.TestCase):
 
     def test_condition_false(self):
         from alpha_factory_v1.backend.agents import register, _agent_base
+
         Base = _agent_base()
 
         @register(condition=False)
@@ -173,6 +179,7 @@ class TestRegisterDecorator(unittest.TestCase):
 
     def test_condition_true(self):
         from alpha_factory_v1.backend.agents import register, _agent_base
+
         Base = _agent_base()
 
         @register
@@ -195,7 +202,12 @@ class TestHealthQuarantine(unittest.TestCase):
         AGENT_REGISTRY.update(self._registry_backup)
 
     def test_stub_after_errors(self):
-        from alpha_factory_v1.backend.agents import _HEALTH_Q, StubAgent, _ERR_THRESHOLD
+        from alpha_factory_v1.backend.agents import (
+            _HEALTH_Q,
+            StubAgent,
+            _ERR_THRESHOLD,
+            start_background_tasks,
+        )
 
         class FailingAgent(AgentBase):
             NAME = "fail"
@@ -205,11 +217,13 @@ class TestHealthQuarantine(unittest.TestCase):
 
         meta = AgentMetadata(name="fail", cls=FailingAgent, version="0", capabilities=[])  # type: ignore[list-item]
         register_agent(meta)
+        start_background_tasks()
         # Pre-set error count to threshold -1
         object.__setattr__(AGENT_REGISTRY["fail"], "err_count", _ERR_THRESHOLD - 1)
         _HEALTH_Q.put(("fail", 0.0, False))
         # give the background thread a moment
         import time
+
         time.sleep(0.05)
         self.assertIs(AGENT_REGISTRY["fail"].cls, StubAgent)
 
@@ -269,6 +283,7 @@ class TestVersionOverride(unittest.TestCase):
 class TestDiscoverLocalIdempotent(unittest.TestCase):
     def test_no_duplicate_logs(self):
         from alpha_factory_v1.backend import agents as agents_mod
+
         logger = logging.getLogger("alpha_factory.agents")
         stream = io.StringIO()
         handler = logging.StreamHandler(stream)
@@ -281,6 +296,7 @@ class TestDiscoverLocalIdempotent(unittest.TestCase):
         logs = stream.getvalue()
         self.assertNotIn("Duplicate agent name", logs)
         self.assertNotIn("\u2713 agent", logs)
+
 
 if __name__ == "__main__":
     unittest.main()
