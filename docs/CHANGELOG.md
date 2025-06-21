@@ -7,7 +7,7 @@
 All notable changes to this project are documented in this file.
 
 ## Breaking Changes Policy
-Incompatible updates are announced in advance whenever possible and remain deprecated for at least one minor release. Each release includes a dedicated "Breaking Changes" section describing removed features or behavioural differences. Consult that section when upgrading.
+Incompatible updates are announced in advance whenever possible and remain deprecated for at least one minor release. Each release includes a dedicated `### Breaking Changes` section describing removed features or behavioural differences. Consult that section when upgrading.
 
 ## Breaking Changes
 Any incompatible API updates will be clearly listed under this heading for each release.
@@ -19,10 +19,10 @@ Downstream users should consult this section when upgrading.
   - `check_env.py` exits with an error if `numpy` or `pandas` are missing unless
     `--allow-basic-fallback` is used.
   - Removed `alpha_asi_world_model_demo_v1.py`.
-  - Removed `insight_browser_v1/dist/` from version control; run
-    `npm run build` to regenerate the assets.
-
+  - Removed `insight_browser_v1/dist/` from version control; run `npm run build` to regenerate the assets.
 ## [Unreleased]
+### Breaking Changes
+- None.
 - `alpha-factory` and `edge_runner.py` now print a short warning before startup.
 - Synced `openai`, `openai-agents` and `uvicorn` pins across requirements files
   and clarified why `requests` and `rich` differ between layers.
@@ -47,8 +47,10 @@ Downstream users should consult this section when upgrading.
 
 
 ## [1.0.3] - 2025-07-10
-- Extended OPA rules to block additional finance domains and detect exfiltration commands.
-- Documented policy update workflow in `docs/POLICY_RUNBOOK.md`.
+### Breaking Changes
+- `check_env.py` exits with an error if `numpy` or `pandas` are missing unless `--allow-basic-fallback` is used.
+- Removed `alpha_asi_world_model_demo_v1.py`.
+- Removed `insight_browser_v1/dist/` from version control; run `npm run build` to regenerate the assets.
 - Added CI workflow running lint, type checks, tests and Docker build with
   automated image deployment on tags and rollback on failure. Metrics are
   exported via OpenTelemetry and can be viewed in Grafana or the Streamlit
@@ -57,14 +59,12 @@ Downstream users should consult this section when upgrading.
   `check_env.py` now errors if they are missing unless `--allow-basic-fallback`
   is provided.
 - Documented `ALPHA_ASI_*` demo variables in README and AGENTS.md.
-- Removed outdated `alpha_asi_world_model_demo_v1.py` script.
-- Removed `insight_browser_v1/dist/` from version control. Run `npm run build` in
-  that directory to generate the assets locally.
-- Added cross-industry demo with [deploy script](../alpha_factory_v1/demos/cross_industry_alpha_factory/deploy_alpha_factory_cross_industry_demo.sh)
   and [README](../alpha_factory_v1/demos/cross_industry_alpha_factory/README.md)
   (introduced in commit `d0e1e2ed`).
 
 ## [1.1.0] - 2025-07-15
+### Breaking Changes
+- `GraphMemory._fallback_query` now returns stub data when both Neo4j and NetworkX are missing.
 ### Added
 - CLI commands `agents-status` and `replay` for monitoring agents and replaying ledger events.
 - ADK and MCP adapters bridging the Alpha Data Kernel and Multi‑Chain Proxy.
