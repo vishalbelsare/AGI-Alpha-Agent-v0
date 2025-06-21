@@ -14,15 +14,19 @@ try:  # pragma: no cover - best effort environment setup
     args = ["--auto-install"]
     if wheelhouse:
         args += ["--wheelhouse", wheelhouse]
-    elif not has_network():  # warn when offline with no wheelhouse
+    net_ok = has_network()
+    if wheelhouse is None and not net_ok:  # warn when offline with no wheelhouse
         warnings.warn(
             "Neither network access nor a wheelhouse was detected. "
             "Run './scripts/build_offline_wheels.sh' and set WHEELHOUSE before testing.",
             RuntimeWarning,
         )
     rc = check_env_main(args)
+    proxy_set = os.getenv("HTTPS_PROXY") or os.getenv("HTTP_PROXY")
+    net_ok = net_ok or bool(proxy_set) or rc == 0
+    os.environ.setdefault("PYTEST_NET_OFF", "0" if net_ok else "1")
     if rc:
-        if not wheelhouse and not has_network():
+        if not wheelhouse and not net_ok:
             reason = "no network and no wheelhouse; run 'python check_env.py --auto-install --wheelhouse <dir>'"
         else:
             reason = "Environment check failed, run 'python check_env.py --auto-install'"

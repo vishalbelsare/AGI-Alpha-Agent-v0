@@ -23,6 +23,25 @@ Copy the resulting `wheels/` directory to the offline host and set
 or `pytest`. The environment check in `tests/conftest.py` will abort when neither
 network access nor a wheelhouse is available.
 
+## Running tests online vs. offline
+
+When internet connectivity is available run:
+
+```bash
+python check_env.py --auto-install
+pytest -q
+```
+
+To execute the suite offline, first build a wheelhouse and export its path:
+
+```bash
+./scripts/build_offline_wheels.sh
+export WHEELHOUSE=$(pwd)/wheels
+python check_env.py --auto-install --wheelhouse "$WHEELHOUSE"
+pytest -q
+```
+
+
 ## Setup
 
 1. Install the development requirements:
