@@ -6,6 +6,8 @@
 ./quickstart.sh
 # or using Docker
 docker compose up --build
+# or one-click image
+./run_quickstart.sh
 ```
 
 See [docs/quickstart.md](docs/quickstart.md) for detailed steps.
@@ -916,6 +918,14 @@ Start the full stack using Docker Compose:
 docker compose up --build
 ```
 Browse the dashboard at <http://localhost:8080>.
+
+## One-Click Docker Quickstart
+Run the minimal image directly:
+```bash
+./run_quickstart.sh
+```
+The script prints the project disclaimer, builds `docker/quickstart/Dockerfile`
+and launches the container with your `.env` file mounted.
 
 The same configuration can be installed via Helm:
 ```bash

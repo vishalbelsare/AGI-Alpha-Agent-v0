@@ -61,6 +61,11 @@ python check_env.py --auto-install  # may take several minutes
 ./quickstart.sh
 ```
 
+Alternatively build and run the Docker image in one step:
+```bash
+./run_quickstart.sh
+```
+
 Copy `.env.sample` to `.env` and add your API keys to enable cloud features. Without keys, the program falls back to the local Meta‑Agentic Tree Search:
 
 ```bash
