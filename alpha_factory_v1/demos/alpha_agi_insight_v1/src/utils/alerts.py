@@ -9,7 +9,7 @@ import os
 try:
     import af_requests as requests
 except Exception:  # pragma: no cover - optional real requests
-    import requests  # type: ignore
+    import requests
 
 __all__ = ["send_alert"]
 

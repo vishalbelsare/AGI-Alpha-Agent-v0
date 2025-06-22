@@ -14,10 +14,10 @@ from pathlib import Path
 from typing import Any, Optional, Dict
 
 from alpha_factory_v1.utils.config_common import (
-    SettingsBase,
     _load_dotenv,
     _prefetch_vault,
 )
+from pydantic_settings import BaseSettings
 
 from pydantic import Field
 
@@ -41,7 +41,7 @@ def init_config(env_file: str = ".env") -> None:
     CFG = Settings()
 
 
-class Settings(SettingsBase):
+class Settings(BaseSettings):  # type: ignore[misc]
     """Environment-driven configuration."""
 
     openai_api_key: Optional[str] = Field(default=None, alias="OPENAI_API_KEY")

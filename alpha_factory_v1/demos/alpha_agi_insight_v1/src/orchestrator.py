@@ -16,7 +16,7 @@ import contextlib
 import os
 import random
 from pathlib import Path
-from typing import Callable, Dict, List
+from typing import Any, Callable, Dict, List, cast
 from google.protobuf import struct_pb2
 
 from .agents import (
@@ -39,11 +39,13 @@ from src.archive.solution_archive import SolutionArchive
 from .agents.base_agent import BaseAgent
 from src.governance.stake_registry import StakeRegistry
 from .simulation import mats
+from types import ModuleType
 
+resource: ModuleType | None
 try:  # platform specific
-    import resource  # type: ignore
+    import resource as resource
 except Exception:  # pragma: no cover - Windows fallback
-    resource = None  # type: ignore
+    resource = None
 
 ERR_THRESHOLD = int(os.getenv("AGENT_ERR_THRESHOLD", "3"))
 BACKOFF_EXP_AFTER = int(os.getenv("AGENT_BACKOFF_EXP_AFTER", "3"))
@@ -224,7 +226,7 @@ class Orchestrator:
             genome_length,
             scenario_hash=scenario_hash,
             populations=pops,
-            **kwargs,
+            **cast(Any, kwargs),
         )
         pops[scenario_hash] = pop
         for ind in pop:

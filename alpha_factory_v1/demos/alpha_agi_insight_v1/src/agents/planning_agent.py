@@ -13,6 +13,7 @@ from ..utils import messaging
 from ..utils.logging import Ledger
 from ..utils.retry import with_retry
 from ..utils.tracing import span
+from typing import Callable, Awaitable, cast
 
 
 class PlanningAgent(BaseAgent):
@@ -43,7 +44,9 @@ class PlanningAgent(BaseAgent):
             elif self.oai_ctx:
                 try:  # pragma: no cover - SDK optional
                     with span("openai.run"):
-                        plan = await with_retry(self.oai_ctx.run)(prompt="plan research task")
+                        plan = await with_retry(cast(Callable[[str], Awaitable[str]], self.oai_ctx.run))(
+                            "plan research task"
+                        )
                 except Exception:
                     plan = "collect baseline metrics"
             await self.emit("research", {"plan": plan})

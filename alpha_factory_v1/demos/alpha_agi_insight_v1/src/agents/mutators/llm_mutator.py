@@ -8,6 +8,7 @@ from pathlib import Path
 
 from ...utils.logging import Ledger
 from src.tools.diff_mutation import propose_diff as _fallback_diff
+from typing import cast
 from .code_diff import _parse_spec, _sync_chat, _offline
 
 __all__ = ["LLMMutator"]
@@ -29,7 +30,7 @@ class LLMMutator:
 
     def _random_patch(self, file_path: str) -> str:
         goal = f"random-{self._rng.randint(0, 9999)}"
-        return _fallback_diff(file_path, goal)
+        return cast(str, _fallback_diff(file_path, goal))
 
     def generate_diff(self, repo_path: str, spec: str, *, lines: int = 5) -> str:
         """Return a unified diff implementing ``spec`` inside ``repo_path``."""

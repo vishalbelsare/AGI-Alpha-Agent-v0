@@ -13,6 +13,7 @@ from ..utils import messaging, logging as insight_logging
 from ..utils.logging import Ledger
 from ..utils.retry import with_retry
 from ..utils.tracing import span
+from typing import Callable, Awaitable, cast
 
 log = insight_logging.logging.getLogger(__name__)
 
@@ -50,7 +51,9 @@ class StrategyAgent(BaseAgent):
             elif self.oai_ctx:
                 try:  # pragma: no cover
                     with span("openai.run"):
-                        strat["action"] = await with_retry(self.oai_ctx.run)(prompt=str(val))
+                        strat["action"] = await with_retry(cast(Callable[[str], Awaitable[str]], self.oai_ctx.run))(
+                            str(val)
+                        )
                 except Exception as exc:
                     log.warning("openai.run failed: %s", exc)
             await self.emit("market", {"strategy": strat})

@@ -6,6 +6,7 @@ from __future__ import annotations
 import asyncio
 import os
 import threading
+from typing import cast
 from pathlib import Path
 
 from src.tools.diff_mutation import propose_diff as _fallback_diff
@@ -33,7 +34,7 @@ def _sync_chat(prompt: str) -> str:
     from alpha_factory_v1.backend.llm_provider import chat
 
     async def _call() -> str:
-        return await chat(prompt, max_tokens=512)
+        return cast(str, await chat(prompt, max_tokens=512))
 
     try:
         asyncio.get_running_loop()
@@ -62,7 +63,7 @@ def propose_diff(repo_path: str, spec: str) -> str:
     rel, goal = _parse_spec(spec)
     file_path = str(Path(repo_path) / rel)
     if _offline():
-        return _fallback_diff(file_path, goal)
+        return cast(str, _fallback_diff(file_path, goal))
     prompt = (
         "Generate a unified git diff for the repository at '{repo}'.\n" "Apply the following change: {spec}".format(
             repo=repo_path, spec=spec
@@ -74,4 +75,4 @@ def propose_diff(repo_path: str, spec: str) -> str:
             diff += "\n"
         return diff
     except Exception:
-        return _fallback_diff(file_path, goal)
+        return cast(str, _fallback_diff(file_path, goal))

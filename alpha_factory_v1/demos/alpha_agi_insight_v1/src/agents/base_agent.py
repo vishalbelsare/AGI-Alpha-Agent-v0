@@ -15,7 +15,7 @@ from google.protobuf import struct_pb2
 try:
     from alpha_factory_v1.backend.utils.llm_provider import LLMProvider
 except Exception:  # pragma: no cover - optional
-    LLMProvider = None  # type: ignore[misc]
+    LLMProvider = None
 
 from ..utils import messaging
 from .adk_adapter import ADKAdapter

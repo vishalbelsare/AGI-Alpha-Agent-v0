@@ -13,6 +13,7 @@ from ..utils import messaging, logging as insight_logging
 from ..utils.logging import Ledger
 from ..utils.retry import with_retry
 from ..utils.tracing import span
+from typing import Callable, Awaitable, cast
 
 log = insight_logging.logging.getLogger(__name__)
 
@@ -43,7 +44,9 @@ class MarketAgent(BaseAgent):
             if self.oai_ctx and not self.bus.settings.offline:
                 try:  # pragma: no cover
                     with span("openai.run"):
-                        analysis = await with_retry(self.oai_ctx.run)(prompt=str(strategy))
+                        analysis = await with_retry(cast(Callable[[str], Awaitable[str]], self.oai_ctx.run))(
+                            str(strategy)
+                        )
                 except Exception as exc:
                     log.warning("openai.run failed: %s", exc)
             await self.emit("codegen", {"analysis": analysis})

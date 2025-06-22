@@ -50,7 +50,7 @@ except Exception:  # pragma: no cover - optional
     duckdb = None
 
 with contextlib.suppress(ModuleNotFoundError):
-    import psycopg2  # type: ignore
+    import psycopg2
 
 _log = logging.getLogger(__name__)
 
@@ -190,7 +190,7 @@ class Ledger:
         """Hash ``env`` and append to the ledger."""
         with span("ledger.log"):
             assert self.conn is not None
-            if dataclasses.is_dataclass(env):
+            if dataclasses.is_dataclass(env) and not isinstance(env, type):
                 record = dataclasses.asdict(env)
             elif isinstance(env, pb.Envelope):
                 record = json_format.MessageToDict(env, preserving_proto_field_name=True)
