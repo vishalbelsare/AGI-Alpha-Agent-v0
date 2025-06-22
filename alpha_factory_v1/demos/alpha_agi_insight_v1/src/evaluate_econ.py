@@ -35,9 +35,9 @@ def _lead_time(truth: Iterable[bool], pred: Iterable[bool]) -> int:
 def _load_record(path: Path) -> tuple[list[float], list[bool]]:
     if path.suffix == ".json":
         data = json.loads(path.read_text())
-        caps = data.get("capabilities", [])
-        shocks = data.get("shocks", [])
-        return [float(c) for c in caps], [bool(s) for s in shocks]
+        caps_raw = data.get("capabilities", [])
+        shocks_raw = data.get("shocks", [])
+        return [float(c) for c in caps_raw], [bool(s) for s in shocks_raw]
 
     caps: list[float] = []
     shocks: list[bool] = []

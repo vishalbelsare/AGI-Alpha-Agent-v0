@@ -13,7 +13,8 @@ import json
 import logging
 from pathlib import Path
 import contextlib
-from typing import Any, Awaitable, Callable, Dict, List, Optional
+from types import TracebackType
+from typing import Any, Awaitable, Callable, Dict, List, Optional, Protocol, TypeAlias
 from cachetools import TTLCache
 
 from .config import Settings
@@ -21,7 +22,17 @@ from .tracing import span, bus_messages_total
 from src.utils import a2a_pb2 as pb
 from google.protobuf import json_format
 
-Envelope = pb.Envelope
+
+Envelope: TypeAlias = pb.Envelope
+
+
+class EnvelopeLike(Protocol):
+    sender: str
+    recipient: str
+    ts: float
+    payload: Any
+    __dict__: Dict[str, Any]
+
 
 try:
     import grpc
@@ -46,7 +57,7 @@ class A2ABus:
 
     def __init__(self, settings: Settings) -> None:
         self.settings = settings
-        self._subs: Dict[str, List[Callable[[Envelope], Awaitable[None] | None]]] = {}
+        self._subs: Dict[str, List[Callable[[EnvelopeLike], Awaitable[None] | None]]] = {}
         self._server: "grpc.aio.Server | None" = None
         self._producer: Optional[AIOKafkaProducer] = None
         self._handshake_peers: set[str] = set()
@@ -58,14 +69,19 @@ class A2ABus:
         await self.start()
         return self
 
-    async def __aexit__(self, exc_type, exc, tb) -> None:
+    async def __aexit__(
+        self,
+        exc_type: type[BaseException] | None,
+        exc: BaseException | None,
+        tb: TracebackType | None,
+    ) -> None:
         """Stop the bus when exiting an async context."""
         await self.stop()
 
-    def subscribe(self, topic: str, handler: Callable[[Envelope], Awaitable[None] | None]) -> None:
+    def subscribe(self, topic: str, handler: Callable[[EnvelopeLike], Awaitable[None] | None]) -> None:
         self._subs.setdefault(topic, []).append(handler)
 
-    def unsubscribe(self, topic: str, handler: Callable[[Envelope], Awaitable[None] | None]) -> None:
+    def unsubscribe(self, topic: str, handler: Callable[[EnvelopeLike], Awaitable[None] | None]) -> None:
         """Remove a previously subscribed handler."""
         handlers = self._subs.get(topic)
         if not handlers:
@@ -75,7 +91,7 @@ class A2ABus:
         if not handlers:
             self._subs.pop(topic, None)
 
-    def publish(self, topic: str, env: Envelope) -> None:
+    def publish(self, topic: str, env: EnvelopeLike) -> None:
         with span("bus.publish"):
             bus_messages_total.labels(topic).inc()
             if self._producer:

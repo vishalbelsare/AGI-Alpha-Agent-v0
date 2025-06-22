@@ -43,12 +43,15 @@ __all__ = [
 
 tracer = None
 meter = None
-
+prometheus_client: Any | None
 try:
-    import prometheus_client
+    import prometheus_client as pc
+
+    prometheus_client = pc
     from prometheus_client import Counter, Histogram
 except ModuleNotFoundError:  # pragma: no cover - optional
-    prometheus_client: Any | None = None
+    prometheus_client = None
+    Counter = Histogram = None
 
 
 def _noop(*_a: Any, **_kw: Any) -> Any:

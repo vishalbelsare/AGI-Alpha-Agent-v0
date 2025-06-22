@@ -48,4 +48,4 @@ class ADKAdapter:
         gen_fn = getattr(self._client, "generate", None)
         if not callable(gen_fn):
             raise AttributeError("generate not available")
-        return gen_fn(prompt)
+        return str(gen_fn(prompt))

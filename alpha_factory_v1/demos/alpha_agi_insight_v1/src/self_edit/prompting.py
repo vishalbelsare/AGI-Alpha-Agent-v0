@@ -12,9 +12,11 @@ from src.utils.config import CFG
 from alpha_factory_v1.demos.alpha_agi_insight_v1.src.utils import local_llm
 
 try:  # pragma: no cover - optional dependency
-    from alpha_factory_v1.backend.utils.llm_provider import LLMProvider
+    from alpha_factory_v1.backend.utils.llm_provider import LLMProvider as _LLMProvider
 except Exception:  # pragma: no cover - fallback
-    LLMProvider: Any | None = None
+    _LLMProvider = None
+
+LLMProvider = _LLMProvider
 
 
 def _get_llm() -> Callable[[str, Optional[str]], str]:
@@ -25,7 +27,7 @@ def _get_llm() -> Callable[[str, Optional[str]], str]:
 
     def call(prompt: str, system_prompt: Optional[str]) -> str:
         llm = LLMProvider()
-        return llm.chat(prompt, system_prompt=system_prompt)
+        return str(llm.chat(prompt, system_prompt=system_prompt))
 
     return call
 
@@ -39,7 +41,7 @@ def self_improve(template: str, logs: str, *, seed: int | None = None) -> str:
     if CFG.self_improve.user:
         user_prompt = f"{CFG.self_improve.user}\n{user_prompt}"
     llm = _get_llm()
-    return llm(user_prompt, system_prompt)
+    return str(llm(user_prompt, system_prompt))
 
 
 def main(argv: list[str] | None = None) -> None:

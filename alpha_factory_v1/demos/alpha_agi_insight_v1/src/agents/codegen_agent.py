@@ -14,13 +14,20 @@ import sys
 from google.protobuf import struct_pb2
 import tempfile
 import time
+from typing import Callable, Awaitable, cast, TypeVar
 
 try:  # pragma: no cover - optional openai dependency
-    from openai.agents import tool  # type: ignore
+    from openai.agents import tool as openai_tool
 except Exception:  # pragma: no cover - offline stub
+    T = TypeVar("T", bound=Callable[..., str])
 
-    def tool(fn=None, **_):  # type: ignore
-        return (lambda f: f)(fn) if fn else lambda f: f
+    def openai_tool(fn: T | None = None, **_: object) -> Callable[[T], T]:
+        def decorator(f: T) -> T:
+            return f
+
+        if fn is not None:
+            decorator(fn)
+        return decorator
 
 
 from src.self_edit.safety import is_code_safe
@@ -65,7 +72,7 @@ class CodeGenAgent(BaseAgent):
             if self.oai_ctx and not self.bus.settings.offline:
                 try:  # pragma: no cover
                     with span("openai.run"):
-                        code = await with_retry(self.oai_ctx.run)(prompt=str(analysis))
+                        code = await with_retry(cast(Callable[[str], Awaitable[str]], self.oai_ctx.run))(str(analysis))
                 except Exception as exc:
                     log.warning("openai.run failed: %s", exc)
             if violates_finance_policy(code):
@@ -75,7 +82,12 @@ class CodeGenAgent(BaseAgent):
                 self.execute_in_sandbox(code)
             await self.emit("safety", {"code": code})
 
-    @tool(description="Propose a minimal diff implementing the given goal")
+    _tool = cast(
+        Callable[..., Callable[[Callable[..., str]], Callable[..., str]]],
+        openai_tool,
+    )
+
+    @_tool(description="Propose a minimal diff implementing the given goal")
     def propose_diff(self, file_path: str, goal: str) -> str:  # noqa: D401
         repo_root = str(Path(file_path).resolve().parent)
         spec = f"{Path(file_path).name}:{goal}"

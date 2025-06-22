@@ -19,7 +19,7 @@ from pathlib import Path
 log = insight_logging.logging.getLogger(__name__)
 
 
-class MemoryAgent(BaseAgent):  # type: ignore[misc]
+class MemoryAgent(BaseAgent):
     """Persist artefacts produced by other agents."""
 
     def __init__(
