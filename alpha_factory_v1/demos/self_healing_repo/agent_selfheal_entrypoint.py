@@ -23,7 +23,7 @@ import uvicorn
 
 try:
     from openai_agents import Agent, OpenAIAgent, Tool
-except ModuleNotFoundError:  # offline fallback
+except Exception:  # pragma: no cover - optional fallback
     from .agent_core import llm_client
 
     def Tool(*_a, **_kw):  # type: ignore

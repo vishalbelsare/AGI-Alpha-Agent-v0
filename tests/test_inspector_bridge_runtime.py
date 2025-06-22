@@ -11,8 +11,16 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
+
 # Skip entire module if optional packages are missing
-if importlib.util.find_spec("openai_agents") is None or importlib.util.find_spec("google_adk") is None:
+def _has_pkg(name: str) -> bool:
+    try:
+        return importlib.util.find_spec(name) is not None
+    except ValueError:
+        return False
+
+
+if not (_has_pkg("openai_agents") and _has_pkg("google_adk")):
     pytest.skip("openai_agents or google_adk not installed", allow_module_level=True)
 
 

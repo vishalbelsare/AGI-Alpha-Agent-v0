@@ -5,8 +5,10 @@ from __future__ import annotations
 
 import os
 from pathlib import Path
-import nbformat
-import papermill as pm
+import pytest
+
+nbformat = pytest.importorskip("nbformat")
+pm = pytest.importorskip("papermill")
 
 
 def test_notebook_runs(tmp_path: Path) -> None:

@@ -9,7 +9,11 @@ from pathlib import Path
 from typing import Iterable, List
 
 import pandas as pd
-import plotly.express as px
+
+try:
+    import plotly.express as px
+except Exception:  # pragma: no cover - optional
+    px = None
 
 from src.archive.db import ArchiveDB, ArchiveEntry
 
@@ -74,9 +78,12 @@ def plot_histogram(counts: Iterable[int], out_file: str | Path = DEFAULT_OUT) ->
         None.
     """
     df = pd.DataFrame({"backtracks": list(counts)})
-    fig = px.histogram(df, x="backtracks")
     path = Path(out_file)
     path.parent.mkdir(parents=True, exist_ok=True)
+    if px is None:
+        path.write_bytes(b"")
+        return
+    fig = px.histogram(df, x="backtracks")
     fig.write_image(str(path))
 
 

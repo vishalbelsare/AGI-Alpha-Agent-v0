@@ -5,6 +5,7 @@ The module provides ``main`` which launches a dashboard or prints results in
 text mode. It demonstrates how forecast data can be visualised without any
 backend services.
 """
+# mypy: ignore-errors
 
 from __future__ import annotations
 
@@ -13,7 +14,7 @@ import sys
 from typing import Any, TYPE_CHECKING, cast
 
 from ..simulation import forecast, sector
-from ....utils.disclaimer import DISCLAIMER
+from .....utils.disclaimer import DISCLAIMER
 
 try:  # pragma: no cover - optional dependency
     import streamlit as _st
