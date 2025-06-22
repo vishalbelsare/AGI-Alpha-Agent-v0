@@ -76,7 +76,8 @@ curl -H "Authorization: Bearer $API_TOKEN" \
 
 ## Command line interface
 
-The CLI lives in `alpha_factory_v1/demos/alpha_agi_insight_v1/src/interface/cli.py`. It groups several commands under one entry point:
+The CLI lives in `alpha_factory_v1/demos/alpha_agi_insight_v1/src/interface/cli.py`. It groups several commands under
+one entry point:
 
 ```bash
 python cli.py [COMMAND] [OPTIONS]
@@ -104,7 +105,8 @@ python cli.py show-results
 
 Available commands are:
 
-- `simulate` – run a forecast and launch the orchestrator. Key options include `--horizon`, `--curve`, `--k`, `--x0`, `--sectors`, `--pop-size` and `--generations`.
+- `simulate` – run a forecast and launch the orchestrator. Key options include `--horizon`, `--curve`, `--k`, `--x0`,
+  `--sectors`, `--pop-size` and `--generations`.
 - `show-results` – display the latest ledger entries recorded by the orchestrator.
 - `agents-status` – list currently registered agents.
 - `replay` – replay ledger entries with a small delay for analysis.
@@ -230,7 +232,9 @@ wscat -c "ws://localhost:8000/ws/progress" \
   -H "Authorization: Bearer $API_TOKEN"
 ```
 
-The server honours environment variables defined in `.env` such as `PORT` (HTTP port) and `OPENAI_API_KEY`. When a prebuilt React dashboard exists under `src/interface/web_client/dist`, it is automatically served at the root path (`/`). CORS headers are configured via `API_CORS_ORIGINS` (default `"*"`).
+The server honours environment variables defined in `.env` such as `PORT` (HTTP port) and `OPENAI_API_KEY`. When a
+prebuilt React dashboard exists under `src/interface/web_client/dist`, it is automatically served at the root path
+(`/`). CORS headers are configured via `API_CORS_ORIGINS` (default `"*"`).
 Sandbox CPU and memory limits can be set via `SANDBOX_CPU_SEC` and `SANDBOX_MEM_MB`.
 Alert notifications can be forwarded when `ALERT_WEBHOOK_URL` is set. Islands may
 target different backends by defining `AGI_ISLAND_BACKENDS`, for example
