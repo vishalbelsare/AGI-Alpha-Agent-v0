@@ -6,7 +6,17 @@ from typing import Any
 
 import sys
 import types
+from pathlib import Path
 import pytest
+
+root = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(root / "stubs"))
+try:
+    import openai_agents
+except Exception:
+    pass
+pytest.importorskip("gymnasium")
+sys.path.insert(0, str(root))
 from alpha_factory_v1.demos.aiga_meta_evolution import agent_aiga_entrypoint as mod
 
 oa = pytest.importorskip("openai_agents")

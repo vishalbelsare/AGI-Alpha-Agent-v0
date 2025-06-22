@@ -6,6 +6,8 @@ import sys
 from pathlib import Path
 
 import pytest
+
+pytest.importorskip("plotly.express")
 from src.archive import Archive
 from src.interface import lineage_dashboard as ld
 

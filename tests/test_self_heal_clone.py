@@ -5,6 +5,8 @@ import importlib
 from pathlib import Path
 
 import pytest
+
+pytest.importorskip("gradio")
 from alpha_factory_v1.demos.self_healing_repo import agent_selfheal_entrypoint as entrypoint
 
 

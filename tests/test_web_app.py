@@ -2,6 +2,7 @@
 import pytest
 
 pd = pytest.importorskip("pandas")
+pytest.importorskip("plotly.express")
 from src.interface import web_app  # noqa: E402
 from alpha_factory_v1.demos.alpha_agi_insight_v1.src.simulation import forecast, sector, mats  # noqa: E402
 
