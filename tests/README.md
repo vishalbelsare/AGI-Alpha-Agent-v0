@@ -126,6 +126,11 @@ continues even in minimal environments.
 10. If `pre-commit` isn't found, install it with `pip install pre-commit` and run
    `pre-commit install` once to enable the git hooks referenced in
    [AGENTS.md](../AGENTS.md).
+11. Build the web assets so `dist/sw.js` exists:
+   ```bash
+   make build_web  # or run npm run build in insight_browser_v1
+   ```
+   Failing to generate this file causes `tests/test_cache_version.py` to fail.
 
 ### Wheelhouse requirement
 
