@@ -50,11 +50,15 @@ version = "0.0.1"
         )
         self.pub_b64 = base64.b64encode(pub_bytes).decode()
 
+        sig_cmd = (
+            f"openssl dgst -sha512 -binary {self.wheel_path} | "
+            f"openssl pkeyutl -sign -inkey {self.key_path} | base64 -w0"
+        )
         sig_b64 = subprocess.check_output(
             [
                 "sh",
                 "-c",
-                f"openssl dgst -sha512 -binary {self.wheel_path} | openssl pkeyutl -sign -inkey {self.key_path} | base64 -w0",
+                sig_cmd,
             ]
         ).decode()
         self.sig_path = self.wheel_path.with_suffix(self.wheel_path.suffix + ".sig")
