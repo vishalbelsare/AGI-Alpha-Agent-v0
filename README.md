@@ -1,4 +1,7 @@
-[See docs/DISCLAIMER_SNIPPET.md](docs/DISCLAIMER_SNIPPET.md) This repository is a conceptual research prototype. References to "AGI" and "superintelligence" describe aspirational goals and do not indicate the presence of a real general intelligence. Use at your own risk. Nothing herein constitutes financial advice. MontrealAI and the maintainers accept no liability for losses incurred from using this software.
+[See docs/DISCLAIMER_SNIPPET.md](docs/DISCLAIMER_SNIPPET.md) This repository is a conceptual research prototype.
+References to "AGI" and "superintelligence" describe aspirational goals and do not indicate the presence of a real
+general intelligence. Use at your own risk. Nothing herein constitutes financial advice. MontrealAI and the maintainers
+accept no liability for losses incurred from using this software.
 
 ## Quickstart
 
@@ -15,7 +18,10 @@ See [docs/quickstart.md](docs/quickstart.md) for detailed steps.
 
 # **META-AGENTIC** α‑AGI 👁️✨
 ## **v0.1.0‑alpha**
-**Official and *pioneering* definition – Meta-Agentic (adj.)**: Describes an agent whose **primary role** is to **create, select, evaluate, or re‑configure other agents** and the rules governing their interactions, thereby exercising **second‑order agency** over a population of first‑order agents. *The term was **pioneered by [Vincent Boucher](https://www.linkedin.com/in/montrealai/), President of MONTREAL.AI**.*
+**Official and *pioneering* definition – Meta-Agentic (adj.)**: Describes an agent whose **primary role** is to
+**create, select, evaluate, or re‑configure other agents** and the rules governing their interactions, thereby
+exercising **second‑order agency** over a population of first‑order agents. *The term was **pioneered by
+[Vincent Boucher](https://www.linkedin.com/in/montrealai/), President of MONTREAL.AI**.*
 
 ```mermaid
 flowchart TD
@@ -49,17 +55,25 @@ flowchart TD
 ## Humanity’s Structured Rise to Economic Supremacy via Strategic AGI Mastery
 
 ### 🎖️ α‑AGI Insight 👁️✨ — Beyond Human Foresight
-Where human foresight reaches its limits, α‑AGI Insight sees beyond. Humanity stands at the precipice of history’s most profound economic transformation. α‑AGI Insight identifies with pinpoint accuracy those sectors poised for imminent disruption by Artificial General Intelligence (AGI). With authoritative and rigorously validated projections estimating economic opportunities surpassing **$15 Quadrillion (15 000 trillion USD)**, today’s strategic anticipation unlocks extraordinary economic advantages tomorrow.
+Where human foresight reaches its limits, α‑AGI Insight sees beyond. Humanity stands at the precipice of history’s most
+profound economic transformation. α‑AGI Insight identifies with pinpoint accuracy those sectors poised for imminent
+disruption by Artificial General Intelligence (AGI). With authoritative and rigorously validated projections estimating
+economic opportunities surpassing **$15 Quadrillion (15 000 trillion USD)**, today’s strategic anticipation unlocks
+extraordinary economic advantages tomorrow.
 
 * **Precision Forecasting** — Identify and proactively engage critical sectors before AGI disruption.  
 * **First‑Mover Advantage** — Maximize returns through strategic foresight and superior positioning.
 
 ### 🎖️ α‑AGI Sovereign 👁️✨ — Autonomous Economic Transformation
-Meta‑Agentic mastery at global scale. α‑AGI Sovereign represents a revolutionary class of autonomous, blockchain‑based enterprises deploying advanced Meta‑Agentic frameworks. Through dynamically evolving swarms of intelligent agents, these enterprises systematically identify and transform global inefficiencies into measurable economic value (“$AGIALPHA”), fundamentally reshaping market dynamics and strategically realigning global economic structures.
+Meta‑Agentic mastery at global scale. α‑AGI Sovereign represents a revolutionary class of autonomous, blockchain‑based
+enterprises deploying advanced Meta‑Agentic frameworks. Through dynamically evolving swarms of intelligent agents, these
+enterprises systematically identify and transform global inefficiencies into measurable economic value (“$AGIALPHA”),
+fundamentally reshaping market dynamics and strategically realigning global economic structures.
 
 * **α‑AGI Marketplace 👁️✨** — Decentralized global platform matching strategic AGI tasks with optimal execution.  
   * **α‑AGI Jobs 👁️✨** — Autonomous missions precisely targeting identified inefficiencies.  
-  * **α‑AGI Agents 👁️✨** — Adaptive, self‑optimizing intelligent agents executing α‑Jobs, yielding immediate economic returns.
+  * **α‑AGI Agents 👁️✨** — Adaptive, self‑optimizing intelligent agents executing α‑Jobs, yielding immediate economic
+    returns.
 
 Strategic Edge:
 
@@ -69,7 +83,9 @@ Strategic Edge:
 ## Quick Start
 **Local:** `./quickstart.sh` &nbsp;&nbsp;|&nbsp;&nbsp; **Docker:** `docker compose up --build`
 
-An interactive Colab notebook demonstrates the same zero‑data Insight search loop. Open [colab_alpha_agi_insight_v1.ipynb](alpha_factory_v1/demos/alpha_agi_insight_v1/colab_alpha_agi_insight_v1.ipynb) in Google Colab to try it online.
+An interactive Colab notebook demonstrates the same zero‑data Insight search loop. Open
+[colab_alpha_agi_insight_v1.ipynb](alpha_factory_v1/demos/alpha_agi_insight_v1/colab_alpha_agi_insight_v1.ipynb) in
+Google Colab to try it online.
 
 Clone the repository at the `v0.1.0-alpha` tag and run the helper script to start the Insight demo locally:
 
@@ -317,7 +333,10 @@ year | capability | affected
 
 
 ### 🎖️ α‑AGI Architect 👁️✨ — Foundational Operational Blueprint
-Empowering Meta‑Agentic visionaries with strategic infrastructure. At the core of α‑AGI Ascension is α‑AGI Architect — the foundational operational framework for scalable global deployment. Rooted in the groundbreaking “Multi‑Agent AI DAO” model, α‑AGI Architect delivers immediate, scalable, and adaptive infrastructure ensuring continuous strategic evolution.
+Empowering Meta‑Agentic visionaries with strategic infrastructure. At the core of α‑AGI Ascension is α‑AGI Architect —
+the foundational operational framework for scalable global deployment. Rooted in the groundbreaking “Multi‑Agent AI DAO”
+model, α‑AGI Architect delivers immediate, scalable, and adaptive infrastructure ensuring continuous strategic
+evolution.
 
 * Robust feedback loops driving continuous refinement between Sovereign operations and Architect infrastructure.  
 * Engineered for rapid global scalability and strategic responsiveness.
@@ -368,27 +387,35 @@ flowchart TD
 ---
 
 ## Deploy Now
-Open‑source framework for immediate strategic action: **[github.com/MontrealAI/AGI-Alpha-Agent-v0](https://github.com/MontrealAI/AGI-Alpha-Agent-v0)**
+Open‑source framework for immediate strategic action: **[github.com/MontrealAI/AGI-Alpha-
+Agent-v0](https://github.com/MontrealAI/AGI-Alpha-Agent-v0)**
 
 ---
 
 ## 🔱✨ Conclusion
-**[ 🎖️ α‑AGI Ascension 🌌 ]** launches humanity into an entirely new economic epoch. By systematically harnessing AGI’s transformative capabilities, it rewrites global economic structures, implicitly realigning international power dynamics and propelling humanity toward unprecedented sovereign economic prosperity.
+**[ 🎖️ α‑AGI Ascension 🌌 ]** launches humanity into an entirely new economic epoch. By systematically harnessing AGI’s
+transformative capabilities, it rewrites global economic structures, implicitly realigning international power dynamics
+and propelling humanity toward unprecedented sovereign economic prosperity.
 
 ---
 ---
 ---
 
-> **Mission 🎯**  Identify 🔍 → Learn 📚 → Think 🧠 → Design 🎨 → Strategise ♟️ → Execute ⚡ — compounding real‑world **α** across *all* industries.
+> **Mission 🎯**  Identify 🔍 → Learn 📚 → Think 🧠 → Design 🎨 → Strategise ♟️ → Execute ⚡ —
+> compounding real‑world **α** across *all* industries.
 
 Global markets seep *USD ✧ trillions/yr* in latent opportunity — “alpha” in the broadest sense:  
 <kbd>pricing dislocations • supply‑chain entropy • novel drug targets • policy loopholes • undiscovered materials</kbd>.
 
-**Alpha‑Factory v1** is an antifragile constellation of self‑improving Agentic α‑AGI Agents 👁️✨ orchestrated to **spot live alpha across any industry and transmute it into compounding value**.
+**Alpha‑Factory v1** is an antifragile constellation of self‑improving Agentic α‑AGI Agents 👁️✨ orchestrated to **spot
+live alpha across any industry and transmute it into compounding value**.
 
-**Definition**: An **α‑AGI Business** 👁️✨ is an on‑chain autonomous enterprise (<name>.a.agi.eth) that unleashes a swarm of self‑improving agentic **α‑AGI agents** 👁️✨ (<name>.a.agent.agi.eth) to hunt down inefficiencies across any domain and transmute them into **$AGIALPHA**.
+**Definition**: An **α‑AGI Business** 👁️✨ is an on‑chain autonomous enterprise (<name>.a.agi.eth) that unleashes a swarm
+of self‑improving agentic **α‑AGI agents** 👁️✨ (<name>.a.agent.agi.eth) to hunt down inefficiencies across any domain
+and transmute them into **$AGIALPHA**.
 
-Built atop **OpenAI Agents SDK**, **Google ADK**, **A2A protocol**, and Anthropic’s **Model Context Protocol**, the stack runs cloud‑native *or* air‑gapped, hot‑swapping between frontier LLMs and distilled local models.
+Built atop **OpenAI Agents SDK**, **Google ADK**, **A2A protocol**, and Anthropic’s **Model Context Protocol**, the
+stack runs cloud‑native *or* air‑gapped, hot‑swapping between frontier LLMs and distilled local models.
 
 ### TL;DR Quick Start
 Check out the `v0.1.0-alpha` tag for a reproducible environment.
@@ -415,7 +442,8 @@ Install these extras to unlock additional features:
 
 - `pip install gradio` – enables the MuZero planning dashboard.
 - `pip install openai-agents==0.0.17` – activates the official Agents runtime used for commentary.
-- `pip install google-adk` and set `ALPHA_FACTORY_ENABLE_ADK=true` – starts the Google ADK gateway for cross‑organisation agent exchange.
+- `pip install google-adk` and set `ALPHA_FACTORY_ENABLE_ADK=true` – starts the Google ADK gateway for
+  cross‑organisation agent exchange.
 
 Offline installations can omit these lines from the relevant `requirements.txt`
 files if the Agents SDK or ADK gateway are not needed.
@@ -444,9 +472,11 @@ curl -X POST http://localhost:8000/simulate \
   upgrade warnings.
 - The [v1.0 entry](docs/CHANGELOG.md#v10---2025-07-01) lists the CLI, web UI and security features.
 - A demo specific overview can be found in
-  [alpha_factory_v1/demos/alpha_agi_insight_v1/docs/DESIGN.md](alpha_factory_v1/demos/alpha_agi_insight_v1/docs/DESIGN.md).
+  [alpha_factory_v1/demos/alpha_agi_insight_v1/docs/DESIGN.md](alpha_factory_v1/demos/alpha_agi_insight_v1/docs/DESIGN.m
+d).
 - TLS setup for the agent bus is documented in
-  [alpha_factory_v1/demos/alpha_agi_insight_v1/docs/bus_tls.md](alpha_factory_v1/demos/alpha_agi_insight_v1/docs/bus_tls.md).
+  [alpha_factory_v1/demos/alpha_agi_insight_v1/docs/bus_tls.md](alpha_factory_v1/demos/alpha_agi_insight_v1/docs/bus_tls
+.md).
 
 ---
 ## Contributing
@@ -535,7 +565,8 @@ prebuilt wheels.
 > “We have shifted from *big‑data hoarding* to **big‑experience compounding**.” — *Era of Experience*.
 
 * **Experience‑First Loop** — Sense → *Imagine* (MuZero‑style latent planning) → Act → Adapt.  
-* **AI‑GA Autogenesis** — The factory meta‑evolves new agents and curricula inspired by Clune’s *AI‑Generating Algorithms*.  
+* **AI‑GA Autogenesis** — The factory meta‑evolves new agents and curricula inspired by Clune’s *AI‑Generating
+  Algorithms*.
 * **Graceful Degradation** — GPU‑less? No cloud key? Agents fall back to distilled local models & heuristics.  
 * **Zero‑Trust Core** — SPIFFE identities, signed artefacts, guard‑rails, exhaustive audit logs.  
 * **Polyglot Value** — Everything is normalised to a common *alpha Δ∑USD* lens.
@@ -758,18 +789,24 @@ The official Docker image bundles **PyTorch&nbsp;2.2.x** and **Ray&nbsp;2.10.0**
 notebooks install PyTorch from the [PyTorch wheel index](https://download.pytorch.org/whl)
 and pin Ray to the same version for compatibility.
 
-* [Solving AGI Governance](alpha_factory_v1/demos/solving_agi_governance/README.md) — Monte‑Carlo governance simulation with optional OpenAI‑Agents/ADK integration. [Colab](alpha_factory_v1/demos/solving_agi_governance/colab_solving_agi_governance.ipynb)
-* [Self‑Healing Repo](alpha_factory_v1/demos/self_healing_repo/README.md) — agents automatically craft patches when CI fails.
-* **Note:** The `alpha_agi_business_3_v1` demo is intentionally left out of the published package. Clone this repository to run it from source.
+* [Solving AGI Governance](alpha_factory_v1/demos/solving_agi_governance/README.md) — Monte‑Carlo governance simulation
+  with optional OpenAI‑Agents/ADK integration.
+  [Colab](alpha_factory_v1/demos/solving_agi_governance/colab_solving_agi_governance.ipynb)
+* [Self‑Healing Repo](alpha_factory_v1/demos/self_healing_repo/README.md) — agents automatically craft patches when CI
+  fails.
+* **Note:** The `alpha_agi_business_3_v1` demo is intentionally left out of the published package. Clone this repository
+  to run it from source.
 
 | `USE_GPU` | PyTorch wheel URL |
 |:--------:|-------------------------------------------------|
 | `True`   | <https://download.pytorch.org/whl/cu118> |
 | `False`  | <https://download.pytorch.org/whl/cpu> |
 
-### 4.1 · [α-ASI World-Model Demo 👁️✨](https://github.com/MontrealAI/AGI-Alpha-Agent-v0/tree/main/alpha_factory_v1/demos/alpha_asi_world_model)
+### 4.1 · [α-ASI World-Model Demo 👁️✨](
+https://github.com/MontrealAI/AGI-Alpha-Agent-v0/tree/main/alpha_factory_v1/demos/alpha_asi_world_model)
 
-Paper: [Multi-Agent AGENTIC α-AGI World-Model Demo 🥑](https://github.com/MontrealAI/AGI-Alpha-Agent-v0/blob/main/alpha_factory_v1/demos/alpha_asi_world_model/Alpha_ASI_World_Model.pdf)
+Paper: [Multi-Agent AGENTIC α-AGI World-Model Demo 🥑](https://github.com/MontrealAI/AGI-Alpha-
+Agent-v0/blob/main/alpha_factory_v1/demos/alpha_asi_world_model/Alpha_ASI_World_Model.pdf)
 
 ```
 ┌──────────────────────────────── Alpha-Factory Bus (A2A) ───────────────────────────────┐
@@ -793,7 +830,8 @@ Paper: [Multi-Agent AGENTIC α-AGI World-Model Demo 🥑](https://github.com/Mon
 └────────────────────────────────────────────────────────────────────────────────────────┘
 ```
 
-### 4.2 · [🏛️ Large‑Scale α‑AGI Business 3 Demo 👁️✨ — **Omega‑Grade Edition**](https://github.com/MontrealAI/AGI-Alpha-Agent-v0/tree/main/alpha_factory_v1/demos/alpha_agi_business_3_v1)
+### 4.2 · [🏛️ Large‑Scale α‑AGI Business 3 Demo 👁️✨ — **Omega‑Grade Edition**](
+https://github.com/MontrealAI/AGI-Alpha-Agent-v0/tree/main/alpha_factory_v1/demos/alpha_agi_business_3_v1)
 
 > **Alpha‑Factory v1 → Ω‑Lattice v0**  
 > _Transmuting cosmological free‑energy gradients into compounding cash‑flows._
@@ -893,7 +931,8 @@ python alpha_factory_v1/demos/alpha_agi_business_3_v1/alpha_agi_business_3_v1.py
 # The entrypoint automatically verifies dependencies via `check_env.py`.
 ```
 
-Adjust `alpha_factory_v1/demos/alpha_asi_world_model/config.yaml` to tune the world-model loop. Key options include `env_batch` (parallel environments), `hidden` (latent state size) and `mcts_simulations` (MCTS rollouts per action).
+Adjust `alpha_factory_v1/demos/alpha_asi_world_model/config.yaml` to tune the world-model loop. Key options include
+`env_batch` (parallel environments), `hidden` (latent state size) and `mcts_simulations` (MCTS rollouts per action).
 
 
 ### Insight Browser Demo
@@ -1011,8 +1050,10 @@ The values above mirror `.env.sample`. When running the stack with Docker
 Compose, adjust the environment section of
 `infrastructure/docker-compose.yml` to override any variable—such as the gRPC
 bus port or ledger path. Sandbox limits are described in [docs/sandbox.md](docs/sandbox.md).
-When the `firejail` binary is present, CodeGen snippets run inside `firejail --net=none --private` for stronger isolation.
-For a production-ready ADK setup see [PRODUCTION_GUIDE.md](alpha_factory_v1/demos/alpha_agi_business_v1/PRODUCTION_GUIDE.md).
+When the `firejail` binary is present, CodeGen snippets run inside `firejail --net=none --private` for stronger
+isolation.
+For a production-ready ADK setup see
+[PRODUCTION_GUIDE.md](alpha_factory_v1/demos/alpha_agi_business_v1/PRODUCTION_GUIDE.md).
 
 ### Finance Demo Quick‑Start
 
@@ -1270,7 +1311,8 @@ terraform apply
 | **IoT Edge** | `python edge_runner.py --agents manufacturing,energy` | Jetson Nano |
 <a name="71-deploying-securely"></a>
 ### 🚀 Deploying securely
-See [docs/deployment_security.md](docs/deployment_security.md) for TLS setup, API tokens and Vault usage. Mount secrets via Docker or Kubernetes and never commit them.
+See [docs/deployment_security.md](docs/deployment_security.md) for TLS setup, API tokens and Vault usage. Mount secrets
+via Docker or Kubernetes and never commit them.
 
 
 ---
@@ -1381,9 +1423,14 @@ super = my_pkg.super_agent:MySuperAgent
 <a name="14-credits"></a>
 ## 14 · Credits 🌟
 
-[Vincent Boucher](https://www.linkedin.com/in/montrealai/)—pioneer in AI and President of [MONTREAL.AI](https://www.montreal.ai/) since 2003—dominated the [OpenAI Gym](https://web.archive.org/web/20170929214241/https://gym.openai.com/read-only.html) with **AI Agents** in 2016 and unveiled the seminal [**“Multi‑Agent AI DAO”**](https://www.quebecartificialintelligence.com/priorart) in 2017.
+[Vincent Boucher](https://www.linkedin.com/in/montrealai/)—pioneer in AI and President of
+[MONTREAL.AI](https://www.montreal.ai/) since 2003—dominated the
+[OpenAI Gym](https://web.archive.org/web/20170929214241/https://gym.openai.com/read-only.html) with **AI Agents**
+in 2016 and unveiled the seminal [**“Multi‑Agent AI DAO”**](https://www.quebecartificialintelligence.com/priorart)
+in 2017.
 
-Our **AGI ALPHA AGENT**, fuelled by the strictly‑utility **$AGIALPHA** token, now taps that foundation to unleash the ultimate α‑signal engine.
+Our **AGI ALPHA AGENT**, fuelled by the strictly‑utility **$AGIALPHA** token, now taps that foundation to unleash the
+ultimate α‑signal engine.
 
 <a name="15-license"></a>
 ## 15 · License

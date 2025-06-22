@@ -6,7 +6,9 @@
 All notable changes to this project are documented in this file.
 
 ## Breaking Changes Policy
-Incompatible updates are announced in advance whenever possible and remain deprecated for at least one minor release. Each release includes a dedicated `### Breaking Changes` section describing removed features or behavioural differences. Consult that section when upgrading.
+Incompatible updates are announced in advance whenever possible and remain deprecated for at least one minor release.
+Each release includes a dedicated `### Breaking Changes` section describing removed features or behavioural differences.
+Consult that section when upgrading.
 
 ## Breaking Changes
 Any incompatible API updates will be clearly listed under this heading for each release.
@@ -100,7 +102,8 @@ Downstream users should consult this section when upgrading.
 ## [v1.0] - 2025-07-01
 - CLI commands `simulate`, `show-results`, `agents-status` and `replay` for running and inspecting forecasts.
 - Web dashboard served when `RUN_MODE=web` or via `streamlit run src/interface/web_app.py`.
-- Security features include API token authentication, optional TLS for the gRPC bus and REST API, ED25519-signed agent wheels and HashiCorp Vault integration for secrets.
+- Security features include API token authentication, optional TLS for the gRPC bus and REST API, ED25519-signed agent
+  wheels and HashiCorp Vault integration for secrets.
 
 ## [1.0.2] - 2025-06-30
 - Documented CLI and FastAPI usage with example commands.

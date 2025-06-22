@@ -2,7 +2,8 @@
 
 # Quick Start Guide
 
-This tutorial shows how to install the prerequisites, run the Colab notebook and launch the demo either offline or with API credentials.
+This tutorial shows how to install the prerequisites, run the Colab notebook and launch the demo either offline or with
+API credentials.
 
 ## Installing prerequisites
 
@@ -43,7 +44,9 @@ See [docs/OFFLINE_INSTALL.md](OFFLINE_INSTALL.md) for detailed steps.
 
 ## Running the Colab notebook
 
-Open [`colab_alpha_agi_insight_v1.ipynb`](../alpha_factory_v1/demos/alpha_agi_insight_v1/colab_alpha_agi_insight_v1.ipynb) in Google Colab and execute the following steps:
+Open
+[`colab_alpha_agi_insight_v1.ipynb`](../alpha_factory_v1/demos/alpha_agi_insight_v1/colab_alpha_agi_insight_v1.ipynb) in
+Google Colab and execute the following steps:
 
 1. Run the first cell to clone the repository and install dependencies.
 2. Optionally set `OPENAI_API_KEY` in the second cell.
@@ -66,7 +69,8 @@ Alternatively build and run the Docker image in one step:
 ./run_quickstart.sh
 ```
 
-Copy `.env.sample` to `.env` and add your API keys to enable cloud features. Without keys, the program falls back to the local Meta‑Agentic Tree Search:
+Copy `.env.sample` to `.env` and add your API keys to enable cloud features. Without keys, the program falls back to the
+local Meta‑Agentic Tree Search:
 
 ```bash
 alpha-agi-insight-v1 --episodes 5  # with or without OPENAI_API_KEY
