@@ -7,6 +7,7 @@ from __future__ import annotations
 import json
 import sys
 from pathlib import Path
+import subprocess
 
 
 def main() -> int:
@@ -16,6 +17,16 @@ def main() -> int:
     disclaimer_normalized = "".join(disclaimer_text.split())
 
     missing: list[Path] = []
+
+    def is_git_ignored(p: Path) -> bool:
+        try:
+            result = subprocess.run(
+                ["git", "check-ignore", "-q", str(p.relative_to(repo_root))],
+                cwd=repo_root,
+            )
+            return result.returncode == 0
+        except Exception:
+            return False
 
     def first_markdown_cell(nb_path: Path) -> str:
         try:
@@ -33,7 +44,7 @@ def main() -> int:
         return ""
 
     for path in repo_root.rglob("*"):
-        if path == snippet_path or ".git" in path.parts or not path.is_file():
+        if path == snippet_path or ".git" in path.parts or not path.is_file() or is_git_ignored(path):
             continue
         if path.suffix not in {".md", ".ipynb"}:
             continue
