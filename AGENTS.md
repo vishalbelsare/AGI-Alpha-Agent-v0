@@ -31,6 +31,8 @@ Please report security vulnerabilities as described in our [Security Policy](SEC
    `pre-commit` isn't found, run `pip install pre-commit` and re-run the script.
 - Install `pytest` and `prometheus_client` using
   `python check_env.py --auto-install` or `pip install pytest prometheus_client`.
+- Setting `ALPHA_FACTORY_FULL=1` forces `check_env.py` to install heavy extras
+  even without `--auto-install`.
 
 Confirm installed versions:
 ```bash
