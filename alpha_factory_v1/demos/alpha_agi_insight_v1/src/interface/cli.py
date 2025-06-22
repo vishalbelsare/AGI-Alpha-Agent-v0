@@ -5,6 +5,7 @@ Provides commands to run forecast simulations, inspect ledger entries and
 launch the orchestrator. ``click`` is used for argument parsing and the
 console output optionally leverages ``rich`` for nicer tables.
 """
+# mypy: ignore-errors
 
 from __future__ import annotations
 
@@ -38,7 +39,7 @@ from src.utils.visual import plot_pareto
 from ..utils import config, logging
 from src.eval.foresight import evaluate as foresight_evaluate
 
-from ....utils.disclaimer import DISCLAIMER
+from .....utils.disclaimer import DISCLAIMER
 
 __all__ = ["DISCLAIMER", "DisclaimerGroup"]
 

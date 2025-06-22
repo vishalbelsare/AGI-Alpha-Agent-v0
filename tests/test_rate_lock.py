@@ -5,25 +5,29 @@ from httpx import ASGITransport, AsyncClient
 from typing import Any
 
 import sys
-import pytest
-
-pytest.importorskip("openai_agents")
 import types
+import pytest
+from alpha_factory_v1.demos.aiga_meta_evolution import agent_aiga_entrypoint as mod
+
+oa = pytest.importorskip("openai_agents")
+if not hasattr(oa, "OpenAIAgent"):
+    pytest.skip("openai_agents missing OpenAIAgent", allow_module_level=True)
 
 a2a_mod = sys.modules.setdefault("a2a", types.ModuleType("a2a"))
-a2a_mod.A2ASocket = lambda *a, **k: None
-gr_mod = sys.modules.setdefault("gradio", types.ModuleType("gradio"))
-gr_mod.Blocks = lambda *a, **k: types.SimpleNamespace(__enter__=lambda s: s, __exit__=lambda *e: None)
-
-from alpha_factory_v1.demos.aiga_meta_evolution import agent_aiga_entrypoint as mod
+a2a_mod.A2ASocket = lambda *a, **k: None  # type: ignore[attr-defined]
+gr_mod: Any = sys.modules.setdefault("gradio", types.ModuleType("gradio"))
+gr_mod.Blocks = lambda *a, **k: types.SimpleNamespace(
+    __enter__=lambda s: s,
+    __exit__=lambda *e: None,
+)
 
 
 async def _make_client() -> tuple[AsyncClient, Any]:
     app = FastAPI()
     app.middleware("http")(mod._count_requests)
 
-    @app.get("/")
-    async def root():
+    @app.get("/")  # type: ignore[misc]
+    async def root() -> dict[str, bool]:
         return {"ok": True}
 
     transport = ASGITransport(app=app)
@@ -37,7 +41,7 @@ async def _run_concurrent() -> None:
         await asyncio.gather(*[client.get("/") for _ in range(5)])
 
 
-def test_concurrent_requests(monkeypatch) -> None:
+def test_concurrent_requests(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setenv("RATE_LIMIT_PER_MIN", "1000")
     mod._REQUEST_LOG.clear()
     asyncio.run(_run_concurrent())

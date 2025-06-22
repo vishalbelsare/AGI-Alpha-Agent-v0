@@ -5,10 +5,11 @@ import importlib
 import sys
 from pathlib import Path
 
-import plotly.graph_objects as go
-
+import pytest
 from src.archive import Archive
 from src.interface import lineage_dashboard as ld
+
+go = pytest.importorskip("plotly.graph_objects")
 
 
 def test_load_df(tmp_path: Path) -> None:
@@ -35,7 +36,7 @@ def test_build_tree(tmp_path: Path) -> None:
     assert "child.patch" in data.hovertemplate
 
 
-def test_main_no_streamlit(monkeypatch) -> None:
+def test_main_no_streamlit(monkeypatch: pytest.MonkeyPatch) -> None:
     mod_name = "src.interface.lineage_dashboard"
     monkeypatch.setitem(sys.modules, "streamlit", None)
     monkeypatch.setitem(sys.modules, "streamlit_autorefresh", None)

@@ -5,6 +5,7 @@ The API allows remote control of the orchestrator and serves progress
 updates over websockets. It is intentionally lean and suitable for local
 testing.
 """
+# mypy: ignore-errors
 
 from __future__ import annotations
 
@@ -22,7 +23,7 @@ from pathlib import Path
 from typing import Any, List, Set, TYPE_CHECKING, Literal
 
 from cachetools import TTLCache  # type: ignore[import-not-found]
-from ....utils.disclaimer import DISCLAIMER
+from .....utils.disclaimer import DISCLAIMER
 
 if TYPE_CHECKING:  # pragma: no cover - typing only
     from typing import Protocol

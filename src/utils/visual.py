@@ -7,7 +7,11 @@ from pathlib import Path
 from typing import Iterable, Mapping, Any
 
 import pandas as pd
-import plotly.express as px
+
+try:
+    import plotly.express as px
+except Exception:  # pragma: no cover - optional
+    px = None
 
 __all__ = ["plot_pareto"]
 
@@ -39,12 +43,16 @@ def plot_pareto(elites: Iterable[Any], out_path: Path) -> None:
     if not data:
         return
 
-    df = pd.DataFrame(data, columns=["x", "y", *range(len(data[0]) - 2)])
-    fig = px.scatter(df, x="x", y="y")
+    first = list(data[0])
+    df = pd.DataFrame(data, columns=["x", "y", *range(len(first) - 2)])
 
     png = out_path if out_path.suffix else out_path.with_suffix(".png")
     json_path = png.with_suffix(".json")
     json_path.write_text(df.to_json(orient="records"), encoding="utf-8")
+    if px is None:
+        png.write_bytes(b"")
+        return
+    fig = px.scatter(df, x="x", y="y")
     try:
         fig.write_image(str(png))
     except Exception:

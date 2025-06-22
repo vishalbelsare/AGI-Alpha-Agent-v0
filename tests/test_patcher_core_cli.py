@@ -39,10 +39,10 @@ def test_patcher_core_cli(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> No
     # patch to fix the bug
     patch_file = tmp_path / "fix.diff"
     patch_file.write_text(
-        """--- a/calc.py
+        r"""--- a/calc.py
 +++ b/calc.py
 @@ -1,2 +1,2 @@
- def add(a, b):
+def add(a, b):
 -    return a - b
 +    return a + b
 \ No newline at end of file
@@ -50,10 +50,10 @@ def test_patcher_core_cli(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> No
         encoding="utf-8",
     )
 
-    import openai_agents
+    openai_agents = pytest.importorskip("openai_agents")
 
     class StubAgent:
-        def __init__(self, *a, **k):
+        def __init__(self, *a: object, **k: object) -> None:
             self.patch_file = os.environ.get("PATCH_FILE")
 
         def __call__(self, _prompt: str) -> str:
