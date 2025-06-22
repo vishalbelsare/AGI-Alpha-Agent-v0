@@ -39,6 +39,7 @@ except ModuleNotFoundError:  # SDK not installed
     _LOG.warning("OpenAI Agents SDK not found - running in degraded mode. " "Install with:  pip install openai-agents")
     # Create a *minimal* stub so `import openai_agents` will not crash.
     shim = types.ModuleType("openai_agents")
+    shim.__spec__ = importlib.machinery.ModuleSpec("openai_agents", loader=None)
 
     class _MissingSDK:  # pylint: disable=too-few-public-methods
         """Stub that raises helpful errors when the real SDK is absent."""
@@ -71,6 +72,7 @@ except ModuleNotFoundError:  # SDK not installed
 else:  # SDK is present → register alias & expose full public API verbatim
     shim = types.ModuleType("openai_agents")
     shim.__dict__.update(_agents_pkg.__dict__)
+    shim.__spec__ = _agents_pkg.__spec__
     sys.modules["openai_agents"] = shim
     _LOG.info("OpenAI Agents SDK detected — legacy imports patched successfully.")
 

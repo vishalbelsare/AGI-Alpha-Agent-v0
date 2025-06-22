@@ -1,9 +1,9 @@
 # SPDX-License-Identifier: Apache-2.0
 import unittest
-
-pytest = __import__("pytest")
-pytest.importorskip("fastapi")
+import pytest
 from fastapi.testclient import TestClient
+
+pytest.importorskip("fastapi")
 
 from alpha_factory_v1.backend import orchestrator
 

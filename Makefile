@@ -27,14 +27,13 @@ loadtest:
 	with open('tools/loadtest/summary.json') as f:
 	    data=json.load(f)
 	print(f"p95 latency: {data['metrics']['http_req_duration']['p(95)']} ms")
-PY2
+	PY2
 
 proto:
 	./scripts/gen_proto.py
 
 proto-verify:
-	$(MAKE) proto
-	git --no-pager diff --exit-code src/utils/a2a_pb2.py alpha_factory_v1/proto/go/a2a.pb.go
+	git --no-pager diff --exit-code src/utils/a2a_pb2.py tools/go_a2a_client/a2a.pb.go
 
 benchmark:
 	python benchmarks/docker_runner.py > bench_results.json
