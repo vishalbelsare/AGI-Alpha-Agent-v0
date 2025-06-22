@@ -4,6 +4,7 @@ import socket
 import subprocess
 import sys
 import time
+from pathlib import Path
 
 import pytest
 
@@ -15,6 +16,9 @@ httpx = pytest.importorskip("httpx")
 os.environ.setdefault("API_TOKEN", "test-token")
 os.environ.setdefault("API_RATE_LIMIT", "1000")
 
+ROOT = Path(__file__).resolve().parents[1]
+STUB_DIR = ROOT / "tests" / "resources"
+
 
 def _free_port() -> int:
     with socket.socket() as s:
@@ -25,6 +29,7 @@ def _free_port() -> int:
 def test_simulate_curve_subprocess() -> None:
     port = _free_port()
     env = os.environ.copy()
+    env["PYTHONPATH"] = f"{STUB_DIR}:{ROOT}:{env.get('PYTHONPATH', '')}"
     cmd = [
         sys.executable,
         "-m",
@@ -97,7 +102,9 @@ def _start_server(port: int, env: dict[str, str] | None = None) -> subprocess.Po
         "--port",
         str(port),
     ]
-    return subprocess.Popen(cmd, env=env or os.environ.copy())
+    env = env or os.environ.copy()
+    env["PYTHONPATH"] = f"{STUB_DIR}:{ROOT}:{env.get('PYTHONPATH', '')}"
+    return subprocess.Popen(cmd, env=env)
 
 
 def _start_demo_server(port: int, env: dict[str, str] | None = None) -> subprocess.Popen[bytes]:
@@ -110,7 +117,9 @@ def _start_demo_server(port: int, env: dict[str, str] | None = None) -> subproce
         "--port",
         str(port),
     ]
-    return subprocess.Popen(cmd, env=env or os.environ.copy())
+    env = env or os.environ.copy()
+    env["PYTHONPATH"] = f"{STUB_DIR}:{ROOT}:{env.get('PYTHONPATH', '')}"
+    return subprocess.Popen(cmd, env=env)
 
 
 def _wait_running(url: str, headers: dict[str, str]) -> None:

@@ -11,6 +11,9 @@ from unittest import mock
 import pytest
 from pathlib import Path
 
+ROOT = Path(__file__).resolve().parents[1]
+STUB_DIR = ROOT / "tests" / "resources"
+
 MODULE = "alpha_factory_v1.demos.alpha_agi_business_3_v1.alpha_agi_business_3_v1"
 
 
@@ -25,7 +28,7 @@ def test_adk_client_import(monkeypatch: pytest.MonkeyPatch) -> None:
     if MODULE in sys.modules:
         del sys.modules[MODULE]
     mod = importlib.import_module(MODULE)
-    assert mod.ADKClient is Client
+    assert mod.ADKClient is Client  # type: ignore[attr-defined]
 
 
 def test_a2a_port_zero(monkeypatch: pytest.MonkeyPatch) -> None:
@@ -145,7 +148,7 @@ def test_main_subprocess(tmp_path: Path) -> None:
     stub.write_text("def main(args=None):\n    pass\n")
     env = os.environ.copy()
     env["OPENAI_API_KEY"] = "dummy"
-    env["PYTHONPATH"] = f"{tmp_path}:{env.get('PYTHONPATH', '')}"
+    env["PYTHONPATH"] = f"{tmp_path}:{STUB_DIR}:{ROOT}:{env.get('PYTHONPATH', '')}"
     result = subprocess.run(
         [
             sys.executable,
@@ -168,7 +171,7 @@ def test_cli_entrypoint(tmp_path: Path) -> None:
     stub.write_text("def main(args=None):\n    pass\n")
     env = os.environ.copy()
     env["OPENAI_API_KEY"] = "dummy"
-    env["PYTHONPATH"] = f"{tmp_path}:{env.get('PYTHONPATH', '')}"
+    env["PYTHONPATH"] = f"{tmp_path}:{STUB_DIR}:{ROOT}:{env.get('PYTHONPATH', '')}"
     result = subprocess.run(
         ["alpha-agi-business-3-v1", "--cycles", "1"],
         capture_output=True,
