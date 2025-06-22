@@ -294,6 +294,7 @@ def main(argv: Optional[List[str]] = None) -> int:
         wheel_path = None
     wheelhouse = str(wheel_path) if wheel_path else None
     auto = args.auto_install or os.getenv("AUTO_INSTALL_MISSING") == "1"
+    heavy_auto = FULL_FEATURE
     skip_net_check = args.skip_net_check
     pip_timeout = args.timeout
     allow_basic = args.allow_basic_fallback
@@ -411,6 +412,40 @@ def main(argv: Optional[List[str]] = None) -> int:
             if any(kw in stderr.lower() for kw in ["connection", "temporary failure", "network", "resolve"]):
                 print("Network failure detected.\n" + NO_NETWORK_HINT)
             return exc.returncode
+
+    if heavy_auto:
+        heavy_missing: list[str] = []
+        for pkg in HEAVY_EXTRAS:
+            import_name = IMPORT_NAMES.get(pkg, pkg)
+            try:
+                spec = importlib.util.find_spec(import_name)
+            except (ValueError, ModuleNotFoundError):
+                spec = None
+            if spec is None:
+                heavy_missing.append(pkg)
+
+        if heavy_missing:
+            if not wheelhouse and not skip_net_check:
+                if not has_network():
+                    print(NO_NETWORK_HINT)
+                    return 1
+            cmd = [sys.executable, "-m", "pip", "install", "--quiet"]
+            if wheelhouse:
+                cmd += ["--no-index", "--find-links", wheelhouse]
+            cmd += [PIP_NAMES.get(pkg, pkg) for pkg in heavy_missing]
+            print(
+                f"Ensuring heavy extras (timeout {pip_timeout}s):",
+                " ".join(cmd),
+                flush=True,
+            )
+            try:
+                subprocess.run(cmd, check=True, timeout=pip_timeout)
+            except subprocess.SubprocessError as exc:
+                print(
+                    f"Failed to install heavy extras{wheel_msg}",
+                    getattr(exc, "returncode", ""),
+                )
+                return 1
 
     missing_required: list[str] = []
     missing_optional: list[str] = []
