@@ -14,17 +14,9 @@ from typing import Dict
 
 from alpha_factory_v1.utils.env import _env_int
 
-from .telemetry import (
-    init_metrics,
-    MET_LAT,
-    MET_ERR,
-    MET_UP,
-    tracer,
-    generate_latest,
-    CONTENT_TYPE_LATEST,
-)  # noqa: F401
-from .agent_runner import AgentRunner, EventBus, hb_watch, regression_guard
-from .api_server import build_rest as _build_rest, serve_grpc as _serve_grpc
+from .telemetry import init_metrics, MET_LAT, MET_ERR, MET_UP, tracer  # noqa: F401
+from .agent_manager import AgentManager
+from .api_server import start_servers
 
 with contextlib.suppress(ModuleNotFoundError):
     import uvicorn
@@ -79,49 +71,26 @@ async def _main() -> None:
         )
         sys.exit(1)
 
-    from backend.agents import list_agents, start_background_tasks
-
-    start_background_tasks()
-
-    avail = list_agents()
-    names = [n for n in avail if not ENABLED or n in ENABLED]
-    if not names:
-        log.error("No agents selected – ENABLED=%s   ABORT", ENABLED or "ALL")
-        sys.exit(1)
-
-    bus = EventBus(KAFKA_BROKER, DEV_MODE)
-    runners: Dict[str, AgentRunner] = {n: AgentRunner(n, CYCLE_DEFAULT, MAX_CYCLE_SEC, bus.publish) for n in names}
-    log.info("Bootstrapped %d agent(s): %s", len(runners), ", ".join(runners))
+    mgr = AgentManager(ENABLED, DEV_MODE, KAFKA_BROKER, CYCLE_DEFAULT, MAX_CYCLE_SEC)
+    log.info("Bootstrapped %d agent(s): %s", len(mgr.runners), ", ".join(mgr.runners))
 
     init_metrics(METRICS_PORT)
 
-    api = _build_rest(runners, MODEL_MAX_BYTES, mem)
-    if api and "uvicorn" in globals():
-        cfg = uvicorn.Config(api, host="0.0.0.0", port=PORT, log_level=LOGLEVEL.lower())
-        asyncio.create_task(uvicorn.Server(cfg).serve())
-        log.info("REST UI →  http://localhost:%d/docs", PORT)
-
-    grpc_server = await _serve_grpc(runners, A2A_PORT, SSL_DISABLE)
-
-    hb_task = asyncio.create_task(hb_watch(runners))
-    reg_task = asyncio.create_task(regression_guard(runners))
+    rest_task, grpc_server = await start_servers(
+        mgr.runners, MODEL_MAX_BYTES, mem, PORT, A2A_PORT, LOGLEVEL, SSL_DISABLE
+    )
 
     stop_ev = asyncio.Event()
     for sig in (signal.SIGINT, signal.SIGTERM):
         with contextlib.suppress(RuntimeError):
             asyncio.get_running_loop().add_signal_handler(sig, stop_ev.set)
 
-    while not stop_ev.is_set():
-        await asyncio.gather(*(r.maybe_step() for r in runners.values()))
-        await asyncio.sleep(0.25)
+    await mgr.run(stop_ev)
 
-    hb_task.cancel()
-    reg_task.cancel()
-    with contextlib.suppress(asyncio.CancelledError):
-        await hb_task
-        await reg_task
-
-    await asyncio.gather(*(r.task for r in runners.values() if r.task), return_exceptions=True)
+    if rest_task:
+        rest_task.cancel()
+        with contextlib.suppress(asyncio.CancelledError):
+            await rest_task
     if grpc_server:
         grpc_server.stop(0)
     log.info("Orchestrator shutdown complete")
