@@ -14,6 +14,7 @@ nav:
   - Deployment Security: deployment_security.md
   - Offline Install: OFFLINE_INSTALL.md
   - Offline Setup: OFFLINE_SETUP.md
+  - Windows Setup: WINDOWS_SETUP.md
   - Sandbox: sandbox.md
   - Policy Runbook: POLICY_RUNBOOK.md
   - dgm_ops: dgm_ops.md
