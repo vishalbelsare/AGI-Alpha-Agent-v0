@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: Apache-2.0
-from alpha_factory_v1.demos.alpha_agi_insight_v1.src.simulation import mats
+from alpha_factory_v1.core.simulation import mats
 from alpha_factory_v1.core.evaluators.novelty import NoveltyIndex
 
 

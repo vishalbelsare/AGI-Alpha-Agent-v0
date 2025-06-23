@@ -24,7 +24,7 @@ except Exception:  # pragma: no cover - optional
 
 from alpha_factory_v1.backend import agents
 from alpha_factory_v1.backend.agents.base import AgentBase
-from alpha_factory_v1.demos.alpha_agi_insight_v1.src.agents.base_agent import BaseAgent
+from alpha_factory_v1.core.agents.base_agent import BaseAgent
 
 
 class DummyHB(AgentBase):
@@ -162,8 +162,8 @@ class FreezeAgent(BaseAgent):
 
 
 def test_monitor_restart_and_ledger_log(monkeypatch) -> None:
-    from alpha_factory_v1.demos.alpha_agi_insight_v1.src import orchestrator
-    from alpha_factory_v1.demos.alpha_agi_insight_v1.src.utils import config
+    from alpha_factory_v1.core import orchestrator
+    from alpha_factory_v1.core.utils import config
 
     events: list[str] = []
 
@@ -326,9 +326,9 @@ def test_base_agent_no_openai_sdk(monkeypatch) -> None:
         return orig_import(name, globals, locals, fromlist, level)
 
     monkeypatch.setattr(builtins, "__import__", fake_import)
-    if "alpha_factory_v1.demos.alpha_agi_insight_v1.src.agents.base_agent" in sys.modules:
-        del sys.modules["alpha_factory_v1.demos.alpha_agi_insight_v1.src.agents.base_agent"]
-    base_agent = importlib.import_module("alpha_factory_v1.demos.alpha_agi_insight_v1.src.agents.base_agent")
+    if "alpha_factory_v1.core.agents.base_agent" in sys.modules:
+        del sys.modules["alpha_factory_v1.core.agents.base_agent"]
+    base_agent = importlib.import_module("alpha_factory_v1.core.agents.base_agent")
 
     class DummyLedger:
         def log(self, _env) -> None:  # type: ignore[override]

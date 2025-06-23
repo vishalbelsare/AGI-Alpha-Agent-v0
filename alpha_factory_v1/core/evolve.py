@@ -15,9 +15,7 @@ from alpha_factory_v1.core.agents.reviewer_agent import ReviewerAgent
 
 from alpha_factory_v1.core.simulation.mats_ops import backtrack_boost
 from alpha_factory_v1.core.monitoring import metrics
-from alpha_factory_v1.demos.alpha_agi_insight_v1.src.simulation.loop import (
-    BanditEarlyStopper,
-)
+from alpha_factory_v1.core.simulation.loop import BanditEarlyStopper
 
 
 @dataclass(slots=True)

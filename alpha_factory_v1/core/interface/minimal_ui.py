@@ -16,8 +16,8 @@ st: Any | None = cast(Any, _st)
 
 __all__ = ["main"]
 
-forecast = importlib.import_module("alpha_factory_v1.demos.alpha_agi_insight_v1.src.simulation.forecast")
-sector = importlib.import_module("alpha_factory_v1.demos.alpha_agi_insight_v1.src.simulation.sector")
+forecast = importlib.import_module("alpha_factory_v1.core.simulation.forecast")
+sector = importlib.import_module("alpha_factory_v1.core.simulation.sector")
 
 if TYPE_CHECKING:  # pragma: no cover - typing only
     import pandas as pd

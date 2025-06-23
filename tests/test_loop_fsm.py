@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: Apache-2.0
-from alpha_factory_v1.demos.alpha_agi_insight_v1.src.simulation import loop
+from alpha_factory_v1.core.simulation import loop
 
 
 def test_fsm_cycles_three() -> None:

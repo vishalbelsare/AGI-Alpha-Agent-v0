@@ -26,7 +26,7 @@ from alpha_factory_v1.core.archive import Archive, ArchiveDB
 
 # alerts is optional so demos can run without the Insight utilities
 try:
-    from alpha_factory_v1.demos.alpha_agi_insight_v1.src.utils import alerts  # type: ignore
+    from alpha_factory_v1.core.utils import alerts  # type: ignore
 except ModuleNotFoundError:  # pragma: no cover - optional
 
     class alerts:  # type: ignore
@@ -40,9 +40,7 @@ except ModuleNotFoundError:  # pragma: no cover - optional
 from alpha_factory_v1.core.utils.config import init_config
 from alpha_factory_v1.core.monitoring import metrics
 from alpha_factory_v1.core.capsules import CapsuleFacts, ImpactScorer, load_capsule_facts
-from alpha_factory_v1.demos.alpha_agi_insight_v1.src.interface.cli import (
-    DISCLAIMER,
-)
+from alpha_factory_v1.utils.disclaimer import DISCLAIMER
 
 __all__ = [
     "app",
@@ -82,9 +80,9 @@ else:
     MatsModule = Any
     ForecastTrajectoryPoint = Any  # type: ignore[assignment]
 
-forecast = importlib.import_module("alpha_factory_v1.demos.alpha_agi_insight_v1.src.simulation.forecast")
-sector = importlib.import_module("alpha_factory_v1.demos.alpha_agi_insight_v1.src.simulation.sector")
-mats = importlib.import_module("alpha_factory_v1.demos.alpha_agi_insight_v1.src.simulation.mats")
+forecast = importlib.import_module("alpha_factory_v1.core.simulation.forecast")
+sector = importlib.import_module("alpha_factory_v1.core.simulation.sector")
+mats = importlib.import_module("alpha_factory_v1.core.simulation.mats")
 
 try:
     from fastapi import (
@@ -124,9 +122,7 @@ try:
         Counter,
         generate_latest,
     )
-    from alpha_factory_v1.demos.alpha_agi_insight_v1.src.utils.tracing import (
-        api_request_seconds,
-    )
+    from alpha_factory_v1.core.utils.tracing import api_request_seconds
 except ModuleNotFoundError:  # pragma: no cover - optional
     prometheus_client = None  # type: ignore
 
@@ -260,7 +256,7 @@ if app is not None:
         if API_TOKEN == "REPLACE_ME_TOKEN":
             _log.error("API_TOKEN is set to the default 'REPLACE_ME_TOKEN'. " "Edit .env to use a strong secret.")
             raise RuntimeError("API_TOKEN placeholder detected")
-        orch_mod = importlib.import_module("alpha_factory_v1.demos.alpha_agi_insight_v1.src.orchestrator")
+        orch_mod = importlib.import_module("alpha_factory_v1.core.orchestrator")
         app_f.state.orchestrator = orch_mod.Orchestrator()
         app_f.state.orch_task = asyncio.create_task(app_f.state.orchestrator.run_forever())
         _load_results()

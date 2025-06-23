@@ -42,9 +42,9 @@ else:
     MatsModule = Any
     ForecastTrajectoryPoint = Any  # type: ignore[assignment]
 
-forecast = importlib.import_module("alpha_factory_v1.demos.alpha_agi_insight_v1.src.simulation.forecast")
-sector = importlib.import_module("alpha_factory_v1.demos.alpha_agi_insight_v1.src.simulation.sector")
-mats = importlib.import_module("alpha_factory_v1.demos.alpha_agi_insight_v1.src.simulation.mats")
+forecast = importlib.import_module("alpha_factory_v1.core.simulation.forecast")
+sector = importlib.import_module("alpha_factory_v1.core.simulation.sector")
+mats = importlib.import_module("alpha_factory_v1.core.simulation.mats")
 
 _IMPORT_ERROR: Exception | None
 try:
@@ -83,7 +83,7 @@ if app is not None:
 
     @app.on_event("startup")
     async def _start() -> None:
-        orch_mod = importlib.import_module("alpha_factory_v1.demos.alpha_agi_insight_v1.src.orchestrator")
+        orch_mod = importlib.import_module("alpha_factory_v1.core.orchestrator")
         app_f.state.orchestrator = orch_mod.Orchestrator()
         app_f.state.task = asyncio.create_task(app_f.state.orchestrator.run_forever())
         token = os.getenv("API_TOKEN")

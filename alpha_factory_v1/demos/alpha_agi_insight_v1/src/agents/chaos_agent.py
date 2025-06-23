@@ -6,7 +6,7 @@ from __future__ import annotations
 from .base_agent import BaseAgent
 from ..utils import messaging
 from ..utils.logging import Ledger
-from ..utils.tracing import span
+from alpha_factory_v1.core.utils.tracing import span
 
 
 class ChaosAgent(BaseAgent):

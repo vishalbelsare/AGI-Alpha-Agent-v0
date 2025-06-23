@@ -3,7 +3,7 @@ import json
 from pathlib import Path
 
 import pytest
-from alpha_factory_v1.demos.alpha_agi_insight_v1.src import self_improver
+from alpha_factory_v1.core.self_evolution import self_improver
 from typing import Any
 
 pytest.importorskip("prometheus_client")

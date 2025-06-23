@@ -16,6 +16,7 @@ except Exception:  # pragma: no cover - optional dependency
 
 
 from .file_ops import view, str_replace
+from . import alerts, tracing
 from .snark import (
     generate_proof,
     publish_proof,
@@ -35,4 +36,6 @@ __all__ = [
     "verify_proof",
     "aggregate_proof",
     "verify_aggregate_proof",
+    "alerts",
+    "tracing",
 ]

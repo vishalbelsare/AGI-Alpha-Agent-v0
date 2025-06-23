@@ -6,8 +6,8 @@ import tempfile
 import unittest
 from unittest import mock
 
-from alpha_factory_v1.demos.alpha_agi_insight_v1.src import orchestrator
-from alpha_factory_v1.demos.alpha_agi_insight_v1.src.utils import (
+from alpha_factory_v1.core import orchestrator
+from alpha_factory_v1.core.utils import (
     config,
     messaging,
     logging as insight_logging,

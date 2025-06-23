@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: Apache-2.0
 from unittest import TestCase
 
-from alpha_factory_v1.demos.alpha_agi_insight_v1.src.simulation import forecast
+from alpha_factory_v1.core.simulation import forecast
 
 
 class TestForecastFunctions(TestCase):
