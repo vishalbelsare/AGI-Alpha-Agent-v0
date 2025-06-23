@@ -28,7 +28,7 @@ except Exception:  # pragma: no cover - optional
 
 from . import messaging
 from .tracing import span
-from src.utils import a2a_pb2 as pb
+from alpha_factory_v1.core.utils import a2a_pb2 as pb
 from google.protobuf import json_format
 
 try:  # optional dependency

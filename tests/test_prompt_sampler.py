@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: Apache-2.0
 from __future__ import annotations
 
-from src.agents.prompt_sampler import construct_prompt
+from alpha_factory_v1.core.agents.prompt_sampler import construct_prompt
 
 TEMPLATE = {
     "system": "sys",

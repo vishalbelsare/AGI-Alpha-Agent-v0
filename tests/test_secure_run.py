@@ -3,7 +3,7 @@ import subprocess
 import shutil
 import pytest
 
-from src.utils.secure_run import secure_run, SandboxTimeout
+from alpha_factory_v1.core.utils.secure_run import secure_run, SandboxTimeout
 
 
 def test_secure_run_timeout(monkeypatch) -> None:

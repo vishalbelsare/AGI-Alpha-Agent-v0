@@ -8,7 +8,7 @@ import os
 from pathlib import Path
 from typing import Iterable
 
-from src.archive.db import ArchiveDB, ArchiveEntry
+from alpha_factory_v1.core.archive.db import ArchiveDB, ArchiveEntry
 
 DEFAULT_ARCHIVE = Path(os.getenv("ARCHIVE_PATH", "archive.db"))
 

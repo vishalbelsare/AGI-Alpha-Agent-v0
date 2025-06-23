@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: Apache-2.0
 from pathlib import Path
-from src.utils.file_ops import view, str_replace
+from alpha_factory_v1.core.utils.file_ops import view, str_replace
 
 
 def test_view_basic(tmp_path: Path) -> None:

@@ -6,7 +6,7 @@ import sys
 import types
 import subprocess
 
-import src.utils.config as cfg
+import alpha_factory_v1.core.utils.config as cfg
 
 
 class DummyBlocks:

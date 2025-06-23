@@ -5,8 +5,8 @@ import json
 import hashlib
 from pathlib import Path
 
-from src.archive.db import ArchiveDB, ArchiveEntry
-from src.utils.snark import (
+from alpha_factory_v1.core.archive.db import ArchiveDB, ArchiveEntry
+from alpha_factory_v1.core.utils.snark import (
     publish_proof,
     verify_proof,
     aggregate_proof,

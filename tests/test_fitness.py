@@ -6,7 +6,7 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-from src.eval.fitness import compute_fitness
+from alpha_factory_v1.core.eval.fitness import compute_fitness
 
 
 FIXTURE_DIR = Path(__file__).parent / "fixtures"

@@ -48,7 +48,7 @@ from collections import OrderedDict
 from types import GeneratorType
 from typing import Any, Dict, Generator, List, Optional, Sequence
 
-from src.monitoring import metrics
+from alpha_factory_v1.core.monitoring import metrics
 from alpha_factory_v1.backend import metrics_registry
 
 # ──────────────────── optional dependencies ────────────────

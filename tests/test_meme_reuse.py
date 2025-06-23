@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: Apache-2.0
 import random
 
-from src.simulation import SelfRewriteOperator
+from alpha_factory_v1.core.simulation import SelfRewriteOperator
 
 
 def test_meme_reuse() -> None:

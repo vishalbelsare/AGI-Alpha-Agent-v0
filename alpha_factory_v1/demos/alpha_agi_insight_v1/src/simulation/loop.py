@@ -10,7 +10,7 @@ from dataclasses import dataclass
 from enum import Enum, auto
 from pathlib import Path
 
-from src.monitoring import metrics
+from alpha_factory_v1.core.monitoring import metrics
 
 
 class BanditEarlyStopper:

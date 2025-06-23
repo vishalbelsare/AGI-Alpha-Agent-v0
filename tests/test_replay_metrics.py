@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: Apache-2.0
 import csv
 
-from src.simulation import replay
+from alpha_factory_v1.core.simulation import replay
 
 EXPECTED = {
     "1994_web",

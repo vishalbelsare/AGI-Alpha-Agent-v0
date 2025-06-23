@@ -1,8 +1,8 @@
 # SPDX-License-Identifier: Apache-2.0
 from __future__ import annotations
 
-from src.critics import DualCriticService
-from src.analysis.chaos_monkey import ChaosMonkey
+from alpha_factory_v1.core.critics import DualCriticService
+from alpha_factory_v1.core.analysis.chaos_monkey import ChaosMonkey
 
 
 def test_adversarial_cases_detected() -> None:

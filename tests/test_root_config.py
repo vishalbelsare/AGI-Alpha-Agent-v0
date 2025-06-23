@@ -8,7 +8,7 @@ def test_settings_loads_dotenv(tmp_path, monkeypatch):
     env.write_text("OPENAI_API_KEY=abc\nAGI_INSIGHT_BUS_PORT=1234\n", encoding="utf-8")
     monkeypatch.chdir(tmp_path)
     monkeypatch.delenv("OPENAI_API_KEY", raising=False)
-    import src.utils.config as cfg
+    import alpha_factory_v1.core.utils.config as cfg
 
     cfg.init_config()
     settings = cfg.Settings()
@@ -29,7 +29,7 @@ def test_settings_vault_auto(monkeypatch):
     monkeypatch.setenv("VAULT_ADDR", "http://vault")
     monkeypatch.delenv("OPENAI_API_KEY", raising=False)
     monkeypatch.setitem(sys.modules, "hvac", types.SimpleNamespace(Client=FakeClient))
-    import src.utils.config as cfg
+    import alpha_factory_v1.core.utils.config as cfg
 
     cfg.init_config()
     settings = cfg.Settings()
@@ -51,7 +51,7 @@ def test_vault_overrides_dotenv(tmp_path, monkeypatch):
 
     monkeypatch.setenv("VAULT_ADDR", "http://vault")
     monkeypatch.setitem(sys.modules, "hvac", types.SimpleNamespace(Client=FakeClient))
-    import src.utils.config as cfg
+    import alpha_factory_v1.core.utils.config as cfg
 
     cfg.init_config()
     settings = cfg.Settings()
@@ -60,7 +60,7 @@ def test_vault_overrides_dotenv(tmp_path, monkeypatch):
 
 def test_settings_repr_masks_secret(monkeypatch):
     monkeypatch.setenv("OPENAI_API_KEY", "shh")
-    import src.utils.config as cfg
+    import alpha_factory_v1.core.utils.config as cfg
 
     cfg.init_config()
     settings = cfg.Settings()

@@ -32,12 +32,12 @@ except Exception:  # pragma: no cover - optional
     Table = None
 
 from .. import orchestrator, self_improver
-from src.archive.hash_archive import HashArchive
-from src import scheduler
+from alpha_factory_v1.core.archive.hash_archive import HashArchive
+from alpha_factory_v1.core import scheduler
 from ..simulation import forecast, sector, mats
-from src.utils.visual import plot_pareto
+from alpha_factory_v1.core.utils.visual import plot_pareto
 from ..utils import config, logging
-from src.eval.foresight import evaluate as foresight_evaluate
+from alpha_factory_v1.core.eval.foresight import evaluate as foresight_evaluate
 
 from .....utils.disclaimer import DISCLAIMER
 
@@ -693,7 +693,7 @@ def evolve_cmd(
     max_cost_per_gain: float | None,
 ) -> None:
     """Run the minimal asynchronous evolution demo."""
-    from src import evolve as _evolve
+    from alpha_factory_v1.core import evolve as _evolve
 
     async def _eval(genome: float) -> tuple[float, float]:
         await asyncio.sleep(0)
@@ -732,7 +732,7 @@ def evolve_cmd(
 def transfer_test_cmd(models: str, top_n: int) -> None:
     """Replay top agents on alternate models and store results."""
     model_list = [m.strip() for m in models.split(",") if m.strip()]
-    from src.tools import transfer_test as _tt
+    from alpha_factory_v1.core.tools import transfer_test as _tt
 
     _tt.run_transfer_test(model_list, top_n)
 

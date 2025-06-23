@@ -6,7 +6,7 @@ from unittest import mock
 from alpha_factory_v1.demos.alpha_agi_insight_v1.src.agents.mutators import llm_mutator
 from alpha_factory_v1.demos.alpha_agi_insight_v1.src.utils import logging as insight_logging, messaging
 from alpha_factory_v1.demos.self_healing_repo import patcher_core
-from src.tools.diff_mutation import propose_diff
+from alpha_factory_v1.core.tools.diff_mutation import propose_diff
 
 
 def _ledger(tmp: Path) -> insight_logging.Ledger:

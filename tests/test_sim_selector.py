@@ -4,7 +4,7 @@ from __future__ import annotations
 import random
 from dataclasses import dataclass
 
-from src.simulation.selector import select_parent
+from alpha_factory_v1.core.simulation.selector import select_parent
 
 
 @dataclass(slots=True)

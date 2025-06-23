@@ -14,7 +14,7 @@ pytest.importorskip("fastapi")
 def test_max_results_eviction(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setenv("SIM_RESULTS_DIR", str(tmp_path))
     monkeypatch.setenv("MAX_RESULTS", "2")
-    from src.interface import api_server
+    from alpha_factory_v1.core.interface import api_server
 
     api = importlib.reload(api_server)
 

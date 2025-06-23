@@ -11,7 +11,7 @@ pytest.importorskip("fastapi")
 def test_max_sim_tasks(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setenv("SIM_RESULTS_DIR", str(tmp_path))
     monkeypatch.setenv("MAX_SIM_TASKS", "1")
-    from src.interface import api_server as api
+    from alpha_factory_v1.core.interface import api_server as api
 
     api = importlib.reload(api)
 

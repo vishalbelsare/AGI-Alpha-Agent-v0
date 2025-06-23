@@ -2,7 +2,7 @@
 import pytest
 from pathlib import Path
 
-from src.self_edit.tools import (
+from alpha_factory_v1.core.self_edit.tools import (
     view_lines,
     replace_str,
     insert_after,

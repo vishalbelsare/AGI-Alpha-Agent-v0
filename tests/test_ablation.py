@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: Apache-2.0
 import pytest
 
-from src.tools.ablation_runner import run_ablation
+from alpha_factory_v1.core.tools.ablation_runner import run_ablation
 
 
 @pytest.mark.ablation

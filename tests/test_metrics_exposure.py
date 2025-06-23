@@ -10,7 +10,7 @@ from fastapi.testclient import TestClient  # noqa: E402
 os.environ.setdefault("API_TOKEN", "test-token")
 os.environ.setdefault("API_RATE_LIMIT", "1000")
 
-from src.interface import api_server as api
+from alpha_factory_v1.core.interface import api_server as api
 
 
 def make_client() -> TestClient:

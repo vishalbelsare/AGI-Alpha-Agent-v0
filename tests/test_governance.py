@@ -4,7 +4,7 @@ import contextlib
 import time
 
 from alpha_factory_v1.backend import orchestrator
-from src.monitoring import metrics
+from alpha_factory_v1.core.monitoring import metrics
 
 
 class DummyRunner:

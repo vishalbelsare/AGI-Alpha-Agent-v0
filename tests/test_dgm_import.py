@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: Apache-2.0
 from pathlib import Path
 
-from src.archive.db import ArchiveDB
+from alpha_factory_v1.core.archive.db import ArchiveDB
 from alpha_factory_v1.demos.alpha_agi_insight_v1.src.tools import dgm_import
 
 

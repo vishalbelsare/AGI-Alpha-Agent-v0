@@ -3,8 +3,8 @@ from __future__ import annotations
 
 from click.testing import CliRunner
 
-from src.archive import Archive
-from src.tools import transfer_test as tt
+from alpha_factory_v1.core.archive import Archive
+from alpha_factory_v1.core.tools import transfer_test as tt
 
 import sys
 import types

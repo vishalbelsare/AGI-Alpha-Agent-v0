@@ -23,7 +23,7 @@ def _free_port() -> int:
 
 @pytest.fixture()
 def uvicorn_server() -> Iterator[str]:
-    from src.interface import api_server
+    from alpha_factory_v1.core.interface import api_server
 
     port = _free_port()
     config = uvicorn.Config(api_server.app, host="127.0.0.1", port=port, log_level="warning")

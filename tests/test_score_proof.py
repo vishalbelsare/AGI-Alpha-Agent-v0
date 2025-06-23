@@ -4,8 +4,8 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-from src.archive.db import ArchiveDB, ArchiveEntry
-from src.snark import (
+from alpha_factory_v1.core.archive.db import ArchiveDB, ArchiveEntry
+from alpha_factory_v1.core.snark import (
     publish_score_proof,
     verify_score_proof,
     verify_onchain,

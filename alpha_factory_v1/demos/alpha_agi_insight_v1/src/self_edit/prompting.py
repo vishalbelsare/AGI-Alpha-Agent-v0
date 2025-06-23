@@ -8,7 +8,7 @@ import os
 import random
 from typing import Any, Callable, Optional
 
-from src.utils.config import CFG
+from alpha_factory_v1.core.utils.config import CFG
 from alpha_factory_v1.demos.alpha_agi_insight_v1.src.utils import local_llm
 
 try:  # pragma: no cover - optional dependency

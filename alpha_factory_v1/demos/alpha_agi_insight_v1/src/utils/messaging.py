@@ -19,7 +19,7 @@ from cachetools import TTLCache
 
 from .config import Settings
 from .tracing import span, bus_messages_total
-from src.utils import a2a_pb2 as pb
+from alpha_factory_v1.core.utils import a2a_pb2 as pb
 from google.protobuf import json_format
 
 

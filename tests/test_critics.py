@@ -16,7 +16,7 @@ pytest.importorskip("grpc")
 from fastapi.testclient import TestClient  # noqa: E402
 import grpc  # noqa: E402
 
-from src.critics import DualCriticService, create_app
+from alpha_factory_v1.core.critics import DualCriticService, create_app
 
 
 def _free_port() -> int:

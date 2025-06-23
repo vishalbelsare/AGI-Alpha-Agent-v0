@@ -52,7 +52,7 @@ from tqdm import tqdm  # pip install tqdm
 # local helpers
 sys.path.append(str(Path(__file__).resolve().parent))  # for relative import
 from archive import Candidate, Fitness, insert as db_insert, pareto_front, shannon_novelty
-from src.archive import Archive
+from alpha_factory_v1.core.archive import Archive
 
 ###############################################################################
 # 1 · Config / constants

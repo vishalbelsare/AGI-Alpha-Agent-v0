@@ -2,8 +2,8 @@
 from pathlib import Path
 from unittest.mock import patch
 
-from src.self_evolution import harness
-from src.governance.stake_registry import StakeRegistry
+from alpha_factory_v1.core.self_evolution import harness
+from alpha_factory_v1.core.governance.stake_registry import StakeRegistry
 
 
 def _make_repo(tmp_path: Path) -> Path:

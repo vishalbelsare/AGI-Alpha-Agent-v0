@@ -57,7 +57,7 @@ def pytest_runtest_setup(item: pytest.Item) -> None:
 
 
 try:  # skip all tests if the simulation module fails to import
-    from src.simulation import replay
+    from alpha_factory_v1.core.simulation import replay
 except Exception as exc:  # pragma: no cover - environment issue
     pytest.skip(
         (

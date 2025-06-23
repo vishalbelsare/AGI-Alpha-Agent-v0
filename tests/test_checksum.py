@@ -39,7 +39,7 @@ def _hamming_dist(a: bytes, b: bytes) -> int:
 def test_results_checksum(tmp_path: Path, cfg: dict[str, int]) -> None:
     os.environ["SIM_RESULTS_DIR"] = str(tmp_path)
     os.environ.setdefault("API_TOKEN", "test-token")
-    from src.interface import api_server
+    from alpha_factory_v1.core.interface import api_server
 
     api = importlib.reload(api_server)
     req = api.SimRequest(**cfg)

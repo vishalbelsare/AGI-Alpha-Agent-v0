@@ -2,8 +2,8 @@
 import asyncio
 import random
 
-from src.evolve import Candidate, InMemoryArchive, evolve
-from src.simulation.mats_ops import backtrack_boost  # ensure import works  # noqa: F401
+from alpha_factory_v1.core.evolve import Candidate, InMemoryArchive, evolve
+from alpha_factory_v1.core.simulation.mats_ops import backtrack_boost  # ensure import works  # noqa: F401
 
 
 def _diversity(values):

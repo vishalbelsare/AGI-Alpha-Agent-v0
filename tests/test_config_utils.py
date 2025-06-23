@@ -8,7 +8,7 @@ from pathlib import Path
 
 import pytest
 
-import src.utils.config as cfg
+import alpha_factory_v1.core.utils.config as cfg
 
 pytestmark = pytest.mark.smoke
 

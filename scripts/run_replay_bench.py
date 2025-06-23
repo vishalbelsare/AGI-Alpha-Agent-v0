@@ -4,7 +4,7 @@
 """Run the replay harness and append metrics."""
 from __future__ import annotations
 from pathlib import Path
-from src.simulation import replay
+from alpha_factory_v1.core.simulation import replay
 
 
 def main() -> None:

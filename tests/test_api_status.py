@@ -17,7 +17,7 @@ os.environ.setdefault("API_RATE_LIMIT", "1000")
 
 
 def _make_client() -> TestClient:
-    from src.interface import api_server
+    from alpha_factory_v1.core.interface import api_server
 
     api_server = importlib.reload(api_server)
     return TestClient(cast(Any, api_server.app))
@@ -34,7 +34,7 @@ def test_status_endpoint() -> None:
 
 
 def test_cli_agents_status_parses_mapping() -> None:
-    from src.interface import cli
+    from alpha_factory_v1.core.interface import cli
 
     payload = {"agents": {"agent1": {"last_beat": 1.0, "restarts": 0}}}
 
