@@ -3,6 +3,8 @@ References to "AGI" and "superintelligence" describe aspirational goals and do n
 general intelligence. Use at your own risk. Nothing herein constitutes financial advice. MontrealAI and the maintainers
 accept no liability for losses incurred from using this software.
 
+Full documentation: [https://montreal-ai.github.io/AGI-Alpha-Agent-v0/](https://montreal-ai.github.io/AGI-Alpha-Agent-v0/)
+
 ## Quickstart
 
 ```bash
@@ -16,10 +18,7 @@ docker compose up --build
 Watch the run here: [Quickstart video](docs/assets/quickstart_insight.cast) ·
 [Asciinema link](https://asciinema.org/a/I0uXbfl9SLa6SjocAb8Ik8Mni)
 
-See [docs/quickstart.md](docs/quickstart.md) for detailed steps.
-
-New to the project? Read the [Getting Started guide](docs/INTRO.md) for a short overview.
-First-time users should also read the [Project Overview](docs/OVERVIEW.md).
+See the [documentation](https://montreal-ai.github.io/AGI-Alpha-Agent-v0/) for detailed steps and an overview of the project.
 
 
 # **META-AGENTIC** α‑AGI 👁️✨
@@ -139,7 +138,7 @@ pip install -r alpha_factory_v1/requirements.txt
 ```
 
 Detailed step‑by‑step instructions, including Colab usage,
-are available in [docs/quickstart.md](docs/quickstart.md).
+are available in the [documentation](https://montreal-ai.github.io/AGI-Alpha-Agent-v0/).
 
 For advanced options, see the [5‑Minute Quick‑Start](#6-5-minute-quick-start)
 and [Docker Quickstart](#docker-quickstart) sections below.
@@ -202,9 +201,9 @@ It demonstrates the best‑first search behind the other examples and runs witho
 <a name="63-offline-mode"></a>
 ### Offline Mode
 
-Follow these steps when working without internet access. See
-[docs/OFFLINE_INSTALL.md#environment-variables](docs/OFFLINE_INSTALL.md#environment-variables)
-for a summary of required environment variables.
+Follow these steps when working without internet access. See the
+[documentation](https://montreal-ai.github.io/AGI-Alpha-Agent-v0/) for a summary
+of required environment variables.
 
 1. **Build a wheelhouse** on a machine with connectivity:
    ```bash
@@ -240,8 +239,8 @@ pip install --no-index --find-links "$WHEELHOUSE" -r \
 `WHEELHOUSE="$WHEELHOUSE"` when running `pre-commit` or the tests so
 dependencies install from the local cache. See
 [Offline Setup](alpha_factory_v1/scripts/README.md#offline-setup) for more
-details. A short reference lives in
-[docs/OFFLINE_SETUP.md](docs/OFFLINE_SETUP.md). If package installation hangs
+details. A short reference lives in the
+[documentation](https://montreal-ai.github.io/AGI-Alpha-Agent-v0/). If package installation hangs
 for more than ten minutes,
 `check_env.py` will time out and suggest using `--wheelhouse` for
 offline installs.
@@ -254,8 +253,8 @@ python check_env.py --auto-install --wheelhouse "$WHEELHOUSE"
 This mirrors the instructions in
 [alpha_factory_v1/scripts/README.md](alpha_factory_v1/scripts/README.md#offline-setup).
 
-See the [Wheelhouse Setup](alpha_factory_v1/demos/alpha_asi_world_model/docs/quickstart.md#wheelhouse-setup)
-section of the α‑ASI world-model quickstart for a concise summary.
+See the [documentation](https://montreal-ai.github.io/AGI-Alpha-Agent-v0/)
+for a concise summary of the wheelhouse setup.
 
 3. **Download a `.gguf` weight** and set ``LLAMA_MODEL_PATH``:
    ```bash
@@ -470,19 +469,7 @@ curl -X POST http://localhost:8000/simulate \
 ```
 
 ## Further Reading
-- [docs/DESIGN.md](docs/DESIGN.md) — architecture overview and agent roles.
-- [docs/API.md](docs/API.md) — REST API and CLI endpoints.
-- [docs/dgm_ops.md](docs/dgm_ops.md) — scheduler flags and lineage audit notes.
-- Release notes are maintained in [docs/CHANGELOG.md](docs/CHANGELOG.md).
-- See the [Breaking Changes](docs/CHANGELOG.md#breaking-changes) section for
-  upgrade warnings.
-- The [v1.0 entry](docs/CHANGELOG.md#v10---2025-07-01) lists the CLI, web UI and security features.
-- A demo specific overview can be found in
-  [alpha_factory_v1/demos/alpha_agi_insight_v1/docs/DESIGN.md](alpha_factory_v1/demos/alpha_agi_insight_v1/docs/DESIGN.m
-d).
-- TLS setup for the agent bus is documented in
-  [alpha_factory_v1/demos/alpha_agi_insight_v1/docs/bus_tls.md](alpha_factory_v1/demos/alpha_agi_insight_v1/docs/bus_tls
-.md).
+- Full documentation is available at [https://montreal-ai.github.io/AGI-Alpha-Agent-v0/](https://montreal-ai.github.io/AGI-Alpha-Agent-v0/)
 
 ---
 ## Contributing
@@ -947,15 +934,16 @@ A browser-only Pareto explorer lives under
 `alpha_factory_v1/demos/alpha_agi_insight_v1/insight_browser_v1`.
 Run `npm run build` in that directory to generate the `dist/` assets
 (they are not stored in Git) then open `dist/index.html` to run the demo locally.
-The quick-start guide `docs/insight_browser_quickstart.pdf` is copied to
-`dist/insight_browser_quickstart.pdf` during the build so it is available
+The quick-start guide is available from the
+[documentation](https://montreal-ai.github.io/AGI-Alpha-Agent-v0/) and is copied
+to `dist/insight_browser_quickstart.pdf` during the build so it is available
 alongside the compiled assets.
 Set `window.DEBUG = true` before loading the page to expose debugging helpers
 such as `window.pop`.
 
 For evolutionary experiments you can run the optional
-[evolution worker](docs/DESIGN.md#evolution-worker) container and POST a tarball
-of agent code to `/mutate`.
+[evolution worker](https://montreal-ai.github.io/AGI-Alpha-Agent-v0/) container
+and POST a tarball of agent code to `/mutate`.
 
 ## Docker Quickstart
 Start the full stack using Docker Compose:
@@ -1007,7 +995,7 @@ key and keep that file readable only by the orchestrator.
 To enable secure gRPC transport set `AGI_INSIGHT_BUS_CERT`,
 `AGI_INSIGHT_BUS_KEY` and `AGI_INSIGHT_BUS_TOKEN`. If these values are
 omitted and `AGI_INSIGHT_ALLOW_INSECURE=1`, the bus starts without TLS.
-See [bus_tls.md](alpha_factory_v1/demos/alpha_agi_insight_v1/docs/bus_tls.md)
+See the [documentation](https://montreal-ai.github.io/AGI-Alpha-Agent-v0/)
 for instructions and example volume mounts.
 
 `.env.sample` notes that paths on Windows may require quotes (e.g., `C:\\path\\to\\file`).
@@ -1055,7 +1043,8 @@ for instructions and example volume mounts.
 The values above mirror `.env.sample`. When running the stack with Docker
 Compose, adjust the environment section of
 `infrastructure/docker-compose.yml` to override any variable—such as the gRPC
-bus port or ledger path. Sandbox limits are described in [docs/sandbox.md](docs/sandbox.md).
+bus port or ledger path. Sandbox limits are described in the
+[documentation](https://montreal-ai.github.io/AGI-Alpha-Agent-v0/).
 When the `firejail` binary is present, CodeGen snippets run inside `firejail --net=none --private` for stronger
 isolation.
 For a production-ready ADK setup see
@@ -1317,7 +1306,7 @@ terraform apply
 | **IoT Edge** | `python edge_runner.py --agents manufacturing,energy` | Jetson Nano |
 <a name="71-deploying-securely"></a>
 ### 🚀 Deploying securely
-See [docs/deployment_security.md](docs/deployment_security.md) for TLS setup, API tokens and Vault usage. Mount secrets
+See the [documentation](https://montreal-ai.github.io/AGI-Alpha-Agent-v0/) for TLS setup, API tokens and Vault usage. Mount secrets
 via Docker or Kubernetes and never commit them.
 
 
@@ -1376,10 +1365,10 @@ browser storage also stops all transmissions.
 <a name="10-safety--security"></a>
 ## 10 · Safety & Security 🛡️
 
-The [policy runbook](docs/POLICY_RUNBOOK.md) outlines sandbox resource limits,
+The [policy runbook](https://montreal-ai.github.io/AGI-Alpha-Agent-v0/) outlines sandbox resource limits,
 timeout behaviour, required human review and rollback steps.
-Operational tips for the governance module reside in
-[docs/dgm_ops.md](docs/dgm_ops.md).
+Operational tips for the governance module reside in the
+[documentation](https://montreal-ai.github.io/AGI-Alpha-Agent-v0/).
 
 ---
 
