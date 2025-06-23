@@ -267,6 +267,24 @@ sequenceDiagram
 
 > **Colab?** Each folder ships an `*.ipynb` that mirrors the Docker flow with free GPUs.
 
+### Demo Stability
+| Demo | Purpose | Stability |
+|------|---------|-----------|
+|[aiga_meta_evolution](demos/aiga_meta_evolution/README.md)|Agents evolve new agents|Incub|
+|[alpha_agi_business_v1](demos/alpha_agi_business_v1/README.md)|Auto-incorporates a digital-first company|Prod|
+|[alpha_agi_business_2_v1](demos/alpha_agi_business_2_v1/README.md)|Market-adaptive business iteration|Beta|
+|[alpha_agi_business_3_v1](demos/alpha_agi_business_3_v1/README.md)|Fundraising agent swarm for forecasting|Prod|
+|[alpha_agi_marketplace_v1](demos/alpha_agi_marketplace_v1/README.md)|Peer-to-peer agent marketplace|Prod|
+|[alpha_asi_world_model](demos/alpha_asi_world_model/README.md)|Open-ended world model training|Beta|
+|[cross_industry_alpha_factory](demos/cross_industry_alpha_factory/README.md)|Pipeline across multiple verticals|Prod|
+|[era_of_experience](demos/era_of_experience/README.md)|Autobiographical memory RL playground|Incub|
+|[finance_alpha](demos/finance_alpha/README.md)|Momentum and risk-parity bot|Beta|
+|[macro_sentinel](demos/macro_sentinel/README.md)|News scanner with futures hedging|Beta|
+|[muzero_planning](demos/muzero_planning/README.md)|Minimal MuZero planning demo|Beta|
+|[self_healing_repo](demos/self_healing_repo/README.md)|Agents auto-fix failing CI|Beta|
+|[meta_agentic_tree_search_v0](demos/meta_agentic_tree_search_v0/README.md)|Recursive agent tree search|Incub|
+|[alpha_agi_insight_v0](demos/alpha_agi_insight_v0/README.md)|Sector ranking via zero-data search|Beta|
+
 ### 4.1 · [α-ASI World-Model Demo 👁️✨](https://github.com/MontrealAI/AGI-Alpha-Agent-v0/tree/main/alpha_factory_v1/demos/alpha_asi_world_model)
 
 Paper: [Multi-Agent AGENTIC α-AGI World-Model Demo 🥑](https://github.com/MontrealAI/AGI-Alpha-Agent-v0/blob/main/alpha_factory_v1/demos/alpha_asi_world_model/Alpha_ASI_World_Model.pdf)
