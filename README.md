@@ -15,7 +15,8 @@ docker compose up --build
 ./run_quickstart.sh
 ```
 
-See [docs/QUICKSTART_BASICS.md](docs/QUICKSTART_BASICS.md) for a minimal walkthrough.
+See [docs/INTRO_BASICS.md](docs/INTRO_BASICS.md) for the bare essentials or
+[docs/QUICKSTART_BASICS.md](docs/QUICKSTART_BASICS.md) for a minimal walkthrough.
 
 Watch the run here: [Quickstart video](docs/assets/quickstart_insight.cast) ·
 [Asciinema link](https://asciinema.org/a/I0uXbfl9SLa6SjocAb8Ik8Mni)
