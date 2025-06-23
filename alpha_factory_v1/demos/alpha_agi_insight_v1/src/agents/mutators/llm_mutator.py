@@ -7,7 +7,7 @@ import random
 from pathlib import Path
 
 from ...utils.logging import Ledger
-from src.tools.diff_mutation import propose_diff as _fallback_diff
+from alpha_factory_v1.core.tools.diff_mutation import propose_diff as _fallback_diff
 from typing import cast
 from .code_diff import _parse_spec, _sync_chat, _offline
 

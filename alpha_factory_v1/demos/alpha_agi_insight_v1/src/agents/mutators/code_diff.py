@@ -9,7 +9,7 @@ import threading
 from typing import cast
 from pathlib import Path
 
-from src.tools.diff_mutation import propose_diff as _fallback_diff
+from alpha_factory_v1.core.tools.diff_mutation import propose_diff as _fallback_diff
 
 __all__ = ["propose_diff"]
 

@@ -8,8 +8,8 @@ from pathlib import Path
 import pytest
 
 pytest.importorskip("plotly.express")
-from src.archive import Archive
-from src.interface import lineage_dashboard as ld
+from alpha_factory_v1.core.archive import Archive
+from alpha_factory_v1.core.interface import lineage_dashboard as ld
 
 go = pytest.importorskip("plotly.graph_objects")
 

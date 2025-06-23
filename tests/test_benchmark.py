@@ -34,7 +34,7 @@ def _token_usage() -> int:
 @pytest.mark.benchmark(group="simulation")  # type: ignore[misc]
 def test_simulation_benchmark(tmp_path: Path, benchmark: Any) -> None:
     os.environ["SIM_RESULTS_DIR"] = str(tmp_path)
-    from src.interface import api_server
+    from alpha_factory_v1.core.interface import api_server
 
     api = importlib.reload(api_server)
     cfg = api.SimRequest(horizon=1, pop_size=2, generations=1)

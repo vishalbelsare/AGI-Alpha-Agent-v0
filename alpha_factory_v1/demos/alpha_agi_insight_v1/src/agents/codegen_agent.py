@@ -30,11 +30,11 @@ except Exception:  # pragma: no cover - offline stub
         return decorator
 
 
-from src.self_edit.safety import is_code_safe
+from alpha_factory_v1.core.self_edit.safety import is_code_safe
 from pathlib import Path
 from .mutators.code_diff import propose_diff as generate_diff
-from src.utils.opa_policy import violates_finance_policy
-from src.utils.secure_run import secure_run
+from alpha_factory_v1.core.utils.opa_policy import violates_finance_policy
+from alpha_factory_v1.core.utils.secure_run import secure_run
 
 
 from .base_agent import BaseAgent

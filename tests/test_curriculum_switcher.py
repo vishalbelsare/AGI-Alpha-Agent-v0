@@ -1,8 +1,8 @@
 # SPDX-License-Identifier: Apache-2.0
 from pathlib import Path
 
-from src.eval.fitness import compute_fitness, CurriculumSwitcher
-from src.archive.db import ArchiveDB
+from alpha_factory_v1.core.eval.fitness import compute_fitness, CurriculumSwitcher
+from alpha_factory_v1.core.archive.db import ArchiveDB
 
 
 def _results(dataset: str, rate: float, count: int = 10):

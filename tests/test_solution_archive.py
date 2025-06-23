@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: Apache-2.0
 import time
-from src.archive.solution_archive import SolutionArchive
+from alpha_factory_v1.core.archive.solution_archive import SolutionArchive
 
 
 def test_query_speed_and_histogram(tmp_path) -> None:

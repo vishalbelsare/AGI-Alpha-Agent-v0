@@ -3,7 +3,7 @@ import time
 
 import pytest
 
-from src.simulation import replay
+from alpha_factory_v1.core.simulation import replay
 
 
 EXPECTED = {

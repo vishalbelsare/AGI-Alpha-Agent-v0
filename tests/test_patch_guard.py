@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: Apache-2.0
-from src.utils.patch_guard import is_patch_valid
+from alpha_factory_v1.core.utils.patch_guard import is_patch_valid
 
 
 def test_rejects_empty_diff() -> None:

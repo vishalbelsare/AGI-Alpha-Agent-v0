@@ -7,7 +7,7 @@ from __future__ import annotations
 import tempfile
 from pathlib import Path
 
-from src.archive.hash_archive import HashArchive
+from alpha_factory_v1.core.archive.hash_archive import HashArchive
 
 EXPECTED_ROOT = "a07933db4f4c6791d25ba125c241b1b86707583b40c177bb1a719e34dca9a53f"
 

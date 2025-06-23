@@ -3,7 +3,7 @@ import logging
 
 import pytest
 
-from src.scheduler.spot_gpu import SpotGPUAllocator
+from alpha_factory_v1.core.scheduler.spot_gpu import SpotGPUAllocator
 
 
 def test_dry_run_respects_budget(caplog: pytest.LogCaptureFixture) -> None:

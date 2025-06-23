@@ -3,7 +3,7 @@ from pathlib import Path
 import subprocess
 import sys
 
-from src.tools.diff_mutation import propose_diff
+from alpha_factory_v1.core.tools.diff_mutation import propose_diff
 from alpha_factory_v1.demos.self_healing_repo import patcher_core
 
 

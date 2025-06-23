@@ -4,7 +4,7 @@
 from pathlib import Path
 import random
 
-from src.self_edit.safety import is_patch_safe
+from alpha_factory_v1.core.self_edit.safety import is_patch_safe
 
 
 FIXTURES = Path(__file__).parent / "fixtures"
@@ -24,7 +24,7 @@ def test_allows_safe_patch() -> None:
     assert not is_patch_safe(diff)
 
 
-from src.simulation import SelfRewriteOperator  # noqa: E402
+from alpha_factory_v1.core.simulation import SelfRewriteOperator  # noqa: E402
 
 
 def test_rewrite_blocks_malicious() -> None:

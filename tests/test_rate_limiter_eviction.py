@@ -35,7 +35,7 @@ async def _call_next(_: Request) -> Response:
 
 def test_rate_limiter_evicts_old_entries(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setenv("API_RATE_LIMIT", "5")
-    from src.interface import api_server as api
+    from alpha_factory_v1.core.interface import api_server as api
 
     api = importlib.reload(api)
 
@@ -51,7 +51,7 @@ def test_rate_limiter_evicts_old_entries(monkeypatch: pytest.MonkeyPatch) -> Non
 
 def test_rate_limiter_throttles(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setenv("API_RATE_LIMIT", "1")
-    from src.interface import api_server as api
+    from alpha_factory_v1.core.interface import api_server as api
 
     api = importlib.reload(api)
 

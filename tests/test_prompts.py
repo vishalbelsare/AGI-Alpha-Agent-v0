@@ -4,7 +4,7 @@
 
 import yaml
 
-from src.utils import config
+from alpha_factory_v1.core.utils import config
 
 
 def test_self_improve_template_parses(tmp_path, monkeypatch):

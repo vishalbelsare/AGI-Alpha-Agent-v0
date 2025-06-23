@@ -18,7 +18,7 @@ def test_rate_limit(monkeypatch: pytest.MonkeyPatch) -> None:
 
     monkeypatch.setenv("API_RATE_LIMIT", "2")
 
-    from src.interface import api_server
+    from alpha_factory_v1.core.interface import api_server
 
     api = importlib.reload(api_server)
 

@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: Apache-2.0
 
-from src.evaluators import (
+from alpha_factory_v1.core.evaluators import (
     LogicCritic,
     FeasibilityCritic,
     load_logic_examples,

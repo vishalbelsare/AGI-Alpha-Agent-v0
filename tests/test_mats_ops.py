@@ -2,7 +2,7 @@
 import unittest
 import random
 
-from src.simulation import GaussianParam
+from alpha_factory_v1.core.simulation import GaussianParam
 from alpha_factory_v1.demos.alpha_agi_insight_v1.src.simulation import mats
 
 

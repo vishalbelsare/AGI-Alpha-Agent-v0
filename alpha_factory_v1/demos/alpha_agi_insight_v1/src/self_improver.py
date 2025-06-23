@@ -15,8 +15,8 @@ import time
 from pathlib import Path
 from typing import Tuple
 
-from src.utils.patch_guard import is_patch_valid
-from src.eval.preflight import run_preflight
+from alpha_factory_v1.core.utils.patch_guard import is_patch_valid
+from alpha_factory_v1.core.eval.preflight import run_preflight
 
 try:
     import git

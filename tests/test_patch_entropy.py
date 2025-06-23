@@ -3,7 +3,7 @@
 
 from pathlib import Path
 
-from src.self_edit.safety import is_patch_safe
+from alpha_factory_v1.core.self_edit.safety import is_patch_safe
 
 FIXTURES = Path(__file__).parent / "fixtures"
 

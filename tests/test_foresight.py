@@ -4,7 +4,7 @@
 from pathlib import Path
 import statistics
 
-from src.eval import foresight
+from alpha_factory_v1.core.eval import foresight
 
 
 def test_score_variance_under_two_sigma() -> None:

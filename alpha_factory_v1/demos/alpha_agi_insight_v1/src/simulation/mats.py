@@ -14,8 +14,8 @@ from dataclasses import dataclass
 from typing import Callable, Iterable, List, Tuple
 import numpy as np
 
-from src.evaluators.novelty import NoveltyIndex
-from src.simulation import surrogate_fitness
+from alpha_factory_v1.core.evaluators.novelty import NoveltyIndex
+from alpha_factory_v1.core.simulation import surrogate_fitness
 
 __all__ = [
     "Individual",

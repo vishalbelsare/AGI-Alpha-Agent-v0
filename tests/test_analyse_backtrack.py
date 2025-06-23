@@ -1,8 +1,8 @@
 # SPDX-License-Identifier: Apache-2.0
 from __future__ import annotations
 
-from src.archive.db import ArchiveDB, ArchiveEntry
-from src.tools import analyse_backtrack as ab
+from alpha_factory_v1.core.archive.db import ArchiveDB, ArchiveEntry
+from alpha_factory_v1.core.tools import analyse_backtrack as ab
 
 
 def test_detect_backtrack(tmp_path) -> None:

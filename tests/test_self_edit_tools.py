@@ -7,7 +7,7 @@ import pytest
 hypothesis = pytest.importorskip("hypothesis")
 from hypothesis import given, strategies as st  # noqa: E402
 
-from src.self_edit.tools import view, edit, replace, REPO_ROOT  # noqa: E402
+from alpha_factory_v1.core.self_edit.tools import view, edit, replace, REPO_ROOT  # noqa: E402
 
 
 @pytest.fixture()
@@ -58,7 +58,7 @@ def test_outside_repo_forbidden(tmp_path: Path) -> None:
 
 
 def test_filetools_adk_tasks(temp_file: Path) -> None:
-    from src.self_edit.tools import FileToolsADK
+    from alpha_factory_v1.core.self_edit.tools import FileToolsADK
 
     temp_file.write_text("a\nb\nc\n")
     adk = FileToolsADK()

@@ -18,7 +18,7 @@ import importlib
 
 
 def make_client() -> TestClient:
-    from src.interface import api_server
+    from alpha_factory_v1.core.interface import api_server
 
     api_server = importlib.reload(api_server)
     return TestClient(cast(Any, api_server.app))
@@ -68,7 +68,7 @@ def test_background_run_direct(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) 
 
     import importlib
 
-    from src.interface import api_server as api
+    from alpha_factory_v1.core.interface import api_server as api
 
     api = importlib.reload(api)
 
@@ -99,7 +99,7 @@ def test_results_dir_permissions(tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 
     import importlib
 
-    from src.interface import api_server as api
+    from alpha_factory_v1.core.interface import api_server as api
 
     api = importlib.reload(api)
 

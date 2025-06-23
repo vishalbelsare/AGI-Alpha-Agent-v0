@@ -5,9 +5,9 @@ import hashlib
 import json
 from pathlib import Path
 
-from src.archive.archive import insert, merkle_root
-from src.archive.cron import publish_root
-from src.archive.hash_archive import HashArchive
+from alpha_factory_v1.core.archive.archive import insert, merkle_root
+from alpha_factory_v1.core.archive.cron import publish_root
+from alpha_factory_v1.core.archive.hash_archive import HashArchive
 
 
 def _manual_root(hashes: list[str]) -> str:

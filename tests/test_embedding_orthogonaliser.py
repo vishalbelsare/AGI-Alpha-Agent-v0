@@ -5,7 +5,7 @@ import pytest
 
 np = pytest.importorskip("numpy")
 
-from src.agents.guards.embedding_orthogonaliser import EmbeddingOrthogonaliser
+from alpha_factory_v1.core.agents.guards.embedding_orthogonaliser import EmbeddingOrthogonaliser
 
 
 def cosine(a: np.ndarray, b: np.ndarray) -> float:

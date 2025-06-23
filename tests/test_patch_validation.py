@@ -3,7 +3,7 @@
 
 from pathlib import Path
 
-from src.utils.patch_guard import is_patch_valid
+from alpha_factory_v1.core.utils.patch_guard import is_patch_valid
 
 FIXTURES = Path(__file__).parent / "fixtures"
 

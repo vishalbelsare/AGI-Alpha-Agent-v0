@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: Apache-2.0
 import asyncio
 
-from src.evolve import InMemoryArchive, evolve, Phase
+from alpha_factory_v1.core.evolve import InMemoryArchive, evolve, Phase
 
 
 class TestPhaseOrder:

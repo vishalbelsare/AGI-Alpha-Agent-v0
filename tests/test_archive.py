@@ -5,9 +5,9 @@ import json
 
 import pytest
 
-from src.archive.db import ArchiveDB, ArchiveEntry
-from src.archive.service import ArchiveService
-import src.archive.service as service
+from alpha_factory_v1.core.archive.db import ArchiveDB, ArchiveEntry
+from alpha_factory_v1.core.archive.service import ArchiveService
+import alpha_factory_v1.core.archive.service as service
 import asyncio
 from unittest import mock
 

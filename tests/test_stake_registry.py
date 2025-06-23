@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: Apache-2.0
 import pytest
-from src.governance.stake_registry import StakeRegistry
+from alpha_factory_v1.core.governance.stake_registry import StakeRegistry
 
 
 def test_stake_weighted_acceptance() -> None:

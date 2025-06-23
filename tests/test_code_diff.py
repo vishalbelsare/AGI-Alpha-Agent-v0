@@ -21,7 +21,7 @@ def test_code_diff_offline(tmp_path: Path, monkeypatch) -> None:
 def test_code_diff_online(tmp_path: Path, monkeypatch) -> None:
     target = tmp_path / "demo.py"
     target.write_text("def demo():\n    return 1\n", encoding="utf-8")
-    from src.tools.diff_mutation import propose_diff
+    from alpha_factory_v1.core.tools.diff_mutation import propose_diff
 
     patch = propose_diff(str(target), "increase")
     monkeypatch.setenv("OPENAI_API_KEY", "k")

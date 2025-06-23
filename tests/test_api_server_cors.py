@@ -14,7 +14,7 @@ os.environ.setdefault("API_CORS_ORIGINS", "http://example.com")
 
 
 async def make_client() -> tuple[AsyncClient, Any]:
-    from src.interface import api_server
+    from alpha_factory_v1.core.interface import api_server
 
     transport = ASGITransport(app=cast(Any, api_server.app))
     client = AsyncClient(base_url="http://test", transport=transport)

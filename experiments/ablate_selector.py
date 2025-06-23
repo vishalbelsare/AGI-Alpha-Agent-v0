@@ -11,7 +11,7 @@ from typing import Dict, Tuple, cast
 import numpy as np
 
 
-from src.archive.selector import select_parent
+from alpha_factory_v1.core.archive.selector import select_parent
 
 
 class _Candidate:

@@ -4,7 +4,7 @@
 import pytest
 
 from alpha_factory_v1.demos.alpha_agi_insight_v1.src.self_edit import prompting
-from src.utils.config import CFG
+from alpha_factory_v1.core.utils.config import CFG
 
 
 @pytest.fixture(autouse=True)

@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: Apache-2.0
 import asyncio
 
-from src.evolve import Candidate, InMemoryArchive, evolve
+from alpha_factory_v1.core.evolve import Candidate, InMemoryArchive, evolve
 
 
 async def _op(genome):

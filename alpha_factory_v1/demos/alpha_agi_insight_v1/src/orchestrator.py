@@ -29,15 +29,15 @@ from .agents import (
     memory_agent,
     adk_summariser_agent,
 )
-from src.agents.self_improver_agent import SelfImproverAgent
+from alpha_factory_v1.core.agents.self_improver_agent import SelfImproverAgent
 from .utils import config, messaging, logging as insight_logging
 from .utils.tracing import agent_cycle_seconds
 from .utils import alerts
 from .utils.logging import Ledger
-from src.archive.service import ArchiveService
-from src.archive.solution_archive import SolutionArchive
+from alpha_factory_v1.core.archive.service import ArchiveService
+from alpha_factory_v1.core.archive.solution_archive import SolutionArchive
 from .agents.base_agent import BaseAgent
-from src.governance.stake_registry import StakeRegistry
+from alpha_factory_v1.core.governance.stake_registry import StakeRegistry
 from .simulation import mats
 from types import ModuleType
 

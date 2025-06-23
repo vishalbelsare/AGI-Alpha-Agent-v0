@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: Apache-2.0
 from pathlib import Path
 
-from src.capsules import CapsuleFacts, load_capsule_facts, ImpactScorer
+from alpha_factory_v1.core.capsules import CapsuleFacts, load_capsule_facts, ImpactScorer
 
 
 def test_load_capsule_facts(tmp_path: Path) -> None:

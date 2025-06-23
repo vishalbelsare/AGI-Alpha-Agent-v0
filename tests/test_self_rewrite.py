@@ -2,7 +2,7 @@
 import unittest
 import random
 
-from src.simulation import SelfRewriteOperator
+from alpha_factory_v1.core.simulation import SelfRewriteOperator
 
 
 class TestSelfRewriteOperator(unittest.TestCase):

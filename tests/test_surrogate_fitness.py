@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: Apache-2.0
-from src.simulation import surrogate_fitness
+from alpha_factory_v1.core.simulation import surrogate_fitness
 
 
 def _manual_nsga2_ranks(values: list[tuple[float, ...]]) -> list[int]:

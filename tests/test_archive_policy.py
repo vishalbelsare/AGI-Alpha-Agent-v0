@@ -5,8 +5,8 @@ import hashlib
 import json
 from pathlib import Path
 
-from src.archive.manager import PatchManager, _tool_roundtrip
-import src.archive.manager as manager
+from alpha_factory_v1.core.archive.manager import PatchManager, _tool_roundtrip
+import alpha_factory_v1.core.archive.manager as manager
 
 
 def test_tool_roundtrip(monkeypatch, tmp_path: Path) -> None:

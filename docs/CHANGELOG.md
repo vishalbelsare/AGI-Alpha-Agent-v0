@@ -23,7 +23,8 @@ Downstream users should consult this section when upgrading.
   - Removed `insight_browser_v1/dist/` from version control; run `npm run build` to regenerate the assets.
 ## [Unreleased]
 ### Breaking Changes
-- None.
+- Core modules previously under `src/` now live in `alpha_factory_v1.core`.
+- Update imports accordingly.
 - `alpha-factory` and `edge_runner.py` now print a short warning before startup.
 - Synced `openai`, `openai-agents` and `uvicorn` pins across requirements files
   and clarified why `requests` and `rich` differ between layers.

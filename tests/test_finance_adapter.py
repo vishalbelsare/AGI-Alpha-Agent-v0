@@ -3,7 +3,7 @@ import pytest
 
 import json
 
-from src.finance.adapter import delta_sector_to_dcf, propagate_shocks_to_tickers
+from alpha_factory_v1.core.finance.adapter import delta_sector_to_dcf, propagate_shocks_to_tickers
 
 
 def test_delta_sector_to_dcf_npv() -> None:

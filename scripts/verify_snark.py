@@ -9,7 +9,7 @@ import argparse
 from pathlib import Path
 from typing import Sequence
 
-from src.utils.snark import generate_proof
+from alpha_factory_v1.core.utils.snark import generate_proof
 
 
 def parse_score(text: str) -> Sequence[float]:
