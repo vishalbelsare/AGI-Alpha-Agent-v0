@@ -23,6 +23,13 @@ def run_tests(target: Path) -> int:
     ``pytest`` is preferred when available; otherwise ``unittest`` is used.
     The exit status of the invoked command is returned.
     """
+    repo_root = Path(__file__).resolve().parents[2]
+    cmd = [sys.executable, str(repo_root / "check_env.py"), "--auto-install"]
+    wheelhouse = os.getenv("WHEELHOUSE")
+    if wheelhouse:
+        cmd.extend(["--wheelhouse", wheelhouse])
+    subprocess.call(cmd)
+
     if importlib.util.find_spec("pytest"):
         cmd = [sys.executable, "-m", "pytest", str(target)]
     else:
