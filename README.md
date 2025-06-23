@@ -31,6 +31,7 @@ Watch the run here: [Quickstart video](docs/assets/quickstart_insight.cast) ·
 [Asciinema link](https://asciinema.org/a/I0uXbfl9SLa6SjocAb8Ik8Mni)
 
 See the [documentation](https://montreal-ai.github.io/AGI-Alpha-Agent-v0/) for detailed steps and an overview of the project.
+For a concise high-level picture of how the main pieces fit together, see [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
 
 
 # **META-AGENTIC** α‑AGI 👁️✨
