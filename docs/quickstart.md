@@ -78,6 +78,34 @@ alpha-agi-insight-v1 --episodes 5  # with or without OPENAI_API_KEY
 
 Run `pre-commit run --all-files` once the setup completes to ensure formatting.
 
+### Windows Subsystem for Linux (WSL)
+
+When working on Windows, install **WSL 2** and enable Docker Desktop's
+"Use the WSL 2 based engine" option under **Settings → General**. Also enable
+WSL integration for your Linux distribution to share the Docker daemon.
+
+Clone this repository inside your WSL home directory to avoid path translation
+issues. Paths on the Windows drive such as `/mnt/c/...` sometimes break volume
+mounts or slow down file operations.
+
+Start a WSL shell from PowerShell and run the setup as usual:
+
+```powershell
+wsl
+cd ~/AGI-Alpha-Agent-v0
+python check_env.py --auto-install
+./quickstart.sh
+```
+
+When building Docker images from PowerShell, reference the WSL path using the
+`\\wsl$` prefix:
+
+```powershell
+docker build -f Dockerfile \\wsl$\Ubuntu\home\<user>\AGI-Alpha-Agent-v0
+```
+
+These steps prevent common path and permission errors on Windows.
+
 ## OpenAI Agents SDK and Google ADK integration
 
 Expose the search loop via the **OpenAI Agents SDK**:
