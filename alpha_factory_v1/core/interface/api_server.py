@@ -23,7 +23,20 @@ from email.message import EmailMessage
 from cachetools import TTLCache
 
 from alpha_factory_v1.core.archive import Archive, ArchiveDB
-from alpha_factory_v1.demos.alpha_agi_insight_v1.src.utils import alerts
+
+# alerts is optional so demos can run without the Insight utilities
+try:
+    from alpha_factory_v1.demos.alpha_agi_insight_v1.src.utils import alerts  # type: ignore
+except ModuleNotFoundError:  # pragma: no cover - optional
+
+    class alerts:  # type: ignore
+        """Fallback alert handler when Insight utilities are missing."""
+
+        @staticmethod
+        def send_alert(message: str, url: str | None = None) -> None:
+            _log.warning("alert: %s", message)
+
+
 from alpha_factory_v1.core.utils.config import init_config
 from alpha_factory_v1.core.monitoring import metrics
 from alpha_factory_v1.core.capsules import CapsuleFacts, ImpactScorer, load_capsule_facts
