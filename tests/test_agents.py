@@ -194,7 +194,16 @@ def test_monitor_restart_and_ledger_log(monkeypatch) -> None:
     async def run() -> None:
         async with orch.bus:
             runner.start(orch.bus, orch.ledger)
-            monitor = asyncio.create_task(orch._monitor())
+            monitor = asyncio.create_task(
+                orchestrator.monitor_agents(
+                    orch.runners,
+                    orch.bus,
+                    orch.ledger,
+                    err_threshold=orchestrator.ERR_THRESHOLD,
+                    backoff_exp_after=orchestrator.BACKOFF_EXP_AFTER,
+                    on_restart=orch._record_restart,
+                )
+            )
             await asyncio.sleep(3)
             monitor.cancel()
             with contextlib.suppress(asyncio.CancelledError):

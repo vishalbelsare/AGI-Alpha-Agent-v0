@@ -44,7 +44,16 @@ class TestInsightOrchestratorRestart(unittest.TestCase):
         async def run() -> bool:
             async with orch.bus, orch.ledger:
                 runner.start(orch.bus, orch.ledger)
-                monitor = asyncio.create_task(orch._monitor())
+                monitor = asyncio.create_task(
+                    orchestrator.monitor_agents(
+                        orch.runners,
+                        orch.bus,
+                        orch.ledger,
+                        err_threshold=orchestrator.ERR_THRESHOLD,
+                        backoff_exp_after=orchestrator.BACKOFF_EXP_AFTER,
+                        on_restart=orch._record_restart,
+                    )
+                )
                 await asyncio.sleep(3)
                 active = runner.task is not None and not runner.task.done()
                 monitor.cancel()
