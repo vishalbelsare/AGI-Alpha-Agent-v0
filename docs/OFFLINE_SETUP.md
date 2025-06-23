@@ -12,6 +12,12 @@ Run the helper script on a machine with connectivity:
 ./scripts/build_offline_wheels.sh
 ```
 
+To build the wheelhouse **and** regenerate all lock files in one step:
+
+```bash
+./scripts/offline_prepare.sh
+```
+
 This collects wheels for all lock files inside a `wheels/` directory. Copy this
 directory to the offline host.
 
