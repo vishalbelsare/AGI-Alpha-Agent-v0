@@ -10,16 +10,15 @@ import logging
 import os
 import signal
 import sys
-from typing import Dict
+
 
 from alpha_factory_v1.utils.env import _env_int
 
 from .telemetry import init_metrics, MET_LAT, MET_ERR, MET_UP, tracer  # noqa: F401
-from .agent_manager import AgentManager
-from .api_server import start_servers
+from .orchestrator_base import BaseOrchestrator
 
 with contextlib.suppress(ModuleNotFoundError):
-    import uvicorn
+    import uvicorn  # noqa: F401
 
 # Memory fabric is optional → graceful stub when absent
 try:
@@ -63,44 +62,50 @@ if not logging.getLogger().handlers:
 log = logging.getLogger("alpha_factory.orchestrator")
 
 
-async def _main() -> None:
-    if os.getenv("NEO4J_PASSWORD") == "REPLACE_ME":
-        log.error(
-            "NEO4J_PASSWORD is set to the default 'REPLACE_ME'. "
-            "Edit .env or your Docker secrets to configure a strong password."
+class Orchestrator(BaseOrchestrator):
+    """Default Alpha‑Factory orchestrator."""
+
+    def __init__(self) -> None:
+        if os.getenv("NEO4J_PASSWORD") == "REPLACE_ME":
+            log.error(
+                "NEO4J_PASSWORD is set to the default 'REPLACE_ME'. "
+                "Edit .env or your Docker secrets to configure a strong password."
+            )
+            sys.exit(1)
+
+        init_metrics(METRICS_PORT)
+
+        super().__init__(
+            ENABLED,
+            DEV_MODE,
+            KAFKA_BROKER,
+            CYCLE_DEFAULT,
+            MAX_CYCLE_SEC,
+            rest_port=PORT,
+            grpc_port=A2A_PORT,
+            model_max_bytes=MODEL_MAX_BYTES,
+            mem=mem,
+            loglevel=LOGLEVEL,
+            ssl_disable=SSL_DISABLE,
         )
-        sys.exit(1)
 
-    mgr = AgentManager(ENABLED, DEV_MODE, KAFKA_BROKER, CYCLE_DEFAULT, MAX_CYCLE_SEC)
-    log.info("Bootstrapped %d agent(s): %s", len(mgr.runners), ", ".join(mgr.runners))
-
-    init_metrics(METRICS_PORT)
-
-    rest_task, grpc_server = await start_servers(
-        mgr.runners, MODEL_MAX_BYTES, mem, PORT, A2A_PORT, LOGLEVEL, SSL_DISABLE
-    )
-
-    stop_ev = asyncio.Event()
-    for sig in (signal.SIGINT, signal.SIGTERM):
-        with contextlib.suppress(RuntimeError):
-            asyncio.get_running_loop().add_signal_handler(sig, stop_ev.set)
-
-    await mgr.run(stop_ev)
-
-    if rest_task:
-        rest_task.cancel()
-        with contextlib.suppress(asyncio.CancelledError):
-            await rest_task
-    if grpc_server:
-        grpc_server.stop(0)
-    log.info("Orchestrator shutdown complete")
-
-
-class Orchestrator:
-    """Programmatic entry-point wrapping :func:`_main`."""
+        log.info(
+            "Bootstrapped %d agent(s): %s",
+            len(self.manager.runners),
+            ", ".join(self.manager.runners),
+        )
 
     def run_forever(self) -> None:
-        asyncio.run(_main())
+        """Run the orchestrator with signal handling."""
+        stop_ev = asyncio.Event()
+        for sig in (signal.SIGINT, signal.SIGTERM):
+            with contextlib.suppress(RuntimeError):
+                asyncio.get_running_loop().add_signal_handler(sig, stop_ev.set)
+
+        try:
+            asyncio.run(self.run(stop_ev))
+        finally:
+            log.info("Orchestrator shutdown complete")
 
 
 if __name__ == "__main__":  # pragma: no cover - manual execution
