@@ -16,6 +16,7 @@ docker compose up --build
 See [docs/quickstart.md](docs/quickstart.md) for detailed steps.
 
 New to the project? Read the [Getting Started guide](docs/INTRO.md) for a short overview.
+First-time users should also read the [Project Overview](docs/OVERVIEW.md).
 
 
 # **META-AGENTIC** α‑AGI 👁️✨
