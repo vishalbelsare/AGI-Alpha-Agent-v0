@@ -24,7 +24,7 @@ from typing import Callable
 
 from alpha_factory_v1 import run as af_run, __version__
 from alpha_factory_v1.utils.env import _env_int
-from alpha_factory_v1.utils.disclaimer import DISCLAIMER
+from alpha_factory_v1.utils.disclaimer import print_disclaimer
 from src.utils.config import init_config
 
 log = logging.getLogger(__name__)
@@ -124,7 +124,7 @@ def main() -> None:
     flags.
     """
 
-    print(DISCLAIMER)
+    print_disclaimer()
     init_config()
     args = parse_args()
 

@@ -5,13 +5,13 @@ from __future__ import annotations
 
 import argparse
 import os
-from ...utils.disclaimer import DISCLAIMER
+from ...utils.disclaimer import print_disclaimer
 
 
 def main(argv: list[str] | None = None) -> None:
     """Launch the MuZero dashboard with optional CLI overrides."""
 
-    print(DISCLAIMER)
+    print_disclaimer()
 
     parser = argparse.ArgumentParser(description="Run MuZero planning demo")
     parser.add_argument(

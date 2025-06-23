@@ -22,6 +22,7 @@ cd "$SCRIPT_DIR/.."  # always operate from repository root
 export PYTHONPATH="${PWD}:${PYTHONPATH:-}"
 
 # use local wheels when available
+# shellcheck disable=SC2155
 if [[ -z "${WHEELHOUSE:-}" && -d wheels ]]; then
   export WHEELHOUSE="$(pwd)/wheels"
 fi
@@ -135,14 +136,15 @@ header
 check_deps
 info "Displaying disclaimer"
 python3 - <<'PY'
-from alpha_factory_v1.utils.disclaimer import DISCLAIMER
-print(DISCLAIMER)
+from alpha_factory_v1.utils.disclaimer import print_disclaimer
+print_disclaimer()
 PY
 check_python_version
 
 VENV_DIR=".venv"
 prompt "Create virtual environment at $VENV_DIR?" && create_venv
 
+# shellcheck source=/dev/null
 source "$VENV_DIR/bin/activate"
 
 if [[ $PRECHECK_ONLY -eq 1 ]]; then

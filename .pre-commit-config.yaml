@@ -103,6 +103,11 @@ repos:
         language: python
         pass_filenames: false
         files: \.(md|ipynb)$
+      - id: verify-disclaimer-helper
+        name: Ensure scripts import disclaimer helper
+        entry: python scripts/verify_disclaimer_helper.py
+        language: python
+        pass_filenames: false
       - id: py-compile
         name: Validate Python syntax with py_compile
         entry: python -m py_compile

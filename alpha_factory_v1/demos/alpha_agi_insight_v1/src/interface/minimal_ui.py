@@ -14,7 +14,7 @@ import sys
 from typing import Any, TYPE_CHECKING, cast
 
 from ..simulation import forecast, sector
-from .....utils.disclaimer import DISCLAIMER
+from .....utils.disclaimer import DISCLAIMER, print_disclaimer
 
 try:  # pragma: no cover - optional dependency
     import streamlit as _st
@@ -85,7 +85,7 @@ def main(argv: list[str] | None = None) -> None:  # pragma: no cover - entry poi
         sys.exit("Streamlit not installed. Re-run with --text for console output.")
 
     if args.text or st is None:
-        print(DISCLAIMER)
+        print_disclaimer()
         traj = _simulate(5, "logistic", 6, 3)
         for record in _disruption_df(traj).to_dict(orient="records"):
             print(f"{record['sector']}: year {record['year']}")
