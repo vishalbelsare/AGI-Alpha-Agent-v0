@@ -1,0 +1,20 @@
+site_name: Alpha-Factory Docs
+site_url: https://montreal-ai.github.io/AGI-Alpha-Agent-v0/
+repo_url: https://github.com/MontrealAI/AGI-Alpha-Agent-v0
+docs_dir: docs
+theme:
+  name: material
+nav:
+  - Home: README.md
+  - Quickstart: quickstart.md
+  - Getting Started: INTRO.md
+  - Project Overview: OVERVIEW.md
+  - Design: DESIGN.md
+  - API Reference: API.md
+  - Deployment Security: deployment_security.md
+  - Offline Install: OFFLINE_INSTALL.md
+  - Offline Setup: OFFLINE_SETUP.md
+  - Sandbox: sandbox.md
+  - Policy Runbook: POLICY_RUNBOOK.md
+  - dgm_ops: dgm_ops.md
+  - Changelog: CHANGELOG.md
