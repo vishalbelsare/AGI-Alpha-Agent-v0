@@ -73,6 +73,53 @@ Run `pytest -q` once the check succeeds.
 
 See [tests/README.md](../tests/README.md#offline-install) and [AGENTS.md](../AGENTS.md#offline-setup) for the full instructions.
 
+## Tested platforms
+
+The offline workflow was verified on **Ubuntu 22.04**, **macOS** with Docker
+Desktop and **WSL2** on Windows 11. Native Windows without WSL2 often fails due
+to path translation and file sharing issues, so using WSL2 is strongly
+recommended.
+
+### WSL2 setup
+
+1. Install WSL and update it from an elevated PowerShell prompt:
+
+   ```powershell
+   wsl --install
+   wsl --set-default-version 2
+   wsl --update
+   ```
+
+2. Install Docker Desktop and enable **Use the WSL 2 based engine** under
+   **Settings → General**. Turn on integration for your distribution under
+   **Resources → WSL Integration**.
+
+3. Inside the WSL shell install build tools and Python headers:
+
+   ```bash
+   sudo apt update
+   sudo apt install -y python3-venv python3-dev build-essential libssl-dev
+   ```
+
+4. Clone the repository inside your Linux home directory, create a virtual
+   environment and verify the setup:
+
+   ```bash
+   python -m venv .venv
+   source .venv/bin/activate
+   python check_env.py --auto-install --wheelhouse "$WHEELHOUSE"
+   ```
+
+### Playwright tests
+
+Browser tests that rely on Playwright work best on Linux. They can fail on
+macOS or WSL2 when the required browsers are missing. Skip them by deselecting
+the files, for example:
+
+```bash
+pytest -k 'not pwa_offline and not browser_ui'
+```
+
 ### Windows Setup Tips
 Docker Desktop sometimes fails to mount Windows paths when running offline.
 Use the `\\wsl$\` prefix or an absolute path with the drive letter when
