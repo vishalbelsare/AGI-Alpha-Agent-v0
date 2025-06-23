@@ -11,7 +11,7 @@ from __future__ import annotations
 from .base_agent import BaseAgent
 from ..utils import messaging
 from ..utils.logging import Ledger
-from ..utils.tracing import span
+from alpha_factory_v1.core.utils.tracing import span
 from alpha_factory_v1.core.utils.opa_policy import violates_insider_policy, violates_exfil_policy
 
 

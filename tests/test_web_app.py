@@ -4,7 +4,7 @@ import pytest
 pd = pytest.importorskip("pandas")
 pytest.importorskip("plotly.express")
 from alpha_factory_v1.core.interface import web_app  # noqa: E402
-from alpha_factory_v1.demos.alpha_agi_insight_v1.src.simulation import forecast, sector, mats  # noqa: E402
+from alpha_factory_v1.core.simulation import forecast, sector, mats  # noqa: E402
 
 
 def test_timeline_df() -> None:

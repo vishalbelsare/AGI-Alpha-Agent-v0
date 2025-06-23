@@ -9,8 +9,8 @@ import shutil
 from pathlib import Path
 from typing import Sequence
 
-from alpha_factory_v1.demos.alpha_agi_insight_v1.src.agents.base_agent import BaseAgent
-from alpha_factory_v1.demos.alpha_agi_insight_v1.src import self_improver
+from alpha_factory_v1.core.agents.base_agent import BaseAgent
+from alpha_factory_v1.core.self_evolution import self_improver
 from alpha_factory_v1.core.utils.patch_guard import is_patch_valid
 
 try:  # optional dependency

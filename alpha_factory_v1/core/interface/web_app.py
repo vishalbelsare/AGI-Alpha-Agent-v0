@@ -20,10 +20,7 @@ from pathlib import Path
 import pandas as pd
 import plotly.express as px
 from alpha_factory_v1.core.utils.visual import plot_pareto
-from alpha_factory_v1.demos.alpha_agi_insight_v1.src.utils.tracing import (
-    agent_cycle_seconds,
-    span,
-)
+from alpha_factory_v1.core.utils.tracing import agent_cycle_seconds, span
 
 try:
     import prometheus_client
@@ -46,9 +43,9 @@ else:
     SectorModule = Any
     MatsModule = Any
 
-forecast = importlib.import_module("alpha_factory_v1.demos.alpha_agi_insight_v1.src.simulation.forecast")
-sector = importlib.import_module("alpha_factory_v1.demos.alpha_agi_insight_v1.src.simulation.sector")
-mats = importlib.import_module("alpha_factory_v1.demos.alpha_agi_insight_v1.src.simulation.mats")
+forecast = importlib.import_module("alpha_factory_v1.core.simulation.forecast")
+sector = importlib.import_module("alpha_factory_v1.core.simulation.sector")
+mats = importlib.import_module("alpha_factory_v1.core.simulation.mats")
 
 
 def timeline_df(traj: list[Any]) -> pd.DataFrame:

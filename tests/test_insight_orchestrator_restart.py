@@ -6,11 +6,11 @@ import unittest
 from unittest import mock
 import contextlib
 
-from alpha_factory_v1.demos.alpha_agi_insight_v1.src import orchestrator
-from alpha_factory_v1.demos.alpha_agi_insight_v1.src.utils import config
-from alpha_factory_v1.demos.alpha_agi_insight_v1.src.utils.messaging import A2ABus, Envelope
-from alpha_factory_v1.demos.alpha_agi_insight_v1.src.utils.logging import Ledger
-from alpha_factory_v1.demos.alpha_agi_insight_v1.src.agents.base_agent import BaseAgent
+from alpha_factory_v1.core import orchestrator
+from alpha_factory_v1.core.utils import config
+from alpha_factory_v1.core.utils.messaging import A2ABus, Envelope
+from alpha_factory_v1.core.utils.logging import Ledger
+from alpha_factory_v1.core.agents.base_agent import BaseAgent
 
 
 class FreezeAgent(BaseAgent):

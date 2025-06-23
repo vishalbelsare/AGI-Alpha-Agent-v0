@@ -122,7 +122,7 @@ def test_tracing_env_variable(monkeypatch: pytest.MonkeyPatch) -> None:
             return None
 
     import importlib
-    import alpha_factory_v1.demos.alpha_agi_insight_v1.src.utils.tracing as tracing
+    import alpha_factory_v1.core.utils.tracing as tracing
 
     if not hasattr(tracing, "OTLPSpanExporter"):
         pytest.skip("OTLP exporter not available")

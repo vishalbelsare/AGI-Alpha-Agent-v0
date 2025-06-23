@@ -31,10 +31,11 @@ except Exception:  # pragma: no cover - optional
     Console = None
     Table = None
 
-from .. import orchestrator, self_improver
+from alpha_factory_v1.core import orchestrator
+from alpha_factory_v1.core.self_evolution import self_improver
 from alpha_factory_v1.core.archive.hash_archive import HashArchive
 from alpha_factory_v1.core import scheduler
-from ..simulation import forecast, sector, mats
+from alpha_factory_v1.core.simulation import forecast, sector, mats
 from alpha_factory_v1.core.utils.visual import plot_pareto
 from ..utils import config, logging
 from alpha_factory_v1.core.eval.foresight import evaluate as foresight_evaluate

@@ -41,7 +41,7 @@ from .base_agent import BaseAgent
 from ..utils import messaging, logging as insight_logging
 from ..utils.logging import Ledger
 from ..utils.retry import with_retry
-from ..utils.tracing import span
+from alpha_factory_v1.core.utils.tracing import span
 
 log = insight_logging.logging.getLogger(__name__)
 

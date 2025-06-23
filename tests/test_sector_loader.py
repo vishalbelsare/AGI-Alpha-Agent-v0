@@ -2,7 +2,7 @@
 import json
 from pathlib import Path
 
-from alpha_factory_v1.demos.alpha_agi_insight_v1.src.simulation import sector
+from alpha_factory_v1.core.simulation import sector
 
 
 def test_load_sectors_names(tmp_path: Path) -> None:

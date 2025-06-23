@@ -3,7 +3,7 @@ import unittest
 import random
 
 from alpha_factory_v1.core.simulation import GaussianParam
-from alpha_factory_v1.demos.alpha_agi_insight_v1.src.simulation import mats
+from alpha_factory_v1.core.simulation import mats
 
 
 def _diversity(pop: list[mats.Individual]) -> float:
