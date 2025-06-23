@@ -11,7 +11,7 @@ import os
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
-from .agent_manager import AgentRunner
+from .agent_runner import AgentRunner
 
 with contextlib.suppress(ModuleNotFoundError):
     from fastapi import FastAPI, HTTPException, File, Request, Depends
