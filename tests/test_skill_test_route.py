@@ -5,7 +5,7 @@ from fastapi.testclient import TestClient
 
 pytest.importorskip("fastapi")
 
-from alpha_factory_v1.backend import orchestrator
+from alpha_factory_v1.backend.api_server import build_rest as _build_rest
 
 
 class SimpleAgent:
@@ -26,7 +26,7 @@ class Runner:
 
 class TestSkillTestRoute(unittest.TestCase):
     def test_skill_test_endpoint(self) -> None:
-        app = orchestrator._build_rest({"simple": Runner(SimpleAgent())})
+        app = _build_rest({"simple": Runner(SimpleAgent())})
         self.assertIsNotNone(app)
         client = TestClient(app)
         headers = {"Authorization": "Bearer test-token"}
