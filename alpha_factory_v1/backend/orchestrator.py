@@ -23,7 +23,7 @@ from .telemetry import (
     generate_latest,
     CONTENT_TYPE_LATEST,
 )  # noqa: F401
-from .agent_manager import AgentRunner, EventBus, hb_watch, regression_guard
+from .agent_runner import AgentRunner, EventBus, hb_watch, regression_guard
 from .api_server import build_rest as _build_rest, serve_grpc as _serve_grpc
 
 with contextlib.suppress(ModuleNotFoundError):

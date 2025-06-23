@@ -18,12 +18,11 @@ class DummyRunner:
 
 def test_regression_guard(monkeypatch) -> None:
     alerts: list[str] = []
-    monkeypatch.setattr(orchestrator.alerts, "send_alert", lambda m: alerts.append(m))
     runner = DummyRunner()
     runners = {"aiga_evolver": runner}
 
     async def drive() -> float:
-        guard = asyncio.create_task(orchestrator._regression_guard(runners))
+        guard = asyncio.create_task(orchestrator.regression_guard(runners, alerts.append))
         start = time.time()
         for v in [1.0, 0.7, 0.5, 0.3]:
             metrics.dgm_best_score.set(v)
