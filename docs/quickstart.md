@@ -106,6 +106,34 @@ docker build -f Dockerfile \\wsl$\Ubuntu\home\<user>\AGI-Alpha-Agent-v0
 
 These steps prevent common path and permission errors on Windows.
 
+### WSL 2 Setup Tips
+
+Run the following commands from an elevated PowerShell window to ensure WSL 2 is ready:
+
+```powershell
+wsl --install
+wsl --set-default-version 2
+wsl --update
+```
+
+Open your Linux shell and install the build tools required by packages like `psutil` and `cryptography`:
+
+```bash
+sudo apt update
+sudo apt install -y python3-venv python3-dev build-essential libssl-dev
+```
+
+When package installation fails inside WSL, missing headers are often the culprit. Reinstall the wheel after installing the tools above.
+
+#### Common WSL errors
+
+| Symptom | Resolution |
+|---------|------------|
+| `docker: command not found` | Start Docker Desktop and enable WSL integration. |
+| `Cannot connect to the Docker daemon` | Run `wsl --shutdown` then reopen the shell. |
+| Permission errors when accessing `/mnt/c` | Clone the repo under your WSL home directory. |
+| Compilation failures for `psutil` or `cryptography` | Ensure `build-essential` and `python3-dev` are installed. |
+
 ## OpenAI Agents SDK and Google ADK integration
 
 Expose the search loop via the **OpenAI Agents SDK**:
