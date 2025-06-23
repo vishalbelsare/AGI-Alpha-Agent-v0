@@ -13,6 +13,9 @@ docker compose up --build
 ./run_quickstart.sh
 ```
 
+Watch the run here: [Quickstart video](docs/assets/quickstart_insight.cast) ·
+[Asciinema link](https://asciinema.org/a/I0uXbfl9SLa6SjocAb8Ik8Mni)
+
 See [docs/quickstart.md](docs/quickstart.md) for detailed steps.
 
 New to the project? Read the [Getting Started guide](docs/INTRO.md) for a short overview.
