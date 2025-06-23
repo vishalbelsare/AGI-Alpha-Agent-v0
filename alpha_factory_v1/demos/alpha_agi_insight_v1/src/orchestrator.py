@@ -33,7 +33,11 @@ from alpha_factory_v1.core.agents.self_improver_agent import SelfImproverAgent
 from .utils import config, messaging, logging as insight_logging
 from .utils.tracing import agent_cycle_seconds
 from .utils import alerts
-from alpha_factory_v1.backend.agent_supervisor import AgentRunner, monitor_agents
+from alpha_factory_v1.backend.agent_supervisor import (
+    AgentRunner,
+    monitor_agents,
+    handle_heartbeat,
+)
 from .utils.logging import Ledger
 from alpha_factory_v1.core.archive.service import ArchiveService
 from alpha_factory_v1.core.archive.solution_archive import SolutionArchive
@@ -55,7 +59,10 @@ PROMOTION_THRESHOLD = float(os.getenv("PROMOTION_THRESHOLD", "0"))
 log = insight_logging.logging.getLogger(__name__)
 
 
-class Orchestrator:
+from alpha_factory_v1.backend.orchestrator import Orchestrator as BaseOrchestrator
+
+
+class Orchestrator(BaseOrchestrator):
     """Bootstraps agents and routes envelopes."""
 
     def __init__(self, settings: config.Settings | None = None) -> None:
@@ -87,7 +94,7 @@ class Orchestrator:
                 pass
         self.island_backends: Dict[str, str] = dict(self.settings.island_backends)
         self.runners: Dict[str, AgentRunner] = {}
-        self.bus.subscribe("orch", self._on_orch)
+        self.bus.subscribe("orch", lambda env: handle_heartbeat(self.runners, env))
         for agent in self._init_agents():
             runner = AgentRunner(agent)
             self.runners[agent.name] = runner
@@ -196,12 +203,6 @@ class Orchestrator:
             f"{runner.agent.name} restarted",
             self.settings.alert_webhook_url,
         )
-
-    async def _on_orch(self, env: messaging.Envelope) -> None:
-        if env.payload.get("heartbeat") and env.sender in self.runners:
-            runner = self.runners[env.sender]
-            runner.last_beat = env.ts
-            runner.restart_streak = 0
 
     def slash(self, agent_id: str) -> None:
         """Burn 10% of ``agent_id`` stake."""
