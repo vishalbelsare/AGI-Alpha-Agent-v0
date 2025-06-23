@@ -56,7 +56,7 @@ import os
 import subprocess
 import sys
 from pathlib import Path
-from ..utils.disclaimer import DISCLAIMER
+from ..utils.disclaimer import DISCLAIMER, print_disclaimer
 from typing import Optional
 
 # ────────────────────────────────────────────────────────────────────────────────
@@ -64,7 +64,7 @@ from typing import Optional
 # ────────────────────────────────────────────────────────────────────────────────
 try:
     # OpenAI Agents SDK (>= 0.4.0)
-    from agents import Runner  # type: ignore
+    from agents import Runner
 
     SDK_AVAILABLE = True
 except ModuleNotFoundError:  # pragma: no cover
@@ -73,7 +73,7 @@ except ModuleNotFoundError:  # pragma: no cover
 try:
     import git  # GitPython
 except ModuleNotFoundError:  # pragma: no cover
-    git = None  # type: ignore[misc]
+    git = None
 
 # Alpha‑Factory shared utilities
 from alpha_factory_v1.backend.agent_factory import build_core_agent
@@ -88,7 +88,7 @@ def _commit_patch(repo_path: Path, message: str = "auto‑fix: CI green 🟢") -
 
     try:
         repo = git.Repo(repo_path)
-    except git.InvalidGitRepositoryError:  # type: ignore[attr-defined]
+    except git.InvalidGitRepositoryError:
         return "[not a git repo ‑ skipping commit]"
 
     branch_name = "auto-fix"
@@ -130,7 +130,7 @@ def _parse_args(argv: Optional[list[str]] = None) -> argparse.Namespace:
 # Main logic
 # ────────────────────────────────────────────────────────────────────────────────
 def main(argv: Optional[list[str]] = None) -> None:
-    print(DISCLAIMER)
+    print_disclaimer()
     args = _parse_args(argv)
 
     if args.allow_local_code:

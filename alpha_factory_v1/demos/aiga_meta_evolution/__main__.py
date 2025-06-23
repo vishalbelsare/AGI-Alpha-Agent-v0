@@ -6,8 +6,8 @@ indicate the presence of real general intelligence. Use at your own risk.
 """
 
 from .start_aiga_demo import main
-from ..utils.disclaimer import DISCLAIMER
+from ..utils.disclaimer import print_disclaimer
 
 if __name__ == "__main__":
-    print(DISCLAIMER)
+    print_disclaimer()
     main()

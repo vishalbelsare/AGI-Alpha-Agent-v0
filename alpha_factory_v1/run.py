@@ -6,7 +6,7 @@ import os
 import argparse
 from pathlib import Path
 
-from .utils.disclaimer import DISCLAIMER
+from .utils.disclaimer import print_disclaimer
 
 from .utils.env import _load_env_file
 
@@ -71,7 +71,7 @@ def run(show_disclaimer: bool = True) -> None:
     """Entry point used by the ``alpha-factory`` console script."""
     args = parse_args()
     if show_disclaimer:
-        print(DISCLAIMER)
+        print_disclaimer()
     if args.version:
         print(__version__)
         return

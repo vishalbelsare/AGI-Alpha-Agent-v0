@@ -18,12 +18,12 @@ from __future__ import annotations
 import argparse
 from . import insight_demo
 from ... import get_version
-from ...utils.disclaimer import DISCLAIMER
+from ...utils.disclaimer import print_disclaimer
 import os
 
 
 def main(argv: list[str] | None = None) -> None:
-    print(DISCLAIMER)
+    print_disclaimer()
 
     parser = argparse.ArgumentParser(description="Run the α‑AGI Insight demo")
     parser.add_argument(
