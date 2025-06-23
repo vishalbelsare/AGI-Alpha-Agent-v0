@@ -1098,8 +1098,8 @@ Install the project in editable mode so tests resolve imports:
 pip install -e .
 python check_env.py --auto-install  # times out after 10 minutes
 ```
-Run `python check_env.py --auto-install` again before executing `pytest` to
-ensure optional dependencies are present. When offline, set `WHEELHOUSE` or pass
+The `run_tests` helper automatically executes `python check_env.py --auto-install`
+before running `pytest`. When offline, set `WHEELHOUSE` or pass
 `--wheelhouse <dir>` so packages install from the local wheel cache. The
 repository ships with a `wheels/` directory that can be used as this cache.
 The full test suite relies on optional packages including `numpy`, `torch`,

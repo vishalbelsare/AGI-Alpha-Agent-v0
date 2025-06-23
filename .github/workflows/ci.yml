@@ -113,6 +113,7 @@ jobs:
         run: make proto-verify
       - name: Run tests with coverage
         run: |
+          python check_env.py --auto-install${WHEELHOUSE:+ --wheelhouse "$WHEELHOUSE"}
           pytest --cov --cov-report=xml --cov-fail-under=70
       - name: Mutation tests
         run: |

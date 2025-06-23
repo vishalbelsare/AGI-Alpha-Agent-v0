@@ -33,12 +33,20 @@ def _run_tests(repo: Path) -> int:
         "--rm",
         "-v",
         f"{repo}:/work",
-        "-w",
-        "/work",
-        IMAGE,
-        "pytest",
-        "-q",
     ]
+    wheelhouse = os.getenv("WHEELHOUSE")
+    if wheelhouse:
+        cmd.extend(["-e", f"WHEELHOUSE={wheelhouse}", "-v", f"{wheelhouse}:{wheelhouse}"])
+    cmd.extend(
+        [
+            "-w",
+            "/work",
+            IMAGE,
+            "bash",
+            "-c",
+            'python check_env.py --auto-install${WHEELHOUSE:+ --wheelhouse "$WHEELHOUSE"} && pytest -q',
+        ]
+    )
     proc = subprocess.run(cmd, capture_output=True, text=True)
     return proc.returncode
 
