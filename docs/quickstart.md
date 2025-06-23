@@ -72,6 +72,10 @@ Alternatively build and run the Docker image in one step:
 Copy `.env.sample` to `.env` and add your API keys to enable cloud features. Without keys, the program falls back to the
 local Meta‑Agentic Tree Search:
 
+`AF_MEMORY_DIR` controls where the demos store their JSONL history. The sample
+file uses `/tmp/alphafactory`, which is wiped on reboot. Set it to a persistent
+folder if you want to keep results across sessions.
+
 ```bash
 alpha-agi-insight-v1 --episodes 5  # with or without OPENAI_API_KEY
 ```
