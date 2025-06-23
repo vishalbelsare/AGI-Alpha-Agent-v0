@@ -90,8 +90,11 @@ def vote_and_merge(repo: str | Path, diff: str, registry: StakeRegistry, agent_i
         registry.vote(proposal, agent_id, False)
         shutil.rmtree(patched)
         return False
-    new_score = float((patched / "metric.txt").read_text().strip())
-    improved = new_score > baseline
+    try:
+        new_score = float((patched / "metric.txt").read_text().strip())
+    except Exception:
+        new_score = baseline
+    improved = new_score < baseline
     registry.vote(proposal, agent_id, improved)
     accepted = improved and registry.accepted(proposal)
     if accepted:

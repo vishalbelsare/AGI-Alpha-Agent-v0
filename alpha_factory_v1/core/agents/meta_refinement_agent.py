@@ -54,18 +54,37 @@ class MetaRefinementAgent:
             prev_ts = ts
         return target
 
-    def _create_patch(self, bottleneck: str) -> str:
-        goal = f"optimise around {bottleneck}"
-        metric = self.repo / "metric.txt"
-        if metric.exists():
-            try:
-                current = int(float(metric.read_text().strip()))
-            except Exception:
-                current = 0
-            new_val = current + 1
-            diff = "--- a/metric.txt\n" "+++ b/metric.txt\n" "@@\n" f"-{current}\n" f"+{new_val}\n"
-            return diff
-        return propose_diff(str(metric), goal)
+    def _create_patch(self, entries: Iterable[Mapping[str, object]]) -> str:
+        """Create a diff targeting the slowest or error-prone module."""
+
+        stats: dict[str, dict[str, float]] = {}
+        for rec in entries:
+            module = str(rec.get("module") or rec.get("agent") or rec.get("hash") or "")
+            if not module:
+                continue
+            data = stats.setdefault(module, {"lat": 0.0, "count": 0.0, "err": 0.0})
+            if "latency" in rec:
+                data["lat"] += float(rec["latency"])
+                data["count"] += 1.0
+            if rec.get("level") == "error" or rec.get("error"):
+                data["err"] += 1.0
+
+        if not stats:
+            metric = self.repo / "metric.txt"
+            return propose_diff(str(metric), "optimise performance")
+
+        def avg_latency(d: dict[str, float]) -> float:
+            return d["lat"] / d["count"] if d["count"] else -1.0
+
+        target = max(stats.items(), key=lambda kv: (avg_latency(kv[1]), kv[1]["err"]))[0]
+
+        path = self.repo / target
+        goal = f"improve {target}"
+        if not path.exists():
+            path = self.repo / "metric.txt"
+            goal = f"optimise around {target}"
+
+        return propose_diff(str(path), goal)
 
     # ------------------------------------------------------------------
     def refine(self) -> bool:
@@ -75,10 +94,9 @@ class MetaRefinementAgent:
             bool: ``True`` if the patch was merged, ``False`` otherwise.
         """
         logs = self._load_logs()
-        bottleneck = self._detect_bottleneck(logs)
-        if not bottleneck:
+        if not logs:
             return False
-        diff = self._create_patch(bottleneck)
+        diff = self._create_patch(logs)
         accepted = harness.vote_and_merge(self.repo, diff, self.registry, agent_id="meta")
         if accepted:
             test_scribe.generate_test(self.repo, "True")

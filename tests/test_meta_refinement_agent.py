@@ -12,6 +12,7 @@ def _make_repo(tmp_path: Path) -> Path:
     repo.mkdir()
     (repo / "metric.txt").write_text("1\n", encoding="utf-8")
     (repo / "test_dummy.py").write_text("def test_ok():\n    assert True\n", encoding="utf-8")
+    (repo / "module_a.py").write_text("def run():\n    pass\n", encoding="utf-8")
     return repo
 
 
@@ -20,7 +21,11 @@ def test_refinement_merges_patch(tmp_path: Path) -> None:
     logs = tmp_path / "logs"
     logs.mkdir()
     (logs / "log.json").write_text(
-        "\n".join(['{"hash":"h0","ts":0}', '{"hash":"h1","ts":1}', '{"hash":"h2","ts":5}']),
+        "\n".join([
+            '{"module":"module_a.py","latency":5,"ts":0}',
+            '{"module":"module_b.py","latency":1,"ts":1}',
+            '{"module":"module_a.py","latency":6,"ts":2}'
+        ]),
         encoding="utf-8",
     )
 
@@ -33,14 +38,14 @@ def test_refinement_merges_patch(tmp_path: Path) -> None:
         patch.object(
             harness.patcher_core,
             "apply_patch",
-            lambda d, repo_path: (Path(repo_path) / "metric.txt").write_text("2\n"),
+            lambda d, repo_path: (Path(repo_path) / "metric.txt").write_text("0\n"),
         ),
     ):
         agent = MetaRefinementAgent(repo, logs, reg)
         merged = agent.refine()
 
     assert merged
-    assert (repo / "metric.txt").read_text().strip() == "2"
+    assert (repo / "metric.txt").read_text().strip() == "0"
     generated = list((repo / "tests").glob("test_generated_*.py"))
     assert generated
 
@@ -69,7 +74,11 @@ def test_refinement_rejected_patch(tmp_path: Path) -> None:
     logs = tmp_path / "logs"
     logs.mkdir()
     (logs / "log.json").write_text(
-        "\n".join(['{"hash":"h0","ts":0}', '{"hash":"h1","ts":1}', '{"hash":"h2","ts":5}']),
+        "\n".join([
+            '{"module":"module_a.py","latency":5,"ts":0}',
+            '{"module":"module_b.py","latency":1,"ts":1}',
+            '{"module":"module_a.py","latency":6,"ts":2}'
+        ]),
         encoding="utf-8",
     )
 
