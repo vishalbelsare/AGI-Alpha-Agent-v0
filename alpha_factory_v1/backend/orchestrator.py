@@ -61,6 +61,17 @@ if not logging.getLogger().handlers:
     )
 log = logging.getLogger("alpha_factory.orchestrator")
 
+_manager: BaseOrchestrator | None = None
+
+
+def _publish(topic: str, msg: dict[str, object]) -> None:
+    """Expose bus.publish for agent modules."""
+    if _manager is not None:
+        try:
+            _manager.manager.bus.publish(topic, msg)
+        except Exception:  # pragma: no cover - best effort
+            log.exception("publish failed")
+
 
 class Orchestrator(BaseOrchestrator):
     """Default Alpha‑Factory orchestrator."""
@@ -88,6 +99,9 @@ class Orchestrator(BaseOrchestrator):
             loglevel=LOGLEVEL,
             ssl_disable=SSL_DISABLE,
         )
+
+        global _manager
+        _manager = self
 
         log.info(
             "Bootstrapped %d agent(s): %s",

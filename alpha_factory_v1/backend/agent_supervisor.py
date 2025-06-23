@@ -117,3 +117,14 @@ async def monitor_agents(
                 await r.restart(bus, ledger)
                 if on_restart:
                     on_restart(r)
+
+
+def handle_heartbeat(runners: Dict[str, AgentRunner], env: object) -> None:
+    """Update the heartbeat timestamp for ``env.sender`` if it exists."""
+    payload = getattr(env, "payload", None)
+    if payload and getattr(payload, "get", lambda *_: None)("heartbeat"):
+        sender = getattr(env, "sender", None)
+        if sender in runners:
+            r = runners[sender]
+            r.last_beat = getattr(env, "ts", time.time())
+            r.restart_streak = 0
