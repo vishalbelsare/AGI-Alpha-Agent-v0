@@ -15,6 +15,15 @@ docker compose up --build
 ./run_quickstart.sh
 ```
 
+Alternatively, run the pre-built image directly:
+```bash
+docker run --pull=always -p 8000:8000 ghcr.io/montrealai/alpha-factory:latest
+```
+
+Set `OPENAI_API_KEY` and other required secrets in your environment or `.env`
+before launching the container. The orchestrator prints the
+[project disclaimer](docs/DISCLAIMER_SNIPPET.md) when it starts.
+
 See [docs/INTRO_BASICS.md](docs/INTRO_BASICS.md) for the bare essentials or
 [docs/QUICKSTART_BASICS.md](docs/QUICKSTART_BASICS.md) for a minimal walkthrough.
 
