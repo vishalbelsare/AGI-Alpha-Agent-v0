@@ -83,7 +83,16 @@ def test_restart_crashed_agent(monkeypatch: mock.Mock) -> None:
             "sleep",
             new=lambda _t: orig_sleep(0.05),
         ):
-            monitor = asyncio.create_task(orch._monitor())
+            monitor = asyncio.create_task(
+                orchestrator.monitor_agents(
+                    orch.runners,
+                    orch.bus,
+                    orch.ledger,
+                    err_threshold=orchestrator.ERR_THRESHOLD,
+                    backoff_exp_after=orchestrator.BACKOFF_EXP_AFTER,
+                    on_restart=orch._record_restart,
+                )
+            )
             await orig_sleep(0.2)
             monitor.cancel()
             with contextlib.suppress(asyncio.CancelledError):

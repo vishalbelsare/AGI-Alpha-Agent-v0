@@ -33,6 +33,7 @@ from alpha_factory_v1.core.agents.self_improver_agent import SelfImproverAgent
 from .utils import config, messaging, logging as insight_logging
 from .utils.tracing import agent_cycle_seconds
 from .utils import alerts
+from alpha_factory_v1.backend.agent_supervisor import AgentRunner, monitor_agents
 from .utils.logging import Ledger
 from alpha_factory_v1.core.archive.service import ArchiveService
 from alpha_factory_v1.core.archive.solution_archive import SolutionArchive
@@ -52,67 +53,6 @@ BACKOFF_EXP_AFTER = int(os.getenv("AGENT_BACKOFF_EXP_AFTER", "3"))
 PROMOTION_THRESHOLD = float(os.getenv("PROMOTION_THRESHOLD", "0"))
 
 log = insight_logging.logging.getLogger(__name__)
-
-
-class AgentRunner:
-    """Wrapper supervising a single agent."""
-
-    def __init__(self, agent: BaseAgent) -> None:
-        self.cls: Callable[[messaging.A2ABus, Ledger], BaseAgent] = type(agent)
-        self.agent: BaseAgent = agent
-        self.period = getattr(agent, "CYCLE_SECONDS", 1.0)
-        self.capabilities = getattr(agent, "CAPABILITIES", [])
-        self.last_beat = time.time()
-        self.restarts = 0
-        self.task: asyncio.Task[None] | None = None
-        self.error_count = 0
-        self.restart_streak = 0
-
-    async def loop(self, bus: messaging.A2ABus, ledger: Ledger) -> None:
-        while True:
-            start = time.perf_counter()
-            try:
-                await self.agent.run_cycle()
-            except Exception as exc:  # noqa: BLE001
-                log.warning("%s failed: %s", self.agent.name, exc)
-                alerts.send_alert(f"{self.agent.name} failed: {exc}")
-                self.error_count += 1
-            else:
-                self.error_count = 0
-                self.restart_streak = 0
-                env = messaging.Envelope(
-                    sender=self.agent.name,
-                    recipient="orch",
-                    payload=struct_pb2.Struct(),
-                    ts=time.time(),
-                )
-                env.payload.update({"heartbeat": True})
-                ledger.log(env)
-                bus.publish("orch", env)
-                self.last_beat = env.ts
-            finally:
-                agent_cycle_seconds.labels(self.agent.name).observe(time.perf_counter() - start)
-            await asyncio.sleep(self.period)
-
-    def start(self, bus: messaging.A2ABus, ledger: Ledger) -> None:
-        self.task = asyncio.create_task(self.loop(bus, ledger))
-
-    async def restart(self, bus: messaging.A2ABus, ledger: Ledger) -> None:
-        if self.task:
-            self.task.cancel()
-            with contextlib.suppress(asyncio.CancelledError):
-                await self.task
-        try:
-            close = getattr(self.agent, "close")
-        except AttributeError:
-            pass
-        else:
-            close()
-        self.agent = self.cls(bus, ledger)
-        self.error_count = 0
-        self.restarts += 1
-        self.restart_streak += 1
-        self.start(bus, ledger)
 
 
 class Orchestrator:
@@ -281,35 +221,6 @@ class Orchestrator:
             log.warning("Merkle mismatch for %s", agent_id)
             self.slash(agent_id)
 
-    async def _monitor(self) -> None:
-        while True:
-            await asyncio.sleep(2)
-            now = time.time()
-            for r in list(self.runners.values()):
-                if r.task and r.task.done():
-                    delay = random.uniform(0.5, 1.5)
-                    if r.restart_streak >= BACKOFF_EXP_AFTER:
-                        delay *= 2 ** (r.restart_streak - BACKOFF_EXP_AFTER + 1)
-                    await asyncio.sleep(delay)
-                    await r.restart(self.bus, self.ledger)
-                    self._record_restart(r)
-                elif r.error_count >= ERR_THRESHOLD:
-                    log.warning("%s exceeded error threshold – restarting", r.agent.name)
-                    delay = random.uniform(0.5, 1.5)
-                    if r.restart_streak >= BACKOFF_EXP_AFTER:
-                        delay *= 2 ** (r.restart_streak - BACKOFF_EXP_AFTER + 1)
-                    await asyncio.sleep(delay)
-                    await r.restart(self.bus, self.ledger)
-                    self._record_restart(r)
-                elif now - r.last_beat > r.period * 5:
-                    log.warning("%s unresponsive – restarting", r.agent.name)
-                    delay = random.uniform(0.5, 1.5)
-                    if r.restart_streak >= BACKOFF_EXP_AFTER:
-                        delay *= 2 ** (r.restart_streak - BACKOFF_EXP_AFTER + 1)
-                    await asyncio.sleep(delay)
-                    await r.restart(self.bus, self.ledger)
-                    self._record_restart(r)
-
     async def run_forever(self) -> None:
         await self.bus.start()
         self.ledger.start_merkle_task(3600)
@@ -320,7 +231,16 @@ class Orchestrator:
                 r.start(self.bus, self.ledger)
             else:
                 log.info("%s awaiting promotion", r.agent.name)
-        self._monitor_task = asyncio.create_task(self._monitor())
+        self._monitor_task = asyncio.create_task(
+            monitor_agents(
+                self.runners,
+                self.bus,
+                self.ledger,
+                err_threshold=ERR_THRESHOLD,
+                backoff_exp_after=BACKOFF_EXP_AFTER,
+                on_restart=self._record_restart,
+            )
+        )
         try:
             while True:
                 await asyncio.sleep(0.5)
