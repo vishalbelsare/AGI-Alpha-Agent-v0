@@ -20,3 +20,5 @@
    ```
 
 For advanced instructions see [README.md](../README.md).
+If you run into Windows-specific issues, see
+[OFFLINE_SETUP.md#windows-setup-tips](OFFLINE_SETUP.md#windows-setup-tips).

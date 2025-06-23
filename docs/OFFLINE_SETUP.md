@@ -67,6 +67,29 @@ Run `pytest -q` once the check succeeds.
 
 See [tests/README.md](../tests/README.md#offline-install) and [AGENTS.md](../AGENTS.md#offline-setup) for the full instructions.
 
+### Windows Setup Tips
+Docker Desktop sometimes fails to mount Windows paths when running offline.
+Use the `\\wsl$\` prefix or an absolute path with the drive letter when
+passing `--volume` to `docker` or `docker compose`. If you see
+"drive is not shared" errors, enable file sharing for the target drive under
+**Settings → Resources → File sharing** in Docker Desktop.
+
+Activate the virtual environment from PowerShell with:
+
+```powershell
+\.\.venv\Scripts\Activate.ps1
+```
+
+If execution of the activation script is blocked, run PowerShell as
+Administrator and set the policy:
+
+```powershell
+Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
+```
+
+Reopen the shell and retry the command. Once the environment is active, run the
+setup scripts normally.
+
 ### Example: Business demo
 The business demo works offline when a wheelhouse is provided. Assuming
 the wheels live under `/media/wheels`:
