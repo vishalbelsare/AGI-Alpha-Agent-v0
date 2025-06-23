@@ -69,6 +69,14 @@ Alternatively build and run the Docker image in one step:
 ./run_quickstart.sh
 ```
 
+### Using the prebuilt Docker image
+
+```bash
+docker pull montrealai/alpha-factory:latest
+docker run --rm -p 8000:8000 \
+  -v $(pwd)/.env:/app/.env montrealai/alpha-factory:latest
+```
+
 Copy `.env.sample` to `.env` and add your API keys to enable cloud features. Without keys, the program falls back to the
 local Meta‑Agentic Tree Search:
 
