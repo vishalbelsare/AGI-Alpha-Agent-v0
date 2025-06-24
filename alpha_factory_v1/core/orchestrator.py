@@ -30,7 +30,7 @@ from .utils import config, messaging, logging as insight_logging
 from alpha_factory_v1.common.utils.logging import Ledger
 from .utils import alerts
 from alpha_factory_v1.core.archive.service import ArchiveService
-from alpha_factory_v1.backend.agent_supervisor import AgentRunner
+from alpha_factory_v1.backend.orchestrator_utils import AgentRunner
 from alpha_factory_v1.core.archive.solution_archive import SolutionArchive
 from .agents.base_agent import BaseAgent
 from alpha_factory_v1.core.governance.stake_registry import StakeRegistry
