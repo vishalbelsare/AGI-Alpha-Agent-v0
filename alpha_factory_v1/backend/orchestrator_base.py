@@ -28,8 +28,9 @@ class BaseOrchestrator:
         mem: object,
         loglevel: str,
         ssl_disable: bool,
+        manager: AgentManager | None = None,
     ) -> None:
-        self.manager = AgentManager(enabled, dev_mode, kafka_broker, cycle_seconds, max_cycle_sec)
+        self.manager = manager or AgentManager(enabled, dev_mode, kafka_broker, cycle_seconds, max_cycle_sec)
         self._rest_port = rest_port
         self._grpc_port = grpc_port
         self._model_max_bytes = model_max_bytes
