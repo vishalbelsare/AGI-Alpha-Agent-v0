@@ -367,16 +367,30 @@ class ClimateRiskAgent(AgentBase):
     # ADK mesh heartbeat
     # ────────────────────────────────────────────────────────────────
 
-    async def _register_mesh(self):  # noqa: D401
-        try:
-            client = adk.Client()
-            await client.register(node_type=self.NAME, metadata={"runtime": "alpha_factory"})
-            logger.info("[CR] registered to ADK mesh id=%s", client.node_id)
-        except (AdkClientError, AiohttpClientError, asyncio.TimeoutError, OSError) as exc:
-            logger.warning("ADK registration failed: %s", exc)
-        except Exception as exc:  # pragma: no cover - unexpected
-            logger.exception("Unexpected ADK registration error: %s", exc)
-            raise
+    async def _register_mesh(self) -> None:  # noqa: D401
+        max_attempts = 3
+        delay = 1.0
+        for attempt in range(1, max_attempts + 1):
+            try:
+                client = adk.Client()
+                await client.register(node_type=self.NAME, metadata={"runtime": "alpha_factory"})
+                logger.info("[CR] registered to ADK mesh id=%s", client.node_id)
+                return
+            except (AdkClientError, AiohttpClientError, asyncio.TimeoutError, OSError) as exc:
+                if attempt == max_attempts:
+                    logger.error("ADK registration failed after %d attempts: %s", max_attempts, exc)
+                    raise
+                logger.warning(
+                    "ADK registration attempt %d/%d failed: %s",
+                    attempt,
+                    max_attempts,
+                    exc,
+                )
+                await asyncio.sleep(delay)
+                delay *= 2
+            except Exception as exc:  # pragma: no cover - unexpected
+                logger.exception("Unexpected ADK registration error: %s", exc)
+                raise
 
 
 # ────────────────────────────────────────────────────────────────────────────────

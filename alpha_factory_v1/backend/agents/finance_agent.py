@@ -486,16 +486,30 @@ class FinanceAgent(AgentBase):
         }
         _publish("fin.state", payload)
 
-    async def _register_mesh(self):
-        try:
-            client = adk.Client()
-            await client.register(node_type="finance", metadata={"universe": ",".join(self.cfg.universe)})
-            _log.info("Registered in ADK mesh id=%s", client.node_id)
-        except (AdkClientError, AiohttpClientError, asyncio.TimeoutError, OSError) as exc:
-            _log.warning("ADK mesh registration failed: %s", exc)
-        except Exception as exc:  # pragma: no cover - unexpected
-            _log.exception("Unexpected ADK registration error: %s", exc)
-            raise
+    async def _register_mesh(self) -> None:
+        max_attempts = 3
+        delay = 1.0
+        for attempt in range(1, max_attempts + 1):
+            try:
+                client = adk.Client()
+                await client.register(node_type="finance", metadata={"universe": ",".join(self.cfg.universe)})
+                _log.info("Registered in ADK mesh id=%s", client.node_id)
+                return
+            except (AdkClientError, AiohttpClientError, asyncio.TimeoutError, OSError) as exc:
+                if attempt == max_attempts:
+                    _log.error("ADK mesh registration failed after %d attempts: %s", max_attempts, exc)
+                    raise
+                _log.warning(
+                    "ADK registration attempt %d/%d failed: %s",
+                    attempt,
+                    max_attempts,
+                    exc,
+                )
+                await asyncio.sleep(delay)
+                delay *= 2
+            except Exception as exc:  # pragma: no cover - unexpected
+                _log.exception("Unexpected ADK registration error: %s", exc)
+                raise
 
 
 # ═════════════════════ registry hook ═══════════════════════════
