@@ -19,6 +19,9 @@ jobs:
         run: pip install mkdocs mkdocs-material
       - name: Build site
         run: mkdocs build --verbose
+      - name: Copy static insight
+        run: |
+          cp -r docs/static_insight/* site/
       - name: Deploy
         uses: peaceiris/actions-gh-pages@v3
         with:
