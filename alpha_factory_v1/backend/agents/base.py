@@ -61,6 +61,8 @@ except Exception:  # pragma: no cover
     logging.getLogger(__name__).warning("prometheus_client missing – metrics disabled")
     Counter = Gauge = None  # type: ignore
 
+from backend.agents.registry import register
+
 try:  # -- Kafka producer for heart-beats
     from kafka import KafkaProducer  # type: ignore
     from kafka.errors import KafkaError
@@ -316,24 +318,3 @@ class AgentBase(abc.ABC):
 
 
 # ───────────────────────────────────────────────────────────────────────────────
-# ░░░ 6. Tiny decorator to auto-register subclasses ░░░
-# ───────────────────────────────────────────────────────────────────────────────
-def register(cls: type[AgentBase]) -> type[AgentBase]:
-    """Return ``cls`` after adding it to :mod:`backend.agents` registry.
-
-    This helper wraps :func:`register_agent` so subclasses simply use
-    ``@register`` instead of touching ``AGENT_REGISTRY`` directly.
-    """
-    # defer import to avoid circular refs
-    from .registry import AgentMetadata, register_agent
-
-    meta = AgentMetadata(
-        name=getattr(cls, "NAME", cls.__name__),
-        cls=cls,
-        version=getattr(cls, "__version__", "0.1.0"),
-        capabilities=list(getattr(cls, "CAPABILITIES", [])),
-        compliance_tags=list(getattr(cls, "COMPLIANCE_TAGS", [])),
-        requires_api_key=getattr(cls, "REQUIRES_API_KEY", False),
-    )
-    register_agent(meta)
-    return cls
