@@ -22,6 +22,7 @@ import os
 
 from backend.agents.registry import get_agent
 from alpha_factory_v1.core.monitoring import metrics
+from .utils.sync import run_sync
 
 from .telemetry import MET_LAT, MET_ERR, MET_UP, tracer
 
@@ -62,7 +63,6 @@ class EventBus:
                 value_serializer=lambda v: json.dumps(v).encode(),
                 linger_ms=50,
             )
-            atexit.register(self._close)
         else:
             if broker and not dev_mode:
                 log.warning("Kafka unavailable → falling back to in-proc bus")
@@ -71,6 +71,7 @@ class EventBus:
                 asyncio.get_running_loop().create_task(self.start_consumer())
             except RuntimeError:
                 pass
+        atexit.register(self._close)
 
     def publish(self, topic: str, msg: Dict[str, Any]) -> None:
         if self._producer:
@@ -133,6 +134,9 @@ class EventBus:
         self._consumer_task = None
 
     def _close(self) -> None:
+        if self._consumer_task is not None:
+            with contextlib.suppress(Exception):
+                run_sync(self.stop_consumer())
         if not self._producer:
             return
         try:
