@@ -46,3 +46,11 @@ A self-healing macro risk radar powered by multi-agent α‑AGI. The stack inges
 macro telemetry, runs Monte-Carlo simulations and exposes a Gradio dashboard.
 See the [alpha_factory_v1/demos/macro_sentinel/README.md](../alpha_factory_v1/demos/macro_sentinel/README.md)
 for full instructions.
+
+## Static Insight Demo
+
+GitHub Pages serves any files under `docs/` when the site is built from
+`mkdocs.yml`. To publish the static α‑AGI Insight demo, copy the contents of
+`static_insight/` into this directory and run `mkdocs build` if your workflow
+doesn't trigger it automatically. Pushing the updated files makes the demo
+available at the default Pages URL.
