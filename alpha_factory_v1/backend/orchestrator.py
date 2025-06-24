@@ -15,7 +15,8 @@ from typing import Any, Optional
 from alpha_factory_v1.utils.env import _env_int
 
 from .agent_scheduler import AgentScheduler
-from .api_server import start_servers
+from .orchestrator_base import BaseOrchestrator
+from .agent_manager import AgentManager
 from .telemetry import init_metrics, MET_LAT, MET_ERR, MET_UP, tracer  # noqa: F401
 
 with contextlib.suppress(ModuleNotFoundError):
@@ -62,19 +63,19 @@ if not logging.getLogger().handlers:
     )
 log = logging.getLogger("alpha_factory.orchestrator")
 
-_scheduler: AgentScheduler | None = None
+_manager: AgentManager | None = None
 
 
 def publish(topic: str, msg: dict[str, object]) -> None:
     """Expose ``EventBus.publish`` for agent modules."""
-    if _scheduler is not None:
+    if _manager is not None:
         try:
-            _scheduler.manager.bus.publish(topic, msg)
+            _manager.bus.publish(topic, msg)
         except Exception:  # pragma: no cover - best effort
             log.exception("publish failed")
 
 
-class Orchestrator:
+class Orchestrator(BaseOrchestrator):
     """Default Alpha‑Factory orchestrator."""
 
     def __init__(self) -> None:
@@ -87,52 +88,44 @@ class Orchestrator:
 
         init_metrics(METRICS_PORT)
 
-        self.scheduler = AgentScheduler(
+        scheduler = AgentScheduler(
             ENABLED,
             DEV_MODE,
             KAFKA_BROKER,
             CYCLE_DEFAULT,
             MAX_CYCLE_SEC,
         )
-        global _scheduler
-        _scheduler = self.scheduler
-        self._rest_task: Optional[asyncio.Task[None]] = None
-        self._grpc_server: Optional[Any] = None
+        super().__init__(
+            ENABLED,
+            DEV_MODE,
+            KAFKA_BROKER,
+            CYCLE_DEFAULT,
+            MAX_CYCLE_SEC,
+            rest_port=PORT,
+            grpc_port=A2A_PORT,
+            model_max_bytes=MODEL_MAX_BYTES,
+            mem=mem,
+            loglevel=LOGLEVEL,
+            ssl_disable=SSL_DISABLE,
+            manager=scheduler.manager,
+        )
+        global _manager
+        _manager = self.manager
 
         log.info(
             "Bootstrapped %d agent(s): %s",
-            len(self.scheduler.manager.runners),
-            ", ".join(self.scheduler.manager.runners),
+            len(self.manager.runners),
+            ", ".join(self.manager.runners),
         )
 
     async def start(self) -> None:
-        """Launch REST/gRPC servers and background tasks."""
-        self._rest_task, self._grpc_server = await start_servers(
-            self.scheduler.manager.runners,
-            MODEL_MAX_BYTES,
-            mem,
-            PORT,
-            A2A_PORT,
-            LOGLEVEL,
-            SSL_DISABLE,
-        )
-        await self.scheduler.start()
+        await super().start()
 
     async def stop(self) -> None:
-        """Stop servers and scheduler."""
-        await self.scheduler.stop()
-        if self._rest_task:
-            self._rest_task.cancel()
-            with contextlib.suppress(asyncio.CancelledError):
-                await self._rest_task
-        if self._grpc_server:
-            self._grpc_server.stop(0)
+        await super().stop()
 
     async def run(self, stop_event: asyncio.Event) -> None:
-        """Drive the orchestrator until ``stop_event`` is set."""
-        await self.start()
-        await self.scheduler.run(stop_event)
-        await self.stop()
+        await super().run(stop_event)
 
     def run_forever(self) -> None:
         """Run with signal handling."""
