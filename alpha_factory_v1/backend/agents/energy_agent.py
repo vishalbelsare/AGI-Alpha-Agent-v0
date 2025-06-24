@@ -114,7 +114,7 @@ except Exception:  # pragma: no cover - optional
 # Alpha-Factory core imports (lightweight, always available)
 # ---------------------------------------------------------------------------
 from backend.agents.base import AgentBase  # pylint: disable=import-error
-from backend.agents import AgentMetadata, register_agent
+from backend.agents.registry import AgentMetadata, register_agent
 from backend.orchestrator import _publish  # reuse event-bus helper
 from alpha_factory_v1.utils.env import _env_int
 

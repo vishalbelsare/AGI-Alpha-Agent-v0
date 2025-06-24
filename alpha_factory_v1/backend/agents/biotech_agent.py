@@ -63,7 +63,7 @@ from typing import Any, Dict, List, Optional, Tuple
 from alpha_factory_v1.backend.utils.sync import run_sync
 
 from backend.agents.base import AgentBase  # pylint: disable=import-error
-from backend.agents import AgentMetadata, register_agent
+from backend.agents.registry import AgentMetadata, register_agent
 from backend.orchestrator import _publish  # pylint: disable=import-error
 from alpha_factory_v1.utils.env import _env_int
 

@@ -56,7 +56,7 @@ from typing import Any, List, Mapping, MutableMapping, Optional
 # ░░░ 2. Optional, best-effort 3rd-party imports ░░░
 # ───────────────────────────────────────────────────────────────────────────────
 try:  # -- Prometheus metrics
-    from backend.agents import Counter, Gauge  # type: ignore
+    from backend.agents.registry import Counter, Gauge  # type: ignore
 except Exception:  # pragma: no cover
     Counter = Gauge = None  # type: ignore
 
@@ -318,7 +318,7 @@ class AgentBase(abc.ABC):
 def register(cls: type[AgentBase]) -> type[AgentBase]:
     """Register ``cls`` using :func:`register_agent` and return the class."""
     # defer import to avoid circular refs
-    from . import AgentMetadata, register_agent
+    from .registry import AgentMetadata, register_agent
 
     meta = AgentMetadata(
         name=getattr(cls, "NAME", cls.__name__),

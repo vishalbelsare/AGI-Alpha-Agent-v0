@@ -124,7 +124,7 @@ except ModuleNotFoundError:  # pragma: no cover
 # Alpha‑Factory base imports (thin, always present) -------------------------
 # ---------------------------------------------------------------------------
 from backend.agent_base import AgentBase  # pylint: disable=import-error
-from backend.agents import AgentMetadata, register_agent  # pylint: disable=import-error
+from backend.agents.registry import AgentMetadata, register_agent  # pylint: disable=import-error
 from backend.orchestrator import _publish  # pylint: disable=import-error
 from alpha_factory_v1.utils.env import _env_int
 

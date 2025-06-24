@@ -113,7 +113,7 @@ except Exception:  # pragma: no cover - optional
 # Alpha‑Factory light deps                                                  |
 # ---------------------------------------------------------------------------
 from backend.agent_base import AgentBase  # pylint: disable=import-error
-from backend.agents import AgentMetadata, register_agent
+from backend.agents.registry import AgentMetadata, register_agent
 from backend.orchestrator import _publish
 from alpha_factory_v1.utils.env import _env_int
 
