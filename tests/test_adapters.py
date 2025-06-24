@@ -7,7 +7,7 @@ import importlib
 import pytest
 
 # Stub generated proto dependency if missing
-_stub_path = "alpha_factory_v1.demos.alpha_agi_insight_v1.src.utils.a2a_pb2"
+_stub_path = "alpha_factory_v1.common.utils.a2a_pb2"
 if _stub_path not in sys.modules:
     stub = types.ModuleType("a2a_pb2")
 
@@ -45,7 +45,7 @@ def test_mcp_invoke_tool_missing():
 def _make_agent(monkeypatch):
     """Return a ResearchAgent wired with dummy bus/ledger."""
     from alpha_factory_v1.demos.alpha_agi_insight_v1.src.agents import research_agent
-    from alpha_factory_v1.demos.alpha_agi_insight_v1.src.utils import config, messaging
+    from alpha_factory_v1.common.utils import config, messaging
 
     class DummyBus:
         def __init__(self, settings: config.Settings) -> None:
@@ -99,7 +99,7 @@ def test_adk_generate_text_flow(monkeypatch) -> None:
         await self.emit("strategy", {"research": text})
 
     monkeypatch.setattr(type(agent), "handle", patched_handle)
-    from alpha_factory_v1.demos.alpha_agi_insight_v1.src.utils import messaging
+    from alpha_factory_v1.common.utils import messaging
 
     env = messaging.Envelope("planning", "research", {"plan": "p"}, 0.0)
     asyncio.run(agent.handle(env))

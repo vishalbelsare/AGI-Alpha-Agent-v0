@@ -90,7 +90,7 @@ def _make_cert(tmp: Path) -> tuple[str, str, bytes]:
 
 @pytest.mark.skipif(not HAVE_CRYPTO, reason="cryptography not installed")
 def test_grpc_bus_tls_message_exchange(tmp_path: Path) -> None:
-    from alpha_factory_v1.demos.alpha_agi_insight_v1.src.utils import config, messaging
+    from alpha_factory_v1.common.utils import config, messaging
 
     port = _free_port()
     cert, key, ca = _make_cert(tmp_path)
@@ -120,7 +120,7 @@ def test_grpc_bus_tls_message_exchange(tmp_path: Path) -> None:
 
 @pytest.mark.skipif(not HAVE_CRYPTO, reason="cryptography not installed")
 def test_grpc_bus_tls_bad_token(tmp_path: Path) -> None:
-    from alpha_factory_v1.demos.alpha_agi_insight_v1.src.utils import config, messaging
+    from alpha_factory_v1.common.utils import config, messaging
 
     port = _free_port()
     cert, key, ca = _make_cert(tmp_path)
@@ -218,7 +218,7 @@ def test_monitor_restart_and_ledger_log(monkeypatch) -> None:
 
 
 def test_research_agent_adapters_invoked(monkeypatch) -> None:
-    from alpha_factory_v1.demos.alpha_agi_insight_v1.src.utils import config, messaging
+    from alpha_factory_v1.common.utils import config, messaging
     from alpha_factory_v1.demos.alpha_agi_insight_v1.src.agents import research_agent
 
     class DummyLedger:
@@ -252,7 +252,7 @@ def test_research_agent_adapters_invoked(monkeypatch) -> None:
 
 
 def test_codegen_agent_sandbox_blocks_import(monkeypatch) -> None:
-    from alpha_factory_v1.demos.alpha_agi_insight_v1.src.utils import config, messaging
+    from alpha_factory_v1.common.utils import config, messaging
     from alpha_factory_v1.demos.alpha_agi_insight_v1.src.agents import codegen_agent
 
     class DummyLedger:
@@ -283,7 +283,7 @@ def test_codegen_agent_sandbox_blocks_import(monkeypatch) -> None:
 
 def test_planning_agent_no_openai_sdk() -> None:
     """Agent should run even when openai.agents is missing."""
-    from alpha_factory_v1.demos.alpha_agi_insight_v1.src.utils import config, messaging
+    from alpha_factory_v1.common.utils import config, messaging
     from alpha_factory_v1.demos.alpha_agi_insight_v1.src.agents import planning_agent
 
     class DummyLedger:
@@ -316,7 +316,7 @@ def test_base_agent_no_openai_sdk(monkeypatch) -> None:
     import importlib
     import sys
 
-    from alpha_factory_v1.demos.alpha_agi_insight_v1.src.utils import config, messaging
+    from alpha_factory_v1.common.utils import config, messaging
 
     orig_import = builtins.__import__
 

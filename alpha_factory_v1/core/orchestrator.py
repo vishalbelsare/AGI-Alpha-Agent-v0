@@ -27,7 +27,7 @@ from .agents import (
 )
 from alpha_factory_v1.core.agents.self_improver_agent import SelfImproverAgent
 from .utils import config, messaging, logging as insight_logging
-from alpha_factory_v1.demos.alpha_agi_insight_v1.src.utils.logging import Ledger
+from alpha_factory_v1.common.utils.logging import Ledger
 from .utils import alerts
 from alpha_factory_v1.core.archive.service import ArchiveService
 from alpha_factory_v1.backend.agent_supervisor import AgentRunner

@@ -2,8 +2,8 @@
 import asyncio
 
 from alpha_factory_v1.demos.alpha_agi_insight_v1.src.agents import codegen_agent
-from alpha_factory_v1.demos.alpha_agi_insight_v1.src.utils import config, messaging
-from alpha_factory_v1.demos.alpha_agi_insight_v1.src.utils.logging import Ledger
+from alpha_factory_v1.common.utils import config, messaging
+from alpha_factory_v1.common.utils.logging import Ledger
 
 
 class DummyBus:

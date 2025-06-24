@@ -12,7 +12,7 @@ from typing import Any, Callable, cast
 
 from . import config
 from .config import Settings
-from .tracing import span
+from alpha_factory_v1.core.utils.tracing import span
 
 try:  # pragma: no cover - optional dependency
     from llama_cpp import Llama

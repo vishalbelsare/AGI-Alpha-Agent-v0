@@ -3,7 +3,7 @@
 
 The package exposes small, single‑responsibility agents. Each agent
 subclasses :class:`~.base_agent.BaseAgent` and cooperates via the
-:class:`~..utils.messaging.A2ABus`.
+:class:`~alpha_factory_v1.common.utils.messaging.A2ABus`.
 """
 
 from .adk_adapter import ADKAdapter

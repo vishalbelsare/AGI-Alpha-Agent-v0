@@ -12,7 +12,7 @@ from hypothesis import given, settings, strategies as st  # noqa: E402
 from hypothesis.strategies import composite  # noqa: E402
 
 from alpha_factory_v1.demos.alpha_agi_insight_v1.src.agents import safety_agent  # noqa: E402
-from alpha_factory_v1.demos.alpha_agi_insight_v1.src.utils import config, messaging  # noqa: E402
+from alpha_factory_v1.common.utils import config, messaging  # noqa: E402
 
 
 class DummyBus:

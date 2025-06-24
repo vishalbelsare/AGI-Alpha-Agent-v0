@@ -37,10 +37,10 @@ from alpha_factory_v1.core.archive.hash_archive import HashArchive
 from alpha_factory_v1.core import scheduler
 from alpha_factory_v1.core.simulation import forecast, sector, mats
 from alpha_factory_v1.core.utils.visual import plot_pareto
-from ..utils import config, logging
+from alpha_factory_v1.common.utils import config, logging
 from alpha_factory_v1.core.eval.foresight import evaluate as foresight_evaluate
 
-from .....utils.disclaimer import DISCLAIMER
+from alpha_factory_v1.utils.disclaimer import DISCLAIMER
 
 __all__ = ["DISCLAIMER", "DisclaimerGroup"]
 

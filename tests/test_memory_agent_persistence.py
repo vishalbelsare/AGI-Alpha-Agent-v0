@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: Apache-2.0
 import asyncio
 from alpha_factory_v1.demos.alpha_agi_insight_v1.src.agents import memory_agent
-from alpha_factory_v1.demos.alpha_agi_insight_v1.src.utils import config, messaging, logging
+from alpha_factory_v1.common.utils import config, messaging, logging
 
 
 def test_memory_agent_persists_records(tmp_path):

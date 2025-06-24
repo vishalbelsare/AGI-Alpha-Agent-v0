@@ -17,9 +17,9 @@ import pytest
 from google.protobuf import json_format
 import google.protobuf.struct_pb2  # noqa: F401 - register descriptors
 
-from alpha_factory_v1.demos.alpha_agi_insight_v1.src.utils import logging as insight_logging
-from alpha_factory_v1.demos.alpha_agi_insight_v1.src.utils.logging import Ledger
-from alpha_factory_v1.demos.alpha_agi_insight_v1.src.utils import messaging
+from alpha_factory_v1.common.utils import logging as insight_logging
+from alpha_factory_v1.common.utils.logging import Ledger
+from alpha_factory_v1.common.utils import messaging
 
 try:  # optional dependency
     import psycopg2  # type: ignore

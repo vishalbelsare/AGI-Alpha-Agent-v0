@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # SPDX-License-Identifier: Apache-2.0
 # This script is a conceptual research prototype.
-"""Generate protobuf modules from ``src/utils/a2a.proto``."""
+"""Generate protobuf modules from ``alpha_factory_v1/core/utils/a2a.proto``."""
 from __future__ import annotations
 
 import subprocess
@@ -18,7 +18,7 @@ except ModuleNotFoundError:  # pragma: no cover - optional dependency
 
 
 def main() -> int:
-    proto = Path("src/utils/a2a.proto")
+    proto = Path("alpha_factory_v1/core/utils/a2a.proto")
     out_dir = proto.parent
     if HAS_GRPC:
         cmd = [

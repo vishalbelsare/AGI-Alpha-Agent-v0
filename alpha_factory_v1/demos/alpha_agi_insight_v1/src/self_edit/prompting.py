@@ -9,7 +9,7 @@ import random
 from typing import Any, Callable, Optional
 
 from alpha_factory_v1.core.utils.config import CFG
-from alpha_factory_v1.demos.alpha_agi_insight_v1.src.utils import local_llm
+from alpha_factory_v1.common.utils import local_llm
 
 try:  # pragma: no cover - optional dependency
     from alpha_factory_v1.backend.utils.llm_provider import LLMProvider as _LLMProvider

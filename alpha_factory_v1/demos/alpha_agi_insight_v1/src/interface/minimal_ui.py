@@ -14,7 +14,7 @@ import sys
 from typing import Any, TYPE_CHECKING, cast
 
 from ..simulation import forecast, sector
-from .....utils.disclaimer import DISCLAIMER, print_disclaimer
+from alpha_factory_v1.utils.disclaimer import DISCLAIMER, print_disclaimer
 
 try:  # pragma: no cover - optional dependency
     import streamlit as _st
