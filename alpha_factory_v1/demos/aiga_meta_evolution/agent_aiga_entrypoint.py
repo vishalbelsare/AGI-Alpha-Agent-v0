@@ -98,7 +98,7 @@ SAVE_DIR.mkdir(parents=True, exist_ok=True)
 # LOGGING --------------------------------------------------------------------
 # ---------------------------------------------------------------------------
 logging.basicConfig(
-    level=os.getenv("LOG_LEVEL", "INFO"),
+    level=os.getenv("LOGLEVEL", "INFO"),
     format="%(asctime)s %(levelname)s %(name)s | %(message)s",
 )
 log = logging.getLogger(SERVICE_NAME)

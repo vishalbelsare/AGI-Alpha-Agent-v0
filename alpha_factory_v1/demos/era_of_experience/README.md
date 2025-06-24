@@ -130,7 +130,7 @@ Offline test workflow (after copying `/media/wheels`):
 
    ```bash
    cp config.env.sample config.env
-   $EDITOR config.env      # set OPENAI_API_KEY, MODEL_NAME, PG_PASSWORD, LOG_LEVEL, LIVE_FEED, etc.
+   $EDITOR config.env      # set OPENAI_API_KEY, MODEL_NAME, PG_PASSWORD, LOGLEVEL, LIVE_FEED, etc.
    ```
 You may override the path for built-in offline samples by exporting
 `SAMPLE_DATA_DIR` before launching the demo:
@@ -191,7 +191,7 @@ Sample CSVs (`wearable_daily.csv`, `edu_progress.csv`) are shipped in
 | `FITNESS_REWARD_WEIGHT` | `0.50` | Weight on `fitness_reward()`. |
 | `EDUCATION_REWARD_WEIGHT` | `0.50` | Weight on `education_reward()`. |
 | `PG_PASSWORD` | `alpha` | TimescaleDB password for the live-feed logger. |
-| `LOG_LEVEL` | `INFO` | Logging verbosity. |
+| `LOGLEVEL` | `INFO` | Logging verbosity. |
 | `PORT` | `7860` | Web UI port. |
 | `CONNECTIVITY_TEST_URL` | `https://example.com` | Probe used to detect internet access. |
 
