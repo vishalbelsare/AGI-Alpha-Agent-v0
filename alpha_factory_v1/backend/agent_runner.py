@@ -12,7 +12,8 @@ import time
 import atexit
 from datetime import datetime, timezone
 from collections import deque
-from typing import Any, Dict, Optional, Callable
+from typing import Any, Callable, Dict, Optional
+import os
 
 from backend.agents import get_agent
 from alpha_factory_v1.core.monitoring import metrics
@@ -23,6 +24,19 @@ with contextlib.suppress(ModuleNotFoundError):
     from kafka import KafkaProducer
 
 log = logging.getLogger(__name__)
+
+
+def _env_float(name: str, default: float) -> float:
+    """Return ``float`` environment value or ``default`` if conversion fails."""
+
+    val = os.getenv(name)
+    if val is None:
+        return default
+    try:
+        return float(val)
+    except (TypeError, ValueError):
+        log.warning("Invalid %s=%r, using default %s", name, val, default)
+        return default
 
 
 class EventBus:
@@ -201,8 +215,30 @@ async def hb_watch(runners: Dict[str, AgentRunner]) -> None:
         await asyncio.sleep(5)
 
 
-async def regression_guard(runners: Dict[str, AgentRunner], on_alert: Callable[[str], None] | None = None) -> None:
-    history: deque[float] = deque(maxlen=3)
+async def regression_guard(
+    runners: Dict[str, AgentRunner],
+    on_alert: Callable[[str], None] | None = None,
+    *,
+    threshold: float | None = None,
+    window: int | None = None,
+) -> None:
+    """Pause evolution when scores regress consistently.
+
+    Parameters
+    ----------
+    runners:
+        Map of active runners by name.
+    on_alert:
+        Optional callback invoked when the guard triggers.
+    threshold:
+        Multiplicative drop required between samples (``ALPHA_REGRESSION_THRESHOLD``).
+    window:
+        Number of recent scores to track (``ALPHA_REGRESSION_WINDOW``).
+    """
+
+    thr = _env_float("ALPHA_REGRESSION_THRESHOLD", threshold or 0.8)
+    win = int(_env_float("ALPHA_REGRESSION_WINDOW", float(window or 3)))
+    history: deque[float] = deque(maxlen=win)
     while True:
         await asyncio.sleep(1)
         try:
@@ -211,7 +247,15 @@ async def regression_guard(runners: Dict[str, AgentRunner], on_alert: Callable[[
         except Exception:  # pragma: no cover - metrics optional
             continue
         history.append(score)
-        if len(history) == 3 and history[1] <= history[0] * 0.8 and history[2] <= history[1] * 0.8:
+        if len(history) == win:
+            degraded_seq = all(history[i + 1] <= history[i] * thr for i in range(win - 1))
+            avg_prev = sum(list(history)[:-1]) / (win - 1)
+            moving_avg_drop = history[-1] <= avg_prev * thr
+        else:
+            degraded_seq = False
+            moving_avg_drop = False
+
+        if degraded_seq or moving_avg_drop:
             runner = runners.get("aiga_evolver")
             if runner and runner.task:
                 runner.task.cancel()
