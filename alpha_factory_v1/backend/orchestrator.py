@@ -16,7 +16,7 @@ from alpha_factory_v1.utils.env import _env_int
 
 from .agent_scheduler import AgentScheduler
 from .api_server import start_servers
-from .metrics import init_metrics, MET_LAT, MET_ERR, MET_UP, tracer  # noqa: F401
+from .telemetry import init_metrics, MET_LAT, MET_ERR, MET_UP, tracer  # noqa: F401
 
 with contextlib.suppress(ModuleNotFoundError):
     import uvicorn  # noqa: F401
@@ -25,7 +25,7 @@ with contextlib.suppress(ModuleNotFoundError):
 try:
     from backend.memory_fabric import mem
 except ModuleNotFoundError:  # pragma: no cover
-    from typing import Any, List
+    from typing import List
 
     class _VecDummy:  # pylint: disable=too-few-public-methods
         def recent(self, *_a: Any, **_kw: Any) -> List[Any]:
