@@ -48,6 +48,8 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
+from alpha_factory_v1.backend.utils.sync import run_sync
+
 # ---------------------------------------------------------------------------
 # Optional dependencies (soft imports — never crash)                        |
 # ---------------------------------------------------------------------------
@@ -331,28 +333,24 @@ class TalentMatchAgent(AgentBase):
         args = json.loads(jd_json)
         jd = args.get("jd", "")
         topk = int(args.get("topk", 5))
-        loop = asyncio.get_event_loop()
-        return loop.run_until_complete(self._recommend_async(jd, topk))
+        return run_sync(self._recommend_async(jd, topk))
 
     @tool(description='Similarity & skill gap between JD and resume. Arg: JSON {"jd":str, "resume":str}')
     def score_match(self, args_json: str) -> str:  # noqa: D401
         args = json.loads(args_json)
         jd, resume = args.get("jd", ""), args.get("resume", "")
-        loop = asyncio.get_event_loop()
-        return loop.run_until_complete(self._score_async(jd, resume))
+        return run_sync(self._score_async(jd, resume))
 
     @tool(description="DEI diversity report given list of candidate IDs.")
     def diversity_report(self, ids_json: str) -> str:  # noqa: D401
         ids = json.loads(ids_json)
-        loop = asyncio.get_event_loop()
-        return loop.run_until_complete(self._dei_async(ids))
+        return run_sync(self._dei_async(ids))
 
     @tool(description='Simulate hire probability vs compensation. Arg: JSON {"cid":str, "offer_usd":float}')
     def simulate_offer(self, args_json: str) -> str:  # noqa: D401
         args = json.loads(args_json)
         cid, offer = args.get("cid"), float(args.get("offer_usd", 0))
-        loop = asyncio.get_event_loop()
-        return loop.run_until_complete(self._offer_async(cid, offer))
+        return run_sync(self._offer_async(cid, offer))
 
     # -------------------------------------------------------------
     #   Orchestrator lifecycle

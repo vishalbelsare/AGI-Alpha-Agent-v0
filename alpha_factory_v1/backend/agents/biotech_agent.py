@@ -60,6 +60,8 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
+from alpha_factory_v1.backend.utils.sync import run_sync
+
 from backend.agents.base import AgentBase  # pylint: disable=import-error
 from backend.agents import AgentMetadata, register_agent
 from backend.orchestrator import _publish  # pylint: disable=import-error
@@ -286,16 +288,16 @@ class BiotechAgent(AgentBase):
     # ── OpenAI Agents SDK tools ──────────────────────────────────────────
     @tool(description="Ask a biotech-related question; returns answer with citations.")
     def ask_biotech(self, query: str) -> str:
-        return asyncio.get_event_loop().run_until_complete(self._ask_async(query))
+        return run_sync(self._ask_async(query))
 
     @tool(description="Design an experiment. Arg JSON {objective:str, budget:str?}.")
     def propose_experiment(self, obj_json: str) -> str:
         args = json.loads(obj_json or "{}")
-        return asyncio.get_event_loop().run_until_complete(self._exp_async(args))
+        return run_sync(self._exp_async(args))
 
     @tool(description="Return pathway map for entity URI or gene symbol.")
     def pathway_map(self, entity: str) -> str:
-        return asyncio.get_event_loop().run_until_complete(self._pathway_async(entity))
+        return run_sync(self._pathway_async(entity))
 
     @tool(description="Summarise latest alpha opportunities discovered by the agent.")
     def alpha_dashboard(self) -> str:
@@ -375,8 +377,7 @@ class BiotechAgent(AgentBase):
         }
 
     def optimise(self, sequence: str) -> Dict[str, Any]:
-        loop = asyncio.get_event_loop()
-        return loop.run_until_complete(self._optimise_async(sequence))
+        return run_sync(self._optimise_async(sequence))
 
     # ── data ingest helpers ──────────────────────────────────────────────
     async def _ingest_pubmed(self, term: str):

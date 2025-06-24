@@ -49,6 +49,7 @@ import math
 import os
 import random
 import threading
+from alpha_factory_v1.backend.utils.sync import run_sync
 from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
@@ -158,30 +159,6 @@ def _mcp(agent: str, payload: Any) -> Dict[str, Any]:
     }
 
 
-def _sync_run(coro: Awaitable[str]) -> str:
-    """Run ``coro`` synchronously regardless of event loop state."""
-    try:
-        asyncio.get_running_loop()
-    except RuntimeError:
-        return asyncio.run(coro)
-
-    result: list[str] = []
-
-    def _worker() -> None:
-        loop = asyncio.new_event_loop()
-        asyncio.set_event_loop(loop)
-        task = loop.create_task(coro)
-        try:
-            result.append(asyncio.get_event_loop().run_until_complete(task))
-        finally:
-            loop.close()
-
-    t = threading.Thread(target=_worker)
-    t.start()
-    t.join()
-    return result[0]
-
-
 # ---------------------------------------------------------------------------
 # Surrogate load / PV model ---------------------------------------------------
 class _SurrogateModel:
@@ -278,15 +255,15 @@ class EnergyAgent(AgentBase):
     # -------------------------- OpenAI tools ----------------------------- #
     @tool(description="48-hour ahead demand & PV forecast (JSON list).")
     def forecast_demand(self) -> str:
-        return _sync_run(self._forecast())
+        return run_sync(self._forecast())
 
     @tool(description="24-h battery/DR optimal dispatch schedule (JSON).")
     def optimise_dispatch(self) -> str:
-        return _sync_run(self._dispatch())
+        return run_sync(self._dispatch())
 
     @tool(description="Generate PPA/forward-curve hedge strategy JSON.")
     def hedge_strategy(self) -> str:
-        return _sync_run(self._hedge())
+        return run_sync(self._hedge())
 
     # ----------------------- Orchestrator hook --------------------------- #
     async def run_cycle(self):

@@ -40,6 +40,8 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Dict, List, Tuple
 
+from alpha_factory_v1.backend.utils.sync import run_sync
+
 try:
     import networkx as nx  # type: ignore
 except ModuleNotFoundError:  # pragma: no cover - optional dep
@@ -226,8 +228,7 @@ class SupplyChainAgent(AgentBase):  # noqa: D101
 
     @tool(description="Run an end‑to‑end supply‑chain replanning cycle and return JSON recommendations.")
     def replan(self) -> str:  # noqa: D401
-        loop = asyncio.get_event_loop()
-        return loop.run_until_complete(self._plan_cycle())
+        return run_sync(self._plan_cycle())
 
     # ------------------------ orchestrator hook ----------------------- #
 

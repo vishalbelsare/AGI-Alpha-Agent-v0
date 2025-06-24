@@ -51,6 +51,8 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
+from alpha_factory_v1.backend.utils.sync import run_sync
+
 # ────────────────────────────────────────────────────────────────────────────
 # Soft‑optional deps (never crash at import)
 # ────────────────────────────────────────────────────────────────────────────
@@ -207,7 +209,7 @@ class _Retriever:
         self.texts: List[str] = []
         self.meta: List[Dict[str, Any]] = []  # keeps jurisdiction/version
         self.bm25: Optional[BM25Okapi] = None
-        asyncio.get_event_loop().run_until_complete(self._load())
+        run_sync(self._load())
 
     async def _load(self):
         if self.cfg.index_path.exists():

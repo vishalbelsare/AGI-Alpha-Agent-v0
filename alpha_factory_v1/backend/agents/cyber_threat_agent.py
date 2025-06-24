@@ -53,6 +53,8 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
+from alpha_factory_v1.backend.utils.sync import run_sync
+
 # ---------------------------------------------------------------------------
 # Soft‑optional libraries (import guards keep offline mode viable)
 # ---------------------------------------------------------------------------
@@ -242,8 +244,7 @@ class CyberThreatAgent(AgentBase):
 
     @tool(description="Return JSON residual cyber‑risk (USD) + top open threats.")
     def audit(self) -> str:  # noqa: D401
-        loop = asyncio.get_event_loop()
-        return loop.run_until_complete(self._risk_snapshot())
+        return run_sync(self._risk_snapshot())
 
     @tool(
         description=(
@@ -252,8 +253,7 @@ class CyberThreatAgent(AgentBase):
         )
     )
     def patch_plan(self) -> str:  # noqa: D401
-        loop = asyncio.get_event_loop()
-        return loop.run_until_complete(self._plan_patches())
+        return run_sync(self._plan_patches())
 
     # ------------------------------------------------------------------
     # Core cycle invoked by orchestrator

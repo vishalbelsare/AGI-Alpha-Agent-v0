@@ -49,6 +49,8 @@ from dataclasses import dataclass
 from datetime import datetime, timezone
 from typing import Any, Dict, List, Optional, Tuple
 
+from alpha_factory_v1.backend.utils.sync import run_sync
+
 # ---------------------------------------------------------------------------
 # Soft‑optional dependencies (import‑time safe) ------------------------------
 # ---------------------------------------------------------------------------
@@ -239,8 +241,7 @@ class ManufacturingAgent(AgentBase):
     )
     def build_schedule(self, req_json: str) -> str:  # noqa: D401
         req = json.loads(req_json)
-        loop = asyncio.get_event_loop()
-        return loop.run_until_complete(self._build_async(req))
+        return run_sync(self._build_async(req))
 
     @tool(
         description=(
@@ -250,8 +251,7 @@ class ManufacturingAgent(AgentBase):
     )
     def reschedule_delta(self, req_json: str) -> str:  # noqa: D401
         req = json.loads(req_json)
-        loop = asyncio.get_event_loop()
-        return loop.run_until_complete(self._delta_async(req))
+        return run_sync(self._delta_async(req))
 
     @tool(description="Energy & CO₂ report for schedule. Arg JSON schedule object")
     def energy_report(self, sched_json: str) -> str:  # noqa: D401
@@ -262,8 +262,7 @@ class ManufacturingAgent(AgentBase):
     @tool(description='Monte‑Carlo what‑if. Arg JSON {"jobs_base": [...], "nbr_samples":int}')
     def what_if(self, req_json: str) -> str:  # noqa: D401
         req = json.loads(req_json)
-        loop = asyncio.get_event_loop()
-        return loop.run_until_complete(self._what_if_async(req))
+        return run_sync(self._what_if_async(req))
 
     # ------------------------------------------------------------------
     # Public sync helpers ----------------------------------------------
@@ -272,8 +271,7 @@ class ManufacturingAgent(AgentBase):
     def schedule(self, jobs: List[List[Dict[str, Any]]], horizon: int) -> Dict[str, Any]:
         """Synchronous wrapper around :meth:`_build_async` returning a dict."""
         req = {"jobs": jobs, "horizon": horizon}
-        loop = asyncio.get_event_loop()
-        res = loop.run_until_complete(self._build_async(req))
+        res = run_sync(self._build_async(req))
         try:
             return json.loads(res)["payload"]
         except Exception:  # noqa: BLE001
