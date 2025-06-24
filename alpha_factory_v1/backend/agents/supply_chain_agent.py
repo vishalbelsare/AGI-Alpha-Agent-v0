@@ -34,6 +34,8 @@ import asyncio
 import hashlib
 import json
 import logging
+
+logger = logging.getLogger(__name__)
 import os
 import time
 from dataclasses import dataclass
@@ -45,6 +47,7 @@ from alpha_factory_v1.backend.utils.sync import run_sync
 try:
     import networkx as nx  # type: ignore
 except ModuleNotFoundError:  # pragma: no cover - optional dep
+    logger.warning("networkx not installed – graph model disabled")
 
     class _FakeGraph:
         def __init__(self) -> None:
@@ -65,6 +68,7 @@ except ModuleNotFoundError:  # pragma: no cover - optional dep
 try:
     import numpy as np  # noqa: F401
 except ModuleNotFoundError:  # pragma: no cover
+    logger.warning("numpy not installed – numeric features disabled")
     np = None  # type: ignore
 
 # ---------------------------------------------------------------------------
@@ -73,22 +77,26 @@ except ModuleNotFoundError:  # pragma: no cover
 try:
     import pandas as pd  # noqa: F401
 except ModuleNotFoundError:  # pragma: no cover
+    logger.warning("pandas missing – CSV parsing disabled")
     pd = None  # type: ignore
 
 try:
     import pulp  # Minimal‑cost flow MILP solver
 except ModuleNotFoundError:  # pragma: no cover
+    logger.warning("pulp not installed – optimisation disabled")
     pulp = None  # type: ignore
 
 try:
     import httpx  # async HTTP client for open datasets
 except ModuleNotFoundError:  # pragma: no cover
+    logger.warning("httpx unavailable – using cached datasets")
     httpx = None  # type: ignore
 
 try:
     import openai
     from openai.agents import tool
 except ModuleNotFoundError:  # pragma: no cover
+    logger.warning("openai package not found – LLM features disabled")
 
     def tool(fn=None, **_):  # type: ignore
         return (lambda f: f) if fn is None else fn  # no‑op decorator
@@ -98,6 +106,7 @@ except ModuleNotFoundError:  # pragma: no cover
 try:
     import adk  # Google Agent Development Kit
 except ModuleNotFoundError:  # pragma: no cover
+    logger.warning("google-adk not installed – mesh integration disabled")
     adk = None  # type: ignore
 try:
     from aiohttp import ClientError as AiohttpClientError  # type: ignore

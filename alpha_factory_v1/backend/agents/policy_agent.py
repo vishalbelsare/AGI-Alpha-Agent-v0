@@ -44,6 +44,8 @@ import difflib
 import hashlib
 import json
 import logging
+
+logger = logging.getLogger(__name__)
 import os
 import re
 from dataclasses import dataclass
@@ -59,22 +61,26 @@ from alpha_factory_v1.backend.utils.sync import run_sync
 try:
     import faiss  # type: ignore
 except ModuleNotFoundError:  # pragma: no cover
+    logger.warning("faiss missing – similarity search disabled")
     faiss = None  # type: ignore
 
 try:
     from sentence_transformers import SentenceTransformer  # type: ignore
 except ModuleNotFoundError:  # pragma: no cover
+    logger.warning("sentence-transformers missing – embeddings disabled")
     SentenceTransformer = None  # type: ignore
 
 try:
     from rank_bm25 import BM25Okapi  # type: ignore
 except ModuleNotFoundError:  # pragma: no cover
+    logger.warning("rank_bm25 not installed – BM25 features disabled")
     BM25Okapi = None  # type: ignore
 
 try:
     import openai  # type: ignore
     from openai.agents import tool  # type: ignore
 except ModuleNotFoundError:  # pragma: no cover
+    logger.warning("openai package not found – LLM features disabled")
     openai = None  # type: ignore
 
     def tool(fn=None, **_):  # type: ignore
@@ -87,16 +93,19 @@ OPENAI_TIMEOUT_SEC = int(os.getenv("OPENAI_TIMEOUT_SEC", "30"))
 try:
     from kafka import KafkaProducer  # type: ignore
 except ModuleNotFoundError:  # pragma: no cover
+    logger.warning("kafka-python missing – event bus disabled")
     KafkaProducer = None  # type: ignore
 
 try:
     from backend.agents.registry import Gauge  # type: ignore
 except Exception:  # pragma: no cover
+    logger.warning("prometheus-client missing – metrics disabled")
     Gauge = None  # type: ignore
 
 try:
     import adk  # type: ignore
 except ModuleNotFoundError:  # pragma: no cover
+    logger.warning("google-adk not installed – mesh integration disabled")
     adk = None  # type: ignore
 try:
     from aiohttp import ClientError as AiohttpClientError  # type: ignore
@@ -113,6 +122,7 @@ except Exception:  # pragma: no cover - optional
 try:
     import httpx  # type: ignore
 except ModuleNotFoundError:  # pragma: no cover
+    logger.warning("httpx unavailable – network fetch disabled")
     httpx = None  # type: ignore
 
 # ────────────────────────────────────────────────────────────────────────────

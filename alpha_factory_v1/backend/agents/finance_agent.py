@@ -26,6 +26,9 @@ import asyncio
 import contextlib
 import json
 import logging
+
+_log = logging.getLogger("AlphaFactory.FinanceAgent")
+
 import os
 import random
 import statistics
@@ -35,28 +38,50 @@ from datetime import datetime, timezone
 from typing import Any, Dict, List, MutableMapping, Sequence
 
 # ──────────────────── soft-optional third-party ─────────────────
-with contextlib.suppress(ModuleNotFoundError):
+try:
     import numpy as np  # type: ignore
-with contextlib.suppress(ModuleNotFoundError):
+except ModuleNotFoundError:
+    _log.warning("numpy not installed – finance features degraded")
+    np = None  # type: ignore
+try:
     from scipy.stats import skew, kurtosis  # type: ignore
-with contextlib.suppress(ModuleNotFoundError):
+except ModuleNotFoundError:
+    _log.warning("scipy missing – stats features disabled")
+try:
     from scipy.special import erfcinv  # type: ignore
-with contextlib.suppress(Exception):
+except ModuleNotFoundError:
+    _log.warning("scipy.special.erfcinv unavailable")
+try:
     from backend.agents.registry import Gauge  # type: ignore
     from prometheus_client import make_asgi_app  # type: ignore
-with contextlib.suppress(ModuleNotFoundError):
+except Exception:
+    _log.warning("prometheus_client missing – metrics disabled")
+try:
     from binance import Client as _BnClient  # type: ignore
-with contextlib.suppress(ModuleNotFoundError):
+except ModuleNotFoundError:
+    _log.warning("binance package not installed – live trading disabled")
+try:
     import torch  # type: ignore
     from torch import nn  # type: ignore
+except ModuleNotFoundError:
+    _log.warning("torch missing – MuZero planner disabled")
 if "torch" not in globals():
     torch = None  # type: ignore
-with contextlib.suppress(ModuleNotFoundError):
+try:
     import lightgbm as lgb  # type: ignore
-with contextlib.suppress(ModuleNotFoundError):
+except ModuleNotFoundError:
+    _log.warning("lightgbm missing – gradient boosting disabled")
+    lgb = None  # type: ignore
+try:
     import adk  # type: ignore
-with contextlib.suppress(ModuleNotFoundError):
+except ModuleNotFoundError:
+    _log.warning("google-adk not installed – mesh integration disabled")
+    adk = None  # type: ignore
+try:
     from aiohttp import ClientError as AiohttpClientError  # type: ignore
+except ModuleNotFoundError:
+    _log.warning("aiohttp not installed – network error types unavailable")
+    AiohttpClientError = OSError  # type: ignore
 with contextlib.suppress(Exception):  # pragma: no cover - optional ADK
     from adk import ClientError as AdkClientError  # type: ignore[attr-defined]
 if "AiohttpClientError" not in globals():
@@ -71,8 +96,15 @@ if "AdkClientError" not in globals():
         pass
 
 
-with contextlib.suppress(ModuleNotFoundError):
+try:
     from openai.agents import tool  # type: ignore
+except ModuleNotFoundError:
+    _log.warning("openai-agents not installed – tool wrappers disabled")
+
+    def tool(fn=None, **_):  # type: ignore
+        return (lambda f: f)(fn) if fn else lambda f: f
+
+
 if "tool" not in globals():  # offline stub
 
     def tool(fn=None, **_):  # type: ignore
@@ -89,7 +121,6 @@ from ..memory import Memory
 from ..governance import Governance
 
 # ────────────────────────── logger cfg ─────────────────────────
-_log = logging.getLogger("AlphaFactory.FinanceAgent")
 _log.setLevel(logging.INFO)
 
 if "make_asgi_app" not in globals():  # pragma: no cover - optional dep missing

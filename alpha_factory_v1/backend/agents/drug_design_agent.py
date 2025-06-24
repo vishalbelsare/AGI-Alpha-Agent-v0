@@ -39,6 +39,8 @@ import asyncio
 import hashlib
 import json
 import logging
+
+logger = logging.getLogger(__name__)
 import os
 import random
 import re
@@ -56,12 +58,14 @@ try:
     from rdkit import Chem  # type: ignore
     from rdkit.Chem import AllChem, rdMolDescriptors, Descriptors  # type: ignore
 except ModuleNotFoundError:  # pragma: no cover
+    logger.warning("rdkit not installed – chemical descriptors disabled")
     Chem = AllChem = rdMolDescriptors = Descriptors = None  # type: ignore
 
 try:
     import torch  # type: ignore
     from torch import nn  # type: ignore
 except ModuleNotFoundError:  # pragma: no cover
+    logger.warning("torch missing – neural nets disabled")
     torch = None  # type: ignore
     nn = None  # type: ignore
 
@@ -69,27 +73,32 @@ try:
     import torch_geometric.nn as tgnn  # type: ignore
     from torch_geometric.data import Data as TGData  # type: ignore
 except ModuleNotFoundError:  # pragma: no cover
+    logger.warning("torch-geometric missing – GNN features disabled")
     tgnn = TGData = None  # type: ignore
 
 try:
     import lightgbm as lgb  # type: ignore
 except ModuleNotFoundError:  # pragma: no cover
+    logger.warning("lightgbm missing – gradient boosting disabled")
     lgb = None  # type: ignore
 
 try:
     import httpx  # type: ignore
 except ModuleNotFoundError:  # pragma: no cover
+    logger.warning("httpx unavailable – dataset fetch disabled")
     httpx = None  # type: ignore
 
 try:
     from kafka import KafkaProducer  # type: ignore
 except ModuleNotFoundError:  # pragma: no cover
+    logger.warning("kafka-python missing – event bus disabled")
     KafkaProducer = None  # type: ignore
 
 try:
     import openai  # type: ignore
     from openai.agents import tool  # type: ignore
 except ModuleNotFoundError:  # pragma: no cover
+    logger.warning("openai package not found – LLM features disabled")
     openai = None  # type: ignore
 
     def tool(fn=None, **_kw):  # type: ignore
@@ -102,6 +111,7 @@ OPENAI_TIMEOUT_SEC = int(os.getenv("OPENAI_TIMEOUT_SEC", "30"))
 try:
     import adk  # type: ignore
 except ModuleNotFoundError:  # pragma: no cover
+    logger.warning("google-adk not installed – mesh integration disabled")
     adk = None  # type: ignore
 try:
     from aiohttp import ClientError as AiohttpClientError  # type: ignore
@@ -118,6 +128,7 @@ except Exception:  # pragma: no cover - optional
 try:
     import selfies as sf  # type: ignore
 except ModuleNotFoundError:  # pragma: no cover
+    logger.warning("selfies not installed – SELFIES support disabled")
     sf = None  # type: ignore
 
 # ---------------------------------------------------------------------------

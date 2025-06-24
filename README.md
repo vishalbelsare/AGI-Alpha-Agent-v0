@@ -477,6 +477,9 @@ Install these extras to unlock additional features:
 - `pip install openai-agents==0.0.17` – activates the official Agents runtime used for commentary.
 - `pip install google-adk` and set `ALPHA_FACTORY_ENABLE_ADK=true` – starts the Google ADK gateway for
   cross‑organisation agent exchange.
+- Install domain‑specific extras as needed (e.g. `httpx`, `feedparser`, `networkx`, `lightgbm`,
+  `kafka-python`, `tldextract`). Each agent logs a warning when a library is missing and continues in
+  degraded mode.
 
 Offline installations can omit these lines from the relevant `requirements.txt`
 files if the Agents SDK or ADK gateway are not needed.

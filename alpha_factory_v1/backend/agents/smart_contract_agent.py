@@ -38,6 +38,8 @@ import asyncio
 import hashlib
 import json
 import logging
+
+logger = logging.getLogger(__name__)
 import os
 import random
 import re
@@ -56,33 +58,39 @@ from alpha_factory_v1.backend.utils.sync import run_sync
 try:
     from web3 import Web3  # type: ignore
 except ModuleNotFoundError:  # pragma: no cover
+    logger.warning("web3 not installed – blockchain features disabled")
     Web3 = None  # type: ignore
 
 try:
-    import slither  # type: ignore  # noqa: F401  (import side effect registers entry‑point)
+    import slither  # type: ignore  # noqa: F401
     from slither.slither import Slither  # type: ignore
 except ModuleNotFoundError:  # pragma: no cover
+    logger.warning("slither missing – static analysis disabled")
     Slither = None  # type: ignore
 
 try:
     import lightgbm as lgb  # type: ignore
 except ModuleNotFoundError:  # pragma: no cover
+    logger.warning("lightgbm missing – scoring model disabled")
     lgb = None  # type: ignore
 
 try:
     from kafka import KafkaProducer  # type: ignore
 except ModuleNotFoundError:  # pragma: no cover
+    logger.warning("kafka-python missing – event bus disabled")
     KafkaProducer = None  # type: ignore
 
 try:
     import httpx  # type: ignore
 except ModuleNotFoundError:  # pragma: no cover
+    logger.warning("httpx unavailable – contract fetch disabled")
     httpx = None  # type: ignore
 
 try:
     import openai  # type: ignore
     from openai.agents import tool  # type: ignore
 except ModuleNotFoundError:  # pragma: no cover
+    logger.warning("openai package not found – LLM features disabled")
     openai = None  # type: ignore
 
     def tool(fn=None, **_):  # type: ignore
@@ -95,6 +103,7 @@ OPENAI_TIMEOUT_SEC = int(os.getenv("OPENAI_TIMEOUT_SEC", "30"))
 try:
     import adk  # type: ignore
 except ModuleNotFoundError:  # pragma: no cover
+    logger.warning("google-adk not installed – mesh integration disabled")
     adk = None  # type: ignore
 try:
     from aiohttp import ClientError as AiohttpClientError  # type: ignore
@@ -111,6 +120,7 @@ except Exception:  # pragma: no cover - optional
 try:
     import solcx  # type: ignore
 except ModuleNotFoundError:  # pragma: no cover
+    logger.warning("solcx not installed – compilation disabled")
     solcx = None  # type: ignore
 
 # ---------------------------------------------------------------------------

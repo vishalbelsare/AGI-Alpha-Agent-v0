@@ -6,6 +6,8 @@ import asyncio
 import inspect
 import json
 import logging
+
+logger = logging.getLogger("alpha_factory.agents")
 import os
 import queue
 import threading
@@ -17,11 +19,13 @@ from typing import Dict, List, Optional, Type
 try:  # ≥ Py 3.10 std-lib metadata
     import importlib.metadata as imetadata
 except ModuleNotFoundError:  # pragma: no cover
+    logger.warning("importlib_metadata backport required on this Python")
     import importlib_metadata as imetadata  # type: ignore
 
 try:  # Kafka telemetry
     from kafka import KafkaProducer  # type: ignore
 except ModuleNotFoundError:  # pragma: no cover
+    logger.warning("kafka-python missing – registry heartbeat disabled")
     KafkaProducer = None  # type: ignore
 
 try:  # Prometheus metrics
@@ -46,18 +50,21 @@ try:  # Prometheus metrics
         return _get_metric(_Histogram, name, desc, labels)
 
 except ModuleNotFoundError:  # pragma: no cover
+    logger.warning("prometheus_client missing – metrics disabled")
     Counter = Gauge = Histogram = CollectorRegistry = None  # type: ignore
 
 try:
     from cryptography.hazmat.primitives.asymmetric import ed25519
     from cryptography.exceptions import InvalidSignature
 except ModuleNotFoundError:  # pragma: no cover
+    logger.warning("cryptography library missing – wheel signing disabled")
     ed25519 = None  # type: ignore
     InvalidSignature = Exception  # type: ignore
 
 try:
     from packaging.version import parse as _parse_version  # type: ignore
 except ModuleNotFoundError:  # pragma: no cover
+    logger.warning("packaging not installed – version parsing downgraded")
 
     def _parse_version(v: str):
         return tuple(int(p) for p in v.split(".") if p.isdigit())
@@ -83,7 +90,6 @@ _WHEEL_SIGS: Dict[str, str] = {
 # ---------------------------------------------------------------------------
 # logging
 # ---------------------------------------------------------------------------
-logger = logging.getLogger("alpha_factory.agents")
 if not logger.handlers:
     _h = logging.StreamHandler()
     _h.setFormatter(logging.Formatter("%(asctime)s  %(levelname)-8s  %(name)s: %(message)s"))

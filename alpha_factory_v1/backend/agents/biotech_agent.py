@@ -74,32 +74,38 @@ try:
     import rdflib  # type: ignore
     from rdflib.namespace import RDF, RDFS  # type: ignore
 except ModuleNotFoundError:  # pragma: no cover
+    logger.warning("rdflib not installed – knowledge graph disabled")
     rdflib = RDF = RDFS = None  # type: ignore
 
 try:
     import faiss  # type: ignore
 except ModuleNotFoundError:  # pragma: no cover
+    logger.warning("faiss missing – similarity search disabled")
     faiss = None  # type: ignore
 
 try:
     from sentence_transformers import SentenceTransformer  # type: ignore
 except ModuleNotFoundError:  # pragma: no cover
+    logger.warning("sentence-transformers missing – embeddings disabled")
     SentenceTransformer = None  # type: ignore
 
 try:
     import numpy as np  # type: ignore
 except ModuleNotFoundError:  # pragma: no cover
+    logger.warning("numpy not installed – vector ops disabled")
     np = None  # type: ignore
 
 try:
     import pandas as pd  # type: ignore
 except ModuleNotFoundError:  # pragma: no cover
+    logger.warning("pandas missing – CSV parsing disabled")
     pd = None  # type: ignore
 
 try:
     import openai  # type: ignore
     from openai.agents import tool  # type: ignore
 except ModuleNotFoundError:  # pragma: no cover
+    logger.warning("openai package not found – LLM features disabled")
     openai = None  # type: ignore
 
     def tool(fn=None, **_):  # type: ignore
@@ -112,16 +118,19 @@ OPENAI_TIMEOUT_SEC = int(os.getenv("OPENAI_TIMEOUT_SEC", "30"))
 try:
     from kafka import KafkaProducer  # type: ignore
 except ModuleNotFoundError:  # pragma: no cover
+    logger.warning("kafka-python missing – event streaming disabled")
     KafkaProducer = None  # type: ignore
 
 try:
     import httpx  # type: ignore
 except ModuleNotFoundError:  # pragma: no cover
+    logger.warning("httpx unavailable – network fetch disabled")
     httpx = None  # type: ignore
 
 try:
     import adk  # type: ignore
 except ModuleNotFoundError:  # pragma: no cover
+    logger.warning("google-adk not installed – mesh integration disabled")
     adk = None  # type: ignore
 try:
     from aiohttp import ClientError as AiohttpClientError  # type: ignore
