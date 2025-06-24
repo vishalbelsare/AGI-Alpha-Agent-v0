@@ -47,14 +47,6 @@ macro telemetry, runs Monte-Carlo simulations and exposes a Gradio dashboard.
 See the [alpha_factory_v1/demos/macro_sentinel/README.md](../alpha_factory_v1/demos/macro_sentinel/README.md)
 for full instructions.
 
-## Static Insight Demo
-
-GitHub Pages serves any files under `docs/` when the site is built from
-`mkdocs.yml`. To publish the static α‑AGI Insight demo, copy the contents of
-`static_insight/` into this directory and run `mkdocs build` if your workflow
-doesn't trigger it automatically. Pushing the updated files makes the demo
-available at the default Pages URL.
-
 ## α‑AGI Insight v1 Demo
 
 `docs/alpha_agi_insight_v1` provides a self-contained HTML demo that
@@ -63,6 +55,9 @@ copies this directory into the generated `site/` folder, serves it on GitHub
 Pages and deploys the page automatically. Visit
 [the published demo](https://montreal-ai.github.io/AGI-Alpha-Agent-v0/alpha_agi_insight_v1/)
 to preview it.
+
+The old `static_insight` directory has been removed in favour of this
+official static demo.
 
 To update the charts, edit `forecast.json` and `population.json` and rebuild
 the site:

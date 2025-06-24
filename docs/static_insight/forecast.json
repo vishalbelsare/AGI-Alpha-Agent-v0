@@ -1,9 +1,0 @@
-[
-  {"year": 1, "capability": 0.1},
-  {"year": 2, "capability": 0.15},
-  {"year": 3, "capability": 0.25},
-  {"year": 4, "capability": 0.4},
-  {"year": 5, "capability": 0.6},
-  {"year": 6, "capability": 0.8},
-  {"year": 7, "capability": 1.0}
-]

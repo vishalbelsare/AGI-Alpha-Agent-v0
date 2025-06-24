@@ -19,10 +19,8 @@ jobs:
         run: pip install mkdocs mkdocs-material
       - name: Build site
         run: mkdocs build --verbose
-      - name: Copy insight demos
-        run: |
-          cp -r docs/static_insight/* site/
-          cp -r docs/alpha_agi_insight_v1 site/
+      - name: Copy insight demo
+        run: cp -r docs/alpha_agi_insight_v1 site/
       - name: Deploy
         uses: peaceiris/actions-gh-pages@v3
         with:
