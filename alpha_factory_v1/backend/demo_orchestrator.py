@@ -10,7 +10,7 @@ from typing import Callable, Dict, List
 
 import alpha_factory_v1.core.utils.a2a_pb2 as pb
 
-from .agent_supervisor import AgentRunner, handle_heartbeat, monitor_agents
+from .orchestrator_utils import AgentRunner, handle_heartbeat, monitor_agents
 from alpha_factory_v1.core.archive.service import ArchiveService
 from alpha_factory_v1.core.archive.solution_archive import SolutionArchive
 from alpha_factory_v1.core.governance.stake_registry import StakeRegistry
