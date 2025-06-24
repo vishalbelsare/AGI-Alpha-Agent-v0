@@ -135,7 +135,7 @@ def test_transfer_test_runs(monkeypatch: pytest.MonkeyPatch) -> None:
     def fake_run(models: list[str], top_n: int) -> None:
         click.echo(f"models:{','.join(models)} top:{top_n}")
 
-    monkeypatch.setattr("src.tools.transfer_test.run_transfer_test", fake_run)
+    monkeypatch.setattr("alpha_factory_v1.core.tools.transfer_test.run_transfer_test", fake_run)
     runner = CliRunner()
     result = runner.invoke(cli.main, ["transfer-test"])
 

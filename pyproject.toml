@@ -25,6 +25,7 @@ packages = [
     "alpha_factory_v1.core.self_evolution",
     "alpha_factory_v1.core.simulation",
     "alpha_factory_v1.core.utils",
+    "alpha_factory_v1.core.tools",
     "alpha_factory_v1.common",
     "alpha_factory_v1.common.utils",
     "alpha_factory_v1.utils",

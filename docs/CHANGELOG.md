@@ -25,12 +25,13 @@ Downstream users should consult this section when upgrading.
 ### Breaking Changes
 - Core modules previously under `src/` now live in `alpha_factory_v1.core`.
 - Update imports accordingly.
+- Monitoring, governance and archive helpers moved under `alpha_factory_v1.core`.
 - `alpha-factory` and `edge_runner.py` now print a short warning before startup.
 - Synced `openai`, `openai-agents` and `uvicorn` pins across requirements files
   and clarified why `requests` and `rich` differ between layers.
 - Documented `API_RATE_LIMIT`, `AGI_ISLAND_BACKENDS` and `ALERT_WEBHOOK_URL`
   environment variables.
-- Added [`src/tools/analyse_backtrack.py`](../src/tools/analyse_backtrack.py) for visualising archive backtracks.
+- Added [`alpha_factory_v1/core/tools/analyse_backtrack.py`](../alpha_factory_v1/core/tools/analyse_backtrack.py) for visualising archive backtracks.
 - Documented how to build a wheelhouse for offline installs and updated
   `tests/README.md` with the instructions.
 - Added `scripts/build_offline_wheels.sh` to gather wheels for all lock files.

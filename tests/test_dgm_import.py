@@ -2,7 +2,7 @@
 from pathlib import Path
 
 from alpha_factory_v1.core.archive.db import ArchiveDB
-from alpha_factory_v1.demos.alpha_agi_insight_v1.src.tools import dgm_import
+from alpha_factory_v1.core.tools import dgm_import
 
 
 def test_dgm_import(tmp_path: Path) -> None:

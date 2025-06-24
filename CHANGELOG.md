@@ -7,6 +7,11 @@ The initial release is tagged `v0.1.0-alpha`.
 
 For the full changelog, see [docs/CHANGELOG.md](docs/CHANGELOG.md).
 
+### Migration Note
+Production modules previously under `src/` now reside in
+`alpha_factory_v1.core`.
+Update imports accordingly.
+
 ## [0.1.0-alpha] - 2024-05-01
 - Initial alpha release.
 - Git tag `v0.1.0-alpha`.
