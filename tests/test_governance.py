@@ -38,3 +38,29 @@ def test_regression_guard(monkeypatch) -> None:
     assert runner.task.cancelled
     assert dur < 10
     assert alerts
+
+
+def test_regression_guard_resumes(monkeypatch) -> None:
+    alerts: list[str] = []
+    runner = DummyRunner()
+    runners = {"aiga_evolver": runner}
+
+    async def drive() -> bool:
+        guard = asyncio.create_task(orchestrator.regression_guard(runners, alerts.append))
+        for v in [1.0, 0.9, 0.6]:
+            metrics.dgm_best_score.set(v)
+            await asyncio.sleep(0.2)
+        await asyncio.sleep(0.5)
+        assert runner.task.cancelled
+        for v in [0.8, 1.0]:
+            metrics.dgm_best_score.set(v)
+            await asyncio.sleep(0.2)
+        await asyncio.sleep(0.5)
+        guard.cancel()
+        with contextlib.suppress(asyncio.CancelledError):
+            await guard
+        return runner.task is not None and not runner.task.cancelled
+
+    resumed = asyncio.run(drive())
+    assert resumed
+    assert any("resumed" in a for a in alerts)

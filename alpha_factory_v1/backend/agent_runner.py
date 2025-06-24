@@ -173,6 +173,7 @@ class AgentRunner:
         self.next_ts = 0.0
         self.last_beat = time.time()
         self.task: Optional[asyncio.Task[None]] = None
+        self.paused_at: float | None = None
         self._max_cycle_sec = max_cycle_sec
         self._publish = publish
         self._calc_next()
@@ -222,6 +223,11 @@ class AgentRunner:
 
         self.task = asyncio.create_task(_cycle())
 
+    def resume(self) -> None:
+        """Resume execution after a pause."""
+        self.paused_at = None
+        self.next_ts = 0
+
 
 async def hb_watch(runners: Dict[str, AgentRunner]) -> None:
     while True:
@@ -256,6 +262,7 @@ async def regression_guard(
     thr = _env_float("ALPHA_REGRESSION_THRESHOLD", threshold or 0.8)
     win = int(_env_float("ALPHA_REGRESSION_WINDOW", float(window or 3)))
     history: deque[float] = deque(maxlen=win)
+    baseline: float | None = None
     while True:
         await asyncio.sleep(1)
         try:
@@ -264,26 +271,27 @@ async def regression_guard(
         except Exception:  # pragma: no cover - metrics optional
             continue
         history.append(score)
-        if len(history) == win:
-            avg_prev = sum(list(history)[:-1]) / (win - 1)
-            if history[-1] <= avg_prev * thr:
-                runner = runners.get("aiga_evolver")
-                if runner and runner.task:
-                    runner.task.cancel()
-                    with contextlib.suppress(asyncio.CancelledError):
-                        await runner.task
+        runner = runners.get("aiga_evolver")
+
+        if runner and runner.paused_at is not None and baseline is not None:
+            if score >= baseline:
+                if not (runner.task and not runner.task.done()):
+                    runner.resume()
                 if on_alert:
-                    on_alert("Evolution paused due to metric regression")
+                    on_alert("Evolution resumed")
+                baseline = None
                 history.clear()
-        elif len(history) > 1:
+            continue
+
+        if len(history) > 1:
             avg_prev = sum(list(history)[:-1]) / (len(history) - 1)
             if history[-1] <= avg_prev * thr:
-                runner = runners.get("aiga_evolver")
                 if runner and runner.task:
                     runner.task.cancel()
                     with contextlib.suppress(asyncio.CancelledError):
                         await runner.task
+                    runner.paused_at = time.time()
+                baseline = avg_prev
                 if on_alert:
                     on_alert("Evolution paused due to metric regression")
                 history.clear()
-        # else: wait until we have at least 2 samples
