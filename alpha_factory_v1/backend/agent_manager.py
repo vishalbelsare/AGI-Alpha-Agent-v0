@@ -44,6 +44,10 @@ class AgentManager:
             register = getattr(r.inst, "_register_mesh", None)
             if register:
                 asyncio.create_task(register())
+        for r in self.runners.values():
+            init_async = getattr(r.inst, "init_async", None)
+            if init_async:
+                await init_async()
 
         self._hb_task = asyncio.create_task(hb_watch(self.runners))
         self._reg_task = asyncio.create_task(regression_guard(self.runners))

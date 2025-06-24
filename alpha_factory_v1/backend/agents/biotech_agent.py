@@ -269,7 +269,6 @@ class BiotechAgent(AgentBase):
 
         self.store = _EmbedStore(self.cfg)
         self.kg = _KG(self.cfg, self.store)
-        asyncio.create_task(self.kg.load())
 
         self._latest_alpha: List[Dict[str, Any]] = []
 
@@ -284,6 +283,10 @@ class BiotechAgent(AgentBase):
         if self.cfg.adk_mesh and adk:
             # registration scheduled by orchestrator after loop start
             pass
+
+    async def init_async(self) -> None:
+        """Launch background tasks after instantiation."""
+        asyncio.create_task(self.kg.load())
 
     # ── OpenAI Agents SDK tools ──────────────────────────────────────────
     @tool(description="Ask a biotech-related question; returns answer with citations.")

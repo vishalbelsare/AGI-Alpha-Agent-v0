@@ -47,6 +47,7 @@ For more details see `docs/DESIGN.md` and the module docstrings within
 
 Agents are instantiated synchronously so their constructors **must not** schedule
 asynchronous tasks. The orchestrator invokes each agent's optional
-`_register_mesh()` coroutine once the event loop is running and calls the
-`setup()` coroutine for heavy initialisation. This allows agents to be created in
-standard blocking code without errors about missing event loops.
+`_register_mesh()` coroutine once the event loop is running, awaits the
+`init_async()` hook for background setup and calls the `setup()` coroutine for
+heavy initialisation. This allows agents to be created in standard blocking
+code without errors about missing event loops.
