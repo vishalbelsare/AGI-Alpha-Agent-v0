@@ -35,6 +35,8 @@ from .registry import (
 _HOT_DIR = Path(os.getenv("AGENT_HOT_DIR", "~/.alpha_agents")).expanduser()
 from .plugins import verify_wheel, install_wheel
 
+FAILED_AGENTS: dict[str, str] = {}
+
 
 def _inspect_module(mod: ModuleType) -> Optional[AgentMetadata]:
     """Return metadata for an agent implementation."""
@@ -66,8 +68,9 @@ def discover_local() -> None:
             meta = _inspect_module(mod)
             if meta and meta.name not in AGENT_REGISTRY:
                 _register(meta)
-        except Exception:  # noqa: BLE001
+        except Exception as exc:  # noqa: BLE001
             logger.exception("Import error for %s", mod_name)
+            FAILED_AGENTS[mod_name] = str(exc)
 
 
 def discover_entrypoints() -> None:
@@ -78,8 +81,9 @@ def discover_entrypoints() -> None:
     for ep in eps:
         try:
             obj = ep.load()
-        except Exception:  # noqa: BLE001
+        except Exception as exc:  # noqa: BLE001
             logger.exception("Entry-point load failed: %s", ep.name)
+            FAILED_AGENTS[ep.name] = str(exc)
             continue
         AgentBase = _agent_base()
         if inspect.isclass(obj) and issubclass(obj, AgentBase):
@@ -111,8 +115,9 @@ def discover_hot_dir() -> None:
                 meta = _inspect_module(mod)
                 if meta and meta.name not in AGENT_REGISTRY:
                     _register(meta)
-        except Exception:  # noqa: BLE001
+        except Exception as exc:  # noqa: BLE001
             logger.exception("Hot-dir load failed for %s", wheel.name)
+            FAILED_AGENTS[wheel.stem] = str(exc)
 
 
 def discover_adk() -> None:
@@ -142,5 +147,6 @@ def discover_adk() -> None:
                 continue
             logger.info("Pulled %s from ADK mesh", pkg.name)
         discover_hot_dir()
-    except Exception:  # noqa: BLE001
+    except Exception as exc:  # noqa: BLE001
         logger.exception("ADK discovery failed")
+        FAILED_AGENTS["adk"] = str(exc)
