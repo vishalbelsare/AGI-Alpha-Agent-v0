@@ -302,9 +302,8 @@ class PolicyAgent(AgentBase):
     # ── OpenAI tools ─────────────────────────────────────────────────────
 
     @tool(description="Answer a legal / policy question with citations. Arg str query.")
-    def policy_qa(self, query: str) -> str:  # noqa: D401
-        loop = asyncio.get_event_loop()
-        return loop.run_until_complete(self._qa_async(query))
+    async def policy_qa(self, query: str) -> str:  # noqa: D401
+        return await self._qa_async(query)
 
     @tool(description="Compare two versions. Arg JSON {'old':str,'new':str}")
     def compare_versions(self, req_json: str) -> str:  # noqa: D401
