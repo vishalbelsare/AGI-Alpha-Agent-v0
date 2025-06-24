@@ -1,6 +1,12 @@
 # SPDX-License-Identifier: Apache-2.0
 # This code is a conceptual research prototype.
-"""Analyse orchestrator logs and propose refinement patches."""
+"""Analyse orchestrator logs and propose refinement patches.
+
+This module currently **simulates** repository improvements. The
+`MetaRefinementAgent` fabricates diff proposals based on a naive
+heuristic without measuring real performance. It exists purely as a
+prototype to demonstrate self-healing logic.
+"""
 
 from __future__ import annotations
 
@@ -17,7 +23,12 @@ __all__ = ["MetaRefinementAgent"]
 
 
 class MetaRefinementAgent:
-    """Generate diff proposals based on orchestrator log analysis."""
+    """Generate diff proposals based on orchestrator log analysis.
+
+    This agent does **not** actually optimise the repository. It fabricates
+    diffs from log heuristics as a proof of concept. Future versions may
+    integrate real profiling and optimisation logic.
+    """
 
     def __init__(self, repo: str | Path, log_dir: str | Path, registry: StakeRegistry | None = None) -> None:
         self.repo = Path(repo)
