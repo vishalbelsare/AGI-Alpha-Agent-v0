@@ -28,9 +28,11 @@ log = logging.getLogger(__name__)
 class EventBus:
     """Simple Kafka/in-memory event bus."""
 
-    def __init__(self, broker: str | None, dev_mode: bool) -> None:
-        self._queues: Dict[str, asyncio.Queue] | None = None
-        self._producer: KafkaProducer | None = None  # type: ignore
+    def __init__(self, broker: str | None, dev_mode: bool, *, max_queue_size: int = 1024) -> None:
+        self._queues: Dict[str, asyncio.Queue[Dict[str, Any]]] | None = None
+        self._producer: KafkaProducer | None = None
+        self._consumer_task: asyncio.Task[None] | None = None
+        self._max_queue_size = max_queue_size
         if broker and "KafkaProducer" in globals():
             self._producer = KafkaProducer(
                 bootstrap_servers=broker.split(","),
@@ -48,7 +50,60 @@ class EventBus:
             self._producer.send(topic, msg)
         else:
             assert self._queues is not None
-            self._queues.setdefault(topic, asyncio.Queue()).put_nowait(msg)
+            q = self._queues.setdefault(topic, asyncio.Queue(maxsize=self._max_queue_size))
+            if q.full():
+                try:
+                    q.get_nowait()
+                except asyncio.QueueEmpty:
+                    pass
+            q.put_nowait(msg)
+
+    def read_and_clear(self, topic: str | None = None) -> Dict[str, list[Dict[str, Any]]]:
+        """Return queued events and clear the buffers (dev mode helper)."""
+        if self._queues is None:
+            return {}
+        topics = [topic] if topic else list(self._queues)
+        result: Dict[str, list[Dict[str, Any]]] = {}
+        for t in topics:
+            q = self._queues.get(t)
+            if not q:
+                continue
+            items: list[Dict[str, Any]] = []
+            while not q.empty():
+                try:
+                    items.append(q.get_nowait())
+                except asyncio.QueueEmpty:
+                    break
+            if items:
+                result[t] = items
+        return result
+
+    async def _drain_loop(self) -> None:
+        assert self._queues is not None
+        try:
+            while True:
+                for q in list(self._queues.values()):
+                    while not q.empty():
+                        try:
+                            q.get_nowait()
+                        except asyncio.QueueEmpty:
+                            break
+                await asyncio.sleep(0.1)
+        except asyncio.CancelledError:
+            pass
+
+    async def start_consumer(self) -> None:
+        if self._queues is None or self._consumer_task is not None:
+            return
+        self._consumer_task = asyncio.create_task(self._drain_loop())
+
+    async def stop_consumer(self) -> None:
+        if self._consumer_task is None:
+            return
+        self._consumer_task.cancel()
+        with contextlib.suppress(asyncio.CancelledError):
+            await self._consumer_task
+        self._consumer_task = None
 
     def _close(self) -> None:
         if not self._producer:
@@ -60,7 +115,8 @@ class EventBus:
             log.exception("Kafka producer close failed")
 
 
-async def maybe_await(fn, *a, **kw):  # type: ignore
+async def maybe_await(fn: Callable[..., Any], *a: Any, **kw: Any) -> Any:
+    """Await ``fn`` if it is async, otherwise run it in a thread."""
     return await fn(*a, **kw) if asyncio.iscoroutinefunction(fn) else await asyncio.to_thread(fn, *a, **kw)
 
 
@@ -76,8 +132,8 @@ class AgentRunner:
         name: str,
         cycle_seconds: int,
         max_cycle_sec: int,
-        publish: callable,
-        inst: object | None = None,
+        publish: Callable[[str, Dict[str, Any]], None],
+        inst: Any | None = None,
     ) -> None:
         self.name = name
         self.inst = inst or get_agent(name)
@@ -85,17 +141,16 @@ class AgentRunner:
         self.spec = getattr(self.inst, "SCHED_SPEC", None)
         self.next_ts = 0.0
         self.last_beat = time.time()
-        self.task: Optional[asyncio.Task] = None
+        self.task: Optional[asyncio.Task[None]] = None
         self._max_cycle_sec = max_cycle_sec
         self._publish = publish
         self._calc_next()
 
         with contextlib.suppress(ModuleNotFoundError):
-            from openai.agents import AgentContext  # type: ignore[attr-defined]
+            from openai.agents import AgentContext
 
             if isinstance(self.inst, AgentContext):
-                from .telemetry import tracer  # avoid circular import
-                from openai.agents import AgentRuntime  # type: ignore[attr-defined]
+                from openai.agents import AgentRuntime
 
                 runtime = AgentRuntime()
                 runtime.register(self.inst)
