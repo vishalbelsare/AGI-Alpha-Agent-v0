@@ -409,7 +409,8 @@ class DrugDesignAgent(AgentBase):
                 value_serializer=lambda v: json.dumps(v).encode(),
             )
         if self.cfg.adk_mesh and adk:
-            asyncio.create_task(self._register_mesh())
+            # registration scheduled by orchestrator after loop start
+            pass
 
     # ------------------------------------------------------------------
     # Tools

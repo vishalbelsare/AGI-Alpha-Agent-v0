@@ -219,7 +219,8 @@ class SupplyChainAgent(AgentBase):  # noqa: D101
         self.cfg.data_root.mkdir(parents=True, exist_ok=True)
         self._wm: WorldModel = WorldModel()
         if self.cfg.adk_mesh and adk:
-            asyncio.create_task(self._register_mesh())
+            # registration scheduled by orchestrator after loop start
+            pass
 
     # ----------------------------- tools ----------------------------- #
 

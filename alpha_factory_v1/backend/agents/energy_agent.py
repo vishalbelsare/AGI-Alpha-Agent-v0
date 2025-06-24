@@ -272,7 +272,8 @@ class EnergyAgent(AgentBase):
             else None
         )
         if self.cfg.adk_mesh and adk:
-            asyncio.create_task(self._register_mesh())
+            # registration scheduled by orchestrator after loop start
+            pass
 
     # -------------------------- OpenAI tools ----------------------------- #
     @tool(description="48-hour ahead demand & PV forecast (JSON list).")

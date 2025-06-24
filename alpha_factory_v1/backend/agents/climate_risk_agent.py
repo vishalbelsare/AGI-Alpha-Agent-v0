@@ -247,8 +247,7 @@ class ClimateRiskAgent(AgentBase):
             self._producer = None
 
         # ADK mesh heartbeat
-        if self.cfg.adk_mesh and adk:
-            asyncio.create_task(self._register_mesh())
+        # Registration is scheduled by the orchestrator once the event loop is running
 
     # ────────────────────────────────────────────────────────────────
     # OpenAI Agents SDK tools

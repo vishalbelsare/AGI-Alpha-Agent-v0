@@ -42,3 +42,11 @@ gracefully when optional dependencies (like Kafka or FastAPI) are missing.
 
 For more details see `docs/DESIGN.md` and the module docstrings within
 `alpha_factory_v1/backend`.
+
+## Agent lifecycle
+
+Agents are instantiated synchronously so their constructors **must not** schedule
+asynchronous tasks. The orchestrator invokes each agent's optional
+`_register_mesh()` coroutine once the event loop is running and calls the
+`setup()` coroutine for heavy initialisation. This allows agents to be created in
+standard blocking code without errors about missing event loops.
