@@ -20,6 +20,7 @@ from alpha_factory_v1.backend.agents import (
     AGENT_REGISTRY,
     StubAgent,
     start_background_tasks,
+    stop_background_tasks,
 )
 from alpha_factory_v1.backend.agents.base import AgentBase
 
@@ -41,7 +42,7 @@ class FailingAgent(AgentBase):  # type: ignore[misc]
 
 
 @pytest.fixture()  # type: ignore[misc]
-def dev_orchestrator(monkeypatch: pytest.MonkeyPatch) -> orch_mod.Orchestrator:
+async def dev_orchestrator(monkeypatch: pytest.MonkeyPatch) -> orch_mod.Orchestrator:
     monkeypatch.setenv("DEV_MODE", "true")
     monkeypatch.setenv("API_TOKEN", "test-token")
     monkeypatch.setenv("AGENT_ERR_THRESHOLD", "1")
@@ -76,10 +77,11 @@ def dev_orchestrator(monkeypatch: pytest.MonkeyPatch) -> orch_mod.Orchestrator:
     monkeypatch.setattr("alpha_factory_v1.backend.agents.list_agents", list_agents)
     monkeypatch.setattr("alpha_factory_v1.backend.agents.get_agent", get_agent)
     monkeypatch.setattr("alpha_factory_v1.backend.agent_runner.get_agent", get_agent)
-    start_background_tasks()
+    await start_background_tasks()
 
     orch = orch_mod.Orchestrator()
     yield orch
+    await stop_background_tasks()
 
 
 def _mem_stub() -> object:

@@ -45,7 +45,7 @@ async def test_orchestrator_lifecycle(monkeypatch: pytest.MonkeyPatch) -> None:
     agents_stub = types.ModuleType("backend.agents")
     setattr(agents_stub, "list_agents", lambda _detail=False: ["dummy"])
     setattr(agents_stub, "get_agent", lambda name: DummyAgent())
-    setattr(agents_stub, "start_background_tasks", lambda: None)
+    setattr(agents_stub, "start_background_tasks", lambda: asyncio.sleep(0))
 
     fin_stub = types.ModuleType("alpha_factory_v1.backend.agents.finance_agent")
     setattr(fin_stub, "metrics_asgi_app", lambda: None)

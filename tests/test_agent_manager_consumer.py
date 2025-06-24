@@ -37,7 +37,7 @@ def test_manager_starts_and_stops_bus_consumer(monkeypatch: pytest.MonkeyPatch) 
         assert name == "dummy"
         return DummyAgent()
 
-    def start_background_tasks() -> None:
+    async def start_background_tasks() -> None:
         pass
 
     monkeypatch.setattr("alpha_factory_v1.backend.agent_manager.EventBus", DummyBus)
