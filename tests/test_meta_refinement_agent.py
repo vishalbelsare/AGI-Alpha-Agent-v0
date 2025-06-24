@@ -21,11 +21,13 @@ def test_refinement_merges_patch(tmp_path: Path) -> None:
     logs = tmp_path / "logs"
     logs.mkdir()
     (logs / "log.json").write_text(
-        "\n".join([
-            '{"module":"module_a.py","latency":5,"ts":0}',
-            '{"module":"module_b.py","latency":1,"ts":1}',
-            '{"module":"module_a.py","latency":6,"ts":2}'
-        ]),
+        "\n".join(
+            [
+                '{"module":"module_a.py","latency":5,"ts":0}',
+                '{"module":"module_b.py","latency":1,"ts":1}',
+                '{"module":"module_a.py","latency":6,"ts":2}',
+            ]
+        ),
         encoding="utf-8",
     )
 
@@ -74,11 +76,13 @@ def test_refinement_rejected_patch(tmp_path: Path) -> None:
     logs = tmp_path / "logs"
     logs.mkdir()
     (logs / "log.json").write_text(
-        "\n".join([
-            '{"module":"module_a.py","latency":5,"ts":0}',
-            '{"module":"module_b.py","latency":1,"ts":1}',
-            '{"module":"module_a.py","latency":6,"ts":2}'
-        ]),
+        "\n".join(
+            [
+                '{"module":"module_a.py","latency":5,"ts":0}',
+                '{"module":"module_b.py","latency":1,"ts":1}',
+                '{"module":"module_a.py","latency":6,"ts":2}',
+            ]
+        ),
         encoding="utf-8",
     )
 
@@ -91,3 +95,23 @@ def test_refinement_rejected_patch(tmp_path: Path) -> None:
 
     assert not merged
     assert (repo / "metric.txt").read_text().strip() == "1"
+
+
+def test_refinement_proposes_cycle_adjustment(tmp_path: Path) -> None:
+    repo = _make_repo(tmp_path)
+    logs = tmp_path / "logs"
+    logs.mkdir()
+    (logs / "log.json").write_text(
+        "\n".join(['{"agent":"demo","latency_ms":6000,"ts":0}', '{"agent":"demo","latency_ms":7000,"ts":1}']),
+        encoding="utf-8",
+    )
+
+    reg = StakeRegistry()
+    reg.set_stake("meta", 1.0)
+
+    with patch.object(harness, "vote_and_merge") as vote:
+        agent = MetaRefinementAgent(repo, logs, reg)
+        agent.refine()
+
+    called_diff = vote.call_args.args[1]
+    assert "increase cycle" in called_diff

@@ -34,6 +34,11 @@ gracefully when optional dependencies (like Kafka or FastAPI) are missing.
   coordinating their execution and heartbeats.
 - **Memory Fabric** – pluggable storage combining vector and graph databases.
 - **Telemetry** – Prometheus metrics exporting agent cycle latency and errors.
+- *Placeholder logic* – `transfer_test.evaluate_agent` merely echoes the
+  archived score. Future updates will evaluate agents on the selected model.
+  `MetaRefinementAgent` also includes a very naive log parser that suggests
+  increasing an agent's cycle period when cycles consistently exceed five
+  seconds.
 
 For more details see `docs/DESIGN.md` and the module docstrings within
 `alpha_factory_v1/backend`.

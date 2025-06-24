@@ -55,9 +55,14 @@ class MetaRefinementAgent:
         return target
 
     def _create_patch(self, entries: Iterable[Mapping[str, object]]) -> str:
-        """Create a diff targeting the slowest or error-prone module."""
+        """Create a diff targeting the slowest or error-prone module.
 
+        A basic heuristic inspects ``agent.cycle`` logs and suggests increasing
+        the cycle period when average latency exceeds five seconds. This is a
+        placeholder until a real adaptive scheduler is implemented.
+        """
         stats: dict[str, dict[str, float]] = {}
+        cycle_latency: dict[str, list[float]] = {}
         for rec in entries:
             module = str(rec.get("module") or rec.get("agent") or rec.get("hash") or "")
             if not module:
@@ -66,8 +71,18 @@ class MetaRefinementAgent:
             if "latency" in rec:
                 data["lat"] += float(rec["latency"])
                 data["count"] += 1.0
+            if "agent" in rec and "latency_ms" in rec:
+                cycle_latency.setdefault(str(rec["agent"]), []).append(float(rec["latency_ms"]))
             if rec.get("level") == "error" or rec.get("error"):
                 data["err"] += 1.0
+
+        for agent, samples in cycle_latency.items():
+            if samples:
+                avg_ms = sum(samples) / len(samples)
+                if avg_ms > 5000:
+                    metric = self.repo / "metric.txt"
+                    goal = f"increase cycle to {int(avg_ms/1000)}s for {agent}"
+                    return propose_diff(str(metric), goal)
 
         if not stats:
             metric = self.repo / "metric.txt"
