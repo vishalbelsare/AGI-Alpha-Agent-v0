@@ -9,9 +9,9 @@ inside :meth:`run_cycle`.
 from __future__ import annotations
 
 from .base_agent import BaseAgent
-from ..utils import messaging
-from ..utils.logging import Ledger
-from ..utils.retry import with_retry
+from alpha_factory_v1.common.utils import messaging
+from alpha_factory_v1.common.utils.logging import Ledger
+from alpha_factory_v1.common.utils.retry import with_retry
 from alpha_factory_v1.core.utils.tracing import span
 from typing import Callable, Awaitable, cast
 
@@ -35,7 +35,7 @@ class PlanningAgent(BaseAgent):
             plan = "collect baseline metrics"
             if self.bus.settings.offline:
                 try:
-                    from ..utils import local_llm
+                    from alpha_factory_v1.common.utils import local_llm
 
                     with span("local_llm.chat"):
                         plan = with_retry(local_llm.chat)("plan research task", self.bus.settings)

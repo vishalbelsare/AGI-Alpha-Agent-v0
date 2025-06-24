@@ -11,8 +11,8 @@ except Exception:  # pragma: no cover - optional
 
 import pytest
 
-from alpha_factory_v1.demos.alpha_agi_insight_v1.src.utils.logging import Ledger
-from alpha_factory_v1.demos.alpha_agi_insight_v1.src.utils import messaging
+from alpha_factory_v1.common.utils.logging import Ledger
+from alpha_factory_v1.common.utils import messaging
 
 if not shutil.which("docker") or psycopg2 is None:
     pytest.skip("docker or psycopg2 missing", allow_module_level=True)

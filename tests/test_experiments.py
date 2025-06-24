@@ -5,7 +5,7 @@ import time
 from unittest import mock
 
 from alpha_factory_v1.demos.alpha_agi_insight_v1.src import orchestrator
-from alpha_factory_v1.demos.alpha_agi_insight_v1.src.utils import config
+from alpha_factory_v1.common.utils import config
 
 import pytest
 

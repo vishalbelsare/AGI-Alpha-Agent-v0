@@ -23,7 +23,7 @@ import random
 import time
 from typing import Any, cast
 
-from alpha_factory_v1.demos.alpha_agi_insight_v1.src.utils import local_llm
+from alpha_factory_v1.common.utils import local_llm
 
 log = logging.getLogger(__name__)
 

@@ -26,7 +26,7 @@ verified in a staging environment with tests and manual inspection.
 Rego policies live under `policies/`. After editing any `.rego` file, run:
 
 ```bash
-pre-commit run --files policies/<file>.rego src/utils/opa_policy.py
+pre-commit run --files policies/<file>.rego alpha_factory_v1/core/utils/opa_policy.py
 python check_env.py --auto-install
 pytest -q
 ```
@@ -40,10 +40,10 @@ Create a new `.rego` file inside the `policies/` directory with the desired
 rules. After saving the file, format and validate it with:
 
 ```bash
-pre-commit run --files policies/<file>.rego src/utils/opa_policy.py
+pre-commit run --files policies/<file>.rego alpha_factory_v1/core/utils/opa_policy.py
 ```
 
-The command ensures the policy loads via `src/utils/opa_policy.py` before
+The command ensures the policy loads via `alpha_factory_v1/core/utils/opa_policy.py` before
 committing.
 
 Example rule blocking a specific domain:

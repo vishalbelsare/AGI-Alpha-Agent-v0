@@ -2,7 +2,7 @@
 import logging
 from unittest import mock
 
-from alpha_factory_v1.demos.alpha_agi_insight_v1.src.utils import local_llm
+from alpha_factory_v1.common.utils import local_llm
 
 
 def test_load_model_warning(monkeypatch, caplog):

@@ -5,7 +5,7 @@ import types
 import asyncio
 
 # Stub generated proto dependency if missing
-_stub_path = "src.utils.a2a_pb2"
+_stub_path = "alpha_factory_v1.core.utils.a2a_pb2"
 if _stub_path not in sys.modules:
     stub = types.ModuleType("a2a_pb2")
 
@@ -23,7 +23,7 @@ from alpha_factory_v1.demos.alpha_agi_insight_v1.src.agents import (
     adk_summariser_agent,
     base_agent,
 )
-from alpha_factory_v1.demos.alpha_agi_insight_v1.src.utils import config, messaging
+from alpha_factory_v1.common.utils import config, messaging
 
 
 class DummyBus:

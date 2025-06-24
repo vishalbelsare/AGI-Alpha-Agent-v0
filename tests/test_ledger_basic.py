@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: Apache-2.0
-from alpha_factory_v1.demos.alpha_agi_insight_v1.src.utils.logging import Ledger
-from alpha_factory_v1.demos.alpha_agi_insight_v1.src.utils import messaging
+from alpha_factory_v1.common.utils.logging import Ledger
+from alpha_factory_v1.common.utils import messaging
 
 
 def test_log_and_tail(tmp_path):

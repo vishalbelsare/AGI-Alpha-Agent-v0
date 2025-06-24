@@ -23,7 +23,7 @@ from pathlib import Path
 from typing import Any, List, Set, TYPE_CHECKING, Literal
 
 from cachetools import TTLCache  # type: ignore[import-not-found]
-from .....utils.disclaimer import DISCLAIMER
+from alpha_factory_v1.utils.disclaimer import DISCLAIMER
 
 if TYPE_CHECKING:  # pragma: no cover - typing only
     from typing import Protocol

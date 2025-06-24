@@ -9,9 +9,9 @@ for the market agent. It can optionally leverage a local or remote LLM during
 from __future__ import annotations
 
 from .base_agent import BaseAgent
-from ..utils import messaging, logging as insight_logging
-from ..utils.logging import Ledger
-from ..utils.retry import with_retry
+from alpha_factory_v1.common.utils import messaging, logging as insight_logging
+from alpha_factory_v1.common.utils.logging import Ledger
+from alpha_factory_v1.common.utils.retry import with_retry
 from alpha_factory_v1.core.utils.tracing import span
 from typing import Callable, Awaitable, cast
 
@@ -42,7 +42,7 @@ class StrategyAgent(BaseAgent):
             strat = {"action": f"monitor {val}"}
             if self.bus.settings.offline:
                 try:
-                    from ..utils import local_llm
+                    from alpha_factory_v1.common.utils import local_llm
 
                     with span("local_llm.chat"):
                         strat["action"] = with_retry(local_llm.chat)(str(val), self.bus.settings)

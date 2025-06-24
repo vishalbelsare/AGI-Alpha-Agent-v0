@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: Apache-2.0
-"""Tests for src.utils.config helper functions."""
+"""Tests for :mod:`alpha_factory_v1.common.utils.config` helper functions."""
 
 from __future__ import annotations
 

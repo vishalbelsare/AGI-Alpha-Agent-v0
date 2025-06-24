@@ -6,7 +6,7 @@ from pathlib import Path
 
 import pytest
 
-CLONE_JS = Path("src/utils/clone.js")
+CLONE_JS = Path("alpha_factory_v1/core/utils/clone.js")
 
 
 @pytest.mark.skipif(not shutil.which("node"), reason="node not available")

@@ -1,8 +1,8 @@
 # SPDX-License-Identifier: Apache-2.0
 from pathlib import Path
 
-from alpha_factory_v1.demos.alpha_agi_insight_v1.src.utils.logging import Ledger
-from alpha_factory_v1.demos.alpha_agi_insight_v1.src.utils import messaging
+from alpha_factory_v1.common.utils.logging import Ledger
+from alpha_factory_v1.common.utils import messaging
 
 
 def test_merkle_root_ignores_corrupt_rows(tmp_path: Path) -> None:

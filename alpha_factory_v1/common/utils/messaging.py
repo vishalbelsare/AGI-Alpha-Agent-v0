@@ -18,7 +18,7 @@ from typing import Any, Awaitable, Callable, Dict, List, Optional, Protocol, Typ
 from cachetools import TTLCache
 
 from .config import Settings
-from .tracing import span, bus_messages_total
+from alpha_factory_v1.core.utils.tracing import span, bus_messages_total
 from alpha_factory_v1.core.utils import a2a_pb2 as pb
 from google.protobuf import json_format
 

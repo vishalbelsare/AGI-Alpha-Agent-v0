@@ -7,9 +7,9 @@ from pathlib import Path
 from unittest import mock
 import pytest
 
-from alpha_factory_v1.demos.alpha_agi_insight_v1.src.utils import logging as insight_logging
-from alpha_factory_v1.demos.alpha_agi_insight_v1.src.utils.logging import Ledger
-from alpha_factory_v1.demos.alpha_agi_insight_v1.src.utils import messaging
+from alpha_factory_v1.common.utils import logging as insight_logging
+from alpha_factory_v1.common.utils.logging import Ledger
+from alpha_factory_v1.common.utils import messaging
 
 
 def test_compute_merkle_root(tmp_path: Path) -> None:

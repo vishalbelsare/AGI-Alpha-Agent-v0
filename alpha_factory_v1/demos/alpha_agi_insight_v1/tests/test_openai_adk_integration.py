@@ -11,7 +11,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[4]))
 
 from alpha_factory_v1.demos.alpha_agi_insight_v1.src.agents.strategy_agent import StrategyAgent
 from alpha_factory_v1.demos.alpha_agi_insight_v1.src.agents.adk_summariser_agent import ADKSummariserAgent
-from alpha_factory_v1.demos.alpha_agi_insight_v1.src.utils import config, messaging, logging as insight_logging
+from alpha_factory_v1.common.utils import config, messaging, logging as insight_logging
 
 
 def test_oai_and_adk(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:

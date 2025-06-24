@@ -3,7 +3,7 @@ import json
 import logging
 from datetime import datetime
 
-from alpha_factory_v1.demos.alpha_agi_insight_v1.src.utils.logging import _JsonFormatter
+from alpha_factory_v1.common.utils.logging import _JsonFormatter
 
 
 def test_json_formatter_output() -> None:

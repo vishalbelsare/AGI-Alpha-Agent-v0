@@ -80,7 +80,7 @@ def test_improve_repo_requires_git(monkeypatch, tmp_path: Path) -> None:
         self_improver.improve_repo(str(repo_dir), str(patch_file), "metric.txt", str(log_file))
 
 
-from alpha_factory_v1.demos.alpha_agi_insight_v1.src.utils import config, messaging  # noqa: E402
+from alpha_factory_v1.common.utils import config, messaging  # noqa: E402
 from alpha_factory_v1.core.agents.self_improver_agent import SelfImproverAgent  # noqa: E402
 from prometheus_client import REGISTRY  # noqa: E402
 

@@ -3,7 +3,7 @@ from __future__ import annotations
 
 import asyncio
 from alpha_factory_v1.demos.alpha_agi_insight_v1.src.agents import chaos_agent, safety_agent
-from alpha_factory_v1.demos.alpha_agi_insight_v1.src.utils import config, messaging
+from alpha_factory_v1.common.utils import config, messaging
 from google.protobuf import struct_pb2
 
 if not hasattr(struct_pb2.Struct, "get"):

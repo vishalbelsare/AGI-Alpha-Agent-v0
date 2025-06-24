@@ -5,9 +5,9 @@ import tempfile
 import unittest
 from unittest import mock
 
-from alpha_factory_v1.demos.alpha_agi_insight_v1.src.utils import logging as insight_logging
+from alpha_factory_v1.common.utils import logging as insight_logging
 from alpha_factory_v1.demos.alpha_agi_insight_v1.src import orchestrator
-from alpha_factory_v1.demos.alpha_agi_insight_v1.src.utils import messaging
+from alpha_factory_v1.common.utils import messaging
 
 
 class TestMerkleBroadcast(unittest.TestCase):

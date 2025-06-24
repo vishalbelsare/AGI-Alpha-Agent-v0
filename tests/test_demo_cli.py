@@ -11,7 +11,7 @@ from click.testing import CliRunner
 
 
 from alpha_factory_v1.demos.alpha_agi_insight_v1.src.interface import cli  # noqa: E402
-from alpha_factory_v1.demos.alpha_agi_insight_v1.src.utils import logging, messaging  # noqa: E402
+from alpha_factory_v1.common.utils import logging, messaging  # noqa: E402
 from alpha_factory_v1.core.eval.foresight import evaluate as foresight_evaluate  # noqa: E402
 
 os.environ.setdefault("API_TOKEN", "test-token")

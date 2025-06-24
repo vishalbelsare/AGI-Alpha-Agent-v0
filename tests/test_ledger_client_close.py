@@ -7,9 +7,9 @@ from types import ModuleType
 from typing import Any
 from unittest import mock
 
-from alpha_factory_v1.demos.alpha_agi_insight_v1.src.utils import logging as insight_logging
-from alpha_factory_v1.demos.alpha_agi_insight_v1.src.utils.logging import Ledger
-from alpha_factory_v1.demos.alpha_agi_insight_v1.src.utils import messaging
+from alpha_factory_v1.common.utils import logging as insight_logging
+from alpha_factory_v1.common.utils.logging import Ledger
+from alpha_factory_v1.common.utils import messaging
 
 
 def test_broadcast_merkle_root_closes_client() -> None:

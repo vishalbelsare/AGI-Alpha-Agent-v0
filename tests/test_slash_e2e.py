@@ -2,7 +2,7 @@
 import pytest
 
 from alpha_factory_v1.demos.alpha_agi_insight_v1.src import orchestrator
-from alpha_factory_v1.demos.alpha_agi_insight_v1.src.utils import messaging, config
+from alpha_factory_v1.common.utils import messaging, config
 
 pytestmark = [pytest.mark.e2e]
 

@@ -27,7 +27,7 @@ except Exception:  # pragma: no cover - optional
     coloredlogs = None
 
 from . import messaging
-from .tracing import span
+from alpha_factory_v1.core.utils.tracing import span
 from alpha_factory_v1.core.utils import a2a_pb2 as pb
 from google.protobuf import json_format
 

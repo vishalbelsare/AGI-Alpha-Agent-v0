@@ -9,9 +9,9 @@ passed to the :class:`CodeGenAgent`.
 from __future__ import annotations
 
 from .base_agent import BaseAgent
-from ..utils import messaging, logging as insight_logging
-from ..utils.logging import Ledger
-from ..utils.retry import with_retry
+from alpha_factory_v1.common.utils import messaging, logging as insight_logging
+from alpha_factory_v1.common.utils.logging import Ledger
+from alpha_factory_v1.common.utils.retry import with_retry
 from alpha_factory_v1.core.utils.tracing import span
 from typing import Callable, Awaitable, cast
 

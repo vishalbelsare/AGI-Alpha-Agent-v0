@@ -3,7 +3,7 @@ import asyncio
 
 import pytest
 
-from alpha_factory_v1.demos.alpha_agi_insight_v1.src.utils import retry
+from alpha_factory_v1.common.utils import retry
 
 
 def test_with_retry_sync(monkeypatch: pytest.MonkeyPatch) -> None:
