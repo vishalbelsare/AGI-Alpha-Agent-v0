@@ -43,7 +43,7 @@ except ImportError:
     signal = None  # type: ignore
 
 LOGGER = logging.getLogger(__name__)
-logging.basicConfig(level=os.environ.get("ALPHA_FACTORY_LOGLEVEL", os.getenv("LOG_LEVEL", "INFO")))
+logging.basicConfig(level=os.environ.get("ALPHA_FACTORY_LOGLEVEL", os.getenv("LOGLEVEL", "INFO")))
 
 # ---------------------------------------------------------------------------
 # Helper utilities

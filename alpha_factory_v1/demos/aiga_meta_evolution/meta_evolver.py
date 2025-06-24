@@ -105,7 +105,7 @@ if not LOG.hasHandlers():
     h = logging.StreamHandler()
     h.setFormatter(logging.Formatter("%(asctime)sZ %(levelname)s %(message)s", "%Y-%m-%dT%H:%M:%S"))
     LOG.addHandler(h)
-    LOG.setLevel(os.getenv("LOG_LEVEL", "INFO").upper())
+    LOG.setLevel(os.getenv("LOGLEVEL", "INFO").upper())
 
 # global config ------------------------------------------------------------
 if _TORCH:
