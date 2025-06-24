@@ -1,7 +1,14 @@
-[
-  {"effectiveness": 0.6, "risk": 0.4, "complexity": 0.2, "rank": 1},
-  {"effectiveness": 0.8, "risk": 0.3, "complexity": 0.4, "rank": 0},
-  {"effectiveness": 0.7, "risk": 0.5, "complexity": 0.3, "rank": 2},
-  {"effectiveness": 0.9, "risk": 0.6, "complexity": 0.5, "rank": 0},
-  {"effectiveness": 0.5, "risk": 0.2, "complexity": 0.1, "rank": 3}
-]
+{
+  "solutions": [
+    { "time": 1, "value": 980,   "frontier": false },
+    { "time": 1, "value": 2026,  "frontier": true },
+    { "time": 2, "value": 1540,  "frontier": false },
+    { "time": 2, "value": 3223,  "frontier": true },
+    { "time": 3, "value": 2500,  "frontier": false },
+    { "time": 3, "value": 3991,  "frontier": true },
+    { "time": 4, "value": 2870,  "frontier": false },
+    { "time": 4, "value": 4407,  "frontier": true },
+    { "time": 5, "value": 3680,  "frontier": false },
+    { "time": 5, "value": 6188,  "frontier": true }
+  ]
+}
