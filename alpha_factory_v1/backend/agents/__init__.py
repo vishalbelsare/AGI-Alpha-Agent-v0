@@ -40,21 +40,16 @@ participates in Alpha-Factory.
 from __future__ import annotations
 
 import asyncio
-import importlib
-import importlib.util
 import inspect
 import json
 import logging
 import os
-import sys
 import base64
-import pkgutil
 import queue
 import threading
 import time
 from dataclasses import dataclass, field
 from pathlib import Path
-from types import ModuleType
 from typing import Dict, List, Optional, Type
 
 ##############################################################################
@@ -148,6 +143,7 @@ if not logger.handlers:
     _h.setFormatter(logging.Formatter("%(asctime)s  %(levelname)-8s  %(name)s: %(message)s"))
     logger.addHandler(_h)
 logger.setLevel(logging.INFO)
+
 
 
 ##############################################################################
@@ -315,7 +311,7 @@ def _agent_base():
 
 
 ##############################################################################
-#                    discovery / registration helpers                        #
+
 ##############################################################################
 def _should_register(meta: AgentMetadata) -> bool:
     if meta.name.lower() in _DISABLED:
@@ -360,233 +356,6 @@ def _register(meta: AgentMetadata, *, overwrite: bool = False):
     _emit_kafka("agent.manifest", meta.to_json())
 
 
-def _inspect_module(mod: ModuleType) -> Optional[AgentMetadata]:
-    """Return AgentMetadata if module defines a concrete AgentBase subclass."""
-    AgentBase = _agent_base()
-    for _, obj in inspect.getmembers(mod, inspect.isclass):
-        if issubclass(obj, AgentBase) and obj is not AgentBase:
-            return AgentMetadata(
-                name=getattr(obj, "NAME", obj.__name__),
-                cls=obj,
-                version=getattr(obj, "__version__", "0.1.0"),
-                capabilities=list(getattr(obj, "CAPABILITIES", [])),
-                compliance_tags=list(getattr(obj, "COMPLIANCE_TAGS", [])),
-                requires_api_key=getattr(obj, "REQUIRES_API_KEY", False),
-            )
-    return None
-
-
-##############################################################################
-#                       discovery pipelines (4 sources)                      #
-##############################################################################
-def _discover_local():
-    pkg_root = Path(__file__).parent
-    prefix = f"{__name__}."
-    for _, mod_name, is_pkg in pkgutil.iter_modules([str(pkg_root)]):
-        if is_pkg or not mod_name.endswith("_agent"):
-            continue
-        try:
-            fqmn = prefix + mod_name
-            mod = sys.modules.get(fqmn)
-            if mod is None:
-                mod = importlib.import_module(fqmn)
-            meta = _inspect_module(mod)
-            if meta and meta.name not in AGENT_REGISTRY:
-                _register(meta)
-        except Exception:  # noqa: BLE001
-            logger.exception("Import error for %s", mod_name)
-
-
-def _discover_entrypoints():
-    try:
-        eps = imetadata.entry_points(group="alpha_factory.agents")  # type: ignore[arg-type]
-    except Exception:  # noqa: BLE001
-        return
-    for ep in eps:
-        try:
-            obj = ep.load()
-        except Exception:  # noqa: BLE001
-            logger.exception("Entry-point load failed: %s", ep.name)
-            continue
-        AgentBase = _agent_base()
-        if inspect.isclass(obj) and issubclass(obj, AgentBase):
-            name = getattr(obj, "NAME", ep.name)
-            if name not in AGENT_REGISTRY:
-                _register(
-                    AgentMetadata(
-                        name=name,
-                        cls=obj,
-                        version=getattr(obj, "__version__", "0.1.0"),
-                        capabilities=list(getattr(obj, "CAPABILITIES", [])),
-                        compliance_tags=list(getattr(obj, "COMPLIANCE_TAGS", [])),
-                        requires_api_key=getattr(obj, "REQUIRES_API_KEY", False),
-                    )
-                )
-
-
-def _verify_wheel(path: Path) -> bool:
-    """Return ``True`` if the wheel's signature is valid."""
-    sig_path = path.with_suffix(path.suffix + ".sig")
-    if not sig_path.is_file():
-        logger.error("Missing .sig file for %s", path.name)
-        return False
-    if ed25519 is None:
-        logger.error("cryptography library required for signature checks")
-        return False
-    try:
-        sig_b64 = sig_path.read_text().strip()
-        expected = _WHEEL_SIGS.get(path.name)
-        if expected and expected != sig_b64:
-            logger.error("Signature mismatch for %s", path.name)
-            return False
-        pub_bytes = base64.b64decode(_WHEEL_PUBKEY)
-        signature = base64.b64decode(sig_b64)
-        ed25519.Ed25519PublicKey.from_public_bytes(pub_bytes).verify(signature, path.read_bytes())
-        return True
-    except InvalidSignature:
-        logger.error("Invalid signature for %s", path.name)
-    except Exception:
-        logger.exception("Signature verification failed for %s", path.name)
-    return False
-
-
-def _install_wheel(path: Path) -> Optional[ModuleType]:
-    if not _verify_wheel(path):
-        logger.error("Refusing to load unsigned wheel: %s", path.name)
-        return None
-    spec = importlib.util.spec_from_file_location(path.stem, path)
-    if spec and spec.loader:
-        mod = importlib.util.module_from_spec(spec)
-        spec.loader.exec_module(mod)  # type: ignore[arg-type]
-        return mod
-    return None
-
-
-def _discover_hot_dir():
-    if not _HOT_DIR.is_dir():
-        return
-    for wheel in _HOT_DIR.glob("*.whl"):
-        if wheel.stem.replace("-", "_") in AGENT_REGISTRY:
-            continue
-        try:
-            if not _verify_wheel(wheel):
-                continue
-            mod = _install_wheel(wheel)
-            if mod:
-                meta = _inspect_module(mod)
-                if meta and meta.name not in AGENT_REGISTRY:
-                    _register(meta)
-        except Exception:  # noqa: BLE001
-            logger.exception("Hot-dir load failed for %s", wheel.name)
-
-
-def _discover_adk():
-    """Pull remote agent wheels via Google ADK if `$ADK_MESH` is set."""
-    if adk is None or not os.getenv("ADK_MESH"):
-        return
-    try:
-        client = adk.Client()
-        for pkg in client.list_remote_packages():
-            if pkg.name in AGENT_REGISTRY:
-                continue
-            wheel_path = client.download_package(pkg.name)
-            try:
-                sig_path = client.download_package(pkg.name + ".sig")
-            except Exception:
-                sig_path = None
-            _HOT_DIR.mkdir(parents=True, exist_ok=True)
-            dest = _HOT_DIR / wheel_path.name
-            dest.write_bytes(wheel_path.read_bytes())
-            if sig_path:
-                (dest.with_suffix(dest.suffix + ".sig")).write_bytes(sig_path.read_bytes())
-            if not _verify_wheel(dest):
-                logger.error("Discarding unverified wheel from ADK: %s", pkg.name)
-                dest.unlink(missing_ok=True)
-                if sig_path:
-                    dest.with_suffix(dest.suffix + ".sig").unlink(missing_ok=True)
-                continue
-            logger.info("Pulled %s from ADK mesh", pkg.name)
-        _discover_hot_dir()
-    except Exception:  # noqa: BLE001
-        logger.exception("ADK discovery failed")
-
-
-##############################################################################
-#                     health-monitor / quarantine loop                       #
-##############################################################################
-def _health_loop():
-    while True:
-        try:
-            name, latency_ms, ok = _HEALTH_Q.get(timeout=_HEARTBEAT_INT)
-        except queue.Empty:
-            continue
-
-        quarantine = False
-        stub_meta: AgentMetadata | None = None
-        with _REGISTRY_LOCK:
-            meta = AGENT_REGISTRY.get(name)
-            if meta and not ok:
-                if Counter:
-                    _err_counter.labels(agent=name).inc()  # type: ignore[attr-defined]
-                object.__setattr__(meta, "err_count", meta.err_count + 1)
-                if meta.err_count >= _ERR_THRESHOLD:
-                    logger.error(
-                        "⛔ Quarantining agent '%s' after %d consecutive errors",
-                        name,
-                        meta.err_count,
-                    )
-                    stub_meta = AgentMetadata(
-                        name=meta.name,
-                        cls=StubAgent,
-                        version=meta.version + "+stub",
-                        capabilities=meta.capabilities,
-                        compliance_tags=meta.compliance_tags,
-                    )
-                    quarantine = True
-
-        if quarantine and stub_meta:
-            _register(stub_meta, overwrite=True)
-
-        _emit_kafka(
-            "agent.heartbeat",
-            json.dumps(
-                {
-                    "name": name,
-                    "latency_ms": latency_ms,
-                    "ok": ok,
-                    "ts": time.time(),
-                }
-            ),
-        )
-
-
-##############################################################################
-#                  hot-dir rescanner (live wheel drop-ins)                   #
-##############################################################################
-def _rescan_loop():  # pragma: no cover
-    while True:
-        try:
-            _discover_hot_dir()
-        except Exception:  # noqa: BLE001
-            logger.exception("Hot-dir rescan failed")
-        time.sleep(_RESCAN_SEC)
-
-
-_bg_started = False
-_health_thread: threading.Thread | None = None
-_rescan_thread: threading.Thread | None = None
-
-
-def start_background_tasks() -> None:
-    """Launch health monitor and rescan loops exactly once."""
-    global _bg_started, _health_thread, _rescan_thread
-    if _bg_started:
-        return
-    _bg_started = True
-    _health_thread = threading.Thread(target=_health_loop, daemon=True, name="agent-health")
-    _rescan_thread = threading.Thread(target=_rescan_loop, daemon=True, name="agent-rescan")
-    _health_thread.start()
-    _rescan_thread.start()
 
 
 ##############################################################################
@@ -648,11 +417,14 @@ def register_agent(meta: AgentMetadata, *, overwrite: bool = False):
 
 ##############################################################################
 #                         initial discovery pass                             #
+from .discovery import discover_local, discover_entrypoints, discover_hot_dir, discover_adk
+from .health import start_background_tasks
+
 ##############################################################################
-_discover_local()
-_discover_entrypoints()
-_discover_hot_dir()
-_discover_adk()
+discover_local()
+discover_entrypoints()
+discover_hot_dir()
+discover_adk()
 
 logger.info(
     "🚀 Agent registry ready – %3d agents, %3d distinct capabilities",
