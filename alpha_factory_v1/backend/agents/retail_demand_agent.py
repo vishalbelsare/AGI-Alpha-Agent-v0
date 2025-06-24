@@ -246,7 +246,8 @@ class RetailDemandAgent(AgentBase):
 
         # ADK mesh (optional)
         if self.cfg.adk_mesh and adk:
-            asyncio.create_task(self._register_mesh())
+            # registration scheduled by orchestrator after loop start
+            pass
 
     # ------------------------------------------------------------------
     # OpenAI Agents SDK tools

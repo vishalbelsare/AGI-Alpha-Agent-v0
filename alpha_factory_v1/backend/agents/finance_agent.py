@@ -352,7 +352,8 @@ class FinanceAgent(AgentBase):
 
         # ── ADK mesh registration ──
         if self.cfg.adk_mesh and "adk" in globals():
-            asyncio.create_task(self._register_mesh())
+            # registration scheduled by orchestrator after loop start
+            pass
 
     # ───────────── OpenAI Agents SDK tools ─────────────
     @tool(description="Return latest factor z-scores (JSON str).")

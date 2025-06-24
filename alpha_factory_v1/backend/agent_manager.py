@@ -40,6 +40,10 @@ class AgentManager:
 
     async def start(self) -> None:
         """Launch heartbeat and regression guard tasks."""
+        for r in self.runners.values():
+            register = getattr(r.inst, "_register_mesh", None)
+            if register:
+                asyncio.create_task(register())
 
         self._hb_task = asyncio.create_task(hb_watch(self.runners))
         self._reg_task = asyncio.create_task(regression_guard(self.runners))

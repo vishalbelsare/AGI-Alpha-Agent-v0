@@ -297,7 +297,8 @@ class PolicyAgent(AgentBase):
             self._qps = Gauge("af_policy_queries", "Total PolicyAgent queries")
 
         if self.cfg.adk_mesh and adk:
-            asyncio.create_task(self._register_mesh())
+            # registration scheduled by orchestrator after loop start
+            pass
 
     # ── OpenAI tools ─────────────────────────────────────────────────────
 
