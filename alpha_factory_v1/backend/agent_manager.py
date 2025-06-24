@@ -20,6 +20,8 @@ class AgentManager:
         kafka_broker: str | None,
         cycle_seconds: int,
         max_cycle_sec: int,
+        *,
+        bus: EventBus | None = None,
     ) -> None:
         from backend.agents import list_agents, start_background_tasks
 
@@ -29,7 +31,7 @@ class AgentManager:
         if not names:
             raise RuntimeError(f"No agents selected – ENABLED={','.join(enabled) if enabled else 'ALL'}")
 
-        self.bus = EventBus(kafka_broker, dev_mode)
+        self.bus = bus or EventBus(kafka_broker, dev_mode)
         self.runners: Dict[str, AgentRunner] = {
             n: AgentRunner(n, cycle_seconds, max_cycle_sec, self.bus.publish) for n in names
         }

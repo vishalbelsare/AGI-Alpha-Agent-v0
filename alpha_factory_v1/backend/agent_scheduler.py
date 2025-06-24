@@ -6,6 +6,7 @@ from __future__ import annotations
 import asyncio
 
 from .agent_manager import AgentManager
+from .agent_runner import EventBus
 
 
 class AgentScheduler:
@@ -18,6 +19,8 @@ class AgentScheduler:
         kafka_broker: str | None,
         cycle_seconds: int,
         max_cycle_sec: int,
+        *,
+        bus: EventBus | None = None,
     ) -> None:
         self.manager = AgentManager(
             enabled,
@@ -25,6 +28,7 @@ class AgentScheduler:
             kafka_broker,
             cycle_seconds,
             max_cycle_sec,
+            bus=bus,
         )
 
     async def start(self) -> None:

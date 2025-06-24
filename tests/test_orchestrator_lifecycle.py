@@ -94,8 +94,8 @@ async def test_orchestrator_lifecycle(monkeypatch: pytest.MonkeyPatch) -> None:
     run_task = asyncio.create_task(orch.run(stop))
     await asyncio.sleep(0.2)  # allow servers to start
 
-    assert orch._rest_task is not None
-    assert orch._grpc_server is not None
+    assert orch.api_server.rest_task is not None
+    assert orch.api_server.grpc_server is not None
 
     import httpx
 
@@ -109,6 +109,6 @@ async def test_orchestrator_lifecycle(monkeypatch: pytest.MonkeyPatch) -> None:
     stop.set()
     await run_task
 
-    assert orch._rest_task.done()
+    assert orch.api_server.rest_task.done()
     for r in orch.manager.runners.values():
         assert r.task is None or r.task.done()

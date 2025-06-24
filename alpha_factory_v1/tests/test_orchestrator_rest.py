@@ -8,7 +8,7 @@ import pytest
 pytest.importorskip("fastapi", reason="fastapi is required for REST API tests")
 from fastapi.testclient import TestClient
 
-from alpha_factory_v1.backend.orchestrator import _build_rest
+from alpha_factory_v1.backend.api_server import build_rest as _build_rest
 
 
 class DummyRunner:

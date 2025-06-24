@@ -10,7 +10,7 @@ from fastapi.testclient import TestClient
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[4]))
 
-from alpha_factory_v1.backend import orchestrator
+from alpha_factory_v1.backend.api_server import build_rest
 
 
 class DummyRunner:
@@ -23,7 +23,7 @@ class DummyRunner:
 
 def _make_client(monkeypatch: pytest.MonkeyPatch, token: str = "secret") -> TestClient:
     monkeypatch.setenv("API_TOKEN", token)
-    app = orchestrator._build_rest({"dummy": DummyRunner()})
+    app = build_rest({"dummy": DummyRunner()}, 1024 * 1024, type("M", (), {"vector": type("Vec", (), {})()})())
     assert app is not None
     return TestClient(app)
 
@@ -49,4 +49,4 @@ def test_missing_token(monkeypatch: pytest.MonkeyPatch) -> None:
 def test_env_required(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.delenv("API_TOKEN", raising=False)
     with pytest.raises(RuntimeError):
-        orchestrator._build_rest({"dummy": DummyRunner()})
+        build_rest({"dummy": DummyRunner()}, 1024 * 1024, type("M", (), {"vector": type("Vec", (), {})()})())

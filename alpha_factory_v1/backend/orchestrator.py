@@ -17,7 +17,9 @@ from alpha_factory_v1.utils.env import _env_int
 from .agent_scheduler import AgentScheduler
 from .orchestrator_base import BaseOrchestrator
 from .agent_manager import AgentManager
-from .telemetry import init_metrics, MET_LAT, MET_ERR, MET_UP, tracer  # noqa: F401
+from .telemetry import MET_LAT, MET_ERR, MET_UP, tracer  # noqa: F401
+from .services import APIServer, KafkaService, MetricsExporter
+from .api_server import build_rest as _build_rest
 
 with contextlib.suppress(ModuleNotFoundError):
     import uvicorn  # noqa: F401
@@ -86,7 +88,8 @@ class Orchestrator(BaseOrchestrator):
             )
             sys.exit(1)
 
-        init_metrics(METRICS_PORT)
+        metrics = MetricsExporter(METRICS_PORT)
+        kafka = KafkaService(KAFKA_BROKER, DEV_MODE)
 
         scheduler = AgentScheduler(
             ENABLED,
@@ -94,21 +97,20 @@ class Orchestrator(BaseOrchestrator):
             KAFKA_BROKER,
             CYCLE_DEFAULT,
             MAX_CYCLE_SEC,
+            bus=kafka.bus,
         )
-        super().__init__(
-            ENABLED,
-            DEV_MODE,
-            KAFKA_BROKER,
-            CYCLE_DEFAULT,
-            MAX_CYCLE_SEC,
-            rest_port=PORT,
-            grpc_port=A2A_PORT,
-            model_max_bytes=MODEL_MAX_BYTES,
-            mem=mem,
-            loglevel=LOGLEVEL,
-            ssl_disable=SSL_DISABLE,
-            manager=scheduler.manager,
+
+        api_server = APIServer(
+            scheduler.manager.runners,
+            MODEL_MAX_BYTES,
+            mem,
+            PORT,
+            A2A_PORT,
+            LOGLEVEL,
+            SSL_DISABLE,
         )
+
+        super().__init__(scheduler.manager, api_server, metrics)
         global _manager
         _manager = self.manager
 
