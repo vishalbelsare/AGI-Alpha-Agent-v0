@@ -37,6 +37,9 @@ Downstream users should consult this section when upgrading.
 - Removed outdated `OPENAI_CONTEXT_WINDOW` reference from the self-healing repo demo.
 - Documented how to add new policies in `POLICY_RUNBOOK.md`.
 - Each demo README now clarifies that `__version__` denotes the demo revision, not the overall project release.
+- Clarified that `transfer_test.evaluate_agent` is a placeholder returning the archived
+  score. Added a simple heuristic in `MetaRefinementAgent` that proposes a longer
+  cycle period when logs show slow agent cycles.
 ## [0.1.0-alpha] - 2024-05-01
 - Initial alpha release.
 - Git tag `v0.1.0-alpha`.
