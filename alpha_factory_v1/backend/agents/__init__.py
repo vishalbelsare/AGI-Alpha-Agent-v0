@@ -211,6 +211,7 @@ class StubAgent:  # pragma: no cover
 AGENT_REGISTRY: Dict[str, AgentMetadata] = {}
 CAPABILITY_GRAPH: CapabilityGraph = CapabilityGraph()
 _HEALTH_Q: "queue.Queue[tuple[str,float,bool]]" = queue.Queue()
+_REGISTRY_LOCK = threading.Lock()
 
 if Counter is not None:
     _err_counter = Counter(
@@ -332,27 +333,28 @@ def _should_register(meta: AgentMetadata) -> bool:
 def _register(meta: AgentMetadata, *, overwrite: bool = False):
     if not _should_register(meta):
         return
-    if meta.name in AGENT_REGISTRY and not overwrite:
-        existing = AGENT_REGISTRY[meta.name]
-        try:
-            if _parse_version(meta.version) > _parse_version(existing.version):
-                logger.info(
-                    "Overriding agent %s with newer version %s > %s",
-                    meta.name,
-                    meta.version,
-                    existing.version,
-                )
-                overwrite = True
-            else:
+    with _REGISTRY_LOCK:
+        if meta.name in AGENT_REGISTRY and not overwrite:
+            existing = AGENT_REGISTRY[meta.name]
+            try:
+                if _parse_version(meta.version) > _parse_version(existing.version):
+                    logger.info(
+                        "Overriding agent %s with newer version %s > %s",
+                        meta.name,
+                        meta.version,
+                        existing.version,
+                    )
+                    overwrite = True
+                else:
+                    logger.error("Duplicate agent name '%s' ignored", meta.name)
+                    return
+            except Exception:  # pragma: no cover - version parse failed
                 logger.error("Duplicate agent name '%s' ignored", meta.name)
                 return
-        except Exception:  # pragma: no cover - version parse failed
-            logger.error("Duplicate agent name '%s' ignored", meta.name)
-            return
 
-    AGENT_REGISTRY[meta.name] = meta
-    for cap in meta.capabilities:
-        CAPABILITY_GRAPH.add(cap, meta.name)
+        AGENT_REGISTRY[meta.name] = meta
+        for cap in meta.capabilities:
+            CAPABILITY_GRAPH.add(cap, meta.name)
 
     logger.info("✓ agent %-18s caps=%s", meta.name, ",".join(meta.capabilities))
     _emit_kafka("agent.manifest", meta.to_json())
@@ -519,25 +521,31 @@ def _health_loop():
         except queue.Empty:
             continue
 
-        meta = AGENT_REGISTRY.get(name)
-        if meta and not ok:
-            if Counter:
-                _err_counter.labels(agent=name).inc()  # type: ignore[attr-defined]
-            object.__setattr__(meta, "err_count", meta.err_count + 1)
-            if meta.err_count >= _ERR_THRESHOLD:
-                logger.error(
-                    "⛔ Quarantining agent '%s' after %d consecutive errors",
-                    name,
-                    meta.err_count,
-                )
-                stub_meta = AgentMetadata(
-                    name=meta.name,
-                    cls=StubAgent,
-                    version=meta.version + "+stub",
-                    capabilities=meta.capabilities,
-                    compliance_tags=meta.compliance_tags,
-                )
-                _register(stub_meta, overwrite=True)
+        quarantine = False
+        stub_meta: AgentMetadata | None = None
+        with _REGISTRY_LOCK:
+            meta = AGENT_REGISTRY.get(name)
+            if meta and not ok:
+                if Counter:
+                    _err_counter.labels(agent=name).inc()  # type: ignore[attr-defined]
+                object.__setattr__(meta, "err_count", meta.err_count + 1)
+                if meta.err_count >= _ERR_THRESHOLD:
+                    logger.error(
+                        "⛔ Quarantining agent '%s' after %d consecutive errors",
+                        name,
+                        meta.err_count,
+                    )
+                    stub_meta = AgentMetadata(
+                        name=meta.name,
+                        cls=StubAgent,
+                        version=meta.version + "+stub",
+                        capabilities=meta.capabilities,
+                        compliance_tags=meta.compliance_tags,
+                    )
+                    quarantine = True
+
+        if quarantine and stub_meta:
+            _register(stub_meta, overwrite=True)
 
         _emit_kafka(
             "agent.heartbeat",
@@ -585,18 +593,21 @@ def start_background_tasks() -> None:
 #                          public convenience API                            #
 ##############################################################################
 def list_agents(detail: bool = False):
-    metas = sorted(AGENT_REGISTRY.values(), key=lambda m: m.name)
+    with _REGISTRY_LOCK:
+        metas = sorted(AGENT_REGISTRY.values(), key=lambda m: m.name)
     return [m.as_dict() if detail else m.name for m in metas]
 
 
 def capability_agents(capability: str):
     """Return list of agent names exposing *capability*."""
-    return CAPABILITY_GRAPH.get(capability, []).copy()
+    with _REGISTRY_LOCK:
+        return CAPABILITY_GRAPH.get(capability, []).copy()
 
 
 def list_capabilities():
     """Return sorted list of all capabilities currently registered."""
-    return sorted(CAPABILITY_GRAPH.keys())
+    with _REGISTRY_LOCK:
+        return sorted(CAPABILITY_GRAPH.keys())
 
 
 def get_agent(name: str, **kwargs):
@@ -604,7 +615,8 @@ def get_agent(name: str, **kwargs):
     Instantiate agent by *name* and wrap its async `step()` coroutine
     with a heartbeat probe so failures auto-quarantine.
     """
-    meta = AGENT_REGISTRY[name]
+    with _REGISTRY_LOCK:
+        meta = AGENT_REGISTRY[name]
     agent = meta.instantiate(**kwargs)
 
     if hasattr(agent, "step") and inspect.iscoroutinefunction(agent.step):
