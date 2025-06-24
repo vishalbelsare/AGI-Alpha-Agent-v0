@@ -1,5 +1,10 @@
 # SPDX-License-Identifier: Apache-2.0
-"""Agent scheduling and heartbeat management."""
+"""Agent scheduling and heartbeat management.
+
+The manager relies on :class:`EventBus` which now auto-starts the drain loop
+whenever Kafka is missing. ``start()`` therefore no longer needs to start the
+consumer explicitly.
+"""
 
 from __future__ import annotations
 
@@ -52,7 +57,11 @@ class AgentManager:
             if init_async:
                 await init_async()
 
-        await self.bus.start_consumer()
+        # The EventBus schedules its consumer automatically when Kafka is
+        # unavailable. Calling ``start_consumer`` here would race with the
+        # scheduled task, so we only invoke it if nothing started yet.
+        if getattr(self.bus, "_consumer_task", None) is None:
+            await self.bus.start_consumer()
         self._hb_task = asyncio.create_task(hb_watch(self.runners))
         self._reg_task = asyncio.create_task(regression_guard(self.runners))
 

@@ -1,6 +1,11 @@
 # SPDX-License-Identifier: Apache-2.0
 # This code is a conceptual research prototype.
-"""Agent scheduling and health monitoring utilities."""
+"""Agent scheduling and health monitoring utilities.
+
+The :class:`EventBus` falls back to an in-memory queue when Kafka is
+unavailable. In that mode the consumer drain loop is automatically scheduled
+on creation so queued events do not accumulate when running in development.
+"""
 
 from __future__ import annotations
 
@@ -40,7 +45,11 @@ def _env_float(name: str, default: float) -> float:
 
 
 class EventBus:
-    """Simple Kafka/in-memory event bus."""
+    """Simple Kafka/in-memory event bus.
+
+    When Kafka is missing, messages are stored in local queues and a drain
+    consumer is started automatically to prevent unbounded growth.
+    """
 
     def __init__(self, broker: str | None, dev_mode: bool, *, max_queue_size: int = 1024) -> None:
         self._queues: Dict[str, asyncio.Queue[Dict[str, Any]]] | None = None
@@ -58,6 +67,10 @@ class EventBus:
             if broker and not dev_mode:
                 log.warning("Kafka unavailable → falling back to in-proc bus")
             self._queues = {}
+            try:
+                asyncio.get_running_loop().create_task(self.start_consumer())
+            except RuntimeError:
+                pass
 
     def publish(self, topic: str, msg: Dict[str, Any]) -> None:
         if self._producer:
