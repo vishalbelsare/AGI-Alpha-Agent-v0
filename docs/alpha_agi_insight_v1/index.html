@@ -1,33 +1,86 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>AGI Capability Insight</title>
-  <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>α‑AGI Insight v1 — Beyond Human Foresight</title>
+  <!-- Plotly.js (minified) -->
   <script src="plotly.min.js"></script>
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
   <header>
-    <h1>AGI Capability Insight</h1>
+    <h1>🎖️ α‑AGI Insight <span class="eye">👁️</span>✨ — Beyond Human Foresight</h1>
+    <p class="tagline">
+      Where human foresight reaches its limits, <strong>α‑AGI Insight</strong> sees beyond. 
+      This demo highlights how rapidly increasing AGI capabilities can disrupt key economic sectors, 
+      unlocking opportunities estimated in the tens of thousands of trillions of USD.
+    </p>
   </header>
+
   <main>
-    <section id="charts">
-      <div id="capability" class="chart"></div>
-      <div id="timeline" class="chart"></div>
-      <div id="pareto" class="chart"></div>
+    <!-- AGI Capability Curve Section -->
+    <section>
+      <h2>AGI Capability Growth Curve</h2>
+      <p>
+        This chart shows the projected <em>AGI capability index</em> (T<sub>AGI</sub>) over the next five years. 
+        As AGI evolves, its effective “intelligence temperature” rises. When this capability crosses certain thresholds, 
+        it triggers phase transitions in various industries. The curve below illustrates this accelerating growth, 
+        providing a timeline for when AGI is expected to reach disruptive levels.
+      </p>
+      <div id="capability-chart" class="chart"></div>
     </section>
-    <section id="logs">
-      <h2>Agent Logs</h2>
-      <pre id="logPanel"></pre>
+
+    <!-- Sector Disruption Timeline Section -->
+    <section>
+      <h2>Sector Disruption Timeline</h2>
+      <p>
+        The following visualization tracks six critical sectors and highlights the moment each is disrupted by AGI-driven innovation. 
+        Each sector’s performance remains relatively stable until a sudden <strong>“jump”</strong> occurs (marked by a star ⭐ on the line), 
+        indicating an AGI-induced phase transition. These jump markers correspond to the points in time when 
+        <strong>T<sub>AGI</sub></strong> becomes high enough to overcome the sector’s resistance or entropy, 
+        fundamentally changing the sector’s trajectory. Decision-makers who anticipate these jumps can secure a major first-mover advantage.
+      </p>
+      <div id="timeline-chart" class="chart"></div>
+    </section>
+
+    <!-- Pareto Frontier Section -->
+    <section>
+      <h2>Pareto Frontier of Evolved Solutions</h2>
+      <p>
+        α‑AGI Insight employs a Meta-Agentic Tree Search (an NSGA-II evolutionary algorithm) that generates and evaluates numerous strategic scenarios. 
+        Each scenario (point in the plot) is assessed on multiple objectives – for example, <em>economic impact</em> (projected value creation) vs. <em>time to disruption</em>. 
+        The <strong>Pareto frontier</strong> (highlighted in the chart) represents the optimal trade-offs where no objective can improve without worsening another. 
+        In simpler terms, points on this frontier are the most efficient solutions balancing reward and risk (or speed), whereas interior points are suboptimal. 
+        By exploring this frontier, stakeholders can identify strategies that maximize returns while minimizing time or risk.
+      </p>
+      <div id="pareto-chart" class="chart"></div>
+    </section>
+
+    <!-- Agent Logs Section (Optional) -->
+    <section>
+      <h2>Agent Orchestrator Logs <small>(Optional)</small></h2>
+      <p>
+        The log below captures a simplified sequence of actions from the meta-agent orchestrator and its team of specialized agents during the Insight simulation. 
+        It provides a narrative of how the forecast is constructed step-by-step – from initial planning to strategy formulation and validation. 
+        (You can hide or show the log as needed.)
+      </p>
+      <button id="toggle-logs">Show/Hide Logs</button>
+      <div id="logs-panel" class="logs hidden"></div>
     </section>
   </main>
+
   <footer>
-    <section id="disclaimer" class="snippet">
+    <p>
+      &copy; 2025 Montreal.AI — α‑AGI Insight v1 Demo. <br/>
+      <small>For illustration purposes only; data is synthetic and for demonstration of concept.</small>
+    </p>
+    <section class="snippet">
       <a href="../DISCLAIMER_SNIPPET.md">See docs/DISCLAIMER_SNIPPET.md</a>
       This repository is a conceptual research prototype. References to "AGI" and "superintelligence" describe aspirational goals and do not indicate the presence of a real general intelligence. Use at your own risk. Nothing herein constitutes financial advice. MontrealAI and the maintainers accept no liability for losses incurred from using this software.
     </section>
   </footer>
+
   <script src="script.js"></script>
 </body>
 </html>
