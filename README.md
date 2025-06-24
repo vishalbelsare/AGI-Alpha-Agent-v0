@@ -15,6 +15,8 @@ docker compose up --build
 ./run_quickstart.sh
 ```
 
+Requires **Python 3.11 or 3.12** and **Docker Compose ≥2.5**.
+
 Alternatively, run the pre-built image directly:
 ```bash
 docker run --pull=always -p 8000:8000 ghcr.io/montrealai/alpha-factory:latest
@@ -24,10 +26,18 @@ Set `OPENAI_API_KEY` and other required secrets in your environment or `.env`
 before launching the container. The orchestrator prints the
 [project disclaimer](docs/DISCLAIMER_SNIPPET.md) when it starts.
 
-**Recommended OS:** Linux or Windows with **WSL 2**. Native Windows often
-misbehaves due to path translation and volume mount issues. When on Windows,
-install WSL 2, enable Docker Desktop's *Use the WSL 2 based engine* option and
-clone the repository inside your Linux home directory.
+**Supported OS:** Ubuntu 22.04+, Debian 12+, macOS 12+ and Windows 11 via
+**WSL 2** (recommended for Windows users). Native Windows paths frequently break
+volume mounts. Clone this repository inside the WSL file system to avoid these
+issues.
+
+```powershell
+wsl --install
+wsl --set-default-version 2
+wsl --update
+# enable "Use the WSL 2 based engine" in Docker Desktop
+```
+Clone the repository inside your WSL home directory to avoid path translation errors.
 
 See [docs/INTRO_BASICS.md](docs/INTRO_BASICS.md) for the bare essentials or
 [docs/QUICKSTART_BASICS.md](docs/QUICKSTART_BASICS.md) for a minimal walkthrough.
