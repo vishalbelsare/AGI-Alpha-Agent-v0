@@ -261,19 +261,25 @@ async def regression_guard(
             continue
         history.append(score)
         if len(history) == win:
-            degraded_seq = all(history[i + 1] <= history[i] * thr for i in range(win - 1))
             avg_prev = sum(list(history)[:-1]) / (win - 1)
-            moving_avg_drop = history[-1] <= avg_prev * thr
-        else:
-            degraded_seq = False
-            moving_avg_drop = False
-
-        if degraded_seq or moving_avg_drop:
-            runner = runners.get("aiga_evolver")
-            if runner and runner.task:
-                runner.task.cancel()
-                with contextlib.suppress(asyncio.CancelledError):
-                    await runner.task
-            if on_alert:
-                on_alert("Evolution paused due to metric regression")
-            history.clear()
+            if history[-1] <= avg_prev * thr:
+                runner = runners.get("aiga_evolver")
+                if runner and runner.task:
+                    runner.task.cancel()
+                    with contextlib.suppress(asyncio.CancelledError):
+                        await runner.task
+                if on_alert:
+                    on_alert("Evolution paused due to metric regression")
+                history.clear()
+        elif len(history) > 1:
+            avg_prev = sum(list(history)[:-1]) / (len(history) - 1)
+            if history[-1] <= avg_prev * thr:
+                runner = runners.get("aiga_evolver")
+                if runner and runner.task:
+                    runner.task.cancel()
+                    with contextlib.suppress(asyncio.CancelledError):
+                        await runner.task
+                if on_alert:
+                    on_alert("Evolution paused due to metric regression")
+                history.clear()
+        # else: wait until we have at least 2 samples
