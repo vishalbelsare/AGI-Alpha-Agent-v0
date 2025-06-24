@@ -312,13 +312,17 @@ class AgentBase(abc.ABC):
 # ░░░ 6. Tiny decorator to auto-register subclasses ░░░
 # ───────────────────────────────────────────────────────────────────────────────
 def register(cls: type[AgentBase]) -> type[AgentBase]:
-    """
-    `@register` – convenience decorator that adds *cls* to the global
-    ``backend.agents.AGENT_REGISTRY``.  Importing the module is enough for the
-    orchestrator to discover the new agent – zero boiler-plate.
-    """
+    """Register ``cls`` using :func:`register_agent` and return the class."""
     # defer import to avoid circular refs
-    from . import AGENT_REGISTRY  # type: ignore
+    from . import AgentMetadata, register_agent
 
-    AGENT_REGISTRY[getattr(cls, "NAME", cls.__name__)] = cls
+    meta = AgentMetadata(
+        name=getattr(cls, "NAME", cls.__name__),
+        cls=cls,
+        version=getattr(cls, "__version__", "0.1.0"),
+        capabilities=list(getattr(cls, "CAPABILITIES", [])),
+        compliance_tags=list(getattr(cls, "COMPLIANCE_TAGS", [])),
+        requires_api_key=getattr(cls, "REQUIRES_API_KEY", False),
+    )
+    register_agent(meta)
     return cls
