@@ -81,7 +81,7 @@ if "tool" not in globals():  # offline stub
 
 # ─────────────────────── α-Factory imports ─────────────────────
 from backend.agent_base import AgentBase  # type: ignore
-from backend.agents.registry import AgentMetadata, register_agent  # type: ignore
+from backend.agents import register  # type: ignore
 from backend.orchestrator import _publish  # type: ignore
 from .. import risk
 from ..model_provider import ModelProvider
@@ -295,9 +295,11 @@ class _Planner:
 
 
 # ═════════════════════ main FinanceAgent ═══════════════════════
+@register
 class FinanceAgent(AgentBase):
     NAME = "finance"
     VERSION = "0.7.0"
+    __version__ = VERSION
 
     def __init__(
         self,
@@ -466,16 +468,7 @@ class FinanceAgent(AgentBase):
 
 
 # ═════════════════════ registry hook ═══════════════════════════
-register_agent(
-    AgentMetadata(
-        name=FinanceAgent.NAME,
-        cls=FinanceAgent,
-        version=FinanceAgent.VERSION,
-        capabilities=["alpha_generation", "risk_management", "trade_execution"],
-        compliance_tags=["sec_17a4", "sox_traceable"],
-        requires_api_key=False,
-    )
-)
+
 
 __all__: list[str] = [
     "FinanceAgent",

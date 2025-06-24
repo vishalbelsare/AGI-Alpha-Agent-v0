@@ -114,7 +114,7 @@ except Exception:  # pragma: no cover - optional
 # Alpha-Factory core imports (lightweight, always available)
 # ---------------------------------------------------------------------------
 from backend.agents.base import AgentBase  # pylint: disable=import-error
-from backend.agents.registry import AgentMetadata, register_agent
+from backend.agents import register
 from backend.orchestrator import _publish  # reuse event-bus helper
 from alpha_factory_v1.utils.env import _env_int
 
@@ -223,8 +223,10 @@ def _battery_optim(prices: List[float], load: List[float]) -> Dict[str, Any]:
 
 # ---------------------------------------------------------------------------
 # EnergyAgent -----------------------------------------------------------------
+@register
 class EnergyAgent(AgentBase):
     NAME = "energy_markets"
+    __version__ = "0.4.0"
     CAPABILITIES = [
         "load_forecasting",
         "dispatch_optimisation",
@@ -360,15 +362,4 @@ class EnergyAgent(AgentBase):
 
 # ---------------------------------------------------------------------------
 # Registry hook --------------------------------------------------------------
-register_agent(
-    AgentMetadata(
-        name=EnergyAgent.NAME,
-        cls=EnergyAgent,
-        version="0.4.0",
-        capabilities=EnergyAgent.CAPABILITIES,
-        compliance_tags=EnergyAgent.COMPLIANCE_TAGS,
-        requires_api_key=EnergyAgent.REQUIRES_API_KEY,
-    )
-)
-
 __all__ = ["EnergyAgent"]

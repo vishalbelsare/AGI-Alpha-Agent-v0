@@ -105,7 +105,7 @@ except Exception:  # pragma: no cover - optional
 # ---------------------------------------------------------------------------
 from backend.trace_ws import hub  # pylint: disable=import-error
 from backend.agent_base import AgentBase  # pylint: disable=import-error
-from backend.agents.registry import AgentMetadata, register_agent  # pylint: disable=import-error
+from backend.agents import register  # pylint: disable=import-error
 from backend.orchestrator import _publish  # pylint: disable=import-error
 from alpha_factory_v1.utils.env import _env_int
 
@@ -197,10 +197,12 @@ class _GreedyPlanner:  # pragma: no cover
 # ---------------------------------------------------------------------------
 
 
+@register
 class ManufacturingAgent(AgentBase):
     """Hybrid CP‑SAT + RL manufacturing scheduler."""
 
     NAME = "manufacturing"
+    __version__ = "0.3.0"
     CAPABILITIES = [
         "scheduling",
         "scenario_analysis",
@@ -465,16 +467,4 @@ class ManufacturingAgent(AgentBase):
 # ---------------------------------------------------------------------------
 # Registry hook -------------------------------------------------------------
 # ---------------------------------------------------------------------------
-
-register_agent(
-    AgentMetadata(
-        name=ManufacturingAgent.NAME,
-        cls=ManufacturingAgent,
-        version="0.3.0",
-        capabilities=ManufacturingAgent.CAPABILITIES,
-        compliance_tags=ManufacturingAgent.COMPLIANCE_TAGS,
-        requires_api_key=ManufacturingAgent.REQUIRES_API_KEY,
-    )
-)
-
 __all__ = ["ManufacturingAgent"]

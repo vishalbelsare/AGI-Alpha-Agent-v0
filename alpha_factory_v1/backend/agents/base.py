@@ -316,7 +316,11 @@ class AgentBase(abc.ABC):
 # ░░░ 6. Tiny decorator to auto-register subclasses ░░░
 # ───────────────────────────────────────────────────────────────────────────────
 def register(cls: type[AgentBase]) -> type[AgentBase]:
-    """Register ``cls`` using :func:`register_agent` and return the class."""
+    """Return ``cls`` after adding it to :mod:`backend.agents` registry.
+
+    This helper wraps :func:`register_agent` so subclasses simply use
+    ``@register`` instead of touching ``AGENT_REGISTRY`` directly.
+    """
     # defer import to avoid circular refs
     from .registry import AgentMetadata, register_agent
 

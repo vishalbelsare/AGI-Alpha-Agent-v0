@@ -117,7 +117,7 @@ except ModuleNotFoundError:  # pragma: no cover
 # Alpha‑Factory local imports (never heavy)
 # ---------------------------------------------------------------------------
 from backend.agent_base import AgentBase  # pylint: disable=import-error
-from backend.agents.registry import AgentMetadata, register_agent
+from backend.agents import register
 from backend.orchestrator import _publish
 from alpha_factory_v1.utils.env import _env_int
 
@@ -197,10 +197,12 @@ class _VaRSurrogate:
 # ---------------------------------------------------------------------------
 
 
+@register
 class SmartContractAgent(AgentBase):
     """Analyse, optimise and forecast smart‑contract performance & risk."""
 
     NAME = "smart_contract"
+    __version__ = "1.0.0"
     CAPABILITIES = [
         "contract_audit",
         "gas_optimisation",
@@ -484,16 +486,6 @@ def _bootstrap_distribution(median: float, n: int = 12) -> List[float]:
 # Register agent in global registry
 # ---------------------------------------------------------------------------
 
-register_agent(
-    AgentMetadata(
-        name=SmartContractAgent.NAME,
-        cls=SmartContractAgent,
-        version="1.0.0",
-        capabilities=SmartContractAgent.CAPABILITIES,
-        compliance_tags=SmartContractAgent.COMPLIANCE_TAGS,
-        requires_api_key=SmartContractAgent.REQUIRES_API_KEY,
-    )
-)
 
 # ---------------------------------------------------------------------------
 # Doctest (quick smoke test)
@@ -505,3 +497,5 @@ if __name__ == "__main__":
         """pragma solidity ^0.8.25; contract Foo { function bar(uint a) external view returns(uint){return a+1;} }"""
     )
     print(agent.audit_contract(json.dumps({"source": sample_src}))[:200])
+
+__all__ = ["SmartContractAgent"]
