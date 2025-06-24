@@ -27,7 +27,7 @@ Key design points
     • ``risk_tag``          – classify snippet into ISO 37301 domains
     • ``statute_search``    – low‑level retrieval primitive (for other agents)
 * **Governance** – every output wrapped in MCP envelope with SHA‑256 digest;
-  PII removed; SOX trace id logged. Prometheus gauge ``af_policy_queries``
+  PII removed; SOX trace id logged. Prometheus counter ``af_policy_queries``
   exports QPS.
 * **Offline‑first** – embeddings fall back to *nomic‑embed‑text* (SBERT)
   when OpenAI API not available; LLM answers fall back to retrieval summary.
@@ -97,10 +97,10 @@ except ModuleNotFoundError:  # pragma: no cover
     KafkaProducer = None  # type: ignore
 
 try:
-    from backend.agents.registry import Gauge  # type: ignore
+    from backend.agents.registry import Counter  # type: ignore
 except Exception:  # pragma: no cover
     logger.warning("prometheus-client missing – metrics disabled")
-    Gauge = None  # type: ignore
+    Counter = None  # type: ignore
 
 try:
     import adk  # type: ignore
@@ -307,8 +307,8 @@ class PolicyAgent(AgentBase):
         else:
             self._producer = None
 
-        if Gauge:
-            self._qps = Gauge("af_policy_queries", "Total PolicyAgent queries")
+        if Counter:
+            self._qps = Counter("af_policy_queries", "Total PolicyAgent queries")
 
         if self.cfg.adk_mesh and adk:
             # registration scheduled by orchestrator after loop start
@@ -369,7 +369,7 @@ class PolicyAgent(AgentBase):
         else:
             answer = f"(offline) Context:\n{context}"
         payload = {"answer": answer, "citations": [h["meta"] for h in hits]}
-        if Gauge:
+        if Counter:
             self._qps.inc()
         if self._producer:
             self._producer.send(self.cfg.exp_topic, json.dumps({"query": query, "ts": _now()}))
