@@ -169,6 +169,10 @@ class AgentBase(abc.ABC):
         """One-time async initialization (DB warm-up, model load…)."""
         return None
 
+    async def init_async(self) -> None:  # pragma: no cover - optional hook
+        """Launch background tasks once the event loop is running."""
+        return None
+
     @abc.abstractmethod
     async def step(self) -> None:  # noqa: D401
         """The agent's main unit of work.  MUST be overridden."""
