@@ -62,6 +62,8 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Dict, Optional
 
+from alpha_factory_v1.backend.utils.sync import run_sync
+
 # ────────────────────────────────────────────────────────────────────────────────
 # Soft‑optional dependencies — IMPORT FAILURES ARE SILENT.
 # ────────────────────────────────────────────────────────────────────────────────
@@ -255,18 +257,15 @@ class ClimateRiskAgent(AgentBase):
 
     @tool(description="Dollar VaR for next 10 years under default SSP scenario.")
     def portfolio_var(self) -> str:  # noqa: D401
-        loop = asyncio.get_event_loop()
-        return loop.run_until_complete(self._compute_var(self.cfg.ssp_default))
+        return run_sync(self._compute_var(self.cfg.ssp_default))
 
     @tool(description="Ranked adaptation cap‑ex plan that halves VaR.")
     def adaptation_plan(self) -> str:  # noqa: D401
-        loop = asyncio.get_event_loop()
-        return loop.run_until_complete(self._plan_adaptations())
+        return run_sync(self._plan_adaptations())
 
     @tool(description="Stress test portfolio VaR under provided SSP (e.g. SSP5‑8.5). Parameter: ssp (str)")
     def stress_test(self, *, ssp: str) -> str:  # type: ignore  # noqa: D401
-        loop = asyncio.get_event_loop()
-        return loop.run_until_complete(self._compute_var(ssp))
+        return run_sync(self._compute_var(ssp))
 
     # ────────────────────────────────────────────────────────────────
     # Orchestrator cycle

@@ -47,6 +47,8 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
+from alpha_factory_v1.backend.utils.sync import run_sync
+
 # ---------------------------------------------------------------------------
 # Soft‑optional deps (import‑guarded) ---------------------------------------
 # ---------------------------------------------------------------------------
@@ -418,8 +420,7 @@ class DrugDesignAgent(AgentBase):
 
     @tool(description="Generate a novel lead molecule with predicted properties and rationale.")
     def propose_lead(self) -> str:  # noqa: D401
-        loop = asyncio.get_event_loop()
-        return loop.run_until_complete(self._propose_async())
+        return run_sync(self._propose_async())
 
     @tool(description='Score a SMILES for potency & developability. Input: JSON "{"smi": "..."}" or raw SMILES.')
     def score_molecule(self, smi_json: str) -> str:  # noqa: D401
@@ -427,8 +428,7 @@ class DrugDesignAgent(AgentBase):
             smi = json.loads(smi_json).get("smi", smi_json)
         except json.JSONDecodeError:
             smi = smi_json.strip()
-        loop = asyncio.get_event_loop()
-        return loop.run_until_complete(self._score_async(smi))
+        return run_sync(self._score_async(smi))
 
     # ------------------------------------------------------------------
     # Cycle

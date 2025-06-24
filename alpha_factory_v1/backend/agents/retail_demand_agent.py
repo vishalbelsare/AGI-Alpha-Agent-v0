@@ -46,6 +46,8 @@ from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
+from alpha_factory_v1.backend.utils.sync import run_sync
+
 # ---------------------------------------------------------------------------
 # Soft‑optional third‑party deps (guarded)  ----------------------------------
 # ---------------------------------------------------------------------------
@@ -255,13 +257,11 @@ class RetailDemandAgent(AgentBase):
 
     @tool(description="Return SKU‑level weekly demand forecast (mean & std dev) for the next horizon_weeks")
     def forecast(self) -> str:  # noqa: D401
-        loop = asyncio.get_event_loop()
-        return loop.run_until_complete(self._forecast_async())
+        return run_sync(self._forecast_async())
 
     @tool(description="Generate a reorder plan that meets the configured service level (>98 % by default)")
     def reorder_plan(self) -> str:  # noqa: D401
-        loop = asyncio.get_event_loop()
-        return loop.run_until_complete(self._plan_async())
+        return run_sync(self._plan_async())
 
     # ------------------------------------------------------------------
     # Orchestrator life‑cycle

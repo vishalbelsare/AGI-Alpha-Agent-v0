@@ -48,6 +48,8 @@ from pathlib import Path
 from shlex import quote
 from typing import Any, Dict, List, Optional
 
+from alpha_factory_v1.backend.utils.sync import run_sync
+
 # ---------------------------------------------------------------------------
 # Soft‑optional dependencies — import‑guarded to keep cold‑start <50 ms
 # ---------------------------------------------------------------------------
@@ -248,16 +250,14 @@ class SmartContractAgent(AgentBase):
         args = json.loads(contract_json)
         src: Optional[str] = args.get("source")
         addr: Optional[str] = args.get("address")
-        loop = asyncio.get_event_loop()
-        return loop.run_until_complete(self._audit_async(src, addr))
+        return run_sync(self._audit_async(src, addr))
 
     @tool(description='Suggest gas‑saving refactors. Input: JSON {"source": str, "budget_gwei": int?}')
     def optimize_contract(self, src_json: str) -> str:  # noqa: D401
         args = json.loads(src_json)
         src = args.get("source", "")
         budget = int(args.get("budget_gwei", 50))
-        loop = asyncio.get_event_loop()
-        return loop.run_until_complete(self._optimize_async(src, budget))
+        return run_sync(self._optimize_async(src, budget))
 
     @tool(
         description="Forecast gas price (gwei) and ETH cost for calldata length over next 12 blocks."
@@ -265,8 +265,7 @@ class SmartContractAgent(AgentBase):
     )
     def gas_forecast(self, args_json: str) -> str:  # noqa: D401
         blen = int(json.loads(args_json).get("bytes_len", 0))
-        loop = asyncio.get_event_loop()
-        return loop.run_until_complete(self._gas_async(blen))
+        return run_sync(self._gas_async(blen))
 
     # ------------------------------------------------------------------
     # Orchestrator life‑cycle
