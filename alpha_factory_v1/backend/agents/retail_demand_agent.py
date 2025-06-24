@@ -105,7 +105,7 @@ except Exception:  # pragma: no cover - optional
 # Alpha‑Factory lightweight core imports  ------------------------------------
 # ---------------------------------------------------------------------------
 from backend.agent_base import AgentBase  # pylint: disable=import-error
-from backend.agents.registry import AgentMetadata, register_agent
+from backend.agents import register
 from backend.orchestrator import _publish  # structured‑event helper
 from alpha_factory_v1.utils.env import _env_int
 
@@ -217,10 +217,12 @@ def _wrap_mcp(agent: str, payload: Any) -> Dict[str, Any]:
 # ---------------------------------------------------------------------------
 
 
+@register
 class RetailDemandAgent(AgentBase):
     """Alpha‑grade demand‑sensing & replenishment planner."""
 
     NAME = "retail_demand"
+    __version__ = "0.4.0"
     CAPABILITIES = [
         "demand_forecasting",
         "reorder_optimisation",
@@ -379,16 +381,4 @@ class RetailDemandAgent(AgentBase):
 # ---------------------------------------------------------------------------
 # Static registry hook  ------------------------------------------------------
 # ---------------------------------------------------------------------------
-
-register_agent(
-    AgentMetadata(
-        name=RetailDemandAgent.NAME,
-        cls=RetailDemandAgent,
-        version="0.4.0",
-        capabilities=RetailDemandAgent.CAPABILITIES,
-        compliance_tags=RetailDemandAgent.COMPLIANCE_TAGS,
-        requires_api_key=RetailDemandAgent.REQUIRES_API_KEY,
-    )
-)
-
 __all__ = ["RetailDemandAgent"]

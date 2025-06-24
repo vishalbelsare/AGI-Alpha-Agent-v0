@@ -124,7 +124,7 @@ except ModuleNotFoundError:  # pragma: no cover
 # Alpha‑Factory base imports (thin, always present) -------------------------
 # ---------------------------------------------------------------------------
 from backend.agent_base import AgentBase  # pylint: disable=import-error
-from backend.agents.registry import AgentMetadata, register_agent  # pylint: disable=import-error
+from backend.agents import register  # pylint: disable=import-error
 from backend.orchestrator import _publish  # pylint: disable=import-error
 from alpha_factory_v1.utils.env import _env_int
 
@@ -383,8 +383,10 @@ class _Planner:
 # ---------------------------------------------------------------------------
 
 
+@register
 class DrugDesignAgent(AgentBase):
     NAME = "drug_design"
+    __version__ = "0.2.0"
     CAPABILITIES = [
         "molecule_generation",
         "activity_prediction",
@@ -513,15 +515,4 @@ class DrugDesignAgent(AgentBase):
 # ---------------------------------------------------------------------------
 # Registry hook -------------------------------------------------------------
 # ---------------------------------------------------------------------------
-register_agent(
-    AgentMetadata(
-        name=DrugDesignAgent.NAME,
-        cls=DrugDesignAgent,
-        version="0.2.0",
-        capabilities=DrugDesignAgent.CAPABILITIES,
-        compliance_tags=DrugDesignAgent.COMPLIANCE_TAGS,
-        requires_api_key=DrugDesignAgent.REQUIRES_API_KEY,
-    )
-)
-
 __all__ = ["DrugDesignAgent"]

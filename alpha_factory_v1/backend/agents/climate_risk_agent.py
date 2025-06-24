@@ -116,8 +116,8 @@ except Exception:  # pragma: no cover - optional
 # ────────────────────────────────────────────────────────────────────────────────
 # Alpha‑Factory locals (NO heavy deps)
 # ────────────────────────────────────────────────────────────────────────────────
-from backend.agent_base import AgentBase  # pylint: disable=import-error
-from backend.agents.registry import AgentMetadata, register_agent
+from backend.agents.base import AgentBase  # pylint: disable=import-error
+from backend.agents import register
 from backend.orchestrator import _publish  # re‑use event bus
 from alpha_factory_v1.utils.env import _env_int
 
@@ -214,10 +214,12 @@ def _wrap_mcp(agent: str, payload: Any) -> Dict[str, Any]:
 # ────────────────────────────────────────────────────────────────────────────────
 
 
+@register
 class ClimateRiskAgent(AgentBase):
     """Physical‑risk α‑generator and adaptation planner."""
 
     NAME = "climate_risk"
+    __version__ = "0.5.0"
     CAPABILITIES = [
         "physical_risk_var",
         "adaptation_planning",
@@ -373,16 +375,4 @@ class ClimateRiskAgent(AgentBase):
 # ────────────────────────────────────────────────────────────────────────────────
 # Register with global agent registry
 # ────────────────────────────────────────────────────────────────────────────────
-
-register_agent(
-    AgentMetadata(
-        name=ClimateRiskAgent.NAME,
-        cls=ClimateRiskAgent,
-        version="0.5.0",
-        capabilities=ClimateRiskAgent.CAPABILITIES,
-        compliance_tags=ClimateRiskAgent.COMPLIANCE_TAGS,
-        requires_api_key=ClimateRiskAgent.REQUIRES_API_KEY,
-    )
-)
-
 __all__ = ["ClimateRiskAgent"]

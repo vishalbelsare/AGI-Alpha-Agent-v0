@@ -119,7 +119,7 @@ except ModuleNotFoundError:  # pragma: no cover
 # Alpha‑Factory internals
 # ────────────────────────────────────────────────────────────────────────────
 from backend.agent_base import AgentBase  # type: ignore
-from backend.agents.registry import AgentMetadata, register_agent  # type: ignore
+from backend.agents import register  # type: ignore
 
 logger = logging.getLogger(__name__)
 
@@ -271,8 +271,10 @@ class _Retriever:
 # ────────────────────────────────────────────────────────────────────────────
 # PolicyAgent class
 # ────────────────────────────────────────────────────────────────────────────
+@register
 class PolicyAgent(AgentBase):
     NAME = "policy"
+    __version__ = "0.2.0"
     CAPABILITIES = [
         "nl_query",
         "version_diff",
@@ -394,15 +396,4 @@ class PolicyAgent(AgentBase):
 # ────────────────────────────────────────────────────────────────────────────
 # Registry hook
 # ────────────────────────────────────────────────────────────────────────────
-register_agent(
-    AgentMetadata(
-        name=PolicyAgent.NAME,
-        cls=PolicyAgent,
-        version="0.2.0",
-        capabilities=PolicyAgent.CAPABILITIES,
-        compliance_tags=PolicyAgent.COMPLIANCE_TAGS,
-        requires_api_key=PolicyAgent.REQUIRES_API_KEY,
-    )
-)
-
 __all__ = ["PolicyAgent"]

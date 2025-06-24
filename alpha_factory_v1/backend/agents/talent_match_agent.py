@@ -113,7 +113,7 @@ except Exception:  # pragma: no cover - optional
 # Alpha‑Factory light deps                                                  |
 # ---------------------------------------------------------------------------
 from backend.agent_base import AgentBase  # pylint: disable=import-error
-from backend.agents.registry import AgentMetadata, register_agent
+from backend.agents import register
 from backend.orchestrator import _publish
 from alpha_factory_v1.utils.env import _env_int
 
@@ -236,10 +236,12 @@ class _ANNIndex:
 # ==========================================================================
 
 
+@register
 class TalentMatchAgent(AgentBase):
     """Expert‑level talent recommendation and DEI analytics agent."""
 
     NAME = "talent_match"
+    __version__ = "0.4.0"
 
     CAPABILITIES = [
         "candidate_recommendation",
@@ -486,16 +488,4 @@ class TalentMatchAgent(AgentBase):
 # ==========================================================================
 # Registry hook                                                             |
 # ==========================================================================
-
-register_agent(
-    AgentMetadata(
-        name=TalentMatchAgent.NAME,
-        cls=TalentMatchAgent,
-        version="0.4.0",
-        capabilities=TalentMatchAgent.CAPABILITIES,
-        compliance_tags=TalentMatchAgent.COMPLIANCE_TAGS,
-        requires_api_key=TalentMatchAgent.REQUIRES_API_KEY,
-    )
-)
-
 __all__ = ["TalentMatchAgent"]

@@ -115,7 +115,7 @@ except Exception:  # pragma: no cover - optional
 # Alpha‑Factory local imports (lightweight, no heavy deps)
 # ---------------------------------------------------------------------------
 from backend.agent_base import AgentBase  # pylint: disable=import‑error
-from backend.agents.registry import AgentMetadata, register_agent  # pylint: disable=import‑error
+from backend.agents import register  # pylint: disable=import‑error
 from backend.orchestrator import _publish  # re‑use event bus hook
 
 logger = logging.getLogger(__name__)
@@ -203,8 +203,10 @@ class WorldModel:  # noqa: D101
 # ---------------------------------------------------------------------------
 # Supply‑Chain Agent implementation
 # ---------------------------------------------------------------------------
+@register
 class SupplyChainAgent(AgentBase):  # noqa: D101
     NAME = "supply_chain"
+    __version__ = "0.5.0"
     CAPABILITIES = [
         "demand_forecasting",
         "inventory_optimisation",
@@ -333,15 +335,4 @@ class SupplyChainAgent(AgentBase):  # noqa: D101
 # ---------------------------------------------------------------------------
 # Registry hook (executed at import‑time)
 # ---------------------------------------------------------------------------
-register_agent(
-    AgentMetadata(
-        name=SupplyChainAgent.NAME,
-        cls=SupplyChainAgent,
-        version="0.5.0",
-        capabilities=SupplyChainAgent.CAPABILITIES,
-        compliance_tags=SupplyChainAgent.COMPLIANCE_TAGS,
-        requires_api_key=SupplyChainAgent.REQUIRES_API_KEY,
-    )
-)
-
 __all__ = ["SupplyChainAgent"]

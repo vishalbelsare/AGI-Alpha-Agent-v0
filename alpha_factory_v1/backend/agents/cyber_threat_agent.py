@@ -115,8 +115,8 @@ except ModuleNotFoundError:  # pragma: no cover
 # ---------------------------------------------------------------------------
 # Alpha‑Factory locals (no heavy deps)
 # ---------------------------------------------------------------------------
-from backend.agent_base import AgentBase  # pylint: disable=import‑error
-from backend.agents.registry import AgentMetadata, register_agent
+from backend.agents.base import AgentBase  # pylint: disable=import‑error
+from backend.agents import register
 from backend.orchestrator import _publish  # reuse orchestrator event bus
 from alpha_factory_v1.utils.env import _env_int
 
@@ -205,10 +205,12 @@ class _GBMSurrogate:
 # ---------------------------------------------------------------------------
 
 
+@register
 class CyberThreatAgent(AgentBase):
     """Agent that converts threat intel into actionable risk‑reduction alpha."""
 
     NAME = "cyber_threat"
+    __version__ = "0.5.0"
     CAPABILITIES = [
         "cve_monitoring",
         "threat_intel_fusion",
@@ -433,16 +435,4 @@ class CyberThreatAgent(AgentBase):
 # ---------------------------------------------------------------------------
 # One‑time registration with global registry
 # ---------------------------------------------------------------------------
-
-register_agent(
-    AgentMetadata(
-        name=CyberThreatAgent.NAME,
-        cls=CyberThreatAgent,
-        version="0.5.0",
-        capabilities=CyberThreatAgent.CAPABILITIES,
-        compliance_tags=CyberThreatAgent.COMPLIANCE_TAGS,
-        requires_api_key=CyberThreatAgent.REQUIRES_API_KEY,
-    )
-)
-
 __all__ = ["CyberThreatAgent"]

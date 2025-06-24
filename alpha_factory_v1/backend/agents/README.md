@@ -314,6 +314,8 @@ super = my_pkg.super_agent:MySuperAgent
 ```
 
 Next boot, your agent auto‑registers & appears on `/capabilities`.
+Add `@register` above your `AgentBase` subclass to populate the
+global registry without touching `AGENT_REGISTRY` directly.
 
 ---
 

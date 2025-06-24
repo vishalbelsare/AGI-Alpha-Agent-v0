@@ -63,7 +63,7 @@ from typing import Any, Dict, List, Optional, Tuple
 from alpha_factory_v1.backend.utils.sync import run_sync
 
 from backend.agents.base import AgentBase  # pylint: disable=import-error
-from backend.agents.registry import AgentMetadata, register_agent
+from backend.agents import register
 from backend.orchestrator import _publish  # pylint: disable=import-error
 from alpha_factory_v1.utils.env import _env_int
 
@@ -255,8 +255,10 @@ class _KG:
 
 
 # ────────────────────────────── Biotech Agent ───────────────────────────────
+@register
 class BiotechAgent(AgentBase):
     NAME = "biotech"
+    __version__ = "0.2.0"
     CAPABILITIES = ["nl_query", "experiment_design", "pathway_analysis", "alpha_dashboard"]
     COMPLIANCE_TAGS = ["gdpr_minimal", "sox_traceable"]
     REQUIRES_API_KEY = False
@@ -426,17 +428,5 @@ class BiotechAgent(AgentBase):
             logger.exception("Unexpected ADK registration error: %s", exc)
             raise
 
-
-# ───────────────────────────── registry hook ────────────────────────────────
-register_agent(
-    AgentMetadata(
-        name=BiotechAgent.NAME,
-        cls=BiotechAgent,
-        version="0.2.0",
-        capabilities=BiotechAgent.CAPABILITIES,
-        compliance_tags=BiotechAgent.COMPLIANCE_TAGS,
-        requires_api_key=BiotechAgent.REQUIRES_API_KEY,
-    )
-)
 
 __all__ = ["BiotechAgent"]
