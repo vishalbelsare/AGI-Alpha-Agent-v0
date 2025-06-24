@@ -307,9 +307,9 @@ class PolicyAgent(AgentBase):
         return await self._qa_async(query)
 
     @tool(description="Compare two versions. Arg JSON {'old':str,'new':str}")
-    def compare_versions(self, req_json: str) -> str:  # noqa: D401
+    async def compare_versions(self, req_json: str) -> str:  # noqa: D401
         req = json.loads(req_json)
-        diff = self._diff(req.get("old", ""), req.get("new", ""))
+        diff = await asyncio.to_thread(self._diff, req.get("old", ""), req.get("new", ""))
         return json.dumps(_wrap_mcp(self.NAME, {"diff": diff}))
 
     @tool(description="Classify snippet into ISO 37301 risk categories. Arg JSON {'text':str}")
@@ -319,10 +319,9 @@ class PolicyAgent(AgentBase):
         return json.dumps(_wrap_mcp(self.NAME, {"risks": risks}))
 
     @tool(description="Low‑level retrieval tool. Arg JSON {'query':str,'k':int}")
-    def statute_search(self, req_json: str) -> str:  # noqa: D401
+    async def statute_search(self, req_json: str) -> str:  # noqa: D401
         args = json.loads(req_json)
-        loop = asyncio.get_event_loop()
-        hits = loop.run_until_complete(self.retriever.search(args.get("query", ""), int(args.get("k", 5))))
+        hits = await self.retriever.search(args.get("query", ""), int(args.get("k", 5)))
         return json.dumps(_wrap_mcp(self.NAME, hits))
 
     # ── Lifecycle (passive) ─────────────────────────────────────────────
