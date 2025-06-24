@@ -145,7 +145,6 @@ if not logger.handlers:
 logger.setLevel(logging.INFO)
 
 
-
 ##############################################################################
 #                             public datatypes                               #
 ##############################################################################
@@ -312,6 +311,7 @@ def _agent_base():
 
 ##############################################################################
 
+
 ##############################################################################
 def _should_register(meta: AgentMetadata) -> bool:
     if meta.name.lower() in _DISABLED:
@@ -354,8 +354,6 @@ def _register(meta: AgentMetadata, *, overwrite: bool = False):
 
     logger.info("✓ agent %-18s caps=%s", meta.name, ",".join(meta.capabilities))
     _emit_kafka("agent.manifest", meta.to_json())
-
-
 
 
 ##############################################################################
@@ -418,7 +416,7 @@ def register_agent(meta: AgentMetadata, *, overwrite: bool = False):
 ##############################################################################
 #                         initial discovery pass                             #
 from .discovery import discover_local, discover_entrypoints, discover_hot_dir, discover_adk
-from .health import start_background_tasks
+from .health import start_background_tasks, stop_background_tasks
 
 ##############################################################################
 discover_local()
@@ -443,4 +441,5 @@ __all__ = [
     "capability_agents",
     "get_agent",
     "start_background_tasks",
+    "stop_background_tasks",
 ]

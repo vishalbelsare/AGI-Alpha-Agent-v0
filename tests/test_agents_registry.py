@@ -1,4 +1,5 @@
 # SPDX-License-Identifier: Apache-2.0
+# mypy: ignore-errors
 import unittest
 import asyncio
 import io
@@ -207,6 +208,7 @@ class TestHealthQuarantine(unittest.TestCase):
             StubAgent,
             _ERR_THRESHOLD,
             start_background_tasks,
+            stop_background_tasks,
         )
 
         class FailingAgent(AgentBase):
@@ -217,15 +219,17 @@ class TestHealthQuarantine(unittest.TestCase):
 
         meta = AgentMetadata(name="fail", cls=FailingAgent, version="0", capabilities=[])  # type: ignore[list-item]
         register_agent(meta)
-        start_background_tasks()
-        # Pre-set error count to threshold -1
-        object.__setattr__(AGENT_REGISTRY["fail"], "err_count", _ERR_THRESHOLD - 1)
-        _HEALTH_Q.put(("fail", 0.0, False))
-        # give the background thread a moment
-        import time
 
-        time.sleep(0.05)
-        self.assertIs(AGENT_REGISTRY["fail"].cls, StubAgent)
+        async def _run() -> None:
+            await start_background_tasks()
+            # Pre-set error count to threshold -1
+            object.__setattr__(AGENT_REGISTRY["fail"], "err_count", _ERR_THRESHOLD - 1)
+            _HEALTH_Q.put(("fail", 0.0, False))
+            await asyncio.sleep(0.05)
+            self.assertIs(AGENT_REGISTRY["fail"].cls, StubAgent)
+            await stop_background_tasks()
+
+        asyncio.run(_run())
 
 
 class TestVersionOverride(unittest.TestCase):
