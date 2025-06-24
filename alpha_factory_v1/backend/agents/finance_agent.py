@@ -42,7 +42,7 @@ with contextlib.suppress(ModuleNotFoundError):
 with contextlib.suppress(ModuleNotFoundError):
     from scipy.special import erfcinv  # type: ignore
 with contextlib.suppress(Exception):
-    from backend.agents import Gauge  # type: ignore
+    from backend.agents.registry import Gauge  # type: ignore
     from prometheus_client import make_asgi_app  # type: ignore
 with contextlib.suppress(ModuleNotFoundError):
     from binance import Client as _BnClient  # type: ignore
@@ -81,7 +81,7 @@ if "tool" not in globals():  # offline stub
 
 # ─────────────────────── α-Factory imports ─────────────────────
 from backend.agent_base import AgentBase  # type: ignore
-from backend.agents import AgentMetadata, register_agent  # type: ignore
+from backend.agents.registry import AgentMetadata, register_agent  # type: ignore
 from backend.orchestrator import _publish  # type: ignore
 from .. import risk
 from ..model_provider import ModelProvider

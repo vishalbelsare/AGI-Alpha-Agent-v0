@@ -90,7 +90,7 @@ except ModuleNotFoundError:  # pragma: no cover
     KafkaProducer = None  # type: ignore
 
 try:
-    from backend.agents import Gauge  # type: ignore
+    from backend.agents.registry import Gauge  # type: ignore
 except Exception:  # pragma: no cover
     Gauge = None  # type: ignore
 
@@ -119,7 +119,7 @@ except ModuleNotFoundError:  # pragma: no cover
 # Alpha‑Factory internals
 # ────────────────────────────────────────────────────────────────────────────
 from backend.agent_base import AgentBase  # type: ignore
-from backend.agents import AgentMetadata, register_agent  # type: ignore
+from backend.agents.registry import AgentMetadata, register_agent  # type: ignore
 
 logger = logging.getLogger(__name__)
 

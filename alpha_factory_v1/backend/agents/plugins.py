@@ -8,7 +8,7 @@ from pathlib import Path
 from types import ModuleType
 from typing import Optional
 
-from . import _WHEEL_PUBKEY, _WHEEL_SIGS, ed25519, InvalidSignature, logger
+from .registry import _WHEEL_PUBKEY, _WHEEL_SIGS, ed25519, InvalidSignature, logger
 
 
 def verify_wheel(path: Path) -> bool:

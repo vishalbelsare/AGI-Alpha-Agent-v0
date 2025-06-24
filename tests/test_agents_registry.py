@@ -8,7 +8,7 @@ import os
 import sys
 import subprocess
 
-from alpha_factory_v1.backend.agents import (
+from alpha_factory_v1.backend.agents.registry import (
     AGENT_REGISTRY,
     CAPABILITY_GRAPH,
     AgentMetadata,
@@ -165,7 +165,7 @@ class TestRegisterDecorator(unittest.TestCase):
         AGENT_REGISTRY.update(self._registry_backup)
 
     def test_condition_false(self):
-        from alpha_factory_v1.backend.agents import register, _agent_base
+        from alpha_factory_v1.backend.agents.registry import register, _agent_base
 
         Base = _agent_base()
 
@@ -179,7 +179,7 @@ class TestRegisterDecorator(unittest.TestCase):
         self.assertNotIn("skip", AGENT_REGISTRY)
 
     def test_condition_true(self):
-        from alpha_factory_v1.backend.agents import register, _agent_base
+        from alpha_factory_v1.backend.agents.registry import register, _agent_base
 
         Base = _agent_base()
 
@@ -203,10 +203,12 @@ class TestHealthQuarantine(unittest.TestCase):
         AGENT_REGISTRY.update(self._registry_backup)
 
     def test_stub_after_errors(self):
-        from alpha_factory_v1.backend.agents import (
+        from alpha_factory_v1.backend.agents.registry import (
             _HEALTH_Q,
             StubAgent,
             _ERR_THRESHOLD,
+        )
+        from alpha_factory_v1.backend.agents.health import (
             start_background_tasks,
             stop_background_tasks,
         )

@@ -46,7 +46,7 @@ OPENAI_TIMEOUT_SEC = int(os.getenv("OPENAI_TIMEOUT_SEC", "30"))
 with contextlib.suppress(ModuleNotFoundError):
     from llama_cpp import Llama
 with contextlib.suppress(Exception):
-    from backend.agents import Gauge  # type: ignore
+    from backend.agents.registry import Gauge  # type: ignore
 with contextlib.suppress(ModuleNotFoundError):
     from confluent_kafka import Producer
 
@@ -235,11 +235,9 @@ if PROM_ENABLED and "Gauge" in globals():
 else:
 
     class _Dummy(float):
-        def observe(self, *a: Any, **kw: Any) -> None:
-            ...
+        def observe(self, *a: Any, **kw: Any) -> None: ...
 
-        def set(self, *a: Any, **kw: Any) -> None:
-            ...
+        def set(self, *a: Any, **kw: Any) -> None: ...
 
     PLAN_LAT = RISK_SCR = _Dummy()
 

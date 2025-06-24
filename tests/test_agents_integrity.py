@@ -1,7 +1,12 @@
 # SPDX-License-Identifier: Apache-2.0
 import unittest
 
-from alpha_factory_v1.backend.agents import list_agents, get_agent, AGENT_REGISTRY, list_capabilities
+from alpha_factory_v1.backend.agents.registry import (
+    list_agents,
+    get_agent,
+    AGENT_REGISTRY,
+    list_capabilities,
+)
 
 
 class TestAgentsIntegrity(unittest.TestCase):

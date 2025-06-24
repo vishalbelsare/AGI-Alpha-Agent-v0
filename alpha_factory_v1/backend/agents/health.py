@@ -8,7 +8,7 @@ import json
 import time
 from queue import Empty
 
-from . import (
+from .registry import (
     _HEALTH_Q,
     _HEARTBEAT_INT,
     _RESCAN_SEC,

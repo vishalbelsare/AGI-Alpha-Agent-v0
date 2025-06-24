@@ -11,16 +11,25 @@ from pathlib import Path
 from types import ModuleType
 from typing import Optional
 
-from . import (
+try:  # ≥ Py 3.10 std-lib metadata
+    import importlib.metadata as imetadata
+except ModuleNotFoundError:  # pragma: no cover
+    import importlib_metadata as imetadata  # type: ignore
+
+try:  # Google Agent Development Kit
+    import adk  # type: ignore
+except ModuleNotFoundError:  # pragma: no cover
+    adk = None  # type: ignore
+
+from .registry import (
     AGENT_REGISTRY,
     AgentMetadata,
-    adk,
-    imetadata,
     logger,
-    _HOT_DIR,
     _register,
     _agent_base,
 )
+
+_HOT_DIR = Path(os.getenv("AGENT_HOT_DIR", "~/.alpha_agents")).expanduser()
 from .plugins import verify_wheel, install_wheel
 
 

@@ -15,7 +15,7 @@ from collections import deque
 from typing import Any, Callable, Dict, Optional
 import os
 
-from backend.agents import get_agent
+from backend.agents.registry import get_agent
 from alpha_factory_v1.core.monitoring import metrics
 
 from .telemetry import MET_LAT, MET_ERR, MET_UP, tracer

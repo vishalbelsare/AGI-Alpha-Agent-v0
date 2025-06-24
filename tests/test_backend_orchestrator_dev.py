@@ -16,9 +16,8 @@ except ModuleNotFoundError:  # pragma: no cover - optional dep
 
 from alpha_factory_v1.backend import orchestrator as orch_mod
 from alpha_factory_v1.backend.api_server import build_rest
-from alpha_factory_v1.backend.agents import (
-    AGENT_REGISTRY,
-    StubAgent,
+from alpha_factory_v1.backend.agents.registry import AGENT_REGISTRY, StubAgent
+from alpha_factory_v1.backend.agents.health import (
     start_background_tasks,
     stop_background_tasks,
 )
@@ -47,7 +46,7 @@ async def dev_orchestrator(monkeypatch: pytest.MonkeyPatch) -> orch_mod.Orchestr
     monkeypatch.setenv("API_TOKEN", "test-token")
     monkeypatch.setenv("AGENT_ERR_THRESHOLD", "1")
 
-    from alpha_factory_v1.backend.agents import _HEALTH_Q
+    from alpha_factory_v1.backend.agents.registry import _HEALTH_Q
     import inspect
     import time
 
@@ -74,8 +73,8 @@ async def dev_orchestrator(monkeypatch: pytest.MonkeyPatch) -> orch_mod.Orchestr
             agent.step = _wrapped
         return agent
 
-    monkeypatch.setattr("alpha_factory_v1.backend.agents.list_agents", list_agents)
-    monkeypatch.setattr("alpha_factory_v1.backend.agents.get_agent", get_agent)
+    monkeypatch.setattr("alpha_factory_v1.backend.agents.registry.list_agents", list_agents)
+    monkeypatch.setattr("alpha_factory_v1.backend.agents.registry.get_agent", get_agent)
     monkeypatch.setattr("alpha_factory_v1.backend.agent_runner.get_agent", get_agent)
     await start_background_tasks()
 

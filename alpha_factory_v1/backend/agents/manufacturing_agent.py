@@ -65,7 +65,7 @@ except ModuleNotFoundError:  # pragma: no cover
     np = None  # type: ignore
 
 try:
-    from backend.agents import Gauge  # type: ignore
+    from backend.agents.registry import Gauge  # type: ignore
 except Exception:  # pragma: no cover
     Gauge = None  # type: ignore
 
@@ -105,7 +105,7 @@ except Exception:  # pragma: no cover - optional
 # ---------------------------------------------------------------------------
 from backend.trace_ws import hub  # pylint: disable=import-error
 from backend.agent_base import AgentBase  # pylint: disable=import-error
-from backend.agents import AgentMetadata, register_agent  # pylint: disable=import-error
+from backend.agents.registry import AgentMetadata, register_agent  # pylint: disable=import-error
 from backend.orchestrator import _publish  # pylint: disable=import-error
 from alpha_factory_v1.utils.env import _env_int
 

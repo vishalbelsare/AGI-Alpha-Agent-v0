@@ -52,7 +52,7 @@ from typing import Any, Mapping, Optional
 # ──────────────────────────────────────────────────────────────────────────────
 # Alpha-Factory internal imports
 # ──────────────────────────────────────────────────────────────────────────────
-from backend.agents import register, _agent_base
+from backend.agents.registry import register, _agent_base
 
 # Ensure compatibility with both legacy and new AgentBase locations
 AgentBase = _agent_base()

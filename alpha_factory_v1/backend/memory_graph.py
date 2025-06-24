@@ -64,7 +64,7 @@ except Exception:  # pragma: no cover
     _HAS_NX = False
 
 try:
-    from backend.agents import Counter, Gauge, Histogram  # type: ignore
+    from backend.agents.registry import Counter, Gauge, Histogram  # type: ignore
 
     _PM = True
 except Exception:  # pragma: no cover

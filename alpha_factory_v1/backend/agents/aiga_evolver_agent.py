@@ -12,7 +12,7 @@ from __future__ import annotations
 import logging
 import asyncio
 
-from backend.agents import register, _agent_base
+from backend.agents.registry import register, _agent_base
 from backend.orchestrator import _publish
 
 try:
