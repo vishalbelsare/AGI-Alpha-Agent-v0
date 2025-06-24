@@ -5,7 +5,7 @@ from __future__ import annotations
 
 import asyncio
 import contextlib
-from typing import Any, Dict, Optional
+from typing import Dict, Optional
 
 from .agent_runner import AgentRunner, EventBus, hb_watch, regression_guard
 
@@ -35,8 +35,8 @@ class AgentManager:
         self.runners: Dict[str, AgentRunner] = {
             n: AgentRunner(n, cycle_seconds, max_cycle_sec, self.bus.publish) for n in names
         }
-        self._hb_task: Optional[asyncio.Task] = None
-        self._reg_task: Optional[asyncio.Task] = None
+        self._hb_task: Optional[asyncio.Task[None]] = None
+        self._reg_task: Optional[asyncio.Task[None]] = None
 
     async def start(self) -> None:
         """Launch heartbeat and regression guard tasks."""
@@ -49,12 +49,14 @@ class AgentManager:
             if init_async:
                 await init_async()
 
+        await self.bus.start_consumer()
         self._hb_task = asyncio.create_task(hb_watch(self.runners))
         self._reg_task = asyncio.create_task(regression_guard(self.runners))
 
     async def stop(self) -> None:
         """Cancel helper tasks and wait for agent cycles to finish."""
 
+        await self.bus.stop_consumer()
         if self._hb_task:
             self._hb_task.cancel()
         if self._reg_task:
