@@ -45,6 +45,8 @@ import asyncio
 import hashlib
 import json
 import logging
+
+logger = logging.getLogger(__name__)
 import math
 import os
 import random
@@ -62,32 +64,38 @@ try:
     import pandas as pd  # type: ignore
     import numpy as np  # type: ignore
 except ModuleNotFoundError:  # pragma: no cover
+    logger.warning("numpy/pandas missing – data handling disabled")
     pd = np = None  # type: ignore
 
 try:
     import lightgbm as lgb  # type: ignore
 except ModuleNotFoundError:  # pragma: no cover
+    logger.warning("lightgbm missing – forecasting model disabled")
     lgb = None  # type: ignore
 
 try:
     import pulp  # type: ignore
 except ModuleNotFoundError:  # pragma: no cover
+    logger.warning("pulp not installed – optimisation disabled")
     pulp = None  # type: ignore
 
 try:
     import httpx  # type: ignore
 except ModuleNotFoundError:  # pragma: no cover
+    logger.warning("httpx unavailable – using offline datasets")
     httpx = None  # type: ignore
 
 try:
     from kafka import KafkaProducer  # type: ignore
 except ModuleNotFoundError:  # pragma: no cover
+    logger.warning("kafka-python missing – event bus disabled")
     KafkaProducer = None  # type: ignore
 
 try:
     import openai  # type: ignore
     from openai.agents import tool  # type: ignore
 except ModuleNotFoundError:  # pragma: no cover
+    logger.warning("openai package not found – LLM features disabled")
     openai = None  # type: ignore
 
     def tool(fn=None, **_kw):  # type: ignore
@@ -97,6 +105,7 @@ except ModuleNotFoundError:  # pragma: no cover
 try:
     import adk  # type: ignore
 except ModuleNotFoundError:  # pragma: no cover
+    logger.warning("google-adk not installed – mesh integration disabled")
     adk = None  # type: ignore
 try:
     from aiohttp import ClientError as AiohttpClientError  # type: ignore

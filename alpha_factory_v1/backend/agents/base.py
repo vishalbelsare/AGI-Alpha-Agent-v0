@@ -58,17 +58,20 @@ from typing import Any, List, Mapping, MutableMapping, Optional
 try:  # -- Prometheus metrics
     from backend.agents.registry import Counter, Gauge  # type: ignore
 except Exception:  # pragma: no cover
+    logging.getLogger(__name__).warning("prometheus_client missing – metrics disabled")
     Counter = Gauge = None  # type: ignore
 
 try:  # -- Kafka producer for heart-beats
     from kafka import KafkaProducer  # type: ignore
     from kafka.errors import KafkaError
 except ModuleNotFoundError:  # pragma: no cover
+    logging.getLogger(__name__).warning("kafka-python missing – heartbeats disabled")
     KafkaProducer = None  # type: ignore
 
 try:  # -- Cron / RRULE scheduling helper
     import aiocron  # type: ignore
 except ModuleNotFoundError:  # pragma: no cover
+    logging.getLogger(__name__).warning("aiocron not installed – scheduling disabled")
     aiocron = None  # type: ignore
 
 # ───────────────────────────────────────────────────────────────────────────────

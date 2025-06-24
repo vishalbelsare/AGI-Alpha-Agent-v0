@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import importlib
 import inspect
+import logging
 import os
 import pkgutil
 import sys
@@ -14,11 +15,13 @@ from typing import Optional
 try:  # ≥ Py 3.10 std-lib metadata
     import importlib.metadata as imetadata
 except ModuleNotFoundError:  # pragma: no cover
+    logging.getLogger(__name__).warning("importlib_metadata backport required on this Python")
     import importlib_metadata as imetadata  # type: ignore
 
 try:  # Google Agent Development Kit
     import adk  # type: ignore
 except ModuleNotFoundError:  # pragma: no cover
+    logging.getLogger(__name__).warning("google-adk not installed – mesh integration disabled")
     adk = None  # type: ignore
 
 from .registry import (

@@ -80,14 +80,15 @@ try:
     _Prom.Histogram = Histogram
     _Prom.get_metric = _get_metric
 except ModuleNotFoundError:
-    pass  # Metrics disabled – agent still functions.
+    _log.warning("prometheus_client missing – metrics disabled")
+
 
 try:
     from opentelemetry import trace  # type: ignore
 
     _OTEL.tracer = trace.get_tracer(__name__)
 except ModuleNotFoundError:
-    pass  # Tracing disabled – agent still functions.
+    _log.warning("opentelemetry not installed – tracing disabled")
 
 # ──────────────────────────────────────────────────────────────────────────────
 # Configuration helpers

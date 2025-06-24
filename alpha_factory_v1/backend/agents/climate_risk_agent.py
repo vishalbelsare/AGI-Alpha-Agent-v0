@@ -55,6 +55,8 @@ import asyncio
 import hashlib
 import json
 import logging
+
+logger = logging.getLogger(__name__)
 import os
 import random
 from dataclasses import dataclass
@@ -70,23 +72,27 @@ from alpha_factory_v1.backend.utils.sync import run_sync
 try:
     import httpx  # type: ignore
 except ModuleNotFoundError:  # pragma: no cover
+    logger.warning("httpx unavailable – using cached datasets only")
     httpx = None  # type: ignore
 
 try:
     import torch  # type: ignore
     from torch import nn  # type: ignore
 except ModuleNotFoundError:  # pragma: no cover
+    logger.warning("torch missing – surrogate model disabled")
     torch = nn = None  # type: ignore
 
 try:
     from kafka import KafkaProducer  # type: ignore
 except ModuleNotFoundError:  # pragma: no cover
+    logger.warning("kafka-python missing – event streaming disabled")
     KafkaProducer = None  # type: ignore
 
 try:
     import openai  # type: ignore
     from openai.agents import tool  # type: ignore
 except ModuleNotFoundError:  # pragma: no cover
+    logger.warning("openai package not found – LLM features disabled")
 
     def tool(fn=None, **_):  # type: ignore
         """Fallback when OpenAI Agents SDK unavailable."""
@@ -100,6 +106,7 @@ OPENAI_TIMEOUT_SEC = int(os.getenv("OPENAI_TIMEOUT_SEC", "30"))
 try:
     import adk  # type: ignore
 except ModuleNotFoundError:  # pragma: no cover
+    logger.warning("google-adk not installed – mesh integration disabled")
     adk = None  # type: ignore
 try:
     from aiohttp import ClientError as AiohttpClientError  # type: ignore

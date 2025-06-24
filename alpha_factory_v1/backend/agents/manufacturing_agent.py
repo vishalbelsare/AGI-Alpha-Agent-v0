@@ -43,6 +43,8 @@ import asyncio
 import hashlib
 import json
 import logging
+
+logger = logging.getLogger(__name__)
 import os
 import random
 from dataclasses import dataclass
@@ -57,27 +59,32 @@ from alpha_factory_v1.backend.utils.sync import run_sync
 try:
     import ortools.sat.python.cp_model as cp  # type: ignore
 except ModuleNotFoundError:  # pragma: no cover
+    logger.warning("OR-Tools missing – constraint solver disabled")
     cp = None  # type: ignore
 
 try:
     import numpy as np  # type: ignore
 except ModuleNotFoundError:  # pragma: no cover
+    logger.warning("numpy not installed – optimisation degraded")
     np = None  # type: ignore
 
 try:
     from backend.agents.registry import Gauge  # type: ignore
 except Exception:  # pragma: no cover
+    logger.warning("prometheus-client missing – metrics disabled")
     Gauge = None  # type: ignore
 
 try:
     from kafka import KafkaProducer  # type: ignore
 except ModuleNotFoundError:  # pragma: no cover
+    logger.warning("kafka-python missing – event bus disabled")
     KafkaProducer = None  # type: ignore
 
 try:
     import openai  # type: ignore
     from openai.agents import tool  # type: ignore
 except ModuleNotFoundError:  # pragma: no cover
+    logger.warning("openai package not found – LLM features disabled")
     openai = None  # type: ignore
 
     def tool(fn=None, **_):  # type: ignore
@@ -87,6 +94,7 @@ except ModuleNotFoundError:  # pragma: no cover
 try:
     import adk  # type: ignore
 except ModuleNotFoundError:  # pragma: no cover
+    logger.warning("google-adk not installed – mesh integration disabled")
     adk = None  # type: ignore
 try:
     from aiohttp import ClientError as AiohttpClientError  # type: ignore
