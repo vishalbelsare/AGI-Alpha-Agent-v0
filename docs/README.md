@@ -54,3 +54,20 @@ GitHub Pages serves any files under `docs/` when the site is built from
 `static_insight/` into this directory and run `mkdocs build` if your workflow
 doesn't trigger it automatically. Pushing the updated files makes the demo
 available at the default Pages URL.
+
+## α‑AGI Insight v1 Demo
+
+`docs/alpha_agi_insight_v1` provides a self-contained HTML demo that
+visualises capability forecasts with Plotly. The GitHub Actions workflow
+copies this directory into the generated `site/` folder so the files are
+served on GitHub Pages.
+
+To update the charts, edit `forecast.json` and `population.json` and rebuild
+the site:
+
+```bash
+mkdocs build
+```
+
+Open `site/alpha_agi_insight_v1/index.html` in your browser to verify the
+changes before committing.

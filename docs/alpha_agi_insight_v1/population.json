@@ -1,0 +1,7 @@
+[
+  {"effectiveness": 0.6, "risk": 0.4, "complexity": 0.2, "rank": 1},
+  {"effectiveness": 0.8, "risk": 0.3, "complexity": 0.4, "rank": 0},
+  {"effectiveness": 0.7, "risk": 0.5, "complexity": 0.3, "rank": 2},
+  {"effectiveness": 0.9, "risk": 0.6, "complexity": 0.5, "rank": 0},
+  {"effectiveness": 0.5, "risk": 0.2, "complexity": 0.1, "rank": 3}
+]
