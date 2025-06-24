@@ -56,7 +56,12 @@ from alpha_factory_v1.backend.demo_orchestrator import DemoOrchestrator as BaseO
 class Orchestrator(BaseOrchestrator):
     """Bootstraps agents and routes envelopes."""
 
-    def __init__(self, settings: config.Settings | None = None) -> None:
+    def __init__(
+        self,
+        settings: config.Settings | None = None,
+        *,
+        alert_hook: Callable[[str, str | None], None] | None = None,
+    ) -> None:
         self.settings = settings or config.CFG
         insight_logging.setup(json_logs=self.settings.json_logs)
         bus = messaging.A2ABus(self.settings)
@@ -75,6 +80,7 @@ class Orchestrator(BaseOrchestrator):
         )
         solution_archive = SolutionArchive(os.getenv("SOLUTION_ARCHIVE_PATH", "solutions.duckdb"))
         registry = StakeRegistry()
+        self._alert_hook = alert_hook or alerts.send_alert
         if resource is not None:
             try:
                 limit = 8 * 1024 * 1024 * 1024
@@ -172,10 +178,11 @@ class Orchestrator(BaseOrchestrator):
 
     def _record_restart(self, runner: AgentRunner) -> None:
         super()._record_restart(runner)
-        alerts.send_alert(
-            f"{runner.agent.name} restarted",
-            self.settings.alert_webhook_url,
-        )
+        if self._alert_hook:
+            self._alert_hook(
+                f"{runner.agent.name} restarted",
+                self.settings.alert_webhook_url,
+            )
 
 
 async def _main() -> None:  # pragma: no cover - CLI helper

@@ -258,7 +258,7 @@ def simulate(
         os.environ["LLAMA_MODEL_PATH"] = str(llama_model_path)
 
     if import_dgm is not None:
-        from ..tools import dgm_import
+        from alpha_factory_v1.core.tools import dgm_import
 
         dgm_import.import_logs(import_dgm)
 
