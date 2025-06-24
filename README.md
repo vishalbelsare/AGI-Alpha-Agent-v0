@@ -24,6 +24,11 @@ Set `OPENAI_API_KEY` and other required secrets in your environment or `.env`
 before launching the container. The orchestrator prints the
 [project disclaimer](docs/DISCLAIMER_SNIPPET.md) when it starts.
 
+**Recommended OS:** Linux or Windows with **WSL 2**. Native Windows often
+misbehaves due to path translation and volume mount issues. When on Windows,
+install WSL 2, enable Docker Desktop's *Use the WSL 2 based engine* option and
+clone the repository inside your Linux home directory.
+
 See [docs/INTRO_BASICS.md](docs/INTRO_BASICS.md) for the bare essentials or
 [docs/QUICKSTART_BASICS.md](docs/QUICKSTART_BASICS.md) for a minimal walkthrough.
 

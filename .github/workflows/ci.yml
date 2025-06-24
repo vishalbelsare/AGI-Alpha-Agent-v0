@@ -148,6 +148,29 @@ PY
           name: coverage-xml
           path: coverage.xml
 
+  windows-smoke:
+    name: "Windows Smoke"
+    needs: lint-type
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: pip
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.lock
+          pip install -r requirements-dev.txt
+          pip install pytest
+      - name: Verify environment
+        run: |
+          python scripts/check_python_deps.py
+          python check_env.py --auto-install
+      - name: Run smoke tests
+        run: pytest -m smoke -q
+
   docker:
     name: "🐳 Docker build"
     needs: tests
