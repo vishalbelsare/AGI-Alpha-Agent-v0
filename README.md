@@ -815,6 +815,10 @@ and pin Ray to the same version for compatibility.
   [Colab](alpha_factory_v1/demos/solving_agi_governance/colab_solving_agi_governance.ipynb)
 * [Self‑Healing Repo](alpha_factory_v1/demos/self_healing_repo/README.md) — agents automatically craft patches when CI
   fails.
+  The underlying `MetaRefinementAgent` **only simulates** improvement by
+  generating placeholder diffs. We hope to replace this with genuine
+  optimisation based on real performance metrics—contributions are
+  warmly welcomed.
 * **Note:** The `alpha_agi_business_3_v1` demo is intentionally left out of the published package. Clone this repository
   to run it from source.
 
