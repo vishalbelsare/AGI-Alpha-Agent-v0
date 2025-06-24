@@ -28,6 +28,8 @@ The orchestrator honours several variables to tune runtime behaviour:
 | `ALPHA_CYCLE_SECONDS` | Default agent cycle period | `60` |
 | `MAX_CYCLE_SEC` | Hard limit per agent run in seconds | `30` |
 | `ALPHA_ENABLED_AGENTS` | Comma-separated list of agents to run | *(all)* |
+| `ALPHA_REGRESSION_THRESHOLD` | Metric drop required to pause evolution | `0.8` |
+| `ALPHA_REGRESSION_WINDOW` | Number of scores considered for regression | `3` |
 
 ## Running Locally
 

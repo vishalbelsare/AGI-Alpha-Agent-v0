@@ -77,6 +77,10 @@ def publish(topic: str, msg: dict[str, object]) -> None:
             log.exception("publish failed")
 
 
+# Backwards‑compatibility alias used by legacy agents
+_publish = publish
+
+
 class Orchestrator(BaseOrchestrator):
     """Default Alpha‑Factory orchestrator."""
 
@@ -155,4 +159,5 @@ __all__ = [
     "MET_ERR",
     "MET_UP",
     "tracer",
+    "_publish",
 ]
