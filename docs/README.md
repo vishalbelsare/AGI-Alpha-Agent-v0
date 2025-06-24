@@ -59,8 +59,10 @@ available at the default Pages URL.
 
 `docs/alpha_agi_insight_v1` provides a self-contained HTML demo that
 visualises capability forecasts with Plotly. The GitHub Actions workflow
-copies this directory into the generated `site/` folder so the files are
-served on GitHub Pages.
+copies this directory into the generated `site/` folder, serves it on GitHub
+Pages and deploys the page automatically. Visit
+[the published demo](https://montreal-ai.github.io/AGI-Alpha-Agent-v0/alpha_agi_insight_v1/)
+to preview it.
 
 To update the charts, edit `forecast.json` and `population.json` and rebuild
 the site:
