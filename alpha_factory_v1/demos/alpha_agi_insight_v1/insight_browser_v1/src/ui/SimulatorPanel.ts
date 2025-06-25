@@ -9,7 +9,7 @@ import { mutateEvaluator } from '../evaluator_genome.ts';
 import { pinFiles } from '../ipfs/pinner.ts';
 import { renderFrontier } from '../render/frontier.ts';
 import { detectColdZone } from '../utils/cluster.ts';
-import clone from '../../../../../../src/utils/clone.js';
+import clone from '../../../../../core/utils/clone.js';
 import type { Archive } from '../archive.ts';
 import type { PopulationFrame, SimulatorStatus, GpuToggleEvent } from './types.ts';
 import type { Selection } from 'd3';

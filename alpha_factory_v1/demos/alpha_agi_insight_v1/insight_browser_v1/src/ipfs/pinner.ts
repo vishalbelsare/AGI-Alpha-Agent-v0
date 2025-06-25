@@ -1,5 +1,5 @@
 /* SPDX-License-Identifier: Apache-2.0 */
-import { Web3Storage } from '../lib/bundle.esm.min.js';
+import { Web3Storage } from '../../lib/bundle.esm.min.js';
 
 declare global {
   interface Window {

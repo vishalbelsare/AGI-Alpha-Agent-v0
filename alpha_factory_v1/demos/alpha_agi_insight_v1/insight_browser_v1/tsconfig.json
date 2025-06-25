@@ -7,7 +7,7 @@
     "moduleResolution": "node",
     "baseUrl": "./",
     "paths": {
-      "@insight-src/*": ["../../../../src/*"]
+      "@insight-src/*": ["../../../core/*"]
     },
     "allowJs": true,
     "allowImportingTsExtensions": true,
