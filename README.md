@@ -3,6 +3,8 @@ References to "AGI" and "superintelligence" describe aspirational goals and do n
 general intelligence. Use at your own risk. Nothing herein constitutes financial advice. MontrealAI and the maintainers
 accept no liability for losses incurred from using this software.
 
+**Ready to explore? [Launch the α‑AGI Insight demo](https://montreal-ai.github.io/AGI-Alpha-Agent-v0/alpha_agi_insight_v1/index.html) to see it in action.**
+
 Full documentation: [https://montreal-ai.github.io/AGI-Alpha-Agent-v0/](https://montreal-ai.github.io/AGI-Alpha-Agent-v0/)
 
 **View the interactive demo here:** <https://montreal-ai.github.io/AGI-Alpha-Agent-v0/alpha_agi_insight_v1/>
