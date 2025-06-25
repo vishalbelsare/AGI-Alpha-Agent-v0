@@ -5,7 +5,8 @@ docs_dir: docs
 theme:
   name: material
 nav:
-  - Home: README.md
+  - Home: index.html
+  - Documentation Overview: README.md
   - Quickstart: quickstart.md
   - Getting Started: INTRO.md
   - Project Overview: OVERVIEW.md
