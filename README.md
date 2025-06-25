@@ -3,15 +3,17 @@ References to "AGI" and "superintelligence" describe aspirational goals and do n
 general intelligence. Use at your own risk. Nothing herein constitutes financial advice. MontrealAI and the maintainers
 accept no liability for losses incurred from using this software.
 
-**Ready to explore? [Launch the α‑AGI Insight demo](https://montreal-ai.github.io/AGI-Alpha-Agent-v0/alpha_agi_insight_v1/index.html) to see it in action.**
+**Ready to explore? [Launch the α‑AGI Insight demo](https://montreal-ai.github.io/AGI-Alpha-Agent-v0/) to see it in action.**
 
 See [HOSTING_INSTRUCTIONS](docs/HOSTING_INSTRUCTIONS.md) for build and deployment details.
 
-Full documentation: [https://montreal-ai.github.io/AGI-Alpha-Agent-v0/](https://montreal-ai.github.io/AGI-Alpha-Agent-v0/)
+Full documentation: [https://montreal-ai.github.io/AGI-Alpha-Agent-v0/](https://montreal-ai.github.io/AGI-Alpha-Agent-v0/) (use the **Docs** link in the navigation bar)
 
-**View the interactive demo here:** <https://montreal-ai.github.io/AGI-Alpha-Agent-v0/alpha_agi_insight_v1/>
+The GitHub Pages root now hosts the interactive demo. Click **Docs** in the navigation bar for the full manual.
 
-[![Launch \u03b1\u2011AGI Insight](https://img.shields.io/badge/Launch-%CE%B1%E2%80%91AGI%20Insight-blue?style=for-the-badge)](https://montreal-ai.github.io/AGI-Alpha-Agent-v0/alpha_agi_insight_v1/index.html)
+**View the interactive demo here:** <https://montreal-ai.github.io/AGI-Alpha-Agent-v0/>
+
+[![Launch \u03b1\u2011AGI Insight](https://img.shields.io/badge/Launch-%CE%B1%E2%80%91AGI%20Insight-blue?style=for-the-badge)](https://montreal-ai.github.io/AGI-Alpha-Agent-v0/)
 
 ## Quickstart
 
@@ -510,7 +512,7 @@ curl -X POST http://localhost:8000/simulate \
 ```
 
 ## Further Reading
-- Full documentation is available at [https://montreal-ai.github.io/AGI-Alpha-Agent-v0/](https://montreal-ai.github.io/AGI-Alpha-Agent-v0/)
+- Full documentation is available at [https://montreal-ai.github.io/AGI-Alpha-Agent-v0/](https://montreal-ai.github.io/AGI-Alpha-Agent-v0/) — click **Docs** in the navigation bar.
 
 ---
 ## Contributing
