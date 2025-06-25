@@ -62,7 +62,7 @@ try {
 
 const scriptPath = fileURLToPath(import.meta.url);
 const repoRoot = path.resolve(path.dirname(scriptPath), '..', '..', '..', '..');
-const aliasRoot = path.join(repoRoot, 'src');
+const aliasRoot = path.join(repoRoot, 'alpha_factory_v1', 'core');
 const quickstartPdf = path.join(repoRoot, manifest.quickstart_pdf);
 const aliasPlugin = {
   name: 'alias',
