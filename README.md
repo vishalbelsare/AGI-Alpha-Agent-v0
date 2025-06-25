@@ -5,6 +5,8 @@ accept no liability for losses incurred from using this software.
 
 Full documentation: [https://montreal-ai.github.io/AGI-Alpha-Agent-v0/](https://montreal-ai.github.io/AGI-Alpha-Agent-v0/)
 
+**View the interactive demo here:** <https://montreal-ai.github.io/AGI-Alpha-Agent-v0/alpha_agi_insight_v1/>
+
 ## Quickstart
 
 ```bash
