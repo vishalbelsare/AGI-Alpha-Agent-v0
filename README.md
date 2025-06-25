@@ -5,7 +5,7 @@ accept no liability for losses incurred from using this software.
 
 **Ready to explore? [Launch the α‑AGI Insight demo](https://montreal-ai.github.io/AGI-Alpha-Agent-v0/) to see it in action.**
 
-See [HOSTING_INSTRUCTIONS](docs/HOSTING_INSTRUCTIONS.md) for build and deployment details.
+See [HOSTING_INSTRUCTIONS](docs/HOSTING_INSTRUCTIONS.md) for build and deployment details. The [📚 Docs workflow](.github/workflows/docs.yml) runs automatically on every push to `main` and publishes the updated site to GitHub Pages.
 
 Full documentation: [https://montreal-ai.github.io/AGI-Alpha-Agent-v0/](https://montreal-ai.github.io/AGI-Alpha-Agent-v0/) (use the **Docs** link in the navigation bar)
 
