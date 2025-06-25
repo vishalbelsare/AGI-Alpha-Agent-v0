@@ -3,6 +3,7 @@
 # Hosting Instructions
 
 This project uses [MkDocs](https://www.mkdocs.org/) to build the static documentation.
+The generated site is hosted at <https://montreal-ai.github.io/AGI-Alpha-Agent-v0/alpha_agi_insight_v1/>.
 
 ## Prerequisites
 
@@ -66,9 +67,10 @@ Then browse to <http://localhost:8000/alpha_agi_insight_v1/>. Direct `file://`
 access is unsupported due to the service worker; use a minimal HTTP server or
 GitHub Pages.
 
-The workflow
-[`.github/workflows/docs.yml`](../.github/workflows/docs.yml) runs the same
-command, copies `docs/alpha_agi_insight_v1` into `site/` and then deploys.
+The "📚 Docs" workflow
+[`docs.yml`](../.github/workflows/docs.yml) automatically runs
+`scripts/build_insight_docs.sh`, builds the site and pushes the result to the
+`gh-pages` branch.
 
 ## Publishing to GitHub Pages
 
