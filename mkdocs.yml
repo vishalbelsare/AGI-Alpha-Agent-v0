@@ -19,4 +19,5 @@ nav:
   - Policy Runbook: POLICY_RUNBOOK.md
   - dgm_ops: dgm_ops.md
   - Changelog: CHANGELOG.md
+  - Disclaimer: DISCLAIMER_SNIPPET.md
   - Alpha AGI Insight Demo: alpha_agi_insight_v1/index.html
