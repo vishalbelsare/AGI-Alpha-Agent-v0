@@ -9,6 +9,7 @@ This project uses [MkDocs](https://www.mkdocs.org/) to build the static document
 - **Python 3.11 or 3.12**
 - `mkdocs` and `mkdocs-material`
 - **Node.js 20+** *(optional, only for building the React dashboard)*
+- `unzip` to extract `insight_browser.zip`
 
 Install MkDocs:
 
