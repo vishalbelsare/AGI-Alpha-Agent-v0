@@ -34,3 +34,13 @@ When changes land on `main` or a release is published, `docs.yml` pushes the
 `site/` directory to the `gh-pages` branch. GitHub Pages serves the result at
 `https://montreal-ai.github.io/AGI-Alpha-Agent-v0/alpha_agi_insight_v1/`.
 The standard [project disclaimer](DISCLAIMER_SNIPPET.md) applies.
+
+## Verifying Deployment
+
+Confirm the workflow is enabled under **Actions** and that
+[`docs.yml`](../.github/workflows/docs.yml) specifies
+`permissions: contents: write`. Run the "📚 Docs" workflow from the GitHub UI or
+push to `main` to trigger it. The initial run creates the `gh-pages` branch.
+After it finishes, browse to
+<https://montreal-ai.github.io/AGI-Alpha-Agent-v0/alpha_agi_insight_v1/> and
+check that the insight demo loads.
