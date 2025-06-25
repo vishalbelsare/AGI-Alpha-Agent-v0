@@ -108,7 +108,10 @@ Promise.all([
 });
 
 // Toggle the visibility of the logs panel
-document.getElementById('toggle-logs').addEventListener('click', () => {
+const toggleBtn = document.getElementById('toggle-logs');
+toggleBtn.addEventListener('click', () => {
   const panel = document.getElementById('logs-panel');
   panel.classList.toggle('hidden');
+  const expanded = !panel.classList.contains('hidden');
+  toggleBtn.setAttribute('aria-expanded', expanded.toString());
 });
