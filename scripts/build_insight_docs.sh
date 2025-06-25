@@ -36,10 +36,18 @@ npm --prefix "$BROWSER_DIR" run fetch-assets
 npm --prefix "$BROWSER_DIR" ci
 npm --prefix "$BROWSER_DIR" run build:dist
 
-# Refresh docs directory with the new bundle
+# Refresh docs directory with the new bundle while preserving the README
+README_TEMP=""
+if [[ -f "$DOCS_DIR/README.md" ]]; then
+    README_TEMP="$(mktemp)"
+    cp "$DOCS_DIR/README.md" "$README_TEMP"
+fi
 rm -rf "$DOCS_DIR"
 mkdir -p "$DOCS_DIR"
 unzip -q -o "$BROWSER_DIR/insight_browser.zip" -d "$DOCS_DIR"
+if [[ -n "$README_TEMP" ]]; then
+    mv "$README_TEMP" "$DOCS_DIR/README.md"
+fi
 
 # Build the MkDocs site
 mkdocs build
