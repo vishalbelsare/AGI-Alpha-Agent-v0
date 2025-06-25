@@ -15,6 +15,15 @@ The GitHub Pages site hosts the interactive demo under the `alpha_agi_insight_v1
 
 [![Launch \u03b1\u2011AGI Insight](https://img.shields.io/badge/Launch-%CE%B1%E2%80%91AGI%20Insight-blue?style=for-the-badge)](https://montreal-ai.github.io/AGI-Alpha-Agent-v0/alpha_agi_insight_v1/)
 
+### Automatic Deployment
+
+Pushes to `main` trigger the [Docs workflow](.github/workflows/docs.yml), which
+runs [`scripts/build_insight_docs.sh`](scripts/build_insight_docs.sh) to rebuild
+the Insight demo and MkDocs site. The workflow publishes the result to GitHub
+Pages, so once it completes the live demo is available at
+<https://montreal-ai.github.io/AGI-Alpha-Agent-v0/alpha_agi_insight_v1/> with no
+extra setup required.
+
 ## Quickstart
 
 ```bash
