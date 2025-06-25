@@ -25,6 +25,12 @@ if [[ "${1:-}" =~ ^(-h|--help)$ ]]; then
     exit 0
 fi
 
+# Ensure the correct Node.js version before running npm
+if ! node "$BROWSER_DIR/build/version_check.js"; then
+    echo "ERROR: Node.js 20+ is required to build the Insight docs." >&2
+    exit 1
+fi
+
 # Fetch WASM assets then install Node dependencies and build the browser bundle
 npm --prefix "$BROWSER_DIR" run fetch-assets
 npm --prefix "$BROWSER_DIR" ci
