@@ -2,6 +2,7 @@
 
 # Project Documentation
 
+[α‑AGI Insight Demo](alpha_agi_insight_v1/index.html)
 
 ## Building the React Dashboard
 
