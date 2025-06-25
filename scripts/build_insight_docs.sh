@@ -25,7 +25,8 @@ if [[ "${1:-}" =~ ^(-h|--help)$ ]]; then
     exit 0
 fi
 
-# Install Node dependencies and build the browser bundle
+# Fetch WASM assets then install Node dependencies and build the browser bundle
+npm --prefix "$BROWSER_DIR" run fetch-assets
 npm --prefix "$BROWSER_DIR" ci
 npm --prefix "$BROWSER_DIR" run build:dist
 
