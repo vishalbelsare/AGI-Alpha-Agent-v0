@@ -7,6 +7,8 @@ Full documentation: [https://montreal-ai.github.io/AGI-Alpha-Agent-v0/](https://
 
 **View the interactive demo here:** <https://montreal-ai.github.io/AGI-Alpha-Agent-v0/alpha_agi_insight_v1/>
 
+[![Launch \u03b1\u2011AGI Insight](https://img.shields.io/badge/Launch-%CE%B1%E2%80%91AGI%20Insight-blue?style=for-the-badge)](https://montreal-ai.github.io/AGI-Alpha-Agent-v0/alpha_agi_insight_v1/index.html)
+
 ## Quickstart
 
 ```bash
