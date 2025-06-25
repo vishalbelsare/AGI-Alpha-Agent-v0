@@ -37,7 +37,5 @@ unzip -q -o "$BROWSER_DIR/insight_browser.zip" -d "$DOCS_DIR"
 # Build the MkDocs site
 mkdocs build
 
-# Promote the demo output to the site root so the Insight dashboard
-# becomes the default landing page.
-cp -a site/alpha_agi_insight_v1/* site/
+
 
