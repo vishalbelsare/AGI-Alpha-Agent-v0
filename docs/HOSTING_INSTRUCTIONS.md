@@ -16,6 +16,26 @@ Install MkDocs:
 pip install mkdocs mkdocs-material
 ```
 
+## Build the Insight Demo
+
+The static browser bundle lives under
+`alpha_factory_v1/demos/alpha_agi_insight_v1/insight_browser_v1`. Install the
+Node dependencies then create the distribution archive:
+
+```bash
+cd alpha_factory_v1/demos/alpha_agi_insight_v1/insight_browser_v1
+npm install
+npm run build:dist
+```
+
+`npm run build:dist` produces `insight_browser.zip`. Extract the archive and copy
+its contents into `docs/alpha_agi_insight_v1` so MkDocs can include the files:
+
+```bash
+unzip -o insight_browser.zip -d ../../../docs/alpha_agi_insight_v1
+```
+
+
 ## Building the Site
 
 Run the following from the repository root:
@@ -24,7 +44,24 @@ Run the following from the repository root:
 mkdocs build
 ```
 
-This generates the HTML under `site/`. The workflow
+This generates the HTML under `site/`. Verify that the Insight demo was copied
+correctly:
+
+```bash
+ls site/alpha_agi_insight_v1
+```
+
+Serve the site locally to test it:
+
+```bash
+python -m http.server --directory site 8000
+```
+
+Then browse to <http://localhost:8000/alpha_agi_insight_v1/>. Direct `file://`
+access is unsupported due to the service worker; use a minimal HTTP server or
+GitHub Pages.
+
+The workflow
 [`.github/workflows/docs.yml`](../.github/workflows/docs.yml) runs the same
 command, copies `docs/alpha_agi_insight_v1` into `site/` and then deploys.
 
