@@ -35,6 +35,10 @@ its contents into `docs/alpha_agi_insight_v1` so MkDocs can include the files:
 unzip -o insight_browser.zip -d ../../../docs/alpha_agi_insight_v1
 ```
 
+The helper script `scripts/build_insight_docs.sh` automates the steps above.
+Run it from the repository root to build the bundle, refresh
+`docs/alpha_agi_insight_v1` and generate the site.
+
 
 ## Building the Site
 
