@@ -17,12 +17,15 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.x'
+      - uses: actions/setup-node@v3
+        with:
+          node-version: '20'
       - name: Install MkDocs
         run: pip install mkdocs mkdocs-material
+      - name: Build Insight docs
+        run: ./scripts/build_insight_docs.sh
       - name: Build site
         run: mkdocs build --verbose
-      - name: Copy insight demo
-        run: cp -r docs/alpha_agi_insight_v1 site/
       - name: Deploy
         uses: peaceiris/actions-gh-pages@v3
         with:
