@@ -36,6 +36,7 @@ Run the helper script to build the Insight progressive web app (PWA) and generat
 ```
 
 The script installs Node dependencies, builds the browser bundle and runs `mkdocs build`. When executed in CI, it also publishes the resulting `site/` directory to GitHub Pages.
+The bundled site registers a service worker so the demo remains available offline once loaded.
 
 Preview the generated site locally with:
 
