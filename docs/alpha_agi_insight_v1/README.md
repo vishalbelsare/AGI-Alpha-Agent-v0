@@ -46,3 +46,16 @@ python -m http.server --directory site 8000
 For convenience, run `./scripts/preview_insight_docs.sh` to build the demo and immediately serve it on `http://localhost:8000/`.
 
 The [`📚 Docs` workflow](../../.github/workflows/docs.yml) runs the same script and publishes the contents of `site/` to GitHub Pages on every push to `main`.
+
+### Testing offline mode
+
+To verify that the PWA works without an internet connection:
+
+1. Build the documentation with `./scripts/build_insight_docs.sh`.
+2. Serve the `site/` directory locally:
+   `python -m http.server --directory site 8000`.
+3. Open <http://localhost:8000/> in a browser.
+4. After the page loads, disable your network connection and reload.
+   The demo should still display correctly.
+
+Contributors are encouraged to run this check before publishing changes.
