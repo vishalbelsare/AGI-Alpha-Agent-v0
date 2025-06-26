@@ -77,6 +77,12 @@ if [[ ! -f "$DOCS_DIR/$LICENSE_FILE" && -f "$REPO_ROOT/docs/alpha_agi_insight_v1
     cp -a "$REPO_ROOT/docs/alpha_agi_insight_v1/$LICENSE_FILE" "$DOCS_DIR/"
 fi
 
+# Ensure the favicon survives extraction
+ICON_FILE="favicon.svg"
+if [[ ! -f "$DOCS_DIR/$ICON_FILE" && -f "$BROWSER_DIR/$ICON_FILE" ]]; then
+    cp -a "$BROWSER_DIR/$ICON_FILE" "$DOCS_DIR/"
+fi
+
 # Build the MkDocs site
 mkdocs build
 
