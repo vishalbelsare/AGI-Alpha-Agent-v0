@@ -3,7 +3,7 @@
 # Hosting Instructions
 
 This project uses [MkDocs](https://www.mkdocs.org/) to build the static documentation.
-The generated site is hosted at <https://montreal-ai.github.io/AGI-Alpha-Agent-v0/alpha_agi_insight_v1/>.
+The generated site is hosted at <https://montrealai.github.io/AGI-Alpha-Agent-v0/alpha_agi_insight_v1/>.
 
 ## Quick Deployment
 
@@ -110,9 +110,9 @@ Use it when testing changes locally or publishing from a personal fork.
 
 When changes land on `main` or a release is published, `docs.yml` pushes the
 `site/` directory to the `gh-pages` branch. GitHub Pages serves the result at
-`https://montreal-ai.github.io/AGI-Alpha-Agent-v0/alpha_agi_insight_v1/`.
+`https://montrealai.github.io/AGI-Alpha-Agent-v0/alpha_agi_insight_v1/`.
 The repository’s `docs/index.html` file redirects to this path so that opening
-`https://montreal-ai.github.io/AGI-Alpha-Agent-v0/` automatically loads the
+`https://montrealai.github.io/AGI-Alpha-Agent-v0/` automatically loads the
 demo.
 The standard [project disclaimer](DISCLAIMER_SNIPPET.md) applies.
 
@@ -123,7 +123,7 @@ Confirm the workflow is enabled under **Actions** and that
 `permissions: contents: write`. Run the "📚 Docs" workflow from the GitHub UI or
 push to `main` to trigger it. The initial run creates the `gh-pages` branch.
 After it finishes, browse to
-<https://montreal-ai.github.io/AGI-Alpha-Agent-v0/alpha_agi_insight_v1/> and
+<https://montrealai.github.io/AGI-Alpha-Agent-v0/alpha_agi_insight_v1/> and
 check that the insight demo loads.
 
 Run the integrity check to make sure `lib/workbox-sw.js` matches the hash
