@@ -43,4 +43,6 @@ Preview the generated site locally with:
 python -m http.server --directory site 8000
 ```
 
+For convenience, run `./scripts/preview_insight_docs.sh` to build the demo and immediately serve it on `http://localhost:8000/`.
+
 The [`📚 Docs` workflow](../../.github/workflows/docs.yml) runs the same script and publishes the contents of `site/` to GitHub Pages on every push to `main`.
