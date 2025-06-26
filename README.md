@@ -20,6 +20,8 @@ The GitHub Pages site hosts the interactive demo under the `alpha_agi_insight_v1
 
 **View the interactive demo here:** <https://montreal-ai.github.io/AGI-Alpha-Agent-v0/alpha_agi_insight_v1/>
 
+**Important:** Run `npm run fetch-assets` before `npm install` or executing `./setup.sh` to download the browser demo assets. See [insight_browser_v1/README.md](alpha_factory_v1/demos/alpha_agi_insight_v1/insight_browser_v1/README.md) for details.
+
 [![Launch \u03b1\u2011AGI Insight](https://img.shields.io/badge/Launch-%CE%B1%E2%80%91AGI%20Insight-blue?style=for-the-badge)](https://montreal-ai.github.io/AGI-Alpha-Agent-v0/alpha_agi_insight_v1/)
 
 ### Automatic Deployment
@@ -40,6 +42,8 @@ docker compose up --build
 # or one-click image
 ./run_quickstart.sh
 ```
+
+Run `npm run fetch-assets` before `npm install` or executing `./setup.sh` to download the Insight demo assets. See [insight_browser_v1/README.md](alpha_factory_v1/demos/alpha_agi_insight_v1/insight_browser_v1/README.md) for a detailed guide.
 
 Requires **Python 3.11 or 3.12** and **Docker Compose ≥2.5**.
 
