@@ -72,6 +72,18 @@ The "📚 Docs" workflow
 `scripts/build_insight_docs.sh`, builds the site and pushes the result to the
 `gh-pages` branch.
 
+### Manual Publish
+
+To trigger a one-off deployment outside of CI run:
+
+```bash
+./scripts/publish_insight_pages.sh
+```
+
+This wrapper script rebuilds the browser bundle, regenerates the MkDocs site and
+uses `mkdocs gh-deploy` to push the contents of `site/` to the `gh-pages` branch.
+Use it when testing changes locally or publishing from a personal fork.
+
 ## Publishing to GitHub Pages
 
 When changes land on `main` or a release is published, `docs.yml` pushes the
