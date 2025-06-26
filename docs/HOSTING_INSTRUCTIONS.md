@@ -16,6 +16,7 @@ The generated site is hosted at <https://montreal-ai.github.io/AGI-Alpha-Agent-v
 - **Python 3.11 or 3.12**
 - `mkdocs` and `mkdocs-material`
 - **Node.js 20+** *(optional, only for building the React dashboard)*
+- Run `node alpha_factory_v1/demos/alpha_agi_insight_v1/insight_browser_v1/build/version_check.js` to verify Node ≥20 before building
 - `unzip` to extract `insight_browser.zip`
 
 Install MkDocs:
