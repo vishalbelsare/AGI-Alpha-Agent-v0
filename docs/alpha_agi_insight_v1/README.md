@@ -52,8 +52,13 @@ The [`📚 Docs` workflow](../../.github/workflows/docs.yml) runs the same scrip
 
 To verify that the PWA works without an internet connection:
 
-1. Build the documentation with `./scripts/build_insight_docs.sh`.
-2. Serve the `site/` directory locally:
+1. Run `./scripts/preview_insight_docs.sh`. The script builds the docs, starts a
+   local server and automatically launches a headless browser with Playwright.
+   It waits for the service worker to register, disables network access and
+   reloads the page. The command exits with an error if the page fails to load
+   offline.
+2. Alternatively, build the documentation with `./scripts/build_insight_docs.sh`
+   and serve the `site/` directory locally:
    `python -m http.server --directory site 8000`.
 3. Open <http://localhost:8000/> in a browser.
 4. After the page loads, disable your network connection and reload.
