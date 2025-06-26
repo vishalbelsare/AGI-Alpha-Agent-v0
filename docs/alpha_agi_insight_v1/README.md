@@ -36,7 +36,7 @@ Run the helper script to build the Insight progressive web app (PWA) and generat
 ```
 
 The script installs Node dependencies, builds the browser bundle and runs `mkdocs build`. When executed in CI, it also publishes the resulting `site/` directory to GitHub Pages.
-The bundled site registers a service worker so the demo remains available offline once loaded. The PWA now ships with a fully functional service worker. Ensure both `lib/workbox-sw.js` and `manifest.json` are present in the docs directory—these files enable caching. Serve the files with a simple HTTP server (e.g. `python -m http.server`) so the service worker can register; opening `index.html` directly with `file://` will not work.
+The bundled site registers a service worker so the demo remains available offline once loaded. The PWA now ships with a fully functional service worker. Ensure both `lib/workbox-sw.js` and `manifest.json` are present in the docs directory—these files enable caching. The service worker fetches `lib/workbox-sw.js` relative to `index.html`, so keep the file under `lib/`. Serve the files with a simple HTTP server (e.g. `python -m http.server`) so the service worker can register; opening `index.html` directly with `file://` will not work.
 
 Preview the generated site locally with:
 
