@@ -7,8 +7,8 @@ The generated site is hosted at <https://montreal-ai.github.io/AGI-Alpha-Agent-v
 
 ## Quick Deployment
 
-1. Run `./scripts/build_insight_docs.sh`.
-2. Push to `main` or trigger the “📚 Docs” workflow.
+1. Run `./scripts/deploy_insight_demo.sh`.
+2. When it finishes, open the printed URL or push to `main` to trigger the “📚 Docs” workflow.
 3. Verify the page at `https://<org>.github.io/AGI-Alpha-Agent-v0/alpha_agi_insight_v1/`.
 
 ## Prerequisites
