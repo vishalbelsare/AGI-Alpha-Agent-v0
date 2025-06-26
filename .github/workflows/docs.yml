@@ -20,6 +20,9 @@ jobs:
       - uses: actions/setup-node@v3
         with:
           node-version: '20'
+      - name: Verify Node.js version
+        working-directory: alpha_factory_v1/demos/alpha_agi_insight_v1/insight_browser_v1
+        run: node build/version_check.js
       - name: Install MkDocs
         run: pip install mkdocs mkdocs-material
       - name: Build Insight docs
