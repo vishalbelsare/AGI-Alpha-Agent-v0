@@ -3,7 +3,7 @@ References to "AGI" and "superintelligence" describe aspirational goals and do n
 general intelligence. Use at your own risk. Nothing herein constitutes financial advice. MontrealAI and the maintainers
 accept no liability for losses incurred from using this software.
 
-**Ready to explore? [Launch the α‑AGI Insight demo](https://montreal-ai.github.io/AGI-Alpha-Agent-v0/alpha_agi_insight_v1/) to see it in action.**
+**Ready to explore? [Launch the α‑AGI Insight demo](https://montrealai.github.io/AGI-Alpha-Agent-v0/alpha_agi_insight_v1/) to see it in action.**
 
 ### Quick Demo
 
@@ -14,15 +14,15 @@ demo is built and deployed.
 
 See [Quick Deployment](docs/HOSTING_INSTRUCTIONS.md#quick-deployment) for build and deployment details. The [📚 Docs workflow](.github/workflows/docs.yml) runs automatically on every push to `main` and publishes the updated site to GitHub Pages.
 
-Full documentation: [https://montreal-ai.github.io/AGI-Alpha-Agent-v0/](https://montreal-ai.github.io/AGI-Alpha-Agent-v0/) (use the **Docs** link in the navigation bar)
+Full documentation: [https://montrealai.github.io/AGI-Alpha-Agent-v0/](https://montrealai.github.io/AGI-Alpha-Agent-v0/) (use the **Docs** link in the navigation bar)
 
 The GitHub Pages site hosts the interactive demo under the `alpha_agi_insight_v1/` directory. Click **Docs** in the navigation bar for the full manual.
 
-**View the interactive demo here:** <https://montreal-ai.github.io/AGI-Alpha-Agent-v0/alpha_agi_insight_v1/>
+**View the interactive demo here:** <https://montrealai.github.io/AGI-Alpha-Agent-v0/alpha_agi_insight_v1/>
 
 **Important:** Run `npm run fetch-assets` before `npm install` or executing `./setup.sh` to download the browser demo assets. See [insight_browser_v1/README.md](alpha_factory_v1/demos/alpha_agi_insight_v1/insight_browser_v1/README.md) for details.
 
-[![Launch \u03b1\u2011AGI Insight](https://img.shields.io/badge/Launch-%CE%B1%E2%80%91AGI%20Insight-blue?style=for-the-badge)](https://montreal-ai.github.io/AGI-Alpha-Agent-v0/alpha_agi_insight_v1/)
+[![Launch \u03b1\u2011AGI Insight](https://img.shields.io/badge/Launch-%CE%B1%E2%80%91AGI%20Insight-blue?style=for-the-badge)](https://montrealai.github.io/AGI-Alpha-Agent-v0/alpha_agi_insight_v1/)
 
 ### Automatic Deployment
 
