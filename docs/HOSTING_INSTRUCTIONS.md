@@ -18,6 +18,13 @@ Install MkDocs:
 pip install mkdocs mkdocs-material
 ```
 
+Before building the demo, ensure optional Python packages are available:
+
+```bash
+python scripts/check_python_deps.py
+python check_env.py --auto-install
+```
+
 ## Build the Insight Demo
 
 The static browser bundle lives under
