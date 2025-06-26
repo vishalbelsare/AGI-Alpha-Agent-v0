@@ -125,3 +125,12 @@ push to `main` to trigger it. The initial run creates the `gh-pages` branch.
 After it finishes, browse to
 <https://montreal-ai.github.io/AGI-Alpha-Agent-v0/alpha_agi_insight_v1/> and
 check that the insight demo loads.
+
+Run the integrity check to make sure `lib/workbox-sw.js` matches the hash
+embedded in `service-worker.js`:
+
+```bash
+python scripts/verify_workbox_hash.py site/alpha_agi_insight_v1
+```
+
+This step catches missing or corrupted assets after deployment.

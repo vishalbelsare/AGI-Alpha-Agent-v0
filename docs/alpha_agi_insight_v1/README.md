@@ -67,3 +67,11 @@ To verify that the PWA works without an internet connection:
    and inspect any service worker errors. Confirm `lib/workbox-sw.js` and
    `manifest.json` are served next to `index.html`.
 Contributors are encouraged to run this check before publishing changes.
+After deployment, verify `lib/workbox-sw.js` matches the hash stored in
+`service-worker.js`:
+
+```bash
+python scripts/verify_workbox_hash.py site/alpha_agi_insight_v1
+```
+
+This prevents caching issues caused by missing or corrupted assets.
