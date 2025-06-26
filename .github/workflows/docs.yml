@@ -27,6 +27,8 @@ jobs:
         run: pip install mkdocs mkdocs-material
       - name: Build Insight docs
         run: ./scripts/build_insight_docs.sh
+      - name: Verify service worker
+        run: python scripts/verify_workbox_hash.py site/alpha_agi_insight_v1
       - name: Deploy
         uses: peaceiris/actions-gh-pages@v3
         with:
