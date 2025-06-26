@@ -17,7 +17,7 @@ convenience. Non‑technical users can simply open
 <https://montreal-ai.github.io/AGI-Alpha-Agent-v0/> and they will be forwarded
 to the demo automatically.
 
-For details on publishing the site automatically, see [HOSTING_INSTRUCTIONS.md](../HOSTING_INSTRUCTIONS.md).
+For details on publishing the site automatically, see [Quick Deployment](../HOSTING_INSTRUCTIONS.md#quick-deployment).
 
 The charts rely on synthetic data for illustration. Refer to the project disclaimer for important usage information.
 

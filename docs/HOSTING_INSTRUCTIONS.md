@@ -5,6 +5,12 @@
 This project uses [MkDocs](https://www.mkdocs.org/) to build the static documentation.
 The generated site is hosted at <https://montreal-ai.github.io/AGI-Alpha-Agent-v0/alpha_agi_insight_v1/>.
 
+## Quick Deployment
+
+1. Run `./scripts/build_insight_docs.sh`.
+2. Push to `main` or trigger the “📚 Docs” workflow.
+3. Verify the page at `https://<org>.github.io/AGI-Alpha-Agent-v0/alpha_agi_insight_v1/`.
+
 ## Prerequisites
 
 - **Python 3.11 or 3.12**
