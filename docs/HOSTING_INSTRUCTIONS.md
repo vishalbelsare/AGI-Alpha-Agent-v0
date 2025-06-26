@@ -96,6 +96,9 @@ Use it when testing changes locally or publishing from a personal fork.
 When changes land on `main` or a release is published, `docs.yml` pushes the
 `site/` directory to the `gh-pages` branch. GitHub Pages serves the result at
 `https://montreal-ai.github.io/AGI-Alpha-Agent-v0/alpha_agi_insight_v1/`.
+The repository’s `docs/index.html` file redirects to this path so that opening
+`https://montreal-ai.github.io/AGI-Alpha-Agent-v0/` automatically loads the
+demo.
 The standard [project disclaimer](DISCLAIMER_SNIPPET.md) applies.
 
 ## Verifying Deployment

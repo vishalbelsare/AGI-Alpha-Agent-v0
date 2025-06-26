@@ -12,6 +12,11 @@ and navigate to <http://localhost:8000/>. Direct `file://` access is unsupported
 
 **Live demo:** <https://montreal-ai.github.io/AGI-Alpha-Agent-v0/alpha_agi_insight_v1/>
 
+The project’s GitHub Pages site redirects its root URL to this directory for
+convenience. Non‑technical users can simply open
+<https://montreal-ai.github.io/AGI-Alpha-Agent-v0/> and they will be forwarded
+to the demo automatically.
+
 For details on publishing the site automatically, see [HOSTING_INSTRUCTIONS.md](../HOSTING_INSTRUCTIONS.md).
 
 The charts rely on synthetic data for illustration. Refer to the project disclaimer for important usage information.
