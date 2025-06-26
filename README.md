@@ -12,7 +12,7 @@ Non-technical users can try the project with zero setup. Simply visit
 browser. The [README](docs/README.md#α‑agi-insight-v1-demo) explains how this
 demo is built and deployed.
 
-See [HOSTING_INSTRUCTIONS](docs/HOSTING_INSTRUCTIONS.md) for build and deployment details. The [📚 Docs workflow](.github/workflows/docs.yml) runs automatically on every push to `main` and publishes the updated site to GitHub Pages.
+See [Quick Deployment](docs/HOSTING_INSTRUCTIONS.md#quick-deployment) for build and deployment details. The [📚 Docs workflow](.github/workflows/docs.yml) runs automatically on every push to `main` and publishes the updated site to GitHub Pages.
 
 Full documentation: [https://montreal-ai.github.io/AGI-Alpha-Agent-v0/](https://montreal-ai.github.io/AGI-Alpha-Agent-v0/) (use the **Docs** link in the navigation bar)
 
@@ -123,7 +123,7 @@ extraordinary economic advantages tomorrow.
 * **Precision Forecasting** — Identify and proactively engage critical sectors before AGI disruption.  
 * **First‑Mover Advantage** — Maximize returns through strategic foresight and superior positioning.
 A static demo is available via [GitHub Pages](https://montreal-ai.github.io/AGI-Alpha-Agent-v0/alpha_agi_insight_v1/).
-See [docs/HOSTING_INSTRUCTIONS.md](docs/HOSTING_INSTRUCTIONS.md) for guidance on building the docs and publishing your own copy.
+See [Quick Deployment](docs/HOSTING_INSTRUCTIONS.md#quick-deployment) for guidance on building the docs and publishing your own copy.
 
 ### 🎖️ α‑AGI Sovereign 👁️✨ — Autonomous Economic Transformation
 Meta‑Agentic mastery at global scale. α‑AGI Sovereign represents a revolutionary class of autonomous, blockchain‑based
