@@ -64,7 +64,17 @@ if [[ -n "$OLD_DOCS_TEMP" ]]; then
             cp -a "$file" "$target"
         fi
     done < <(find "$OLD_DOCS_TEMP" -mindepth 1 -print0)
+    # Ensure the Plotly license file accompanies plotly.min.js
+    LICENSE_FILE="plotly.min.js.LICENSE.txt"
+    if [[ ! -f "$DOCS_DIR/$LICENSE_FILE" && -f "$OLD_DOCS_TEMP/$LICENSE_FILE" ]]; then
+        cp -a "$OLD_DOCS_TEMP/$LICENSE_FILE" "$DOCS_DIR/"
+    fi
     rm -rf "$OLD_DOCS_TEMP"
+fi
+
+LICENSE_FILE="plotly.min.js.LICENSE.txt"
+if [[ ! -f "$DOCS_DIR/$LICENSE_FILE" && -f "$REPO_ROOT/docs/alpha_agi_insight_v1/$LICENSE_FILE" ]]; then
+    cp -a "$REPO_ROOT/docs/alpha_agi_insight_v1/$LICENSE_FILE" "$DOCS_DIR/"
 fi
 
 # Build the MkDocs site
