@@ -7,8 +7,15 @@ The generated site is hosted at <https://montreal-ai.github.io/AGI-Alpha-Agent-v
 
 ## Quick Deployment
 
-1. Run `./scripts/deploy_insight_demo.sh`.
-2. When it finishes, open the printed URL or push to `main` to trigger the “📚 Docs” workflow.
+`deploy_insight_demo.sh` downloads the Insight browser assets, installs the
+Node dependencies and then invokes `publish_insight_pages.sh`. The latter runs
+`build_insight_docs.sh` to refresh the MkDocs site and pushes the result to the
+`gh-pages` branch. When the script completes it prints the GitHub Pages URL.
+
+1. Fetch the assets:
+   `npm --prefix alpha_factory_v1/demos/alpha_agi_insight_v1/insight_browser_v1 run fetch-assets`
+2. Run the build script with `./scripts/publish_insight_pages.sh` (or execute
+   `deploy_insight_demo.sh` to perform both steps automatically).
 3. Verify the page at `https://<org>.github.io/AGI-Alpha-Agent-v0/alpha_agi_insight_v1/`.
 
 ## Prerequisites
