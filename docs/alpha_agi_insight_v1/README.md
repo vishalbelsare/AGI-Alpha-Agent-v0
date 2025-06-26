@@ -24,7 +24,7 @@ The charts rely on synthetic data for illustration. Refer to the project disclai
 ### Prerequisites
 
 * **Python ≥3.11**
-* **Node.js ≥20**
+* **Node.js ≥20** (checked via `node build/version_check.js`)
 * **MkDocs**
 
 ## One-Command Build
