@@ -64,8 +64,10 @@ To update the charts, edit `forecast.json` and `population.json` and rebuild
 the site:
 
 ```bash
-mkdocs build
+./scripts/build_insight_docs.sh
 ```
 
+This helper fetches all assets, compiles the browser bundle and runs `mkdocs build`.
 Open `site/alpha_agi_insight_v1/index.html` in your browser to verify the
-changes before committing.
+changes before committing. Alternatively run `./scripts/preview_insight_docs.sh`
+to build and serve the demo locally on `http://localhost:8000/`.
