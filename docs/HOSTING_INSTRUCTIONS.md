@@ -69,6 +69,7 @@ correctly:
 ```bash
 ls site/alpha_agi_insight_v1
 ```
+Ensure `lib/workbox-sw.js` resides under `site/alpha_agi_insight_v1/lib/` because the service worker expects the file relative to `index.html`.
 
 Serve the site locally to test it:
 
