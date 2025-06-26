@@ -54,7 +54,7 @@ for full instructions.
 visualises capability forecasts with Plotly. The GitHub Actions workflow
 copies this directory into the generated `site/` folder, serves it on GitHub
 Pages and deploys the page automatically. Visit
-[the published demo](https://montreal-ai.github.io/AGI-Alpha-Agent-v0/alpha_agi_insight_v1/)
+[the published demo](https://montrealai.github.io/AGI-Alpha-Agent-v0/alpha_agi_insight_v1/)
 to preview it.
 
 The old `static_insight` directory has been removed in favour of this
