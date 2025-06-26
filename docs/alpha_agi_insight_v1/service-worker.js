@@ -1,12 +1,12 @@
 // SPDX-License-Identifier: Apache-2.0
 /* eslint-env serviceworker */
-const WORKBOX_SW_HASH = '__WORKBOX_SW_HASH__';
+const WORKBOX_SW_HASH = 'sha384-R7RXlLLrbRAy0JWTwv62SHZwpjwwc7C0wjnLGa5bRxm6YCl5zw87IRvhlleSM5zd';
 import {precacheAndRoute} from 'workbox-precaching';
 import {registerRoute} from 'workbox-routing';
 import {CacheFirst} from 'workbox-strategies';
 
 // replaced during build
-const CACHE_VERSION = '__CACHE_VERSION__';
+const CACHE_VERSION = '0.1.0';
 async function init() {
   const res = await fetch('workbox-sw.js');
   const buf = await res.arrayBuffer();
