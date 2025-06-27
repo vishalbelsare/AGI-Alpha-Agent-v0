@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import os
 import shutil
 import subprocess
 from pathlib import Path
@@ -32,7 +33,16 @@ def test_tree_visualization(tmp_path: Path) -> None:
     best_path = tree.get("bestPath", [])
 
     with sync_playwright() as p:
-        browser = p.chromium.launch()
+        browser_name = os.getenv("PLAYWRIGHT_BROWSER", "chromium")
+        if browser_name == "webkit" and os.getenv("SKIP_WEBKIT_TESTS"):
+            pytest.skip("WebKit unavailable")
+
+        try:
+            launcher = getattr(p, browser_name)
+        except AttributeError:
+            pytest.skip(f"Unsupported browser: {browser_name}")
+
+        browser = launcher.launch()
         context = browser.new_context()
         page = context.new_page()
         page.goto(url)

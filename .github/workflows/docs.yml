@@ -23,8 +23,10 @@ jobs:
       - name: Verify Node.js version
         working-directory: alpha_factory_v1/demos/alpha_agi_insight_v1/insight_browser_v1
         run: node build/version_check.js
-      - name: Install MkDocs
-        run: pip install mkdocs mkdocs-material
+      - name: Install docs dependencies
+        run: pip install mkdocs mkdocs-material playwright
+      - name: Install Playwright browsers
+        run: playwright install chromium firefox webkit
       - name: Build Insight docs
         run: ./scripts/build_insight_docs.sh
       - name: Verify Insight offline
@@ -36,6 +38,8 @@ jobs:
           python scripts/verify_insight_offline.py
       - name: Verify service worker
         run: python scripts/verify_workbox_hash.py site/alpha_agi_insight_v1
+      - name: Run insight browser tests
+        run: npm --prefix alpha_factory_v1/demos/alpha_agi_insight_v1/insight_browser_v1 test
       - name: Deploy
         uses: peaceiris/actions-gh-pages@v3
         with:

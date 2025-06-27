@@ -44,3 +44,5 @@ run([
   '../../../../tests/test_sw_offline_reload.py',
   '../../../../tests/test_pwa_update_reload.py'
 ]);
+run(['pytest', 'tests/test_tree_visualization.py'], {env: {...process.env, PLAYWRIGHT_BROWSER: 'firefox'}});
+run(['pytest', 'tests/test_tree_visualization.py'], {env: {...process.env, PLAYWRIGHT_BROWSER: 'webkit'}});
