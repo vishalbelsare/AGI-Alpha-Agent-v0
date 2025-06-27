@@ -4,6 +4,6 @@
 
 AZR-powered meta-agentic AGI demo version 3.
 
-![screenshot](../../alpha_factory_v1/demos/meta_agentic_agi_v3/ui/assets/logo.svg)
+![screenshot](../meta_agentic_agi_v3/assets/logo.svg)
 
 [View README](../../alpha_factory_v1/demos/meta_agentic_agi_v3/README.md)
