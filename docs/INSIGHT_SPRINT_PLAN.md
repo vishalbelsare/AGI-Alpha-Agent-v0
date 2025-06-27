@@ -1,4 +1,5 @@
 # Insight Demo GitHub Pages Sprint
+[See docs/DISCLAIMER_SNIPPET.md](../docs/DISCLAIMER_SNIPPET.md)
 
 This document outlines the minimal tasks required to publish the **α‑AGI Insight v1** demo to GitHub Pages so that users can experience the full browser-based simulation, including the animated meta‑agentic tree search.
 
@@ -40,3 +41,8 @@ These steps keep the demo production-ready and easily reproducible for non‑tec
 - Load the GitHub Pages URL in a private browsing window to verify caching and service worker installation.
 - Search the page source for strings like `OPENAI_API_KEY` to ensure no secrets leaked.
 - Run `python scripts/verify_workbox_hash.py site/alpha_agi_insight_v1` after each build.
+
+## 7. Confirm Meta-Agentic Animation
+- After deployment, open the live site and watch the **Meta-Agentic Tree Search Progress** panel.
+- Nodes should appear sequentially and the best path should highlight in red.
+- If no nodes appear within a few seconds, rebuild the site and ensure `tree.json` is valid.
