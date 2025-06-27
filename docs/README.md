@@ -8,6 +8,7 @@
 
 - [Browser Quickstart](insight_browser_quickstart.pdf) – run `./scripts/deploy_insight_full.sh` for a verified one-command deployment
 - [GH Pages Sprint](CODEX_INSIGHT_PAGES_SPRINT.md) – step‑by‑step tasks for Codex to publish the demo
+- **One‑Command Deployment** – execute `./scripts/insight_sprint.sh` to build, verify and publish the GitHub Pages site automatically.
 
 ## Building the React Dashboard
 
