@@ -4,6 +4,8 @@
 
 [α‑AGI Insight Demo](alpha_agi_insight_v1/index.html)
 
+[Deployment Quickstart](DEPLOYMENT_QUICKSTART.md)
+
 ## Building the React Dashboard
 
 The React dashboard sources live under `alpha_factory_v1/demos/alpha_agi_insight_v1/src/interface/web_client`. Build the static assets before serving the API:
