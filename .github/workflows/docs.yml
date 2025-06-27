@@ -27,7 +27,7 @@ jobs:
         run: pip install mkdocs mkdocs-material playwright
       - name: Install Playwright browsers
         run: playwright install chromium firefox webkit
-      - name: Build Insight docs
+      - name: Build demo docs
         run: ./scripts/build_insight_docs.sh
       - name: Verify Insight offline
         run: |

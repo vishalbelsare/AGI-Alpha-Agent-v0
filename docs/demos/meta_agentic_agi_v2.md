@@ -4,6 +4,6 @@
 
 Adds a physics-based free-energy metric to meta-agentic AGI search.
 
-![screenshot](../../alpha_factory_v1/demos/meta_agentic_agi_v2/ui/assets/logo.svg)
+![screenshot](../meta_agentic_agi_v2/assets/logo.svg)
 
 [View README](../../alpha_factory_v1/demos/meta_agentic_agi_v2/README.md)
