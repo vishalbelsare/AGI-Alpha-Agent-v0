@@ -149,13 +149,19 @@ Promise.all([
             const nd = nodesData[index];
             const parent = nd.parent;
             if (parent) {
-                g.append("path")
+                const newLink = g
+                    .append("path")
                     .attr("class", "link")
                     .attr("d", linkPath({ source: parent, target: nd }))
-                    .style("opacity", 0)
+                    .style("opacity", 0);
+                const length = newLink.node().getTotalLength();
+                newLink
+                    .attr("stroke-dasharray", `${length} ${length}`)
+                    .attr("stroke-dashoffset", length)
                     .transition()
                     .duration(500)
-                    .style("opacity", 1);
+                    .style("opacity", 1)
+                    .attr("stroke-dashoffset", 0);
             }
             const nodeG = g
                 .append("g")
@@ -175,6 +181,8 @@ Promise.all([
                     g.selectAll(".node")
                         .filter((d) => d.data.name === name)
                         .select("circle")
+                        .transition()
+                        .duration(400)
                         .attr("fill", "#d62728");
                     if (idx > 0) {
                         const prev = bestPath[idx - 1];
@@ -184,6 +192,8 @@ Promise.all([
                                     d.source.data.name === prev &&
                                     d.target.data.name === name,
                             )
+                            .transition()
+                            .duration(400)
                             .attr("stroke", "#d62728");
                     }
                 }, idx * 800);
