@@ -1,5 +1,5 @@
-# Insight Demo GitHub Pages Sprint
 [See docs/DISCLAIMER_SNIPPET.md](../docs/DISCLAIMER_SNIPPET.md)
+# Insight Demo GitHub Pages Sprint
 
 This document outlines the minimal tasks required to publish the **α‑AGI Insight v1** demo to GitHub Pages so that users can experience the full browser-based simulation, including the animated meta‑agentic tree search.
 
