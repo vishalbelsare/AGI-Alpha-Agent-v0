@@ -27,3 +27,16 @@ This document outlines the minimal tasks required to publish the **α‑AGI Insi
 - Run `scripts/verify_insight_offline.py` to ensure offline caching works before publishing.
 
 These steps keep the demo production-ready and easily reproducible for non‑technical users.
+
+## 5. Update the Meta-Agentic Visualization
+- Generate a fresh `tree.json` after each simulation run so the animated tree search reflects current strategies:
+  ```bash
+  python alpha_factory_v1/demos/alpha_agi_insight_v1/tools/export_tree.py lineage/run.jsonl -o docs/alpha_agi_insight_v1/tree.json
+  ```
+- Rebuild the site with `./scripts/build_insight_docs.sh` and confirm the nodes animate progressively on page load.
+
+## 6. Final Verification Checklist
+- Check that `docs/index.html` links to `alpha_agi_insight_v1/index.html`.
+- Load the GitHub Pages URL in a private browsing window to verify caching and service worker installation.
+- Search the page source for strings like `OPENAI_API_KEY` to ensure no secrets leaked.
+- Run `python scripts/verify_workbox_hash.py site/alpha_agi_insight_v1` after each build.
