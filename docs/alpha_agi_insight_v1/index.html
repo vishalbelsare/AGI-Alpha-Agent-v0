@@ -66,6 +66,16 @@
       <div id="pareto-chart" class="chart"></div>
     </section>
 
+    <!-- Meta-Agentic Tree Search Visualization -->
+    <section>
+      <h2>Meta-Agentic Tree Search Progress</h2>
+      <p>
+        The diagram below illustrates how the meta-agentic search explores and refines strategies over time.
+        Nodes appear as the tree expands, with the highlighted path showing the best-performing sequence so far.
+      </p>
+      <div id="tree-container" class="tree-chart" aria-label="Meta-Agentic Tree Search"></div>
+    </section>
+
     <!-- Agent Logs Section (Optional) -->
     <section>
       <h2>Agent Orchestrator Logs <small>(Optional)</small></h2>
@@ -100,6 +110,7 @@
       });
     }
   </script>
+  <script src="d3.v7.min.js"></script>
   <script src="script.js" defer></script>
 </body>
 </html>

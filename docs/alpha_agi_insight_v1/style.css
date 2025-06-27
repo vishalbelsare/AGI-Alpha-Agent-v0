@@ -83,6 +83,27 @@ section p {
 .hidden {
   display: none;
 }
+
+/* Tree search diagram */
+#tree-container {
+  width: 100%;
+  height: 420px;
+  margin-bottom: 1rem;
+}
+.node circle {
+  fill: #1f77b4;
+  stroke: #fff;
+  stroke-width: 1.5px;
+}
+.node text {
+  font-size: 0.8rem;
+  fill: #333;
+}
+.link {
+  fill: none;
+  stroke: #555;
+  stroke-width: 2px;
+}
 footer {
   text-align: center;
   font-size: 0.8rem;
