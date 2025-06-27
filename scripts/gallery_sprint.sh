@@ -23,6 +23,19 @@ npm --prefix "$BROWSER_DIR" ci
 mkdocs build
 python scripts/verify_workbox_hash.py site/alpha_agi_insight_v1
 
+# Optional offline smoke test if Playwright is available
+if python - "import importlib,sys;sys.exit(0 if importlib.util.find_spec('playwright') else 1)"; then
+  python -m http.server --directory site 8000 &
+  SERVER_PID=$!
+  trap 'kill $SERVER_PID' EXIT
+  sleep 2
+  python scripts/verify_insight_offline.py
+  kill $SERVER_PID
+  trap - EXIT
+else
+  echo "Playwright not found; skipping offline check" >&2
+fi
+
 # Deploy using mkdocs
 mkdocs gh-deploy --force
 
