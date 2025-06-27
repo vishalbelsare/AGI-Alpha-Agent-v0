@@ -169,13 +169,23 @@ Promise.all([
             setTimeout(addNext, 600);
         }
         function highlightPath() {
-            const bestPath = ["Start", "Strategy B", "B2"];
+            const bestPath = root.data.bestPath || [];
             bestPath.forEach((name, idx) => {
                 setTimeout(() => {
                     g.selectAll(".node")
                         .filter((d) => d.data.name === name)
                         .select("circle")
                         .attr("fill", "#d62728");
+                    if (idx > 0) {
+                        const prev = bestPath[idx - 1];
+                        g.selectAll(".link")
+                            .filter(
+                                (d) =>
+                                    d.source.data.name === prev &&
+                                    d.target.data.name === name,
+                            )
+                            .attr("stroke", "#d62728");
+                    }
                 }, idx * 800);
             });
         }
