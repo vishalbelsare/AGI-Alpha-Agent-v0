@@ -47,3 +47,16 @@ Browse to <http://localhost:8000/> and verify the index page links to the Insigh
 - ✅ The GitHub Pages site loads without errors in an incognito window.
 
 Following these steps ensures the entire demo suite is accessible via GitHub Pages with a single command.
+
+## 4. Refining the Visual Experience
+
+1. Capture a short GIF or screenshot of each demo in action.
+2. Place the assets under `docs/<demo>/assets/` and embed them in the corresponding README with the `.demo-preview` class.
+3. Verify that all preview images load correctly once deployed to GitHub Pages.
+4. Use Material theme features such as callouts and admonitions for a clean, consistent layout.
+
+## 5. Ongoing Maintenance
+
+- Re-run `scripts/gallery_sprint.sh` whenever the Insight browser or demo docs change.
+- Test the site locally with `mkdocs build --strict` before deploying.
+- Ensure pre-commit hooks pass so the site builds reproducibly.
