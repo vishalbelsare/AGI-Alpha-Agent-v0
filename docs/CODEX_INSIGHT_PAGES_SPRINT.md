@@ -29,7 +29,11 @@ Run the bundled helper from the repository root:
 ./scripts/build_insight_docs.sh
 ```
 
-This script fetches the browser assets, compiles the PWA, exports `tree.json` when lineage logs are present, verifies the service worker and generates the MkDocs site under `site/`.
+This script fetches the browser assets, compiles the PWA, exports `tree.json` when lineage logs are present, verifies the service worker and generates the MkDocs site under `site/`. After the build completes run the integrity check to ensure the cached Workbox file matches the service worker hash:
+
+```bash
+python scripts/verify_workbox_hash.py site/alpha_agi_insight_v1
+```
 
 Preview the result locally:
 
@@ -42,6 +46,7 @@ Navigate to <http://localhost:8000/alpha_agi_insight_v1/> and confirm:
 - Charts load correctly and scale with the window.
 - The **Meta‑Agentic Tree Search** panel animates each node and highlights the best path in red.
 - Logs toggle properly with the *Show/Hide Logs* button.
+- Disable your network connection and reload the page to verify the service worker caches assets for offline use.
 
 ## 3. Deploy to GitHub Pages
 
@@ -74,6 +79,7 @@ Rerun the build and deployment commands so GitHub Pages reflects the latest sear
 
 - ✅ `forecast.json`, `population.json` and `tree.json` present in `docs/alpha_agi_insight_v1/`.
 - ✅ `lib/workbox-sw.js` and `manifest.json` accompany `index.html` for PWA offline support.
+- ✅ `scripts/verify_workbox_hash.py` reports a valid hash for the deployed service worker.
 - ✅ No API keys or secrets embedded in the HTML or JavaScript.
 - ✅ Meta‑Agentic Tree Search animation renders smoothly on the live site.
 - ✅ Demo functions offline after first visit.
