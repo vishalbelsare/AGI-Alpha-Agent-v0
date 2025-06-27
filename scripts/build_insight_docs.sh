@@ -83,6 +83,16 @@ if [[ ! -f "$DOCS_DIR/$ICON_FILE" && -f "$BROWSER_DIR/$ICON_FILE" ]]; then
     cp -a "$BROWSER_DIR/$ICON_FILE" "$DOCS_DIR/"
 fi
 
+# Export the latest meta-agent tree when lineage data is available
+TREE_INPUT="lineage/run.jsonl"
+TREE_OUTPUT="$DOCS_DIR/tree.json"
+if [[ -f "$TREE_INPUT" ]]; then
+    python alpha_factory_v1/demos/alpha_agi_insight_v1/tools/export_tree.py \
+        "$TREE_INPUT" -o "$TREE_OUTPUT"
+else
+    echo "WARNING: $TREE_INPUT not found; skipping tree export" >&2
+fi
+
 # Validate the bundled workbox file before generating docs
 if ! python scripts/verify_workbox_hash.py "$DOCS_DIR"; then
     echo "ERROR: Workbox hash verification failed" >&2
