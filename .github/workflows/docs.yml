@@ -27,6 +27,13 @@ jobs:
         run: pip install mkdocs mkdocs-material
       - name: Build Insight docs
         run: ./scripts/build_insight_docs.sh
+      - name: Verify Insight offline
+        run: |
+          python -m http.server --directory site 8000 &
+          SERVER_PID=$!
+          trap 'kill $SERVER_PID' EXIT
+          sleep 2
+          python scripts/verify_insight_offline.py
       - name: Verify service worker
         run: python scripts/verify_workbox_hash.py site/alpha_agi_insight_v1
       - name: Deploy
