@@ -6,6 +6,8 @@
 
 [Deployment Quickstart](DEPLOYMENT_QUICKSTART.md)
 
+- [Browser Quickstart](insight_browser_quickstart.pdf) – run `./scripts/publish_insight_pages.sh` for a one-command deployment
+
 ## Building the React Dashboard
 
 The React dashboard sources live under `alpha_factory_v1/demos/alpha_agi_insight_v1/src/interface/web_client`. Build the static assets before serving the API:
