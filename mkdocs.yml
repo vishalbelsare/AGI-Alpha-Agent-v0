@@ -4,6 +4,10 @@ repo_url: https://github.com/MontrealAI/AGI-Alpha-Agent-v0
 docs_dir: docs
 theme:
   name: material
+extra_css:
+  - stylesheets/cards.css
+markdown_extensions:
+  - attr_list
 nav:
 - Home: index.html
 - Documentation Overview: README.md
