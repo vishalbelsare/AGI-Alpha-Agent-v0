@@ -84,6 +84,7 @@ Rerun the build and deployment commands so GitHub Pages reflects the latest sear
 - ✅ `scripts/verify_workbox_hash.py` reports a valid hash for the deployed service worker.
 - ✅ No API keys or secrets embedded in the HTML or JavaScript.
 - ✅ Meta‑Agentic Tree Search animation renders smoothly on the live site.
+- ✅ Branch connections animate as they appear, clearly tracing the search path.
 - ✅ Demo functions offline after first visit.
 
 Following these steps yields a robust, production-ready deployment of α‑AGI Insight v1 on GitHub Pages, accessible to any user via a simple link.
