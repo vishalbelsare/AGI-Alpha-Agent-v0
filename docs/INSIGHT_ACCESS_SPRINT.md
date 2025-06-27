@@ -48,10 +48,11 @@ Open <http://localhost:8000/alpha_agi_insight_v1/> and confirm:
 
 ## 3. Deploy to GitHub Pages
 
-To publish the site, run:
+To publish the site, run the helper below. It performs preflight checks,
+builds the PWA, verifies offline access and deploys everything in one step:
 
 ```bash
-./scripts/deploy_insight_demo.sh
+./scripts/deploy_insight_full.sh
 ```
 
 The script builds the docs and pushes them to the `gh-pages` branch via `mkdocs gh-deploy`. When it finishes, it prints the final URL, typically:

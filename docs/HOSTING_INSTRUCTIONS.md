@@ -12,6 +12,10 @@ Node dependencies and then invokes `publish_insight_pages.sh`. The latter runs
 `build_insight_docs.sh` to refresh the MkDocs site and pushes the result to the
 `gh-pages` branch. When the script completes it prints the GitHub Pages URL.
 
+For an end‑to‑end build **with verification** use `deploy_insight_full.sh`. This
+wrapper script runs the environment preflight checks, builds the PWA, verifies
+offline functionality and then publishes the docs in one step.
+
 1. Fetch the assets:
    `npm --prefix alpha_factory_v1/demos/alpha_agi_insight_v1/insight_browser_v1 run fetch-assets`
 2. Run the build script with `./scripts/publish_insight_pages.sh` (or execute

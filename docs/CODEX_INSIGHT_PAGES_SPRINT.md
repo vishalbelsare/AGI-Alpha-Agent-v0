@@ -50,10 +50,12 @@ Navigate to <http://localhost:8000/alpha_agi_insight_v1/> and confirm:
 
 ## 3. Deploy to GitHub Pages
 
-Use the deployment helper to publish the docs:
+Use the deployment helper to publish the docs. The new `deploy_insight_full.sh`
+script performs additional environment checks and runs a quick offline test
+before pushing to GitHub Pages:
 
 ```bash
-./scripts/deploy_insight_demo.sh
+./scripts/deploy_insight_full.sh
 ```
 
 The script rebuilds the site and pushes `site/` to the `gh-pages` branch via `mkdocs gh-deploy`. It prints the final URL upon completion, typically:
