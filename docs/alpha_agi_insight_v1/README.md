@@ -21,6 +21,8 @@ For details on publishing the site automatically, see [Quick Deployment](../HOST
 
 The charts rely on synthetic data for illustration. Refer to the project disclaimer for important usage information.
 
+Below the interactive charts, the demo includes a dedicated **Meta‑Agentic Tree Search** panel. It visualizes how the search algorithm explores and refines strategies as new nodes appear. See the **Meta-Agentic Tree Search Progress** section for a live view of this exploration.
+
 ### Prerequisites
 
 * **Python ≥3.11**
