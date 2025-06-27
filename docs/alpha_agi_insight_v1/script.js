@@ -87,7 +87,75 @@ Promise.all([
   };
   Plotly.newPlot('pareto-chart', [traceOthers, traceFrontier], paretoLayout, { displayModeBar: false, responsive: true });
 
-  // 4. Populate Agent Logs
+  // 4. Visualise Meta-Agentic Tree Search
+  const treeData = {
+    name: 'Start',
+    children: [
+      {
+        name: 'Strategy A',
+        children: [{ name: 'A1' }, { name: 'A2' }],
+      },
+      {
+        name: 'Strategy B',
+        children: [{ name: 'B1' }, { name: 'B2' }],
+      },
+    ],
+  };
+  const container = document.getElementById('tree-container');
+  const width = container.clientWidth;
+  const height = container.clientHeight;
+  const svg = d3
+    .select('#tree-container')
+    .append('svg')
+    .attr('width', width)
+    .attr('height', height);
+  const g = svg.append('g').attr('transform', 'translate(40,40)');
+  const root = d3.hierarchy(treeData);
+  const treeLayout = d3.tree().size([height - 80, width - 80]);
+  treeLayout(root);
+  const linkPath = d3
+    .linkHorizontal()
+    .x((d) => d.y)
+    .y((d) => d.x);
+  const links = g
+    .selectAll('.link')
+    .data(root.links())
+    .enter()
+    .append('path')
+    .attr('class', 'link')
+    .attr('d', linkPath)
+    .style('opacity', 0);
+  const nodes = g
+    .selectAll('.node')
+    .data(root.descendants())
+    .enter()
+    .append('g')
+    .attr('class', 'node')
+    .attr('transform', (d) => `translate(${d.y},${d.x})`)
+    .style('opacity', 0);
+  nodes.append('circle').attr('r', 5);
+  nodes.append('text').attr('dx', 8).attr('dy', 3).text((d) => d.data.name);
+
+  // Animate tree expansion
+  nodes
+    .transition()
+    .delay((d, i) => i * 600)
+    .style('opacity', 1);
+  links
+    .transition()
+    .delay((d, i) => i * 600 + 300)
+    .style('opacity', 1);
+  const bestPath = ['Start', 'Strategy B', 'B2'];
+  bestPath.forEach((name, idx) => {
+    setTimeout(() => {
+      nodes
+        .filter((d) => d.data.name === name)
+        .select('circle')
+        .attr('fill', '#d62728');
+    }, (idx + 1) * 1200);
+  });
+
+  // 5. Populate Agent Logs
   const logsElement = document.getElementById('logs-panel');
   const logLines = [
     "[PlanningAgent] Initializing high-level plan and setting 5-year insight horizon.",
@@ -102,7 +170,15 @@ Promise.all([
     "----",
     "[PlanningAgent] Proceeding to next iteration with refined strategies…"
   ];
-  logsElement.textContent = logLines.join("\n");
+  let logIndex = 0;
+  function stepLog() {
+    logsElement.textContent += `${logLines[logIndex]}\n`;
+    logIndex += 1;
+    if (logIndex < logLines.length) {
+      setTimeout(stepLog, 1000);
+    }
+  }
+  stepLog();
 }).catch(err => {
   console.error("Error loading data files:", err);
 });
