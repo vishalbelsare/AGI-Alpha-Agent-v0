@@ -77,3 +77,11 @@ python scripts/verify_workbox_hash.py site/alpha_agi_insight_v1
 ```
 
 This prevents caching issues caused by missing or corrupted assets.
+
+### Browser compatibility
+
+Automated Playwright tests run the meta-agentic tree visualization in
+Chromium, Firefox and WebKit. Firefox and Safari (WebKit) may render the
+animated transitions more slowly, so the tests allow extra time for nodes to
+appear. The CI workflow installs these browsers and sets `SKIP_WEBKIT_TESTS=1`
+if WebKit fails to install so the suite can still pass.
