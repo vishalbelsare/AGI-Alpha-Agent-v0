@@ -1,0 +1,29 @@
+.demo-grid {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 1rem;
+}
+.demo-card {
+  flex: 1 1 280px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  border-radius: 8px;
+  padding: 1rem;
+  background-color: var(--md-default-bg-color);
+}
+.demo-card img,
+.demo-card video {
+  width: 100%;
+  height: auto;
+  border-radius: 4px;
+}
+@media (max-width: 600px) {
+  .demo-card {
+    flex-basis: 100%;
+  }
+}
+.demo-preview {
+  width: 100%;
+  height: auto;
+  border-radius: 8px;
+}
