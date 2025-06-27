@@ -7,6 +7,7 @@
 [Deployment Quickstart](DEPLOYMENT_QUICKSTART.md)
 
 - [Browser Quickstart](insight_browser_quickstart.pdf) – run `./scripts/publish_insight_pages.sh` for a one-command deployment
+- [GH Pages Sprint](CODEX_INSIGHT_PAGES_SPRINT.md) – step‑by‑step tasks for Codex to publish the demo
 
 ## Building the React Dashboard
 
