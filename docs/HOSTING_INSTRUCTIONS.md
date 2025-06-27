@@ -59,7 +59,9 @@ unzip -o insight_browser.zip -d ../../../docs/alpha_agi_insight_v1
 ```
 
 Generate `tree.json` from the latest run so the visualization reflects the
-current meta-agent state:
+current meta-agent state. `scripts/build_insight_docs.sh` automatically
+refreshes this file when `lineage/run.jsonl` is present, so the command below is
+only needed when running it manually:
 
 ```bash
 python alpha_factory_v1/demos/alpha_agi_insight_v1/tools/export_tree.py \
