@@ -58,6 +58,14 @@ its contents into `docs/alpha_agi_insight_v1` so MkDocs can include the files:
 unzip -o insight_browser.zip -d ../../../docs/alpha_agi_insight_v1
 ```
 
+Generate `tree.json` from the latest run so the visualization reflects the
+current meta-agent state:
+
+```bash
+python alpha_factory_v1/demos/alpha_agi_insight_v1/tools/export_tree.py \
+  lineage/run.jsonl -o docs/alpha_agi_insight_v1/tree.json
+```
+
 The helper script `scripts/build_insight_docs.sh` automates the steps above.
 Run it from the repository root to build the bundle, refresh
 `docs/alpha_agi_insight_v1` and generate the site.

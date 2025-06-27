@@ -469,6 +469,18 @@ This installs dependencies and outputs static files in `dist/`. The provided
 local development or customization. See the
 [web_client/README.md](src/interface/web_client/README.md) for advanced usage.
 
+### 5.5 Exporting Visualization Data
+
+Use `export_tree.py` to generate `tree.json` for the browser demo from the
+latest meta-agent logs:
+
+```bash
+python tools/export_tree.py lineage/run.jsonl -o docs/alpha_agi_insight_v1/tree.json
+```
+
+Run this command after a simulation to refresh the highlighted path shown in the
+"Meta-Agentic Tree Search" panel.
+
 ---
 
 ## 6 Configuration
