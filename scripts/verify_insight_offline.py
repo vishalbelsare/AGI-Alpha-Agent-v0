@@ -24,6 +24,7 @@ def main() -> int:
             context.set_offline(True)
             page.reload()
             page.wait_for_selector("body")
+            page.wait_for_selector("#tree-container .node", timeout=15000)
             browser.close()
         return 0
     except PlaywrightError as exc:
