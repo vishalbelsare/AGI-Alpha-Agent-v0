@@ -83,6 +83,12 @@ if [[ ! -f "$DOCS_DIR/$ICON_FILE" && -f "$BROWSER_DIR/$ICON_FILE" ]]; then
     cp -a "$BROWSER_DIR/$ICON_FILE" "$DOCS_DIR/"
 fi
 
+# Validate the bundled workbox file before generating docs
+if ! python scripts/verify_workbox_hash.py "$DOCS_DIR"; then
+    echo "ERROR: Workbox hash verification failed" >&2
+    exit 1
+fi
+
 # Build the MkDocs site
 mkdocs build
 
