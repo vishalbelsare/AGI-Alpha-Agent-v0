@@ -102,5 +102,11 @@ fi
 # Build the MkDocs site
 mkdocs build
 
+# Verify the Workbox hash again in the generated site directory
+if ! python scripts/verify_workbox_hash.py site/alpha_agi_insight_v1; then
+    echo "ERROR: Workbox hash verification failed for generated site" >&2
+    exit 1
+fi
+
 
 
