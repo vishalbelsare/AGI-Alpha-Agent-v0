@@ -1,0 +1,7 @@
+{
+  "name": "Start",
+  "children": [
+    {"name": "Strategy A", "children": [{"name": "A1"}, {"name": "A2"}]},
+    {"name": "Strategy B", "children": [{"name": "B1"}, {"name": "B2"}]}
+  ]
+}

@@ -2,8 +2,9 @@
 Promise.all([
     fetch("forecast.json").then((res) => res.json()),
     fetch("population.json").then((res) => res.json()),
+    fetch("tree.json").then((res) => res.json()),
 ])
-    .then(([forecastData, popData]) => {
+    .then(([forecastData, popData, treeData]) => {
         // Extract data
         const years = forecastData.years;
         const capability = forecastData.capability;
@@ -119,19 +120,7 @@ Promise.all([
         );
 
         // 4. Visualise Meta-Agentic Tree Search
-        const treeData = {
-            name: "Start",
-            children: [
-                {
-                    name: "Strategy A",
-                    children: [{ name: "A1" }, { name: "A2" }],
-                },
-                {
-                    name: "Strategy B",
-                    children: [{ name: "B1" }, { name: "B2" }],
-                },
-            ],
-        };
+        // treeData is loaded from tree.json to keep the animation customizable
         const container = document.getElementById("tree-container");
         const width = container.clientWidth;
         const height = container.clientHeight;
