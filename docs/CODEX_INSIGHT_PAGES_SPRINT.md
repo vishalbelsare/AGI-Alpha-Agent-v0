@@ -86,5 +86,7 @@ Rerun the build and deployment commands so GitHub Pages reflects the latest sear
 - ✅ Meta‑Agentic Tree Search animation renders smoothly on the live site.
 - ✅ Branch connections animate as they appear, clearly tracing the search path.
 - ✅ Demo functions offline after first visit.
+- ✅ Opening `https://<org>.github.io/AGI-Alpha-Agent-v0/` redirects to
+  `alpha_agi_insight_v1/` via `docs/index.html`.
 
 Following these steps yields a robust, production-ready deployment of α‑AGI Insight v1 on GitHub Pages, accessible to any user via a simple link.
