@@ -196,7 +196,6 @@ White‑paper → `docs/tokenomics_v1.pdf`.
 
 \(R_t = 0.9\,R_{t-1} + 0.1\,
 rac{reward_{success}}{reward_{total}}\)
-rac{reward_{success}}{reward_{total}}\)
 
 * Security incident ⇒ ×0.75.  
 * \(R<0.6\) ⇒ cool‑down `7×(1/R)%` days.  
@@ -239,6 +238,7 @@ rac{reward_{success}}{reward_{total}}\)
 <a id="faq"></a>
 <p align="center"><sub>Made with ❤, ☕ and real GPUs by the Alpha‑Factory core team.</sub></p>
 
+<details><summary>Do I need an <code>OPENAI_API_KEY</code>?</summary>
 <p>No. Offline mode loads GGUF models. If a key is present the system auto‑upgrades to GPT‑4o.</p>
 </details>
 
@@ -263,6 +263,5 @@ See [`TERMS & CONDITIONS.md`](./TERMS_AND_CONDITIONS.md).
 Apache 2.0 © 2025 **MONTREAL.AI**
 
 <p align="center"><sub>Made with ❤️, ☕ and <b>real</b> GPUs by the Alpha‑Factory core team.</sub></p>
-
 
 [View README](../../alpha_factory_v1/demos/alpha_agi_marketplace_v1/README.md)
