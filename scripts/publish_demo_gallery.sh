@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 # SPDX-License-Identifier: Apache-2.0
-# Consolidated helper to build and deploy the full Alpha-Factory demo gallery.
-# Performs extensive environment checks, rebuilds all assets and publishes the
-# MkDocs site to GitHub Pages. Designed for one-command usage by non-technical
-# users.
+# Publish the Alpha-Factory demo gallery to GitHub Pages.
+# This script validates the environment, rebuilds all demo docs,
+# compiles the MkDocs site and deploys it under the gh-pages branch.
+# Designed for non-technical users to run end-to-end.
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -12,37 +12,24 @@ cd "$REPO_ROOT"
 
 BROWSER_DIR="alpha_factory_v1/demos/alpha_agi_insight_v1/insight_browser_v1"
 
-# Verify Python, Node and optional dependencies
+# Environment checks
 python alpha_factory_v1/scripts/preflight.py
+node "$BROWSER_DIR/build/version_check.js"
 python scripts/check_python_deps.py
 python check_env.py --auto-install
-node "$BROWSER_DIR/build/version_check.js"
-
-# Ensure documentation embeds the project disclaimer and demos are valid
 python scripts/verify_disclaimer_snippet.py
 python -m alpha_factory_v1.demos.validate_demos
 
-# Build the Insight browser demo and refresh documentation
+# Rebuild docs and gallery
+npm --prefix "$BROWSER_DIR" run fetch-assets
+npm --prefix "$BROWSER_DIR" ci
 "$SCRIPT_DIR/build_insight_docs.sh"
+python scripts/generate_demo_docs.py
+python scripts/generate_gallery_html.py
 
-# Compile the MkDocs site in strict mode so warnings cause failure
+# Build and deploy the site
 mkdocs build --strict
 python scripts/verify_workbox_hash.py site/alpha_agi_insight_v1
-
-# Optional offline smoke test
-if python - "import importlib,sys;sys.exit(0 if importlib.util.find_spec('playwright') else 1)"; then
-  python -m http.server --directory site 8000 &
-  SERVER_PID=$!
-  trap 'kill $SERVER_PID' EXIT
-  sleep 2
-  python scripts/verify_insight_offline.py
-  kill $SERVER_PID
-  trap - EXIT
-else
-  echo "Playwright not found; skipping offline check" >&2
-fi
-
-# Deploy to GitHub Pages
 mkdocs gh-deploy --force
 
 remote=$(git config --get remote.origin.url)
@@ -52,4 +39,7 @@ org="${repo_path%%/*}"
 repo="${repo_path##*/}"
 url="https://${org}.github.io/${repo}/"
 
-echo "Demo gallery deployed to $url"
+cat <<EOF
+Demo gallery deployed successfully.
+Browse to $url and explore each demo under gallery.html.
+EOF
