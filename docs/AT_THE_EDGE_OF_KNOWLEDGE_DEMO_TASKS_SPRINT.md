@@ -18,12 +18,16 @@ Run `./scripts/edge_of_knowledge_sprint.sh` from the repository root for a one-c
    ```bash
    python scripts/check_python_deps.py
    python check_env.py --auto-install
-```
+   ```
+5. Verify every README includes the standard disclaimer:
+   ```bash
+   python scripts/verify_disclaimer_snippet.py
+   ```
 
-5. Validate the demo packages:
-```bash
-python -m alpha_factory_v1.demos.validate_demos
-```
+6. Validate the demo packages:
+   ```bash
+   python -m alpha_factory_v1.demos.validate_demos
+   ```
 
 ## 2. Build the Insight Demo
 Execute the helper to compile the progressive web app and confirm the service worker hash:
@@ -45,6 +49,12 @@ Serve the result to ensure animations load smoothly:
 python -m http.server --directory site 8000
 ```
 Browse to <http://localhost:8000/> and step through `gallery.html`. Confirm that every README displays preview media so viewers can follow along in real time.
+
+Verify offline support:
+```bash
+python scripts/verify_workbox_hash.py site/alpha_agi_insight_v1
+python scripts/verify_insight_offline.py
+```
 
 ## 5. Deploy to GitHub Pages
 Publish the gallery once satisfied:
