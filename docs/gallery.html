@@ -12,12 +12,13 @@
     p.subtitle { text-align: center; margin-bottom: 2rem; }
     a.demo-card { text-decoration: none; color: inherit; }
     .demo-card h3 { margin-top: 0.5rem; text-align: center; }
+    .search-input { display: block; margin: 0 auto 1.5rem; padding: 0.5rem; width: min(300px, 80%); font-size: 1rem; }
   </style>
 </head>
 <body>
-  <p class="snippet"><a href="DISCLAIMER_SNIPPET/">See docs/DISCLAIMER_SNIPPET.md</a></p>
   <h1>Alpha‑Factory Demo Gallery</h1>
   <p class="subtitle">Select a demo to explore detailed instructions and watch it unfold in real time.</p>
+  <input id="search-input" class="search-input" type="text" placeholder="Search demos...">
   <div class="demo-grid">
     <a class="demo-card" href="demos/aiga_meta_evolution/" target="_blank" rel="noopener noreferrer">
       <img src="aiga_meta_evolution/assets/preview.svg" alt="🌌 Algorithms That Invent Algorithms — &lt;br&gt;**AI‑GA Meta‑Evolution Demo**" loading="lazy">
@@ -113,5 +114,16 @@
     </a>
   </div>
   <p class="snippet"><a href="DISCLAIMER_SNIPPET/">See docs/DISCLAIMER_SNIPPET.md</a></p>
+  <script>
+    const input = document.getElementById('search-input');
+    const cards = document.querySelectorAll('.demo-card');
+    input.addEventListener('input', () => {
+      const term = input.value.toLowerCase();
+      cards.forEach(c => {
+        const t = c.querySelector('h3').textContent.toLowerCase();
+        c.style.display = t.includes(term) ? 'block' : 'none';
+      });
+    });
+  </script>
 </body>
 </html>
