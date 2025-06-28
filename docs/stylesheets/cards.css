@@ -16,6 +16,7 @@
   width: 100%;
   height: auto;
   border-radius: 4px;
+  display: block;
 }
 @media (max-width: 600px) {
   .demo-card {
@@ -27,4 +28,5 @@ video.demo-preview {
   width: 100%;
   height: auto;
   border-radius: 8px;
+  display: block;
 }

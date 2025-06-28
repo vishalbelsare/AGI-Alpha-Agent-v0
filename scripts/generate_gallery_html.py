@@ -41,6 +41,14 @@ def parse_page(md_file: Path) -> tuple[str, str, str]:
         title = md_file.stem.replace("_", " ").title()
     if preview:
         preview = preview.lstrip("./").lstrip("../")
+        # Automatically switch to a corresponding video preview when available
+        candidate = REPO_ROOT / "docs" / preview
+        if candidate.suffix.lower() not in {".mp4", ".webm"}:
+            for ext in (".mp4", ".webm"):
+                alt = candidate.with_suffix(ext)
+                if alt.is_file():
+                    preview = str(Path(preview).with_suffix(ext))
+                    break
     else:
         preview = "alpha_agi_insight_v1/favicon.svg"
     link = f"demos/{md_file.stem}/"
