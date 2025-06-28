@@ -113,6 +113,9 @@ copy_assets() {
 }
 copy_assets
 
+# Regenerate Markdown pages for each demo from their README files
+python scripts/generate_demo_docs.py
+
 # Build the MkDocs site
 mkdocs build
 
