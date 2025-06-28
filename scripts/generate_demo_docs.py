@@ -51,6 +51,11 @@ def build_page(demo: Path) -> str:
     if not preview:
         preview = DEFAULT_PREVIEW
 
+    launch_link = None
+    demo_index = REPO_ROOT / "docs" / demo.name / "index.html"
+    if demo_index.is_file():
+        launch_link = f"[Launch Demo](../{demo.name}/){{.md-button}}"
+
     readme_path = demo / "README.md"
     readme_lines = readme_path.read_text(encoding="utf-8").splitlines()
     if readme_lines and readme_lines[0].startswith("#"):
@@ -87,12 +92,15 @@ def build_page(demo: Path) -> str:
         f"# {title}",
         "",
         f"![preview]({preview}){{.demo-preview}}",
-        "",
+    ]
+    if launch_link:
+        content.extend(["", launch_link, ""])
+    content.extend([
         readme_text,
         "",
         f"[View README](../../alpha_factory_v1/demos/{demo.name}/README.md)",
         "",
-    ]
+    ])
 
     return "\n".join(content)
 

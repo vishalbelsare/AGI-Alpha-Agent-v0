@@ -3,7 +3,6 @@
 # Solving **α-AGI Governance** [![Open In Colab]][colab-notebook]
 
 ![preview](../solving_agi_governance/assets/preview.svg){.demo-preview}
-
 Each demo package exposes its own `__version__` constant. The value marks the revision of that demo only and does not reflect the overall Alpha‑Factory release version.
 
 

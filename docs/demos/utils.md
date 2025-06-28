@@ -3,7 +3,6 @@
 # Demo Utilities
 
 ![preview](../utils/assets/preview.svg){.demo-preview}
-
 # Demo Utilities
 
 This directory holds helper utilities shared across demos, such as `disclaimer.py` which exposes the standard project disclaimer.

@@ -3,7 +3,6 @@
 # MuZero MCTS LLM Agent Demo
 
 ![preview](../muzeromctsllmagent_v0/assets/preview.svg){.demo-preview}
-
 Each demo package exposes its own `__version__` constant. The value marks the revision of that demo only and does not reflect the overall Alpha‑Factory release version.
 
 
