@@ -16,32 +16,13 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
-          python-version: '3.x'
+          python-version: '3.11'
       - uses: actions/setup-node@v3
         with:
           node-version: '20'
-      - name: Verify Node.js version
-        working-directory: alpha_factory_v1/demos/alpha_agi_insight_v1/insight_browser_v1
-        run: node build/version_check.js
       - name: Install docs dependencies
         run: pip install mkdocs mkdocs-material playwright
       - name: Install Playwright browsers
         run: playwright install chromium firefox webkit
-      - name: Build demo docs
-        run: ./scripts/build_insight_docs.sh
-      - name: Verify Insight offline
-        run: |
-          python -m http.server --directory site 8000 &
-          SERVER_PID=$!
-          trap 'kill $SERVER_PID' EXIT
-          sleep 2
-          python scripts/verify_insight_offline.py
-      - name: Verify service worker
-        run: python scripts/verify_workbox_hash.py site/alpha_agi_insight_v1
-      - name: Run insight browser tests
-        run: npm --prefix alpha_factory_v1/demos/alpha_agi_insight_v1/insight_browser_v1 test
-      - name: Deploy
-        uses: peaceiris/actions-gh-pages@v3
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./site
+      - name: Build and deploy gallery
+        run: ./scripts/edge_human_knowledge_pages_sprint.sh
