@@ -13,6 +13,7 @@
 - [Edge‑of‑Knowledge Demo Sprint](EDGE_OF_KNOWLEDGE_DEMO_SPRINT.md) – host every advanced demo via GitHub Pages
 - **One‑Command Deployment** – execute `./scripts/insight_sprint.sh` to build, verify and publish the GitHub Pages site automatically.
 - **Local Gallery Build** – run `./scripts/build_gallery_site.sh` to compile the full demo gallery under `site/` for offline review.
+- **Build & Open Gallery** – run `./scripts/build_open_gallery.sh` to regenerate the docs and open the gallery automatically.
 
 ## Building the React Dashboard
 

@@ -43,7 +43,14 @@ and docs with a single command:
 ```
 
 See [docs/GITHUB_PAGES_DEMO_TASKS.md](docs/GITHUB_PAGES_DEMO_TASKS.md) for a
-detailed walkthrough.
+detailed walkthrough. Once the build finishes, open the gallery locally with:
+
+```bash
+./scripts/open_gallery.sh
+```
+
+Run `./scripts/build_open_gallery.sh` to regenerate the site and open the page
+in one step.
 
 ### Edge-of-Human-Knowledge Sprint
 
