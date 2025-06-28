@@ -15,8 +15,27 @@ node alpha_factory_v1/demos/alpha_agi_insight_v1/insight_browser_v1/build/versio
 python scripts/check_python_deps.py
 python check_env.py --auto-install
 
+# Confirm all documentation embeds the project disclaimer
+python scripts/verify_disclaimer_snippet.py
+
 # Validate demo directories for basic quality
 python -m alpha_factory_v1.demos.validate_demos
 
 # Build and deploy the full gallery
 "$SCRIPT_DIR/deploy_gallery_pages.sh"
+
+# Triple-check the generated site integrity
+python scripts/verify_workbox_hash.py site/alpha_agi_insight_v1
+
+# Optional second offline validation if Playwright is available
+if python - "import importlib,sys;sys.exit(0 if importlib.util.find_spec('playwright') else 1)"; then
+  python -m http.server --directory site 8000 &
+  SERVER_PID=$!
+  trap 'kill $SERVER_PID' EXIT
+  sleep 2
+  python scripts/verify_insight_offline.py
+  kill $SERVER_PID
+  trap - EXIT
+else
+  echo "Playwright not found; skipping offline re-check" >&2
+fi
