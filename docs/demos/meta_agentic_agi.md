@@ -1,11 +1,7 @@
 [See docs/DISCLAIMER_SNIPPET.md](../DISCLAIMER_SNIPPET.md)
 
-# Meta Agentic Agi
+# Meta‑Agentic α‑AGI 👁️✨ Demo – **Production‑Grade v0.1.0**
 
-Production-grade meta-agentic AGI stack demo.
-
-![screenshot](../meta_agentic_agi/assets/logo.svg)
-![preview](https://media.giphy.com/media/hvRJCLFzcasrR4ia7z/giphy.gif){.demo-preview}
-
+![preview](../alpha_agi_insight_v1/favicon.svg){.demo-preview}
 
 [View README](../../alpha_factory_v1/demos/meta_agentic_agi/README.md)
