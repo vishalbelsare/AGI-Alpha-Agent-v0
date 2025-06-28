@@ -4,21 +4,26 @@
 
 This sprint condenses the steps required for Codex to expose every advanced demo under `alpha_factory_v1/demos/` on GitHub Pages. The goal is a polished subdirectory where each showcase unfolds in real time with smooth, highly visual interactions.
 
+Run `./scripts/edge_of_knowledge_sprint.sh` from the repository root for a one-command deployment.
+
 ## 1. Validate the Environment
 1. Install **Python 3.11+** and **Node.js 20+**.
 2. Run the preflight script:
    ```bash
    python alpha_factory_v1/scripts/preflight.py
-   ```
 3. Verify the Node version:
    ```bash
    node alpha_factory_v1/demos/alpha_agi_insight_v1/insight_browser_v1/build/version_check.js
-   ```
 4. Install optional packages so verification tools succeed:
    ```bash
    python scripts/check_python_deps.py
    python check_env.py --auto-install
-   ```
+```
+
+5. Validate the demo packages:
+```bash
+python -m alpha_factory_v1.demos.validate_demos
+```
 
 ## 2. Build the Insight Demo
 Execute the helper to compile the progressive web app and confirm the service worker hash:
