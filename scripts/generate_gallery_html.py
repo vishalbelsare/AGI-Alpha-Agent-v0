@@ -50,6 +50,7 @@ def extract_summary(lines: list[str], title: str) -> str:
             break
     return " ".join(paragraph).strip()
 
+
 REPO_ROOT = Path(__file__).resolve().parents[1]
 DEMOS_DIR = REPO_ROOT / "docs" / "demos"
 GALLERY_FILE = REPO_ROOT / "docs" / "gallery.html"
@@ -139,6 +140,8 @@ def build_html(entries: list[tuple[str, str, str, str]], *, disclaimer_prefix: s
             lines.append(f"      <p class='demo-desc'>{html.escape(summary)}</p>")
         lines.append("    </a>")
     lines.append("  </div>")
+    home_link = f"{disclaimer_prefix}index.html"
+    lines.append(f'  <p><a href="{home_link}">\u2b05\ufe0f Back to Home</a></p>')
     lines.append(
         f'  <p class="snippet"><a href="{disclaimer_prefix}DISCLAIMER_SNIPPET/">See docs/DISCLAIMER_SNIPPET.md</a></p>'
     )
@@ -163,11 +166,7 @@ def main() -> None:
     GALLERY_FILE.write_text(gallery_html, encoding="utf-8")
     demos_html = build_html(entries, disclaimer_prefix="../")
     DEMOS_INDEX_FILE.write_text(demos_html, encoding="utf-8")
-    print(
-        "Wrote"
-        f" {GALLERY_FILE.relative_to(REPO_ROOT)} and"
-        f" {DEMOS_INDEX_FILE.relative_to(REPO_ROOT)}"
-    )
+    print("Wrote" f" {GALLERY_FILE.relative_to(REPO_ROOT)} and" f" {DEMOS_INDEX_FILE.relative_to(REPO_ROOT)}")
 
 
 if __name__ == "__main__":
