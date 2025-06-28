@@ -22,7 +22,8 @@
     flex-basis: 100%;
   }
 }
-.demo-preview {
+.demo-preview,
+video.demo-preview {
   width: 100%;
   height: auto;
   border-radius: 8px;
