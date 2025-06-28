@@ -6,6 +6,8 @@ This sprint describes how Codex can publish the **Alpha-Factory v1** demo galler
 
 Run `./scripts/edge_of_knowledge_sprint.sh` from the repository root for an automated workflow.
 
+The steps below triple-verify environment integrity, rebuild all assets and deploy a consistently beautiful gallery. Revisit them whenever the demos or documentation change.
+
 ## 1. Validate the Environment
 1. Install **Python 3.11+** and **Node.js 20+**.
 2. Execute the preflight script:
@@ -72,3 +74,5 @@ The landing page redirects to `alpha_agi_insight_v1/` while `gallery.html` links
 - Re-run the helper whenever demo docs or assets change.
 - Capture short GIFs or screenshots under `docs/<demo>/assets/` for a highly visual experience.
 - Test with `mkdocs build --strict` before deploying and ensure `pre-commit` hooks pass.
+- Run `pre-commit run --files <changed_files>` and `pytest -m 'not e2e'` to confirm formatting and basic tests before publishing.
+- Periodically verify every README still embeds the [disclaimer snippet](../docs/DISCLAIMER_SNIPPET.md).
