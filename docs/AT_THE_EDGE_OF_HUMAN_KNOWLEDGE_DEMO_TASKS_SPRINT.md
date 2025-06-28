@@ -46,7 +46,9 @@ Compile the progressive web app and verify the service worker hash:
 ```bash
 ./scripts/build_insight_docs.sh
 ```
-If lineage logs are available, this exports `tree.json` so the **Meta-Agentic Tree Search** animates organically.
+If lineage logs are available this exports `tree.json`, updates
+`docs/gallery.html` via `scripts/generate_gallery_html.py` and ensures the
+**Meta-Agentic Tree Search** animates organically.
 
 ## 3. Generate the Demo Gallery
 From the repository root run:

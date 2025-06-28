@@ -25,7 +25,10 @@ Execute the helper from the repository root:
 ```bash
 ./scripts/deploy_gallery_pages.sh
 ```
-This command fetches browser assets, compiles the α‑AGI Insight interface, runs integrity checks and builds the MkDocs site under `site/`. If Playwright is installed the script also verifies offline functionality.
+This command fetches browser assets, compiles the α‑AGI Insight interface, runs
+integrity checks and builds the MkDocs site under `site/`. It also runs
+`scripts/generate_gallery_html.py` to refresh `docs/gallery.html`. If Playwright
+is installed the script also verifies offline functionality.
 
 ## 3. Preview Locally
 Start a quick HTTP server to examine the result:

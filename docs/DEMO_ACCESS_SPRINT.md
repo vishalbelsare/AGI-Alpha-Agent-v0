@@ -27,7 +27,10 @@ The Insight browser bundle powers many visualisations. Refresh it with:
 ```bash
 ./scripts/build_insight_docs.sh
 ```
-This regenerates `docs/alpha_agi_insight_v1/` and verifies the service worker hash. The directory contains everything needed for offline access and the animated Meta‑Agentic Tree Search.
+This regenerates `docs/alpha_agi_insight_v1/`, refreshes `docs/gallery.html` via
+`scripts/generate_gallery_html.py` and verifies the service worker hash. The
+directory contains everything needed for offline access and the animated
+Meta‑Agentic Tree Search.
 
 ## 3. Generate the Demo Gallery
 

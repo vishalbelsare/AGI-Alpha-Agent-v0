@@ -35,7 +35,9 @@ Regenerate the progressive web app and check the service worker hash:
 ```bash
 ./scripts/build_insight_docs.sh
 ```
-This step exports `tree.json` when lineage logs are present so the meta‑agent tree search animates organically.
+This step exports `tree.json` when lineage logs are present,
+regenerates `docs/gallery.html` via `scripts/generate_gallery_html.py` and ensures
+the meta‑agent tree search animates organically.
 
 ## 3. Generate the Demo Gallery
 Compile all documentation and build the MkDocs site:
