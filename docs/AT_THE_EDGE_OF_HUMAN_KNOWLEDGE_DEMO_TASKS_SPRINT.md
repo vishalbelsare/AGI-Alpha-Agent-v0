@@ -10,26 +10,35 @@ The steps below triple-verify environment integrity, rebuild all assets and depl
 
 ## 1. Validate the Environment
 1. Install **Python 3.11+** and **Node.js 20+**.
-2. Execute the preflight script:
+2. Confirm the versions:
+   ```bash
+   python --version
+   node --version
+   ```
+3. Execute the preflight script:
    ```bash
    python alpha_factory_v1/scripts/preflight.py
    ```
-3. Verify the browser demo requirements:
+4. Verify the browser demo requirements:
    ```bash
    node alpha_factory_v1/demos/alpha_agi_insight_v1/insight_browser_v1/build/version_check.js
    ```
-4. Install optional dependencies so verification tools succeed:
+5. Install optional dependencies so verification tools succeed:
    ```bash
    python scripts/check_python_deps.py
    python check_env.py --auto-install
    ```
-5. Confirm each README contains the standard disclaimer:
+6. Confirm each README contains the standard disclaimer:
    ```bash
    python scripts/verify_disclaimer_snippet.py
    ```
-6. Validate the demo packages:
+7. Validate the demo packages:
    ```bash
    python -m alpha_factory_v1.demos.validate_demos
+   ```
+8. Run the pre‑commit hooks to catch formatting issues:
+   ```bash
+   pre-commit run --files docs/AT_THE_EDGE_OF_HUMAN_KNOWLEDGE_DEMO_TASKS_SPRINT.md
    ```
 
 ## 2. Build the Insight Demo
@@ -45,6 +54,11 @@ From the repository root run:
 ./scripts/deploy_gallery_pages.sh
 ```
 The script fetches assets, rebuilds documentation and compiles the MkDocs site under `site/`.
+Afterwards confirm the build is clean:
+```bash
+mkdocs build --strict
+```
+If the command fails, address the warnings before publishing.
 
 ## 4. Preview Locally
 Serve the pages and check that animations are fluid:
@@ -53,7 +67,7 @@ python -m http.server --directory site 8000
 ```
 Navigate to <http://localhost:8000/> and step through `gallery.html`. Confirm that each README showcases preview media so viewers can follow along in real time.
 
-Verify offline support:
+Spot-check the offline cache:
 ```bash
 python scripts/verify_workbox_hash.py site/alpha_agi_insight_v1
 python scripts/verify_insight_offline.py
@@ -68,7 +82,7 @@ The resulting URL typically looks like:
 ```
 https://<org>.github.io/AGI-Alpha-Agent-v0/
 ```
-The landing page redirects to `alpha_agi_insight_v1/` while `gallery.html` links to every demo.
+Open the link in an incognito window and verify the service worker caches assets. The landing page redirects to `alpha_agi_insight_v1/` while `gallery.html` links to every demo.
 
 ## 6. Maintenance Tips
 - Re-run the helper whenever demo docs or assets change.
