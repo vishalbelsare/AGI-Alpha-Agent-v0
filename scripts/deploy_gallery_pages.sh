@@ -15,6 +15,10 @@ BROWSER_DIR="alpha_factory_v1/demos/alpha_agi_insight_v1/insight_browser_v1"
 # Comprehensive environment checks
 python alpha_factory_v1/scripts/preflight.py
 node "$BROWSER_DIR/build/version_check.js"
+python scripts/check_python_deps.py
+python check_env.py --auto-install
+python scripts/verify_disclaimer_snippet.py
+python -m alpha_factory_v1.demos.validate_demos
 
 # Build the Insight docs and gallery
 npm --prefix "$BROWSER_DIR" run fetch-assets
