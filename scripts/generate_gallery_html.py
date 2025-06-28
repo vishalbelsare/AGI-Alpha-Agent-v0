@@ -77,11 +77,13 @@ def build_html(entries: list[tuple[str, str, str]]) -> str:
     p.subtitle { text-align: center; margin-bottom: 2rem; }
     a.demo-card { text-decoration: none; color: inherit; }
     .demo-card h3 { margin-top: 0.5rem; text-align: center; }
+    .search-input { display: block; margin: 0 auto 1.5rem; padding: 0.5rem; width: min(300px, 80%); font-size: 1rem; }
   </style>
 </head>
 <body>
   <h1>Alpha‑Factory Demo Gallery</h1>
   <p class=\"subtitle\">Select a demo to explore detailed instructions and watch it unfold in real time.</p>
+  <input id=\"search-input\" class=\"search-input\" type=\"text\" placeholder=\"Search demos...\">
   <div class=\"demo-grid\">"""
     lines = [head]
     for title, preview, link in entries:
@@ -100,6 +102,17 @@ def build_html(entries: list[tuple[str, str, str]]) -> str:
         lines.append("    </a>")
     lines.append("  </div>")
     lines.append('  <p class="snippet"><a href="DISCLAIMER_SNIPPET/">See docs/DISCLAIMER_SNIPPET.md</a></p>')
+    lines.append("  <script>")
+    lines.append("    const input = document.getElementById('search-input');")
+    lines.append("    const cards = document.querySelectorAll('.demo-card');")
+    lines.append("    input.addEventListener('input', () => {")
+    lines.append("      const term = input.value.toLowerCase();")
+    lines.append("      cards.forEach(c => {")
+    lines.append("        const t = c.querySelector('h3').textContent.toLowerCase();")
+    lines.append("        c.style.display = t.includes(term) ? 'block' : 'none';")
+    lines.append("      });")
+    lines.append("    });")
+    lines.append("  </script>")
     lines.append("</body>\n</html>\n")
     return "\n".join(lines)
 

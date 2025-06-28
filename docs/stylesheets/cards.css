@@ -29,3 +29,11 @@ video.demo-preview {
   border-radius: 8px;
   display: block;
 }
+
+.search-input {
+  display: block;
+  margin: 0 auto 1.5rem;
+  padding: 0.5rem;
+  width: min(300px, 80%);
+  font-size: 1rem;
+}
