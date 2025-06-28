@@ -33,6 +33,18 @@ Pages, so once it completes the live demo is available at
 <https://montrealai.github.io/AGI-Alpha-Agent-v0/alpha_agi_insight_v1/> with no
 extra setup required.
 
+### Publish Demo Gallery
+
+Ensure **Python 3.11+** and **Node 20+** are installed, then deploy the gallery
+and docs with a single command:
+
+```bash
+./scripts/deploy_gallery_pages.sh
+```
+
+See [docs/GITHUB_PAGES_DEMO_TASKS.md](docs/GITHUB_PAGES_DEMO_TASKS.md) for a
+detailed walkthrough.
+
 ## Quickstart
 
 ```bash
