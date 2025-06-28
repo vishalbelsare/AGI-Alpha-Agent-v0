@@ -4,8 +4,6 @@
 
 ![preview](../macro_sentinel/assets/preview.svg){.demo-preview}
 
-[See docs/DISCLAIMER_SNIPPET.md](../../../docs/DISCLAIMER_SNIPPET.md)
-This repository is a conceptual research prototype. References to "AGI" and "superintelligence" describe aspirational goals and do not indicate the presence of a real general intelligence. Use at your own risk. Nothing herein constitutes financial advice. MontrealAI and the maintainers accept no liability for losses incurred from using this software.
 Each demo package exposes its own `__version__` constant. The value marks the revision of that demo only and does not reflect the overall Alpha‑Factory release version.
 
 
@@ -19,7 +17,6 @@ Each demo package exposes its own `__version__` constant. The value marks the re
 
 > **TL;DR**   Spin up a self‑healing stack that ingests macro telemetry, runs a Monte‑Carlo risk engine, sizes an ES hedge, and explains its reasoning—all behind a Gradio dashboard.
 
-This demonstration is a conceptual research prototype. Any references to AGI or superintelligence describe aspirational goals rather than current capabilities.
 
 ---
 
@@ -247,12 +244,6 @@ macro_sentinel/
 
 ---
 
-## WARNING: Disclaimer
-
-This demo is **for research and educational purposes only**. It
-does not constitute financial advice and should not be relied upon
-for real trading decisions. MontrealAI and the maintainers accept
-no liability for losses incurred from using this software.
 
 ---
 
@@ -270,6 +261,5 @@ no liability for losses incurred from using this software.
 Apache‑2.0 © 2025 **MONTREAL.AI**
 
 Happy alpha‑hunting 🚀
-
 
 [View README](../../alpha_factory_v1/demos/macro_sentinel/README.md)

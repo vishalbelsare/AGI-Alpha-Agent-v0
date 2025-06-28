@@ -4,8 +4,6 @@
 
 ![preview](../aiga_meta_evolution/assets/preview.svg){.demo-preview}
 
-[See docs/DISCLAIMER_SNIPPET.md](../../../docs/DISCLAIMER_SNIPPET.md)
-This repository is a conceptual research prototype. References to "AGI" and "superintelligence" describe aspirational goals and do not indicate the presence of a real general intelligence. Use at your own risk. Nothing herein constitutes financial advice. MontrealAI and the maintainers accept no liability for losses incurred from using this software.
 Each demo package exposes its own `__version__` constant. The value marks the revision of that demo only and does not reflect the overall Alpha‑Factory release version.
 
 
@@ -38,11 +36,6 @@ A single‑command, browser‑based showcase of Clune’s **Three Pillars**:
 Within **&lt; 60 s** you’ll watch neural nets **rewrite their own blueprint** *while the world itself mutates to stay challenging*.
 
 ---
-
-## Disclaimer
-This repository is a conceptual research prototype. References to "AGI" and
-"superintelligence" describe aspirational goals and do not indicate the presence
-of a real general intelligence. Use at your own risk.
 
 ---
 
@@ -441,6 +434,5 @@ Huge thanks to:
 * OSS maintainers – you make this possible ♥
 
 > **Alpha‑Factory** — forging intelligence that *invents* intelligence.
-
 
 [View README](../../alpha_factory_v1/demos/aiga_meta_evolution/README.md)

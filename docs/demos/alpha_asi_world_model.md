@@ -4,8 +4,6 @@
 
 ![preview](../alpha_asi_world_model/assets/preview.svg){.demo-preview}
 
-[See docs/DISCLAIMER_SNIPPET.md](../../../docs/DISCLAIMER_SNIPPET.md)
-This repository is a conceptual research prototype. References to "AGI" and "superintelligence" describe aspirational goals and do not indicate the presence of a real general intelligence. Use at your own risk. Nothing herein constitutes financial advice. MontrealAI and the maintainers accept no liability for losses incurred from using this software.
 Each demo package exposes its own `__version__` constant. The value marks the revision of that demo only and does not reflect the overall Alpha‑Factory release version.
 
 
@@ -24,7 +22,6 @@ Last updated 2025-04-25   Maintainer → Montreal.AI Core AGI Team
 ---
 
 > **Disclaimer**
-> This demo is a conceptual research prototype and does **not** represent real
 > AGI capabilities. See the project's [Apache 2.0 license](../../../LICENSE) and
 > [security policy](../../../SECURITY.md) for details.
 
@@ -283,6 +280,5 @@ Please cite **Alpha-Factory v1 👁️✨ — Multi-Agent AGENTIC α-AGI**:
 
 > MONTREAL.AI (2025). *Fully-Agentic α-AGI: Foundation World Models for α-ASI.*  
 > GitHub https://github.com/MontrealAI/AGI-Alpha-Agent-v0
-
 
 [View README](../../alpha_factory_v1/demos/alpha_asi_world_model/README.md)
