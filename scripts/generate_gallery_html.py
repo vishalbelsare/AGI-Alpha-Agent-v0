@@ -78,7 +78,11 @@ def build_html(entries: list[tuple[str, str, str]]) -> str:
     lines = [head]
     for title, preview, link in entries:
         lines.append(f'    <a class="demo-card" href="{html.escape(link)}">')
-        lines.append(f'      <img src="{html.escape(preview)}" alt="{html.escape(title)}">')
+        ext = Path(preview).suffix.lower()
+        if ext in {".mp4", ".webm"}:
+            lines.append(f'      <video src="{html.escape(preview)}" autoplay loop muted playsinline></video>')
+        else:
+            lines.append(f'      <img src="{html.escape(preview)}" alt="{html.escape(title)}">')
         lines.append(f"      <h3>{html.escape(title)}</h3>")
         lines.append("    </a>")
     lines.append("  </div>")
