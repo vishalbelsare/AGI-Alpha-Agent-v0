@@ -90,3 +90,9 @@ Open the link in an incognito window and verify the service worker caches assets
 - Test with `mkdocs build --strict` before deploying and ensure `pre-commit` hooks pass.
 - Run `pre-commit run --files <changed_files>` and `pytest -m 'not e2e'` to confirm formatting and basic tests before publishing.
 - Periodically verify every README still embeds the [disclaimer snippet](../docs/DISCLAIMER_SNIPPET.md).
+
+## 7. Final Polish
+- Open the gallery in multiple browsers and confirm the layout feels professional and inspiring.
+- Ensure preview media loads instantly and animations remain fluid on slower machines.
+- Validate the offline cache by toggling airplane mode and refreshing the page.
+- Keep the aesthetic consistent across all pages by leveraging the bundled `stylesheets/cards.css`.
