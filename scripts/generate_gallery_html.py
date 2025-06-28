@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: Apache-2.0
 # This script is a conceptual research prototype.
-"""Generate ``docs/gallery.html`` from the Markdown pages under ``docs/demos``.
+"""Generate the visual demo gallery HTML files.
 
-The helper extracts each page's title (first level‑one heading) and preview image
-with the alt text ``preview``. It outputs a simple HTML grid linking to the
-corresponding demo page so the gallery stays up to date whenever documentation is
-rebuilt.
+This helper reads the Markdown pages under ``docs/demos`` and extracts each
+page's title and preview image. It outputs ``docs/gallery.html`` and
+``docs/demos/index.html`` so the GitHub Pages site always lists every demo in a
+simple grid.
 """
 from __future__ import annotations
 
@@ -53,6 +53,7 @@ def extract_summary(lines: list[str], title: str) -> str:
 REPO_ROOT = Path(__file__).resolve().parents[1]
 DEMOS_DIR = REPO_ROOT / "docs" / "demos"
 GALLERY_FILE = REPO_ROOT / "docs" / "gallery.html"
+DEMOS_INDEX_FILE = REPO_ROOT / "docs" / "demos" / "index.html"
 
 
 def parse_page(md_file: Path) -> tuple[str, str, str, str]:
@@ -97,7 +98,7 @@ def collect_entries() -> list[tuple[str, str, str, str]]:
     return entries
 
 
-def build_html(entries: list[tuple[str, str, str, str]]) -> str:
+def build_html(entries: list[tuple[str, str, str, str]], *, disclaimer_prefix: str) -> str:
     head = """<!-- SPDX-License-Identifier: Apache-2.0 -->
 <!DOCTYPE html>
 <html lang=\"en\">
@@ -138,7 +139,9 @@ def build_html(entries: list[tuple[str, str, str, str]]) -> str:
             lines.append(f"      <p class='demo-desc'>{html.escape(summary)}</p>")
         lines.append("    </a>")
     lines.append("  </div>")
-    lines.append('  <p class="snippet"><a href="DISCLAIMER_SNIPPET/">See docs/DISCLAIMER_SNIPPET.md</a></p>')
+    lines.append(
+        f'  <p class="snippet"><a href="{disclaimer_prefix}DISCLAIMER_SNIPPET/">See docs/DISCLAIMER_SNIPPET.md</a></p>'
+    )
     lines.append("  <script>")
     lines.append("    const input = document.getElementById('search-input');")
     lines.append("    const cards = document.querySelectorAll('.demo-card');")
@@ -155,9 +158,16 @@ def build_html(entries: list[tuple[str, str, str, str]]) -> str:
 
 
 def main() -> None:
-    html_text = build_html(collect_entries())
-    GALLERY_FILE.write_text(html_text, encoding="utf-8")
-    print(f"Wrote {GALLERY_FILE.relative_to(REPO_ROOT)}")
+    entries = collect_entries()
+    gallery_html = build_html(entries, disclaimer_prefix="")
+    GALLERY_FILE.write_text(gallery_html, encoding="utf-8")
+    demos_html = build_html(entries, disclaimer_prefix="../")
+    DEMOS_INDEX_FILE.write_text(demos_html, encoding="utf-8")
+    print(
+        "Wrote"
+        f" {GALLERY_FILE.relative_to(REPO_ROOT)} and"
+        f" {DEMOS_INDEX_FILE.relative_to(REPO_ROOT)}"
+    )
 
 
 if __name__ == "__main__":
