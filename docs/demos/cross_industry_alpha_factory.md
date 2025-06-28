@@ -4,8 +4,6 @@
 
 ![preview](../cross_industry_alpha_factory/assets/preview.svg){.demo-preview}
 
-[See docs/DISCLAIMER_SNIPPET.md](../../../docs/DISCLAIMER_SNIPPET.md)
-This repository is a conceptual research prototype. References to "AGI" and "superintelligence" describe aspirational goals and do not indicate the presence of a real general intelligence. Use at your own risk. Nothing herein constitutes financial advice. MontrealAI and the maintainers accept no liability for losses incurred from using this software.
 Each demo package exposes its own `__version__` constant. The value marks the revision of that demo only and does not reflect the overall Alpha‑Factory release version.
 
 Current demo version: `1.0.0`.
@@ -15,13 +13,11 @@ Current demo version: `1.0.0`.
 *Out-learn • Out-think • Out-design • Out-strategise • Out-execute*
 [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/MontrealAI/AGI-Alpha-Agent-v0/blob/main/alpha_factory_v1/demos/cross_industry_alpha_factory/colab_deploy_alpha_factory_cross_industry_demo.ipynb)
 
-This demo is a conceptual research prototype. References to "AGI" and
 "superintelligence" describe aspirational goals and do not indicate the presence
 of a real general intelligence. Use at your own risk.
 
 See [CONCEPTUAL_FRAMEWORK.md](CONCEPTUAL_FRAMEWORK.md) for an architecture overview.
 
-> **⚠️ Disclaimer**: This demo is **for research and educational purposes only**. Nothing herein constitutes financial advice. MontrealAI and the maintainers accept no liability for losses incurred from using this software.
 
 ---
 
@@ -285,6 +281,5 @@ To automate this step run `./teardown_alpha_factory_cross_industry_demo.sh`.
 Clune 2019 · Sutton & Silver 2024 · MuZero 2020 
 
 © 2025 MONTREAL.AI — Apache‑2.0 License
-
 
 [View README](../../alpha_factory_v1/demos/cross_industry_alpha_factory/README.md)

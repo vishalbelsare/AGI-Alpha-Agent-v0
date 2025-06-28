@@ -4,13 +4,10 @@
 
 ![preview](../omni_factory_demo/assets/preview.svg){.demo-preview}
 
-[See docs/DISCLAIMER_SNIPPET.md](../../../docs/DISCLAIMER_SNIPPET.md)
-This repository is a conceptual research prototype. References to "AGI" and "superintelligence" describe aspirational goals and do not indicate the presence of a real general intelligence. Use at your own risk. Nothing herein constitutes financial advice. MontrealAI and the maintainers accept no liability for losses incurred from using this software.
 Each demo package exposes its own `__version__` constant. The value marks the revision of that demo only and does not reflect the overall Alpha‑Factory release version.
 
 
 # OMNI-Factory: An Open-Ended Multi-Agent Simulation for Smart City Resilience (OMNI-EPIC + Alpha-Factory v1)
-This repository is a conceptual research prototype. References to "AGI" and "superintelligence" describe aspirational goals and do not indicate the presence of a real general intelligence. Use at your own risk.
 [![Colab](https://img.shields.io/badge/Try-on-Colab-yellow?logo=googlecolab)](colab_omni_factory_demo.ipynb)
 Run the full demo interactively in [Google Colab](colab_omni_factory_demo.ipynb).
 
@@ -287,6 +284,5 @@ By integrating **task generation, code synthesis, success detection,** and **arc
 In sum, the OMNI-Factory city simulator stands as a **proof-of-concept** of how future AI ecosystems might operate – not as single monolithic algorithms, but as **ecosystems of cooperating agents** that **create value and knowledge in a self-driven, endless loop**. It’s a demo designed not only to **impress** (with its autonomous feats and adaptive complexity) but also to **engage and educate** (by allowing humans to interact with and understand the AI’s decisions). We believe this will resonate strongly with policymakers: they can tangibly see an embodiment of AI that is *proactive, economically beneficial, and safety-conscious*, giving them a window into how such technology could bolster **infrastructure, economy, and governance** in the real world.
 
 Ultimately, success will be measured by the conversations and ideas this demo sparks. By presenting a clear, well-structured integration of advanced AI components addressing real societal challenges, we aim to inspire confidence that **open-ended AI coupled with careful design can be a force-multiplier for human decision-making** – a message delivered vividly through this interactive simulation.
-
 
 [View README](../../alpha_factory_v1/demos/omni_factory_demo/README.md)

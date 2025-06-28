@@ -52,10 +52,34 @@ def build_page(demo: Path) -> str:
         preview = DEFAULT_PREVIEW
 
     readme_path = demo / "README.md"
-    readme_text = readme_path.read_text(encoding="utf-8")
-    readme_lines = readme_text.splitlines()
+    readme_lines = readme_path.read_text(encoding="utf-8").splitlines()
     if readme_lines and readme_lines[0].startswith("#"):
-        readme_text = "\n".join(readme_lines[1:])
+        readme_lines = readme_lines[1:]
+
+    cleaned: list[str] = []
+    skip_section = False
+    for line in readme_lines:
+        stripped = line.strip()
+        if skip_section:
+            if stripped.startswith("#") or stripped.startswith("---") or not stripped:
+                skip_section = False
+            continue
+        if "DISCLAIMER_SNIPPET.md" in stripped:
+            continue
+        if (
+            "conceptual research prototype" in stripped
+            or "financial advice" in stripped
+            or "research and educational purposes" in stripped
+            or "trading decisions" in stripped
+            or "no liability" in stripped
+        ):
+            continue
+        if stripped.lower().startswith("##") and "disclaimer" in stripped.lower():
+            skip_section = True
+            continue
+        cleaned.append(line)
+
+    readme_text = "\n".join(cleaned).lstrip("\n")
 
     content = [
         DISCLAIMER_LINK,

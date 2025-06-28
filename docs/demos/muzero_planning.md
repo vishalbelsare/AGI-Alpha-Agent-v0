@@ -4,8 +4,6 @@
 
 ![preview](../muzero_planning/assets/preview.svg){.demo-preview}
 
-[See docs/DISCLAIMER_SNIPPET.md](../../../docs/DISCLAIMER_SNIPPET.md)
-This repository is a conceptual research prototype. References to "AGI" and "superintelligence" describe aspirational goals and do not indicate the presence of a real general intelligence. Use at your own risk. Nothing herein constitutes financial advice. MontrealAI and the maintainers accept no liability for losses incurred from using this software.
 Each demo package exposes its own `__version__` constant. The value marks the revision of that demo only and does not reflect the overall Alpha‑Factory release version.
 
 
@@ -28,7 +26,6 @@ You’ll see a MuZero‑style agent improvise physics, deploy Monte‑Carlo sear
 and **stabilise CartPole** — all inside your browser. No GPU, no PhD required.
 
 > **Disclaimer**
-> This demo is a conceptual research prototype. References to "AGI" and
 > "superintelligence" describe aspirational goals and do not indicate the
 > presence of a real general intelligence. Use at your own risk.
 
@@ -193,6 +190,5 @@ Run `pre-commit run --files alpha_factory_v1/demos/muzero_planning` before commi
 * The open‑source community powering every dependency.
 
 > **Alpha‑Factory** — forging intelligence that **out‑learns, out‑thinks, out‑executes**.
-
 
 [View README](../../alpha_factory_v1/demos/muzero_planning/README.md)

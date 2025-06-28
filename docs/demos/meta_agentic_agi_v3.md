@@ -4,17 +4,8 @@
 
 ![preview](../meta_agentic_agi_v3/assets/preview.svg){.demo-preview}
 
-[See docs/DISCLAIMER_SNIPPET.md](../../../docs/DISCLAIMER_SNIPPET.md)
-This repository is a conceptual research prototype. References to "AGI" and "superintelligence" describe aspirational goals and do not indicate the presence of a real general intelligence. Use at your own risk. Nothing herein constitutes financial advice. MontrealAI and the maintainers accept no liability for losses incurred from using this software.
 Each demo package exposes its own `__version__` constant. The value marks the revision of that demo only and does not reflect the overall Alpha‑Factory release version.
 
-
-## Disclaimer
-This repository is a conceptual research prototype. References to "AGI" and
-"superintelligence" describe aspirational goals and do not indicate the presence
-of a real general intelligence. Use at your own risk. Nothing herein constitutes
- financial advice. MontrealAI and the maintainers accept no liability for losses
- incurred from using this software.
 
 # **Meta‑Agentic α‑AGI 👁️✨ Demo v3 — AZR‑Powered “Alpha‑Factory v1” (Production‑Grade v0.3.0)**
 
@@ -262,6 +253,5 @@ The included `agents/alpha_finder.py` continuously scans news/API feeds and trig
 ---
 
 © 2025 MONTREAL.AI — Apache‑2.0
-
 
 [View README](../../alpha_factory_v1/demos/meta_agentic_agi_v3/README.md)

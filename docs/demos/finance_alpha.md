@@ -4,8 +4,6 @@
 
 ![preview](../finance_alpha/assets/preview.svg){.demo-preview}
 
-[See docs/DISCLAIMER_SNIPPET.md](../../../docs/DISCLAIMER_SNIPPET.md)
-This repository is a conceptual research prototype. References to "AGI" and "superintelligence" describe aspirational goals and do not indicate the presence of a real general intelligence. Use at your own risk. Nothing herein constitutes financial advice. MontrealAI and the maintainers accept no liability for losses incurred from using this software.
 Each demo package exposes its own `__version__` constant. The value marks the revision of that demo only and does not reflect the overall Alpha‑Factory release version.
 
 
@@ -19,9 +17,7 @@ planner trace‑graph in *under 2 minutes*.
 a local Φ‑2 model.)*
 
 > **⚠️ Disclaimer**: These demos and the included trading strategy are **for
-> research and educational purposes only**. They operate on a simulated
 > exchange by default and **should not be used with real funds**. Nothing here
-> constitutes financial advice. MontrealAI and the maintainers accept no
 > liability for losses incurred from using this software.
 
 ---
@@ -143,13 +139,9 @@ Enjoy exploring **α‑Factory** – and out‑think the future! 🚀
 
 ---
 
-## WARNING: Disclaimer
-
 This demo and the included trading strategy are **for research and
 educational purposes only**. They operate on a simulated exchange by
 default and **should not be used with real funds**. Nothing here
-constitutes financial advice. MontrealAI and the maintainers accept no
 liability for losses incurred from using this software.
-
 
 [View README](../../alpha_factory_v1/demos/finance_alpha/README.md)

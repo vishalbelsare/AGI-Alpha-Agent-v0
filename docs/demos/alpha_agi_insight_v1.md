@@ -4,8 +4,6 @@
 
 ![preview](../alpha_agi_insight_v1/assets/preview.svg){.demo-preview}
 
-[See docs/DISCLAIMER_SNIPPET.md](../../../docs/DISCLAIMER_SNIPPET.md)
-This repository is a conceptual research prototype. References to "AGI" and "superintelligence" describe aspirational goals and do not indicate the presence of a real general intelligence. Use at your own risk. Nothing herein constitutes financial advice. MontrealAI and the maintainers accept no liability for losses incurred from using this software.
 Each demo package exposes its own `__version__` constant. The value marks the revision of that demo only and does not reflect the overall Alpha‑Factory release version.
 
 
@@ -18,7 +16,6 @@ Each demo package exposes its own `__version__` constant. The value marks the re
 # α‑AGI Insight v1 — Beyond Human Foresight
 [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/MontrealAI/AGI-Alpha-Agent-v0/blob/main/alpha_factory_v1/demos/alpha_agi_insight_v1/colab_alpha_agi_insight_v1.ipynb)
 
-This repository is a conceptual research prototype. References to "AGI" and "superintelligence" describe aspirational goals and do not indicate the presence of a real general intelligence. Use at your own risk.
 
 <p align="center">
   <b>Forecast AGI-driven economic phase-transitions<br>
@@ -707,7 +704,6 @@ This demo is released for **research & internal evaluation only**.
 ---
 
 ### ✨ See beyond human foresight. Build the future, today. ✨
-
 
 
 [View README](../../alpha_factory_v1/demos/alpha_agi_insight_v1/README.md)

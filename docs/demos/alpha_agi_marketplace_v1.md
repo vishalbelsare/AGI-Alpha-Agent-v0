@@ -4,19 +4,10 @@
 
 ![preview](../alpha_agi_marketplace_v1/assets/preview.svg){.demo-preview}
 
-[See docs/DISCLAIMER_SNIPPET.md](../../../docs/DISCLAIMER_SNIPPET.md)
-This repository is a conceptual research prototype. References to "AGI" and "superintelligence" describe aspirational goals and do not indicate the presence of a real general intelligence. Use at your own risk. Nothing herein constitutes financial advice. MontrealAI and the maintainers accept no liability for losses incurred from using this software.
 Each demo package exposes its own `__version__` constant. The value marks the revision of that demo only and does not reflect the overall Alpha‑Factory release version.
 
 
 <!-- README.md — α‑AGI Marketplace Demo (v1.4‑production) -->
-## Disclaimer
-This repository is a conceptual research prototype. References to "AGI" and
-"superintelligence" describe aspirational goals and do not indicate the presence
-of a real general intelligence. Use at your own risk. Nothing herein constitutes
- financial advice. MontrealAI and the maintainers accept no liability for losses
- incurred from using this software.
-
 <h1 align="center">
   Large‑Scale α‑AGI Marketplace 👁️✨ <sup><code>$AGIALPHA</code></sup>
 </h1>
@@ -203,7 +194,9 @@ White‑paper → `docs/tokenomics_v1.pdf`.
 <a id="reputation"></a>
 ## 9 Reputation & Governance 📈
 
-\(R_t = 0.9\,R_{t-1} + 0.1\,rac{reward_{success}}{reward_{total}}\)
+\(R_t = 0.9\,R_{t-1} + 0.1\,
+rac{reward_{success}}{reward_{total}}\)
+rac{reward_{success}}{reward_{total}}\)
 
 * Security incident ⇒ ×0.75.  
 * \(R<0.6\) ⇒ cool‑down `7×(1/R)%` days.  
@@ -246,7 +239,6 @@ White‑paper → `docs/tokenomics_v1.pdf`.
 <a id="faq"></a>
 <p align="center"><sub>Made with ❤, ☕ and real GPUs by the Alpha‑Factory core team.</sub></p>
 
-<details><summary>Do I need an <code>OPENAI_API_KEY</code>?</summary>
 <p>No. Offline mode loads GGUF models. If a key is present the system auto‑upgrades to GPT‑4o.</p>
 </details>
 

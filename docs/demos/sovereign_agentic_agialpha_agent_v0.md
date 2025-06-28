@@ -4,8 +4,6 @@
 
 ![preview](../sovereign_agentic_agialpha_agent_v0/assets/preview.svg){.demo-preview}
 
-[See docs/DISCLAIMER_SNIPPET.md](../../../docs/DISCLAIMER_SNIPPET.md)
-This repository is a conceptual research prototype. References to "AGI" and "superintelligence" describe aspirational goals and do not indicate the presence of a real general intelligence. Use at your own risk. Nothing herein constitutes financial advice. MontrealAI and the maintainers accept no liability for losses incurred from using this software.
 Each demo package exposes its own `__version__` constant. The value marks the revision of that demo only and does not reflect the overall Alpha‑Factory release version.
 
 
@@ -13,9 +11,6 @@ Each demo package exposes its own `__version__` constant. The value marks the re
 
 A minimal showcase of a self-directed agent with token-gated access.
 Run `./deploy_sovereign_agentic_agialpha_agent_v0.sh` to build and launch the containerized environment.
-
-## Disclaimer
-References to AGI or superintelligence describe the aspirational design goals of this demo. The agent shown here is not a true artificial general intelligence and should not be treated as such.
 
 ## Features
 1. Docker-based deployment with one command.
@@ -33,6 +28,5 @@ References to AGI or superintelligence describe the aspirational design goals of
 - Ensure Docker and docker-compose are installed.
 - The script will guide you through optional model configuration.
 - Press `Ctrl+C` to stop logs after deployment if desired.
-
 
 [View README](../../alpha_factory_v1/demos/sovereign_agentic_agialpha_agent_v0/README.md)

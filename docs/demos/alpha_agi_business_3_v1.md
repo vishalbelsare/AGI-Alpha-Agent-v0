@@ -4,8 +4,6 @@
 
 ![preview](../alpha_agi_business_3_v1/assets/preview.svg){.demo-preview}
 
-[See docs/DISCLAIMER_SNIPPET.md](../../../docs/DISCLAIMER_SNIPPET.md)
-This repository is a conceptual research prototype. References to "AGI" and "superintelligence" describe aspirational goals and do not indicate the presence of a real general intelligence. Use at your own risk. Nothing herein constitutes financial advice. MontrealAI and the maintainers accept no liability for losses incurred from using this software.
 Each demo package exposes its own `__version__` constant. The value marks the revision of that demo only and does not reflect the overall Alpha‑Factory release version.
 
 
@@ -22,13 +20,6 @@ high‑stakes prod cluster right now.
 > **Definition**: An **α‑AGI Business** 👁️✨ (`<name>.a.agi.eth`) is an antifragile, self‑governing multi‑agent  👁️✨ (`<name>.a.agent.agi.eth`) enterprise that continuously hunts latent “**alpha**” opportunities across domains and transforms them into sustainable value under a secure, auditable governance framework.
 
 ---
-## Disclaimer
-This repository is a conceptual research prototype. References to "AGI" and
-"superintelligence" describe aspirational goals and do not indicate the presence
-of a real general intelligence. Use at your own risk. Nothing herein constitutes
-financial advice. MontrealAI and the maintainers accept no liability for losses
-incurred from using this software.
-
 ## 🛠 Requirements
 
 - **Python ≥3.11**
@@ -426,6 +417,5 @@ Inherited **2017 Multi‑Agent AI DAO** prior‑art:
 
 *Forged by the MONTREAL.AI Agentic Ω‑Lattice team — bending entropy to will.*  
 Questions → **discord.gg/montrealai**
-
 
 [View README](../../alpha_factory_v1/demos/alpha_agi_business_3_v1/README.md)
