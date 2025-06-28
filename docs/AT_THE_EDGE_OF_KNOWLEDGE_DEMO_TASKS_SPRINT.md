@@ -34,7 +34,9 @@ Execute the helper to compile the progressive web app and confirm the service wo
 ```bash
 ./scripts/build_insight_docs.sh
 ```
-When lineage logs are present this exports `tree.json` so the **Meta‑Agentic Tree Search** plays back organically.
+When lineage logs are present this exports `tree.json`, refreshes
+`docs/gallery.html` via `scripts/generate_gallery_html.py` and ensures the
+**Meta‑Agentic Tree Search** plays back organically.
 
 ## 3. Generate the Demo Gallery
 From the repository root:

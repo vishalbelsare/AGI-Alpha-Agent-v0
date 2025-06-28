@@ -29,7 +29,10 @@ Run the helper from the repository root:
 ./scripts/gallery_sprint.sh
 ```
 
-The script checks the environment, compiles the Insight browser bundle, refreshes `docs/alpha_agi_insight_v1`, builds the MkDocs site and publishes it to the `gh-pages` branch.
+The script checks the environment, compiles the Insight browser bundle, refreshes
+`docs/alpha_agi_insight_v1` and builds the MkDocs site. It also calls
+`scripts/generate_gallery_html.py` so `docs/gallery.html` always lists the latest
+demos before publishing to the `gh-pages` branch.
 
 Preview locally:
 

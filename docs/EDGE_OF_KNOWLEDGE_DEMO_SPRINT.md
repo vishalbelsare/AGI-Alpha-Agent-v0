@@ -26,6 +26,8 @@ Execute the helper from the repository root:
 ./scripts/deploy_gallery_pages.sh
 ```
 This command fetches browser assets, compiles the Insight demo, refreshes all documentation, runs integrity checks and, when Playwright is available, validates offline functionality.
+The helper also invokes `scripts/generate_gallery_html.py` so `docs/gallery.html`
+tracks new demos automatically.
 
 ## 3. Preview Locally
 Serve the site to ensure each page loads smoothly:

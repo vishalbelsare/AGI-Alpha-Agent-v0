@@ -25,7 +25,9 @@ Execute the bundled helper to compile the progressive web app and verify its ser
 ```bash
 ./scripts/build_insight_docs.sh
 ```
-This step exports `tree.json` when lineage logs exist and ensures offline support works as expected.
+This step exports `tree.json` when lineage logs exist, rebuilds
+`docs/gallery.html` via `scripts/generate_gallery_html.py` and ensures offline
+support works as expected.
 
 ## 3. Generate the Demo Gallery
 From the repository root, build the complete gallery and documentation:

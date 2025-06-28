@@ -30,8 +30,9 @@ The Insight browser bundle powers the animated tree search. Refresh it with:
 ```bash
 ./scripts/build_insight_docs.sh
 ```
-This step exports `tree.json` when lineage logs exist and verifies the service
-worker hash for offline support.
+This step exports `tree.json` when lineage logs exist, regenerates
+`docs/gallery.html` via `scripts/generate_gallery_html.py` and verifies the
+service worker hash for offline support.
 
 ## 3. Generate the Demo Gallery
 
