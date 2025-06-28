@@ -19,8 +19,8 @@ npm --prefix "$BROWSER_DIR" ci
 
 "$SCRIPT_DIR/build_insight_docs.sh"
 
-# Build and verify the site
-mkdocs build
+# Build and verify the site using strict mode so warnings fail
+mkdocs build --strict
 python scripts/verify_workbox_hash.py site/alpha_agi_insight_v1
 
 # Optional offline smoke test if Playwright is available

@@ -25,8 +25,8 @@ npm --prefix "$BROWSER_DIR" run fetch-assets
 npm --prefix "$BROWSER_DIR" ci
 "$SCRIPT_DIR/build_insight_docs.sh"
 
-# Compile and verify the MkDocs site
-mkdocs build
+# Compile and verify the MkDocs site. Use --strict so warnings fail the build
+mkdocs build --strict
 python scripts/verify_workbox_hash.py site/alpha_agi_insight_v1
 
 # Optional offline smoke test

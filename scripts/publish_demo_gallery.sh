@@ -25,8 +25,8 @@ python -m alpha_factory_v1.demos.validate_demos
 # Build the Insight browser demo and refresh documentation
 "$SCRIPT_DIR/build_insight_docs.sh"
 
-# Compile the MkDocs site
-mkdocs build
+# Compile the MkDocs site in strict mode so warnings cause failure
+mkdocs build --strict
 python scripts/verify_workbox_hash.py site/alpha_agi_insight_v1
 
 # Optional offline smoke test

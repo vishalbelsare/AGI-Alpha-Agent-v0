@@ -117,8 +117,8 @@ copy_assets
 python scripts/generate_demo_docs.py
 python scripts/generate_gallery_html.py
 
-# Build the MkDocs site
-mkdocs build
+# Build the MkDocs site with --strict so warnings fail the build
+mkdocs build --strict
 
 # Verify the Workbox hash again in the generated site directory
 if ! python scripts/verify_workbox_hash.py site/alpha_agi_insight_v1; then
