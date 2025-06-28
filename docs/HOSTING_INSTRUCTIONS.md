@@ -148,3 +148,16 @@ python scripts/verify_workbox_hash.py site/alpha_agi_insight_v1
 ```
 
 This step catches missing or corrupted assets after deployment.
+
+## Capturing Demo Previews
+
+Use `scripts/capture_demo_preview.py` to generate short recordings for the
+documentation. The helper launches a demo inside a virtual display and captures
+the screen with `ffmpeg`.
+
+```bash
+python scripts/capture_demo_preview.py path/to/demo.sh -o demo.mp4
+```
+
+Supply a `.gif` output name to automatically convert the clip after recording.
+`--duration` and `--size` adjust the recording length and virtual display size.
