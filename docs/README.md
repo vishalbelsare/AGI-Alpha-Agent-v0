@@ -10,6 +10,7 @@
 - [GH Pages Sprint](CODEX_INSIGHT_PAGES_SPRINT.md) – step‑by‑step tasks for Codex to publish the demo
 - [Demo Gallery Sprint](CODEX_DEMO_PAGES_SPRINT.md) – publish the entire gallery to GitHub Pages
 - [Advanced Demo Pages Sprint](CODEX_ADVANCED_DEMO_PAGES_SPRINT.md) – end‑to‑end tasks for the full demo gallery
+- [Edge‑of‑Knowledge Demo Sprint](EDGE_OF_KNOWLEDGE_DEMO_SPRINT.md) – host every advanced demo via GitHub Pages
 - **One‑Command Deployment** – execute `./scripts/insight_sprint.sh` to build, verify and publish the GitHub Pages site automatically.
 
 ## Building the React Dashboard
