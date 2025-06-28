@@ -1,15 +1,19 @@
 .demo-grid {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
   gap: 1rem;
 }
 .demo-card {
-  flex: 1 1 280px;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  display: block;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   border-radius: 8px;
   padding: 1rem;
   background-color: var(--md-default-bg-color);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.demo-card:hover {
+  transform: translateY(-2px) scale(1.02);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
 }
 .demo-card img,
 .demo-card video {
@@ -17,11 +21,6 @@
   height: auto;
   border-radius: 4px;
   display: block;
-}
-@media (max-width: 600px) {
-  .demo-card {
-    flex-basis: 100%;
-  }
 }
 .demo-preview,
 video.demo-preview {
