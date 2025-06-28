@@ -1,11 +1,7 @@
 [See docs/DISCLAIMER_SNIPPET.md](../DISCLAIMER_SNIPPET.md)
 
-# Alpha Agi Business 2 V1
+# Large‑Scale α‑AGI Business 👁️✨ ($AGIALPHA) Demo – **“Infinite Bloom 3.0”**
 
-Iterates business model with live market data RAG.
-
-![screenshot](https://colab.research.google.com/assets/colab-badge.svg)
-![preview](https://media.giphy.com/media/hvRJCLFzcasrR4ia7z/giphy.gif){.demo-preview}
-
+![preview](../alpha_agi_insight_v1/favicon.svg){.demo-preview}
 
 [View README](../../alpha_factory_v1/demos/alpha_agi_business_2_v1/README.md)
