@@ -14,19 +14,53 @@ import html
 import re
 from pathlib import Path
 
-REPO_ROOT = Path(__file__).resolve().parents[1]
-DEMOS_DIR = REPO_ROOT / "docs" / "demos"
-GALLERY_FILE = REPO_ROOT / "docs" / "gallery.html"
-
 H1_RE = re.compile(r"^#\s+(.*)")
 PREVIEW_RE = re.compile(r"!\[preview\]\(([^)]+)\)")
 
 
-def parse_page(md_file: Path) -> tuple[str, str, str]:
-    """Return ``(title, preview, link)`` for ``md_file``."""
+def extract_summary(lines: list[str], title: str) -> str:
+    """Return the first descriptive paragraph after the preview image."""
+    after_preview = False
+    paragraph: list[str] = []
+    for line in lines:
+        if not after_preview:
+            if PREVIEW_RE.search(line):
+                after_preview = True
+            continue
+        stripped = line.strip()
+        if (
+            not stripped
+            or stripped.startswith("#")
+            or stripped.startswith("[")
+            or stripped.startswith("!")
+            or stripped.startswith("---")
+            or stripped == title
+            or stripped.lower().startswith("each demo package")
+            or stripped.startswith("<!--")
+            or stripped.startswith("-->")
+            or stripped.startswith("<")
+            or stripped.startswith("```")
+        ):
+            continue
+        if stripped.startswith(">"):
+            stripped = stripped.lstrip("> ")
+        stripped = re.sub(r"<[^>]+>", "", stripped)
+        paragraph.append(stripped)
+        if not stripped or len(paragraph) >= 2:
+            break
+    return " ".join(paragraph).strip()
+
+REPO_ROOT = Path(__file__).resolve().parents[1]
+DEMOS_DIR = REPO_ROOT / "docs" / "demos"
+GALLERY_FILE = REPO_ROOT / "docs" / "gallery.html"
+
+
+def parse_page(md_file: Path) -> tuple[str, str, str, str]:
+    """Return ``(title, preview, link, summary)`` for ``md_file``."""
     title: str | None = None
     preview: str | None = None
-    for line in md_file.read_text(encoding="utf-8").splitlines():
+    lines = md_file.read_text(encoding="utf-8").splitlines()
+    for line in lines:
         if title is None:
             m = H1_RE.match(line.strip())
             if m:
@@ -52,17 +86,18 @@ def parse_page(md_file: Path) -> tuple[str, str, str]:
     else:
         preview = "alpha_agi_insight_v1/favicon.svg"
     link = f"demos/{md_file.stem}/"
-    return title, preview, link
+    summary = extract_summary(lines, title)
+    return title, preview, link, summary
 
 
-def collect_entries() -> list[tuple[str, str, str]]:
-    entries: list[tuple[str, str, str]] = []
+def collect_entries() -> list[tuple[str, str, str, str]]:
+    entries: list[tuple[str, str, str, str]] = []
     for page in sorted(DEMOS_DIR.glob("*.md")):
         entries.append(parse_page(page))
     return entries
 
 
-def build_html(entries: list[tuple[str, str, str]]) -> str:
+def build_html(entries: list[tuple[str, str, str, str]]) -> str:
     head = """<!-- SPDX-License-Identifier: Apache-2.0 -->
 <!DOCTYPE html>
 <html lang=\"en\">
@@ -86,7 +121,7 @@ def build_html(entries: list[tuple[str, str, str]]) -> str:
   <input id=\"search-input\" class=\"search-input\" type=\"text\" placeholder=\"Search demos...\">
   <div class=\"demo-grid\">"""
     lines = [head]
-    for title, preview, link in entries:
+    for title, preview, link, summary in entries:
         lines.append(
             f'    <a class="demo-card" href="{html.escape(link)}"' ' target="_blank" rel="noopener noreferrer">'
         )
@@ -99,6 +134,8 @@ def build_html(entries: list[tuple[str, str, str]]) -> str:
         else:
             lines.append(f'      <img src="{html.escape(preview)}" alt="{html.escape(title)}"' ' loading="lazy">')
         lines.append(f"      <h3>{html.escape(title)}</h3>")
+        if summary:
+            lines.append(f"      <p class='demo-desc'>{html.escape(summary)}</p>")
         lines.append("    </a>")
     lines.append("  </div>")
     lines.append('  <p class="snippet"><a href="DISCLAIMER_SNIPPET/">See docs/DISCLAIMER_SNIPPET.md</a></p>')

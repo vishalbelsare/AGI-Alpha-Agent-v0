@@ -37,3 +37,10 @@ video.demo-preview {
   width: min(300px, 80%);
   font-size: 1rem;
 }
+
+.demo-desc {
+  margin-top: 0.25rem;
+  font-size: 0.9rem;
+  color: #555;
+  text-align: center;
+}
