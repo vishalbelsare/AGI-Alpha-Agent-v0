@@ -51,18 +51,26 @@ def build_page(demo: Path) -> str:
     if not preview:
         preview = DEFAULT_PREVIEW
 
-    return "\n".join(
-        [
-            DISCLAIMER_LINK,
-            "",
-            f"# {title}",
-            "",
-            f"![preview]({preview}){{.demo-preview}}",
-            "",
-            f"[View README](../../alpha_factory_v1/demos/{demo.name}/README.md)",
-            "",
-        ]
-    )
+    readme_path = demo / "README.md"
+    readme_text = readme_path.read_text(encoding="utf-8")
+    readme_lines = readme_text.splitlines()
+    if readme_lines and readme_lines[0].startswith("#"):
+        readme_text = "\n".join(readme_lines[1:])
+
+    content = [
+        DISCLAIMER_LINK,
+        "",
+        f"# {title}",
+        "",
+        f"![preview]({preview}){{.demo-preview}}",
+        "",
+        readme_text,
+        "",
+        f"[View README](../../alpha_factory_v1/demos/{demo.name}/README.md)",
+        "",
+    ]
+
+    return "\n".join(content)
 
 
 def generate_docs() -> None:
