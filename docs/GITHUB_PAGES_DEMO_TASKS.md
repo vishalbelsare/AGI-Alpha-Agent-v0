@@ -52,3 +52,14 @@ Verify the service worker caches assets for offline use and that the page includ
 - Re‑run the helper whenever demo docs or assets change.
 - Test with `mkdocs build --strict` before deploying.
 - Keep `pre-commit` hooks green so the gallery builds reproducibly.
+
+## 6. Edge-of-Human-Knowledge Sprint
+Run the wrapper to rebuild and publish the entire site in one step:
+
+```bash
+./scripts/edge_human_knowledge_pages_sprint.sh
+```
+
+Prerequisites: **Python 3.11+**, **Node.js 20+**, `mkdocs` and Playwright. This
+script mirrors the [Docs workflow](../.github/workflows/docs.yml) used for
+continuous deployment.

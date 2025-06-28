@@ -45,6 +45,19 @@ and docs with a single command:
 See [docs/GITHUB_PAGES_DEMO_TASKS.md](docs/GITHUB_PAGES_DEMO_TASKS.md) for a
 detailed walkthrough.
 
+### Edge-of-Human-Knowledge Sprint
+
+Run the wrapper to build and deploy the full GitHub Pages site with environment
+checks and offline validation:
+
+```bash
+./scripts/edge_human_knowledge_pages_sprint.sh
+```
+
+Ensure **Python 3.11+**, **Node 20+**, `mkdocs` and Playwright are installed. The
+script mirrors the [Docs workflow](.github/workflows/docs.yml) used for automatic
+deployment.
+
 ## Quickstart
 
 ```bash
