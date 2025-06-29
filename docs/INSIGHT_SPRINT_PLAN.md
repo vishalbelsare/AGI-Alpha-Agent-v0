@@ -21,7 +21,7 @@ This document outlines the minimal tasks required to publish the **α‑AGI Insi
 - Execute `./scripts/publish_insight_pages.sh` to build and deploy the `gh-pages` branch.
 - Once the workflow completes, verify the live site at:
   <https://montrealai.github.io/AGI-Alpha-Agent-v0/alpha_agi_insight_v1/>
-- The repository’s `docs/index.html` already redirects to this path, making the demo accessible from the project root URL.
+- Opening <https://montrealai.github.io/AGI-Alpha-Agent-v0/> shows a landing page with quick links. Use **Launch Demo** to reach this path or open the **Visual Demo Gallery** for other pages.
 
 ## 4. Maintain the Demo
 - Update `forecast.json` or `population.json` to change the scenario, then re-run `build_insight_docs.sh`.

@@ -35,7 +35,7 @@ Start a quick HTTP server to examine the result:
 ```bash
 python -m http.server --directory site 8000
 ```
-Open <http://localhost:8000/> in a browser. Ensure the landing page redirects to `alpha_agi_insight_v1/` and that `gallery.html` links to each demo README with preview images or GIFs.
+Open <http://localhost:8000/> in a browser. Ensure the landing page shows quick links, including **Launch Demo** for `alpha_agi_insight_v1/` and **Visual Demo Gallery** with preview images or GIFs.
 
 ## 4. Deploy to GitHub Pages
 When satisfied, publish the site:

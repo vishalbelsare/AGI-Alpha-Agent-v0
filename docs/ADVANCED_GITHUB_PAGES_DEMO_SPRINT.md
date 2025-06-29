@@ -62,7 +62,7 @@ GitHub Pages hosts the result at:
 ```
 https://<org>.github.io/AGI-Alpha-Agent-v0/
 ```
-The landing page redirects to `alpha_agi_insight_v1/` while the gallery links to every demo.
+The landing page now presents a short menu. Use **Visual Demo Gallery** to browse every demo or **Launch Demo** for the insight preview.
 
 ## 6. Maintenance Tips
 - Re-run `./scripts/deploy_gallery_pages.sh` whenever docs or assets change.

@@ -58,7 +58,7 @@ Upon completion, GitHub Pages serves the gallery at:
 ```
 https://<org>.github.io/AGI-Alpha-Agent-v0/
 ```
-The root `index.html` already redirects to `alpha_agi_insight_v1/`, while `gallery.html` links to every demo README.
+The root `index.html` now displays a menu with quick links. Use **Visual Demo Gallery** for the full list or **Launch Demo** for the insight preview.
 
 ## 6. Verify the Live Site
 

@@ -67,7 +67,7 @@ The final URL typically resembles:
 ```
 https://<org>.github.io/AGI-Alpha-Agent-v0/
 ```
-The landing page redirects to `alpha_agi_insight_v1/` while `gallery.html` links to every showcase.
+The landing page now displays quick links; pick **Visual Demo Gallery** for all showcases or **Launch Demo** for the insight preview.
 
 ## 6. Maintenance Tips
 - Re‑run the helper whenever demo docs or assets change.

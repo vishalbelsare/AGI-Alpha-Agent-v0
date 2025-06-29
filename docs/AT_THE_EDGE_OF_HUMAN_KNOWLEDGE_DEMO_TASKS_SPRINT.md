@@ -84,7 +84,7 @@ The resulting URL typically looks like:
 ```
 https://<org>.github.io/AGI-Alpha-Agent-v0/
 ```
-Open the link in an incognito window and verify the service worker caches assets. The landing page redirects to `alpha_agi_insight_v1/` while `gallery.html` links to every demo.
+Open the link in an incognito window and verify the service worker caches assets. The landing page now shows quick links; choose **Visual Demo Gallery** for the full list or **Launch Demo** for the insight preview.
 
 ## 6. Maintenance Tips
 - Re-run the helper whenever demo docs or assets change.
