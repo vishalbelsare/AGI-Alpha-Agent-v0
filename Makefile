@@ -1,5 +1,5 @@
 .PHONY: build_web demo-setup demo-run compose-up loadtest \
-        gallery-build gallery-open gallery-deploy \
+        gallery-build gallery-open gallery-deploy demo-open \
         proto proto-verify benchmark
 
 build_web:
@@ -49,4 +49,7 @@ gallery-open:
 	bash scripts/open_gallery.sh
 
 gallery-deploy:
-	bash scripts/deploy_gallery_pages.sh
+        bash scripts/deploy_gallery_pages.sh
+
+demo-open:
+	bash scripts/open_demo.sh $(DEMO)

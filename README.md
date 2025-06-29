@@ -54,6 +54,12 @@ make gallery-open
 Run `make gallery-build` to regenerate the site without deploying and open it
 in one step.
 
+Open an individual demo directly:
+
+```bash
+make demo-open DEMO=alpha_agi_business_v1
+```
+
 ### Edge-of-Human-Knowledge Sprint
 
 Run the wrapper to build and deploy the full GitHub Pages site with environment
