@@ -19,7 +19,7 @@ from typing import List, Tuple
 from fastapi import FastAPI, File, Form, HTTPException, UploadFile
 from pydantic import BaseModel
 
-from .simulation import mats
+from alpha_factory_v1.core.simulation import mats
 
 
 def _safe_extract(tf: tarfile.TarFile, target_dir: Path) -> None:

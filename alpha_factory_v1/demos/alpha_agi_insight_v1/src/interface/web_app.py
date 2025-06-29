@@ -8,14 +8,18 @@ Streamlit is unavailable.
 
 from __future__ import annotations
 
-from typing import Any, TYPE_CHECKING
+from typing import Any, TYPE_CHECKING, cast
 
 try:  # pragma: no cover - optional dependency
     import streamlit as st
 except Exception:  # pragma: no cover - optional
     st = None
 
-from ..simulation import forecast, sector
+from alpha_factory_v1.core.simulation.forecast import (
+    TrajectoryPoint,
+    forecast_disruptions,
+)
+from alpha_factory_v1.core.simulation import sector
 
 if TYPE_CHECKING:  # pragma: no cover - typing only
     import pandas as pd
@@ -28,20 +32,23 @@ def _simulate(
     generations: int,
     energy: float = 1.0,
     entropy: float = 1.0,
-) -> list[Any]:
+) -> list[TrajectoryPoint]:
     """Run the disruption forecast and return the trajectory."""
 
     secs = [sector.Sector(f"s{i:02d}", energy, entropy) for i in range(pop_size)]
-    return forecast.forecast_disruptions(
-        secs,
-        horizon,
-        curve,
-        pop_size=pop_size,
-        generations=generations,
+    return cast(
+        list[TrajectoryPoint],
+        forecast_disruptions(
+            secs,
+            horizon,
+            curve,
+            pop_size=pop_size,
+            generations=generations,
+        ),
     )
 
 
-def _timeline_df(traj: list[Any]) -> "pd.DataFrame":
+def _timeline_df(traj: list[TrajectoryPoint]) -> "pd.DataFrame":
     """Convert trajectory data into a DataFrame."""
 
     import pandas as pd
@@ -60,7 +67,7 @@ def _timeline_df(traj: list[Any]) -> "pd.DataFrame":
     return pd.DataFrame(rows)
 
 
-def _disruption_df(traj: list[Any]) -> "pd.DataFrame":
+def _disruption_df(traj: list[TrajectoryPoint]) -> "pd.DataFrame":
     """Return the first disruption year per sector."""
 
     import pandas as pd

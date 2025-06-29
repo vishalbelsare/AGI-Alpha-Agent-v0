@@ -11,7 +11,8 @@ from __future__ import annotations
 import random
 
 from alpha_factory_v1.core.agents.base_agent import BaseAgent
-from ..simulation import forecast, sector
+from alpha_factory_v1.core.simulation.forecast import forecast_disruptions
+from alpha_factory_v1.core.simulation import sector
 from alpha_factory_v1.common.utils import messaging, logging as insight_logging
 from alpha_factory_v1.common.utils.logging import Ledger
 from alpha_factory_v1.common.utils.retry import with_retry
@@ -38,7 +39,7 @@ class ResearchAgent(BaseAgent):
         """Periodic sweep using a tiny evolutionary loop."""
         with span("research.run_cycle"):
             secs = [sector.Sector(f"s{i}") for i in range(3)]
-            traj = forecast.forecast_disruptions(secs, 1)
+            traj = forecast_disruptions(secs, 1)
             if self.adk:
                 try:  # pragma: no cover - optional
                     with span("adk.heartbeat"):
