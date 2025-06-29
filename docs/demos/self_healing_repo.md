@@ -6,6 +6,8 @@
 
 [Launch Demo](../self_healing_repo/){.md-button}
 
+Use the mode toggle in the demo to switch between the offline Pyodide simulation and OpenAI API mode. Any key entered is kept in memory only.
+
 Each demo package exposes its own `__version__` constant. The value marks the revision of that demo only and does not reflect the overall Alpha‑Factory release version.
 
 
