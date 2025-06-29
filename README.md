@@ -20,7 +20,7 @@ The GitHub Pages site hosts the interactive demo under the `alpha_agi_insight_v1
 
 **View the interactive demo here:** <https://montrealai.github.io/AGI-Alpha-Agent-v0/alpha_agi_insight_v1/>
 
-**Browse the visual demo gallery:** <https://montrealai.github.io/AGI-Alpha-Agent-v0/gallery.html>
+**Browse the visual demo gallery:** <https://montrealai.github.io/AGI-Alpha-Agent-v0/>
 
 **Explore all demos:** <https://montrealai.github.io/AGI-Alpha-Agent-v0/alpha_factory_v1/demos/> – run `./scripts/open_subdir_gallery.py` for a local or online launch.
 All browser demos include a **mode toggle**. Choose **Offline** to run a Pyodide simulation directly in your browser or switch to **OpenAI API** when you provide a key. The key is stored only in memory.
