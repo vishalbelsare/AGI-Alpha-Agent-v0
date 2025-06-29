@@ -3,6 +3,9 @@
 # **Meta‑Agentic α‑AGI 👁️✨ Demo v3 — AZR‑Powered “Alpha‑Factory v1” (Production‑Grade v0.3.0)**
 
 ![preview](../meta_agentic_agi_v3/assets/preview.svg){.demo-preview}
+
+[Launch Demo](../meta_agentic_agi_v3/){.md-button}
+
 Each demo package exposes its own `__version__` constant. The value marks the revision of that demo only and does not reflect the overall Alpha‑Factory release version.
 
 

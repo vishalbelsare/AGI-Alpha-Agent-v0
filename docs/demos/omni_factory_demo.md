@@ -3,6 +3,9 @@
 # OMNI-Factory: An Open-Ended Multi-Agent Simulation for Smart City Resilience (OMNI-EPIC + Alpha-Factory v1)
 
 ![preview](../omni_factory_demo/assets/preview.svg){.demo-preview}
+
+[Launch Demo](../omni_factory_demo/){.md-button}
+
 Each demo package exposes its own `__version__` constant. The value marks the revision of that demo only and does not reflect the overall Alpha‑Factory release version.
 
 

@@ -3,6 +3,9 @@
 # Alpha Agi Business V1
 
 ![preview](../alpha_agi_business_v1/assets/preview.svg){.demo-preview}
+
+[Launch Demo](../alpha_agi_business_v1/){.md-button}
+
 Each demo package exposes its own `__version__` constant. The value marks the revision of that demo only and does not reflect the overall Alpha‑Factory release version.
 
 

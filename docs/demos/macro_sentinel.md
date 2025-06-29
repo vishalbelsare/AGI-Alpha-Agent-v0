@@ -3,6 +3,9 @@
 # 🌐 Macro‑Sentinel · Alpha‑Factory v1 👁️✨
 
 ![preview](../macro_sentinel/assets/preview.svg){.demo-preview}
+
+[Launch Demo](../macro_sentinel/){.md-button}
+
 Each demo package exposes its own `__version__` constant. The value marks the revision of that demo only and does not reflect the overall Alpha‑Factory release version.
 
 

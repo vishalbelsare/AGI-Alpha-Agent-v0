@@ -3,6 +3,9 @@
 # 🌟 **Mastery Without a Rule‑Book** — watch MuZero think in real time
 
 ![preview](../muzero_planning/assets/preview.svg){.demo-preview}
+
+[Launch Demo](../muzero_planning/){.md-button}
+
 Each demo package exposes its own `__version__` constant. The value marks the revision of that demo only and does not reflect the overall Alpha‑Factory release version.
 
 

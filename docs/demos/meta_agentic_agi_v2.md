@@ -3,6 +3,9 @@
 # Meta‑Agentic α‑AGI 👁️✨ Demo v2 – **Production‑Grade v0.1.0**
 
 ![preview](../meta_agentic_agi_v2/assets/preview.svg){.demo-preview}
+
+[Launch Demo](../meta_agentic_agi_v2/){.md-button}
+
 Each demo package exposes its own `__version__` constant. The value marks the revision of that demo only and does not reflect the overall Alpha‑Factory release version.
 
 

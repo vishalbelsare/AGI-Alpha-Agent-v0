@@ -3,6 +3,9 @@
 # Alpha Asi World Model
 
 ![preview](../alpha_asi_world_model/assets/preview.svg){.demo-preview}
+
+[Launch Demo](../alpha_asi_world_model/){.md-button}
+
 Each demo package exposes its own `__version__` constant. The value marks the revision of that demo only and does not reflect the overall Alpha‑Factory release version.
 
 
