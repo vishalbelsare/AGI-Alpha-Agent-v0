@@ -46,13 +46,13 @@ gallery-build:
 	bash scripts/build_gallery_site.sh
 
 gallery-open:
-        python scripts/open_gallery.py
+	python scripts/open_gallery.py
 
 subdir-gallery-open:
 	python scripts/open_subdir_gallery.py
 
 gallery-deploy:
-        bash scripts/deploy_gallery_pages.sh
+	bash scripts/deploy_gallery_pages.sh
 
 demo-open:
 	bash scripts/open_demo.sh $(DEMO)
