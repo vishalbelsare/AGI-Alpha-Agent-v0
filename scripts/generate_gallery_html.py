@@ -58,7 +58,11 @@ DEMOS_INDEX_FILE = REPO_ROOT / "docs" / "demos" / "index.html"
 
 
 def parse_page(md_file: Path) -> tuple[str, str, str, str]:
-    """Return ``(title, preview, link, summary)`` for ``md_file``."""
+    """Return ``(title, preview, link, summary)`` for ``md_file``.
+
+    If ``docs/<demo>/index.html`` exists, link directly to that page.
+    Otherwise fall back to the Markdown page under ``docs/demos``.
+    """
     title: str | None = None
     preview: str | None = None
     lines = md_file.read_text(encoding="utf-8").splitlines()
@@ -87,7 +91,11 @@ def parse_page(md_file: Path) -> tuple[str, str, str, str]:
                     break
     else:
         preview = "alpha_agi_insight_v1/favicon.svg"
-    link = f"demos/{md_file.stem}/"
+    demo_index = REPO_ROOT / "docs" / md_file.stem / "index.html"
+    if demo_index.is_file():
+        link = f"{md_file.stem}/"
+    else:
+        link = f"demos/{md_file.stem}/"
     summary = extract_summary(lines, title)
     return title, preview, link, summary
 
@@ -124,8 +132,9 @@ def build_html(entries: list[tuple[str, str, str, str]], *, disclaimer_prefix: s
   <div class=\"demo-grid\">"""
     lines = [head]
     for title, preview, link, summary in entries:
+        full_link = f"{disclaimer_prefix}{link}"
         lines.append(
-            f'    <a class="demo-card" href="{html.escape(link)}"' ' target="_blank" rel="noopener noreferrer">'
+            f'    <a class="demo-card" href="{html.escape(full_link)}" target="_blank" rel="noopener noreferrer">'
         )
         ext = Path(preview).suffix.lower()
         if ext in {".mp4", ".webm"}:
