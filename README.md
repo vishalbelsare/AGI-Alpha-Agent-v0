@@ -63,10 +63,11 @@ make demo-open DEMO=alpha_agi_business_v1
 ### Edge-of-Human-Knowledge Sprint
 
 Run the wrapper to build and deploy the full GitHub Pages site with environment
-checks and offline validation:
+checks and offline validation. Use the shell or Python version:
 
 ```bash
 ./scripts/edge_human_knowledge_pages_sprint.sh
+python scripts/edge_human_knowledge_pages_sprint.py
 ```
 
 Ensure **Python 3.11+**, **Node 20+**, `mkdocs` and Playwright are installed. The

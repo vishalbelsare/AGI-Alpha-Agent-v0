@@ -58,6 +58,7 @@ Run the wrapper to rebuild and publish the entire site in one step:
 
 ```bash
 ./scripts/edge_human_knowledge_pages_sprint.sh
+python scripts/edge_human_knowledge_pages_sprint.py
 ```
 
 Prerequisites: **Python 3.11+**, **Node.js 20+**, `mkdocs` and Playwright. This
