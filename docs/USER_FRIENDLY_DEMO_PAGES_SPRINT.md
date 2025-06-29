@@ -52,7 +52,7 @@ GitHub Pages serves the final URL at:
 ```
 https://<org>.github.io/AGI-Alpha-Agent-v0/
 ```
-The landing page redirects to `alpha_agi_insight_v1/` while the gallery links to every showcase.
+The landing page now displays quick links. Use **Launch Demo** for `alpha_agi_insight_v1/` or open the **Visual Demo Gallery** to explore every showcase.
 
 ## 6. Maintenance Tips
 - Capture short GIFs or screenshots under `docs/<demo>/assets/` for a highly visual experience.

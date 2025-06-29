@@ -63,8 +63,7 @@ GitHub Pages serves the final result at:
 ```
 https://<org>.github.io/AGI-Alpha-Agent-v0/
 ```
-The root `index.html` redirects to the Insight demo while `gallery.html` links to
-all other showcases.
+The root `index.html` now presents quick links. Select **Launch Demo** for the Insight preview or **Visual Demo Gallery** for all other showcases.
 
 ## 6. Verify the Live Site
 

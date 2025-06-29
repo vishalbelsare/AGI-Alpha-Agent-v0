@@ -45,7 +45,7 @@ The site becomes accessible at:
 ```
 https://<org>.github.io/AGI-Alpha-Agent-v0/
 ```
-The landing page redirects to `alpha_agi_insight_v1/` while the **Visual Demo Gallery** links to each README so users can watch every demo unfold organically.
+The landing page now displays quick links. Select **Launch Demo** for the insight preview or open the **Visual Demo Gallery** to view every README as the demos unfold organically.
 
 ## 5. Maintenance Tips
 - Re‑run `./scripts/deploy_gallery_pages.sh` whenever demo docs or assets change.

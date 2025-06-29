@@ -52,7 +52,7 @@ The gallery becomes available at:
 ```
 https://<org>.github.io/AGI-Alpha-Agent-v0/
 ```
-Confirm the landing page redirects to `alpha_agi_insight_v1/` and that offline access works after the first visit.
+Confirm the landing page shows a menu. Selecting **Launch Demo** opens `alpha_agi_insight_v1/`. Verify offline access works after the first visit.
 
 ## 6. Maintenance
 - Rerun `./scripts/deploy_gallery_pages.sh` whenever demo docs or assets change.

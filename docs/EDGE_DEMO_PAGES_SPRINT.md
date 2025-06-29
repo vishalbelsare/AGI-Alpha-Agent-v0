@@ -41,7 +41,7 @@ Upon successful validation the helper publishes the MkDocs site to the `gh-pages
 https://<org>.github.io/AGI-Alpha-Agent-v0/
 ```
 
-The root `index.html` redirects to `alpha_agi_insight_v1/` while `gallery.html` links to every README so users can watch each demo unfold organically and elegantly.
+The root `index.html` now presents a few quick links. Choose **Visual Demo Gallery** to explore every README or **Launch Demo** for the insight preview.
 
 ## 4. Ongoing Maintenance
 
