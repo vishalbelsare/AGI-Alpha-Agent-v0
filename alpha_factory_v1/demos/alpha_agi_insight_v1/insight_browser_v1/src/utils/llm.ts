@@ -7,6 +7,12 @@ export const LLM_LOAD_START = 'llm-load-start';
 export const LLM_LOAD_END = 'llm-load-end';
 export const gpuAvailable =
   typeof navigator !== 'undefined' && !!(navigator as any).gpu;
+let runOffline = false;
+
+try {
+  const offline = localStorage.getItem('RUN_OFFLINE');
+  runOffline = offline === '1';
+} catch {}
 
 try {
   const saved = localStorage.getItem('USE_GPU');
@@ -21,6 +27,17 @@ export function setUseGpu(flag: boolean) {
     localStorage.setItem('USE_GPU', useGpu ? '1' : '0');
   } catch {}
   localModel = null;
+}
+
+export function setOffline(flag: boolean) {
+  runOffline = !!flag;
+  try {
+    localStorage.setItem('RUN_OFFLINE', runOffline ? '1' : '0');
+  } catch {}
+}
+
+export function isOffline(): boolean {
+  return runOffline;
 }
 
 async function ensureOrt(): Promise<boolean> {
@@ -74,7 +91,8 @@ async function loadLocal(): Promise<any> {
 }
 
 export async function chat(prompt: string): Promise<string> {
-  const key = localStorage.getItem('OPENAI_API_KEY');
+  const offline = runOffline;
+  const key = offline ? null : localStorage.getItem('OPENAI_API_KEY');
   if (key) {
     const resp = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',

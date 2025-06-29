@@ -135,9 +135,11 @@ The demo ships with both a **command-line interface** *and* an
 optional **web dashboard** (Streamlit *or* FastAPI + React) so that analysts,
 executives, and researchers can explore “what-if” scenarios in minutes.
 
-> **Runs anywhere – with or without an `OPENAI_API_KEY`.**  
+> **Runs anywhere – with or without an `OPENAI_API_KEY`.**
 > When the key is absent, the system automatically switches to a local
-> open-weights model and offline toolset.
+> open-weights model and offline toolset. The browser demo includes an
+> **Offline/API** selector that stores the key in `localStorage` and
+> falls back gracefully when missing.
 
 ### Repository Layout
 
