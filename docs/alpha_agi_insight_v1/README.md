@@ -1,4 +1,4 @@
-[See docs/DISCLAIMER_SNIPPET.md](../DISCLAIMER_SNIPPET.html)
+[See docs/DISCLAIMER_SNIPPET.md](../DISCLAIMER_SNIPPET.md)
 
 # α-AGI Insight v1
 
