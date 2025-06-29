@@ -133,8 +133,12 @@ def build_html(entries: list[tuple[str, str, str, str]], *, disclaimer_prefix: s
     lines = [head]
     for title, preview, link, summary in entries:
         full_link = f"{disclaimer_prefix}{link}"
+        summary_attr = html.escape(summary.lower()) if summary else ""
         lines.append(
-            f'    <a class="demo-card" href="{html.escape(full_link)}" target="_blank" rel="noopener noreferrer">'
+            "    <a class=\"demo-card\" "
+            f'href="{html.escape(full_link)}" target="_blank" '
+            'rel="noopener noreferrer" '
+            f'data-summary="{summary_attr}">' 
         )
         ext = Path(preview).suffix.lower()
         if ext in {".mp4", ".webm"}:
@@ -160,8 +164,8 @@ def build_html(entries: list[tuple[str, str, str, str]], *, disclaimer_prefix: s
     lines.append("    input.addEventListener('input', () => {")
     lines.append("      const term = input.value.toLowerCase();")
     lines.append("      cards.forEach(c => {")
-    lines.append("        const t = c.querySelector('h3').textContent.toLowerCase();")
-    lines.append("        c.style.display = t.includes(term) ? 'block' : 'none';")
+    lines.append("        const text = c.querySelector('h3').textContent.toLowerCase() + ' ' + (c.dataset.summary || '');")
+    lines.append("        c.style.display = text.includes(term) ? 'block' : 'none';")
     lines.append("      });")
     lines.append("    });")
     lines.append("  </script>")
