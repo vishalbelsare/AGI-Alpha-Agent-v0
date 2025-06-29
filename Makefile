@@ -1,5 +1,5 @@
 .PHONY: build_web demo-setup demo-run compose-up loadtest \
-        gallery-build gallery-open gallery-deploy demo-open \
+        gallery-build gallery-open subdir-gallery-open gallery-deploy demo-open \
         proto proto-verify benchmark
 
 build_web:
@@ -46,7 +46,10 @@ gallery-build:
 	bash scripts/build_gallery_site.sh
 
 gallery-open:
-	python scripts/open_gallery.py
+        python scripts/open_gallery.py
+
+subdir-gallery-open:
+	python scripts/open_subdir_gallery.py
 
 gallery-deploy:
         bash scripts/deploy_gallery_pages.sh

@@ -18,6 +18,7 @@
 - **Open Gallery (Python)** – run `./scripts/open_gallery.py` for a cross-platform way to launch the published gallery, falling back to the local build when offline.
 - **Open Gallery (Shell)** – run `./scripts/open_gallery.sh` to open the gallery in your browser. It automatically builds a fresh local copy when the remote site isn't available.
 - **Open Individual Demo** – run `./scripts/open_demo.sh <demo_dir>` to open a single page from the gallery.
+- **Open Subdirectory Gallery** – run `./scripts/open_subdir_gallery.py` to launch the mirror under `alpha_factory_v1/demos/`.
 - **Verify Disclaimer Snippet** – run `python scripts/verify_disclaimer_snippet.py` to ensure each file contains the disclaimer text once.
 
 ## Building the React Dashboard
