@@ -2,7 +2,7 @@
 /* eslint-env browser */
 /* global Chart */
 /* eslint-disable no-undef */
-import {setupPyodideDemo} from '../assets/pyodide_demo.js';
+import {setupPyodideDemo} from '../../assets/pyodide_demo.js';
 
 fetch('assets/logs.json')
   .then(res => res.json())
