@@ -108,7 +108,7 @@ def collect_entries() -> list[tuple[str, str, str, str]]:
     return entries
 
 
-def build_html(entries: list[tuple[str, str, str, str]], *, disclaimer_prefix: str) -> str:
+def build_html(entries: list[tuple[str, str, str, str]], *, disclaimer_prefix: str = "") -> str:
     head = """<!-- SPDX-License-Identifier: Apache-2.0 -->
 <!DOCTYPE html>
 <html lang=\"en\">
@@ -141,14 +141,15 @@ def build_html(entries: list[tuple[str, str, str, str]], *, disclaimer_prefix: s
             'rel="noopener noreferrer" '
             f'data-summary="{summary_attr}">'
         )
+        preview_path = f"{disclaimer_prefix}{preview}"
         ext = Path(preview).suffix.lower()
         if ext in {".mp4", ".webm"}:
             lines.append(
-                f'      <video src="{html.escape(preview)}" autoplay loop muted '
+                f'      <video src="{html.escape(preview_path)}" autoplay loop muted '
                 f'playsinline loading="lazy" aria-label="{html.escape(title)}"></video>'
             )
         else:
-            lines.append(f'      <img src="{html.escape(preview)}" alt="{html.escape(title)}"' ' loading="lazy">')
+            lines.append(f'      <img src="{html.escape(preview_path)}" alt="{html.escape(title)}" loading="lazy">')
         lines.append(f"      <h3>{html.escape(title)}</h3>")
         if summary:
             lines.append(f"      <p class='demo-desc'>{html.escape(summary)}</p>")
