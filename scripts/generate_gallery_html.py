@@ -55,6 +55,7 @@ REPO_ROOT = Path(__file__).resolve().parents[1]
 DEMOS_DIR = REPO_ROOT / "docs" / "demos"
 GALLERY_FILE = REPO_ROOT / "docs" / "gallery.html"
 DEMOS_INDEX_FILE = REPO_ROOT / "docs" / "demos" / "index.html"
+SUBDIR_GALLERY_FILE = REPO_ROOT / "docs" / "alpha_factory_v1" / "demos" / "index.html"
 
 
 def parse_page(md_file: Path) -> tuple[str, str, str, str]:
@@ -135,10 +136,10 @@ def build_html(entries: list[tuple[str, str, str, str]], *, disclaimer_prefix: s
         full_link = f"{disclaimer_prefix}{link}"
         summary_attr = html.escape(summary.lower()) if summary else ""
         lines.append(
-            "    <a class=\"demo-card\" "
+            '    <a class="demo-card" '
             f'href="{html.escape(full_link)}" target="_blank" '
             'rel="noopener noreferrer" '
-            f'data-summary="{summary_attr}">' 
+            f'data-summary="{summary_attr}">'
         )
         ext = Path(preview).suffix.lower()
         if ext in {".mp4", ".webm"}:
@@ -164,7 +165,9 @@ def build_html(entries: list[tuple[str, str, str, str]], *, disclaimer_prefix: s
     lines.append("    input.addEventListener('input', () => {")
     lines.append("      const term = input.value.toLowerCase();")
     lines.append("      cards.forEach(c => {")
-    lines.append("        const text = c.querySelector('h3').textContent.toLowerCase() + ' ' + (c.dataset.summary || '');")
+    lines.append(
+        "        const text = c.querySelector('h3').textContent.toLowerCase() + ' ' + (c.dataset.summary || '');"
+    )
     lines.append("        c.style.display = text.includes(term) ? 'block' : 'none';")
     lines.append("      });")
     lines.append("    });")
@@ -179,7 +182,15 @@ def main() -> None:
     GALLERY_FILE.write_text(gallery_html, encoding="utf-8")
     demos_html = build_html(entries, disclaimer_prefix="../")
     DEMOS_INDEX_FILE.write_text(demos_html, encoding="utf-8")
-    print("Wrote" f" {GALLERY_FILE.relative_to(REPO_ROOT)} and" f" {DEMOS_INDEX_FILE.relative_to(REPO_ROOT)}")
+    subdir_html = build_html(entries, disclaimer_prefix="../../")
+    SUBDIR_GALLERY_FILE.parent.mkdir(parents=True, exist_ok=True)
+    SUBDIR_GALLERY_FILE.write_text(subdir_html, encoding="utf-8")
+    print(
+        "Wrote"
+        f" {GALLERY_FILE.relative_to(REPO_ROOT)},"
+        f" {DEMOS_INDEX_FILE.relative_to(REPO_ROOT)} and"
+        f" {SUBDIR_GALLERY_FILE.relative_to(REPO_ROOT)}"
+    )
 
 
 if __name__ == "__main__":
