@@ -28,7 +28,12 @@ python -m alpha_factory_v1.demos.validate_demos
 python scripts/verify_workbox_hash.py site/alpha_agi_insight_v1
 
 # Optional second offline validation if Playwright is available
-if python - "import importlib,sys;sys.exit(0 if importlib.util.find_spec('playwright') else 1)"; then
+if python - <<'EOF'
+import importlib, sys
+sys.exit(0 if importlib.util.find_spec('playwright') else 1)
+EOF
+then
+  python scripts/verify_demo_pages.py
   python -m http.server --directory site 8000 &
   SERVER_PID=$!
   trap 'kill $SERVER_PID' EXIT
