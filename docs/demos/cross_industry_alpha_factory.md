@@ -3,6 +3,9 @@
 # 👁️ Alpha-Factory v1 — Cross-Industry **AGENTIC α-AGI** Demo
 
 ![preview](../cross_industry_alpha_factory/assets/preview.svg){.demo-preview}
+
+[Launch Demo](../cross_industry_alpha_factory/){.md-button}
+
 Each demo package exposes its own `__version__` constant. The value marks the revision of that demo only and does not reflect the overall Alpha‑Factory release version.
 
 Current demo version: `1.0.0`.
