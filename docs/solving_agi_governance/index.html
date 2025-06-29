@@ -27,5 +27,12 @@ body { font-family: Arial, sans-serif; margin:0; padding:2rem; text-align:center
 <script src="../assets/chart.min.js"></script>
 <script type="module" src="assets/script.js"></script>
 <p><a href="../gallery.html">⬅️ Back to Gallery</a></p>
+<script>
+  if ("serviceWorker" in navigator) {
+    navigator.serviceWorker.register("service-worker.js").catch(() => {
+      console.warn("Service worker registration failed");
+    });
+  }
+</script>
 </body>
 </html>

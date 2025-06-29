@@ -25,19 +25,32 @@ def compute_hash(workbox: Path) -> str:
     return f"sha384-{b64}"
 
 
-def main(directory: Path) -> int:
+def check_directory(directory: Path) -> int:
     service_worker = directory / "service-worker.js"
-    workbox = directory / "lib" / "workbox-sw.js"
     if not service_worker.exists():
-        raise FileNotFoundError(service_worker)
+        return 0
+    try:
+        expected = parse_expected_hash(service_worker)
+    except ValueError:
+        # directory does not use workbox
+        return 0
+    workbox = directory / "lib" / "workbox-sw.js"
     if not workbox.exists():
-        raise FileNotFoundError(workbox)
-    expected = parse_expected_hash(service_worker)
+        print(f"{directory}: lib/workbox-sw.js missing")
+        return 1
     actual = compute_hash(workbox)
     if expected != actual:
-        print(f"Hash mismatch: expected {expected}, got {actual}")
+        print(f"{directory}: hash mismatch: expected {expected}, got {actual}")
         return 1
     return 0
+
+
+def main(base: Path) -> int:
+    code = 0
+    for d in base.iterdir():
+        if d.is_dir():
+            code = max(code, check_directory(d))
+    return code
 
 
 if __name__ == "__main__":
@@ -45,8 +58,8 @@ if __name__ == "__main__":
     parser.add_argument(
         "path",
         nargs="?",
-        default="docs/alpha_agi_insight_v1",
-        help="Directory containing service-worker.js and lib/workbox-sw.js",
+        default="docs",
+        help="Base directory containing demo folders",
     )
     args = parser.parse_args()
     raise SystemExit(main(Path(args.path)))
