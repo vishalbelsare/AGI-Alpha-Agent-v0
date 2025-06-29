@@ -22,6 +22,8 @@ The GitHub Pages site hosts the interactive demo under the `alpha_agi_insight_v1
 
 **Browse the visual demo gallery:** <https://montrealai.github.io/AGI-Alpha-Agent-v0/gallery.html>
 
+**Explore all demos:** <https://montrealai.github.io/AGI-Alpha-Agent-v0/alpha_factory_v1/demos/> – run `./scripts/open_subdir_gallery.py` for a local or online launch.
+
 **Important:** Run `npm run fetch-assets` before `npm install` or executing `./setup.sh` to download the browser demo assets. See [insight_browser_v1/README.md](alpha_factory_v1/demos/alpha_agi_insight_v1/insight_browser_v1/README.md) for details.
 
 [![Launch \u03b1\u2011AGI Insight](https://img.shields.io/badge/Launch-%CE%B1%E2%80%91AGI%20Insight-blue?style=for-the-badge)](https://montrealai.github.io/AGI-Alpha-Agent-v0/alpha_agi_insight_v1/)
