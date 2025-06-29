@@ -8,7 +8,7 @@ implemented for demonstration purposes.
 
 from __future__ import annotations
 
-from .base_agent import BaseAgent
+from alpha_factory_v1.core.agents.base_agent import BaseAgent
 from alpha_factory_v1.common.utils import messaging
 from alpha_factory_v1.common.utils.logging import Ledger
 from alpha_factory_v1.core.utils.tracing import span

@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: Apache-2.0
 """Base class shared by all Insight demo agents.
 
-The class wires each agent into the :class:`~..utils.messaging.A2ABus` and
+The class wires each agent into the :class:`~alpha_factory_v1.common.utils.messaging.A2ABus` and
 provides helper methods for sending and receiving envelopes. Subclasses
 implement :meth:`handle` to process messages and :meth:`run_cycle` for
 periodic behaviour.
@@ -17,12 +17,12 @@ try:
 except Exception:  # pragma: no cover - optional
     LLMProvider = None
 
-from ..utils import messaging
-from .adk_adapter import ADKAdapter
-from .mcp_adapter import MCPAdapter
+from ...common.utils import messaging
+from alpha_factory_v1.demos.alpha_agi_insight_v1.src.agents.adk_adapter import ADKAdapter
+from alpha_factory_v1.demos.alpha_agi_insight_v1.src.agents.mcp_adapter import MCPAdapter
 
 if TYPE_CHECKING:  # pragma: no cover - type hint only
-    from ..utils.logging import Ledger
+    from ...common.utils.logging import Ledger
 
 try:
     from openai.agents import AgentContext as _AgentContext
