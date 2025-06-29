@@ -108,7 +108,7 @@ def collect_entries() -> list[tuple[str, str, str, str]]:
     return entries
 
 
-def build_html(entries: list[tuple[str, str, str, str]], *, disclaimer_prefix: str = "") -> str:
+def build_html(entries: list[tuple[str, str, str, str]], *, prefix: str = "") -> str:
     head = """<!-- SPDX-License-Identifier: Apache-2.0 -->
 <!DOCTYPE html>
 <html lang=\"en\">
@@ -116,14 +116,14 @@ def build_html(entries: list[tuple[str, str, str, str]], *, disclaimer_prefix: s
   <meta charset=\"UTF-8\">
   <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">
   <title>Alpha‑Factory Demo Gallery</title>
-  <link rel=\"stylesheet\" href=\"stylesheets/cards.css\">
+  <link rel=\"stylesheet\" href=\"{prefix}stylesheets/cards.css\">
   <style>
-    body { font-family: Arial, sans-serif; margin: 0; padding: 2rem; background: #f7f7f7; }
-    h1 { text-align: center; margin-bottom: 1rem; }
-    p.subtitle { text-align: center; margin-bottom: 2rem; }
-    a.demo-card { text-decoration: none; color: inherit; }
-    .demo-card h3 { margin-top: 0.5rem; text-align: center; }
-    .search-input { display: block; margin: 0 auto 1.5rem; padding: 0.5rem; width: min(300px, 80%); font-size: 1rem; }
+    body {{ font-family: Arial, sans-serif; margin: 0; padding: 2rem; background: #f7f7f7; }}
+    h1 {{ text-align: center; margin-bottom: 1rem; }}
+    p.subtitle {{ text-align: center; margin-bottom: 2rem; }}
+    a.demo-card {{ text-decoration: none; color: inherit; }}
+    .demo-card h3 {{ margin-top: 0.5rem; text-align: center; }}
+    .search-input {{ display: block; margin: 0 auto 1.5rem; padding: 0.5rem; width: min(300px, 80%); font-size: 1rem; }}
   </style>
 </head>
 <body>
@@ -131,9 +131,10 @@ def build_html(entries: list[tuple[str, str, str, str]], *, disclaimer_prefix: s
   <p class=\"subtitle\">Select a demo to explore detailed instructions and watch it unfold in real time.</p>
   <input id=\"search-input\" class=\"search-input\" type=\"text\" placeholder=\"Search demos...\">
   <div class=\"demo-grid\">"""
+    head = head.format(prefix=prefix)
     lines = [head]
     for title, preview, link, summary in entries:
-        full_link = f"{disclaimer_prefix}{link}"
+        full_link = f"{prefix}{link}"
         summary_attr = html.escape(summary.lower()) if summary else ""
         lines.append(
             '    <a class="demo-card" '
@@ -141,7 +142,7 @@ def build_html(entries: list[tuple[str, str, str, str]], *, disclaimer_prefix: s
             'rel="noopener noreferrer" '
             f'data-summary="{summary_attr}">'
         )
-        preview_path = f"{disclaimer_prefix}{preview}"
+        preview_path = f"{prefix}{preview}"
         ext = Path(preview).suffix.lower()
         if ext in {".mp4", ".webm"}:
             lines.append(
@@ -155,11 +156,9 @@ def build_html(entries: list[tuple[str, str, str, str]], *, disclaimer_prefix: s
             lines.append(f"      <p class='demo-desc'>{html.escape(summary)}</p>")
         lines.append("    </a>")
     lines.append("  </div>")
-    home_link = f"{disclaimer_prefix}index.html"
+    home_link = f"{prefix}index.html"
     lines.append(f'  <p><a href="{home_link}">\u2b05\ufe0f Back to Home</a></p>')
-    lines.append(
-        f'  <p class="snippet"><a href="{disclaimer_prefix}DISCLAIMER_SNIPPET/">See docs/DISCLAIMER_SNIPPET.md</a></p>'
-    )
+    lines.append(f'  <p class="snippet"><a href="{prefix}DISCLAIMER_SNIPPET/">See docs/DISCLAIMER_SNIPPET.md</a></p>')
     lines.append("  <script>")
     lines.append("    const input = document.getElementById('search-input');")
     lines.append("    const cards = document.querySelectorAll('.demo-card');")
@@ -179,11 +178,11 @@ def build_html(entries: list[tuple[str, str, str, str]], *, disclaimer_prefix: s
 
 def main() -> None:
     entries = collect_entries()
-    gallery_html = build_html(entries, disclaimer_prefix="")
+    gallery_html = build_html(entries, prefix="")
     GALLERY_FILE.write_text(gallery_html, encoding="utf-8")
-    demos_html = build_html(entries, disclaimer_prefix="../")
+    demos_html = build_html(entries, prefix="../")
     DEMOS_INDEX_FILE.write_text(demos_html, encoding="utf-8")
-    subdir_html = build_html(entries, disclaimer_prefix="../../")
+    subdir_html = build_html(entries, prefix="../../")
     SUBDIR_GALLERY_FILE.parent.mkdir(parents=True, exist_ok=True)
     SUBDIR_GALLERY_FILE.write_text(subdir_html, encoding="utf-8")
     print(
