@@ -16,6 +16,7 @@
 - **Build & Open Gallery** – run `./scripts/build_open_gallery.sh` to regenerate the docs and open the gallery automatically.
 - **Preview Gallery Locally** – run `./scripts/preview_gallery.sh` to build the full gallery and serve it on <http://localhost:8000/>.
 - **Open Gallery (Python)** – run `./scripts/open_gallery.py` for a cross-platform way to launch the published gallery, falling back to the local build when offline.
+- **Open Gallery (Shell)** – run `./scripts/open_gallery.sh` to open the gallery in your browser. It automatically builds a fresh local copy when the remote site isn't available.
 - **Open Individual Demo** – run `./scripts/open_demo.sh <demo_dir>` to open a single page from the gallery.
 - **Verify Disclaimer Snippet** – run `python scripts/verify_disclaimer_snippet.py` to ensure each file contains the disclaimer text once.
 
