@@ -108,6 +108,11 @@ repos:
         entry: python scripts/verify_disclaimer_helper.py
         language: python
         pass_filenames: false
+      - id: verify-gallery-assets
+        name: Verify demo gallery preview assets exist
+        entry: python scripts/verify_gallery_assets.py
+        language: python
+        pass_filenames: false
       - id: py-compile
         name: Validate Python syntax with py_compile
         entry: python -m py_compile
