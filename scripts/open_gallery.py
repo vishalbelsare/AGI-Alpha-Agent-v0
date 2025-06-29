@@ -2,11 +2,13 @@
 # SPDX-License-Identifier: Apache-2.0
 """Open the Alpha-Factory demo gallery in a web browser.
 
-This helper mirrors ``open_gallery.sh`` but uses Python for portability.
-It attempts to open the published GitHub Pages gallery and falls back to a
-local build under ``site/`` when offline. If the local build is missing,
-the script automatically runs ``scripts/build_gallery_site.sh`` to generate
-the site so non-technical users can access the demos with a single command.
+This helper mirrors ``open_gallery.sh`` but uses Python for portability.  It
+attempts to open the published GitHub Pages gallery and falls back to a local
+build under ``site/`` when offline.  If the local build is missing, the script
+automatically runs ``scripts/build_gallery_site.sh`` to generate the site so
+non‑technical users can access the demos with a single command.  When serving
+the local copy, a lightweight HTTP server is spawned to preserve all
+functionality such as service workers and relative assets.
 """
 from __future__ import annotations
 
@@ -15,6 +17,9 @@ import sys
 from pathlib import Path
 from urllib.request import Request, urlopen
 import webbrowser
+from http.server import ThreadingHTTPServer, SimpleHTTPRequestHandler
+from functools import partial
+import threading
 
 
 def _build_local_site(repo_root: Path) -> bool:
@@ -54,7 +59,8 @@ def main() -> None:
         webbrowser.open(url)
         return
     repo_root = Path(__file__).resolve().parents[1]
-    local_page = repo_root / "site" / "gallery.html"
+    site_dir = repo_root / "site"
+    local_page = site_dir / "gallery.html"
     if not local_page.is_file():
         print("Remote gallery unavailable. Building local copy...", file=sys.stderr)
         if not _build_local_site(repo_root) or not local_page.is_file():
@@ -63,8 +69,20 @@ def main() -> None:
                 file=sys.stderr,
             )
             sys.exit(1)
-    print(f"Remote gallery unavailable. Opening local copy at {local_page}", file=sys.stderr)
-    webbrowser.open(local_page.as_uri())
+
+    handler = partial(SimpleHTTPRequestHandler, directory=str(site_dir))
+    with ThreadingHTTPServer(("127.0.0.1", 0), handler) as httpd:
+        port = httpd.server_address[1]
+        url = f"http://127.0.0.1:{port}/gallery.html"
+        print(f"Remote gallery unavailable. Serving local copy at {url}", file=sys.stderr)
+
+        thread = threading.Thread(target=httpd.serve_forever, daemon=True)
+        thread.start()
+        try:
+            webbrowser.open(url)
+            thread.join()
+        except KeyboardInterrupt:
+            pass
 
 
 if __name__ == "__main__":
