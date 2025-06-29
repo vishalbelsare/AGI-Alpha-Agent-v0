@@ -6,6 +6,8 @@
 
 [Launch Demo](../solving_agi_governance/){.md-button}
 
+Choose **Offline** or **OpenAI API** using the toggle under the chart. The demo stores your API key only for the current session.
+
 Each demo package exposes its own `__version__` constant. The value marks the revision of that demo only and does not reflect the overall Alpha‑Factory release version.
 
 

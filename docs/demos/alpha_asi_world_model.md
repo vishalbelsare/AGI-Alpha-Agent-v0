@@ -6,6 +6,8 @@
 
 [Launch Demo](../alpha_asi_world_model/){.md-button}
 
+Use the **Offline/OpenAI API** toggle below the chart to run locally or with your own API key. Keys never leave your browser.
+
 Each demo package exposes its own `__version__` constant. The value marks the revision of that demo only and does not reflect the overall Alpha‑Factory release version.
 
 
