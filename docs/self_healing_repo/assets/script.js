@@ -7,6 +7,10 @@ import {setupPyodideDemo} from '../assets/pyodide_demo.js';
 fetch('assets/logs.json')
   .then(res => res.json())
   .then(data => {
+    // allow both {steps, values} and {timestamps, metrics}
+    if (data.timestamps && !data.steps) data.steps = data.timestamps;
+    if (data.metrics && !data.values) data.values = data.metrics;
+
     const ctx = document.getElementById('chart');
     if (!ctx) return;
     const chart = new Chart(ctx, {
