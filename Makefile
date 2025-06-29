@@ -46,7 +46,7 @@ gallery-build:
 	bash scripts/build_gallery_site.sh
 
 gallery-open:
-	bash scripts/open_gallery.sh
+	python scripts/open_gallery.py
 
 gallery-deploy:
         bash scripts/deploy_gallery_pages.sh
