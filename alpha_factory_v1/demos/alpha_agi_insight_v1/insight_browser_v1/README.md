@@ -63,6 +63,10 @@ is missing the build scripts continue with default empty values:
 - `WEB3_STORAGE_TOKEN` – build script token consumed by `npm run build`.
 - Browsers with WebGPU can accelerate the local model using the ONNX runtime.
   Use the GPU toggle in the power panel to switch between WebGPU and WASM.
+- The power panel also includes an **Offline/API** selector. Choose
+  **Run Offline** to execute the bundled GPT‑2 model via Pyodide or
+  **Run with OpenAI API** when an `OPENAI_API_KEY` is available. The key is
+  stored in `localStorage` and the app falls back to offline mode when absent.
 - Set `window.DEBUG = true` before loading the page to expose debugging helpers
   like `window.pop` and `window.coldZone`.
 
@@ -131,6 +135,7 @@ exported JSON results can be pinned.
 If `OPENAI_API_KEY` is stored in `localStorage`, the demo uses the OpenAI API for
 chat prompts. When no key is present a lightweight GPT‑2 model under
 `wasm_llm/` runs locally.
+Use the Offline/API selector in the power panel to switch modes at any time.
 
 Open `index.html` directly or pin the built `dist/` directory to IPFS
 (`ipfs add -r dist`) and share the CID.
@@ -260,6 +265,9 @@ browser console and the demo falls back to the built‑in English strings.
 - **GPU** – enable or disable WebGPU acceleration. The app sends a
   `{type:'gpu', available:<flag>}` message to the evolver worker which
   forwards the flag to mutation functions.
+- **Offline/API** – toggle between the local Pyodide model and the
+  OpenAI API. When the key is missing the demo automatically reverts to
+  offline mode.
 
   Set `localStorage.setItem('USE_GPU','1')` to force the GPU backend when
   WebGPU is available.
