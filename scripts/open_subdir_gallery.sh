@@ -28,6 +28,11 @@ if check_remote; then
 fi
 
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")"/.. && pwd)"
+
+if command -v python3 >/dev/null 2>&1; then
+  exec python3 "$REPO_ROOT/scripts/open_subdir_gallery.py"
+fi
+
 local_page="$REPO_ROOT/site/alpha_factory_v1/demos/index.html"
 if [[ ! -f "$local_page" ]]; then
   echo "Gallery not found locally. Building a fresh copy..." >&2
