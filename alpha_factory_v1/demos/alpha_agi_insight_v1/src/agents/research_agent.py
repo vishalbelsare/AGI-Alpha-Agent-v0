@@ -10,7 +10,7 @@ from __future__ import annotations
 
 import random
 
-from .base_agent import BaseAgent
+from alpha_factory_v1.core.agents.base_agent import BaseAgent
 from ..simulation import forecast, sector
 from alpha_factory_v1.common.utils import messaging, logging as insight_logging
 from alpha_factory_v1.common.utils.logging import Ledger

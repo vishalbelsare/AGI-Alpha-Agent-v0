@@ -8,7 +8,7 @@ of stored items back to the orchestrator.
 
 from __future__ import annotations
 
-from .base_agent import BaseAgent
+from alpha_factory_v1.core.agents.base_agent import BaseAgent
 from alpha_factory_v1.common.utils import messaging, logging as insight_logging
 from alpha_factory_v1.common.utils.logging import Ledger
 from alpha_factory_v1.core.utils.tracing import span

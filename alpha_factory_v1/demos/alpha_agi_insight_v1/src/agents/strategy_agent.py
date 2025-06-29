@@ -8,7 +8,7 @@ for the market agent. It can optionally leverage a local or remote LLM during
 
 from __future__ import annotations
 
-from .base_agent import BaseAgent
+from alpha_factory_v1.core.agents.base_agent import BaseAgent
 from alpha_factory_v1.common.utils import messaging, logging as insight_logging
 from alpha_factory_v1.common.utils.logging import Ledger
 from alpha_factory_v1.common.utils.retry import with_retry
