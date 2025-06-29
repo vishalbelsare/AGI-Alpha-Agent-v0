@@ -14,6 +14,7 @@
 - **One‑Command Deployment** – execute `./scripts/insight_sprint.sh` to build, verify and publish the GitHub Pages site automatically.
 - **Local Gallery Build** – run `./scripts/build_gallery_site.sh` to compile the full demo gallery under `site/` for offline review.
 - **Build & Open Gallery** – run `./scripts/build_open_gallery.sh` to regenerate the docs and open the gallery automatically.
+- **Open Gallery (Python)** – run `./scripts/open_gallery.py` for a cross-platform way to launch the published gallery, falling back to the local build when offline.
 - **Open Individual Demo** – run `./scripts/open_demo.sh <demo_dir>` to open a single page from the gallery.
 - **Verify Disclaimer Snippet** – run `python scripts/verify_disclaimer_snippet.py` to ensure each file contains the disclaimer text once.
 

@@ -16,7 +16,7 @@ This repository is a conceptual research prototype. References to "AGI" and "sup
 
 Browse the **visual demo gallery** on GitHub Pages:
 <https://montrealai.github.io/AGI-Alpha-Agent-v0/gallery.html>
-or run `./scripts/open_gallery.sh` to open it automatically.
+Run `./scripts/open_gallery.py` for a cross-platform launcher that opens the published gallery when online and falls back to the local build. Alternatively, `./scripts/open_gallery.sh` offers a Bash implementation.
 
 Each demo package exposes its own ``__version__`` constant. These
 numbers indicate the demo revision and are independent from the
