@@ -1,4 +1,6 @@
-.PHONY: build_web demo-setup demo-run compose-up loadtest proto proto-verify benchmark
+.PHONY: build_web demo-setup demo-run compose-up loadtest \
+        gallery-build gallery-open gallery-deploy \
+        proto proto-verify benchmark
 
 build_web:
 	pnpm --dir src/interface/web_client install
@@ -37,3 +39,14 @@ proto-verify:
 
 benchmark:
 	python benchmarks/docker_runner.py > bench_results.json
+
+# Demo gallery helpers
+
+gallery-build:
+	bash scripts/build_gallery_site.sh
+
+gallery-open:
+	bash scripts/open_gallery.sh
+
+gallery-deploy:
+	bash scripts/deploy_gallery_pages.sh
