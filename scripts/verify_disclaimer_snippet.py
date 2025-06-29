@@ -1,7 +1,11 @@
 #!/usr/bin/env python
 # SPDX-License-Identifier: Apache-2.0
 # This script is a conceptual research prototype.
-"""Ensure Markdown and notebook files begin with the standard disclaimer."""
+"""Ensure Markdown and notebook files begin with the standard disclaimer.
+
+The script now also fails if the disclaimer text appears more than once in a
+file.
+"""
 from __future__ import annotations
 
 import json
@@ -10,13 +14,15 @@ from pathlib import Path
 import subprocess
 
 
-def main() -> int:
-    repo_root = Path(__file__).resolve().parents[1]
+def check_repo(repo_root: Path) -> tuple[list[Path], list[Path]]:
+    """Return lists of files missing or duplicating the disclaimer."""
+
     snippet_path = repo_root / "docs" / "DISCLAIMER_SNIPPET.md"
     disclaimer_text = snippet_path.read_text(encoding="utf-8").splitlines()[0].strip()
     disclaimer_normalized = "".join(disclaimer_text.split())
 
     missing: list[Path] = []
+    duplicates: list[Path] = []
 
     def is_git_ignored(p: Path) -> bool:
         try:
@@ -43,6 +49,25 @@ def main() -> int:
                 return src_text
         return ""
 
+    def count_disclaimers_in_notebook(nb_path: Path) -> int:
+        try:
+            data = json.loads(nb_path.read_text(encoding="utf-8"))
+        except Exception:
+            return 0
+        text = ""
+        for cell in data.get("cells", []):
+            if cell.get("cell_type") == "markdown":
+                src = cell.get("source", "")
+                if isinstance(src, list):
+                    text += "".join(src)
+                else:
+                    text += str(src)
+        return "".join(text.split()).count(disclaimer_normalized)
+
+    def count_disclaimers_in_markdown(md_path: Path) -> int:
+        content = md_path.read_text(encoding="utf-8", errors="ignore")
+        return "".join(content.split()).count(disclaimer_normalized)
+
     for path in repo_root.rglob("*"):
         if path == snippet_path or ".git" in path.parts or not path.is_file() or is_git_ignored(path):
             continue
@@ -53,8 +78,11 @@ def main() -> int:
             cell_text = first_markdown_cell(path)
             cell_normalized = "".join(cell_text.split())
             has_disclaimer = "docs/DISCLAIMER_SNIPPET.md" in cell_text or disclaimer_normalized in cell_normalized
+            count = count_disclaimers_in_notebook(path)
             if not has_disclaimer:
                 missing.append(path)
+            elif count > 1:
+                duplicates.append(path)
             continue
 
         try:
@@ -62,13 +90,29 @@ def main() -> int:
         except Exception:
             first_line = ""
 
+        count = count_disclaimers_in_markdown(path)
+
         if "docs/DISCLAIMER_SNIPPET.md" not in first_line and not first_line.startswith(disclaimer_text):
             missing.append(path)
+        elif count > 1:
+            duplicates.append(path)
+
+    return missing, duplicates
+
+
+def main() -> int:
+    repo_root = Path(__file__).resolve().parents[1]
+    missing, duplicates = check_repo(repo_root)
 
     if missing:
         print("Missing disclaimer snippet in the following files:", file=sys.stderr)
         for p in missing:
             print(f"  {p.relative_to(repo_root)}", file=sys.stderr)
+    if duplicates:
+        print("Duplicate disclaimer text in the following files:", file=sys.stderr)
+        for p in duplicates:
+            print(f"  {p.relative_to(repo_root)}", file=sys.stderr)
+    if missing or duplicates:
         return 1
     return 0
 
