@@ -29,6 +29,11 @@ This command fetches browser assets, compiles the α‑AGI Insight interface, ru
 integrity checks and builds the MkDocs site under `site/`. It also runs
 `scripts/generate_gallery_html.py` to refresh `docs/gallery.html`. If Playwright
 is installed the script also verifies offline functionality.
+Run the Playwright smoke tests to ensure every built demo loads when offline:
+```bash
+python scripts/verify_demo_pages.py
+```
+
 
 ## 3. Preview Locally
 Start a quick HTTP server to examine the result:
