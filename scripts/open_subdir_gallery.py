@@ -10,6 +10,7 @@ local build when offline by invoking ``scripts/build_gallery_site.sh``.
 from __future__ import annotations
 
 from alpha_factory_v1.utils.disclaimer import DISCLAIMER
+import argparse
 
 import subprocess
 import sys
@@ -50,17 +51,24 @@ def _remote_available(url: str) -> bool:
         return False
 
 
-def main() -> None:
+def main(demo: str | None = None) -> None:
     print(DISCLAIMER, file=sys.stderr)
-    url = _subdir_url()
-    index = url + "index.html"
-    if _remote_available(index):
-        print(f"Opening {index}")
-        webbrowser.open(index)
+    base_url = _subdir_url()
+    if demo:
+        remote_page = f"{base_url}{demo}/index.html"
+    else:
+        remote_page = base_url + "index.html"
+    if _remote_available(remote_page):
+        print(f"Opening {remote_page}")
+        webbrowser.open(remote_page)
         return
     repo_root = Path(__file__).resolve().parents[1]
     site_dir = repo_root / "site"
-    local_page = site_dir / "alpha_factory_v1" / "demos" / "index.html"
+    local_page = site_dir / "alpha_factory_v1" / "demos"
+    if demo:
+        local_page = local_page / demo / "index.html"
+    else:
+        local_page = local_page / "index.html"
     if not local_page.is_file():
         print("Remote gallery unavailable. Building local copy...", file=sys.stderr)
         if not _build_local_site(repo_root) or not local_page.is_file():
@@ -73,8 +81,16 @@ def main() -> None:
     handler = partial(SimpleHTTPRequestHandler, directory=str(site_dir))
     with ThreadingHTTPServer(("127.0.0.1", 0), handler) as httpd:
         port = httpd.server_address[1]
-        local_url = f"http://127.0.0.1:{port}/alpha_factory_v1/demos/index.html"
-        print(f"Remote gallery unavailable. Serving local copy at {local_url}", file=sys.stderr)
+        path = "alpha_factory_v1/demos/"
+        if demo:
+            path += f"{demo}/index.html"
+        else:
+            path += "index.html"
+        local_url = f"http://127.0.0.1:{port}/{path}"
+        print(
+            f"Remote gallery unavailable. Serving local copy at {local_url}",
+            file=sys.stderr,
+        )
 
         thread = threading.Thread(target=httpd.serve_forever, daemon=True)
         thread.start()
@@ -86,4 +102,11 @@ def main() -> None:
 
 
 if __name__ == "__main__":
-    main()
+    parser = argparse.ArgumentParser(description="Open the demo gallery")
+    parser.add_argument(
+        "demo",
+        nargs="?",
+        help="Specific demo to open (default: full gallery)",
+    )
+    args = parser.parse_args()
+    main(args.demo)
