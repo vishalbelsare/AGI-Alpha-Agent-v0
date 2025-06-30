@@ -29,6 +29,9 @@ Downstream users should consult this section when upgrading.
 - `alpha-factory` and `edge_runner.py` now print a short warning before startup.
 - Synced `openai`, `openai-agents` and `uvicorn` pins across requirements files
   and clarified why `requests` and `rich` differ between layers.
+- `build_gallery_site.sh` and `deploy_gallery_pages.sh` now run
+  `scripts/mirror_demo_pages.py` so the GitHub Pages subdirectory mirror stays
+  current.
 - Documented `API_RATE_LIMIT`, `AGI_ISLAND_BACKENDS` and `ALERT_WEBHOOK_URL`
   environment variables.
 - Added [`alpha_factory_v1/core/tools/analyse_backtrack.py`](../alpha_factory_v1/core/tools/analyse_backtrack.py) for visualising archive backtracks.
