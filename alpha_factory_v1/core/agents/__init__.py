@@ -4,5 +4,6 @@
 from .meta_refinement_agent import MetaRefinementAgent
 from .self_improver_agent import SelfImproverAgent
 from .base_agent import BaseAgent
+from alpha_factory_v1.demos.alpha_agi_insight_v1.src.agents import planning_agent
 
-__all__ = ["MetaRefinementAgent", "SelfImproverAgent", "BaseAgent"]
+__all__ = ["MetaRefinementAgent", "SelfImproverAgent", "BaseAgent", "planning_agent"]
