@@ -1,3 +1,5 @@
+# [See docs/DISCLAIMER_SNIPPET.md](../DISCLAIMER_SNIPPET.md)
+
 <!-- SPDX-License-Identifier: Apache-2.0 -->
 # Alpha-Factory Demos
 
