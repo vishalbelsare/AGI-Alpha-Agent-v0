@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 import importlib
 import importlib.metadata as im
 import sys
@@ -13,14 +14,17 @@ class RequestsImportTest(unittest.TestCase):
 
     def test_fallback_when_package_missing(self):
         original = im.distribution
+
         def fake_distribution(name):
             raise im.PackageNotFoundError
+
         im.distribution = fake_distribution
         try:
             sys.modules.pop("af_requests", None)
             sys.modules.pop("requests", None)
             mod = importlib.import_module("af_requests")
             from alpha_factory_v1 import af_requests as shim
+
             self.assertIs(mod.get, shim.get)
             self.assertIs(mod.post, shim.post)
             self.assertIs(sys.modules.get("requests"), mod)
@@ -41,9 +45,11 @@ class RequestsImportTest(unittest.TestCase):
                     return init_file
 
             original = im.distribution
+
             def fake_distribution(name):
                 self.assertEqual(name, "requests")
                 return Dist()
+
             im.distribution = fake_distribution
             sys.path.insert(0, tmpdir)
             try:

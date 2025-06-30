@@ -1,4 +1,4 @@
-# SPDX-License-Identifier: MIT
+# SPDX-License-Identifier: Apache-2.0
 """
 alpha_factory_v1.backend.agents.finance_agent
 =============================================
@@ -26,6 +26,9 @@ import asyncio
 import contextlib
 import json
 import logging
+
+_log = logging.getLogger("AlphaFactory.FinanceAgent")
+
 import os
 import random
 import statistics
@@ -35,28 +38,73 @@ from datetime import datetime, timezone
 from typing import Any, Dict, List, MutableMapping, Sequence
 
 # ──────────────────── soft-optional third-party ─────────────────
-with contextlib.suppress(ModuleNotFoundError):
+try:
     import numpy as np  # type: ignore
-with contextlib.suppress(ModuleNotFoundError):
+except ModuleNotFoundError:
+    _log.warning("numpy not installed – finance features degraded")
+    np = None  # type: ignore
+try:
     from scipy.stats import skew, kurtosis  # type: ignore
-with contextlib.suppress(ModuleNotFoundError):
+except ModuleNotFoundError:
+    _log.warning("scipy missing – stats features disabled")
+try:
     from scipy.special import erfcinv  # type: ignore
-with contextlib.suppress(Exception):
-    from backend.agents import Gauge  # type: ignore
+except ModuleNotFoundError:
+    _log.warning("scipy.special.erfcinv unavailable")
+try:
+    from backend.agents.registry import Gauge  # type: ignore
     from prometheus_client import make_asgi_app  # type: ignore
-with contextlib.suppress(ModuleNotFoundError):
+except Exception:
+    _log.warning("prometheus_client missing – metrics disabled")
+try:
     from binance import Client as _BnClient  # type: ignore
-with contextlib.suppress(ModuleNotFoundError):
+except ModuleNotFoundError:
+    _log.warning("binance package not installed – live trading disabled")
+try:
     import torch  # type: ignore
     from torch import nn  # type: ignore
+except ModuleNotFoundError:
+    _log.warning("torch missing – MuZero planner disabled")
 if "torch" not in globals():
     torch = None  # type: ignore
-with contextlib.suppress(ModuleNotFoundError):
+try:
     import lightgbm as lgb  # type: ignore
-with contextlib.suppress(ModuleNotFoundError):
+except ModuleNotFoundError:
+    _log.warning("lightgbm missing – gradient boosting disabled")
+    lgb = None  # type: ignore
+try:
     import adk  # type: ignore
-with contextlib.suppress(ModuleNotFoundError):
+except ModuleNotFoundError:
+    _log.warning("google-adk not installed – mesh integration disabled")
+    adk = None  # type: ignore
+try:
+    from aiohttp import ClientError as AiohttpClientError  # type: ignore
+except ModuleNotFoundError:
+    _log.warning("aiohttp not installed – network error types unavailable")
+    AiohttpClientError = OSError  # type: ignore
+with contextlib.suppress(Exception):  # pragma: no cover - optional ADK
+    from adk import ClientError as AdkClientError  # type: ignore[attr-defined]
+if "AiohttpClientError" not in globals():
+
+    class AiohttpClientError(Exception):
+        pass
+
+
+if "AdkClientError" not in globals():
+
+    class AdkClientError(Exception):
+        pass
+
+
+try:
     from openai.agents import tool  # type: ignore
+except ModuleNotFoundError:
+    _log.warning("openai-agents not installed – tool wrappers disabled")
+
+    def tool(fn=None, **_):  # type: ignore
+        return (lambda f: f)(fn) if fn else lambda f: f
+
+
 if "tool" not in globals():  # offline stub
 
     def tool(fn=None, **_):  # type: ignore
@@ -65,7 +113,7 @@ if "tool" not in globals():  # offline stub
 
 # ─────────────────────── α-Factory imports ─────────────────────
 from backend.agent_base import AgentBase  # type: ignore
-from backend.agents import AgentMetadata, register_agent  # type: ignore
+from backend.agents import register  # type: ignore
 from backend.orchestrator import _publish  # type: ignore
 from .. import risk
 from ..model_provider import ModelProvider
@@ -73,7 +121,6 @@ from ..memory import Memory
 from ..governance import Governance
 
 # ────────────────────────── logger cfg ─────────────────────────
-_log = logging.getLogger("AlphaFactory.FinanceAgent")
 _log.setLevel(logging.INFO)
 
 if "make_asgi_app" not in globals():  # pragma: no cover - optional dep missing
@@ -279,9 +326,11 @@ class _Planner:
 
 
 # ═════════════════════ main FinanceAgent ═══════════════════════
+@register
 class FinanceAgent(AgentBase):
     NAME = "finance"
     VERSION = "0.7.0"
+    __version__ = VERSION
 
     def __init__(
         self,
@@ -329,13 +378,15 @@ class FinanceAgent(AgentBase):
         else:
 
             class _NoOp:  # noqa: D401
-                def set(self, *_): ...
+                def set(self, *_):
+                    ...
 
             self.pnl_g = _NoOp()
 
         # ── ADK mesh registration ──
         if self.cfg.adk_mesh and "adk" in globals():
-            asyncio.create_task(self._register_mesh())
+            # registration scheduled by orchestrator after loop start
+            pass
 
     # ───────────── OpenAI Agents SDK tools ─────────────
     @tool(description="Return latest factor z-scores (JSON str).")
@@ -412,9 +463,12 @@ class FinanceAgent(AgentBase):
     def _safe_price(self, sym: str) -> float:
         try:
             return self.broker.price(sym)
-        except Exception as exc:  # noqa: BLE001
+        except (AiohttpClientError, asyncio.TimeoutError, OSError) as exc:
             _log.error("Price fetch failed (%s); fallback last-known.", exc)
             return self.history[sym][-1] if self.history[sym] else 100.0
+        except Exception as exc:  # pragma: no cover - unexpected
+            _log.exception("Unexpected price fetch error: %s", exc)
+            raise
 
     def _publish_state(self, prices: Dict[str, float], risk: Dict[str, float]):
         cash_equiv = self.cfg.start_balance - sum(
@@ -432,26 +486,34 @@ class FinanceAgent(AgentBase):
         }
         _publish("fin.state", payload)
 
-    async def _register_mesh(self):
-        try:
-            client = adk.Client()
-            await client.register(node_type="finance", metadata={"universe": ",".join(self.cfg.universe)})
-            _log.info("Registered in ADK mesh id=%s", client.node_id)
-        except Exception as exc:  # noqa: BLE001
-            _log.warning("ADK mesh registration failed: %s", exc)
+    async def _register_mesh(self) -> None:
+        max_attempts = 3
+        delay = 1.0
+        for attempt in range(1, max_attempts + 1):
+            try:
+                client = adk.Client()
+                await client.register(node_type="finance", metadata={"universe": ",".join(self.cfg.universe)})
+                _log.info("Registered in ADK mesh id=%s", client.node_id)
+                return
+            except (AdkClientError, AiohttpClientError, asyncio.TimeoutError, OSError) as exc:
+                if attempt == max_attempts:
+                    _log.error("ADK mesh registration failed after %d attempts: %s", max_attempts, exc)
+                    raise
+                _log.warning(
+                    "ADK registration attempt %d/%d failed: %s",
+                    attempt,
+                    max_attempts,
+                    exc,
+                )
+                await asyncio.sleep(delay)
+                delay *= 2
+            except Exception as exc:  # pragma: no cover - unexpected
+                _log.exception("Unexpected ADK registration error: %s", exc)
+                raise
 
 
 # ═════════════════════ registry hook ═══════════════════════════
-register_agent(
-    AgentMetadata(
-        name=FinanceAgent.NAME,
-        cls=FinanceAgent,
-        version=FinanceAgent.VERSION,
-        capabilities=["alpha_generation", "risk_management", "trade_execution"],
-        compliance_tags=["sec_17a4", "sox_traceable"],
-        requires_api_key=False,
-    )
-)
+
 
 __all__: list[str] = [
     "FinanceAgent",

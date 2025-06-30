@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 """
 Graph storage wrapper – tries Neo4j first, falls back to NetworkX.
 
@@ -17,6 +18,7 @@ _LOG.addHandler(logging.NullHandler())
 
 try:
     from neo4j import GraphDatabase  # type: ignore
+    from neo4j.exceptions import Neo4jError
 
     _NEO4J_OK = True
 except ModuleNotFoundError:
@@ -40,7 +42,7 @@ class MemoryGraph:
                     s.run("RETURN 1")
                 self._remote = True
                 _LOG.info("Connected to Neo4j @ %s", _URI)
-            except Exception:  # noqa: BLE001
+            except (Neo4jError, OSError):
                 _LOG.warning("Neo4j unreachable – reverting to in-process graph")
                 self._driver = None
                 self._remote = False

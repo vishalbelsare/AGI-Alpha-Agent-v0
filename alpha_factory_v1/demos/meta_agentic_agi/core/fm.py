@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 """
 fm.py – Foundation‑Model Abstraction Layer (v0.1.0)
 ===================================================
@@ -33,6 +34,7 @@ from typing import List, Dict, Any, Optional
 _LOGGER = logging.getLogger("alpha_factory.fm")
 _LOGGER.setLevel(logging.INFO)
 
+
 # --------------------------------------------------------------------------- #
 # Helper utilities                                                            #
 # --------------------------------------------------------------------------- #
@@ -65,11 +67,13 @@ def _gco2e(usd: float, kg_per_dollar: float = 0.0006) -> float:
 # --------------------------------------------------------------------------- #
 class ProviderNotAvailable(RuntimeError):
     """Raised when the requested provider SDK cannot be initialised."""
+
     ...
 
 
 class ModelNotFound(RuntimeError):
     """Raised when the requested model id cannot be located."""
+
     ...
 
 
@@ -149,9 +153,7 @@ class FoundationModel:
         try:
             if self.provider == "mistral":
                 Llama = _lazy_import(meta["pkg"], "Llama")
-                self.client = Llama(
-                    model_path=self.model_id, n_ctx=self.context_window
-                )
+                self.client = Llama(model_path=self.model_id, n_ctx=self.context_window)
             else:
                 sdk = _lazy_import(meta["pkg"])
                 if self.provider == "openai":
@@ -161,14 +163,10 @@ class FoundationModel:
                 elif self.provider == "google":
                     self.client = sdk.GenerativeModel(self.model_id)
         except ModuleNotFoundError as e:
-            raise ProviderNotAvailable(
-                f"{self.provider} SDK missing: pip install {meta['pkg']}"
-            ) from e
+            raise ProviderNotAvailable(f"{self.provider} SDK missing: pip install {meta['pkg']}") from e
 
     # ------------------------------------------------------------------ #
-    def completion(
-        self, messages: List[Dict[str, str]], **overrides
-    ) -> Dict[str, Any]:
+    def completion(self, messages: List[Dict[str, str]], **overrides) -> Dict[str, Any]:
         """
         Execute a chat completion and return the text plus usage metadata.
 
@@ -190,9 +188,7 @@ class FoundationModel:
             try:
                 # provider‑specific invocation
                 if self.provider == "mistral":
-                    prompt = "".join(
-                        f"<{m['role']}>{m['content']}" for m in messages
-                    )
+                    prompt = "".join(f"<{m['role']}>{m['content']}" for m in messages)
                     res = self.client(
                         prompt,
                         temperature=params["temperature"],
@@ -226,10 +222,8 @@ class FoundationModel:
             except Exception as exc:
                 attempt += 1
                 if attempt > self.retries:
-                    raise RuntimeError(
-                        f"Completion failed after {self.retries} attempts: {exc}"
-                    ) from exc
-                backoff = 2 ** attempt
+                    raise RuntimeError(f"Completion failed after {self.retries} attempts: {exc}") from exc
+                backoff = 2**attempt
                 _LOGGER.warning(
                     "FM error (%s/%s): %s – retrying in %ss",
                     attempt,

@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 import json
 import threading
 from http.server import BaseHTTPRequestHandler, HTTPServer
@@ -61,11 +62,7 @@ class MarketplaceClientTest(unittest.TestCase):
     def test_parse_args_defaults(self):
         args = parse_args([])
         sample = (
-            Path(__file__).resolve().parents[1]
-            / "demos"
-            / "alpha_agi_marketplace_v1"
-            / "examples"
-            / "sample_job.json"
+            Path(__file__).resolve().parents[1] / "demos" / "alpha_agi_marketplace_v1" / "examples" / "sample_job.json"
         ).resolve()
         self.assertEqual(Path(args.job_file), sample)
         self.assertEqual(args.host, "localhost")
@@ -74,4 +71,3 @@ class MarketplaceClientTest(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
-

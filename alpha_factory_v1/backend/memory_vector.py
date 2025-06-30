@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 """
 alpha_factory_v1.backend.memory_vector
 ======================================
@@ -22,7 +23,7 @@ Design goals
 * **CLI self-test** – ``python -m alpha_factory_v1.backend.memory_vector --demo``
 * **Zero intra-project deps** – drop-in usable in any repo / unit tests.
 
-MIT License © 2025 Montreal AI
+Apache 2.0 License © 2025 Montreal AI
 """
 
 from __future__ import annotations
@@ -110,7 +111,7 @@ except ModuleNotFoundError:  # pragma: no cover
     _HAS_FAISS = False
 
 try:  # Prometheus metrics
-    from backend.agents import Counter, Gauge  # type: ignore
+    from backend.agents.registry import Counter, Gauge  # type: ignore
 
     _MET_ADD = Counter("af_mem_add_total", "Memories added", ["backend"])
     _MET_QRY = Counter("af_mem_query_total", "Vector queries", ["backend"])
@@ -122,6 +123,7 @@ except Exception:  # pragma: no cover
             return self
 
         def inc(self, *_a): ...
+
         def set(self, *_a): ...
 
     _MET_ADD = _MET_QRY = _MET_SZ = _Noop()

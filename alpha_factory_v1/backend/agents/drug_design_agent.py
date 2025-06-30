@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 """backend.agents.drug_design_agent
 ===================================================================
 Alpha‑Factory v1 👁️✨ — Multi‑Agent AGENTIC α‑AGI
@@ -38,6 +39,8 @@ import asyncio
 import hashlib
 import json
 import logging
+
+logger = logging.getLogger(__name__)
 import os
 import random
 import re
@@ -46,6 +49,8 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
+from alpha_factory_v1.backend.utils.sync import run_sync
+
 # ---------------------------------------------------------------------------
 # Soft‑optional deps (import‑guarded) ---------------------------------------
 # ---------------------------------------------------------------------------
@@ -53,12 +58,14 @@ try:
     from rdkit import Chem  # type: ignore
     from rdkit.Chem import AllChem, rdMolDescriptors, Descriptors  # type: ignore
 except ModuleNotFoundError:  # pragma: no cover
+    logger.warning("rdkit not installed – chemical descriptors disabled")
     Chem = AllChem = rdMolDescriptors = Descriptors = None  # type: ignore
 
 try:
     import torch  # type: ignore
     from torch import nn  # type: ignore
 except ModuleNotFoundError:  # pragma: no cover
+    logger.warning("torch missing – neural nets disabled")
     torch = None  # type: ignore
     nn = None  # type: ignore
 
@@ -66,62 +73,77 @@ try:
     import torch_geometric.nn as tgnn  # type: ignore
     from torch_geometric.data import Data as TGData  # type: ignore
 except ModuleNotFoundError:  # pragma: no cover
+    logger.warning("torch-geometric missing – GNN features disabled")
     tgnn = TGData = None  # type: ignore
 
 try:
     import lightgbm as lgb  # type: ignore
 except ModuleNotFoundError:  # pragma: no cover
+    logger.warning("lightgbm missing – gradient boosting disabled")
     lgb = None  # type: ignore
 
 try:
     import httpx  # type: ignore
 except ModuleNotFoundError:  # pragma: no cover
+    logger.warning("httpx unavailable – dataset fetch disabled")
     httpx = None  # type: ignore
 
 try:
     from kafka import KafkaProducer  # type: ignore
 except ModuleNotFoundError:  # pragma: no cover
+    logger.warning("kafka-python missing – event bus disabled")
     KafkaProducer = None  # type: ignore
 
 try:
     import openai  # type: ignore
     from openai.agents import tool  # type: ignore
 except ModuleNotFoundError:  # pragma: no cover
+    logger.warning("openai package not found – LLM features disabled")
     openai = None  # type: ignore
 
     def tool(fn=None, **_kw):  # type: ignore
         return (lambda f: f)(fn) if fn else lambda f: f
 
 
+OPENAI_TIMEOUT_SEC = int(os.getenv("OPENAI_TIMEOUT_SEC", "30"))
+
+
 try:
     import adk  # type: ignore
 except ModuleNotFoundError:  # pragma: no cover
+    logger.warning("google-adk not installed – mesh integration disabled")
     adk = None  # type: ignore
+try:
+    from aiohttp import ClientError as AiohttpClientError  # type: ignore
+except Exception:  # pragma: no cover - optional
+    AiohttpClientError = OSError  # type: ignore
+try:
+    from adk import ClientError as AdkClientError  # type: ignore[attr-defined]
+except Exception:  # pragma: no cover - optional
+
+    class AdkClientError(Exception):
+        pass
+
 
 try:
     import selfies as sf  # type: ignore
 except ModuleNotFoundError:  # pragma: no cover
+    logger.warning("selfies not installed – SELFIES support disabled")
     sf = None  # type: ignore
 
 # ---------------------------------------------------------------------------
 # Alpha‑Factory base imports (thin, always present) -------------------------
 # ---------------------------------------------------------------------------
 from backend.agent_base import AgentBase  # pylint: disable=import-error
-from backend.agents import AgentMetadata, register_agent  # pylint: disable=import-error
+from backend.agents import register  # pylint: disable=import-error
 from backend.orchestrator import _publish  # pylint: disable=import-error
+from alpha_factory_v1.utils.env import _env_int
 
 logger = logging.getLogger(__name__)
 
 # ---------------------------------------------------------------------------
 # Environment & governance helpers -----------------------------------------
 # ---------------------------------------------------------------------------
-
-
-def _env_int(var: str, default: int) -> int:
-    try:
-        return int(os.getenv(var, default))
-    except ValueError:
-        return default
 
 
 def _env_float(var: str, default: float) -> float:
@@ -372,8 +394,10 @@ class _Planner:
 # ---------------------------------------------------------------------------
 
 
+@register
 class DrugDesignAgent(AgentBase):
     NAME = "drug_design"
+    __version__ = "0.2.0"
     CAPABILITIES = [
         "molecule_generation",
         "activity_prediction",
@@ -400,7 +424,8 @@ class DrugDesignAgent(AgentBase):
                 value_serializer=lambda v: json.dumps(v).encode(),
             )
         if self.cfg.adk_mesh and adk:
-            asyncio.create_task(self._register_mesh())
+            # registration scheduled by orchestrator after loop start
+            pass
 
     # ------------------------------------------------------------------
     # Tools
@@ -408,8 +433,7 @@ class DrugDesignAgent(AgentBase):
 
     @tool(description="Generate a novel lead molecule with predicted properties and rationale.")
     def propose_lead(self) -> str:  # noqa: D401
-        loop = asyncio.get_event_loop()
-        return loop.run_until_complete(self._propose_async())
+        return run_sync(self._propose_async())
 
     @tool(description='Score a SMILES for potency & developability. Input: JSON "{"smi": "..."}" or raw SMILES.')
     def score_molecule(self, smi_json: str) -> str:  # noqa: D401
@@ -417,8 +441,7 @@ class DrugDesignAgent(AgentBase):
             smi = json.loads(smi_json).get("smi", smi_json)
         except json.JSONDecodeError:
             smi = smi_json.strip()
-        loop = asyncio.get_event_loop()
-        return loop.run_until_complete(self._score_async(smi))
+        return run_sync(self._score_async(smi))
 
     # ------------------------------------------------------------------
     # Cycle
@@ -474,7 +497,10 @@ class DrugDesignAgent(AgentBase):
         )
         try:
             resp = await openai.ChatCompletion.acreate(
-                model="gpt-4o", messages=[{"role": "user", "content": prompt}], max_tokens=60
+                model="gpt-4o",
+                messages=[{"role": "user", "content": prompt}],
+                max_tokens=60,
+                timeout=OPENAI_TIMEOUT_SEC,
             )
             return resp.choices[0].message.content.strip()
         except Exception as exc:  # noqa: BLE001
@@ -485,27 +511,33 @@ class DrugDesignAgent(AgentBase):
     # Mesh integration
     # ------------------------------------------------------------------
 
-    async def _register_mesh(self):  # noqa: D401
-        try:
-            client = adk.Client()
-            await client.register(node_type=self.NAME)
-            logger.info("[DD] registered mesh id=%s", client.node_id)
-        except Exception as exc:  # noqa: BLE001
-            logger.warning("ADK register failed: %s", exc)
+    async def _register_mesh(self) -> None:  # noqa: D401
+        max_attempts = 3
+        delay = 1.0
+        for attempt in range(1, max_attempts + 1):
+            try:
+                client = adk.Client()
+                await client.register(node_type=self.NAME)
+                logger.info("[DD] registered mesh id=%s", client.node_id)
+                return
+            except (AdkClientError, AiohttpClientError, asyncio.TimeoutError, OSError) as exc:
+                if attempt == max_attempts:
+                    logger.error("ADK register failed after %d attempts: %s", max_attempts, exc)
+                    raise
+                logger.warning(
+                    "ADK registration attempt %d/%d failed: %s",
+                    attempt,
+                    max_attempts,
+                    exc,
+                )
+                await asyncio.sleep(delay)
+                delay *= 2
+            except Exception as exc:  # pragma: no cover - unexpected
+                logger.exception("Unexpected ADK registration error: %s", exc)
+                raise
 
 
 # ---------------------------------------------------------------------------
 # Registry hook -------------------------------------------------------------
 # ---------------------------------------------------------------------------
-register_agent(
-    AgentMetadata(
-        name=DrugDesignAgent.NAME,
-        cls=DrugDesignAgent,
-        version="0.2.0",
-        capabilities=DrugDesignAgent.CAPABILITIES,
-        compliance_tags=DrugDesignAgent.COMPLIANCE_TAGS,
-        requires_api_key=DrugDesignAgent.REQUIRES_API_KEY,
-    )
-)
-
 __all__ = ["DrugDesignAgent"]

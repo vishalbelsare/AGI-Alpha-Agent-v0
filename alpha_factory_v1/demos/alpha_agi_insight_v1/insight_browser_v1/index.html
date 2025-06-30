@@ -1,0 +1,111 @@
+<!-- SPDX-License-Identifier: Apache-2.0 -->
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#0d0e2e" />
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self'; connect-src 'self' https://api.openai.com; script-src 'self' 'wasm-unsafe-eval'"
+    />
+    <title>α-AGI Insight – in-browser Pareto explorer</title>
+    <link rel="icon" href="favicon.svg" type="image/svg+xml" />
+    <link rel="manifest" href="manifest.json" />
+    <!-- styles injected by insight.bundle.js -->
+  </head>
+  <body class="min-h-screen flex flex-col">
+    <header class="hero relative py-16">
+      <div class="parallax absolute inset-0 -z-10">
+        <div class="stars"></div>
+        <div class="stars2"></div>
+      </div>
+      <div class="hero-content text-center">
+        <h1
+          class="text-5xl font-bold bg-gradient-to-r from-purple-400 via-pink-500 to-red-500 \
+          bg-clip-text text-transparent animate-gradient"
+        >
+          α‑AGI Insight
+        </h1>
+      </div>
+    </header>
+    <div class="flex flex-1 overflow-hidden">
+      <aside id="controls" class="w-64 bg-base-100/70 backdrop-blur-md p-4 overflow-y-auto" role="region" aria-label="Controls"></aside>
+      <main id="canvas" class="flex-1 relative overflow-hidden" role="main"></main>
+      <aside id="log" class="w-80 bg-base-100/70 backdrop-blur-md p-4 overflow-y-auto" aria-label="Log" role="region"></aside>
+    </div>
+    <div id="toast" aria-live="polite" role="status"></div>
+    <div id="toolbar" role="toolbar" aria-label="App controls">
+      <button id="install-btn" hidden aria-label="Install application">Install</button>
+    </div>
+    <div id="legend" role="region" aria-label="Legend"></div>
+    <div id="depth-legend" role="region" aria-label="Depth Legend"></div>
+    <footer id="disclaimer" style="font-size: 0.8rem; margin: 1rem; text-align:center;">
+      This repository is a conceptual research prototype. References to "AGI" and "superintelligence" describe aspirational goals and do not indicate the presence of a real general intelligence. Use at your own risk. Nothing herein constitutes financial advice. MontrealAI and the maintainers accept no liability for losses incurred from using this software.
+    </footer>
+    <script
+      src="d3.v7.min.js"
+      integrity="sha384-QqrLqBpBJfpJ/24ZmCV87BPpk+Sj9GkH5DzKZdwS4d47ZojhpdfvBiF+BgWe8zX8"
+      crossorigin="anonymous"
+    ></script>
+    <script
+      src="bundle.esm.min.js"
+      integrity="sha384-HCq3AUAghBODOAg7+u+o8u2pKjENSb3YGAjRfL6TZgAY49LXzq1SaOwNtQmWsIax"
+      crossorigin="anonymous"
+    ></script>
+    <script
+      src="pyodide.js"
+      integrity="sha384-PNUiaEvwfaQJ1qhJmwFD774CUdIYY8k0z7TTAqIzw6fNpx7fG6bzyLb9j6qxSZac"
+      crossorigin="anonymous"
+    ></script>
+    <script>
+      const SW_URL = 'service-worker.js';
+      const SW_HASH = '__SW_HASH__';
+      // Replaced with the SHA-384 digest of service-worker.js during
+      // `npm run build` (or `python manual_build.py`)
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', async () => {
+          try {
+            const res = await fetch(SW_URL);
+            const buf = await res.arrayBuffer();
+            const digest = await crypto.subtle.digest('SHA-384', buf);
+            const b64 = btoa(String.fromCharCode(...new Uint8Array(digest)));
+            if (`sha384-${b64}` !== SW_HASH) {
+              throw new Error('Service worker hash mismatch');
+            }
+            navigator.serviceWorker
+              .register(SW_URL)
+              .then((registration) => {
+                navigator.serviceWorker.ready.then(() => {
+                  registration.addEventListener('updatefound', () => {
+                    const newWorker = registration.installing;
+                    if (!newWorker) return;
+                    newWorker.addEventListener('statechange', () => {
+                      if (
+                        newWorker.state === 'installed' &&
+                        navigator.serviceWorker.controller
+                      ) {
+                        newWorker.postMessage({ type: 'SKIP_WAITING' });
+                        toast('Update available. Refreshing…');
+                        navigator.serviceWorker.addEventListener(
+                          'controllerchange',
+                          () => location.reload(),
+                          { once: true },
+                        );
+                      }
+                    });
+                  });
+                });
+              })
+              .catch(() =>
+                toast('Service worker registration failed; offline mode disabled.'),
+              );
+          } catch {
+            toast('Service worker registration failed; offline mode disabled.');
+          }
+        });
+      }
+    </script>
+    <script type="module" src="insight.bundle.js" crossorigin="anonymous"></script>
+  </body>
+</html>

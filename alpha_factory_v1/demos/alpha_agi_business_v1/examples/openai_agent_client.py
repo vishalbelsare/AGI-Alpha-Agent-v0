@@ -1,4 +1,6 @@
 #!/usr/bin/env python3
+# SPDX-License-Identifier: Apache-2.0
+# NOTE: This demo is a research prototype. References to "AGI" or "superintelligence" describe aspirational goals and do not indicate the presence of real general intelligence. Use at your own risk. Nothing herein constitutes financial advice.
 """Minimal OpenAI Agents client for the business demo.
 
 This helper queries the ``business_helper`` agent exposed by
@@ -19,9 +21,7 @@ except ModuleNotFoundError:  # pragma: no cover - offline shim
 
 
 def _parse_args(argv: list[str] | None = None) -> argparse.Namespace:
-    parser = argparse.ArgumentParser(
-        description="Call BusinessAgent via OpenAI Agents runtime"
-    )
+    parser = argparse.ArgumentParser(description="Call BusinessAgent via OpenAI Agents runtime")
     parser.add_argument(
         "--host",
         default=os.getenv("AGENTS_HOST", "http://localhost:5001"),

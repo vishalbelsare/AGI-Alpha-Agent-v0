@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 """backend.agents.retail_demand_agent
 ===================================================================
 Alpha‑Factory v1 👁️✨ — Multi‑Agent AGENTIC α‑AGI
@@ -36,6 +37,8 @@ import asyncio
 import hashlib
 import json
 import logging
+
+logger = logging.getLogger(__name__)
 import math
 import os
 import random
@@ -45,6 +48,8 @@ from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
+from alpha_factory_v1.backend.utils.sync import run_sync
+
 # ---------------------------------------------------------------------------
 # Soft‑optional third‑party deps (guarded)  ----------------------------------
 # ---------------------------------------------------------------------------
@@ -52,27 +57,32 @@ try:
     import pandas as pd  # type: ignore
     import numpy as np  # type: ignore
 except ModuleNotFoundError:  # pragma: no cover
+    logger.warning("numpy/pandas missing – data handling disabled")
     pd = np = None  # type: ignore
 
 try:
     import lightgbm as lgb  # type: ignore
 except ModuleNotFoundError:  # pragma: no cover
+    logger.warning("lightgbm missing – forecasting model disabled")
     lgb = None  # type: ignore
 
 try:
     import httpx  # type: ignore
 except ModuleNotFoundError:  # pragma: no cover
+    logger.warning("httpx unavailable – using cached datasets")
     httpx = None  # type: ignore
 
 try:
     from kafka import KafkaProducer  # type: ignore
 except ModuleNotFoundError:  # pragma: no cover
+    logger.warning("kafka-python missing – event bus disabled")
     KafkaProducer = None  # type: ignore
 
 try:
     import openai  # type: ignore
     from openai.agents import tool  # type: ignore
 except ModuleNotFoundError:  # pragma: no cover
+    logger.warning("openai package not found – LLM features disabled")
 
     def tool(fn=None, **_kw):  # type: ignore
         """No‑op decorator when OpenAI Agents SDK is missing."""
@@ -80,30 +90,38 @@ except ModuleNotFoundError:  # pragma: no cover
 
     openai = None  # type: ignore
 
+OPENAI_TIMEOUT_SEC = int(os.getenv("OPENAI_TIMEOUT_SEC", "30"))
+
 try:
     import adk  # type: ignore
 except ModuleNotFoundError:  # pragma: no cover
+    logger.warning("google-adk not installed – mesh integration disabled")
     adk = None  # type: ignore
+try:
+    from aiohttp import ClientError as AiohttpClientError  # type: ignore
+except Exception:  # pragma: no cover - optional
+    AiohttpClientError = OSError  # type: ignore
+try:
+    from adk import ClientError as AdkClientError  # type: ignore[attr-defined]
+except Exception:  # pragma: no cover - optional
+
+    class AdkClientError(Exception):
+        pass
+
 
 # ---------------------------------------------------------------------------
 # Alpha‑Factory lightweight core imports  ------------------------------------
 # ---------------------------------------------------------------------------
 from backend.agent_base import AgentBase  # pylint: disable=import-error
-from backend.agents import AgentMetadata, register_agent
+from backend.agents import register
 from backend.orchestrator import _publish  # structured‑event helper
+from alpha_factory_v1.utils.env import _env_int
 
 logger = logging.getLogger(__name__)
 
 # ---------------------------------------------------------------------------
 # Configuration dataclass  ---------------------------------------------------
 # ---------------------------------------------------------------------------
-
-
-def _env_int(name: str, default: int) -> int:
-    try:
-        return int(os.getenv(name, default))
-    except ValueError:
-        return default
 
 
 def _env_bool(name: str) -> bool:
@@ -207,10 +225,12 @@ def _wrap_mcp(agent: str, payload: Any) -> Dict[str, Any]:
 # ---------------------------------------------------------------------------
 
 
+@register
 class RetailDemandAgent(AgentBase):
     """Alpha‑grade demand‑sensing & replenishment planner."""
 
     NAME = "retail_demand"
+    __version__ = "0.4.0"
     CAPABILITIES = [
         "demand_forecasting",
         "reorder_optimisation",
@@ -238,7 +258,8 @@ class RetailDemandAgent(AgentBase):
 
         # ADK mesh (optional)
         if self.cfg.adk_mesh and adk:
-            asyncio.create_task(self._register_mesh())
+            # registration scheduled by orchestrator after loop start
+            pass
 
     # ------------------------------------------------------------------
     # OpenAI Agents SDK tools
@@ -246,13 +267,11 @@ class RetailDemandAgent(AgentBase):
 
     @tool(description="Return SKU‑level weekly demand forecast (mean & std dev) for the next horizon_weeks")
     def forecast(self) -> str:  # noqa: D401
-        loop = asyncio.get_event_loop()
-        return loop.run_until_complete(self._forecast_async())
+        return run_sync(self._forecast_async())
 
     @tool(description="Generate a reorder plan that meets the configured service level (>98 % by default)")
     def reorder_plan(self) -> str:  # noqa: D401
-        loop = asyncio.get_event_loop()
-        return loop.run_until_complete(self._plan_async())
+        return run_sync(self._plan_async())
 
     # ------------------------------------------------------------------
     # Orchestrator life‑cycle
@@ -293,7 +312,7 @@ class RetailDemandAgent(AgentBase):
             df = df.groupby(["sku", "date"], as_index=False)["demand"].sum()
             self._surrogate.fit(df)
             logger.info("[RD] surrogate retrained on %d rows", len(df))
-        except Exception as exc:  # noqa: BLE001
+        except (httpx.HTTPError, pd.errors.ParserError, OSError) as exc:
             logger.warning("Dataset refresh failed: %s", exc)
 
     # ------------------------------------------------------------------
@@ -344,9 +363,10 @@ class RetailDemandAgent(AgentBase):
                     model="gpt-4o",
                     messages=[{"role": "user", "content": prompt}],
                     max_tokens=200,
+                    timeout=OPENAI_TIMEOUT_SEC,
                 )
                 recs = json.loads(chat.choices[0].message.content)
-            except Exception as exc:  # noqa: BLE001
+            except (openai.OpenAIError, json.JSONDecodeError) as exc:
                 logger.warning("OpenAI rationale generation failed: %s", exc)
         return json.dumps(_wrap_mcp(self.NAME, recs))
 
@@ -354,28 +374,33 @@ class RetailDemandAgent(AgentBase):
     # ADK mesh registration
     # ------------------------------------------------------------------
 
-    async def _register_mesh(self):  # noqa: D401
-        try:
-            client = adk.Client()
-            await client.register(node_type=self.NAME, metadata={"runtime": "alpha_factory"})
-            logger.info("[RD] registered in ADK mesh id=%s", client.node_id)
-        except Exception as exc:  # noqa: BLE001
-            logger.warning("ADK registration failed: %s", exc)
+    async def _register_mesh(self) -> None:  # noqa: D401
+        max_attempts = 3
+        delay = 1.0
+        for attempt in range(1, max_attempts + 1):
+            try:
+                client = adk.Client()
+                await client.register(node_type=self.NAME, metadata={"runtime": "alpha_factory"})
+                logger.info("[RD] registered in ADK mesh id=%s", client.node_id)
+                return
+            except (AdkClientError, AiohttpClientError, asyncio.TimeoutError, OSError) as exc:
+                if attempt == max_attempts:
+                    logger.error("ADK registration failed after %d attempts: %s", max_attempts, exc)
+                    raise
+                logger.warning(
+                    "ADK registration attempt %d/%d failed: %s",
+                    attempt,
+                    max_attempts,
+                    exc,
+                )
+                await asyncio.sleep(delay)
+                delay *= 2
+            except Exception as exc:  # pragma: no cover - unexpected
+                logger.exception("Unexpected ADK registration error: %s", exc)
+                raise
 
 
 # ---------------------------------------------------------------------------
 # Static registry hook  ------------------------------------------------------
 # ---------------------------------------------------------------------------
-
-register_agent(
-    AgentMetadata(
-        name=RetailDemandAgent.NAME,
-        cls=RetailDemandAgent,
-        version="0.4.0",
-        capabilities=RetailDemandAgent.CAPABILITIES,
-        compliance_tags=RetailDemandAgent.COMPLIANCE_TAGS,
-        requires_api_key=RetailDemandAgent.REQUIRES_API_KEY,
-    )
-)
-
 __all__ = ["RetailDemandAgent"]

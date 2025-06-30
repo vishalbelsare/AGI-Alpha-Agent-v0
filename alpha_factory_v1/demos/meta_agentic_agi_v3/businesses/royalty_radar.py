@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# SPDX-License-Identifier: Apache-2.0
 """royalty_radar.py – Production‑grade α‑AGI Business Module
 ───────────────────────────────────────────────────────────────────────────────
 RoyaltyRadar.a.agi.eth
@@ -60,14 +61,20 @@ except ModuleNotFoundError:
     # standalone fallback → minimal stubs
     def call_llm(prompt: str, model: str, temp: float = 0.2):
         return "[LLM offline] Please settle €X royalties to wallet 0x…"
+
     def sandbox_exec(code: str, timeout: int = 3):
         return {}
+
     class Agent:
         def __init__(self, cfg):
             self.cfg = cfg
-            import logging; self.logger = logging.getLogger("RoyaltyRadar")
+            import logging
+
+            self.logger = logging.getLogger("RoyaltyRadar")
+
     def log_stepstone(label: str, artefact: dict):
-        Path("stepstones.jsonl").write_text(json.dumps(artefact)+"\n")
+        Path("stepstones.jsonl").write_text(json.dumps(artefact) + "\n")
+
 
 # ──────────────────────────────────────────────────────────────────────────────
 # Configuration dataclass
@@ -80,38 +87,42 @@ class RoyaltyRadarConfig:
     payout_wallet: str
     dsp_adapters: Sequence[str] = ("mock",)
     llm_model: str = "mistral:7b-instruct.gguf"
-    gap_eur_floor: float = 50.0           # ignore penny gaps
-    false_pos_rate: float = 0.05          # max FP tolerated when flagging
+    gap_eur_floor: float = 50.0  # ignore penny gaps
+    false_pos_rate: float = 0.05  # max FP tolerated when flagging
     demo_mode: bool = True
 
     @staticmethod
     def from_yaml(path: str | Path):
         import yaml
+
         raw = yaml.safe_load(Path(path).read_text())
         return RoyaltyRadarConfig(
-            artist_name   = raw["artist_name"],
-            isrc_codes    = raw["isrc_codes"],
-            statement_csv = Path(raw["statement_csv"]).expanduser(),
-            payout_wallet = raw["payout_wallet"],
-            dsp_adapters  = raw.get("dsp_adapters", ["mock"]),
-            llm_model     = raw.get("llm_model", "mistral:7b-instruct.gguf"),
-            gap_eur_floor = float(raw.get("gap_eur_floor", 50)),
-            false_pos_rate= float(raw.get("false_pos_rate", 0.05)),
-            demo_mode     = bool(raw.get("demo_mode", True)),
+            artist_name=raw["artist_name"],
+            isrc_codes=raw["isrc_codes"],
+            statement_csv=Path(raw["statement_csv"]).expanduser(),
+            payout_wallet=raw["payout_wallet"],
+            dsp_adapters=raw.get("dsp_adapters", ["mock"]),
+            llm_model=raw.get("llm_model", "mistral:7b-instruct.gguf"),
+            gap_eur_floor=float(raw.get("gap_eur_floor", 50)),
+            false_pos_rate=float(raw.get("false_pos_rate", 0.05)),
+            demo_mode=bool(raw.get("demo_mode", True)),
         )
+
 
 # ──────────────────────────────────────────────────────────────────────────────
 # DSP Adapters (extendable): return total stream count for ISRC code
 # ──────────────────────────────────────────────────────────────────────────────
 async def dsp_mock(isrc: str) -> int:
-    random.seed(isrc);
+    random.seed(isrc)
     return 1_000_000 + random.randint(0, 500_000)
+
 
 ADAPTERS = {
     "mock": dsp_mock,
     # "spotify": dsp_spotify_async,
     # "apple":  dsp_apple_async,
 }
+
 
 # ──────────────────────────────────────────────────────────────────────────────
 # RoyaltyRadar Agent Implementation
@@ -135,14 +146,13 @@ class RoyaltyRadarBusiness(Agent):
         self.logger.info(self.plan())
 
         # 1 Fetch public counts concurrently
-        tasks = [ADAPTERS[adp](isrc)
-                 for isrc in self.cfg.isrc_codes
-                 for adp in self.cfg.dsp_adapters]
+        tasks = [ADAPTERS[adp](isrc) for isrc in self.cfg.isrc_codes for adp in self.cfg.dsp_adapters]
         raw_counts = await asyncio.gather(*tasks)
 
         # Aggregate by ISRC (mean across adapters)
-        public_counts: Dict[str,int] = {isrc: int(mean(raw_counts[i::len(self.cfg.isrc_codes)]))
-                                        for i, isrc in enumerate(self.cfg.isrc_codes)}
+        public_counts: Dict[str, int] = {
+            isrc: int(mean(raw_counts[i :: len(self.cfg.isrc_codes)])) for i, isrc in enumerate(self.cfg.isrc_codes)
+        }
         self.logger.debug(f"Public counts → {public_counts}")
 
         # 2 Parse artist statements
@@ -152,12 +162,13 @@ class RoyaltyRadarBusiness(Agent):
         # 3 Bayesian gap estimation (Beta‑Binomial w/ Jeffreys prior)
         gap_eur: Dict[str, float] = {}
         for isrc in self.cfg.isrc_codes:
-            n_pub   = public_counts[isrc]
-            n_paid  = paid_counts.get(isrc, 0)
-            if n_pub <= n_paid: continue
+            n_pub = public_counts[isrc]
+            n_paid = paid_counts.get(isrc, 0)
+            if n_pub <= n_paid:
+                continue
             # posterior mean of unpaid portion
             unpaid_mu = (n_pub - n_paid) / (n_pub + 2)
-            euro_gap  = unpaid_mu * 0.0032   # €/stream
+            euro_gap = unpaid_mu * 0.0032  # €/stream
             if euro_gap >= self.cfg.gap_eur_floor:
                 gap_eur[isrc] = round(euro_gap, 2)
 
@@ -182,7 +193,7 @@ class RoyaltyRadarBusiness(Agent):
             "claim_letter": letter,
             "evidence": {
                 "public_streams": public_counts,
-                "paid_streams":   paid_counts,
+                "paid_streams": paid_counts,
             },
         }
         log_stepstone(self.LABEL, artefact)
@@ -199,23 +210,26 @@ class RoyaltyRadarBusiness(Agent):
     def run(self):
         return asyncio.run(self.run_async())
 
+
 # ──────────────────────────────────────────────────────────────────────────────
 # Helper functions
 # ──────────────────────────────────────────────────────────────────────────────
 
+
 def _parse_statement(csv_path: Path, isrc_filter: Sequence[str]):
-    counts: Dict[str,int] = {}
-    euros: Dict[str,float] = {}
+    counts: Dict[str, int] = {}
+    euros: Dict[str, float] = {}
     with csv_path.open() as f:
         for row in csv.DictReader(f):
-            if row["isrc"] not in isrc_filter: continue
+            if row["isrc"] not in isrc_filter:
+                continue
             counts[row["isrc"]] = counts.get(row["isrc"], 0) + int(row["streams"])
-            euros[row["isrc"]]  = euros.get(row["isrc"], 0)  + float(row["eur"])
+            euros[row["isrc"]] = euros.get(row["isrc"], 0) + float(row["eur"])
     return counts, euros
 
 
-def _letter_prompt(artist: str, gap: Dict[str,float], wallet: str) -> str:
-    bullets = "\n".join(f"• {k}: €{v}" for k,v in gap.items())
+def _letter_prompt(artist: str, gap: Dict[str, float], wallet: str) -> str:
+    bullets = "\n".join(f"• {k}: €{v}" for k, v in gap.items())
     return (
         f"Draft a concise, professional royalty‑recovery notice on behalf of {artist}.\n"
         f"Unpaid amounts (per ISRC):\n{bullets}\n"
@@ -242,11 +256,13 @@ def _dispatch_payout(eur_amount: float, wallet: str):
     tx_hash = w3.eth.send_raw_transaction(signed.rawTransaction)
     print("[TX] payout sent →", tx_hash.hex())
 
+
 # ──────────────────────────────────────────────────────────────────────────────
 # CLI for standalone smoke‑test
 # ──────────────────────────────────────────────────────────────────────────────
 if __name__ == "__main__":
     import argparse, logging, yaml, pprint
+
     logging.basicConfig(level=logging.INFO, format="%(levelname)s | %(message)s")
 
     ap = argparse.ArgumentParser(description="RoyaltyRadar quick‑start")

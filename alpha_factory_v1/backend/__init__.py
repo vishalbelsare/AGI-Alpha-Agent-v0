@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 """
 alpha_factory_v1/backend/__init__.py
 ────────────────────────────────────
@@ -24,7 +25,7 @@ import logging
 import sys
 import types
 from pathlib import Path
-from typing import List, Dict
+from typing import Any, Awaitable, Callable, Dict, List, NoReturn
 import tempfile
 import json
 import secrets
@@ -38,11 +39,18 @@ except ModuleNotFoundError:  # SDK not installed
     _LOG.warning("OpenAI Agents SDK not found - running in degraded mode. " "Install with:  pip install openai-agents")
     # Create a *minimal* stub so `import openai_agents` will not crash.
     shim = types.ModuleType("openai_agents")
+    shim.__spec__ = importlib.machinery.ModuleSpec("openai_agents", loader=None)
 
     class _MissingSDK:  # pylint: disable=too-few-public-methods
         """Stub that raises helpful errors when the real SDK is absent."""
 
-        def __getattr__(self, item):  # noqa: D401
+        def __getattr__(self, item: str) -> NoReturn:  # noqa: D401
+            raise ModuleNotFoundError(
+                "The OpenAI Agents SDK is required for this operation. "
+                "Please install it with:  pip install openai-agents"
+            )
+
+        def __call__(self, *args: object, **kwargs: object) -> NoReturn:  # noqa: D401
             raise ModuleNotFoundError(
                 "The OpenAI Agents SDK is required for this operation. "
                 "Please install it with:  pip install openai-agents"
@@ -64,6 +72,7 @@ except ModuleNotFoundError:  # SDK not installed
 else:  # SDK is present → register alias & expose full public API verbatim
     shim = types.ModuleType("openai_agents")
     shim.__dict__.update(_agents_pkg.__dict__)
+    shim.__spec__ = _agents_pkg.__spec__
     sys.modules["openai_agents"] = shim
     _LOG.info("OpenAI Agents SDK detected — legacy imports patched successfully.")
 
@@ -142,7 +151,11 @@ try:
 # ─────────────────────── zero-dependency HTTP fallback ────────────────────
 except ModuleNotFoundError:  # pragma: no cover
 
-    async def app(scope, receive, send):  # type: ignore  # noqa: D401, N802
+    async def app(
+        scope: Dict[str, Any],
+        receive: Callable[..., Awaitable[Any]],
+        send: Callable[..., Awaitable[Any]],
+    ) -> None:  # type: ignore  # noqa: D401, N802
         """Tiny HTTP-only ASGI app used when FastAPI is not installed."""
         if scope["type"] != "http":  # only handle plain HTTP
             return

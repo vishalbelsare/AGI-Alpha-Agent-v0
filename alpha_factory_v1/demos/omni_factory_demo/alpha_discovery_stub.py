@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# SPDX-License-Identifier: Apache-2.0
 """Alpha discovery stub with minimal CLI.
 
 The script illustrates how the OMNI‑Factory demo might surface
@@ -20,8 +21,13 @@ from typing import List, Dict
 with contextlib.suppress(ModuleNotFoundError):
     import openai  # type: ignore
 
+OPENAI_TIMEOUT_SEC = int(os.getenv("OPENAI_TIMEOUT_SEC", "30"))
+
 SAMPLE_ALPHA: List[Dict[str, str]] = [
-    {"sector": "Energy", "opportunity": "Battery storage arbitrage between solar overproduction and evening peak demand"},
+    {
+        "sector": "Energy",
+        "opportunity": "Battery storage arbitrage between solar overproduction and evening peak demand",
+    },
     {"sector": "Supply Chain", "opportunity": "Reroute shipping from congested port to alternate harbor to cut delays"},
     {"sector": "Finance", "opportunity": "Hedge currency exposure using futures due to predicted FX volatility"},
     {"sector": "Manufacturing", "opportunity": "Optimize machine maintenance schedule to reduce unplanned downtime"},
@@ -32,6 +38,7 @@ SAMPLE_ALPHA: List[Dict[str, str]] = [
 ]
 
 DEFAULT_LEDGER = Path(__file__).with_name("omni_alpha_log.json")
+
 
 def _ledger_path(path: str | os.PathLike | None) -> Path:
     if path:
@@ -57,14 +64,13 @@ def discover_alpha(
         random.seed(seed)
     picks: List[Dict[str, str]] = []
     if "openai" in globals() and os.getenv("OPENAI_API_KEY"):
-        prompt = (
-            "List "
-            f"{num} short cross-industry investment opportunities as JSON"
-        )
+        prompt = "List " f"{num} short cross-industry investment opportunities as JSON"
         try:
             resp = openai.ChatCompletion.create(
                 model="gpt-4o-mini",
                 messages=[{"role": "user", "content": prompt}],
+                response_format={"type": "json_object"},
+                timeout=OPENAI_TIMEOUT_SEC,
             )
             picks = json.loads(resp.choices[0].message.content)  # type: ignore[index]
             if isinstance(picks, dict):
@@ -72,7 +78,7 @@ def discover_alpha(
         except Exception:
             picks = []
     if not picks:
-        picks = [random.choice(SAMPLE_ALPHA) for _ in range(max(1, num))]
+        picks = random.sample(SAMPLE_ALPHA, k=min(num, len(SAMPLE_ALPHA)))
 
     (_ledger_path(ledger) if ledger else DEFAULT_LEDGER).write_text(
         json.dumps(picks[0] if num == 1 else picks, indent=2)

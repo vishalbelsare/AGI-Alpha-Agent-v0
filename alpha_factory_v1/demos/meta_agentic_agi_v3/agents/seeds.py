@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 """
 seeds.py – Curated “seed” agent portfolio for Alpha‑Factory v1
 =============================================================
@@ -52,6 +53,7 @@ def _utcnow_ms() -> float:
 # MCP v0.2: Context window + contract metadata
 # ---------------------------------------------------------------------------
 
+
 @dataclass
 class ContextContract:
     max_input_tokens: int
@@ -62,6 +64,7 @@ class ContextContract:
 # ---------------------------------------------------------------------------
 # Base Seed Descriptor
 # ---------------------------------------------------------------------------
+
 
 @dataclass
 class SeedAgentSpec:
@@ -82,6 +85,7 @@ class SeedAgentSpec:
 # Example factory functions (thin wrapper around agent_base.Agent)
 # ---------------------------------------------------------------------------
 
+
 def _require_agent_base():
     mod = _lazy_import("alpha_factory_v1.demos.meta_agentic_agi.agents.agent_base")
     if mod is None:
@@ -92,21 +96,24 @@ def _require_agent_base():
 def chain_of_thought_sc(**kwargs):
     """Standard CoT + Self‑Consistency ensemble (n=5)."""
     Agent = _require_agent_base()
+
     def _run(task_prompt: str, self_ref=None, **kw):
         # minimal implementation – real logic resides in agent run()
-        return self_ref.lm.chat([{"role":"user","content":f"Think step‑by‑step then answer.\n{task_prompt}"}])
-    return Agent(name="CoT‑SC",
-                 role="Reasoner‑Ensembler",
-                 provider=kwargs.get("provider","openai:gpt-4o-mini"),
-                 objectives=kwargs.get("objectives"),
-                 ).bind(run=_run)
+        return self_ref.lm.chat([{"role": "user", "content": f"Think step‑by‑step then answer.\n{task_prompt}"}])
+
+    return Agent(
+        name="CoT‑SC",
+        role="Reasoner‑Ensembler",
+        provider=kwargs.get("provider", "openai:gpt-4o-mini"),
+        objectives=kwargs.get("objectives"),
+    ).bind(run=_run)
 
 
 def reflexion_critic(**kwargs):
     Agent = _require_agent_base()
-    return Agent(name="Reflexion‑Critic",
-                 role="Self‑Reflective Solver",
-                 provider=kwargs.get("provider","openai:gpt-4o-mini"))
+    return Agent(
+        name="Reflexion‑Critic", role="Self‑Reflective Solver", provider=kwargs.get("provider", "openai:gpt-4o-mini")
+    )
 
 
 # Additional factories would follow the template above…
@@ -140,6 +147,7 @@ PORTFOLIO: List[SeedAgentSpec] = [
 # CLI helpers
 # ---------------------------------------------------------------------------
 
+
 def list_seeds() -> List[str]:
     return [spec.name for spec in PORTFOLIO]
 
@@ -157,6 +165,7 @@ def to_json() -> str:
 
 if __name__ == "__main__":
     import argparse, sys
+
     p = argparse.ArgumentParser(description="Seed agent portfolio CLI")
     p.add_argument("--list", action="store_true", help="List available seeds")
     p.add_argument("--show", type=str, help="Show JSON spec for a seed")

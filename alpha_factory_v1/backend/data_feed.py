@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 """Synchronous market-data helpers used by small demos.
 
 This module exposes a single :func:`last_price` function that attempts to fetch
@@ -31,9 +32,7 @@ _CACHE_TTL = float(os.getenv("ALPHA_DATAFEED_TTL", "1.0"))
 
 
 # ── helpers ──────────────────────────────────────────────────────────────
-def _polygon_last_price(
-    symbol: str, key: str, session: Optional[requests.Session] = None
-) -> float:
+def _polygon_last_price(symbol: str, key: str, session: Optional[requests.Session] = None) -> float:
     """Return the latest trade price from Polygon."""
 
     url = f"https://api.polygon.io/v2/last/trade/{symbol}?apiKey={key}"

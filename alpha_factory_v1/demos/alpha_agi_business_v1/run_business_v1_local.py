@@ -1,4 +1,6 @@
 #!/usr/bin/env python3
+# SPDX-License-Identifier: Apache-2.0
+# NOTE: This demo is a research prototype. References to "AGI" or "superintelligence" describe aspirational goals and do not indicate the presence of real general intelligence. Use at your own risk. Nothing herein constitutes financial advice.
 """Local launcher for the Alpha‑AGI Business v1 demo.
 
 Runs the orchestrator directly without Docker and optionally starts the
@@ -43,7 +45,7 @@ def _set_business_host(host: str) -> None:
         pass
 
 
-def _start_bridge(host: str) -> None:
+def _start_bridge(host: str, runtime_port: int) -> None:
     """Start the OpenAI Agents bridge in a background thread.
 
     Parameters
@@ -52,6 +54,7 @@ def _start_bridge(host: str) -> None:
         Base URL for the orchestrator that the bridge should
         communicate with (e.g. ``"http://localhost:8000"``).
     """
+    os.environ["AGENTS_RUNTIME_PORT"] = str(runtime_port)
     try:
         from alpha_factory_v1.demos.alpha_agi_business_v1 import openai_agents_bridge
     except Exception as exc:  # pragma: no cover - optional dep
@@ -78,6 +81,7 @@ def _open_browser_when_ready(url: str, timeout: float = 5.0) -> None:
     If the orchestrator does not respond within the specified timeout, the
     URL will still be opened in the browser as a fallback.
     """
+
     def _wait_and_open() -> None:
         import af_requests as requests  # type: ignore
 
@@ -107,6 +111,13 @@ def main(argv: list[str] | None = None) -> None:
         type=int,
         default=8000,
         help="Expose orchestrator on this port (default: 8000)",
+    )
+    parser.add_argument(
+        "--runtime-port",
+        type=int,
+        default=5001,
+        metavar="PORT",
+        help="Expose Agents runtime on this port (default: 5001)",
     )
     parser.add_argument(
         "--auto-install",
@@ -157,9 +168,10 @@ def main(argv: list[str] | None = None) -> None:
         )
 
     from alpha_factory_v1.demos.alpha_agi_business_v1 import alpha_agi_business_v1
+
     if args.bridge:
         host = os.getenv("BUSINESS_HOST", f"http://localhost:{args.port}")
-        _start_bridge(host)
+        _start_bridge(host, args.runtime_port)
 
     if args.open_ui:
         url = os.getenv("BUSINESS_HOST", f"http://localhost:{args.port}") + "/docs"

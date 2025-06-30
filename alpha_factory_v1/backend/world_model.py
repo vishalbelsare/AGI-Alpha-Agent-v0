@@ -42,10 +42,11 @@ with contextlib.suppress(ModuleNotFoundError):
     from muzero import muzero  # MuZero-general
 with contextlib.suppress(ModuleNotFoundError):
     import openai  # OpenAI SDK
+OPENAI_TIMEOUT_SEC = int(os.getenv("OPENAI_TIMEOUT_SEC", "30"))
 with contextlib.suppress(ModuleNotFoundError):
     from llama_cpp import Llama
 with contextlib.suppress(Exception):
-    from backend.agents import Gauge  # type: ignore
+    from backend.agents.registry import Gauge  # type: ignore
 with contextlib.suppress(ModuleNotFoundError):
     from confluent_kafka import Producer
 
@@ -179,6 +180,7 @@ class LLMSimulator:
                 temperature=0.3,
                 max_tokens=80,
                 messages=[{"role": "user", "content": prompt}],
+                timeout=OPENAI_TIMEOUT_SEC,
             )
             return rsp["choices"][0]["message"]["content"]  # type: ignore[index]
         if self._use_local:

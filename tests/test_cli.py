@@ -1,33 +1,47 @@
+# SPDX-License-Identifier: Apache-2.0
+import os
+import csv
+from io import StringIO
 from unittest.mock import patch
 from click.testing import CliRunner
 from alpha_factory_v1.demos.alpha_agi_insight_v1.src.interface import cli
 
+os.environ.setdefault("API_TOKEN", "test-token")
+
 
 def test_agents_status_lists_names() -> None:
-    with patch.object(cli.orchestrator, "Orchestrator") as orch_cls:
-        orch = orch_cls.return_value
-        runner = type(
-            "Runner",
-            (),
-            {"agent": type("Agent", (), {"name": "AgentX"})()},
-        )()
-        orch.runners = {"AgentX": runner}
+    class Dummy:
+        status_code = 200
+
+        def __init__(self, data: dict) -> None:
+            self._data = data
+
+        def json(self) -> dict:
+            return self._data
+
+    payload = {"agents": [{"name": "AgentX", "last_beat": 1.0, "restarts": 0}]}
+    with patch.object(cli.requests, "get", return_value=Dummy(payload)):
         result = CliRunner().invoke(cli.main, ["agents-status"])
-        assert "AgentX" in result.output
+    assert "AgentX" in result.output
+    assert "restarts" in result.output
 
 
 def test_agents_status_watch_stops_on_interrupt() -> None:
-    with patch.object(cli.orchestrator, "Orchestrator") as orch_cls:
-        orch = orch_cls.return_value
-        runner = type(
-            "Runner",
-            (),
-            {"agent": type("Agent", (), {"name": "AgentY"})()},
-        )()
-        orch.runners = {"AgentY": runner}
+    class Dummy:
+        status_code = 200
+
+        def __init__(self, data: dict) -> None:
+            self._data = data
+
+        def json(self) -> dict:
+            return self._data
+
+    payload = {"agents": [{"name": "AgentY", "last_beat": 1.0, "restarts": 0}]}
+    with patch.object(cli.requests, "get", return_value=Dummy(payload)):
         with patch.object(cli.time, "sleep", side_effect=KeyboardInterrupt):
             result = CliRunner().invoke(cli.main, ["agents-status", "--watch"])
-        assert "AgentY" in result.output
+    assert "AgentY" in result.output
+    assert "last_beat" in result.output
 
 
 def test_show_results_missing(tmp_path) -> None:
@@ -44,7 +58,21 @@ def test_show_results_export_json(tmp_path) -> None:
             led = led_cls.return_value
             led.tail.return_value = [{"ts": 1.0, "sender": "a", "recipient": "b", "payload": {"x": 1}}]
             res = CliRunner().invoke(cli.main, ["show-results", "--export", "json"])
-            assert res.output.startswith("[")
+        assert res.output.startswith("[")
+
+
+def test_show_memory_missing(tmp_path) -> None:
+    with patch.object(cli.config.CFG, "memory_path", str(tmp_path / "mem.log")):
+        res = CliRunner().invoke(cli.main, ["show-memory"])
+        assert "No memory" in res.output
+
+
+def test_show_memory_export_json(tmp_path) -> None:
+    mem = tmp_path / "mem.log"
+    mem.write_text('{"x":1}\n', encoding="utf-8")
+    with patch.object(cli.config.CFG, "memory_path", str(mem)):
+        res = CliRunner().invoke(cli.main, ["show-memory", "--export", "json"])
+        assert res.output.startswith("[")
 
 
 def test_replay_missing(tmp_path) -> None:
@@ -65,15 +93,24 @@ def test_simulate_runs() -> None:
                     "--horizon",
                     "1",
                     "--offline",
+                    "--sectors",
+                    "1",
                     "--pop-size",
                     "1",
                     "--generations",
                     "1",
+                    "--k",
+                    "5",
+                    "--x0",
+                    "0.1",
                     "--start-orchestrator",
+                    "--llama-model-path",
+                    "model.gguf",
                 ],
             )
-        assert res.exit_code == 0
+            assert res.exit_code == 0
         aio.run.assert_called_once()
+        assert os.environ.get("LLAMA_MODEL_PATH") == "model.gguf"
 
 
 def test_simulate_export_csv() -> None:
@@ -87,16 +124,25 @@ def test_simulate_export_csv() -> None:
                     "--horizon",
                     "1",
                     "--offline",
+                    "--sectors",
+                    "1",
                     "--pop-size",
                     "1",
                     "--generations",
                     "1",
+                    "--k",
+                    "5",
+                    "--x0",
+                    "0.0",
                     "--export",
                     "csv",
                 ],
             )
     assert res.exit_code == 0
-    assert "year,capability,affected" in res.output
+    reader = csv.reader(StringIO(res.output))
+    rows = list(reader)
+    assert rows[0] == ["year", "capability", "affected"]
+    assert len(rows) > 1
 
 
 def test_show_results_export_csv(tmp_path) -> None:
@@ -121,10 +167,16 @@ def test_simulate_export_json() -> None:
                     "--horizon",
                     "1",
                     "--offline",
+                    "--sectors",
+                    "1",
                     "--pop-size",
                     "1",
                     "--generations",
                     "1",
+                    "--k",
+                    "5",
+                    "--x0",
+                    "0.0",
                     "--export",
                     "json",
                 ],
@@ -146,6 +198,39 @@ def test_replay_existing(tmp_path) -> None:
             ),
         ):
             led = led_cls.return_value
+            led.__enter__.return_value = led
             led.tail.return_value = [{"ts": 0.0, "sender": "a", "recipient": "b", "payload": {"x": 1}}]
             out = CliRunner().invoke(cli.main, ["replay"])
             assert "a -> b" in out.output
+
+
+def test_simulate_does_not_modify_global_cfg() -> None:
+    """CLI options should not persist on the global config."""
+    runner = CliRunner()
+    original = cli.config.CFG.model_dump()
+
+    with patch.object(cli, "asyncio"), patch.object(cli.orchestrator, "Orchestrator"):
+        res = runner.invoke(
+            cli.main,
+            [
+                "simulate",
+                "--horizon",
+                "1",
+                "--offline",
+                "--sectors",
+                "1",
+                "--pop-size",
+                "1",
+                "--generations",
+                "1",
+                "--model",
+                "other",
+                "--temperature",
+                "0.9",
+                "--context-window",
+                "1024",
+            ],
+        )
+
+    assert res.exit_code == 0
+    assert cli.config.CFG.model_dump() == original

@@ -1,16 +1,18 @@
+# SPDX-License-Identifier: Apache-2.0
+# mypy: ignore-errors
 #!/usr/bin/env python
 # alpha_factory_v1/demos/era_of_experience/agent_experience_entrypoint.py
-# © 2025 MONTREAL.AI – MIT License
+# © 2025 MONTREAL.AI – Apache-2.0 License
 """
 Era-of-Experience Agent 👁️✨
 ────────────────────────────
 A minimal yet *comprehensive* reference implementation of an **autonomous,
 reward-grounded, life-long agent** as envisioned in “Welcome to the Era of Experience”
-(Sutton & Silver 2024) 
+(Sutton & Silver 2024)
 
-✓ Streams of experience (continuous event generator)  
-✓ Sensor-motor tools (search, meal planning, workout scheduling)  
-✓ Grounded reward (fitness & knowledge signals, *no* human grading)  
+✓ Streams of experience (continuous event generator)
+✓ Sensor-motor tools (search, meal planning, workout scheduling)
+✓ Grounded reward (fitness & knowledge signals, *no* human grading)
 ✓ Non-human reasoning (MCTS planning + vector memory)
 
 The script runs **online** (OPENAI_API_KEY) *or* **offline** (Ollama Mixtral) and
@@ -27,6 +29,7 @@ Environment vars (optional):
     MODEL_NAME          – default gpt-4o-mini
     TEMPERATURE         – default 0.2
     LIVE_FEED           – 1 to mix in real wearable/web data
+    LOGLEVEL           – default INFO
 """
 from __future__ import annotations
 import os
@@ -36,7 +39,8 @@ import datetime as dt
 import json
 import logging
 import math
-from typing import Dict, Any, AsyncIterator, List
+import re
+from typing import Dict, Any, AsyncIterator, Callable, TypeVar
 
 from fastapi import FastAPI
 from fastapi.responses import PlainTextResponse
@@ -54,12 +58,17 @@ except ImportError:  # pragma: no cover - allow import without package
 else:
     _NO_OPENAI_AGENTS = False
 
-if Tool is None:  # type: ignore
-    def Tool(*_args, **_kwargs):  # noqa: D401 - simple passthrough decorator
+if Tool is None:
+    F = TypeVar("F", bound=Callable[..., Any])
+
+    def Tool(*_args: Any, **_kwargs: Any) -> Callable[[F], F]:  # noqa: D401 - simple passthrough decorator
         """Fallback no-op decorator when openai_agents is unavailable."""
-        def _wrap(func):
+
+        def _wrap(func: F) -> F:
             return func
+
         return _wrap
+
 
 from .alpha_detection import (
     detect_yield_curve_alpha,
@@ -67,16 +76,18 @@ from .alpha_detection import (
 )
 
 # ───────────────────────────── configuration ────────────────────────────────
-MODEL       = os.getenv("MODEL_NAME", "gpt-4o-mini")
-TEMP        = float(os.getenv("TEMPERATURE", "0.2"))
-LIVE_FEED   = bool(int(os.getenv("LIVE_FEED", "0")))
-PORT        = int(os.getenv("PORT", "7860"))
-LOG_LVL     = os.getenv("LOGLEVEL", "INFO").upper()
+MODEL = os.getenv("MODEL_NAME", "gpt-4o-mini")
+TEMP = float(os.getenv("TEMPERATURE", "0.2"))
+LIVE_FEED = bool(int(os.getenv("LIVE_FEED", "0")))
+PORT = int(os.getenv("PORT", "7860"))
+LOG_LVL = os.getenv("LOGLEVEL", "INFO").upper()
+STREAM_RATE = float(os.getenv("STREAM_RATE_HZ", "1"))
 
 logging.basicConfig(
     level=LOG_LVL,
     format="%(asctime)s | %(levelname)-8s | %(message)s",
 )
+
 
 # ───────────────────────────── experience stream ────────────────────────────
 async def experience_stream() -> AsyncIterator[Dict[str, Any]]:
@@ -96,24 +107,20 @@ async def experience_stream() -> AsyncIterator[Dict[str, Any]]:
     """
     uid = 0
     users = ["alice", "bob"]
-    learn = ["Duolingo Spanish 10 min", "Khan Academy Calculus 15 min",
-             "Read 'Nature' abstract"]
+    learn = ["Duolingo Spanish 10 min", "Khan Academy Calculus 15 min", "Read 'Nature' abstract"]
     health = ["Run 5 km", "Sleep 7 h 45 m", "Cycle 12 km", "Yoga 30 min"]
 
+    period = 1.0 / max(STREAM_RATE, 0.01)
     while True:
         uid += 1
         now = dt.datetime.now(dt.timezone.utc).isoformat()
-        if random.random() < .6:
+        if random.random() < 0.6:
             kind, payload = "health", {"activity": random.choice(health)}
         else:
             kind, payload = "learn", {"session": random.choice(learn)}
-        evt = {"id": uid,
-               "t":  now,
-               "user": random.choice(users),
-               "kind": kind,
-               "payload": payload}
+        evt = {"id": uid, "t": now, "user": random.choice(users), "kind": kind, "payload": payload}
         yield evt
-        await asyncio.sleep(1.5)               # ~0.66 Hz stream
+        await asyncio.sleep(period)
 
 
 # ────────────────────────────── sensor-motor tools ──────────────────────────
@@ -129,10 +136,8 @@ async def plan_meal(target_kcal: int = 600) -> Dict[str, str]:
 
 
 @Tool("schedule_workout", "Generate a personalised workout block.")
-async def schedule_workout(duration_min: int = 30,
-                           focus: str = "cardio") -> Dict[str, str]:
-    return {"workout":
-            f"{duration_min} min {focus} – warm-up · interval · cool-down"}
+async def schedule_workout(duration_min: int = 30, focus: str = "cardio") -> Dict[str, str]:
+    return {"workout": f"{duration_min} min {focus} – warm-up · interval · cool-down"}
 
 
 @Tool("detect_yield_curve_alpha", "Assess yield curve inversion using offline data.")
@@ -158,13 +163,15 @@ TOOLS = [
     detect_supply_chain_alpha_tool,
 ]
 
+
 # ─────────────────────────────── reward functions ───────────────────────────
 def _fitness_reward(evt: Dict[str, Any]) -> float:
     act = evt["payload"].get("activity", "")
     if "Run" in act or "Cycle" in act or "Yoga" in act:
         return 1.0
     if "Sleep" in act:
-        hrs = float(act.split()[1][:-1])            # crude parse
+        match = re.search(r"\d+(?:\.\d+)?", act)
+        hrs = float(match.group(0)) if match else 0.0  # extract first numeric value
         return max(0, min(1.0, hrs / 8.0))
     return 0.0
 
@@ -173,12 +180,10 @@ def _education_reward(evt: Dict[str, Any]) -> float:
     if evt["kind"] != "learn":
         return 0.0
     minutes = int(evt["payload"]["session"].split()[-2])
-    return math.tanh(minutes / 20)                  # 0→1 smooth
+    return math.tanh(minutes / 20)  # 0→1 smooth
 
 
-def grounded_reward(state: Dict[str, Any],
-                    action: str | None,
-                    evt: Dict[str, Any]) -> float:
+def grounded_reward(state: Dict[str, Any], action: str | None, evt: Dict[str, Any]) -> float:
     """Composite grounded reward (0-1)."""
     return 0.6 * _fitness_reward(evt) + 0.4 * _education_reward(evt)
 
@@ -189,8 +194,7 @@ if OpenAIAgent is not None and memory is not None:
         model=MODEL,
         temperature=TEMP,
         api_key=os.getenv("OPENAI_API_KEY") or None,
-        base_url=os.getenv("LLM_BASE_URL", "http://ollama:11434/v1")
-        if not os.getenv("OPENAI_API_KEY") else None,
+        base_url=os.getenv("LLM_BASE_URL", "http://ollama:11434/v1") if not os.getenv("OPENAI_API_KEY") else None,
     )
 
     VECTOR_STORE = memory.LocalQdrantMemory(
@@ -210,6 +214,7 @@ if OpenAIAgent is not None and memory is not None:
 else:  # pragma: no cover - minimal mode for docs/tests
     LLM = VECTOR_STORE = agent = None
 
+
 # ───────────────────────────── orchestrator loop ────────────────────────────
 async def main() -> None:
     """
@@ -217,18 +222,15 @@ async def main() -> None:
     • Shows a slim Gradio dashboard (memory + live reasoning)
     """
     if _NO_OPENAI_AGENTS:
-        raise RuntimeError(
-            "OpenAI Agents SDK is required; install via 'pip install openai-agents'"
-        )
+        raise RuntimeError("OpenAI Agents SDK is required; install via 'pip install openai-agents'")
     if gr is None:
-        raise RuntimeError(
-            "gradio is required for the demo UI; install via 'pip install gradio'"
-        )
+        raise RuntimeError("gradio is required for the demo UI; install via 'pip install gradio'")
 
-    evt_gen = experience_stream()
+    evt_queue: asyncio.Queue[Dict[str, Any]] = asyncio.Queue()
 
-    async def ingest_loop():
-        async for evt in evt_gen:
+    async def ingest_loop() -> None:
+        async for evt in experience_stream():
+            await evt_queue.put(evt)
             logging.debug("Event %s", evt)
             # agent observes the world
             agent.observe(json.dumps(evt))
@@ -245,12 +247,11 @@ async def main() -> None:
         log_view = gr.Markdown()
         btn = gr.Button("Step once")
 
-        async def step_once():
-            evt = await anext(evt_gen)
+        async def step_once() -> tuple[list[list[str]], str]:
+            evt = await evt_queue.get()
             agent.observe(json.dumps(evt))
             call = await agent.act()
-            return [[json.dumps(m)[:120] for m in agent.memory.recent(10)]], \
-                   f"**Event:** {evt}\n\n**Action:** {call}"
+            return [[json.dumps(m)[:120] for m in agent.memory.recent(10)]], f"**Event:** {evt}\n\n**Action:** {call}"
 
         btn.click(step_once, outputs=[mem_view, log_view])
 
@@ -269,6 +270,7 @@ async def main() -> None:
         ingest_loop(),
         server.serve(),
     )
+
 
 # ──────────────────────────────── entrypoint ────────────────────────────────
 if __name__ == "__main__":

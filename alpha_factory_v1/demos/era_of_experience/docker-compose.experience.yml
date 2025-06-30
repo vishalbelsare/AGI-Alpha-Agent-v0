@@ -20,6 +20,7 @@ x-common-env: &common-env
   OPENAI_API_KEY: "${OPENAI_API_KEY:-}"
   MODEL_NAME: "${MODEL_NAME:-gpt-4o-mini}"
   TEMPERATURE: "${TEMPERATURE:-0.2}"
+  LOGLEVEL: "${LOGLEVEL:-INFO}"
   # ↓ live metrics (optional)
   PROM_PUSHGATEWAY: "http://prom-push:9091"
 
@@ -33,7 +34,7 @@ x-health-curl: &hc
 services:
   # ───────────── Vector Memory (Qdrant) ─────────────
   qdrant:
-    image: qdrant/qdrant:latest
+    image: qdrant/qdrant:v1.8.1
     volumes:
       - qdrant_data:/qdrant/storage
     healthcheck:
@@ -95,8 +96,10 @@ services:
       REDIS_URL: "redis://redis:6379/0"
       DATABASE_URL: "postgresql://experience:${PG_PASSWORD:-experience}@timescaledb:5432/exp_stream"
       LLM_BASE_URL: "${LLM_BASE_URL:-http://ollama:11434/v1}"
+      SAMPLE_DATA_DIR: "/app/demo/offline_samples"
     volumes:
       - ./:/app/demo:ro
+      - ${SAMPLE_DATA_DIR:-./offline_samples}:/app/demo/offline_samples:ro
     depends_on:
       qdrant:
         condition: service_healthy

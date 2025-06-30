@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 """backend.agents.cyber_threat_agent
 ===================================================================
 Alpha‑Factory v1 👁️✨ — Multi‑Agent AGENTIC α‑AGI
@@ -46,11 +47,15 @@ import asyncio
 import hashlib
 import json
 import logging
+
+logger = logging.getLogger(__name__)
 import os
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
+
+from alpha_factory_v1.backend.utils.sync import run_sync
 
 # ---------------------------------------------------------------------------
 # Soft‑optional libraries (import guards keep offline mode viable)
@@ -58,62 +63,77 @@ from typing import Any, Dict, List, Optional, Tuple
 try:
     import httpx  # type: ignore
 except ModuleNotFoundError:  # pragma: no cover
+    logger.warning("httpx unavailable – falling back to offline mode")
     httpx = None  # type: ignore
 
 try:
     import feedparser  # type: ignore
 except ModuleNotFoundError:  # pragma: no cover
+    logger.warning("feedparser missing – RSS ingestion disabled")
     feedparser = None  # type: ignore
 
 try:
     import networkx as nx  # type: ignore
 except ModuleNotFoundError:  # pragma: no cover
+    logger.warning("networkx unavailable – graph features disabled")
     nx = None  # type: ignore
 
 try:
     import lightgbm as lgb  # type: ignore
 except ModuleNotFoundError:  # pragma: no cover
+    logger.warning("lightgbm missing – ML model disabled")
     lgb = None  # type: ignore
 
 try:
     import openai  # type: ignore
     from openai.agents import tool  # type: ignore
 except ModuleNotFoundError:  # pragma: no cover
+    logger.warning("openai package not found – LLM features disabled")
     openai = None  # type: ignore
 
     def tool(fn=None, **_):  # type: ignore
         return (lambda f: f)(fn) if fn else lambda f: f
 
 
+OPENAI_TIMEOUT_SEC = int(os.getenv("OPENAI_TIMEOUT_SEC", "30"))
+
+
 try:
     import adk  # type: ignore
 except ModuleNotFoundError:  # pragma: no cover
+    logger.warning("google-adk not installed – mesh integration disabled")
     adk = None  # type: ignore
+try:
+    from aiohttp import ClientError as AiohttpClientError  # type: ignore
+except Exception:  # pragma: no cover - optional
+    AiohttpClientError = OSError  # type: ignore
+try:
+    from adk import ClientError as AdkClientError  # type: ignore[attr-defined]
+except Exception:  # pragma: no cover - optional
+
+    class AdkClientError(Exception):
+        pass
+
 
 try:
     from kafka import KafkaProducer  # type: ignore
 except ModuleNotFoundError:  # pragma: no cover
+    logger.warning("kafka-python missing – event bus disabled")
     KafkaProducer = None  # type: ignore
 
 # ---------------------------------------------------------------------------
 # Alpha‑Factory locals (no heavy deps)
 # ---------------------------------------------------------------------------
-from backend.agent_base import AgentBase  # pylint: disable=import‑error
-from backend.agents import AgentMetadata, register_agent
+from backend.agents.base import AgentBase  # pylint: disable=import‑error
+from backend.agents import register
 from backend.orchestrator import _publish  # reuse orchestrator event bus
+from alpha_factory_v1.utils.env import _env_int
 
 logger = logging.getLogger(__name__)
 
 # ---------------------------------------------------------------------------
 # Configuration structure
 # ---------------------------------------------------------------------------
-
-
-def _env_int(name: str, default: int) -> int:
-    try:
-        return int(os.getenv(name, default))
-    except ValueError:
-        return default
 
 
 def _env_float(name: str, default: float) -> float:
@@ -194,10 +214,12 @@ class _GBMSurrogate:
 # ---------------------------------------------------------------------------
 
 
+@register
 class CyberThreatAgent(AgentBase):
     """Agent that converts threat intel into actionable risk‑reduction alpha."""
 
     NAME = "cyber_threat"
+    __version__ = "0.5.0"
     CAPABILITIES = [
         "cve_monitoring",
         "threat_intel_fusion",
@@ -224,7 +246,8 @@ class CyberThreatAgent(AgentBase):
             self._producer = None
 
         if self.cfg.adk_mesh and adk:
-            asyncio.create_task(self._register_mesh())
+            # registration scheduled by orchestrator after loop start
+            pass
 
     # ------------------------------------------------------------------
     # OpenAI Agents SDK tools
@@ -232,15 +255,16 @@ class CyberThreatAgent(AgentBase):
 
     @tool(description="Return JSON residual cyber‑risk (USD) + top open threats.")
     def audit(self) -> str:  # noqa: D401
-        loop = asyncio.get_event_loop()
-        return loop.run_until_complete(self._risk_snapshot())
+        return run_sync(self._risk_snapshot())
 
     @tool(
-        description="Generate JSON patch/mitigation plan sequence ordered to maximise risk‑reduction under change‑window constraints."
+        description=(
+            "Generate JSON patch/mitigation plan sequence ordered to "
+            "maximise risk‑reduction under change‑window constraints."
+        )
     )
     def patch_plan(self) -> str:  # noqa: D401
-        loop = asyncio.get_event_loop()
-        return loop.run_until_complete(self._plan_patches())
+        return run_sync(self._plan_patches())
 
     # ------------------------------------------------------------------
     # Core cycle invoked by orchestrator
@@ -378,10 +402,13 @@ class CyberThreatAgent(AgentBase):
         )
         try:
             resp = await openai.ChatCompletion.acreate(
-                model="gpt-4o", messages=[{"role": "user", "content": prompt}], max_tokens=300
+                model="gpt-4o",
+                messages=[{"role": "user", "content": prompt}],
+                max_tokens=300,
+                timeout=OPENAI_TIMEOUT_SEC,
             )
             return json.loads(resp.choices[0].message.content)
-        except Exception as exc:  # noqa: BLE001
+        except (openai.OpenAIError, json.JSONDecodeError) as exc:
             logger.warning("OpenAI mitigation synthesis failed: %s", exc)
             return []
 
@@ -402,28 +429,33 @@ class CyberThreatAgent(AgentBase):
     # ADK mesh registration (optional)
     # ------------------------------------------------------------------
 
-    async def _register_mesh(self):  # noqa: D401
-        try:
-            client = adk.Client()
-            await client.register(node_type=self.NAME, metadata={"runtime": "alpha_factory"})
-            logger.info("[CT] registered in ADK mesh id=%s", client.node_id)
-        except Exception as exc:  # noqa: BLE001
-            logger.warning("ADK registration failed: %s", exc)
+    async def _register_mesh(self) -> None:  # noqa: D401
+        max_attempts = 3
+        delay = 1.0
+        for attempt in range(1, max_attempts + 1):
+            try:
+                client = adk.Client()
+                await client.register(node_type=self.NAME, metadata={"runtime": "alpha_factory"})
+                logger.info("[CT] registered in ADK mesh id=%s", client.node_id)
+                return
+            except (AdkClientError, AiohttpClientError, asyncio.TimeoutError, OSError) as exc:
+                if attempt == max_attempts:
+                    logger.error("ADK registration failed after %d attempts: %s", max_attempts, exc)
+                    raise
+                logger.warning(
+                    "ADK registration attempt %d/%d failed: %s",
+                    attempt,
+                    max_attempts,
+                    exc,
+                )
+                await asyncio.sleep(delay)
+                delay *= 2
+            except Exception as exc:  # pragma: no cover - unexpected
+                logger.exception("Unexpected ADK registration error: %s", exc)
+                raise
 
 
 # ---------------------------------------------------------------------------
 # One‑time registration with global registry
 # ---------------------------------------------------------------------------
-
-register_agent(
-    AgentMetadata(
-        name=CyberThreatAgent.NAME,
-        cls=CyberThreatAgent,
-        version="0.5.0",
-        capabilities=CyberThreatAgent.CAPABILITIES,
-        compliance_tags=CyberThreatAgent.COMPLIANCE_TAGS,
-        requires_api_key=CyberThreatAgent.REQUIRES_API_KEY,
-    )
-)
-
 __all__ = ["CyberThreatAgent"]

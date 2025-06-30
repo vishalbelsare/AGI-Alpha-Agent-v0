@@ -1,3 +1,6 @@
+[See docs/DISCLAIMER_SNIPPET.md](../../../docs/DISCLAIMER_SNIPPET.md)
+This repository is a conceptual research prototype. References to "AGI" and "superintelligence" describe aspirational goals and do not indicate the presence of a real general intelligence. Use at your own risk. Nothing herein constitutes financial advice. MontrealAI and the maintainers accept no liability for losses incurred from using this software.
+
 # alpha-factory Helm Chart
 
 This chart deploys the core **Alpha Factory** service including the API, UI and optional monitoring stack. It mirrors the provided Docker Compose setup while remaining easy to customise.

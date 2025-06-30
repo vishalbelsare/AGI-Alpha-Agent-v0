@@ -1,0 +1,68 @@
+/* SPDX-License-Identifier: Apache-2.0 */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  @apply m-0 font-sans bg-base-200 text-base-content;
+}
+svg {
+  @apply block m-auto bg-base-300 border border-base-300 touch-none;
+}
+#legend {
+  @apply text-base-content fixed bottom-4 right-4 text-sm;
+}
+#depth-legend {
+  @apply text-base-content fixed bottom-12 right-4 text-sm flex items-center;
+}
+#depth-legend .bar {
+  @apply ml-2 h-2 w-16 rounded;
+  background: linear-gradient(to right, rgba(0,175,255,1), rgba(0,175,255,0));
+}
+#tooltip {
+  @apply absolute hidden pointer-events-none bg-black/70 text-white px-1 py-0.5 rounded text-sm;
+}
+#toolbar {
+  @apply fixed bottom-4 left-4 flex gap-1;
+}
+#legend span {
+  @apply ml-1;
+}
+.animate-gradient {
+  background-size: 200% 200%;
+  animation: gradient 5s ease infinite;
+}
+@keyframes gradient {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+.parallax {
+  perspective: 1px;
+  overflow: hidden;
+}
+.parallax .stars,
+.parallax .stars2 {
+  position: absolute;
+  width: 200%;
+  height: 200%;
+  background-repeat: repeat;
+}
+.parallax .stars {
+  background-image: radial-gradient(#fff 1px, transparent 1px);
+  background-size: 50px 50px;
+  animation: moveStars 100s linear infinite;
+}
+.parallax .stars2 {
+  background-image: radial-gradient(#fff 1px, transparent 1px);
+  background-size: 100px 100px;
+  animation: moveStars 200s linear infinite;
+}
+@keyframes moveStars {
+  from { transform: translate3d(0,0,0); }
+  to { transform: translate3d(-50%, -50%, 0); }
+}
+#sim-loader { @apply hidden fixed inset-0 items-center justify-center bg-black/50 z-50; }
+#sim-loader.show { @apply flex; }
+#sim-loader .spinner { @apply w-8 h-8 border-4 border-white border-t-transparent rounded-full animate-spin; }
+@keyframes spin { to { transform: rotate(360deg); } }

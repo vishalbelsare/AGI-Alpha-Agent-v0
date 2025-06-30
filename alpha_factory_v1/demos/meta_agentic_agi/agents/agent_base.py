@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 """
 agent_base.py – Meta‑Agentic α‑AGI substrate (v0.4.0)
 =====================================================
@@ -42,7 +43,7 @@ except ImportError:
     signal = None  # type: ignore
 
 LOGGER = logging.getLogger(__name__)
-logging.basicConfig(level=os.environ.get("ALPHAF_FACTORY_LOGLEVEL", "INFO"))
+logging.basicConfig(level=os.environ.get("ALPHA_FACTORY_LOGLEVEL", os.getenv("LOGLEVEL", "INFO")))
 
 # ---------------------------------------------------------------------------
 # Helper utilities

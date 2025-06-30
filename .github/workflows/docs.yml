@@ -1,0 +1,28 @@
+name: "\ud83d\udcda Docs"
+
+on:
+  push:
+    branches: ["main"]
+  release:
+    types: [published]
+
+permissions:
+  contents: write
+
+jobs:
+  build-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - uses: actions/setup-node@v3
+        with:
+          node-version: '20'
+      - name: Install docs dependencies
+        run: pip install mkdocs mkdocs-material playwright
+      - name: Install Playwright browsers
+        run: playwright install chromium firefox webkit
+      - name: Build and deploy gallery
+        run: ./scripts/edge_human_knowledge_pages_sprint.sh

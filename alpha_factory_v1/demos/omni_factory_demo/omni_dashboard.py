@@ -57,6 +57,7 @@ except ModuleNotFoundError:
 # Optional but nice-to-have (Bootstrap styling)
 try:
     import dash_bootstrap_components as dbc  # type: ignore
+
     _THEME = dbc.themes.CYBORG  # auto-dark-/light-aware
     _USE_BOOTSTRAP = True
 except ModuleNotFoundError:  # fallback to bare Dash
@@ -73,11 +74,13 @@ if missing_pkgs:
     )
     sys.exit(1)
 
+
 # ── Data access layer ────────────────────────────────────────────────────────
 @dataclass
 class _Cache:
     df: "pd.DataFrame"
     stat: Tuple[int, int]  # (st_mtime_ns, st_size)
+
 
 _CACHE: Dict[Path, _Cache] = {}
 
@@ -137,11 +140,7 @@ def _build_app(ledger: Path) -> "dash.Dash":
         return html.Div(body, style={"border": "1px solid #444", "padding": "0.5rem", "margin": "0.25rem"})
 
     # ── Layout ────────────────────────────────────────────────────────────
-    app.layout = (
-        dbc.Container
-        if _USE_BOOTSTRAP
-        else html.Div  # type: ignore[assignment]
-    )(
+    app.layout = (dbc.Container if _USE_BOOTSTRAP else html.Div)(  # type: ignore[assignment]
         fluid=True,
         children=[
             html.H2("🏙️ OMNI-Factory • Smart-City Resilience Dashboard", style={"textAlign": "center"}),

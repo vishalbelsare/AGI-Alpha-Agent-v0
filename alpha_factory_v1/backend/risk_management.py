@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 
 """
 backend/risk_management.py
@@ -35,9 +36,7 @@ from __future__ import annotations
 
 import json
 import logging
-import math
 import os
-import time
 from pathlib import Path
 from typing import List, Sequence
 
@@ -171,10 +170,6 @@ class RiskManager:
         dd = self.drawdown_pct()
 
         if var > self.max_var_pct:
-            raise RiskLimitError(
-                f"VaR {var:.2%} exceeds hard limit {self.max_var_pct:.2%}"
-            )
+            raise RiskLimitError(f"VaR {var:.2%} exceeds hard limit {self.max_var_pct:.2%}")
         if dd > self.max_drawdown_pct:
-            raise RiskLimitError(
-                f"Draw‑down {dd:.2%} exceeds limit {self.max_drawdown_pct:.2%}"
-            )
+            raise RiskLimitError(f"Draw‑down {dd:.2%} exceeds limit {self.max_drawdown_pct:.2%}")

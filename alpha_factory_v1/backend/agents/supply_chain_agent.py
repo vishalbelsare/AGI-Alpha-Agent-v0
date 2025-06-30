@@ -1,10 +1,11 @@
+# SPDX-License-Identifier: Apache-2.0
 """backend.agents.supply_chain_agent
 ===================================================================
 Alpha‑Factory v1 👁️✨ — Multi‑Agent AGENTIC α‑AGI
 -------------------------------------------------------------------
 Supply‑Chain Domain‑Agent  🌐🚚 — production‑grade implementation
 ===================================================================
-Copyright (c) 2025 Montreal.AI — MIT‑licensed
+Copyright (c) 2025 Montreal.AI — Apache‑2.0 licensed
 
 This module implements **SupplyChainAgent**, an antifragile, cross‑industry
 optimizer that continuously mines global logistics signals to surface *alpha*
@@ -33,15 +34,20 @@ import asyncio
 import hashlib
 import json
 import logging
+
+logger = logging.getLogger(__name__)
 import os
 import time
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Dict, List, Tuple
 
+from alpha_factory_v1.backend.utils.sync import run_sync
+
 try:
     import networkx as nx  # type: ignore
 except ModuleNotFoundError:  # pragma: no cover - optional dep
+    logger.warning("networkx not installed – graph model disabled")
 
     class _FakeGraph:
         def __init__(self) -> None:
@@ -62,6 +68,7 @@ except ModuleNotFoundError:  # pragma: no cover - optional dep
 try:
     import numpy as np  # noqa: F401
 except ModuleNotFoundError:  # pragma: no cover
+    logger.warning("numpy not installed – numeric features disabled")
     np = None  # type: ignore
 
 # ---------------------------------------------------------------------------
@@ -70,22 +77,26 @@ except ModuleNotFoundError:  # pragma: no cover
 try:
     import pandas as pd  # noqa: F401
 except ModuleNotFoundError:  # pragma: no cover
+    logger.warning("pandas missing – CSV parsing disabled")
     pd = None  # type: ignore
 
 try:
     import pulp  # Minimal‑cost flow MILP solver
 except ModuleNotFoundError:  # pragma: no cover
+    logger.warning("pulp not installed – optimisation disabled")
     pulp = None  # type: ignore
 
 try:
     import httpx  # async HTTP client for open datasets
 except ModuleNotFoundError:  # pragma: no cover
+    logger.warning("httpx unavailable – using cached datasets")
     httpx = None  # type: ignore
 
 try:
     import openai
     from openai.agents import tool
 except ModuleNotFoundError:  # pragma: no cover
+    logger.warning("openai package not found – LLM features disabled")
 
     def tool(fn=None, **_):  # type: ignore
         return (lambda f: f) if fn is None else fn  # no‑op decorator
@@ -95,16 +106,31 @@ except ModuleNotFoundError:  # pragma: no cover
 try:
     import adk  # Google Agent Development Kit
 except ModuleNotFoundError:  # pragma: no cover
+    logger.warning("google-adk not installed – mesh integration disabled")
     adk = None  # type: ignore
+try:
+    from aiohttp import ClientError as AiohttpClientError  # type: ignore
+except Exception:  # pragma: no cover - optional
+    AiohttpClientError = OSError  # type: ignore
+try:
+    from adk import ClientError as AdkClientError  # type: ignore[attr-defined]
+except Exception:  # pragma: no cover - optional
+
+    class AdkClientError(Exception):
+        pass
+
 
 # ---------------------------------------------------------------------------
 # Alpha‑Factory local imports (lightweight, no heavy deps)
 # ---------------------------------------------------------------------------
 from backend.agent_base import AgentBase  # pylint: disable=import‑error
-from backend.agents import AgentMetadata, register_agent  # pylint: disable=import‑error
+from backend.agents import register  # pylint: disable=import‑error
 from backend.orchestrator import _publish  # re‑use event bus hook
 
 logger = logging.getLogger(__name__)
+
+# Timeout (seconds) for OpenAI API requests
+OPENAI_TIMEOUT_SEC = int(os.getenv("OPENAI_TIMEOUT_SEC", "30"))
 
 # ---------------------------------------------------------------------------
 # Env‑helper (robust env var parsing)
@@ -186,8 +212,10 @@ class WorldModel:  # noqa: D101
 # ---------------------------------------------------------------------------
 # Supply‑Chain Agent implementation
 # ---------------------------------------------------------------------------
+@register
 class SupplyChainAgent(AgentBase):  # noqa: D101
     NAME = "supply_chain"
+    __version__ = "0.5.0"
     CAPABILITIES = [
         "demand_forecasting",
         "inventory_optimisation",
@@ -204,14 +232,14 @@ class SupplyChainAgent(AgentBase):  # noqa: D101
         self.cfg.data_root.mkdir(parents=True, exist_ok=True)
         self._wm: WorldModel = WorldModel()
         if self.cfg.adk_mesh and adk:
-            asyncio.create_task(self._register_mesh())
+            # registration scheduled by orchestrator after loop start
+            pass
 
     # ----------------------------- tools ----------------------------- #
 
     @tool(description="Run an end‑to‑end supply‑chain replanning cycle and return JSON recommendations.")
     def replan(self) -> str:  # noqa: D401
-        loop = asyncio.get_event_loop()
-        return loop.run_until_complete(self._plan_cycle())
+        return run_sync(self._plan_cycle())
 
     # ------------------------ orchestrator hook ----------------------- #
 
@@ -279,6 +307,7 @@ class SupplyChainAgent(AgentBase):  # noqa: D101
                     model="gpt-4o",
                     messages=[{"role": "user", "content": prompt}],
                     max_tokens=200,
+                    timeout=OPENAI_TIMEOUT_SEC,
                 )
                 extra = json.loads(resp.choices[0].message.content)
                 recs.append(extra)
@@ -300,27 +329,33 @@ class SupplyChainAgent(AgentBase):  # noqa: D101
 
     # -------------------- ADK mesh handshake ------------------------ #
 
-    async def _register_mesh(self):  # noqa: D401
-        try:
-            client = adk.Client()
-            await client.register(node_type=self.NAME)
-            logger.info("[SC] registered with ADK mesh as %s", client.node_id)
-        except Exception as exc:  # noqa: BLE001
-            logger.warning("ADK registration failed: %s", exc)
+    async def _register_mesh(self) -> None:  # noqa: D401
+        max_attempts = 3
+        delay = 1.0
+        for attempt in range(1, max_attempts + 1):
+            try:
+                client = adk.Client()
+                await client.register(node_type=self.NAME)
+                logger.info("[SC] registered with ADK mesh as %s", client.node_id)
+                return
+            except (AdkClientError, AiohttpClientError, asyncio.TimeoutError, OSError) as exc:
+                if attempt == max_attempts:
+                    logger.error("ADK registration failed after %d attempts: %s", max_attempts, exc)
+                    raise
+                logger.warning(
+                    "ADK registration attempt %d/%d failed: %s",
+                    attempt,
+                    max_attempts,
+                    exc,
+                )
+                await asyncio.sleep(delay)
+                delay *= 2
+            except Exception as exc:  # pragma: no cover - unexpected
+                logger.exception("Unexpected ADK registration error: %s", exc)
+                raise
 
 
 # ---------------------------------------------------------------------------
 # Registry hook (executed at import‑time)
 # ---------------------------------------------------------------------------
-register_agent(
-    AgentMetadata(
-        name=SupplyChainAgent.NAME,
-        cls=SupplyChainAgent,
-        version="0.5.0",
-        capabilities=SupplyChainAgent.CAPABILITIES,
-        compliance_tags=SupplyChainAgent.COMPLIANCE_TAGS,
-        requires_api_key=SupplyChainAgent.REQUIRES_API_KEY,
-    )
-)
-
 __all__ = ["SupplyChainAgent"]

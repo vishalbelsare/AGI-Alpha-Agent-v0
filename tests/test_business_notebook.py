@@ -1,6 +1,8 @@
+# SPDX-License-Identifier: Apache-2.0
 import json
 import unittest
 from pathlib import Path
+
 
 class TestBusinessNotebook(unittest.TestCase):
     def test_notebook_valid(self) -> None:
@@ -10,6 +12,7 @@ class TestBusinessNotebook(unittest.TestCase):
         self.assertIn("cells", data)
         self.assertIn("nbformat", data)
         self.assertGreaterEqual(data.get("nbformat", 0), 4)
+
 
 if __name__ == "__main__":  # pragma: no cover
     unittest.main()

@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 """
 backend.agents.biotech_agent
 ====================================================================
@@ -59,72 +60,91 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
+from alpha_factory_v1.backend.utils.sync import run_sync
+
+from backend.agents.base import AgentBase  # pylint: disable=import-error
+from backend.agents import register
+from backend.orchestrator import _publish  # pylint: disable=import-error
+from alpha_factory_v1.utils.env import _env_int
+
+logger = logging.getLogger(__name__)
+
 # ────────────────────────────── soft-optional deps ──────────────────────────
 try:
     import rdflib  # type: ignore
     from rdflib.namespace import RDF, RDFS  # type: ignore
 except ModuleNotFoundError:  # pragma: no cover
+    logger.warning("rdflib not installed – knowledge graph disabled")
     rdflib = RDF = RDFS = None  # type: ignore
 
 try:
     import faiss  # type: ignore
 except ModuleNotFoundError:  # pragma: no cover
+    logger.warning("faiss missing – similarity search disabled")
     faiss = None  # type: ignore
 
 try:
     from sentence_transformers import SentenceTransformer  # type: ignore
 except ModuleNotFoundError:  # pragma: no cover
+    logger.warning("sentence-transformers missing – embeddings disabled")
     SentenceTransformer = None  # type: ignore
 
 try:
     import numpy as np  # type: ignore
 except ModuleNotFoundError:  # pragma: no cover
+    logger.warning("numpy not installed – vector ops disabled")
     np = None  # type: ignore
 
 try:
     import pandas as pd  # type: ignore
 except ModuleNotFoundError:  # pragma: no cover
+    logger.warning("pandas missing – CSV parsing disabled")
     pd = None  # type: ignore
 
 try:
     import openai  # type: ignore
     from openai.agents import tool  # type: ignore
 except ModuleNotFoundError:  # pragma: no cover
+    logger.warning("openai package not found – LLM features disabled")
     openai = None  # type: ignore
 
     def tool(fn=None, **_):  # type: ignore
         return (lambda f: f)(fn) if fn else lambda f: f
 
 
+OPENAI_TIMEOUT_SEC = int(os.getenv("OPENAI_TIMEOUT_SEC", "30"))
+
+
 try:
     from kafka import KafkaProducer  # type: ignore
 except ModuleNotFoundError:  # pragma: no cover
+    logger.warning("kafka-python missing – event streaming disabled")
     KafkaProducer = None  # type: ignore
 
 try:
     import httpx  # type: ignore
 except ModuleNotFoundError:  # pragma: no cover
+    logger.warning("httpx unavailable – network fetch disabled")
     httpx = None  # type: ignore
 
 try:
     import adk  # type: ignore
 except ModuleNotFoundError:  # pragma: no cover
+    logger.warning("google-adk not installed – mesh integration disabled")
     adk = None  # type: ignore
+try:
+    from aiohttp import ClientError as AiohttpClientError  # type: ignore
+except Exception:  # pragma: no cover - optional
+    AiohttpClientError = OSError  # type: ignore
+try:
+    from adk import ClientError as AdkClientError  # type: ignore[attr-defined]
+except Exception:  # pragma: no cover - optional
 
-# ───────────────────────────── Alpha-Factory locals ─────────────────────────
-from backend.agents.base import AgentBase  # pylint: disable=import-error
-from backend.agents import AgentMetadata, register_agent
-from backend.orchestrator import _publish  # pylint: disable=import-error
-
-logger = logging.getLogger(__name__)
+    class AdkClientError(Exception):
+        pass
 
 
 # ─────────────────────────── helper / governance utils ──────────────────────
-def _env_int(key: str, default: int) -> int:  # robust ENV→int
-    try:
-        return int(os.getenv(key, default))
-    except ValueError:
-        return default
 
 
 def _now() -> str:  # ISO-UTC
@@ -244,8 +264,10 @@ class _KG:
 
 
 # ────────────────────────────── Biotech Agent ───────────────────────────────
+@register
 class BiotechAgent(AgentBase):
     NAME = "biotech"
+    __version__ = "0.2.0"
     CAPABILITIES = ["nl_query", "experiment_design", "pathway_analysis", "alpha_dashboard"]
     COMPLIANCE_TAGS = ["gdpr_minimal", "sox_traceable"]
     REQUIRES_API_KEY = False
@@ -258,7 +280,6 @@ class BiotechAgent(AgentBase):
 
         self.store = _EmbedStore(self.cfg)
         self.kg = _KG(self.cfg, self.store)
-        asyncio.create_task(self.kg.load())
 
         self._latest_alpha: List[Dict[str, Any]] = []
 
@@ -271,21 +292,26 @@ class BiotechAgent(AgentBase):
             self._producer = None
 
         if self.cfg.adk_mesh and adk:
-            asyncio.create_task(self._register_mesh())
+            # registration scheduled by orchestrator after loop start
+            pass
+
+    async def init_async(self) -> None:
+        """Launch background tasks after instantiation."""
+        asyncio.create_task(self.kg.load())
 
     # ── OpenAI Agents SDK tools ──────────────────────────────────────────
     @tool(description="Ask a biotech-related question; returns answer with citations.")
     def ask_biotech(self, query: str) -> str:
-        return asyncio.get_event_loop().run_until_complete(self._ask_async(query))
+        return run_sync(self._ask_async(query))
 
     @tool(description="Design an experiment. Arg JSON {objective:str, budget:str?}.")
     def propose_experiment(self, obj_json: str) -> str:
         args = json.loads(obj_json or "{}")
-        return asyncio.get_event_loop().run_until_complete(self._exp_async(args))
+        return run_sync(self._exp_async(args))
 
     @tool(description="Return pathway map for entity URI or gene symbol.")
     def pathway_map(self, entity: str) -> str:
-        return asyncio.get_event_loop().run_until_complete(self._pathway_async(entity))
+        return run_sync(self._pathway_async(entity))
 
     @tool(description="Summarise latest alpha opportunities discovered by the agent.")
     def alpha_dashboard(self) -> str:
@@ -328,6 +354,7 @@ class BiotechAgent(AgentBase):
                 ],
                 temperature=0,
                 max_tokens=600,
+                timeout=OPENAI_TIMEOUT_SEC,
             )
             answer = chat.choices[0].message.content.strip()
         else:
@@ -364,8 +391,7 @@ class BiotechAgent(AgentBase):
         }
 
     def optimise(self, sequence: str) -> Dict[str, Any]:
-        loop = asyncio.get_event_loop()
-        return loop.run_until_complete(self._optimise_async(sequence))
+        return run_sync(self._optimise_async(sequence))
 
     # ── data ingest helpers ──────────────────────────────────────────────
     async def _ingest_pubmed(self, term: str):
@@ -400,25 +426,30 @@ class BiotechAgent(AgentBase):
                 )
 
     # ── ADK mesh ────────────────────────────────────────────────────────
-    async def _register_mesh(self):
-        try:
-            client = adk.Client()
-            await client.register(node_type=self.NAME, metadata={"kg": str(self.cfg.kg_file)})
-            logger.info("[BT] registered in ADK mesh id=%s", client.node_id)
-        except Exception as exc:
-            logger.warning("ADK registration failed: %s", exc)
+    async def _register_mesh(self) -> None:  # noqa: D401
+        max_attempts = 3
+        delay = 1.0
+        for attempt in range(1, max_attempts + 1):
+            try:
+                client = adk.Client()
+                await client.register(node_type=self.NAME, metadata={"kg": str(self.cfg.kg_file)})
+                logger.info("[BT] registered in ADK mesh id=%s", client.node_id)
+                return
+            except (AdkClientError, AiohttpClientError, asyncio.TimeoutError, OSError) as exc:
+                if attempt == max_attempts:
+                    logger.error("ADK registration failed after %d attempts: %s", max_attempts, exc)
+                    raise
+                logger.warning(
+                    "ADK registration attempt %d/%d failed: %s",
+                    attempt,
+                    max_attempts,
+                    exc,
+                )
+                await asyncio.sleep(delay)
+                delay *= 2
+            except Exception as exc:  # pragma: no cover - unexpected
+                logger.exception("Unexpected ADK registration error: %s", exc)
+                raise
 
-
-# ───────────────────────────── registry hook ────────────────────────────────
-register_agent(
-    AgentMetadata(
-        name=BiotechAgent.NAME,
-        cls=BiotechAgent,
-        version="0.2.0",
-        capabilities=BiotechAgent.CAPABILITIES,
-        compliance_tags=BiotechAgent.COMPLIANCE_TAGS,
-        requires_api_key=BiotechAgent.REQUIRES_API_KEY,
-    )
-)
 
 __all__ = ["BiotechAgent"]

@@ -8,10 +8,10 @@ the OMNI-Factory ledger produced by *omni_factory_demo.py*.
 
 Highlights
 ──────────
-• Pure Python std-lib only, UTF-8 everywhere.  
-• Read-only unless a mutating sub-command **and** `--force` are used.  
-• Built-in integrity audit (sha256 checksums + hard-cap).  
-• Human-friendly, colourised tables (auto-disabled for pipes / NO_COLOR).  
+• Pure Python std-lib only, UTF-8 everywhere.
+• Read-only unless a mutating sub-command **and** `--force` are used.
+• Built-in integrity audit (sha256 checksums + hard-cap).
+• Human-friendly, colourised tables (auto-disabled for pipes / NO_COLOR).
 
 Full help → `python omni_ledger_cli.py -h`
 """
@@ -69,9 +69,7 @@ def _checksum(ts: float, scen: str, tok: int, rew: float) -> str:
 def _open_db(path: Path) -> sqlite3.Connection:
     if not path.exists():
         sys.exit(_Colour.red(f"Ledger not found: {path}"))
-    return sqlite3.connect(
-        path, detect_types=sqlite3.PARSE_DECLTYPES | sqlite3.PARSE_COLNAMES
-    )
+    return sqlite3.connect(path, detect_types=sqlite3.PARSE_DECLTYPES | sqlite3.PARSE_COLNAMES)
 
 
 # Basic row type (ts, scenario, tokens, avg_reward, checksum)
@@ -79,9 +77,7 @@ Row = Tuple[float, str, int, float, str]
 
 
 def _stream_rows(conn: sqlite3.Connection) -> Iterable[Row]:
-    yield from conn.execute(
-        "SELECT ts, scenario, tokens, avg_reward, checksum FROM ledger ORDER BY ts"
-    )
+    yield from conn.execute("SELECT ts, scenario, tokens, avg_reward, checksum FROM ledger ORDER BY ts")
 
 
 def _load_hard_cap() -> int:
@@ -107,10 +103,7 @@ def cmd_list(args: argparse.Namespace) -> None:
     if args.tail and args.tail > 0:
         rows = rows[-args.tail :]
 
-    table = [
-        (_pretty_ts(ts), scen[:60], f"{tok:,}", f"{rew:.3f}")
-        for ts, scen, tok, rew, _ in rows
-    ]
+    table = [(_pretty_ts(ts), scen[:60], f"{tok:,}", f"{rew:.3f}") for ts, scen, tok, rew, _ in rows]
     _print_table(
         ("Timestamp", "Scenario", TOKEN_SYMBOL, "AvgReward"),
         table or [("—", "ledger is empty", "—", "—")],
@@ -133,10 +126,7 @@ def cmd_stats(args: argparse.Namespace) -> None:
 
     print(_Colour.bold("Ledger statistics"))
     print(f"Entries          : {len(rows):,}")
-    print(
-        f"Total {TOKEN_SYMBOL:10}: {tokens_total:,} "
-        f"({_Colour.yellow(f'{utilisation:.2f}%')} of hard-cap)"
-    )
+    print(f"Total {TOKEN_SYMBOL:10}: {tokens_total:,} " f"({_Colour.yellow(f'{utilisation:.2f}%')} of hard-cap)")
     print(f"Average reward   : {reward_mean:.3f}")
     print(f"First entry      : {_pretty_ts(first_ts)}")
     print(f"Last entry       : {_pretty_ts(last_ts)}")
@@ -215,9 +205,7 @@ def cmd_histogram(args: argparse.Namespace) -> None:
     for idx in sorted(totals):
         tok = totals[idx]
         bar = "█" * max(1, int(tok / max_tok * width))
-        date = datetime.fromtimestamp(
-            (min(totals) + idx) * 86_400, tz=timezone.utc
-        ).strftime("%Y-%m-%d")
+        date = datetime.fromtimestamp((min(totals) + idx) * 86_400, tz=timezone.utc).strftime("%Y-%m-%d")
         print(f"{date} {bar} {tok:,}")
 
 
@@ -279,10 +267,7 @@ def _cmd_selftest(_: argparse.Namespace) -> None:
     tmp = Path(tempfile.mktemp(suffix=".sqlite"))
     try:
         with sqlite3.connect(tmp) as conn:
-            conn.execute(
-                "CREATE TABLE ledger(ts REAL, scenario TEXT, tokens INT, "
-                "avg_reward REAL, checksum TEXT)"
-            )
+            conn.execute("CREATE TABLE ledger(ts REAL, scenario TEXT, tokens INT, " "avg_reward REAL, checksum TEXT)")
             ts = time.time()
             row = (ts, "unit-test", 100, 1.0, _checksum(ts, "unit-test", 100, 1.0))
             conn.execute("INSERT INTO ledger VALUES (?,?,?,?,?)", row)
@@ -328,14 +313,26 @@ def _build_parser() -> argparse.ArgumentParser:
                 sp.add_argument(flag, **kwargs)
         sp.set_defaults(func=func)
 
-    _cmd("list", cmd_list, "List recent ledger rows",
-         [("--tail", {"type": int, "default": 20, "help": "Lines to show (0 = all)"})])
+    _cmd(
+        "list",
+        cmd_list,
+        "List recent ledger rows",
+        [("--tail", {"type": int, "default": 20, "help": "Lines to show (0 = all)"})],
+    )
     _cmd("stats", cmd_stats, "Aggregate statistics")
-    _cmd("histogram", cmd_histogram, "ASCII histogram of minted tokens",
-         [("--bins", {"type": int, "default": 60, "help": "Approx. number of bars"})])
+    _cmd(
+        "histogram",
+        cmd_histogram,
+        "ASCII histogram of minted tokens",
+        [("--bins", {"type": int, "default": 60, "help": "Approx. number of bars"})],
+    )
     _cmd("supply", cmd_supply, f"Show total minted {TOKEN_SYMBOL}")
-    _cmd("export", cmd_export, "Export ledger",
-         [("--outfile", {"type": Path, "required": True, "help": "Destination file"})])
+    _cmd(
+        "export",
+        cmd_export,
+        "Export ledger",
+        [("--outfile", {"type": Path, "required": True, "help": "Destination file"})],
+    )
     _cmd("verify", cmd_verify, "Audit ledger integrity & hard-cap")
     _cmd("selftest", _cmd_selftest, argparse.SUPPRESS)  # hidden
     return p

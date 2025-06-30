@@ -40,7 +40,7 @@ prometheus:
 
 grafana:
   enabled: true
-  adminPassword: changeme                 # override via --set or Secret!
+  adminPassword: REPLACE_ME  # Set a strong password before deployment
   defaultDashboardsEnabled: false         # we only want our custom one
 
   sidecar:
