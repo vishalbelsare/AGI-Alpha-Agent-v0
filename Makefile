@@ -35,7 +35,7 @@ proto:
 	./scripts/gen_proto.py
 
 proto-verify:
-	git --no-pager diff --exit-code src/utils/a2a_pb2.py tools/go_a2a_client/a2a.pb.go
+	git --no-pager diff --exit-code alpha_factory_v1/core/utils/a2a_pb2.py tools/go_a2a_client/a2a.pb.go
 
 benchmark:
 	python benchmarks/docker_runner.py > bench_results.json

@@ -3,8 +3,8 @@
 # Generate protobuf stubs for Python and Go.
 set -euo pipefail
 
-PROTO="src/utils/a2a.proto"
-PY_OUT="src/utils"
+PROTO="alpha_factory_v1/core/utils/a2a.proto"
+PY_OUT="alpha_factory_v1/core/utils"
 GO_OUT="tools/go_a2a_client"
 PY_INCLUDE=$(python -c 'import pkg_resources,os;print(os.path.dirname(pkg_resources.resource_filename("google.protobuf","struct.proto")))')
 
