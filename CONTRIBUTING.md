@@ -51,6 +51,9 @@ Install the git hooks once and run them before each commit:
 pre-commit install
 pre-commit run --all-files
 ```
+Use `pre-commit run --files docs/demos/<page>.md` to catch missing preview
+images. Each page under `docs/demos/` must start with a preview image using
+`![preview](...)`.
 
 ### Pre-commit in Air-Gapped Setups
 

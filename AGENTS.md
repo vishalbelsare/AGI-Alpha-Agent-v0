@@ -124,7 +124,10 @@ Follow these steps when installing without internet access:
 - When adding new demos or assets, regenerate `docs/assets/service-worker.js` with
   `python scripts/build_service_worker.py`. The gallery deployment helper invokes
   this script automatically.
- - After setup, validate with `python check_env.py --auto-install`. This command reaches out to PyPI unless `--wheelhouse <path>` or the `WHEELHOUSE` environment variable is supplied. When working offline run `python check_env.py --auto-install --wheelhouse <path>` so optional packages install correctly. The test suite passes this variable to `check_env.py` automatically when set.
+- Every `docs/demos/*.md` page must start with a preview image using
+  `![preview](...)`. Run `pre-commit run --files docs/demos/<page>.md` to catch
+  missing previews.
+- After setup, validate with `python check_env.py --auto-install`. This command reaches out to PyPI unless `--wheelhouse <path>` or the `WHEELHOUSE` environment variable is supplied. When working offline run `python check_env.py --auto-install --wheelhouse <path>` so optional packages install correctly. The test suite passes this variable to `check_env.py` automatically when set.
 - The unit tests rely on `fastapi`, `opentelemetry-api`, `openai-agents`, `google-adk`, `pytest` and `prometheus_client`. `./codex/setup.sh` installs these packages automatically. When skipping the setup script, run
   `pip install -r requirements-dev.txt` or ensure `check_env.py` reports no
   missing packages before running `pytest`.
