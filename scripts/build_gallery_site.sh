@@ -25,6 +25,7 @@ npm --prefix "$BROWSER_DIR" ci
 "$SCRIPT_DIR/build_insight_docs.sh"
 python scripts/generate_demo_docs.py
 python scripts/generate_gallery_html.py
+python scripts/build_service_worker.py
 
 # Build the static site and verify integrity
 mkdocs build --strict
