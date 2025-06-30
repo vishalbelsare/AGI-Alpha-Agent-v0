@@ -1,16 +1,17 @@
 /* SPDX-License-Identifier: Apache-2.0 */
 /* eslint-env serviceworker */
-const CACHE = 'v2';
+const CACHE = 'v3';
 self.addEventListener('install', (event) => {
   event.waitUntil(
     caches
       .open(CACHE)
-      .then((cache) =>
-        cache.addAll([
+      .then(async (cache) => {
+        const assets = [
           'pyodide/pyodide.js',
           'pyodide/pyodide.asm.wasm',
-        ]),
-      )
+        ];
+        await cache.addAll(assets);
+      })
       .catch(() => undefined),
   );
   self.skipWaiting();
@@ -30,16 +31,20 @@ self.addEventListener('fetch', (event) => {
   const url = new URL(event.request.url);
   if (url.origin !== self.location.origin) {
     event.respondWith(
-      caches.open(CACHE).then((cache) =>
-        fetch(event.request)
-          .then((resp) => {
-            if (resp.ok) {
-              cache.put(event.request, resp.clone());
-            }
-            return resp;
-          })
-          .catch(() => cache.match(event.request)),
-      ),
+      caches.open(CACHE).then(async (cache) => {
+        try {
+          const resp = await fetch(event.request);
+          if (resp.ok) {
+            cache.put(event.request, resp.clone());
+          }
+          return resp;
+        } catch (err) {
+          const cached =
+            (await cache.match(event.request)) ||
+            (await cache.match(`pyodide/${url.pathname.split('/').pop()}`));
+          return cached || Promise.reject(err);
+        }
+      }),
     );
     return;
   }
