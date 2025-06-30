@@ -9,6 +9,8 @@ local build when offline by invoking ``scripts/build_gallery_site.sh``.
 """
 from __future__ import annotations
 
+from alpha_factory_v1.utils.disclaimer import DISCLAIMER
+
 import subprocess
 import sys
 from pathlib import Path
@@ -49,6 +51,7 @@ def _remote_available(url: str) -> bool:
 
 
 def main() -> None:
+    print(DISCLAIMER, file=sys.stderr)
     url = _subdir_url()
     index = url + "index.html"
     if _remote_available(index):
