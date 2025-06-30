@@ -46,6 +46,9 @@ and docs with a single command:
 ```bash
 make gallery-deploy
 ```
+`make gallery-deploy` wraps [`scripts/deploy_gallery_pages.sh`](scripts/deploy_gallery_pages.sh),
+which calls [`scripts/generate_gallery_html.py`](scripts/generate_gallery_html.py)
+to refresh `docs/index.html` and `docs/gallery.html`.
 
 See [docs/GITHUB_PAGES_DEMO_TASKS.md](docs/GITHUB_PAGES_DEMO_TASKS.md) for a
 detailed walkthrough. Once the build finishes, open the gallery locally with:
