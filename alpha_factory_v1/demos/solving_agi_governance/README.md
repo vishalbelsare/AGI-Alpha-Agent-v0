@@ -7,11 +7,6 @@ Each demo package exposes its own `__version__` constant. The value marks the re
 *Minimal Conditions for Stable, Antifragile Multi-Agent Order*
 **Author :** Vincent Boucher — President, MONTREAL.AI · QUEBEC.AI
 
-> **Disclaimer**
-> This demo is a conceptual research prototype. References to "AGI" and
-> "superintelligence" describe aspirational goals and do not indicate the
-> presence of a real general intelligence. Use at your own risk.
-
 ---
 
 ### 1 · Executive Abstract

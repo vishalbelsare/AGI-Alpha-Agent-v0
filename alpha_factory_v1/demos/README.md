@@ -8,11 +8,6 @@ This repository is a conceptual research prototype. References to "AGI" and "sup
 
 ---
 
-> **Disclaimer**
-> This interactive demo is a conceptual research prototype and **not** a
-> production‑ready AGI. See the repository’s
-> [Apache 2.0 license](../../LICENSE) and
-> [security policy](../../SECURITY.md) for details.
 
 Browse the **visual demo gallery** on GitHub Pages:
 <https://montrealai.github.io/AGI-Alpha-Agent-v0/gallery.html>

@@ -10,7 +10,6 @@ Out‑learn · Out‑think · Out‑strategise · Out‑execute
 © 2025 MONTREAL.AI   Apache‑2.0 License
 -->
 
-This repository is a conceptual research prototype. References to "AGI" and "superintelligence" describe aspirational goals and do not indicate the presence of a real general intelligence. Use at your own risk.
 
 <h1 align="center">🌌 Era of Experience — Your lifelong‑RL playground</h1>
 <p align="center">

@@ -5,7 +5,6 @@ Each demo package exposes its own `__version__` constant. The value marks the re
 
 
 # Meta‑Agentic α‑AGI 👁️✨ Demo – **Production‑Grade v0.1.0**
-This repository is a conceptual research prototype. References to "AGI" and "superintelligence" describe aspirational goals and do not indicate the presence of a real general intelligence. Use at your own risk.
 
 > **Official definition – Meta-Agentic (adj.)**  
 > *Describes an agent whose **primary role** is to **create, select, evaluate, or re‑configure other agents** and the rules governing their interactions, thereby exercising **second‑order agency** over a population of first‑order agents.*
