@@ -4,15 +4,22 @@
 const CDN_BASE = 'https://cdn.jsdelivr.net/pyodide/v0.25.1/full/';
 
 async function loadRuntime() {
+  const localBase = '../assets/pyodide/';
+  const localScript = `${localBase}pyodide.js`;
   try {
-    const mod = await import('../assets/pyodide/pyodide.js');
-    try {
-      return await mod.loadPyodide({indexURL: '../assets/pyodide/'});
-    } catch (err) {
-      console.warn('Local Pyodide failed:', err);
+    const resp = await fetch(localScript, {method: 'HEAD'});
+    if (resp.ok) {
+      try {
+        const mod = await import(localScript);
+        return await mod.loadPyodide({indexURL: localBase});
+      } catch (err) {
+        console.warn('Local Pyodide failed:', err);
+      }
+    } else {
+      console.warn('Local Pyodide missing:', resp.status);
     }
   } catch (err) {
-    console.warn('Local Pyodide not found:', err);
+    console.warn('Local Pyodide not accessible:', err);
   }
   const mod = await import(`${CDN_BASE}pyodide.mjs`);
   return await mod.loadPyodide({indexURL: CDN_BASE});
