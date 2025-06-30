@@ -39,7 +39,7 @@ def _gallery_url() -> str:
     repo_path = remote.split("github.com")[-1].lstrip(":/")
     repo_path = repo_path.removesuffix(".git")
     org, repo = repo_path.split("/", 1)
-    return f"https://{org}.github.io/{repo}/gallery.html"
+    return f"https://{org}.github.io/{repo}/index.html"
 
 
 def _remote_available(url: str) -> bool:
@@ -60,7 +60,7 @@ def main() -> None:
         return
     repo_root = Path(__file__).resolve().parents[1]
     site_dir = repo_root / "site"
-    local_page = site_dir / "gallery.html"
+    local_page = site_dir / "index.html"
     if not local_page.is_file():
         print("Remote gallery unavailable. Building local copy...", file=sys.stderr)
         if not _build_local_site(repo_root) or not local_page.is_file():
@@ -73,7 +73,7 @@ def main() -> None:
     handler = partial(SimpleHTTPRequestHandler, directory=str(site_dir))
     with ThreadingHTTPServer(("127.0.0.1", 0), handler) as httpd:
         port = httpd.server_address[1]
-        url = f"http://127.0.0.1:{port}/gallery.html"
+        url = f"http://127.0.0.1:{port}/index.html"
         print(f"Remote gallery unavailable. Serving local copy at {url}", file=sys.stderr)
 
         thread = threading.Thread(target=httpd.serve_forever, daemon=True)
