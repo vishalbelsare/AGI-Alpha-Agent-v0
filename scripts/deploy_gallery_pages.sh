@@ -24,6 +24,7 @@ python -m alpha_factory_v1.demos.validate_demos
 npm --prefix "$BROWSER_DIR" run fetch-assets
 npm --prefix "$BROWSER_DIR" ci
 "$SCRIPT_DIR/build_insight_docs.sh"
+python scripts/build_service_worker.py
 
 # Compile and verify the MkDocs site. Use --strict so warnings fail the build
 mkdocs build --strict
