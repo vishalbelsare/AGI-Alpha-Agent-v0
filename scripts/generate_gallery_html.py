@@ -11,8 +11,10 @@ simple grid.
 from __future__ import annotations
 
 import html
+import os
 import re
 from pathlib import Path
+from typing import Iterable
 
 H1_RE = re.compile(r"^#\s+(.*)")
 PREVIEW_RE = re.compile(r"!\[preview\]\(([^)]+)\)")
@@ -107,6 +109,34 @@ def collect_entries() -> list[tuple[str, str, str, str]]:
     for page in sorted(DEMOS_DIR.glob("*.md")):
         entries.append(parse_page(page))
     return entries
+
+
+def insert_back_link(pages: Iterable[Path]) -> None:
+    """Ensure a 'Back to Gallery' link exists in each HTML page."""
+    for page in pages:
+        if not page.is_file():
+            continue
+        text = page.read_text(encoding="utf-8")
+        if "Back to Gallery" in text:
+            continue
+        rel = Path(os.path.relpath(GALLERY_FILE, page.parent)).as_posix()
+        link = f'<p><a href="{rel}">\u2b05\ufe0f Back to Gallery</a></p>'
+        lines = text.splitlines()
+        inserted = False
+        for i, line in enumerate(lines):
+            if "assets/style.css" in line:
+                lines.insert(i, link)
+                inserted = True
+                break
+        if not inserted:
+            for i, line in enumerate(lines):
+                if "</body>" in line.lower():
+                    lines.insert(i, link)
+                    inserted = True
+                    break
+        if not inserted:
+            lines.append(link)
+        page.write_text("\n".join(lines) + "\n", encoding="utf-8")
 
 
 def build_html(entries: list[tuple[str, str, str, str]], *, prefix: str = "", home_link: bool = True) -> str:
@@ -209,6 +239,15 @@ def main() -> None:
     subdir_html = build_html(entries, prefix="../../")
     SUBDIR_GALLERY_FILE.parent.mkdir(parents=True, exist_ok=True)
     SUBDIR_GALLERY_FILE.write_text(subdir_html, encoding="utf-8")
+
+    # Ensure all demo pages link back to the gallery
+    pages = [
+        p
+        for p in REPO_ROOT.glob("docs/**/index.html")
+        if p not in {INDEX_FILE, GALLERY_FILE, DEMOS_INDEX_FILE, SUBDIR_GALLERY_FILE}
+        and "DISCLAIMER_SNIPPET" not in p.parts
+    ]
+    insert_back_link(pages)
 
     print(
         "Wrote",
