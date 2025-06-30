@@ -4,6 +4,12 @@
 import {loadPyodide} from 'https://cdn.jsdelivr.net/pyodide/v0.23.4/full/pyodide.mjs';
 
 export function setupPyodideDemo(chart, logEl, defaultData) {
+  function showMessage(msg) {
+    if (logEl) {
+      logEl.textContent += `${msg}\n`;
+    }
+  }
+
   function render(data) {
     const steps = data.steps || [];
     const values = data.values || [];
@@ -27,6 +33,7 @@ export function setupPyodideDemo(chart, logEl, defaultData) {
 
   offlineBtn?.addEventListener('click', async () => {
     if (!pyodide) {
+      showMessage('Loading Python runtime...');
       pyodide = await loadPyodide();
     }
     const code = `import json, random
@@ -36,11 +43,13 @@ logs = [f"offline step {i}" for i in steps]
 json.dumps({"steps": steps, "values": values, "logs": logs})`;
     const result = await pyodide.runPythonAsync(code);
     render(JSON.parse(result));
+    showMessage('Offline simulation complete.');
   });
 
   onlineBtn?.addEventListener('click', async () => {
     const key = window.prompt('Enter OpenAI API key');
     if (!key) return;
+    showMessage('Querying OpenAI API...');
     try {
       const resp = await fetch('https://api.openai.com/v1/chat/completions', {
         method: 'POST',
@@ -65,8 +74,10 @@ json.dumps({"steps": steps, "values": values, "logs": logs})`;
         console.error('OpenAI response parse error', e);
       }
       render(parsed);
+      showMessage('OpenAI response received.');
     } catch (err) {
       console.error('OpenAI request failed', err);
+      showMessage('OpenAI request failed. See console for details.');
     }
   });
 }
