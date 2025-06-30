@@ -275,7 +275,7 @@ pre-commit run --files <paths>   # before each commit
   - Re-run `pre-commit run --all-files` whenever `requirements.txt`, `requirements-dev.txt`,
     `.pre-commit-config.yaml`, `pyproject.toml`, `mypy.ini`, or other lint configs change.
     **CI enforces these checks.**
-  - After editing `src/utils/a2a.proto`, run `pre-commit run --files src/utils/a2a.proto`
+  - After editing `alpha_factory_v1/core/utils/a2a.proto`, run `pre-commit run --files alpha_factory_v1/core/utils/a2a.proto`
     to regenerate and verify protobuf sources.
   - The configuration runs `black`, `ruff`, `flake8` and `mypy` using
     `mypy.ini`.

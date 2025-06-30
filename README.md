@@ -1341,7 +1341,7 @@ make build_web
 ./tools/gen_proto_stubs.sh  # updates alpha_factory_v1/core/utils/a2a_pb2.py and tools/go_a2a_client/a2a.pb.go
 make compose-up  # builds and waits for healthy services
 ```
-Run `./tools/gen_proto_stubs.sh` whenever `src/utils/a2a.proto` changes to keep the
+Run `./tools/gen_proto_stubs.sh` whenever `alpha_factory_v1/core/utils/a2a.proto` changes to keep the
 Python and Go stubs up to date.
 Open <http://localhost:8080> in your browser. When `RUN_MODE=web`, the container
 serves the static files from `alpha_factory_v1/demos/alpha_agi_insight_v1/src/interface/web_client/dist` using `python -m
