@@ -27,6 +27,8 @@ def test_gallery_html(tmp_path, monkeypatch):
     monkeypatch.setattr(ggh, "DEMOS_DIR", docs_demos)
     gallery = repo / "docs" / "gallery.html"
     monkeypatch.setattr(ggh, "GALLERY_FILE", gallery)
+    index_file = repo / "docs" / "index.html"
+    monkeypatch.setattr(ggh, "INDEX_FILE", index_file)
 
     html_text = ggh.build_html(ggh.collect_entries())
     gallery.write_text(html_text, encoding="utf-8")
@@ -34,4 +36,4 @@ def test_gallery_html(tmp_path, monkeypatch):
     out = gallery.read_text(encoding="utf-8")
     assert "Demo B" in out
     assert "demo_b/assets/preview.png" in out
-    assert "href=\"demos/demo_b/\"" in out
+    assert 'href="demos/demo_b/"' in out
