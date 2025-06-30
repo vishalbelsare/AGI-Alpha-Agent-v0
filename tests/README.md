@@ -8,6 +8,7 @@ Tests require internet connectivity to fetch missing dependencies or a local
 wheelhouse built with `scripts/build_offline_wheels.sh`. Always run
 `python check_env.py --auto-install --wheelhouse <dir>` before `pytest` so the
 environment can install packages from the wheel cache when offline.
+Running `check_env.py` or the tests without network access will fail unless this wheelhouse is present.
 
 These integration tests expect the `alpha_factory_v1` package to be importable.
 
