@@ -23,11 +23,12 @@ async function init() {
 
   registerRoute(
     ({request, url}) =>
-      request.destination === 'script' ||
-      request.destination === 'worker' ||
-      request.destination === 'font' ||
-      url.pathname.endsWith('.wasm') ||
-      (url.pathname.includes('/ipfs/') && url.pathname.endsWith('.json')),
+      url.origin === self.location.origin &&
+      (request.destination === 'script' ||
+        request.destination === 'worker' ||
+        request.destination === 'font' ||
+        url.pathname.endsWith('.wasm') ||
+        (url.pathname.includes('/ipfs/') && url.pathname.endsWith('.json'))),
     new CacheFirst({cacheName: `${CACHE_VERSION}-assets`})
   );
 
