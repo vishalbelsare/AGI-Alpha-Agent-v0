@@ -1,7 +1,22 @@
 /* SPDX-License-Identifier: Apache-2.0 */
 /* eslint-env browser */
 /* eslint-disable no-undef */
-import {loadPyodide} from '../assets/pyodide/pyodide.js';
+const CDN_BASE = 'https://cdn.jsdelivr.net/pyodide/v0.25.1/full/';
+
+async function loadRuntime() {
+  try {
+    const mod = await import('../assets/pyodide/pyodide.js');
+    try {
+      return await mod.loadPyodide({indexURL: '../assets/pyodide/'});
+    } catch (err) {
+      console.warn('Local Pyodide failed:', err);
+    }
+  } catch (err) {
+    console.warn('Local Pyodide not found:', err);
+  }
+  const mod = await import(`${CDN_BASE}pyodide.mjs`);
+  return await mod.loadPyodide({indexURL: CDN_BASE});
+}
 
 export function setupPyodideDemo(chart, logEl, defaultData) {
   function showMessage(msg) {
@@ -34,7 +49,7 @@ export function setupPyodideDemo(chart, logEl, defaultData) {
   offlineBtn?.addEventListener('click', async () => {
     if (!pyodide) {
       showMessage('Loading Python runtime...');
-      pyodide = await loadPyodide();
+      pyodide = await loadRuntime();
     }
     const code = `import json, random
 steps = list(range(1, 11))
