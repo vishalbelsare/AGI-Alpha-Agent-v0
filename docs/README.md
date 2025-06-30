@@ -20,6 +20,7 @@
 - **Open Individual Demo** – run `./scripts/open_demo.sh <demo_dir>` to open a single page from the gallery.
 - **Open Subdirectory Gallery** – run `./scripts/open_subdir_gallery.py` to launch the mirror under `alpha_factory_v1/demos/`.
 - **Verify Disclaimer Snippet** – run `python scripts/verify_disclaimer_snippet.py` to ensure each file contains the disclaimer text once.
+- **Offline Tests** – build a wheelhouse with `scripts/build_offline_wheels.sh` then run `python check_env.py --auto-install --wheelhouse <dir>` and `pytest` without network access.
 
 ## Building the React Dashboard
 
