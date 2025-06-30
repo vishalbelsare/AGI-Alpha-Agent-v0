@@ -8,7 +8,7 @@ repo_path=${remote#*github.com[:/]}
 repo_path=${repo_path%.git}
 org="${repo_path%%/*}"
 repo="${repo_path##*/}"
-url="https://${org}.github.io/${repo}/gallery.html"
+url="https://${org}.github.io/${repo}/index.html"
 
 check_remote() {
   local status
@@ -28,7 +28,7 @@ if check_remote; then
 fi
 
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")"/.. && pwd)"
-local_page="$REPO_ROOT/site/gallery.html"
+local_page="$REPO_ROOT/site/index.html"
 if [[ ! -f "$local_page" ]]; then
   echo "Gallery not found locally. Building a fresh copy..." >&2
   "$REPO_ROOT/scripts/build_gallery_site.sh" || {
