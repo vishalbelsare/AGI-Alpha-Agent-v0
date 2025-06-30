@@ -145,12 +145,28 @@ def build_html(entries: list[tuple[str, str, str, str]], *, prefix: str = "") ->
         preview_path = f"{prefix}{preview}"
         ext = Path(preview).suffix.lower()
         if ext in {".mp4", ".webm"}:
-            lines.append(
+            track_file = (REPO_ROOT / "docs" / Path(preview).with_suffix(".vtt")).resolve()
+            track_rel = f"{prefix}{Path(preview).with_suffix('.vtt')}"
+            video_tag = (
                 f'      <video src="{html.escape(preview_path)}" autoplay loop muted '
-                f'playsinline loading="lazy" aria-label="{html.escape(title)}"></video>'
+                f'playsinline loading="lazy" aria-label="{html.escape(title)}" '
+                f'title="{html.escape(title)}">'
             )
+            lines.append(video_tag)
+            if track_file.is_file():
+                lines.append(
+                    f'        <track kind="captions" src="{html.escape(track_rel)}" '
+                    'srclang="en" label="English" default>'
+                )
+                lines.append("      </video>")
+            else:
+                fallback = html.escape(f"Video preview of {title}")
+                lines.append(f"        {fallback}</video>")
         else:
-            lines.append(f'      <img src="{html.escape(preview_path)}" alt="{html.escape(title)}" loading="lazy">')
+            lines.append(
+                f'      <img src="{html.escape(preview_path)}" alt="{html.escape(title)}" '
+                f'loading="lazy" title="{html.escape(title)}">'
+            )
         lines.append(f"      <h3>{html.escape(title)}</h3>")
         if summary:
             lines.append(f"      <p class='demo-desc'>{html.escape(summary)}</p>")
