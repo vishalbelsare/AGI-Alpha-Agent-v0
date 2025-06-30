@@ -119,8 +119,11 @@ Follow these steps when installing without internet access:
   ```
   The `verify-alpha-colab-requirements-lock` hook relies on this lock file.
 
- - See [`alpha_factory_v1/scripts/README.md`](alpha_factory_v1/scripts/README.md) for additional offline tips.
+- See [`alpha_factory_v1/scripts/README.md`](alpha_factory_v1/scripts/README.md) for additional offline tips.
 - Run `python scripts/check_python_deps.py` **before running `pytest`** to quickly verify that `numpy`, `yaml` and `pandas` are installed. If it reports missing packages, execute `python check_env.py --auto-install` before running the tests. This step fetches packages from PyPI, so in air‑gapped setups you **must** pass `--wheelhouse <path>` or set `WHEELHOUSE` so `pip` installs from the local cache.
+- When adding new demos or assets, regenerate `docs/assets/service-worker.js` with
+  `python scripts/build_service_worker.py`. The gallery deployment helper invokes
+  this script automatically.
  - After setup, validate with `python check_env.py --auto-install`. This command reaches out to PyPI unless `--wheelhouse <path>` or the `WHEELHOUSE` environment variable is supplied. When working offline run `python check_env.py --auto-install --wheelhouse <path>` so optional packages install correctly. The test suite passes this variable to `check_env.py` automatically when set.
 - The unit tests rely on `fastapi`, `opentelemetry-api`, `openai-agents`, `google-adk`, `pytest` and `prometheus_client`. `./codex/setup.sh` installs these packages automatically. When skipping the setup script, run
   `pip install -r requirements-dev.txt` or ensure `check_env.py` reports no

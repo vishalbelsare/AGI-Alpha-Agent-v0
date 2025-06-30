@@ -27,8 +27,9 @@ Execute the helper from the repository root:
 ```
 This command fetches browser assets, compiles the α‑AGI Insight interface, runs
 integrity checks and builds the MkDocs site under `site/`. It also runs
-`scripts/generate_gallery_html.py` to refresh `docs/gallery.html`. If Playwright
-is installed the script also verifies offline functionality.
+`scripts/generate_gallery_html.py` to refresh `docs/gallery.html` and
+`scripts/build_service_worker.py` to update the precache list. If Playwright is
+installed the script also verifies offline functionality.
 Run the Playwright smoke tests to ensure every built demo loads when offline:
 ```bash
 python scripts/verify_demo_pages.py
@@ -55,6 +56,8 @@ Verify the service worker caches assets for offline use and that the page includ
 
 ## 5. Maintenance Tips
 - Re‑run the helper whenever demo docs or assets change.
+- If adding new demos manually, run `python scripts/build_service_worker.py` to
+  refresh `docs/assets/service-worker.js`.
 - Test with `mkdocs build --strict` before deploying.
 - Keep `pre-commit` hooks green so the gallery builds reproducibly.
 
