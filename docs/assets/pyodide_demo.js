@@ -46,7 +46,7 @@ export function setupPyodideDemo(chart, logEl, defaultData) {
   const offlineBtn = document.getElementById('offline-mode');
   const onlineBtn = document.getElementById('online-mode');
 
-  offlineBtn?.addEventListener('click', async () => {
+  async function runOffline() {
     if (!pyodide) {
       showMessage('Loading Python runtime...');
       pyodide = await loadRuntime();
@@ -59,7 +59,9 @@ json.dumps({"steps": steps, "values": values, "logs": logs})`;
     const result = await pyodide.runPythonAsync(code);
     render(JSON.parse(result));
     showMessage('Offline simulation complete.');
-  });
+  }
+
+  offlineBtn?.addEventListener('click', runOffline);
 
   onlineBtn?.addEventListener('click', async () => {
     const key = window.prompt('Enter OpenAI API key');
@@ -80,6 +82,9 @@ json.dumps({"steps": steps, "values": values, "logs": logs})`;
           }],
         }),
       });
+      if (!resp.ok) {
+        throw new Error(`HTTP ${resp.status}`);
+      }
       const data = await resp.json();
       const text = data.choices?.[0]?.message?.content || '{}';
       let parsed = {};
@@ -92,7 +97,8 @@ json.dumps({"steps": steps, "values": values, "logs": logs})`;
       showMessage('OpenAI response received.');
     } catch (err) {
       console.error('OpenAI request failed', err);
-      showMessage('OpenAI request failed. See console for details.');
+      showMessage('OpenAI request failed. Falling back to offline mode.');
+      await runOffline();
     }
   });
 }
