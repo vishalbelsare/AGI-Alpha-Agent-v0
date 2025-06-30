@@ -56,6 +56,7 @@ DEMOS_DIR = REPO_ROOT / "docs" / "demos"
 GALLERY_FILE = REPO_ROOT / "docs" / "gallery.html"
 DEMOS_INDEX_FILE = REPO_ROOT / "docs" / "demos" / "index.html"
 SUBDIR_GALLERY_FILE = REPO_ROOT / "docs" / "alpha_factory_v1" / "demos" / "index.html"
+INDEX_FILE = REPO_ROOT / "docs" / "index.html"
 
 
 def parse_page(md_file: Path) -> tuple[str, str, str, str]:
@@ -108,7 +109,7 @@ def collect_entries() -> list[tuple[str, str, str, str]]:
     return entries
 
 
-def build_html(entries: list[tuple[str, str, str, str]], *, prefix: str = "") -> str:
+def build_html(entries: list[tuple[str, str, str, str]], *, prefix: str = "", home_link: bool = True) -> str:
     head = """<!-- SPDX-License-Identifier: Apache-2.0 -->
 <!DOCTYPE html>
 <html lang=\"en\">
@@ -172,8 +173,9 @@ def build_html(entries: list[tuple[str, str, str, str]], *, prefix: str = "") ->
             lines.append(f"      <p class='demo-desc'>{html.escape(summary)}</p>")
         lines.append("    </a>")
     lines.append("  </div>")
-    home_link = f"{prefix}index.html"
-    lines.append(f'  <p><a href="{home_link}">\u2b05\ufe0f Back to Home</a></p>')
+    if home_link:
+        home_href = f"{prefix}index.html"
+        lines.append(f'  <p><a href="{home_href}">\u2b05\ufe0f Back to Home</a></p>')
     lines.append(f'  <p class="snippet"><a href="{prefix}DISCLAIMER_SNIPPET/">See docs/DISCLAIMER_SNIPPET.md</a></p>')
     lines.append("  <script>")
     lines.append("    const input = document.getElementById('search-input');")
@@ -194,18 +196,26 @@ def build_html(entries: list[tuple[str, str, str, str]], *, prefix: str = "") ->
 
 def main() -> None:
     entries = collect_entries()
+
+    index_html = build_html(entries, prefix="", home_link=False)
+    INDEX_FILE.write_text(index_html, encoding="utf-8")
+
     gallery_html = build_html(entries, prefix="")
     GALLERY_FILE.write_text(gallery_html, encoding="utf-8")
+
     demos_html = build_html(entries, prefix="../")
     DEMOS_INDEX_FILE.write_text(demos_html, encoding="utf-8")
+
     subdir_html = build_html(entries, prefix="../../")
     SUBDIR_GALLERY_FILE.parent.mkdir(parents=True, exist_ok=True)
     SUBDIR_GALLERY_FILE.write_text(subdir_html, encoding="utf-8")
+
     print(
-        "Wrote"
-        f" {GALLERY_FILE.relative_to(REPO_ROOT)},"
-        f" {DEMOS_INDEX_FILE.relative_to(REPO_ROOT)} and"
-        f" {SUBDIR_GALLERY_FILE.relative_to(REPO_ROOT)}"
+        "Wrote",
+        f" {INDEX_FILE.relative_to(REPO_ROOT)},",
+        f" {GALLERY_FILE.relative_to(REPO_ROOT)},",
+        f" {DEMOS_INDEX_FILE.relative_to(REPO_ROOT)} and",
+        f" {SUBDIR_GALLERY_FILE.relative_to(REPO_ROOT)}",
     )
 
 
