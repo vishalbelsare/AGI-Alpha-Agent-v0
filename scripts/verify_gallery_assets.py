@@ -24,7 +24,10 @@ def main() -> int:
             continue
         rel = Path(m.group(1).split("#", 1)[0])
         target = (md_file.parent / rel).resolve()
-        expected_dir = repo_root / "docs" / md_file.stem / "assets"
+        if md_file.name == "README.md":
+            expected_dir = repo_root / "docs" / "demos" / "assets"
+        else:
+            expected_dir = repo_root / "docs" / md_file.stem / "assets"
         if not target.is_file() or not target.is_relative_to(expected_dir):
             missing.append(f"{md_file.relative_to(repo_root)}: {target.relative_to(repo_root)}")
 
