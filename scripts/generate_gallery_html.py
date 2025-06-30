@@ -167,11 +167,13 @@ def build_html(entries: list[tuple[str, str, str, str]], *, prefix: str = "", ho
     for title, preview, link, summary in entries:
         full_link = f"{prefix}{link}"
         summary_attr = html.escape(summary.lower()) if summary else ""
+        title_attr = html.escape(summary or title)
         lines.append(
             '    <a class="demo-card" '
             f'href="{html.escape(full_link)}" target="_blank" '
             'rel="noopener noreferrer" '
-            f'data-summary="{summary_attr}">'
+            f'data-summary="{summary_attr}" '
+            f'title="{title_attr}">'
         )
         preview_path = f"{prefix}{preview}"
         ext = Path(preview).suffix.lower()
