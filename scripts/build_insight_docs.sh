@@ -110,6 +110,12 @@ copy_assets() {
         mkdir -p "$dest"
         cp -a "$src"/* "$dest/"
     done
+
+    # Copy Pyodide runtime files for the gallery
+    wasm_src="$BROWSER_DIR/wasm"
+    pyodide_dest="docs/assets/pyodide"
+    mkdir -p "$pyodide_dest"
+    cp -a "$wasm_src"/pyodide.* "$pyodide_dest/"
 }
 copy_assets
 

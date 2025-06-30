@@ -7,8 +7,8 @@ self.addEventListener('install', (event) => {
       .open(CACHE)
       .then(async (cache) => {
         const assets = [
-          'pyodide/pyodide.js',
-          'pyodide/pyodide.asm.wasm',
+          'assets/pyodide/pyodide.js',
+          'assets/pyodide/pyodide.asm.wasm',
         ];
         await cache.addAll(assets);
       })

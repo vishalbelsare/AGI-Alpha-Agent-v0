@@ -1,7 +1,7 @@
 /* SPDX-License-Identifier: Apache-2.0 */
 /* eslint-env browser */
 /* eslint-disable no-undef */
-import {loadPyodide} from 'https://cdn.jsdelivr.net/pyodide/v0.23.4/full/pyodide.mjs';
+import {loadPyodide} from '../assets/pyodide/pyodide.js';
 
 export function setupPyodideDemo(chart, logEl, defaultData) {
   function showMessage(msg) {
