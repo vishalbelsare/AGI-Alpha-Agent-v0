@@ -9,13 +9,6 @@ Each demo package exposes its own `__version__` constant. The value marks the re
 > **Global markets seep *trillions* in latent opportunity** — *alpha* in the broadest sense: pricing dislocations • supply‑chain inefficiencies • novel drug targets • policy loopholes • unexplored material designs.  
 > **Alpha‑Factory v1** turns that raw potential into deployable breakthroughs, *autonomously*.
 
----
-## Disclaimer
-This repository is a conceptual research prototype. References to "AGI" and
-"superintelligence" describe aspirational goals and do not indicate the presence
-of a real general intelligence. Use at your own risk.
-
-
 ## ⚡ TL;DR  
 
 ```bash

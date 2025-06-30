@@ -13,8 +13,6 @@ Each demo package exposes its own `__version__` constant. The value marks the re
 
 > **TL;DR**   Spin up a self‑healing stack that ingests macro telemetry, runs a Monte‑Carlo risk engine, sizes an ES hedge, and explains its reasoning—all behind a Gradio dashboard.
 
-This demonstration is a conceptual research prototype. Any references to AGI or superintelligence describe aspirational goals rather than current capabilities.
-
 ---
 
 ## ✨ Key capabilities

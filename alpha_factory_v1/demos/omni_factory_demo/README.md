@@ -4,7 +4,6 @@ Each demo package exposes its own `__version__` constant. The value marks the re
 
 
 # OMNI-Factory: An Open-Ended Multi-Agent Simulation for Smart City Resilience (OMNI-EPIC + Alpha-Factory v1)
-This repository is a conceptual research prototype. References to "AGI" and "superintelligence" describe aspirational goals and do not indicate the presence of a real general intelligence. Use at your own risk.
 [![Colab](https://img.shields.io/badge/Try-on-Colab-yellow?logo=googlecolab)](colab_omni_factory_demo.ipynb)
 Run the full demo interactively in [Google Colab](colab_omni_factory_demo.ipynb).
 

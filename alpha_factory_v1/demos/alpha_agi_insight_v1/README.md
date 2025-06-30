@@ -12,7 +12,6 @@ Each demo package exposes its own `__version__` constant. The value marks the re
 # α‑AGI Insight v1 — Beyond Human Foresight
 [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/MontrealAI/AGI-Alpha-Agent-v0/blob/main/alpha_factory_v1/demos/alpha_agi_insight_v1/colab_alpha_agi_insight_v1.ipynb)
 
-This repository is a conceptual research prototype. References to "AGI" and "superintelligence" describe aspirational goals and do not indicate the presence of a real general intelligence. Use at your own risk.
 
 <p align="center">
   <b>Forecast AGI-driven economic phase-transitions<br>
