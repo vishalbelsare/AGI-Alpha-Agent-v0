@@ -122,8 +122,8 @@ Follow these steps when installing without internet access:
 - See [`alpha_factory_v1/scripts/README.md`](alpha_factory_v1/scripts/README.md) for additional offline tips.
 - Run `python scripts/check_python_deps.py` **before running `pytest`** to quickly verify that `numpy`, `yaml` and `pandas` are installed. If it reports missing packages, execute `python check_env.py --auto-install` before running the tests. This step fetches packages from PyPI, so in air‑gapped setups you **must** pass `--wheelhouse <path>` or set `WHEELHOUSE` so `pip` installs from the local cache.
 - When adding new demos or assets, regenerate `docs/assets/service-worker.js` with
-  `python scripts/build_service_worker.py`. The gallery deployment helper invokes
-  this script automatically.
+  `python scripts/build_service_worker.py` to prevent stale caches on GitHub Pages.
+  The gallery deployment helper invokes this script automatically.
 - Every `docs/demos/*.md` page must start with a preview image using
   `![preview](...)`. Run `pre-commit run --files docs/demos/<page>.md` to catch
   missing previews.
