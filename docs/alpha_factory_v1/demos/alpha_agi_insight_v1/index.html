@@ -21,11 +21,15 @@
   <header>
     <h1><span aria-hidden="true">🎖️</span> α‑AGI Insight <span class="eye" aria-hidden="true">👁️</span><span aria-hidden="true">✨</span> — Beyond Human Foresight</h1>
     <p class="tagline">
-      Where human foresight reaches its limits, <strong>α‑AGI Insight</strong> sees beyond. 
-      This demo highlights how rapidly increasing AGI capabilities can disrupt key economic sectors, 
+      Where human foresight reaches its limits, <strong>α‑AGI Insight</strong> sees beyond.
+      This demo highlights how rapidly increasing AGI capabilities can disrupt key economic sectors,
       unlocking opportunities estimated in the tens of thousands of trillions of USD.
     </p>
   </header>
+  <div id="mode-control">
+    <button id="offline-mode">Offline</button>
+    <button id="online-mode">OpenAI API</button>
+  </div>
 
   <main>
     <!-- AGI Capability Curve Section -->
@@ -114,6 +118,6 @@
     }
   </script>
   <script src="d3.v7.min.js"></script>
-  <script src="script.js" defer></script>
+  <script type="module" src="script.js"></script>
 </body>
 </html>
