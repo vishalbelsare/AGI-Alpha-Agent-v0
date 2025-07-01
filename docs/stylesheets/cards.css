@@ -56,4 +56,6 @@ video.demo-preview {
   border-radius: 4px;
   font-weight: bold;
   text-align: center;
+  border: none;
+  cursor: pointer;
 }

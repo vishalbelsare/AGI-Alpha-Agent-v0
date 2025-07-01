@@ -196,7 +196,7 @@ def build_html(entries: list[tuple[str, str, str, str]], *, prefix: str = "", ho
 <body>
   <h1>Alpha‑Factory Demo Gallery</h1>
   <p class=\"subtitle\">Select a demo to explore detailed instructions and watch it unfold in real time.</p>
-  <input id=\"search-input\" class=\"search-input\" type=\"text\" placeholder=\"Search demos...\">
+  <input id=\"search-input\" class=\"search-input\" type=\"text\" placeholder=\"Search demos...\" aria-label=\"Search demos\">
   <div class=\"demo-grid\">"""
     head = head.format(prefix=prefix)
     lines = [head]
@@ -267,7 +267,12 @@ def build_html(entries: list[tuple[str, str, str, str]], *, prefix: str = "", ho
     lines.append("    });")
     lines.append("  </script>")
     lines.append("</body>\n</html>\n")
-    return "\n".join(lines)
+    html_out = "\n".join(lines)
+    html_out = html_out.replace(
+        "<p class='launch'>Launch Demo</p>",
+        "<button class='launch' type='button'>Launch Demo</button>",
+    )
+    return html_out
 
 
 def main() -> None:
