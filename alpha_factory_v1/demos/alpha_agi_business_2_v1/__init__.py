@@ -1,2 +1,2 @@
 # SPDX-License-Identifier: Apache-2.0
-# Demo package
+"""Entry point for the Alpha‑AGI Business 2 demo package."""
