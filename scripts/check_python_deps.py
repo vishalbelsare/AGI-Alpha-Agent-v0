@@ -19,7 +19,7 @@ from __future__ import annotations
 import subprocess
 import sys
 
-REQUIRED = ["numpy", "pytest", "yaml", "pandas"]
+REQUIRED = ["numpy", "pytest", "pyyaml", "pandas"]
 
 
 def _pkg_installed(pkg: str) -> bool:

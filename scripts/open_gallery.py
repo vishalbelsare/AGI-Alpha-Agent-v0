@@ -12,11 +12,16 @@ functionality such as service workers and relative assets.
 """
 from __future__ import annotations
 
-from alpha_factory_v1.utils.disclaimer import DISCLAIMER
+from pathlib import Path
+
+try:
+    from alpha_factory_v1.utils.disclaimer import DISCLAIMER
+except Exception:  # pragma: no cover - fallback when package not installed
+    _DOCS_PATH = Path(__file__).resolve().parents[1] / "docs" / "DISCLAIMER_SNIPPET.md"
+    DISCLAIMER = _DOCS_PATH.read_text(encoding="utf-8").strip()
 
 import subprocess
 import sys
-from pathlib import Path
 from urllib.request import Request, urlopen
 import webbrowser
 from http.server import ThreadingHTTPServer, SimpleHTTPRequestHandler

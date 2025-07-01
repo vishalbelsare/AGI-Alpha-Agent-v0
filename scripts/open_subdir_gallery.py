@@ -9,7 +9,14 @@ local build when offline by invoking ``scripts/build_gallery_site.sh``.
 """
 from __future__ import annotations
 
-from alpha_factory_v1.utils.disclaimer import DISCLAIMER
+from pathlib import Path
+
+try:
+    from alpha_factory_v1.utils.disclaimer import DISCLAIMER
+except Exception:  # pragma: no cover - fallback when package not installed
+    _DOCS_PATH = Path(__file__).resolve().parents[1] / "docs" / "DISCLAIMER_SNIPPET.md"
+    DISCLAIMER = _DOCS_PATH.read_text(encoding="utf-8").strip()
+
 import argparse
 
 import subprocess
