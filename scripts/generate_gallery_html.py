@@ -214,8 +214,11 @@ def build_html(entries: list[tuple[str, str, str, str]], *, prefix: str = "", ho
                 fallback = html.escape(f"Video preview of {title}")
                 lines.append(f"        {fallback}</video>")
         else:
+            alt_text = title
+            if Path(preview).name == "readme_preview.svg":
+                alt_text = "Demo Gallery Overview"
             lines.append(
-                f'      <img src="{html.escape(preview_path)}" alt="{html.escape(title)}" '
+                f'      <img src="{html.escape(preview_path)}" alt="{html.escape(alt_text)}" '
                 f'loading="lazy" title="{html.escape(title)}">'
             )
         lines.append(f"      <h3>{html.escape(title)}</h3>")
