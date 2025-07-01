@@ -6,6 +6,7 @@
 The script now also fails if the disclaimer text appears more than once in a
 file.
 """
+# PDF files aren't parsed by this script. Verify their disclaimers manually.
 from __future__ import annotations
 
 import json
