@@ -54,10 +54,14 @@ def _remote_available(url: str) -> bool:
         return False
 
 
-def main() -> None:
+def main(*, print_only: bool = False) -> None:
+    """Open the demo gallery or print the URL if ``print_only`` is True."""
     print(DISCLAIMER, file=sys.stderr)
     url = _gallery_url()
     if _remote_available(url):
+        if print_only:
+            print(url)
+            return
         print(f"Opening {url}")
         webbrowser.open(url)
         return
@@ -77,16 +81,31 @@ def main() -> None:
     with ThreadingHTTPServer(("127.0.0.1", 0), handler) as httpd:
         port = httpd.server_address[1]
         url = f"http://127.0.0.1:{port}/index.html"
-        print(f"Remote gallery unavailable. Serving local copy at {url}", file=sys.stderr)
+        print(
+            f"Remote gallery unavailable. Serving local copy at {url}",
+            file=sys.stderr,
+        )
 
         thread = threading.Thread(target=httpd.serve_forever, daemon=True)
         thread.start()
         try:
-            webbrowser.open(url)
+            if print_only:
+                print(url)
+            else:
+                webbrowser.open(url)
             thread.join()
         except KeyboardInterrupt:
             pass
 
 
 if __name__ == "__main__":
-    main()
+    import argparse
+
+    parser = argparse.ArgumentParser(description="Open the demo gallery")
+    parser.add_argument(
+        "--print-url",
+        action="store_true",
+        help="Only print the gallery URL instead of launching a browser",
+    )
+    args = parser.parse_args()
+    main(print_only=args.print_url)
