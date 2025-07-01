@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # SPDX-License-Identifier: Apache-2.0
 # This script is a conceptual research prototype.
-"""Ensure Markdown and notebook files begin with the standard disclaimer.
+"""Ensure Markdown, HTML and notebook files include the standard disclaimer.
 
 The script now also fails if the disclaimer text appears more than once in a
 file.
@@ -68,10 +68,22 @@ def check_repo(repo_root: Path) -> tuple[list[Path], list[Path]]:
         content = md_path.read_text(encoding="utf-8", errors="ignore")
         return "".join(content.split()).count(disclaimer_normalized)
 
+    def count_links_in_html(html_path: Path) -> int:
+        content = html_path.read_text(encoding="utf-8", errors="ignore")
+        return content.count("See docs/DISCLAIMER_SNIPPET.md")
+
+    snippet_html_dir = snippet_path.with_suffix("")
+
     for path in repo_root.rglob("*"):
-        if path == snippet_path or ".git" in path.parts or not path.is_file() or is_git_ignored(path):
+        if (
+            path == snippet_path
+            or snippet_html_dir in path.parents
+            or ".git" in path.parts
+            or not path.is_file()
+            or is_git_ignored(path)
+        ):
             continue
-        if path.suffix not in {".md", ".ipynb"}:
+        if path.suffix not in {".md", ".ipynb", ".html"}:
             continue
 
         if path.suffix == ".ipynb":
@@ -80,6 +92,14 @@ def check_repo(repo_root: Path) -> tuple[list[Path], list[Path]]:
             has_disclaimer = "docs/DISCLAIMER_SNIPPET.md" in cell_text or disclaimer_normalized in cell_normalized
             count = count_disclaimers_in_notebook(path)
             if not has_disclaimer:
+                missing.append(path)
+            elif count > 1:
+                duplicates.append(path)
+            continue
+
+        if path.suffix == ".html":
+            count = count_links_in_html(path)
+            if count == 0:
                 missing.append(path)
             elif count > 1:
                 duplicates.append(path)
