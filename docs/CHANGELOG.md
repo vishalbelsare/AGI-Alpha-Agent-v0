@@ -44,6 +44,8 @@ Downstream users should consult this section when upgrading.
 - Clarified that `transfer_test.evaluate_agent` is a placeholder returning the archived
   score. Added a simple heuristic in `MetaRefinementAgent` that proposes a longer
   cycle period when logs show slow agent cycles.
+- Service worker cache version is now generated dynamically to ensure updates are
+  picked up by browsers.
 ## [0.1.0-alpha] - 2024-05-01
 - Initial alpha release.
 - Git tag `v0.1.0-alpha`.

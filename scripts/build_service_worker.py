@@ -3,16 +3,17 @@
 from __future__ import annotations
 
 import argparse
+import hashlib
 from pathlib import Path
 
-HEADER = """/* SPDX-License-Identifier: Apache-2.0 */
+HEADER_TEMPLATE = """/* SPDX-License-Identifier: Apache-2.0 */
 /* eslint-env serviceworker */
-const CACHE = 'v4';
-self.addEventListener('install', (event) => {
+const CACHE = '{cache}';
+self.addEventListener('install', (event) => {{
   event.waitUntil(
     caches
       .open(CACHE)
-      .then(async (cache) => {
+      .then(async (cache) => {{
         const assets = ["""
 
 FOOTER = """        ];
@@ -22,7 +23,7 @@ FOOTER = """        ];
   );
   self.skipWaiting();
 });
-self.addEventListener('activate', (event) => {
+self.addEventListener('activate', (event) => {{
   event.waitUntil(
     caches.keys().then((names) =>
       Promise.all(
@@ -32,19 +33,19 @@ self.addEventListener('activate', (event) => {
   );
   self.clients.claim();
 });
-self.addEventListener('fetch', (event) => {
+self.addEventListener('fetch', (event) => {{
   if (event.request.method !== 'GET') return;
   const url = new URL(event.request.url);
-  if (url.origin !== self.location.origin) {
+  if (url.origin !== self.location.origin) {{
     event.respondWith(
-      caches.open(CACHE).then(async (cache) => {
-        try {
+      caches.open(CACHE).then(async (cache) => {{
+        try {{
           const resp = await fetch(event.request);
-          if (resp.ok) {
+          if (resp.ok) {{
             cache.put(event.request, resp.clone());
           }
           return resp;
-        } catch (err) {
+        }} catch (err) {{
           const cached =
             (await cache.match(event.request)) ||
             (await cache.match(`pyodide/${url.pathname.split('/').pop()}`));
@@ -60,12 +61,12 @@ self.addEventListener('fetch', (event) => {
         (cached) =>
           cached ||
           fetch(event.request)
-            .then((resp) => {
-              if (resp.ok) {
+            .then((resp) => {{
+              if (resp.ok) {{
                 cache.put(event.request, resp.clone());
-              }
+              }}
               return resp;
-            })
+            }})
             .catch(() => cached),
       ),
     ),
@@ -110,13 +111,15 @@ def main() -> None:
     args = parser.parse_args()
     docs_dir = Path(args.docs)
     assets = gather_assets(docs_dir)
+    version = "v" + hashlib.sha1("\n".join(assets).encode()).hexdigest()[:8]
     sw_path = docs_dir / "assets" / "service-worker.js"
-    lines = [HEADER]
+    header = HEADER_TEMPLATE.format(cache=version)
+    lines = [header]
     for asset in assets:
         lines.append(f"          '{asset}',")
     lines.append(FOOTER)
     sw_path.write_text("\n".join(lines))
-    print(f"Wrote {sw_path}")
+    print(f"Wrote {sw_path} with cache {version}")
 
 
 if __name__ == "__main__":
