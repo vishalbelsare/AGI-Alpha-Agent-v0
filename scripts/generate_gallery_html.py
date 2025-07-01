@@ -117,10 +117,17 @@ def insert_back_link(pages: Iterable[Path]) -> None:
         if not page.is_file():
             continue
         text = page.read_text(encoding="utf-8")
-        if "Back to Gallery" in text:
-            continue
-        rel = Path(os.path.relpath(GALLERY_FILE, page.parent)).as_posix()
+        rel = Path(os.path.relpath(INDEX_FILE, page.parent)).as_posix()
         link = f'<p><a href="{rel}">\u2b05\ufe0f Back to Gallery</a></p>'
+        if "Back to Gallery" in text:
+            new_text = re.sub(
+                r"<p><a href=\"[^\"]+\">\u2b05\ufe0f Back to Gallery</a></p>",
+                link,
+                text,
+            )
+            if new_text != text:
+                page.write_text(new_text, encoding="utf-8")
+            continue
         lines = text.splitlines()
         inserted = False
         for i, line in enumerate(lines):
