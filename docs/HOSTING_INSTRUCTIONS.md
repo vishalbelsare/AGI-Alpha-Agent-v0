@@ -76,6 +76,10 @@ The helper script `scripts/build_insight_docs.sh` automates the steps above.
 Run it from the repository root to build the bundle, refresh
 `docs/alpha_agi_insight_v1` and generate the site.
 
+Whenever demo assets change, rerun `python scripts/build_service_worker.py` to
+update `docs/assets/service-worker.js`. Otherwise visitors may see outdated
+files due to the service worker cache on GitHub Pages.
+
 
 ## Building the Site
 
