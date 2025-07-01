@@ -51,7 +51,7 @@ def _remote_available(url: str) -> bool:
         return False
 
 
-def main(demo: str | None = None) -> None:
+def main(demo: str | None = None, *, print_only: bool = False) -> None:
     print(DISCLAIMER, file=sys.stderr)
     base_url = _subdir_url()
     if demo:
@@ -59,6 +59,9 @@ def main(demo: str | None = None) -> None:
     else:
         remote_page = base_url + "index.html"
     if _remote_available(remote_page):
+        if print_only:
+            print(remote_page)
+            return
         print(f"Opening {remote_page}")
         webbrowser.open(remote_page)
         return
@@ -95,7 +98,10 @@ def main(demo: str | None = None) -> None:
         thread = threading.Thread(target=httpd.serve_forever, daemon=True)
         thread.start()
         try:
-            webbrowser.open(local_url)
+            if print_only:
+                print(local_url)
+            else:
+                webbrowser.open(local_url)
             thread.join()
         except KeyboardInterrupt:
             pass
@@ -108,5 +114,10 @@ if __name__ == "__main__":
         nargs="?",
         help="Specific demo to open (default: full gallery)",
     )
+    parser.add_argument(
+        "--print-url",
+        action="store_true",
+        help="Only print the gallery URL instead of launching a browser",
+    )
     args = parser.parse_args()
-    main(args.demo)
+    main(args.demo, print_only=args.print_url)
