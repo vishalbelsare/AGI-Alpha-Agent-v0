@@ -3,7 +3,7 @@
 /* eslint-disable no-undef */
 const CDN_BASE = 'https://cdn.jsdelivr.net/pyodide/v0.25.1/full/';
 
-async function loadRuntime() {
+export async function loadRuntime() {
   const localBase = '../assets/pyodide/';
   const localScript = `${localBase}pyodide.js`;
   try {
