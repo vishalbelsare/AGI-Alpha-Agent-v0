@@ -10,6 +10,7 @@ non-technical users can explore the demos with a single command.
 """
 from __future__ import annotations
 
+import os
 import subprocess
 import sys
 import threading
@@ -32,6 +33,9 @@ def _build_local_site(repo_root: Path) -> bool:
 
 
 def _demo_url(demo: str) -> str:
+    env = os.environ.get("AF_GALLERY_URL")
+    if env:
+        return f"{env.rstrip('/')}/{demo}/"
     remote = subprocess.check_output(["git", "config", "--get", "remote.origin.url"], text=True).strip()
     repo_path = remote.split("github.com")[-1].lstrip(":/")
     repo_path = repo_path.removesuffix(".git")

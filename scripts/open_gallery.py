@@ -20,6 +20,7 @@ except Exception:  # pragma: no cover - fallback when package not installed
     _DOCS_PATH = Path(__file__).resolve().parents[1] / "docs" / "DISCLAIMER_SNIPPET.md"
     DISCLAIMER = _DOCS_PATH.read_text(encoding="utf-8").strip()
 
+import os
 import subprocess
 import sys
 from urllib.request import Request, urlopen
@@ -42,6 +43,9 @@ def _build_local_site(repo_root: Path) -> bool:
 
 
 def _gallery_url() -> str:
+    env = os.environ.get("AF_GALLERY_URL")
+    if env:
+        return env.rstrip("/") + "/index.html"
     remote = subprocess.check_output(["git", "config", "--get", "remote.origin.url"], text=True).strip()
     repo_path = remote.split("github.com")[-1].lstrip(":/")
     repo_path = repo_path.removesuffix(".git")
