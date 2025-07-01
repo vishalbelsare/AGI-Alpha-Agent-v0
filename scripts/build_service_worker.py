@@ -117,7 +117,7 @@ def main() -> None:
     lines = [header]
     for asset in assets:
         lines.append(f"          '{asset}',")
-    lines.append(FOOTER)
+    lines.append(FOOTER.replace("{{", "{").replace("}}", "}"))
     sw_path.write_text("\n".join(lines))
     print(f"Wrote {sw_path} with cache {version}")
 
