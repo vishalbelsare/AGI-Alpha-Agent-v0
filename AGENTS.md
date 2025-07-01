@@ -29,6 +29,7 @@ Please report security vulnerabilities as described in our [Security Policy](SEC
  - Run `./codex/setup.sh` to install project dependencies and set up the git
    hooks. The script attempts to install `pre-commit` automatically. If
    `pre-commit` isn't found, run `pip install pre-commit` and re-run the script.
+- The first `pre-commit run` may take several minutes as it builds tool environments.
 - Install `pytest` and `prometheus_client` using
   `python check_env.py --auto-install` or `pip install pytest prometheus_client`.
 - Setting `ALPHA_FACTORY_FULL=1` forces `check_env.py` to install heavy extras
@@ -62,6 +63,7 @@ Python must report 3.11 or 3.12 and Docker Compose must be at least 2.5.
   when installed.
 - Run `./codex/setup.sh` from the repository root to install the project in editable mode with minimal runtime dependencies. The script installs `pre-commit` and sets up the git hook automatically. Execute it before contributing so all relative paths resolve correctly.
 - After installation, run `pre-commit run --all-files` once to verify formatting and hooks.
+- Run `pre-commit run --files <paths>` to verify only your modifications quickly.
 ### Offline Setup
 
 Follow these steps when installing without internet access:
