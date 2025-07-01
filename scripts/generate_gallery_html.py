@@ -17,6 +17,10 @@ from pathlib import Path
 from typing import Iterable
 
 H1_RE = re.compile(r"^#\s+(.*)")
+DISCLAIMER_HEADING_RE = re.compile(
+    r"^#\s+\[See docs/DISCLAIMER_SNIPPET.md\]",
+    re.IGNORECASE,
+)
 PREVIEW_RE = re.compile(r"!\[preview\]\(([^)]+)\)")
 
 
@@ -71,10 +75,15 @@ def parse_page(md_file: Path) -> tuple[str, str, str, str]:
     preview: str | None = None
     lines = md_file.read_text(encoding="utf-8").splitlines()
     for line in lines:
+        stripped = line.strip()
         if title is None:
-            m = H1_RE.match(line.strip())
+            m = H1_RE.match(stripped)
             if m:
-                title = m.group(1).strip()
+                candidate = m.group(1).strip()
+                if DISCLAIMER_HEADING_RE.match(stripped):
+                    # Skip the disclaimer heading
+                    continue
+                title = candidate
         if preview is None:
             m = PREVIEW_RE.search(line)
             if m:
@@ -107,6 +116,8 @@ def parse_page(md_file: Path) -> tuple[str, str, str, str]:
 def collect_entries() -> list[tuple[str, str, str, str]]:
     entries: list[tuple[str, str, str, str]] = []
     for page in sorted(DEMOS_DIR.glob("*.md")):
+        if page.name.lower() == "readme.md":
+            continue
         entries.append(parse_page(page))
     return entries
 
