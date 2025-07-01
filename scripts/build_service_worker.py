@@ -7,7 +7,7 @@ from pathlib import Path
 
 HEADER = """/* SPDX-License-Identifier: Apache-2.0 */
 /* eslint-env serviceworker */
-const CACHE = 'v3';
+const CACHE = 'v4';
 self.addEventListener('install', (event) => {
   event.waitUntil(
     caches
@@ -95,6 +95,12 @@ def gather_assets(docs_dir: Path) -> list[str]:
                 if file.is_file() and file.suffix in allowed:
                     rel = Path("..") / item.name / "assets" / file.relative_to(a_dir)
                     assets.append(rel.as_posix())
+
+    # Add index.html pages so navigation works offline without prior visits
+    for file in sorted(docs_dir.rglob("index.html")):
+        if file.is_file():
+            rel = Path("..") / file.relative_to(docs_dir)
+            assets.append(rel.as_posix())
     return assets
 
 
