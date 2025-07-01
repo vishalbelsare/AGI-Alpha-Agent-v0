@@ -10,6 +10,7 @@ non-technical users can explore the demos with a single command.
 """
 from __future__ import annotations
 
+import argparse
 import os
 import subprocess
 import sys
@@ -19,6 +20,12 @@ from functools import partial
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from urllib.request import Request, urlopen
+
+try:
+    from alpha_factory_v1.utils.disclaimer import DISCLAIMER
+except Exception:  # pragma: no cover - fallback when package not installed
+    _DOCS_PATH = Path(__file__).resolve().parents[1] / "docs" / "DISCLAIMER_SNIPPET.md"
+    DISCLAIMER = _DOCS_PATH.read_text(encoding="utf-8").strip()
 
 
 def _build_local_site(repo_root: Path) -> bool:
@@ -53,9 +60,14 @@ def _remote_available(url: str) -> bool:
         return False
 
 
-def main(demo: str) -> None:
+def main(demo: str, *, print_only: bool = False) -> None:
+    """Open ``demo`` in the browser or print the URL when ``print_only``."""
+    print(DISCLAIMER, file=sys.stderr)
     url = _demo_url(demo)
     if _remote_available(url):
+        if print_only:
+            print(url)
+            return
         print(f"Opening {url}")
         webbrowser.open(url)
         return
@@ -80,14 +92,18 @@ def main(demo: str) -> None:
         thread = threading.Thread(target=httpd.serve_forever, daemon=True)
         thread.start()
         try:
-            webbrowser.open(local_url)
+            if print_only:
+                print(local_url)
+            else:
+                webbrowser.open(local_url)
             thread.join()
         except KeyboardInterrupt:
             pass
 
 
 if __name__ == "__main__":
-    if len(sys.argv) != 2:
-        print("Usage: open_demo.py <demo_name>", file=sys.stderr)
-        raise SystemExit(1)
-    main(sys.argv[1])
+    parser = argparse.ArgumentParser(description="Open a specific demo")
+    parser.add_argument("demo", help="Demo name to open")
+    parser.add_argument("--print-url", action="store_true", help="Only print the resolved URL")
+    args = parser.parse_args()
+    main(args.demo, print_only=args.print_url)
