@@ -77,7 +77,7 @@ pytest -q
 Run the smoke tests to confirm the core dependencies work:
 
 ```bash
-pytest -m smoke
+pytest tests/test_ping_agent.py tests/test_af_requests.py -q
 ```
 These commands download packages from PyPI, so ensure you have either
 internet connectivity or a wheelhouse available via `--wheelhouse <dir>`
@@ -96,13 +96,39 @@ command succeeds without contacting PyPI. `torch` in particular is heavy and
 may take several minutes to install. When it is unavailable you can still run
 a lightweight smoke check via:
 ```bash
-pytest -m smoke
+pytest tests/test_ping_agent.py tests/test_af_requests.py -q
 ```
 Running without a GPU is fully supported. The world model and evolution tests
 fall back to CPU execution and are automatically skipped when `torch` is
 absent. Other optional packages behave the same way—tests relying on
 `fastapi`, `playwright` or `httpx` use `pytest.importorskip()` so the suite
 continues even in minimal environments.
+
+### Environment variables and services
+
+Before running `pytest`, export a few variables so the orchestrator tests have
+defaults to work with:
+
+```bash
+export API_TOKEN=test-token
+export NEO4J_PASSWORD=test-password
+export DEV_MODE=true
+```
+
+Docker **must** be available for the full suite. Some checks start containers
+using the Compose file under `infrastructure/`. Launch the stack when required:
+
+```bash
+docker compose -f infrastructure/docker-compose.yml up -d
+```
+
+The lightweight smoke tests run without these services:
+
+```bash
+pytest tests/test_ping_agent.py tests/test_af_requests.py -q
+```
+
+They simply verify that the core package imports succeed.
 6. Build the wheelhouse on a machine with connectivity **(mandatory when offline)**:
    ```bash
    ./scripts/build_offline_wheels.sh
@@ -149,7 +175,7 @@ Example:
 mkdir -p wheels
 pip wheel -r requirements.lock -w wheels
 WHEELHOUSE=$(pwd)/wheels python check_env.py --auto-install --wheelhouse "$WHEELHOUSE"
-PYTHONPATH=$(pwd) WHEELHOUSE="$WHEELHOUSE" pytest -m smoke -q
+PYTHONPATH=$(pwd) WHEELHOUSE="$WHEELHOUSE" pytest tests/test_ping_agent.py tests/test_af_requests.py -q
 ```
 
 Tests may skip when optional dependencies are unavailable.

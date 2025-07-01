@@ -133,7 +133,9 @@ Follow these steps when installing without internet access:
   missing packages before running `pytest`.
   Install `requirements-demo.txt` as well when running tests that depend on
   heavy extras such as `numpy` and `torch`.
-- Execute `pytest -q` (or `python -m alpha_factory_v1.scripts.run_tests`) and ensure the entire suite passes.
+- Run a quick smoke check first to verify the install:
+  `pytest tests/test_ping_agent.py tests/test_af_requests.py -q`
+  - Execute `pytest -q` (or `python -m alpha_factory_v1.scripts.run_tests`) and ensure the entire suite passes.
   If failures remain, document them in the PR description.
 - When running tests directly from the repository without installation, set `PYTHONPATH`
   as described in [`tests/README.md`](tests/README.md): `export PYTHONPATH=$(pwd)`.
