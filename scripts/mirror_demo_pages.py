@@ -6,6 +6,12 @@ from __future__ import annotations
 import shutil
 from pathlib import Path
 
+REPLACEMENTS = {
+    "../assets/": "../../../assets/",
+    "../README/": "../../README/",
+    "../gallery.html": "../../gallery.html",
+}
+
 REPO_ROOT = Path(__file__).resolve().parents[1]
 DOCS_DIR = REPO_ROOT / "docs"
 SUBDIR_ROOT = DOCS_DIR / "alpha_factory_v1" / "demos"
@@ -18,6 +24,22 @@ EXCLUDE = {
     "DISCLAIMER_SNIPPET",
     "demos",
 }
+
+
+def fix_paths(target: Path) -> None:
+    """Adjust relative links in the mirrored demo."""
+    index = target / "index.html"
+    if index.exists():
+        data = index.read_text()
+        for old, new in REPLACEMENTS.items():
+            data = data.replace(old, new)
+        index.write_text(data)
+
+    script = target / "script.js"
+    if script.exists():
+        txt = script.read_text()
+        txt = txt.replace("../assets/", "../../../assets/")
+        script.write_text(txt)
 
 
 def main() -> None:
@@ -34,6 +56,7 @@ def main() -> None:
         if target.exists():
             shutil.rmtree(target)
         shutil.copytree(entry, target)
+        fix_paths(target)
     print("Mirrored demos to", SUBDIR_ROOT.relative_to(REPO_ROOT))
 
 
