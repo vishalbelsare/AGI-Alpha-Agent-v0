@@ -1,2 +1,2 @@
 # SPDX-License-Identifier: Apache-2.0
-# Demo package
+"""Entry point for the MuZero MCTS LLM Agent v0 demo package."""
