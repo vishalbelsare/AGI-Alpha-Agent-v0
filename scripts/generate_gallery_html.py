@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: Apache-2.0
-# This script is a conceptual research prototype.
 """Generate the visual demo gallery HTML files.
 
 This helper reads the Markdown pages under ``docs/demos`` and extracts each
@@ -14,8 +13,15 @@ from __future__ import annotations
 import html
 import os
 import re
+import sys
 from pathlib import Path
 from typing import Iterable
+
+try:
+    from alpha_factory_v1.utils.disclaimer import DISCLAIMER
+except Exception:  # pragma: no cover - fallback when package not installed
+    _DOCS_PATH = Path(__file__).resolve().parents[1] / "docs" / "DISCLAIMER_SNIPPET.md"
+    DISCLAIMER = _DOCS_PATH.read_text(encoding="utf-8").strip()
 
 H1_RE = re.compile(r"^#\s+(.*)")
 DISCLAIMER_HEADING_RE = re.compile(
@@ -23,6 +29,17 @@ DISCLAIMER_HEADING_RE = re.compile(
     re.IGNORECASE,
 )
 PREVIEW_RE = re.compile(r"!\[preview\]\(([^)]+)\)")
+
+
+def clean_text(text: str) -> str:
+    """Return *text* with markdown emphasis and HTML tags stripped."""
+    # Unescape HTML entities first
+    text = html.unescape(text)
+    # Drop HTML tags
+    text = re.sub(r"<[^>]+>", "", text)
+    # Remove emphasis markers such as *, _, ** and backticks
+    text = re.sub(r"\*\*|__|[*_`]", "", text)
+    return text.strip()
 
 
 def extract_summary(lines: list[str], title: str) -> str:
@@ -55,7 +72,7 @@ def extract_summary(lines: list[str], title: str) -> str:
         paragraph.append(stripped)
         if not stripped or len(paragraph) >= 2:
             break
-    return " ".join(paragraph).strip()
+    return clean_text(" ".join(paragraph).strip())
 
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
@@ -185,7 +202,12 @@ def build_html(entries: list[tuple[str, str, str, str]], *, prefix: str = "", ho
     lines = [head]
     for title, preview, link, summary in entries:
         full_link = f"{prefix}{link}"
-        summary_attr = html.escape(summary.lower()) if summary else ""
+        clean_title = clean_text(title)
+        clean_summary = clean_text(summary) if summary else ""
+        summary_parts = [clean_title.lower()]
+        if clean_summary:
+            summary_parts.append(clean_summary.lower())
+        summary_attr = html.escape(" ".join(summary_parts))
         title_attr = html.escape(summary or title)
         lines.append(
             '    <a class="demo-card" '
@@ -215,7 +237,7 @@ def build_html(entries: list[tuple[str, str, str, str]], *, prefix: str = "", ho
                 fallback = html.escape(f"Video preview of {title}")
                 lines.append(f"        {fallback}</video>")
         else:
-            alt_text = title
+            alt_text = clean_title
             if Path(preview).name == "readme_preview.svg":
                 alt_text = "Demo Gallery Overview"
             lines.append(
@@ -249,6 +271,7 @@ def build_html(entries: list[tuple[str, str, str, str]], *, prefix: str = "", ho
 
 
 def main() -> None:
+    print(DISCLAIMER, file=sys.stderr)
     entries = collect_entries()
 
     index_html = build_html(entries, prefix="", home_link=False)
