@@ -19,6 +19,7 @@
 - **Open Gallery (Shell)** – run `./scripts/open_gallery.sh` to open the gallery in your browser. It automatically builds a fresh local copy when the remote site isn't available.
 - **Open Individual Demo** – run `./scripts/open_demo.sh <demo_dir>` to open a single page from the gallery.
 - **Open Subdirectory Gallery** – run `./scripts/open_subdir_gallery.py` to launch the mirror under `alpha_factory_v1/demos/`.
+- **Open Subdirectory Demo** – run `./scripts/open_subdir_demo.py <demo_dir>` to open a single page from that mirror.
 - **Verify Disclaimer Snippet** – run `python scripts/verify_disclaimer_snippet.py` to ensure each file contains the disclaimer text once.
 - **Offline Tests** – build a wheelhouse with `scripts/build_offline_wheels.sh` then run `python check_env.py --auto-install --wheelhouse <dir>` and `pytest` without network access.
 
