@@ -5,6 +5,8 @@ on:
     branches: ["main"]
   release:
     types: [published]
+  workflow_dispatch:
+    # enables manual runs from the Actions tab
 
 permissions:
   contents: write
@@ -21,8 +23,8 @@ jobs:
         with:
           node-version: '20'
       - name: Install docs dependencies
-        run: pip install mkdocs mkdocs-material playwright
-      - name: Install Playwright browsers
-        run: playwright install chromium firefox webkit
+        run: pip install mkdocs mkdocs-material
+      - name: Make scripts executable
+        run: chmod +x ./scripts/*.sh
       - name: Build and deploy gallery
         run: ./scripts/edge_human_knowledge_pages_sprint.sh
