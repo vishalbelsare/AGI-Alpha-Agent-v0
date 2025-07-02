@@ -14,14 +14,23 @@ permissions:
 jobs:
   build-deploy:
     runs-on: ubuntu-latest
+    env:
+      SANDBOX_IMAGE: selfheal-sandbox:latest
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - name: Set up Python
+        uses: actions/setup-python@v5
         with:
           python-version: '3.11'
+      - name: Install project dependencies
+        run: python check_env.py --auto-install
+      - name: Build sandbox image
+        run: docker build -t $SANDBOX_IMAGE -f sandbox.Dockerfile .
       - uses: actions/setup-node@v3
         with:
           node-version: '20'
+      - name: Install pre-commit
+        run: pip install pre-commit && pre-commit install
       - name: Install docs dependencies
         run: pip install mkdocs mkdocs-material
       - name: Make scripts executable
