@@ -203,7 +203,8 @@ def build_html(
   <h1>Alpha‑Factory Demo Gallery</h1>
   <p class=\"subtitle\">Select a demo to explore detailed instructions and watch it unfold in real time.</p>
   {subdir}
-  <input id=\"search-input\" class=\"search-input\" type=\"text\" placeholder=\"Search demos...\" aria-label=\"Search demos\">
+    <input id=\"search-input\" class=\"search-input\" type=\"text\"
+           placeholder=\"Search demos...\" aria-label=\"Search demos\">
   <div class=\"demo-grid\">"""
     subdir_html = (
         f'<p class="subtitle"><a href="{prefix}alpha_factory_v1/demos/index.html">Open Subdirectory Gallery</a></p>'
@@ -277,6 +278,14 @@ def build_html(
     lines.append("        c.style.display = text.includes(term) ? 'block' : 'none';")
     lines.append("      });")
     lines.append("    });")
+    lines.append("  </script>")
+    lines.append("  <script>")
+    lines.append("    if ('serviceWorker' in navigator) {")
+    lines.append(
+        f"      navigator.serviceWorker.register('{prefix}assets/service-worker.js')"
+        ".catch(() => console.warn('Service worker registration failed'));"
+    )
+    lines.append("    }")
     lines.append("  </script>")
     lines.append("</body>\n</html>\n")
     html_out = "\n".join(lines)
