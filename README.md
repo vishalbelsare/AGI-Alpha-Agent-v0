@@ -32,7 +32,7 @@ All browser demos include a **mode toggle**. Choose **Offline** to run a Pyodide
 ### Automatic Deployment
 
 Pushes to `main` trigger the [Docs workflow](.github/workflows/docs.yml), which
-runs [`scripts/build_insight_docs.sh`](scripts/build_insight_docs.sh) to rebuild
+runs [`scripts/edge_human_knowledge_pages_sprint.sh`](scripts/edge_human_knowledge_pages_sprint.sh) to rebuild
 the Insight demo and MkDocs site. The workflow publishes the result to GitHub
 Pages, so once it completes the live demo is available at
 <https://montrealai.github.io/AGI-Alpha-Agent-v0/alpha_agi_insight_v1/> with no
@@ -76,7 +76,7 @@ checks and offline validation. Use the shell or Python version:
 python scripts/edge_human_knowledge_pages_sprint.py
 ```
 
-Ensure **Python 3.11+**, **Node 20+**, `mkdocs` and Playwright are installed. The
+Ensure **Python 3.11+**, **Node 20+** and `mkdocs` are installed. The
 script mirrors the [Docs workflow](.github/workflows/docs.yml) used for automatic
 deployment.
 

@@ -9,7 +9,7 @@ The generated site is hosted at <https://montrealai.github.io/AGI-Alpha-Agent-v0
 
 `deploy_insight_demo.sh` downloads the Insight browser assets, installs the
 Node dependencies and then invokes `publish_insight_pages.sh`. The latter runs
-`build_insight_docs.sh` to refresh the MkDocs site and pushes the result to the
+`edge_human_knowledge_pages_sprint.sh` to refresh the MkDocs site and pushes the result to the
 `gh-pages` branch. When the script completes it prints the GitHub Pages URL.
 
 For an end‑to‑end build **with verification** use `deploy_insight_full.sh`. This
@@ -63,7 +63,7 @@ unzip -o insight_browser.zip -d ../../../docs/alpha_agi_insight_v1
 ```
 
 Generate `tree.json` from the latest run so the visualization reflects the
-current meta-agent state. `scripts/build_insight_docs.sh` automatically
+current meta-agent state. `scripts/edge_human_knowledge_pages_sprint.sh` automatically
 refreshes this file when `lineage/run.jsonl` is present, so the command below is
 only needed when running it manually:
 
@@ -72,7 +72,7 @@ python alpha_factory_v1/demos/alpha_agi_insight_v1/tools/export_tree.py \
   lineage/run.jsonl -o docs/alpha_agi_insight_v1/tree.json
 ```
 
-The helper script `scripts/build_insight_docs.sh` automates the steps above.
+The helper script `scripts/edge_human_knowledge_pages_sprint.sh` automates the steps above.
 Run it from the repository root to build the bundle, refresh
 `docs/alpha_agi_insight_v1` and generate the site.
 
@@ -109,7 +109,7 @@ GitHub Pages.
 
 The "📚 Docs" workflow
 [`docs.yml`](../.github/workflows/docs.yml) automatically runs
-`scripts/build_insight_docs.sh`, builds the site and pushes the result to the
+`scripts/edge_human_knowledge_pages_sprint.sh`, builds the site and pushes the result to the
 `gh-pages` branch.
 
 ### Manual Publish

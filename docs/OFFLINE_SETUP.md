@@ -110,11 +110,6 @@ recommended.
    python check_env.py --auto-install --wheelhouse "$WHEELHOUSE"
    ```
 
-### Playwright tests
-
-Browser tests that rely on Playwright work best on Linux. They can fail on
-macOS or WSL2 when the required browsers are missing. Skip them by deselecting
-the files, for example:
 
 ```bash
 pytest -k 'not pwa_offline and not browser_ui'

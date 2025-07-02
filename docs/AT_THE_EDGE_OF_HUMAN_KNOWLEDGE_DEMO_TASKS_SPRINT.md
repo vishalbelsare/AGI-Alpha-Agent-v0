@@ -44,7 +44,7 @@ The steps below triple-verify environment integrity, rebuild all assets and depl
 ## 2. Build the Insight Demo
 Compile the progressive web app and verify the service worker hash:
 ```bash
-./scripts/build_insight_docs.sh
+./scripts/edge_human_knowledge_pages_sprint.sh
 ```
 If lineage logs are available this exports `tree.json`, updates
 `docs/index.html` via `scripts/generate_gallery_html.py` and ensures the

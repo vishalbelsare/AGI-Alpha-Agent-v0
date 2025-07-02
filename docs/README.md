@@ -83,7 +83,7 @@ To update the charts, edit `forecast.json` and `population.json` and rebuild
 the site:
 
 ```bash
-./scripts/build_insight_docs.sh
+./scripts/edge_human_knowledge_pages_sprint.sh
 ```
 
 This helper fetches all assets, compiles the browser bundle and runs `mkdocs build`.

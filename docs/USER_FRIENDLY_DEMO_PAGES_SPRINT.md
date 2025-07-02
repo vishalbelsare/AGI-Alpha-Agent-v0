@@ -23,7 +23,7 @@ This sprint ensures that every advanced demo in `alpha_factory_v1/demos/` unfold
 ## 2. Build the Insight Demo
 Execute the bundled helper to compile the progressive web app and verify its service worker:
 ```bash
-./scripts/build_insight_docs.sh
+./scripts/edge_human_knowledge_pages_sprint.sh
 ```
 This step exports `tree.json` when lineage logs exist, rebuilds
 `docs/index.html` via `scripts/generate_gallery_html.py` and ensures offline

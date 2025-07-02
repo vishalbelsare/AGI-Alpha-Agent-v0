@@ -32,7 +32,7 @@ Run `./scripts/edge_of_knowledge_sprint.sh` from the repository root for a one-c
 ## 2. Build the Insight Demo
 Execute the helper to compile the progressive web app and confirm the service worker hash:
 ```bash
-./scripts/build_insight_docs.sh
+./scripts/edge_human_knowledge_pages_sprint.sh
 ```
 When lineage logs are present this exports `tree.json`, refreshes
 `docs/index.html` via `scripts/generate_gallery_html.py` and ensures the

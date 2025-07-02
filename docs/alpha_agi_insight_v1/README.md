@@ -31,7 +31,7 @@ Below the interactive charts, the demo includes a dedicated **Meta‑Agentic Tre
 Run the helper script to build the Insight progressive web app (PWA) and generate the `site/` directory:
 
 ```bash
-./scripts/build_insight_docs.sh
+./scripts/edge_human_knowledge_pages_sprint.sh
 ```
 
 The script installs Node dependencies, builds the browser bundle and runs `mkdocs build`. When executed in CI, it also publishes the resulting `site/` directory to GitHub Pages.
@@ -52,11 +52,11 @@ The [`📚 Docs` workflow](../../.github/workflows/docs.yml) runs the same scrip
 To verify that the PWA works without an internet connection:
 
 1. Run `./scripts/preview_insight_docs.sh`. The script builds the docs, starts a
-   local server and automatically launches a headless browser with Playwright.
+   local server and automatically launches a headless browser.
    It waits for the service worker to register, disables network access and
    reloads the page. The command exits with an error if the page fails to load
    offline.
-2. Alternatively, build the documentation with `./scripts/build_insight_docs.sh`
+2. Alternatively, build the documentation with `./scripts/edge_human_knowledge_pages_sprint.sh`
    and serve the `site/` directory locally:
    `python -m http.server --directory site 8000`.
 3. Open <http://localhost:8000/> in a browser.
@@ -75,10 +75,3 @@ python scripts/verify_workbox_hash.py site/alpha_agi_insight_v1
 
 This prevents caching issues caused by missing or corrupted assets.
 
-### Browser compatibility
-
-Automated Playwright tests run the meta-agentic tree visualization in
-Chromium, Firefox and WebKit. Firefox and Safari (WebKit) may render the
-animated transitions more slowly, so the tests allow extra time for nodes to
-appear. The CI workflow installs these browsers and sets `SKIP_WEBKIT_TESTS=1`
-if WebKit fails to install so the suite can still pass.

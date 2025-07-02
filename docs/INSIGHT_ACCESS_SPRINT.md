@@ -26,7 +26,7 @@ This short guide distills the essential steps required to build and publish the 
 Run the helper script from the repository root:
 
 ```bash
-./scripts/build_insight_docs.sh
+./scripts/edge_human_knowledge_pages_sprint.sh
 ```
 
 This command:

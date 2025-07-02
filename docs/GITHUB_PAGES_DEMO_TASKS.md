@@ -29,12 +29,8 @@ This command fetches browser assets, compiles the α‑AGI Insight interface, ru
 integrity checks and builds the MkDocs site under `site/`. It also runs
 `scripts/generate_gallery_html.py` to refresh `docs/index.html` and
 update the `docs/gallery.html` redirect, and
-`scripts/build_service_worker.py` to update the precache list. If Playwright is
-installed the script also verifies offline functionality.
-Run the Playwright smoke tests to ensure every built demo loads when offline:
-```bash
-python scripts/verify_demo_pages.py
-```
+`scripts/build_service_worker.py` to update the precache list.
+
 
 
 ## 3. Preview Locally
@@ -70,6 +66,6 @@ Run the wrapper to rebuild and publish the entire site in one step:
 python scripts/edge_human_knowledge_pages_sprint.py
 ```
 
-Prerequisites: **Python 3.11+**, **Node.js 20+**, `mkdocs` and Playwright. This
+Prerequisites: **Python 3.11+**, **Node.js 20+** and `mkdocs`. This
 script mirrors the [Docs workflow](../.github/workflows/docs.yml) used for
 continuous deployment.
