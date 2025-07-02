@@ -28,7 +28,7 @@ launch each showcase directly from a browser and watch it unfold in real time.
 
 The Insight browser bundle powers the animated tree search. Refresh it with:
 ```bash
-./scripts/build_insight_docs.sh
+./scripts/edge_human_knowledge_pages_sprint.sh
 ```
 This step exports `tree.json` when lineage logs exist, regenerates
 `docs/index.html` via `scripts/generate_gallery_html.py` and verifies the

@@ -25,7 +25,7 @@ This short sprint distills how Codex can publish the **Alpha‑Factory v1** demo
 
 The Insight browser bundle powers many visualisations. Refresh it with:
 ```bash
-./scripts/build_insight_docs.sh
+./scripts/edge_human_knowledge_pages_sprint.sh
 ```
 This regenerates `docs/alpha_agi_insight_v1/`, refreshes `docs/index.html` via
 `scripts/generate_gallery_html.py` and verifies the service worker hash. The

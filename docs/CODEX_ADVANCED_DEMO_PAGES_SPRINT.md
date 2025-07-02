@@ -23,7 +23,7 @@ This sprint outlines a robust sequence to publish the **Alpha‑Factory** demo g
 ## 2. Build the Insight Demo
 Execute the bundled helper:
 ```bash
-./scripts/build_insight_docs.sh
+./scripts/edge_human_knowledge_pages_sprint.sh
 ```
 This compiles the Insight PWA, exports `tree.json` when logs are present,
 regenerates `docs/index.html` via `scripts/generate_gallery_html.py` and

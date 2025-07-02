@@ -26,7 +26,7 @@ This short guide provides a step-by-step sprint for Codex to ensure the **α‑A
 Run the bundled helper from the repository root:
 
 ```bash
-./scripts/build_insight_docs.sh
+./scripts/edge_human_knowledge_pages_sprint.sh
 ```
 
 This script fetches the browser assets, compiles the PWA, exports `tree.json` when lineage logs are present, verifies the service worker and generates the MkDocs site under `site/`. After the build completes run the integrity check to ensure the cached Workbox file matches the service worker hash:

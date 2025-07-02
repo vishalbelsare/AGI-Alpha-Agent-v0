@@ -9,7 +9,7 @@ This document outlines the minimal tasks required to publish the **α‑AGI Insi
 - Execute `python scripts/check_python_deps.py` and `python check_env.py --auto-install` to install optional dependencies.
 
 ## 2. Build the Static Demo
-- From the repository root, run `./scripts/build_insight_docs.sh`.
+- From the repository root, run `./scripts/edge_human_knowledge_pages_sprint.sh`.
   - This fetches assets, builds the browser bundle, and refreshes `docs/alpha_agi_insight_v1/`.
 - Verify that `docs/alpha_agi_insight_v1/index.html` loads locally using:
   ```bash
@@ -24,7 +24,7 @@ This document outlines the minimal tasks required to publish the **α‑AGI Insi
 - Opening <https://montrealai.github.io/AGI-Alpha-Agent-v0/> shows a landing page with quick links. Use **Launch Demo** to reach this path or open the **Visual Demo Gallery** for other pages.
 
 ## 4. Maintain the Demo
-- Update `forecast.json` or `population.json` to change the scenario, then re-run `build_insight_docs.sh`.
+- Update `forecast.json` or `population.json` to change the scenario, then re-run `edge_human_knowledge_pages_sprint.sh`.
 - Run `scripts/verify_insight_offline.py` to ensure offline caching works before publishing.
 
 These steps keep the demo production-ready and easily reproducible for non‑technical users.
@@ -34,7 +34,7 @@ These steps keep the demo production-ready and easily reproducible for non‑tec
   ```bash
   python alpha_factory_v1/demos/alpha_agi_insight_v1/tools/export_tree.py lineage/run.jsonl -o docs/alpha_agi_insight_v1/tree.json
   ```
-- Rebuild the site with `./scripts/build_insight_docs.sh` and confirm the nodes animate progressively on page load.
+- Rebuild the site with `./scripts/edge_human_knowledge_pages_sprint.sh` and confirm the nodes animate progressively on page load.
 
 ## 6. Final Verification Checklist
 - Check that `docs/index.html` links to `alpha_agi_insight_v1/index.html`.
