@@ -26,3 +26,15 @@ Each folder also contains a Colab notebook mirroring the Docker workflow for GPU
 ## Quick Launch
 
 Run `./alpha_factory_v1/quickstart.sh` from the repository root to experience every demo through a unified Gradio interface.
+
+## Updating Demo Assets
+
+When adding new demos or modifying images, regenerate
+`docs/assets/service-worker.js` so GitHub Pages serves the latest files:
+
+```bash
+python scripts/build_service_worker.py
+```
+
+The helper script `build_gallery_site.sh` automates this step, but rerun it
+whenever assets change to avoid stale caches.
