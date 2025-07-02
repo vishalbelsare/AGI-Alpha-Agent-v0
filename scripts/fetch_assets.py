@@ -14,6 +14,12 @@ import requests  # type: ignore
 from requests.adapters import HTTPAdapter, Retry  # type: ignore
 
 GATEWAY = os.environ.get("IPFS_GATEWAY", "https://ipfs.io/ipfs").rstrip("/")
+# Alternate gateways to try when the main download fails
+FALLBACK_GATEWAYS = [
+    "https://w3s.link/ipfs",
+    "https://ipfs.io/ipfs",
+    "https://cloudflare-ipfs.com/ipfs",
+]
 
 ASSETS = {
     # Pyodide 0.25 runtime files
@@ -75,12 +81,25 @@ def download_with_retry(
 ) -> None:
     last_exc: Exception | None = None
     lbl = label or str(path)
+    alt_urls: list[str] = []
+    if fallback:
+        alt_urls.append(fallback)
+    if not cid.startswith("http"):
+        for gw in FALLBACK_GATEWAYS:
+            if gw.rstrip("/") != GATEWAY:
+                alt_urls.append(f"{gw.rstrip('/')}/{cid}")
     for i in range(1, attempts + 1):
         try:
-            download(cid, path, fallback)
+            download(cid, path)
             return
         except Exception as exc:  # noqa: PERF203
             last_exc = exc
+            for alt in alt_urls:
+                try:
+                    download(alt, path)
+                    return
+                except Exception:
+                    continue
             if i < attempts:
                 print(f"Attempt {i} failed for {lbl}: {exc}, retrying...")
             else:
