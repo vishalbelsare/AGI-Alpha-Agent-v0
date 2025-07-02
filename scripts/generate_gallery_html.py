@@ -260,6 +260,7 @@ def build_html(
         lines.append(f"      <h3>{html.escape(title)}</h3>")
         if summary:
             lines.append(f"      <p class='demo-desc'>{html.escape(summary)}</p>")
+        lines.append("      <p class='launch'>Launch Demo</p>")
         lines.append("    </a>")
     lines.append("  </div>")
     if home_link:
