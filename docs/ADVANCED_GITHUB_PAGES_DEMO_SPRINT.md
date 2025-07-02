@@ -21,11 +21,7 @@ Run `./scripts/edge_of_knowledge_sprint.sh` from the repository root for a compl
    python scripts/check_python_deps.py
    python check_env.py --auto-install
    ```
-5. Ensure every README embeds the disclaimer:
-   ```bash
-   python scripts/verify_disclaimer_snippet.py
-   ```
-6. Validate the demo packages:
+5. Validate the demo packages:
    ```bash
    python -m alpha_factory_v1.demos.validate_demos
    ```

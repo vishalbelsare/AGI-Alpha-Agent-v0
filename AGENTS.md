@@ -385,9 +385,6 @@ The **Deploy — Kind** workflow provisions a local kind cluster, builds the Ins
   `pip install pre-commit` and run `pre-commit install` once.
 - To reinstall the hooks, run `pip install -U pre-commit` and then
   `pre-commit install` again.
-- The `verify_disclaimer_snippet.py` hook now skips files ignored by Git. If you
-  see false positives from directories like `.pytest_cache`, ensure they are
-  listed in `.gitignore`.
 
 For detailed troubleshooting steps, see [`alpha_factory_v1/scripts/README.md`](alpha_factory_v1/scripts/README.md).
 

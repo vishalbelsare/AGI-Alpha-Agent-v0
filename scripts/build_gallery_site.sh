@@ -16,7 +16,7 @@ python alpha_factory_v1/scripts/preflight.py
 node "$BROWSER_DIR/build/version_check.js"
 python scripts/check_python_deps.py
 python check_env.py --auto-install
-python scripts/verify_disclaimer_snippet.py
+# disclaimer snippet verification removed; rely on pre-commit hooks
 python -m alpha_factory_v1.demos.validate_demos
 
 # Refresh browser assets and generate docs

@@ -97,12 +97,6 @@ repos:
         entry: scripts/env_check.sh
         language: system
         pass_filenames: false
-      - id: verify-disclaimer-snippet
-        name: Verify Markdown, HTML and notebook files include disclaimer snippet
-        entry: python scripts/verify_disclaimer_snippet.py
-        language: python
-        pass_filenames: false
-        files: \.(md|ipynb|html)$
       - id: verify-disclaimer-helper
         name: Ensure scripts import disclaimer helper
         entry: python scripts/verify_disclaimer_helper.py

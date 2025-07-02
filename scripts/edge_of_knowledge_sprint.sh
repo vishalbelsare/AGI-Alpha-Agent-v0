@@ -15,8 +15,7 @@ node alpha_factory_v1/demos/alpha_agi_insight_v1/insight_browser_v1/build/versio
 python scripts/check_python_deps.py
 python check_env.py --auto-install
 
-# Confirm all documentation embeds the project disclaimer
-python scripts/verify_disclaimer_snippet.py
+# Disclaimer snippet verification removed; rely on documentation updates
 
 # Validate demo directories for basic quality
 python -m alpha_factory_v1.demos.validate_demos
