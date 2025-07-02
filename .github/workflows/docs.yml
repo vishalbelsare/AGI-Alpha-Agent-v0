@@ -15,7 +15,7 @@ jobs:
   build-deploy:
     runs-on: ubuntu-latest
     env:
-      SANDBOX_IMAGE: selfheal-sandbox:latest
+      SANDBOX_IMAGE: ghcr.io/example/selfheal-sandbox:latest
     steps:
       - uses: actions/checkout@v4
       - name: Set up Python
