@@ -175,7 +175,13 @@ def insert_back_link(pages: Iterable[Path]) -> None:
         page.write_text("\n".join(lines) + "\n", encoding="utf-8")
 
 
-def build_html(entries: list[tuple[str, str, str, str]], *, prefix: str = "", home_link: bool = True) -> str:
+def build_html(
+    entries: list[tuple[str, str, str, str]],
+    *,
+    prefix: str = "",
+    home_link: bool = True,
+    subdir_link: str | None = None,
+) -> str:
     head = """<!-- SPDX-License-Identifier: Apache-2.0 -->
 <!DOCTYPE html>
 <html lang=\"en\">
@@ -196,9 +202,15 @@ def build_html(entries: list[tuple[str, str, str, str]], *, prefix: str = "", ho
 <body>
   <h1>Alpha‑Factory Demo Gallery</h1>
   <p class=\"subtitle\">Select a demo to explore detailed instructions and watch it unfold in real time.</p>
+  {subdir}
   <input id=\"search-input\" class=\"search-input\" type=\"text\" placeholder=\"Search demos...\" aria-label=\"Search demos\">
   <div class=\"demo-grid\">"""
-    head = head.format(prefix=prefix)
+    subdir_html = (
+        f'<p class="subtitle"><a href="{prefix}alpha_factory_v1/demos/index.html">Open Subdirectory Gallery</a></p>'
+        if subdir_link
+        else ""
+    )
+    head = head.format(prefix=prefix, subdir=subdir_html)
     lines = [head]
     for title, preview, link, summary in entries:
         full_link = f"{prefix}{link}"
@@ -279,7 +291,12 @@ def main() -> None:
     print(DISCLAIMER, file=sys.stderr)
     entries = collect_entries()
 
-    index_html = build_html(entries, prefix="", home_link=False)
+    index_html = build_html(
+        entries,
+        prefix="",
+        home_link=False,
+        subdir_link="alpha_factory_v1/demos/index.html",
+    )
     INDEX_FILE.write_text(index_html, encoding="utf-8")
 
     gallery_redirect = (
