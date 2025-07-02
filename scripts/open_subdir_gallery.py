@@ -42,14 +42,28 @@ def _build_local_site(repo_root: Path) -> bool:
 
 
 def _subdir_url() -> str:
+    """Return the base URL for the subdirectory gallery.
+
+    When ``AF_GALLERY_URL`` is set, use that value. Otherwise attempt to infer
+    the GitHub Pages URL from ``git remote``. If no remote is configured,
+    default to the official MontrealAI mirror.
+    """
+
     env = os.environ.get("AF_GALLERY_URL")
     if env:
         return env.rstrip("/") + "/alpha_factory_v1/demos/"
-    remote = subprocess.check_output(["git", "config", "--get", "remote.origin.url"], text=True).strip()
-    repo_path = remote.split("github.com")[-1].lstrip(":/")
-    repo_path = repo_path.removesuffix(".git")
-    org, repo = repo_path.split("/", 1)
-    return f"https://{org}.github.io/{repo}/alpha_factory_v1/demos/"
+    try:
+        remote = subprocess.check_output(["git", "config", "--get", "remote.origin.url"], text=True).strip()
+    except Exception:
+        remote = ""
+    if remote:
+        repo_path = remote.split("github.com")[-1].lstrip(":/")
+        repo_path = repo_path.removesuffix(".git")
+        if "/" in repo_path:
+            org, repo = repo_path.split("/", 1)
+            return f"https://{org}.github.io/{repo}/alpha_factory_v1/demos/"
+    # Fall back to the upstream project URL when the remote is missing.
+    return "https://montrealai.github.io/AGI-Alpha-Agent-v0/alpha_factory_v1/demos/"
 
 
 def _remote_available(url: str) -> bool:
