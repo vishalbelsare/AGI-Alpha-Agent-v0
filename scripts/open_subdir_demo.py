@@ -33,13 +33,26 @@ def _build_local_site(repo_root: Path) -> bool:
 
 
 def _demo_url(demo: str) -> str:
+    """Return the public URL for *demo*.
+
+    ``AF_GALLERY_URL`` overrides the base path. When not set, the GitHub Pages
+    URL is derived from ``git remote``. If the remote cannot be resolved, fall
+    back to the official MontrealAI mirror.
+    """
+
     env = os.environ.get("AF_GALLERY_URL")
     if env:
         return f"{env.rstrip('/')}/alpha_factory_v1/demos/{demo}/index.html"
-    remote = subprocess.check_output(["git", "config", "--get", "remote.origin.url"], text=True).strip()
-    repo_path = remote.split("github.com")[-1].lstrip(":/").removesuffix(".git")
-    org, repo = repo_path.split("/", 1)
-    return f"https://{org}.github.io/{repo}/alpha_factory_v1/demos/{demo}/index.html"
+    try:
+        remote = subprocess.check_output(["git", "config", "--get", "remote.origin.url"], text=True).strip()
+    except Exception:
+        remote = ""
+    if remote:
+        repo_path = remote.split("github.com")[-1].lstrip(":/").removesuffix(".git")
+        if "/" in repo_path:
+            org, repo = repo_path.split("/", 1)
+            return f"https://{org}.github.io/{repo}/alpha_factory_v1/demos/{demo}/index.html"
+    return f"https://montrealai.github.io/AGI-Alpha-Agent-v0/alpha_factory_v1/demos/{demo}/index.html"
 
 
 def _remote_available(url: str) -> bool:
