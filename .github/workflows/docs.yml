@@ -16,6 +16,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       SANDBOX_IMAGE: ghcr.io/example/selfheal-sandbox:latest
+      IPFS_GATEWAY: https://w3s.link/ipfs
     steps:
       - uses: actions/checkout@v4
       - name: Set up Python
@@ -38,4 +39,6 @@ jobs:
       - name: Make scripts executable
         run: chmod +x ./scripts/*.sh
       - name: Build and deploy gallery
+        env:
+          IPFS_GATEWAY: ${{ env.IPFS_GATEWAY }}
         run: ./scripts/edge_human_knowledge_pages_sprint.sh
