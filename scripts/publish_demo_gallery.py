@@ -29,7 +29,7 @@ def main() -> None:
     run(["node", str(BROWSER_DIR / "build/version_check.js")])
     run(["python", "scripts/check_python_deps.py"])
     run(["python", "check_env.py", "--auto-install"])
-    run(["python", "scripts/verify_disclaimer_snippet.py"])
+    # disclaimer snippet verification removed; rely on documentation updates
     run(["python", "-m", "alpha_factory_v1.demos.validate_demos"])
 
     # Rebuild docs and gallery

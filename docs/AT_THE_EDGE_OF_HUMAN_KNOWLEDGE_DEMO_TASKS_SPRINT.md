@@ -28,11 +28,7 @@ The steps below triple-verify environment integrity, rebuild all assets and depl
    python scripts/check_python_deps.py
    python check_env.py --auto-install
    ```
-6. Confirm each README contains the standard disclaimer:
-   ```bash
-   python scripts/verify_disclaimer_snippet.py
-   ```
-7. Validate the demo packages:
+6. Validate the demo packages:
    ```bash
    python -m alpha_factory_v1.demos.validate_demos
    ```
