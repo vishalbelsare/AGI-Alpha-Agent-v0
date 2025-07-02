@@ -3,12 +3,16 @@
 # Open the Alpha-Factory subdirectory demo gallery on GitHub Pages.
 set -euo pipefail
 
-remote=$(git config --get remote.origin.url)
-repo_path=${remote#*github.com[:/]}
-repo_path=${repo_path%.git}
-org="${repo_path%%/*}"
-repo="${repo_path##*/}"
-url="https://${org}.github.io/${repo}/alpha_factory_v1/demos/index.html"
+if [[ -n "${AF_GALLERY_URL:-}" ]]; then
+  url="${AF_GALLERY_URL%/}/alpha_factory_v1/demos/index.html"
+else
+  remote=$(git config --get remote.origin.url)
+  repo_path=${remote#*github.com[:/]}
+  repo_path=${repo_path%.git}
+  org="${repo_path%%/*}"
+  repo="${repo_path##*/}"
+  url="https://${org}.github.io/${repo}/alpha_factory_v1/demos/index.html"
+fi
 
 check_remote() {
   local status
