@@ -3,4 +3,4 @@
 /* global Chart */
 /* eslint-disable no-undef */
 import {replayChart} from '../../assets/replay_chart.js';
-replayChart({logsUrl: 'assets/logs.json', label: 'Demo Metric', color: 'blue'});
+replayChart({logsUrl: 'assets/logs.json', label: 'Alpha Agi Insight V1 Metric', color: 'teal'});
