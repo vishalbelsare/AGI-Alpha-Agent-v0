@@ -22,6 +22,9 @@ offline functionality and then publishes the docs in one step.
    `deploy_insight_demo.sh` to perform both steps automatically).
 3. Verify the page at `https://<org>.github.io/AGI-Alpha-Agent-v0/alpha_agi_insight_v1/`.
 
+The `fetch-assets` command respects the `IPFS_GATEWAY` environment variable.
+If downloads fail, set `IPFS_GATEWAY=https://w3s.link/ipfs` and rerun the step.
+
 ## Prerequisites
 
 - **Python 3.11 or 3.12**
