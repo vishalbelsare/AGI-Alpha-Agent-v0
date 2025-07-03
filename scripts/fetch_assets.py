@@ -4,8 +4,8 @@
 """Download browser demo assets from IPFS or a mirror.
 
 Environment variables:
-    OPENAI_GPT2_URL -- Optional fallback URL for the ``wasm-gpt2`` model.
-    WASM_GPT2_URL  -- Override the primary download location.
+    OPENAI_GPT2_URL -- Optional primary URL for the ``wasm-gpt2`` model.
+    WASM_GPT2_URL  -- Override the list of download locations.
 """
 from __future__ import annotations
 
@@ -32,9 +32,9 @@ OPENAI_GPT2_URL = os.environ.get(
     "https://openaipublic.blob.core.windows.net/misc/wasm-gpt2.tar",
 )
 _DEFAULT_WASM_GPT2_URLS = [
+    OPENAI_GPT2_URL,
     "https://huggingface.co/datasets/xenova/wasm-gpt2/resolve/main/wasm-gpt2.tar?download=1",
     "https://raw.githubusercontent.com/huggingface/transformers.js/main/weights/wasm/wasm-gpt2.tar",
-    OPENAI_GPT2_URL,
     "https://cloudflare-ipfs.com/ipfs/bafybeihdwdcefgh4dqkjv67uzcmw7ojee6xedzdetojuzjevtenxquvyku?download=1",
 ]
 
@@ -141,9 +141,9 @@ def download_with_retry(
         except Exception as exc:  # noqa: PERF203
             last_exc = exc
             last_url = cid
+            status = getattr(getattr(exc, "response", None), "status_code", None)
             if first_failure:
                 first_failure = False
-                status = getattr(getattr(exc, "response", None), "status_code", None)
                 if status in {401, 404}:
                     print("Download returned HTTP" f" {status}. Consider setting WASM_GPT2_URL or OPENAI_GPT2_URL")
             for alt in alt_urls:
@@ -154,6 +154,8 @@ def download_with_retry(
                     last_exc = exc_alt
                     last_url = alt
                     continue
+            if status in {401, 404}:
+                break
             if i < attempts:
                 print(f"Attempt {i} failed for {lbl}: {exc}, retrying...")
             else:

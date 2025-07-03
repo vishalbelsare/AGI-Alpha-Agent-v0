@@ -70,9 +70,9 @@ is missing the build scripts continue with default empty values:
 Run `npm run fetch-assets` to download the Pyodide runtime and local model
 before installing dependencies. The script invokes
 `scripts/fetch_assets.py` under the hood, which retrieves `wasm-gpt2.tar`
-from the official mirror, then tries the OpenAI fallback and finally the
-configured gateway. Set `WASM_GPT2_URL` to override the source or
-`OPENAI_GPT2_URL` to change the fallback, for example:
+from the OpenAI mirror first, then falls back to the Hugging Face link and
+finally the configured gateway. Set `WASM_GPT2_URL` to override the list or
+`OPENAI_GPT2_URL` to change the primary mirror, for example:
 
 ```bash
 export WASM_GPT2_URL="https://huggingface.co/datasets/xenova/wasm-gpt2/resolve/main/wasm-gpt2.tar?download=1"
@@ -126,9 +126,9 @@ offline run:
 npm run fetch-assets
 ```
 
-This downloads the Pyodide runtime and `wasm-gpt2` model from the official
-mirror with a fallback to the configured IPFS gateway. Assets land in `wasm/`
-and `wasm_llm/`.
+This downloads the Pyodide runtime and `wasm-gpt2` model from the OpenAI
+mirror first, then the Hugging Face mirror and finally the configured IPFS
+gateway. Assets land in `wasm/` and `wasm_llm/`.
 It also retrieves `lib/bundle.esm.min.js` from the mirror. You may instead run
 `python ../../../../scripts/download_wasm_gpt2.py` or
 `python ../../../../scripts/download_openai_gpt2.py` to pull the model
@@ -243,8 +243,8 @@ WEB3_STORAGE_TOKEN=<token> npm run fetch-assets
 
 
 The script retrieves the WebAssembly runtime and supporting files from the
-official IPFS mirror or the configured gateway, verifying checksums to ensure
-each asset is intact.
+OpenAI mirror first and falls back to the Hugging Face or configured IPFS
+gateway, verifying checksums to ensure each asset is intact.
 
 ### Offline Build Steps
 
