@@ -19,7 +19,11 @@ GATEWAY = os.environ.get("IPFS_GATEWAY", "https://ipfs.io/ipfs").rstrip("/")
 # Canonical CID for the wasm-gpt2 model
 WASM_GPT2_CID = "bafybeihdwdcefgh4dqkjv67uzcmw7ojee6xedzdetojuzjevtenxquvyku"
 # Public mirror used as the primary source for the wasm-gpt2 model
-OFFICIAL_WASM_GPT2_URL = f"https://cloudflare-ipfs.com/ipfs/{WASM_GPT2_CID}?download=1"
+# Allow overriding via ``WASM_GPT2_URL`` so CI can point to a known mirror.
+OFFICIAL_WASM_GPT2_URL = os.environ.get(
+    "WASM_GPT2_URL",
+    f"https://cloudflare-ipfs.com/ipfs/{WASM_GPT2_CID}?download=1",
+)
 # Alternate gateways to try when the main download fails
 FALLBACK_GATEWAYS = [
     "https://w3s.link/ipfs",
