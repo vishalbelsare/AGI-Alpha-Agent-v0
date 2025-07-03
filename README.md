@@ -31,7 +31,7 @@ All browser demos include a **mode toggle**. Choose **Offline** to run a Pyodide
 export WASM_GPT2_URL="https://huggingface.co/datasets/xenova/wasm-gpt2/resolve/main/wasm-gpt2.tar?download=1"
 ```
 
-See [insight_browser_v1/README.md](alpha_factory_v1/demos/alpha_agi_insight_v1/insight_browser_v1/README.md) for details. You can also retrieve the model directly with `python scripts/download_wasm_gpt2.py`.
+See [insight_browser_v1/README.md](alpha_factory_v1/demos/alpha_agi_insight_v1/insight_browser_v1/README.md) for details. You can also retrieve the model directly with `python scripts/download_wasm_gpt2.py` or `python scripts/download_openai_gpt2.py`.
 
 [![Launch \u03b1\u2011AGI Insight](https://img.shields.io/badge/Launch-%CE%B1%E2%80%91AGI%20Insight-blue?style=for-the-badge)](https://montrealai.github.io/AGI-Alpha-Agent-v0/alpha_agi_insight_v1/)
 
@@ -96,7 +96,7 @@ docker compose up --build
 ./run_quickstart.sh
 ```
 
-Run `npm run fetch-assets` before `npm install` or executing `./setup.sh` to download the Insight demo assets. The helper retrieves the GPT‑2 model from the official mirror with IPFS as a fallback. See [insight_browser_v1/README.md](alpha_factory_v1/demos/alpha_agi_insight_v1/insight_browser_v1/README.md) for a detailed guide. You can alternatively run `python scripts/download_wasm_gpt2.py` to fetch the model directly.
+Run `npm run fetch-assets` before `npm install` or executing `./setup.sh` to download the Insight demo assets. The helper retrieves the GPT‑2 model from the official mirror with IPFS as a fallback. See [insight_browser_v1/README.md](alpha_factory_v1/demos/alpha_agi_insight_v1/insight_browser_v1/README.md) for a detailed guide. You can alternatively run `python scripts/download_wasm_gpt2.py` or `python scripts/download_openai_gpt2.py` to fetch the model directly.
 
 Requires **Python 3.11 or 3.12** and **Docker Compose ≥2.5**.
 
