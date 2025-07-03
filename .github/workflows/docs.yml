@@ -14,6 +14,10 @@ jobs:
     env:
       SANDBOX_IMAGE: ghcr.io/example/selfheal-sandbox:latest
       IPFS_GATEWAY: https://w3s.link/ipfs
+      # Optional environment variables for asset downloads. See
+      # scripts/fetch_assets.py for details.
+      # WASM_GPT2_URL can mirror the wasm-gpt2 model archive and
+      # OPENAI_GPT2_URL overrides the fallback OpenAI location.
     steps:
       - uses: actions/checkout@v4
       - name: Set up Python
