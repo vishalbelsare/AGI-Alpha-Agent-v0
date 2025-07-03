@@ -5,4 +5,5 @@ gymnasium[classic-control]>=0.29
 gradio>=4.35
 filelock>=3.13
 openai-agents>=0.0.17
+tqdm~=4.67
 
