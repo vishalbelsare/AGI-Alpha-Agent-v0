@@ -29,7 +29,7 @@ WASM_GPT2_CID = "bafybeihdwdcefgh4dqkjv67uzcmw7ojee6xedzdetojuzjevtenxquvyku"
 # they are tried in order separated by commas.
 OPENAI_GPT2_URL = os.environ.get(
     "OPENAI_GPT2_URL",
-    "https://openaipublic.blob.core.windows.net/misc/wasm-gpt2.tar",
+    "https://openaipublic.blob.core.windows.net/gpt-2/models/117M/wasm-gpt2.tar",
 )
 _DEFAULT_WASM_GPT2_URLS = [
     OPENAI_GPT2_URL,
