@@ -11,4 +11,4 @@ The script retrieves `wasm-gpt2.tar` from the official mirror at:
 ```
 https://cloudflare-ipfs.com/ipfs/bafybeihdwdcefgh4dqkjv67uzcmw7ojee6xedzdetojuzjevtenxquvyku?download=1
 ```
-This URL points to the canonical IPFS CID and is used as the fallback source when other gateways fail.
+This URL points to the canonical IPFS CID and is now used as the primary source when fetching the model. The script falls back to the configured IPFS gateway if the mirror is unavailable.

@@ -14,10 +14,13 @@ import requests  # type: ignore
 from requests.adapters import HTTPAdapter, Retry  # type: ignore
 
 # IPFS gateway used for model downloads
+# Primary gateway for IPFS downloads
 GATEWAY = os.environ.get("IPFS_GATEWAY", "https://ipfs.io/ipfs").rstrip("/")
-# Official fallback link for the wasm-gpt2 model
+# Canonical CID for the wasm-gpt2 model
+WASM_GPT2_CID = "bafybeihdwdcefgh4dqkjv67uzcmw7ojee6xedzdetojuzjevtenxquvyku"
+# Public mirror used as the primary source for the wasm-gpt2 model
 OFFICIAL_WASM_GPT2_URL = (
-    "https://cloudflare-ipfs.com/ipfs/" "bafybeihdwdcefgh4dqkjv67uzcmw7ojee6xedzdetojuzjevtenxquvyku?download=1"
+    f"https://cloudflare-ipfs.com/ipfs/{WASM_GPT2_CID}?download=1"
 )
 # Alternate gateways to try when the main download fails
 FALLBACK_GATEWAYS = [
@@ -32,8 +35,8 @@ ASSETS = {
     "wasm/pyodide.asm.wasm": "bafybeifub317gmrhdss4u5aefygb4oql6dyks3v6llqj77pnibsglj6nde",  # noqa: E501
     "wasm/pyodide_py.tar": "bafybeidazzkz4a3qle6wvyjfwcb36br4idlm43oe5cb26wqzsa4ho7t52e",  # noqa: E501
     "wasm/packages.json": "bafybeib44a4x7jgqhkgzo5wmgyslyqi1aocsswcdpsnmqkhmvqchwdcql4",  # noqa: E501
-    # wasm-gpt2 model archive
-    "wasm_llm/wasm-gpt2.tar": "bafybeihdwdcefgh4dqkjv67uzcmw7ojee6xedzdetojuzjevtenxquvyku",  # noqa: E501
+    # wasm-gpt2 model archive (downloaded from official mirror)
+    "wasm_llm/wasm-gpt2.tar": OFFICIAL_WASM_GPT2_URL,
     # Web3.Storage bundle
     "lib/bundle.esm.min.js": "bafkreihgldx46iuks4lybdsc5qc6xom2y5fqdy5w3vvrxntlr42wc43u74",  # noqa: E501
     # Workbox runtime
@@ -168,7 +171,7 @@ def main() -> None:
             if rel == "lib/bundle.esm.min.js":
                 fallback = "https://cdn.jsdelivr.net/npm/web3.storage/dist/bundle.esm.min.js"  # noqa: E501
             elif rel == "wasm_llm/wasm-gpt2.tar":
-                fallback = OFFICIAL_WASM_GPT2_URL
+                fallback = f"{GATEWAY}/{WASM_GPT2_CID}"
             try:
                 download_with_retry(cid, dest, fallback, label=rel)
             except Exception as exc:
