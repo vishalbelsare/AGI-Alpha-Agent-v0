@@ -4,8 +4,10 @@ This repository is a conceptual research prototype. References to "AGI" and "sup
 # GPT‑2 Small CLI Demo
 
 This minimal example downloads the official OpenAI GPT‑2 117M checkpoint using
-`scripts/download_openai_gpt2.py` if it is not already present and then runs a
-short text generation using the Hugging Face `transformers` library.
+`scripts/download_openai_gpt2.py`. The weights are converted to the Hugging Face
+format via `scripts/convert_openai_gpt2.py` on first run. If PyTorch is
+unavailable, the demo falls back to the hosted `gpt2` model from the
+`transformers` hub.
 
 ```bash
 python -m alpha_factory_v1.demos.gpt2_small_cli --prompt "The future of AI" --max-length 50
