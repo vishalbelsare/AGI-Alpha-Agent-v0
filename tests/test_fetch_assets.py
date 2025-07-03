@@ -41,6 +41,21 @@ def test_download_with_retry_fallback(tmp_path: Path, requests_mock: requests_mo
     assert path.read_text() == "data"
 
 
+def test_download_with_retry_auth_message(
+    tmp_path: Path, requests_mock: requests_mock.Mocker, capsys: pytest.CaptureFixture[str]
+) -> None:
+    path = tmp_path / "out"
+    url_primary = f"{fa.GATEWAY}/CID"
+    requests_mock.get(url_primary, status_code=401)
+    with pytest.raises(RuntimeError) as exc:
+        fa.download_with_retry("CID", path, attempts=1, label="wasm_llm/wasm-gpt2.tar")
+    out = capsys.readouterr().out
+    assert "WASM_GPT2_URL" in out
+    msg = str(exc.value)
+    assert "CID" in msg and "http" in msg
+    assert "authentication" in msg.lower()
+
+
 def test_verify_assets(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     content = b"data"
     asset_path = tmp_path / "file.txt"

@@ -114,6 +114,8 @@ def download_with_retry(
     label: str | None = None,
 ) -> None:
     last_exc: Exception | None = None
+    last_url = cid
+    first_failure = True
     lbl = label or str(path)
     alt_urls: list[str] = []
     if fallback:
@@ -138,18 +140,29 @@ def download_with_retry(
             return
         except Exception as exc:  # noqa: PERF203
             last_exc = exc
+            last_url = cid
+            if first_failure:
+                first_failure = False
+                status = getattr(getattr(exc, "response", None), "status_code", None)
+                if status in {401, 404}:
+                    print("Download returned HTTP" f" {status}. Consider setting WASM_GPT2_URL or OPENAI_GPT2_URL")
             for alt in alt_urls:
                 try:
                     download(alt, path)
                     return
-                except Exception:
+                except Exception as exc_alt:
+                    last_exc = exc_alt
+                    last_url = alt
                     continue
             if i < attempts:
                 print(f"Attempt {i} failed for {lbl}: {exc}, retrying...")
             else:
-                print(f"ERROR: could not fetch {lbl} after {attempts} attempts")
+                print(f"ERROR: could not fetch {lbl} from {last_url} after {attempts} attempts")
     if last_exc:
-        raise last_exc
+        url = getattr(getattr(last_exc, "response", None), "url", last_url)
+        raise RuntimeError(
+            f"failed to download {lbl} from {url}: {last_exc}. " "Some mirrors may require authentication"
+        )
 
 
 def verify_assets(base: Path) -> list[str]:
