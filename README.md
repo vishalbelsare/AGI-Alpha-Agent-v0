@@ -25,7 +25,7 @@ The GitHub Pages site hosts the interactive demo under the `alpha_agi_insight_v1
 **Explore all demos:** <https://montrealai.github.io/AGI-Alpha-Agent-v0/alpha_factory_v1/demos/> – run `./scripts/open_subdir_gallery.py` (or set `AF_GALLERY_URL` to your own mirror) for a local or online launch. Alternatively execute `make subdir-gallery-open` to build the gallery if needed and open it automatically.
 All browser demos include a **mode toggle**. Choose **Offline** to run a Pyodide simulation directly in your browser or switch to **OpenAI API** when you provide a key. The key is stored only in memory.
 
-**Important:** Run `npm run fetch-assets` before `npm install` or executing `./setup.sh` to download the browser demo assets. The helper fetches `wasm-gpt2.tar` from the official mirror and falls back to OpenAI's storage then the configured gateway. Set `WASM_GPT2_URL` to override the source or `OPENAI_GPT2_URL` to customize the fallback, for example:
+**Important:** Run `npm run fetch-assets` before `npm install` or executing `./setup.sh` to download the browser demo assets. The helper fetches `wasm-gpt2.tar` from the official mirror and falls back to the OpenAI link shown below when other mirrors fail. Set `WASM_GPT2_URL` to override the list of mirrors or `OPENAI_GPT2_URL` to change the fallback URL, for example:
 
 ```bash
 export WASM_GPT2_URL="https://huggingface.co/datasets/xenova/wasm-gpt2/resolve/main/wasm-gpt2.tar?download=1"

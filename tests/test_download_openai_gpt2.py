@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: Apache-2.0
 import os
 from pathlib import Path
+import requests
 
 import requests_mock
 
@@ -54,3 +55,21 @@ def test_download_error(tmp_path: Path, requests_mock: "requests_mock.Mocker") -
         m.setattr(dg, "_FILE_LIST", monkeypatch_file_list)
         with pytest.raises(Exception):
             dg.download_openai_gpt2("117M", dest=dest_dir, attempts=1)
+
+
+def test_resolve_url_fallback(monkeypatch: pytest.MonkeyPatch, requests_mock: "requests_mock.Mocker") -> None:
+    import scripts.download_wasm_gpt2 as dw
+
+    urls = [
+        "https://example.com/wasm-gpt2.tar",
+        "https://another.com/wasm-gpt2.tar",
+        dw._DEFAULT_URLS[0],
+    ]
+
+    with monkeypatch.context() as m:
+        m.delenv("WASM_GPT2_URL", raising=False)
+        m.setattr(dw, "_DEFAULT_URLS", urls)
+        requests_mock.head(urls[0], status_code=404)
+        requests_mock.head(urls[1], exc=requests.exceptions.RequestException)
+        requests_mock.head(urls[2], status_code=200)
+        assert dw._resolve_url() == urls[2]

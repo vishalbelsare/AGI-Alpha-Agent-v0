@@ -222,12 +222,11 @@ def main() -> None:
             if rel == "lib/bundle.esm.min.js":
                 fallback = "https://cdn.jsdelivr.net/npm/web3.storage/dist/bundle.esm.min.js"  # noqa: E501
             elif rel == "wasm_llm/wasm-gpt2.tar":
-                ipfs_fallback = f"{GATEWAY}/{WASM_GPT2_CID}?download=1"
+                fallback_url = OPENAI_GPT2_URL
                 last_exc = None
                 for url in OFFICIAL_WASM_GPT2_URLS:
                     try:
-                        fb = OPENAI_GPT2_URL if "huggingface" in url else ipfs_fallback
-                        download_with_retry(url, dest, fb, label=rel)
+                        download_with_retry(url, dest, fallback_url, label=rel)
                         break
                     except Exception as exc:
                         last_exc = exc
