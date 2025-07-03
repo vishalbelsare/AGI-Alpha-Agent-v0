@@ -99,6 +99,13 @@ docker compose up --build
 
 Run `npm run fetch-assets` before `npm install` or executing `./setup.sh` to download the Insight demo assets. The helper retrieves the GPT‑2 model from the official mirror, then tries the OpenAI fallback and finally IPFS. See [insight_browser_v1/README.md](alpha_factory_v1/demos/alpha_agi_insight_v1/insight_browser_v1/README.md) for a detailed guide. You can alternatively run `python scripts/download_wasm_gpt2.py` or `python scripts/download_openai_gpt2.py` to fetch the model directly.
 
+`fetch_assets.py` honors the `IPFS_GATEWAY` environment variable when downloading assets from IPFS. If the default gateway is unreachable, set it before running the helper:
+
+```bash
+IPFS_GATEWAY=https://ipfs.io/ipfs npm run fetch-assets
+IPFS_GATEWAY=https://cloudflare-ipfs.com/ipfs npm run fetch-assets
+```
+
 Requires **Python 3.11 or 3.12** and **Docker Compose ≥2.5**.
 
 Alternatively, run the pre-built image directly:
@@ -1169,6 +1176,12 @@ for instructions and example volume mounts.
 | `ALPHA_FACTORY_ADK_PORT` | `9000` | Port for the ADK gateway when enabled. |
 | `ALPHA_FACTORY_ADK_TOKEN` | _(empty)_ | Optional auth token for the ADK gateway. |
 
+#### IPFS Gateway
+
+`scripts/fetch_assets.py` uses the `IPFS_GATEWAY` variable to construct URLs when downloading
+files from IPFS. The default is `https://ipfs.io/ipfs`, but any reachable mirror will work.
+Set `IPFS_GATEWAY` before running the helper to switch gateways.
+
 The values above mirror `.env.sample`. When running the stack with Docker
 Compose, adjust the environment section of
 `infrastructure/docker-compose.yml` to override any variable—such as the gRPC
@@ -1177,8 +1190,9 @@ bus port or ledger path. Sandbox limits are described in the
 When the `firejail` binary is present, CodeGen snippets run inside `firejail --net=none --private` for stronger
 isolation.
 If asset downloads fail during `npm run fetch-assets`, specify an alternate gateway:
-`IPFS_GATEWAY=https://w3s.link/ipfs npm run fetch-assets`.
-Other mirrors like `https://cloudflare-ipfs.com/ipfs` may also work when the default gateway is slow or unreachable.
+`IPFS_GATEWAY=https://ipfs.io/ipfs npm run fetch-assets`
+`IPFS_GATEWAY=https://cloudflare-ipfs.com/ipfs npm run fetch-assets`
+Use whichever mirror is fastest in your region.
 For a production-ready ADK setup see
 [PRODUCTION_GUIDE.md](alpha_factory_v1/demos/alpha_agi_business_v1/PRODUCTION_GUIDE.md).
 
