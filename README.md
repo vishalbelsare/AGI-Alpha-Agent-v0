@@ -28,7 +28,7 @@ All browser demos include a **mode toggle**. Choose **Offline** to run a Pyodide
 **Important:** Run `npm run fetch-assets` before `npm install` or executing `./setup.sh` to download the browser demo assets. The helper fetches `wasm-gpt2.tar` from the official IPFS mirror and falls back to the configured gateway. Set `WASM_GPT2_URL` to override the source, for example:
 
 ```bash
-export WASM_GPT2_URL="https://cloudflare-ipfs.com/ipfs/bafybeihdwdcefgh4dqkjv67uzcmw7ojee6xedzdetojuzjevtenxquvyku?download=1"
+export WASM_GPT2_URL="https://huggingface.co/datasets/xenova/wasm-gpt2/resolve/main/wasm-gpt2.tar?download=1"
 ```
 
 See [insight_browser_v1/README.md](alpha_factory_v1/demos/alpha_agi_insight_v1/insight_browser_v1/README.md) for details. You can also retrieve the model directly with `python scripts/download_wasm_gpt2.py`.

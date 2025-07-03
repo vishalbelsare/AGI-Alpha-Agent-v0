@@ -70,11 +70,11 @@ is missing the build scripts continue with default empty values:
 Run `npm run fetch-assets` to download the Pyodide runtime and local model
 before installing dependencies. The script invokes
 `scripts/fetch_assets.py` under the hood, which retrieves `wasm-gpt2.tar`
-from the official IPFS mirror and falls back to the configured gateway. Set
+from the official mirror and falls back to the configured gateway. Set
 `WASM_GPT2_URL` to override the source, for example:
 
 ```bash
-export WASM_GPT2_URL="https://cloudflare-ipfs.com/ipfs/bafybeihdwdcefgh4dqkjv67uzcmw7ojee6xedzdetojuzjevtenxquvyku?download=1"
+export WASM_GPT2_URL="https://huggingface.co/datasets/xenova/wasm-gpt2/resolve/main/wasm-gpt2.tar?download=1"
 ```
 
 Alternatively, execute `python ../../../../scripts/download_wasm_gpt2.py` to

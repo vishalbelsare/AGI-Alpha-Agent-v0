@@ -23,6 +23,8 @@ WASM_GPT2_CID = "bafybeihdwdcefgh4dqkjv67uzcmw7ojee6xedzdetojuzjevtenxquvyku"
 # different location. When multiple URLs are provided via ``WASM_GPT2_URL``
 # they are tried in order separated by commas.
 _DEFAULT_WASM_GPT2_URLS = [
+    "https://huggingface.co/datasets/xenova/wasm-gpt2/resolve/main/wasm-gpt2.tar?download=1",
+    "https://raw.githubusercontent.com/huggingface/transformers.js/main/weights/wasm/wasm-gpt2.tar",
     "https://cloudflare-ipfs.com/ipfs/bafybeihdwdcefgh4dqkjv67uzcmw7ojee6xedzdetojuzjevtenxquvyku?download=1",
 ]
 
