@@ -4,6 +4,7 @@ mypy
 hypothesis
 grpcio-tools
 pytest-httpx
+requests-mock
 pre-commit
 types-PyYAML
 types-requests
