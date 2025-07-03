@@ -76,7 +76,13 @@ finally the configured gateway. Set `WASM_GPT2_URL` to override the list or
 
 ```bash
 export WASM_GPT2_URL="https://huggingface.co/datasets/xenova/wasm-gpt2/resolve/main/wasm-gpt2.tar?download=1"
-export OPENAI_GPT2_URL="https://openaipublic.blob.core.windows.net/misc/wasm-gpt2.tar"
+export OPENAI_GPT2_URL="https://openaipublic.blob.core.windows.net/gpt-2/models/117M/"
+```
+
+If `npm run fetch-assets` fails with '401 Unauthorized', set `WASM_GPT2_URL` to the official OpenAI link shown above.
+Example:
+```bash
+WASM_GPT2_URL="https://openaipublic.blob.core.windows.net/gpt-2/models/117M/" npm run fetch-assets
 ```
 
 Alternatively, execute `python ../../../../scripts/download_wasm_gpt2.py` or
