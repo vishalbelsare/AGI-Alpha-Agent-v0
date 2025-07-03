@@ -13,8 +13,7 @@ import requests
 from tqdm import tqdm
 
 OFFICIAL_URL = (
-    "https://cloudflare-ipfs.com/ipfs/"
-    "bafybeihdwdcefgh4dqkjv67uzcmw7ojee6xedzdetojuzjevtenxquvyku?download=1"
+    "https://huggingface.co/datasets/xenova/wasm-gpt2/resolve/main/wasm-gpt2.tar?download=1"
 )
 
 def _resolve_url() -> str:

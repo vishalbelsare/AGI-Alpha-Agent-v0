@@ -20,9 +20,11 @@ GATEWAY = os.environ.get("IPFS_GATEWAY", "https://ipfs.io/ipfs").rstrip("/")
 WASM_GPT2_CID = "bafybeihdwdcefgh4dqkjv67uzcmw7ojee6xedzdetojuzjevtenxquvyku"
 # Public mirror used as the primary source for the wasm-gpt2 model
 # Allow overriding via ``WASM_GPT2_URL`` so CI can point to a known mirror.
+# Default to a HTTPS download hosted on the Hugging Face CDN which mirrors the
+# canonical IPFS CID. This avoids flaky gateway resolution during CI runs.
 OFFICIAL_WASM_GPT2_URL = os.environ.get(
     "WASM_GPT2_URL",
-    f"https://cloudflare-ipfs.com/ipfs/{WASM_GPT2_CID}?download=1",
+    "https://huggingface.co/datasets/xenova/wasm-gpt2/resolve/main/wasm-gpt2.tar?download=1",
 )
 # Alternate gateways to try when the main download fails
 FALLBACK_GATEWAYS = [

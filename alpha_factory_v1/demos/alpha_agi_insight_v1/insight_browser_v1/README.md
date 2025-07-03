@@ -70,7 +70,7 @@ is missing the build scripts continue with default empty values:
 Run `npm run fetch-assets` to download the Pyodide runtime and local model
 before installing dependencies. The script invokes
 `scripts/fetch_assets.py` under the hood, which retrieves `wasm-gpt2.tar`
-from the official mirror and falls back to the configured IPFS gateway.
+from a public Hugging Face mirror and falls back to the configured IPFS gateway.
 Alternatively, execute `python ../../../../scripts/download_wasm_gpt2.py` to
 fetch the GPT‑2 model directly.
 
@@ -157,7 +157,7 @@ Use `manual_build.py` for air‑gapped environments:
 1. `cp .env.sample .env` and edit the values if you haven't already, then `chmod 600 .env`.
 2. `npm run fetch-assets` to fetch Pyodide and the GPT‑2 model.
    Alternatively run `python ../../../../scripts/download_wasm_gpt2.py` to grab
-   the model directly from the official mirror.
+   the model directly from the public Hugging Face mirror.
    The build scripts verify these files no longer contain the word `"placeholder"`.
    Failing to replace placeholders will break offline mode.
 3. Run `node build/version_check.js` to ensure Node.js **v20** or newer is
@@ -231,7 +231,7 @@ WEB3_STORAGE_TOKEN=<token> npm run fetch-assets
 
 
 The script retrieves the WebAssembly runtime and supporting files from the
-official mirror or the configured IPFS gateway, verifying checksums to ensure
+public Hugging Face mirror or the configured IPFS gateway, verifying checksums to ensure
 each asset is intact.
 
 ### Offline Build Steps
