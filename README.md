@@ -1199,6 +1199,19 @@ If asset downloads fail during `npm run fetch-assets`, specify an alternate gate
 `IPFS_GATEWAY=https://ipfs.io/ipfs npm run fetch-assets`
 `IPFS_GATEWAY=https://cloudflare-ipfs.com/ipfs npm run fetch-assets`
 Use whichever mirror is fastest in your region.
+
+#### Troubleshooting Asset Downloads
+
+If `scripts/fetch_assets.py` or `npm run fetch-assets` returns `401` or `404`,
+explicitly set `OPENAI_GPT2_URL` to the public OpenAI mirror and try again:
+
+```bash
+OPENAI_GPT2_URL="https://openaipublic.blob.core.windows.net/gpt-2/models/117M/wasm-gpt2.tar" \
+    python scripts/fetch_assets.py
+# or
+OPENAI_GPT2_URL="https://openaipublic.blob.core.windows.net/gpt-2/models/117M/wasm-gpt2.tar" npm run fetch-assets
+```
+
 For a production-ready ADK setup see
 [PRODUCTION_GUIDE.md](alpha_factory_v1/demos/alpha_agi_business_v1/PRODUCTION_GUIDE.md).
 
