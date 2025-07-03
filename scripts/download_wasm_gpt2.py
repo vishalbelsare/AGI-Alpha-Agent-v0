@@ -1,10 +1,14 @@
 #!/usr/bin/env python
 # SPDX-License-Identifier: Apache-2.0
-"""Download the wasm-gpt2 model archive from the official mirror."""
+"""Download the wasm-gpt2 model archive from the official mirror.
+
+Set the ``WASM_GPT2_URL`` environment variable to override the default source.
+"""
 from __future__ import annotations
 
 import argparse
 from pathlib import Path
+import os
 import requests
 from tqdm import tqdm
 
@@ -12,6 +16,10 @@ OFFICIAL_URL = (
     "https://cloudflare-ipfs.com/ipfs/"
     "bafybeihdwdcefgh4dqkjv67uzcmw7ojee6xedzdetojuzjevtenxquvyku?download=1"
 )
+
+def _resolve_url() -> str:
+    """Return the download URL for the model."""
+    return os.environ.get("WASM_GPT2_URL", OFFICIAL_URL)
 
 
 def fetch(url: str, dest: Path) -> None:
@@ -41,8 +49,9 @@ def main() -> None:
     if args.dest.exists():
         print(f"{args.dest} already exists, skipping")
         return
-    print(f"Downloading wasm-gpt2 model to {args.dest}...")
-    fetch(OFFICIAL_URL, args.dest)
+    url = _resolve_url()
+    print(f"Downloading wasm-gpt2 model from {url} to {args.dest}...")
+    fetch(url, args.dest)
     print("Download complete")
 
 
