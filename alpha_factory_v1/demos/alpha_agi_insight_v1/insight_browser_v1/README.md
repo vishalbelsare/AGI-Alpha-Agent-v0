@@ -72,7 +72,7 @@ before installing dependencies. The script invokes
 `scripts/fetch_assets.py` under the hood, which retrieves `wasm-gpt2.tar`
 from the OpenAI mirror first, then falls back to the Hugging Face link and
 finally the configured gateway. Set `WASM_GPT2_URL` to override the list or
-`OPENAI_GPT2_URL` to change the primary mirror, for example:
+`OPENAI_GPT2_URL` to change the fallback URL, for example:
 
 ```bash
 export WASM_GPT2_URL="https://huggingface.co/datasets/xenova/wasm-gpt2/resolve/main/wasm-gpt2.tar?download=1"
