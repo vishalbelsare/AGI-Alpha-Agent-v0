@@ -15,7 +15,6 @@ from tqdm import tqdm
 _DEFAULT_URLS = [
     "https://openaipublic.blob.core.windows.net/gpt-2/models/117M/wasm-gpt2.tar",
     "https://huggingface.co/datasets/xenova/wasm-gpt2/resolve/main/wasm-gpt2.tar?download=1",
-    "https://raw.githubusercontent.com/huggingface/transformers.js/main/weights/wasm/wasm-gpt2.tar",
     "https://cloudflare-ipfs.com/ipfs/bafybeihdwdcefgh4dqkjv67uzcmw7ojee6xedzdetojuzjevtenxquvyku?download=1",
 ]
 
