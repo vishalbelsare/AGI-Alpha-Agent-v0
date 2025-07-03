@@ -111,7 +111,7 @@ access is unsupported due to the service worker; use a minimal HTTP server or
 GitHub Pages.
 
 The "📚 Docs" workflow
-[`docs.yml`](../.github/workflows/docs.yml) automatically runs
+The repository owner manually triggers [`docs.yml`](../.github/workflows/docs.yml), which runs
 `scripts/edge_human_knowledge_pages_sprint.sh`, builds the site and pushes the result to the
 `gh-pages` branch.
 
@@ -132,7 +132,7 @@ Use it when testing changes locally or publishing from a personal fork.
 
 ## Publishing to GitHub Pages
 
-When changes land on `main` or a release is published, `docs.yml` pushes the
+When triggered, `docs.yml` pushes the
 `site/` directory to the `gh-pages` branch. GitHub Pages serves the result at
 `https://montrealai.github.io/AGI-Alpha-Agent-v0/alpha_agi_insight_v1/`.
 Opening `https://montrealai.github.io/AGI-Alpha-Agent-v0/` shows a landing page
@@ -144,8 +144,7 @@ The standard [project disclaimer](DISCLAIMER_SNIPPET.md) applies.
 
 Confirm the workflow is enabled under **Actions** and that
 [`docs.yml`](../.github/workflows/docs.yml) specifies
-`permissions: contents: write`. Run the "📚 Docs" workflow from the GitHub UI or
-push to `main` to trigger it. The initial run creates the `gh-pages` branch.
+`permissions: contents: write`. Run the "📚 Docs" workflow from the GitHub UI to trigger it. The initial run creates the `gh-pages` branch.
 After it finishes, browse to
 <https://montrealai.github.io/AGI-Alpha-Agent-v0/alpha_agi_insight_v1/> and
 check that the insight demo loads.

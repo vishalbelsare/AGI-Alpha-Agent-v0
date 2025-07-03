@@ -66,6 +66,4 @@ Run the wrapper to rebuild and publish the entire site in one step:
 python scripts/edge_human_knowledge_pages_sprint.py
 ```
 
-Prerequisites: **Python 3.11+**, **Node.js 20+** and `mkdocs`. This
-script mirrors the [Docs workflow](../.github/workflows/docs.yml) used for
-continuous deployment.
+Prerequisites: **Python 3.11+**, **Node.js 20+** and `mkdocs`. This script mirrors the [Docs workflow](../.github/workflows/docs.yml) which the repository owner triggers manually to deploy the site.
