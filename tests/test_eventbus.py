@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 from importlib.util import spec_from_file_location, module_from_spec
 from pathlib import Path
 import sys
@@ -18,6 +19,7 @@ backend_pkg = types.ModuleType("alpha_factory_v1.backend")
 backend_pkg.__path__ = [str(Path(__file__).resolve().parents[1] / "alpha_factory_v1/backend")]
 sys.modules.setdefault("alpha_factory_v1.backend", backend_pkg)
 
+
 class _M:
     def labels(self, *a, **kw):
         return self
@@ -27,6 +29,7 @@ class _M:
 
     def inc(self, *a, **kw):
         pass
+
 
 dummy_registry.get_metric = lambda *a, **kw: _M()
 sys.modules.setdefault("alpha_factory_v1.backend.metrics_registry", dummy_registry)

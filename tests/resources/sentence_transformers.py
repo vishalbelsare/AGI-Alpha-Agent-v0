@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 class SentenceTransformer:
     def __init__(self, *a, **k):
         pass

@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 from alpha_factory_v1.backend.services.kafka_service import KafkaService
 
 

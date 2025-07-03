@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 import asyncio
 from types import SimpleNamespace
 
@@ -15,6 +16,7 @@ async def test_api_server_start_stop(monkeypatch):
 
         async def sleeper():
             await asyncio.sleep(0)
+
         task = asyncio.create_task(sleeper())
         server = SimpleNamespace(stop=lambda code=0: events.append("stop"))
         return task, server
