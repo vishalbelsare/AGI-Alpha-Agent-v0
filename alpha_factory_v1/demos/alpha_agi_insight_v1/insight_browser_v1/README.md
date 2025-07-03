@@ -77,8 +77,9 @@ from the official mirror and falls back to the configured gateway. Set
 export WASM_GPT2_URL="https://huggingface.co/datasets/xenova/wasm-gpt2/resolve/main/wasm-gpt2.tar?download=1"
 ```
 
-Alternatively, execute `python ../../../../scripts/download_wasm_gpt2.py` to
-fetch the GPT‑2 model directly.
+Alternatively, execute `python ../../../../scripts/download_wasm_gpt2.py` or
+`python ../../../../scripts/download_openai_gpt2.py` to fetch the GPT‑2 model
+directly.
 
 See [`.env.sample`](.env.sample) for the full list of supported variables.
 The compiled `dist/` directory is not version controlled. Run the build script
@@ -86,8 +87,9 @@ to create it before launching the demo.
 
 ## Build & Run
 Run `npm run fetch-assets` **before installing dependencies** to download the
-Pyodide runtime and `wasm-gpt2` model, then install the Node modules and
-`python ../../../../scripts/download_wasm_gpt2.py` can also fetch the model
+Pyodide runtime and `wasm-gpt2` model, then install the Node modules.
+`python ../../../../scripts/download_wasm_gpt2.py` or
+`python ../../../../scripts/download_openai_gpt2.py` can also fetch the model
 directly if you prefer,
 compile the bundle:
 ```bash
@@ -126,7 +128,8 @@ This downloads the Pyodide runtime and `wasm-gpt2` model from the official
 mirror with a fallback to the configured IPFS gateway. Assets land in `wasm/`
 and `wasm_llm/`.
 It also retrieves `lib/bundle.esm.min.js` from the mirror. You may instead run
-`python ../../../../scripts/download_wasm_gpt2.py` to pull the model
+`python ../../../../scripts/download_wasm_gpt2.py` or
+`python ../../../../scripts/download_openai_gpt2.py` to pull the model
 directly. The build and
 `manual_build.py` scripts scan every downloaded asset for the word
 `"placeholder"` and abort when any file still contains that marker.
@@ -162,7 +165,8 @@ Use `manual_build.py` for air‑gapped environments:
 
 1. `cp .env.sample .env` and edit the values if you haven't already, then `chmod 600 .env`.
 2. `npm run fetch-assets` to fetch Pyodide and the GPT‑2 model.
-   Alternatively run `python ../../../../scripts/download_wasm_gpt2.py` to grab
+   Alternatively run `python ../../../../scripts/download_wasm_gpt2.py` or
+   `python ../../../../scripts/download_openai_gpt2.py` to grab
    the model directly from the official IPFS mirror.
    The build scripts verify these files no longer contain the word `"placeholder"`.
    Failing to replace placeholders will break offline mode.
@@ -181,7 +185,7 @@ If `.env` is absent the script continues with empty defaults rather than abortin
 
 Follow these steps when building without internet access:
 
-1. Run `npm run fetch-assets` (or `python ../../../../scripts/download_wasm_gpt2.py`).
+1. Run `npm run fetch-assets` (or `python ../../../../scripts/download_wasm_gpt2.py` or `python ../../../../scripts/download_openai_gpt2.py`).
 2. Verify checksums match `build_assets.json` and ensure no files under
    `wasm/` or `lib/` contain the word "placeholder".
 3. `npm ci` to install the locked dependencies.
@@ -193,7 +197,7 @@ Failing to replace placeholders will break offline mode.
 ### Offline build checklist
 
 1. Run `npm run fetch-assets`.
-   (`python ../../../../scripts/download_wasm_gpt2.py` also works.)
+   (`python ../../../../scripts/download_wasm_gpt2.py` or `python ../../../../scripts/download_openai_gpt2.py` also works.)
 2. `npm ci` to install dependencies from `package-lock.json`.
 3. Confirm no placeholder text remains in `lib/` or `wasm*/`.
 4. Execute `python manual_build.py` (or `./manual_build.ps1`) to generate the PWA in `dist/`. Use
