@@ -70,7 +70,13 @@ is missing the build scripts continue with default empty values:
 Run `npm run fetch-assets` to download the Pyodide runtime and local model
 before installing dependencies. The script invokes
 `scripts/fetch_assets.py` under the hood, which retrieves `wasm-gpt2.tar`
-from a public Hugging Face mirror and falls back to the configured IPFS gateway.
+from the official IPFS mirror and falls back to the configured gateway. Set
+`WASM_GPT2_URL` to override the source, for example:
+
+```bash
+export WASM_GPT2_URL="https://cloudflare-ipfs.com/ipfs/bafybeihdwdcefgh4dqkjv67uzcmw7ojee6xedzdetojuzjevtenxquvyku?download=1"
+```
+
 Alternatively, execute `python ../../../../scripts/download_wasm_gpt2.py` to
 fetch the GPT‑2 model directly.
 
@@ -157,7 +163,7 @@ Use `manual_build.py` for air‑gapped environments:
 1. `cp .env.sample .env` and edit the values if you haven't already, then `chmod 600 .env`.
 2. `npm run fetch-assets` to fetch Pyodide and the GPT‑2 model.
    Alternatively run `python ../../../../scripts/download_wasm_gpt2.py` to grab
-   the model directly from the public Hugging Face mirror.
+   the model directly from the official IPFS mirror.
    The build scripts verify these files no longer contain the word `"placeholder"`.
    Failing to replace placeholders will break offline mode.
 3. Run `node build/version_check.js` to ensure Node.js **v20** or newer is
@@ -231,7 +237,7 @@ WEB3_STORAGE_TOKEN=<token> npm run fetch-assets
 
 
 The script retrieves the WebAssembly runtime and supporting files from the
-public Hugging Face mirror or the configured IPFS gateway, verifying checksums to ensure
+official IPFS mirror or the configured gateway, verifying checksums to ensure
 each asset is intact.
 
 ### Offline Build Steps
