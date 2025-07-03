@@ -18,14 +18,25 @@ from requests.adapters import HTTPAdapter, Retry  # type: ignore
 GATEWAY = os.environ.get("IPFS_GATEWAY", "https://ipfs.io/ipfs").rstrip("/")
 # Canonical CID for the wasm-gpt2 model
 WASM_GPT2_CID = "bafybeihdwdcefgh4dqkjv67uzcmw7ojee6xedzdetojuzjevtenxquvyku"
-# Public mirror used as the primary source for the wasm-gpt2 model
-# Allow overriding via ``WASM_GPT2_URL`` so CI can point to a known mirror.
-# Default to a HTTPS download hosted on the Hugging Face CDN which mirrors the
-# canonical IPFS CID. This avoids flaky gateway resolution during CI runs.
-OFFICIAL_WASM_GPT2_URL = os.environ.get(
-    "WASM_GPT2_URL",
+# Official mirrors for the wasm-gpt2 model
+# ``WASM_GPT2_URL`` may override the first URL or point to a completely
+# different location. When multiple URLs are provided via ``WASM_GPT2_URL``
+# they are tried in order separated by commas.
+_DEFAULT_WASM_GPT2_URLS = [
     "https://huggingface.co/datasets/xenova/wasm-gpt2/resolve/main/wasm-gpt2.tar?download=1",
-)
+    "https://raw.githubusercontent.com/huggingface/transformers.js/main/weights/wasm/wasm-gpt2.tar",
+]
+
+
+def _resolve_wasm_urls() -> list[str]:
+    env = os.environ.get("WASM_GPT2_URL")
+    if env:
+        return [u.strip() for u in env.split(",") if u.strip()]
+    return _DEFAULT_WASM_GPT2_URLS
+
+
+OFFICIAL_WASM_GPT2_URLS = _resolve_wasm_urls()
+OFFICIAL_WASM_GPT2_URL = OFFICIAL_WASM_GPT2_URLS[0]
 # Alternate gateways to try when the main download fails
 FALLBACK_GATEWAYS = [
     "https://w3s.link/ipfs",
@@ -186,6 +197,18 @@ def main() -> None:
                 fallback = "https://cdn.jsdelivr.net/npm/web3.storage/dist/bundle.esm.min.js"  # noqa: E501
             elif rel == "wasm_llm/wasm-gpt2.tar":
                 fallback = f"{GATEWAY}/{WASM_GPT2_CID}"
+                last_exc = None
+                for url in OFFICIAL_WASM_GPT2_URLS:
+                    try:
+                        download_with_retry(url, dest, fallback, label=rel)
+                        break
+                    except Exception as exc:
+                        last_exc = exc
+                        print(f"Attempt with {url} failed: {exc}")
+                else:
+                    print(f"Download failed for {rel}: {last_exc}")
+                    dl_failures.append(rel)
+                continue
             try:
                 download_with_retry(cid, dest, fallback, label=rel)
             except Exception as exc:

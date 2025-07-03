@@ -12,13 +12,29 @@ import os
 import requests
 from tqdm import tqdm
 
-OFFICIAL_URL = (
-    "https://huggingface.co/datasets/xenova/wasm-gpt2/resolve/main/wasm-gpt2.tar?download=1"
-)
+_DEFAULT_URLS = [
+    "https://huggingface.co/datasets/xenova/wasm-gpt2/resolve/main/wasm-gpt2.tar?download=1",
+    "https://raw.githubusercontent.com/huggingface/transformers.js/main/weights/wasm/wasm-gpt2.tar",
+]
+
+
+def _resolve_urls() -> list[str]:
+    env = os.environ.get("WASM_GPT2_URL")
+    if env:
+        return [u.strip() for u in env.split(",") if u.strip()]
+    return _DEFAULT_URLS
+
 
 def _resolve_url() -> str:
-    """Return the download URL for the model."""
-    return os.environ.get("WASM_GPT2_URL", OFFICIAL_URL)
+    """Return the first reachable download URL for the model."""
+    for url in _resolve_urls():
+        try:
+            r = requests.head(url, timeout=10)
+            r.raise_for_status()
+            return url
+        except Exception:
+            continue
+    raise RuntimeError("No valid download URL found")
 
 
 def fetch(url: str, dest: Path) -> None:
@@ -26,9 +42,7 @@ def fetch(url: str, dest: Path) -> None:
     with requests.get(url, stream=True, timeout=60) as resp:
         resp.raise_for_status()
         total = int(resp.headers.get("Content-Length", 0))
-        with open(dest, "wb") as f, tqdm(
-            total=total, unit="B", unit_scale=True, desc=dest.name
-        ) as bar:
+        with open(dest, "wb") as f, tqdm(total=total, unit="B", unit_scale=True, desc=dest.name) as bar:
             for chunk in resp.iter_content(chunk_size=8192):
                 if chunk:
                     f.write(chunk)
