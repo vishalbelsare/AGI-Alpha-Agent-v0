@@ -2,8 +2,6 @@ name: "🔒 Container Security"
 
 on:
   workflow_dispatch:
-  release:
-    types: [created]
 
 env:
   DOCKER_IMAGE: alpha-factory
