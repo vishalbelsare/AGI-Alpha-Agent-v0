@@ -25,7 +25,7 @@ The GitHub Pages site hosts the interactive demo under the `alpha_agi_insight_v1
 **Explore all demos:** <https://montrealai.github.io/AGI-Alpha-Agent-v0/alpha_factory_v1/demos/> – run `./scripts/open_subdir_gallery.py` (or set `AF_GALLERY_URL` to your own mirror) for a local or online launch. Alternatively execute `make subdir-gallery-open` to build the gallery if needed and open it automatically.
 All browser demos include a **mode toggle**. Choose **Offline** to run a Pyodide simulation directly in your browser or switch to **OpenAI API** when you provide a key. The key is stored only in memory.
 
-**Important:** Run `npm run fetch-assets` before `npm install` or executing `./setup.sh` to download the browser demo assets. The helper fetches `wasm-gpt2.tar` from the official mirror and falls back to the configured IPFS gateway. See [insight_browser_v1/README.md](alpha_factory_v1/demos/alpha_agi_insight_v1/insight_browser_v1/README.md) for details. You can also retrieve the model directly with `python scripts/download_wasm_gpt2.py`.
+**Important:** Run `npm run fetch-assets` before `npm install` or executing `./setup.sh` to download the browser demo assets. The helper fetches `wasm-gpt2.tar` from the official mirror, falling back to the configured IPFS gateway. Set `WASM_GPT2_URL` to override the source. See [insight_browser_v1/README.md](alpha_factory_v1/demos/alpha_agi_insight_v1/insight_browser_v1/README.md) for details. You can also retrieve the model directly with `python scripts/download_wasm_gpt2.py`.
 
 [![Launch \u03b1\u2011AGI Insight](https://img.shields.io/badge/Launch-%CE%B1%E2%80%91AGI%20Insight-blue?style=for-the-badge)](https://montrealai.github.io/AGI-Alpha-Agent-v0/alpha_agi_insight_v1/)
 
