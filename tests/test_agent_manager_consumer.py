@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 import asyncio
 import pytest
 from alpha_factory_v1.backend.agent_manager import AgentManager

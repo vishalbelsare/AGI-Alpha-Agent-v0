@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 from pathlib import Path
 
 from alpha_factory_v1.core.finance.wealth_projection import projection_from_json

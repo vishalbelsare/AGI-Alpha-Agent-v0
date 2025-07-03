@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 """Compatibility wrapper for :mod:`alpha_factory_v1.core.tools.dgm_import`."""
 
 from warnings import warn
