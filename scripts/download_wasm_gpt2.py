@@ -9,7 +9,7 @@ from __future__ import annotations
 import argparse
 from pathlib import Path
 import os
-import requests
+import requests  # type: ignore[import-untyped]
 from tqdm import tqdm
 
 _DEFAULT_URLS = [
@@ -57,14 +57,37 @@ def main() -> None:
         type=Path,
         help="Destination file path",
     )
+    parser.add_argument(
+        "--attempts",
+        type=int,
+        default=3,
+        help="Number of download attempts",
+    )
     args = parser.parse_args()
     if args.dest.exists():
         print(f"{args.dest} already exists, skipping")
         return
-    url = _resolve_url()
-    print(f"Downloading wasm-gpt2 model from {url} to {args.dest}...")
-    fetch(url, args.dest)
-    print("Download complete")
+
+    last_exc: Exception | None = None
+    for i in range(1, args.attempts + 1):
+        try:
+            url = _resolve_url()
+            print(f"Downloading wasm-gpt2 model from {url} to {args.dest}...")
+            fetch(url, args.dest)
+            print("Download complete")
+            return
+        except Exception as exc:  # noqa: PERF203
+            last_exc = exc
+            if i < args.attempts:
+                print(f"Attempt {i} failed: {exc}, retrying...")
+            else:
+                print(f"ERROR: could not download wasm-gpt2 after {args.attempts} attempts: {exc}")
+                print(
+                    "Set WASM_GPT2_URL to a reachable mirror. See README.md "
+                    "for instructions under the 'npm run fetch-assets' section."
+                )
+    if last_exc:
+        raise SystemExit(1) from last_exc
 
 
 if __name__ == "__main__":
