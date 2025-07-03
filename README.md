@@ -1155,6 +1155,7 @@ for instructions and example volume mounts.
 | `SANDBOX_MEM_MB` | `256` | Memory cap for sandboxed code in MB. |
 | `MAX_RESULTS` | `100` | Maximum stored simulation results. |
 | `MAX_SIM_TASKS` | `4` | Maximum concurrent simulation tasks. |
+| `IPFS_GATEWAY` | `https://ipfs.io/ipfs` | Base URL for IPFS downloads used by `npm run fetch-assets`. Override with `IPFS_GATEWAY=<url> npm run fetch-assets`. |
 | `OTEL_ENDPOINT` | _(empty)_ | OTLP endpoint for anonymous telemetry. |
 | `ALPHA_FACTORY_ENABLE_ADK` | `false` | Set to `true` to start the Google ADK gateway. |
 | `ALPHA_FACTORY_ADK_PORT` | `9000` | Port for the ADK gateway when enabled. |
@@ -1167,6 +1168,9 @@ bus port or ledger path. Sandbox limits are described in the
 [documentation](https://montrealai.github.io/AGI-Alpha-Agent-v0/).
 When the `firejail` binary is present, CodeGen snippets run inside `firejail --net=none --private` for stronger
 isolation.
+If asset downloads fail during `npm run fetch-assets`, specify an alternate gateway:
+`IPFS_GATEWAY=https://w3s.link/ipfs npm run fetch-assets`.
+Other mirrors like `https://cloudflare-ipfs.com/ipfs` may also work when the default gateway is slow or unreachable.
 For a production-ready ADK setup see
 [PRODUCTION_GUIDE.md](alpha_factory_v1/demos/alpha_agi_business_v1/PRODUCTION_GUIDE.md).
 
