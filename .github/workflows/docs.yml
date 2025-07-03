@@ -3,16 +3,13 @@ name: "📚 Docs"
 
 on:
   workflow_dispatch:
-  push:
-    branches: [ "main" ]
-  release:
-    types: [ published ]
 
 permissions:
   contents: write
 
 jobs:
   build-deploy:
+    if: github.actor == github.repository_owner
     runs-on: ubuntu-latest
     env:
       SANDBOX_IMAGE: ghcr.io/example/selfheal-sandbox:latest
