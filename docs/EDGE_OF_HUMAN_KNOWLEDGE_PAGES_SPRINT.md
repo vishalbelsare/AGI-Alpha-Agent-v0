@@ -13,6 +13,8 @@ This sprint explains how Codex can publish the **Alpha-Factory** demo gallery to
    python scripts/edge_human_knowledge_pages_sprint.py
    ```
    This triggers `edge_of_knowledge_sprint.sh` which performs environment validation, dependency checks, README disclaimer verification, asset builds, integrity tests and finally deploys the site via `mkdocs gh-deploy`.
+   Export `IPFS_GATEWAY`, `WASM_GPT2_URL` or `OPENAI_GPT2_URL` beforehand to
+   customize asset downloads if the defaults fail.
 3. Visit the printed URL in an incognito window and ensure `index.html` links to every demo with preview media.
 
 ## Maintenance
