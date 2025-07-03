@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # SPDX-License-Identifier: Apache-2.0
-# This script is a conceptual research prototype.
+# See docs/DISCLAIMER_SNIPPET.md
 """Download browser demo assets from IPFS or a mirror."""
 from __future__ import annotations
 
@@ -19,9 +19,7 @@ GATEWAY = os.environ.get("IPFS_GATEWAY", "https://ipfs.io/ipfs").rstrip("/")
 # Canonical CID for the wasm-gpt2 model
 WASM_GPT2_CID = "bafybeihdwdcefgh4dqkjv67uzcmw7ojee6xedzdetojuzjevtenxquvyku"
 # Public mirror used as the primary source for the wasm-gpt2 model
-OFFICIAL_WASM_GPT2_URL = (
-    f"https://cloudflare-ipfs.com/ipfs/{WASM_GPT2_CID}?download=1"
-)
+OFFICIAL_WASM_GPT2_URL = f"https://cloudflare-ipfs.com/ipfs/{WASM_GPT2_CID}?download=1"
 # Alternate gateways to try when the main download fails
 FALLBACK_GATEWAYS = [
     "https://w3s.link/ipfs",
@@ -92,10 +90,20 @@ def download_with_retry(
     alt_urls: list[str] = []
     if fallback:
         alt_urls.append(fallback)
-    if not cid.startswith("http"):
+
+    ipfs_cid: str | None = None
+    if cid.startswith("http"):
+        parts = cid.split("/ipfs/")
+        if len(parts) > 1:
+            ipfs_cid = parts[1].split("?")[0]
+    else:
+        ipfs_cid = cid
+
+    if ipfs_cid:
         for gw in FALLBACK_GATEWAYS:
-            if gw.rstrip("/") != GATEWAY:
-                alt_urls.append(f"{gw.rstrip('/')}/{cid}")
+            alt = f"{gw.rstrip('/')}/{ipfs_cid}"
+            if alt != cid and alt not in alt_urls and alt != fallback:
+                alt_urls.append(alt)
     for i in range(1, attempts + 1):
         try:
             download(cid, path)
