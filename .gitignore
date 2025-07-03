@@ -17,6 +17,8 @@ dist/
 # Browser demo assets
 alpha_factory_v1/demos/alpha_agi_insight_v1/insight_browser_v1/wasm/
 alpha_factory_v1/demos/alpha_agi_insight_v1/insight_browser_v1/wasm_llm/
+!alpha_factory_v1/demos/alpha_agi_insight_v1/insight_browser_v1/wasm_llm/
+!alpha_factory_v1/demos/alpha_agi_insight_v1/insight_browser_v1/wasm_llm/README.md
 
 # Logs
 *.log

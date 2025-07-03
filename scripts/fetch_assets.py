@@ -13,7 +13,12 @@ import sys
 import requests  # type: ignore
 from requests.adapters import HTTPAdapter, Retry  # type: ignore
 
+# IPFS gateway used for model downloads
 GATEWAY = os.environ.get("IPFS_GATEWAY", "https://ipfs.io/ipfs").rstrip("/")
+# Official fallback link for the wasm-gpt2 model
+OFFICIAL_WASM_GPT2_URL = (
+    "https://cloudflare-ipfs.com/ipfs/" "bafybeihdwdcefgh4dqkjv67uzcmw7ojee6xedzdetojuzjevtenxquvyku?download=1"
+)
 # Alternate gateways to try when the main download fails
 FALLBACK_GATEWAYS = [
     "https://w3s.link/ipfs",
@@ -163,7 +168,7 @@ def main() -> None:
             if rel == "lib/bundle.esm.min.js":
                 fallback = "https://cdn.jsdelivr.net/npm/web3.storage/dist/bundle.esm.min.js"  # noqa: E501
             elif rel == "wasm_llm/wasm-gpt2.tar":
-                fallback = f"https://cloudflare-ipfs.com/ipfs/{cid}"
+                fallback = OFFICIAL_WASM_GPT2_URL
             try:
                 download_with_retry(cid, dest, fallback, label=rel)
             except Exception as exc:
