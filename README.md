@@ -29,13 +29,13 @@ All browser demos include a **mode toggle**. Choose **Offline** to run a Pyodide
 
 ```bash
 export WASM_GPT2_URL="https://huggingface.co/datasets/xenova/wasm-gpt2/resolve/main/wasm-gpt2.tar?download=1"
-export OPENAI_GPT2_URL="https://openaipublic.blob.core.windows.net/gpt-2/models/117M/wasm-gpt2.tar"
+export OPENAI_GPT2_URL="https://openaipublic.blob.core.windows.net/gpt-2/models/124M/wasm-gpt2.tar"
 ```
 
 If `npm run fetch-assets` fails with '401 Unauthorized', set `WASM_GPT2_URL` to the official OpenAI link shown above.
 Example:
 ```bash
-WASM_GPT2_URL="https://openaipublic.blob.core.windows.net/gpt-2/models/117M/wasm-gpt2.tar" npm run fetch-assets
+WASM_GPT2_URL="https://openaipublic.blob.core.windows.net/gpt-2/models/124M/wasm-gpt2.tar" npm run fetch-assets
 ```
 
 See [insight_browser_v1/README.md](alpha_factory_v1/demos/alpha_agi_insight_v1/insight_browser_v1/README.md) for details. You can also retrieve the model directly with `python scripts/download_wasm_gpt2.py` or `python scripts/download_openai_gpt2.py`.
@@ -1176,7 +1176,7 @@ for instructions and example volume mounts.
 | `MAX_RESULTS` | `100` | Maximum stored simulation results. |
 | `MAX_SIM_TASKS` | `4` | Maximum concurrent simulation tasks. |
 | `IPFS_GATEWAY` | `https://ipfs.io/ipfs` | Base URL for IPFS downloads used by `npm run fetch-assets`. Override with `IPFS_GATEWAY=<url> npm run fetch-assets`. |
-| `OPENAI_GPT2_URL` | `https://openaipublic.blob.core.windows.net/gpt-2/models/117M/wasm-gpt2.tar` | Fallback URL for the `wasm-gpt2` model tried when Hugging Face mirrors fail. |
+| `OPENAI_GPT2_URL` | `https://openaipublic.blob.core.windows.net/gpt-2/models/124M/wasm-gpt2.tar` | Fallback URL for the `wasm-gpt2` model tried when Hugging Face mirrors fail. |
 | `OTEL_ENDPOINT` | _(empty)_ | OTLP endpoint for anonymous telemetry. |
 | `ALPHA_FACTORY_ENABLE_ADK` | `false` | Set to `true` to start the Google ADK gateway. |
 | `ALPHA_FACTORY_ADK_PORT` | `9000` | Port for the ADK gateway when enabled. |
@@ -1206,10 +1206,10 @@ If `scripts/fetch_assets.py` or `npm run fetch-assets` returns `401` or `404`,
 explicitly set `OPENAI_GPT2_URL` to the public OpenAI mirror and try again:
 
 ```bash
-OPENAI_GPT2_URL="https://openaipublic.blob.core.windows.net/gpt-2/models/117M/wasm-gpt2.tar" \
+OPENAI_GPT2_URL="https://openaipublic.blob.core.windows.net/gpt-2/models/124M/wasm-gpt2.tar" \
     python scripts/fetch_assets.py
 # or
-OPENAI_GPT2_URL="https://openaipublic.blob.core.windows.net/gpt-2/models/117M/wasm-gpt2.tar" npm run fetch-assets
+OPENAI_GPT2_URL="https://openaipublic.blob.core.windows.net/gpt-2/models/124M/wasm-gpt2.tar" npm run fetch-assets
 ```
 
 For a production-ready ADK setup see
