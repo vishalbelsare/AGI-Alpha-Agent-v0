@@ -1,7 +1,12 @@
 #!/usr/bin/env python
 # SPDX-License-Identifier: Apache-2.0
 # See docs/DISCLAIMER_SNIPPET.md
-"""Download browser demo assets from IPFS or a mirror."""
+"""Download browser demo assets from IPFS or a mirror.
+
+Environment variables:
+    OPENAI_GPT2_URL -- Optional fallback URL for the ``wasm-gpt2`` model.
+    WASM_GPT2_URL  -- Override the primary download location.
+"""
 from __future__ import annotations
 
 import argparse
@@ -22,9 +27,14 @@ WASM_GPT2_CID = "bafybeihdwdcefgh4dqkjv67uzcmw7ojee6xedzdetojuzjevtenxquvyku"
 # ``WASM_GPT2_URL`` may override the first URL or point to a completely
 # different location. When multiple URLs are provided via ``WASM_GPT2_URL``
 # they are tried in order separated by commas.
+OPENAI_GPT2_URL = os.environ.get(
+    "OPENAI_GPT2_URL",
+    "https://openaipublic.blob.core.windows.net/misc/wasm-gpt2.tar",
+)
 _DEFAULT_WASM_GPT2_URLS = [
     "https://huggingface.co/datasets/xenova/wasm-gpt2/resolve/main/wasm-gpt2.tar?download=1",
     "https://raw.githubusercontent.com/huggingface/transformers.js/main/weights/wasm/wasm-gpt2.tar",
+    OPENAI_GPT2_URL,
     "https://cloudflare-ipfs.com/ipfs/bafybeihdwdcefgh4dqkjv67uzcmw7ojee6xedzdetojuzjevtenxquvyku?download=1",
 ]
 
@@ -197,11 +207,12 @@ def main() -> None:
             if rel == "lib/bundle.esm.min.js":
                 fallback = "https://cdn.jsdelivr.net/npm/web3.storage/dist/bundle.esm.min.js"  # noqa: E501
             elif rel == "wasm_llm/wasm-gpt2.tar":
-                fallback = f"{GATEWAY}/{WASM_GPT2_CID}?download=1"
+                ipfs_fallback = f"{GATEWAY}/{WASM_GPT2_CID}?download=1"
                 last_exc = None
                 for url in OFFICIAL_WASM_GPT2_URLS:
                     try:
-                        download_with_retry(url, dest, fallback, label=rel)
+                        fb = OPENAI_GPT2_URL if "huggingface" in url else ipfs_fallback
+                        download_with_retry(url, dest, fb, label=rel)
                         break
                     except Exception as exc:
                         last_exc = exc
@@ -223,7 +234,8 @@ def main() -> None:
         print(
             f"\nERROR: Unable to retrieve {joined}.\n"
             "Check your internet connection or set IPFS_GATEWAY to a reachable "
-            "gateway, or specify a mirror via WASM_GPT2_URL."
+            "gateway, or specify a mirror via WASM_GPT2_URL. "
+            "OPENAI_GPT2_URL sets the fallback OpenAI source."
         )
         sys.exit(1)
 

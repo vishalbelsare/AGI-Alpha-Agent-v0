@@ -25,10 +25,11 @@ The GitHub Pages site hosts the interactive demo under the `alpha_agi_insight_v1
 **Explore all demos:** <https://montrealai.github.io/AGI-Alpha-Agent-v0/alpha_factory_v1/demos/> – run `./scripts/open_subdir_gallery.py` (or set `AF_GALLERY_URL` to your own mirror) for a local or online launch. Alternatively execute `make subdir-gallery-open` to build the gallery if needed and open it automatically.
 All browser demos include a **mode toggle**. Choose **Offline** to run a Pyodide simulation directly in your browser or switch to **OpenAI API** when you provide a key. The key is stored only in memory.
 
-**Important:** Run `npm run fetch-assets` before `npm install` or executing `./setup.sh` to download the browser demo assets. The helper fetches `wasm-gpt2.tar` from the official IPFS mirror and falls back to the configured gateway. Set `WASM_GPT2_URL` to override the source, for example:
+**Important:** Run `npm run fetch-assets` before `npm install` or executing `./setup.sh` to download the browser demo assets. The helper fetches `wasm-gpt2.tar` from the official mirror and falls back to OpenAI's storage then the configured gateway. Set `WASM_GPT2_URL` to override the source or `OPENAI_GPT2_URL` to customize the fallback, for example:
 
 ```bash
 export WASM_GPT2_URL="https://huggingface.co/datasets/xenova/wasm-gpt2/resolve/main/wasm-gpt2.tar?download=1"
+export OPENAI_GPT2_URL="https://openaipublic.blob.core.windows.net/misc/wasm-gpt2.tar"
 ```
 
 See [insight_browser_v1/README.md](alpha_factory_v1/demos/alpha_agi_insight_v1/insight_browser_v1/README.md) for details. You can also retrieve the model directly with `python scripts/download_wasm_gpt2.py` or `python scripts/download_openai_gpt2.py`.
@@ -96,7 +97,7 @@ docker compose up --build
 ./run_quickstart.sh
 ```
 
-Run `npm run fetch-assets` before `npm install` or executing `./setup.sh` to download the Insight demo assets. The helper retrieves the GPT‑2 model from the official mirror with IPFS as a fallback. See [insight_browser_v1/README.md](alpha_factory_v1/demos/alpha_agi_insight_v1/insight_browser_v1/README.md) for a detailed guide. You can alternatively run `python scripts/download_wasm_gpt2.py` or `python scripts/download_openai_gpt2.py` to fetch the model directly.
+Run `npm run fetch-assets` before `npm install` or executing `./setup.sh` to download the Insight demo assets. The helper retrieves the GPT‑2 model from the official mirror, then tries the OpenAI fallback and finally IPFS. See [insight_browser_v1/README.md](alpha_factory_v1/demos/alpha_agi_insight_v1/insight_browser_v1/README.md) for a detailed guide. You can alternatively run `python scripts/download_wasm_gpt2.py` or `python scripts/download_openai_gpt2.py` to fetch the model directly.
 
 Requires **Python 3.11 or 3.12** and **Docker Compose ≥2.5**.
 
@@ -1162,6 +1163,7 @@ for instructions and example volume mounts.
 | `MAX_RESULTS` | `100` | Maximum stored simulation results. |
 | `MAX_SIM_TASKS` | `4` | Maximum concurrent simulation tasks. |
 | `IPFS_GATEWAY` | `https://ipfs.io/ipfs` | Base URL for IPFS downloads used by `npm run fetch-assets`. Override with `IPFS_GATEWAY=<url> npm run fetch-assets`. |
+| `OPENAI_GPT2_URL` | `https://openaipublic.blob.core.windows.net/misc/wasm-gpt2.tar` | Fallback URL for the `wasm-gpt2` model tried when Hugging Face mirrors fail. |
 | `OTEL_ENDPOINT` | _(empty)_ | OTLP endpoint for anonymous telemetry. |
 | `ALPHA_FACTORY_ENABLE_ADK` | `false` | Set to `true` to start the Google ADK gateway. |
 | `ALPHA_FACTORY_ADK_PORT` | `9000` | Port for the ADK gateway when enabled. |
