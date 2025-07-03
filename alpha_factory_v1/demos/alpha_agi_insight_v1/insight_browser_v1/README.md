@@ -69,9 +69,10 @@ is missing the build scripts continue with default empty values:
 
 Run `npm run fetch-assets` to download the Pyodide runtime and local model
 before installing dependencies. The script invokes
-`scripts/fetch_assets.py` under the hood. Alternatively, execute
-`python ../../../../scripts/download_wasm_gpt2.py` to fetch the GPT‑2 model
-directly from the official mirror.
+`scripts/fetch_assets.py` under the hood, which retrieves `wasm-gpt2.tar`
+from the official mirror and falls back to the configured IPFS gateway.
+Alternatively, execute `python ../../../../scripts/download_wasm_gpt2.py` to
+fetch the GPT‑2 model directly.
 
 See [`.env.sample`](.env.sample) for the full list of supported variables.
 The compiled `dist/` directory is not version controlled. Run the build script
@@ -115,11 +116,12 @@ offline run:
 npm run fetch-assets
 ```
 
-This downloads the Pyodide runtime and `wasm-gpt2` model from IPFS into
-`wasm/` and `wasm_llm/`.
+This downloads the Pyodide runtime and `wasm-gpt2` model from the official
+mirror with a fallback to the configured IPFS gateway. Assets land in `wasm/`
+and `wasm_llm/`.
 It also retrieves `lib/bundle.esm.min.js` from the mirror. You may instead run
-`python ../../../../scripts/download_wasm_gpt2.py` to pull the model from the
-official mirror without IPFS. The build and
+`python ../../../../scripts/download_wasm_gpt2.py` to pull the model
+directly. The build and
 `manual_build.py` scripts scan every downloaded asset for the word
 `"placeholder"` and abort when any file still contains that marker.
 `npm run fetch-assets` also downloads `lib/workbox-sw.js` from
@@ -228,8 +230,9 @@ WEB3_STORAGE_TOKEN=<token> npm run fetch-assets
 ```
 
 
-The script retrieves the WebAssembly runtime and supporting files from IPFS,
-verifying checksums to ensure each asset is intact.
+The script retrieves the WebAssembly runtime and supporting files from the
+official mirror or the configured IPFS gateway, verifying checksums to ensure
+each asset is intact.
 
 ### Offline Build Steps
 
