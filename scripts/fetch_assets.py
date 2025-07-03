@@ -144,7 +144,12 @@ def download_with_retry(
             if first_failure:
                 first_failure = False
                 if status in {401, 404}:
-                    print("Download returned HTTP" f" {status}. Consider setting WASM_GPT2_URL or OPENAI_GPT2_URL")
+                    print(
+                        "Download returned HTTP"
+                        f" {status}. Set OPENAI_GPT2_URL to"
+                        " https://openaipublic.blob.core.windows.net/gpt-2/models/117M/wasm-gpt2.tar"
+                        " or another mirror"
+                    )
             for alt in alt_urls:
                 try:
                     download(alt, path)
