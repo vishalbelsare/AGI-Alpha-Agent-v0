@@ -23,8 +23,7 @@ WASM_GPT2_CID = "bafybeihdwdcefgh4dqkjv67uzcmw7ojee6xedzdetojuzjevtenxquvyku"
 # different location. When multiple URLs are provided via ``WASM_GPT2_URL``
 # they are tried in order separated by commas.
 _DEFAULT_WASM_GPT2_URLS = [
-    "https://huggingface.co/datasets/xenova/wasm-gpt2/resolve/main/wasm-gpt2.tar?download=1",
-    "https://raw.githubusercontent.com/huggingface/transformers.js/main/weights/wasm/wasm-gpt2.tar",
+    "https://cloudflare-ipfs.com/ipfs/bafybeihdwdcefgh4dqkjv67uzcmw7ojee6xedzdetojuzjevtenxquvyku?download=1",
 ]
 
 
@@ -196,7 +195,7 @@ def main() -> None:
             if rel == "lib/bundle.esm.min.js":
                 fallback = "https://cdn.jsdelivr.net/npm/web3.storage/dist/bundle.esm.min.js"  # noqa: E501
             elif rel == "wasm_llm/wasm-gpt2.tar":
-                fallback = f"{GATEWAY}/{WASM_GPT2_CID}"
+                fallback = f"{GATEWAY}/{WASM_GPT2_CID}?download=1"
                 last_exc = None
                 for url in OFFICIAL_WASM_GPT2_URLS:
                     try:
@@ -222,7 +221,7 @@ def main() -> None:
         print(
             f"\nERROR: Unable to retrieve {joined}.\n"
             "Check your internet connection or set IPFS_GATEWAY to a reachable "
-            "gateway."
+            "gateway, or specify a mirror via WASM_GPT2_URL."
         )
         sys.exit(1)
 
