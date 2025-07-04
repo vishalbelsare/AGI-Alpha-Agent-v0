@@ -30,8 +30,9 @@ All browser demos include a **mode toggle**. Choose **Offline** to run a Pyodide
 checkout—or delete existing `wasm*/` files first—so placeholder files are
 replaced. After the download, verify checksums with
 `python scripts/fetch_assets.py --verify-only`. The helper retrieves the official
-GPT‑2 small checkpoint from Hugging Face. Override `HF_GPT2_BASE_URL` to change
-the mirror, for example:
+Pyodide runtime and GPT‑2 small checkpoint directly from the Hugging Face CDN.
+The legacy `wasm-gpt2.tar` bundle is no longer used. Override `HF_GPT2_BASE_URL`
+to change the mirror, for example:
 
 ```bash
 export HF_GPT2_BASE_URL="https://huggingface.co/openai-community/gpt2/resolve/main"
