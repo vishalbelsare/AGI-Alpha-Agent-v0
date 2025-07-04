@@ -75,6 +75,8 @@ CHECKSUMS = {
     "lib/bundle.esm.min.js": "sha384-qri3JZdkai966TTOV3Cl4xxA97q+qXCgKrd49pOn7DPuYN74wOEd6CIJ9HnqEROD",  # noqa: E501
     "lib/workbox-sw.js": "sha384-LWo7skrGueg8Fa4y2Vpe1KB4g0SifqKfDr2gWFRmzZF9n9F1bQVo1F0dUurlkBJo",  # noqa: E501
     "pyodide.asm.wasm": "sha384-kdvSehcoFMjX55sjg+o5JHaLhOx3HMkaLOwwMFmwH+bmmtvfeJ7zFEMWaqV9+wqo",
+    # TODO: replace placeholder with actual digest of wasm-gpt2.tar
+    "wasm_llm/wasm-gpt2.tar": "sha384-PLACEHOLDER",
 }
 
 
@@ -87,7 +89,9 @@ def _session() -> requests.Session:
     return s
 
 
-def download(cid: str, path: Path, fallback: str | None = None) -> None:
+def download(
+    cid: str, path: Path, fallback: str | None = None, label: str | None = None
+) -> None:
     url = cid if cid.startswith("http") else f"{GATEWAY}/{cid}"
     path.parent.mkdir(parents=True, exist_ok=True)
     try:
@@ -101,11 +105,12 @@ def download(cid: str, path: Path, fallback: str | None = None) -> None:
             resp.raise_for_status()
             data = resp.content
     path.write_bytes(data)
-    expected = CHECKSUMS.get(path.name)
+    key = label or path.name
+    expected = CHECKSUMS.get(key) or CHECKSUMS.get(path.name)
     if expected:
         digest = base64.b64encode(hashlib.sha384(data).digest()).decode()
         if not expected.endswith(digest):
-            raise RuntimeError(f"Checksum mismatch for {path.name}")
+            raise RuntimeError(f"Checksum mismatch for {key}")
 
 
 def download_with_retry(
@@ -138,7 +143,7 @@ def download_with_retry(
                 alt_urls.append(alt)
     for i in range(1, attempts + 1):
         try:
-            download(cid, path)
+            download(cid, path, label=lbl)
             return
         except Exception as exc:  # noqa: PERF203
             last_exc = exc
@@ -155,7 +160,7 @@ def download_with_retry(
                     )
             for alt in alt_urls:
                 try:
-                    download(alt, path)
+                    download(alt, path, label=lbl)
                     return
                 except Exception as exc_alt:
                     last_exc = exc_alt
@@ -184,7 +189,7 @@ def verify_assets(base: Path) -> list[str]:
             print(f"Missing {rel}")
             failures.append(rel)
             continue
-        expected = CHECKSUMS.get(dest.name)
+        expected = CHECKSUMS.get(rel) or CHECKSUMS.get(dest.name)
         if expected:
             digest = base64.b64encode(hashlib.sha384(dest.read_bytes()).digest()).decode()
             if not expected.endswith(digest):
