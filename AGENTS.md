@@ -300,6 +300,8 @@ pre-commit run --files <paths>   # before each commit
     invoking `eslint`.
   - Hook `env-check` verifies Python packages are installed by running
     `scripts/check_python_deps.py` and `check_env.py --auto-install`.
+  - Hook `verify-html-disclaimer` fails if any `docs/index.html` page is missing
+    the link to `docs/DISCLAIMER_SNIPPET.md`.
 
 #### Pre-commit in Air-Gapped Setups
 
