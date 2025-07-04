@@ -3,10 +3,10 @@ This repository is a conceptual research prototype. References to "AGI" and "sup
 
 # GPT‑2 Small CLI Demo
 
-This minimal example downloads the official GPT‑2 124M checkpoint from
-Hugging Face with `scripts/download_hf_gpt2.py`. The helper stores the files
-under `models/gpt2`. `scripts/download_openai_gpt2.py` or
-`scripts/download_gpt2_small.py` remain available as fallbacks. The weights are
+This minimal example downloads the official GPT‑2 124M checkpoint using
+`scripts/download_gpt2_small.py`, which first tries the Hugging Face mirror and
+falls back to the OpenAI archive if necessary. Files land under `models/gpt2`.
+`scripts/download_openai_gpt2.py` remains available as a direct fallback. The weights are
 converted to the Hugging Face format via `scripts/convert_openai_gpt2.py` on
 first run. If PyTorch is unavailable, the demo falls back to the hosted `gpt2`
 model from the `transformers` hub.

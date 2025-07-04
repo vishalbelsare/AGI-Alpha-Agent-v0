@@ -25,8 +25,8 @@ def ensure_model() -> Path:
     """Ensure the checkpoint files are available and converted."""
     dest = MODEL_DIR / MODEL_NAME
     if not dest.exists():
-        script = Path(__file__).resolve().parents[2] / "scripts" / "download_openai_gpt2.py"
-        subprocess.run([sys.executable, str(script), MODEL_NAME, "--dest", str(MODEL_DIR)], check=True)
+        script = Path(__file__).resolve().parents[2] / "scripts" / "download_gpt2_small.py"
+        subprocess.run([sys.executable, str(script), str(MODEL_DIR), "--model", MODEL_NAME], check=True)
 
     pt_file = dest / "pytorch_model.bin"
     if not pt_file.exists():
