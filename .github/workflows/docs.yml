@@ -16,8 +16,7 @@ jobs:
       IPFS_GATEWAY: https://w3s.link/ipfs
       # Optional environment variables for asset downloads. See
       # scripts/fetch_assets.py for details.
-      # WASM_GPT2_URL can mirror the wasm-gpt2 model archive and
-      # OPENAI_GPT2_URL overrides the fallback OpenAI location.
+      # HF_GPT2_BASE_URL overrides the default Hugging Face mirror.
     steps:
       - uses: actions/checkout@v4
       - name: Set up Python

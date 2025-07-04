@@ -32,7 +32,10 @@
     "wasm/pyodide.asm.wasm",
     "wasm/pyodide_py.tar",
     "wasm/packages.json",
-    "wasm_llm/wasm-gpt2.tar",
+    "wasm_llm/pytorch_model.bin",
+    "wasm_llm/vocab.json",
+    "wasm_llm/merges.txt",
+    "wasm_llm/config.json",
     "lib/bundle.esm.min.js",
     "lib/workbox-sw.js"
   ],

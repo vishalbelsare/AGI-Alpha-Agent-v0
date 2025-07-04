@@ -48,9 +48,9 @@ def test_download_with_retry_auth_message(
     url_primary = f"{fa.GATEWAY}/CID"
     requests_mock.get(url_primary, status_code=401)
     with pytest.raises(RuntimeError) as exc:
-        fa.download_with_retry("CID", path, attempts=1, label="wasm_llm/wasm-gpt2.tar")
+        fa.download_with_retry("CID", path, attempts=1, label="wasm_llm/pytorch_model.bin")
     out = capsys.readouterr().out
-    assert "WASM_GPT2_URL" in out
+    assert "HF_GPT2_BASE_URL" in out
     msg = str(exc.value)
     assert "CID" in msg and "http" in msg
     assert "authentication" in msg.lower()

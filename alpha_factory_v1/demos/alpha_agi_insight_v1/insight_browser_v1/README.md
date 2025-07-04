@@ -69,14 +69,12 @@ is missing the build scripts continue with default empty values:
 
 Run `npm run fetch-assets` to download the Pyodide runtime and local model
 before installing dependencies. The script invokes
-`scripts/fetch_assets.py` under the hood, which retrieves `wasm-gpt2.tar`
-from the canonical IPFS mirror first, then falls back to the Hugging Face URL
-and finally the configured gateway. Set `WASM_GPT2_URL` to override the list or
-`OPENAI_GPT2_BASE_URL` to change the mirror, for example:
+`scripts/fetch_assets.py` under the hood, which downloads the official GPT‑2
+small checkpoint from Hugging Face. Override `HF_GPT2_BASE_URL` to change the
+mirror, for example:
 
 ```bash
-export WASM_GPT2_URL="https://w3s.link/ipfs/bafybeihdwdcefgh4dqkjv67uzcmw7ojee6xedzdetojuzjevtenxquvyku?download=1"
-export OPENAI_GPT2_BASE_URL="https://huggingface.co/openai-community/gpt2/resolve/main"
+export HF_GPT2_BASE_URL="https://huggingface.co/openai-community/gpt2/resolve/main"
 ```
 
 If `npm run fetch-assets` fails with a 401 or 404 error, download the checkpoint directly:
@@ -96,9 +94,8 @@ to create it before launching the demo.
 
 ## Build & Run
 Run `npm run fetch-assets` **before installing dependencies** to download the
-Pyodide runtime and `wasm-gpt2` model, then install the Node modules.
-`python ../../../../scripts/download_wasm_gpt2.py`,
-`python ../../../../scripts/download_openai_gpt2.py`, or
+Pyodide runtime and GPT‑2 weights, then install the Node modules.
+`python ../../../../scripts/download_hf_gpt2.py` or
 `python ../../../../scripts/download_gpt2_small.py` can also fetch the model
 directly if you prefer,
 compile the bundle:
@@ -134,12 +131,10 @@ offline run:
 npm run fetch-assets
 ```
 
-This downloads the Pyodide runtime and `wasm-gpt2` model from the IPFS
-mirror first, then the OpenAI fallback and finally the configured
-gateway. Assets land in `wasm/` and `wasm_llm/`.
+This downloads the Pyodide runtime and GPT‑2 model from the configured
+mirror. Assets land in `wasm/` and `wasm_llm/`.
 It also retrieves `lib/bundle.esm.min.js` from the mirror. You may instead run
-`python ../../../../scripts/download_wasm_gpt2.py`,
-`python ../../../../scripts/download_openai_gpt2.py`, or
+`python ../../../../scripts/download_hf_gpt2.py` or
 `python ../../../../scripts/download_gpt2_small.py` to pull the model
 directly. The build and
 `manual_build.py` scripts scan every downloaded asset for the word

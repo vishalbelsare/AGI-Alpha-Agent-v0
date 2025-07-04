@@ -4,8 +4,7 @@
 """Download browser demo assets from IPFS or a mirror.
 
 Environment variables:
-    OPENAI_GPT2_URL -- Optional primary URL for the ``wasm-gpt2`` model.
-    WASM_GPT2_URL  -- Override the list of download locations.
+    HF_GPT2_BASE_URL -- Override the Hugging Face base URL for the GPT‑2 model.
 """
 from __future__ import annotations
 
@@ -20,37 +19,14 @@ from requests.adapters import HTTPAdapter, Retry  # type: ignore
 
 # IPFS gateway used for model downloads
 # Primary gateway for IPFS downloads
+# Primary gateway for IPFS downloads
 GATEWAY = os.environ.get("IPFS_GATEWAY", "https://ipfs.io/ipfs").rstrip("/")
-# Canonical CID for the wasm-gpt2 model
-WASM_GPT2_CID = "bafybeihdwdcefgh4dqkjv67uzcmw7ojee6xedzdetojuzjevtenxquvyku"
-# Official mirrors for the wasm-gpt2 model
-# ``WASM_GPT2_URL`` may override the first URL or point to a completely
-# different location. When multiple URLs are provided via ``WASM_GPT2_URL``
-# they are tried in order separated by commas.
-OPENAI_GPT2_URL = os.environ.get("OPENAI_GPT2_URL")
-if not OPENAI_GPT2_URL:
-    base_url = os.environ.get(
-        "OPENAI_GPT2_BASE_URL",
-        "https://openaipublic.blob.core.windows.net/gpt-2/models",
-    ).rstrip("/")
-    OPENAI_GPT2_URL = f"{base_url}/124M/wasm-gpt2.tar"
-# Official Hugging Face mirror. OpenAI and IPFS remain as fallbacks.
-_DEFAULT_WASM_GPT2_URLS = [
-    "https://huggingface.co/datasets/xenova/wasm-gpt2/resolve/main/wasm-gpt2.tar?download=1",
-    OPENAI_GPT2_URL,
-    f"https://w3s.link/ipfs/{WASM_GPT2_CID}?download=1",
-]
 
-
-def _resolve_wasm_urls() -> list[str]:
-    env = os.environ.get("WASM_GPT2_URL")
-    if env:
-        return [u.strip() for u in env.split(",") if u.strip()]
-    return _DEFAULT_WASM_GPT2_URLS
-
-
-OFFICIAL_WASM_GPT2_URLS = _resolve_wasm_urls()
-OFFICIAL_WASM_GPT2_URL = OFFICIAL_WASM_GPT2_URLS[0]
+# Base URL for the GPT-2 small weights
+HF_GPT2_BASE_URL = os.environ.get(
+    "HF_GPT2_BASE_URL",
+    "https://huggingface.co/openai-community/gpt2/resolve/main",
+).rstrip("/")
 # Alternate gateways to try when the main download fails
 FALLBACK_GATEWAYS = [
     "https://w3s.link/ipfs",
@@ -64,8 +40,11 @@ ASSETS = {
     "wasm/pyodide.asm.wasm": "bafybeifub317gmrhdss4u5aefygb4oql6dyks3v6llqj77pnibsglj6nde",  # noqa: E501
     "wasm/pyodide_py.tar": "bafybeidazzkz4a3qle6wvyjfwcb36br4idlm43oe5cb26wqzsa4ho7t52e",  # noqa: E501
     "wasm/packages.json": "bafybeib44a4x7jgqhkgzo5wmgyslyqi1aocsswcdpsnmqkhmvqchwdcql4",  # noqa: E501
-    # wasm-gpt2 model archive (downloaded from official mirror)
-    "wasm_llm/wasm-gpt2.tar": OFFICIAL_WASM_GPT2_URL,
+    # GPT-2 small weights
+    "wasm_llm/pytorch_model.bin": f"{HF_GPT2_BASE_URL}/pytorch_model.bin",
+    "wasm_llm/vocab.json": f"{HF_GPT2_BASE_URL}/vocab.json",
+    "wasm_llm/merges.txt": f"{HF_GPT2_BASE_URL}/merges.txt",
+    "wasm_llm/config.json": f"{HF_GPT2_BASE_URL}/config.json",
     # Web3.Storage bundle
     "lib/bundle.esm.min.js": "bafkreihgldx46iuks4lybdsc5qc6xom2y5fqdy5w3vvrxntlr42wc43u74",  # noqa: E501
     # Workbox runtime
@@ -76,8 +55,6 @@ CHECKSUMS = {
     "lib/bundle.esm.min.js": "sha384-qri3JZdkai966TTOV3Cl4xxA97q+qXCgKrd49pOn7DPuYN74wOEd6CIJ9HnqEROD",  # noqa: E501
     "lib/workbox-sw.js": "sha384-LWo7skrGueg8Fa4y2Vpe1KB4g0SifqKfDr2gWFRmzZF9n9F1bQVo1F0dUurlkBJo",  # noqa: E501
     "pyodide.asm.wasm": "sha384-kdvSehcoFMjX55sjg+o5JHaLhOx3HMkaLOwwMFmwH+bmmtvfeJ7zFEMWaqV9+wqo",
-    # TODO: replace placeholder with actual digest of wasm-gpt2.tar
-    "wasm_llm/wasm-gpt2.tar": "sha384-PLACEHOLDER",
 }
 
 
@@ -151,12 +128,7 @@ def download_with_retry(
             if first_failure:
                 first_failure = False
                 if status in {401, 404}:
-                    print(
-                        "Download returned HTTP"
-                        f" {status}. Set OPENAI_GPT2_URL to"
-                        " https://openaipublic.blob.core.windows.net/gpt-2/models/124M/wasm-gpt2.tar"
-                        " or another mirror"
-                    )
+                    print("Download returned HTTP" f" {status}. Set HF_GPT2_BASE_URL to a reachable mirror")
             for alt in alt_urls:
                 try:
                     download(alt, path, label=lbl)
@@ -232,20 +204,6 @@ def main() -> None:
             fallback = None
             if rel == "lib/bundle.esm.min.js":
                 fallback = "https://cdn.jsdelivr.net/npm/web3.storage/dist/bundle.esm.min.js"  # noqa: E501
-            elif rel == "wasm_llm/wasm-gpt2.tar":
-                fallback_url = OPENAI_GPT2_URL
-                last_exc = None
-                for url in OFFICIAL_WASM_GPT2_URLS:
-                    try:
-                        download_with_retry(url, dest, fallback_url, label=rel)
-                        break
-                    except Exception as exc:
-                        last_exc = exc
-                        print(f"Attempt with {url} failed: {exc}")
-                else:
-                    print(f"Download failed for {rel}: {last_exc}")
-                    dl_failures.append(rel)
-                continue
             try:
                 download_with_retry(cid, dest, fallback, label=rel)
             except Exception as exc:
@@ -259,8 +217,7 @@ def main() -> None:
         print(
             f"\nERROR: Unable to retrieve {joined}.\n"
             "Check your internet connection or set IPFS_GATEWAY to a reachable "
-            "gateway, or specify a mirror via WASM_GPT2_URL. "
-            "OPENAI_GPT2_URL sets the fallback OpenAI source."
+            "gateway, or override the Hugging Face base URL via HF_GPT2_BASE_URL."
         )
         sys.exit(1)
 
