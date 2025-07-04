@@ -9,7 +9,7 @@ import argparse
 import sys
 from pathlib import Path
 
-import requests  # type: ignore
+import requests
 from tqdm import tqdm
 
 
@@ -41,7 +41,7 @@ def _download(url: str, dest: Path) -> None:
                     bar.update(len(chunk))
 
 
-def download_openai_gpt2(model: str = "117M", dest: Path | str = "models", attempts: int = 3) -> None:
+def download_openai_gpt2(model: str = "124M", dest: Path | str = "models", attempts: int = 3) -> None:
     dest_dir = Path(dest) / model
     urls = model_urls(model)
     last_exc: Exception | None = None
@@ -72,7 +72,7 @@ def download_openai_gpt2(model: str = "117M", dest: Path | str = "models", attem
 
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("model", nargs="?", default="117M", help="GPT-2 model size")
+    parser.add_argument("model", nargs="?", default="124M", help="GPT-2 model size")
     parser.add_argument("--dest", type=Path, default=Path("models"), help="Target directory")
     args = parser.parse_args()
     try:
