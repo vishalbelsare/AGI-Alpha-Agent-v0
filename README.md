@@ -30,25 +30,25 @@ All browser demos include a **mode toggle**. Choose **Offline** to run a Pyodide
 ```bash
 export WASM_GPT2_URL="https://w3s.link/ipfs/bafybeihdwdcefgh4dqkjv67uzcmw7ojee6xedzdetojuzjevtenxquvyku?download=1"
 # Official mirror for the small GPT‑2 model (124M parameters)
-export OPENAI_GPT2_BASE_URL="https://openaipublic.blob.core.windows.net/gpt-2/models"
-export OPENAI_GPT2_URL="https://openaipublic.blob.core.windows.net/gpt-2/models/124M/wasm-gpt2.tar"
+export OPENAI_GPT2_BASE_URL="https://huggingface.co/openai-community/gpt2/resolve/main"
+export OPENAI_GPT2_URL="https://huggingface.co/datasets/xenova/wasm-gpt2/resolve/main/wasm-gpt2.tar?download=1"
 ```
 
 If `npm run fetch-assets` fails with a 401 or 404 error, download the model
 directly using:
 ```bash
-python scripts/download_gpt2_small.py models
-# Or download the files individually
-curl -O https://openaipublic.blob.core.windows.net/gpt-2/models/124M/encoder.json
-curl -O https://openaipublic.blob.core.windows.net/gpt-2/models/124M/hparams.json
-curl -O https://openaipublic.blob.core.windows.net/gpt-2/models/124M/vocab.bpe
-curl -O https://openaipublic.blob.core.windows.net/gpt-2/models/124M/model.ckpt.index
-curl -O https://openaipublic.blob.core.windows.net/gpt-2/models/124M/model.ckpt.data-00000-of-00001
-curl -O https://openaipublic.blob.core.windows.net/gpt-2/models/124M/model.ckpt.meta
+python scripts/download_hf_gpt2.py models/gpt2
+# Or download the files individually from Hugging Face
+curl -O https://huggingface.co/openai-community/gpt2/resolve/main/encoder.json
+curl -O https://huggingface.co/openai-community/gpt2/resolve/main/hparams.json
+curl -O https://huggingface.co/openai-community/gpt2/resolve/main/vocab.bpe
+curl -O https://huggingface.co/openai-community/gpt2/resolve/main/model.ckpt.index
+curl -O https://huggingface.co/openai-community/gpt2/resolve/main/model.ckpt.data-00000-of-00001
+curl -O https://huggingface.co/openai-community/gpt2/resolve/main/model.ckpt.meta
 ```
 Verify `wasm-gpt2.tar` using checksum `sha384-PLACEHOLDER` before extracting.
 
-See [insight_browser_v1/README.md](alpha_factory_v1/demos/alpha_agi_insight_v1/insight_browser_v1/README.md) for details. You can also retrieve the model directly with `python scripts/download_wasm_gpt2.py`, `python scripts/download_openai_gpt2.py 124M`, or `python scripts/download_gpt2_small.py`.
+See [insight_browser_v1/README.md](alpha_factory_v1/demos/alpha_agi_insight_v1/insight_browser_v1/README.md) for details. You can also retrieve the model directly with `python scripts/download_hf_gpt2.py`, `python scripts/download_wasm_gpt2.py`, `python scripts/download_openai_gpt2.py 124M`, or `python scripts/download_gpt2_small.py`.
 
 [![Launch \u03b1\u2011AGI Insight](https://img.shields.io/badge/Launch-%CE%B1%E2%80%91AGI%20Insight-blue?style=for-the-badge)](https://montrealai.github.io/AGI-Alpha-Agent-v0/alpha_agi_insight_v1/)
 
@@ -1186,8 +1186,8 @@ for instructions and example volume mounts.
 | `MAX_RESULTS` | `100` | Maximum stored simulation results. |
 | `MAX_SIM_TASKS` | `4` | Maximum concurrent simulation tasks. |
 | `IPFS_GATEWAY` | `https://ipfs.io/ipfs` | Base URL for IPFS downloads used by `npm run fetch-assets`. Override with `IPFS_GATEWAY=<url> npm run fetch-assets`. |
-| `OPENAI_GPT2_BASE_URL` | `https://openaipublic.blob.core.windows.net/gpt-2/models` | Base URL for the GPT‑2 checkpoints. |
-| `OPENAI_GPT2_URL` | `https://openaipublic.blob.core.windows.net/gpt-2/models/124M/wasm-gpt2.tar` | Full URL for the wasm‑gpt2 archive. |
+| `OPENAI_GPT2_BASE_URL` | `https://huggingface.co/openai-community/gpt2/resolve/main` | Base URL for the GPT‑2 checkpoints. |
+| `OPENAI_GPT2_URL` | `https://huggingface.co/datasets/xenova/wasm-gpt2/resolve/main/wasm-gpt2.tar?download=1` | Full URL for the wasm‑gpt2 archive. |
 | `OTEL_ENDPOINT` | _(empty)_ | OTLP endpoint for anonymous telemetry. |
 | `ALPHA_FACTORY_ENABLE_ADK` | `false` | Set to `true` to start the Google ADK gateway. |
 | `ALPHA_FACTORY_ADK_PORT` | `9000` | Port for the ADK gateway when enabled. |
@@ -1217,14 +1217,14 @@ If `scripts/fetch_assets.py` or `npm run fetch-assets` returns `401` or `404`,
 download the checkpoint directly:
 
 ```bash
-python scripts/download_gpt2_small.py models
-# Or fetch manually from OpenAI's mirror
-curl -O https://openaipublic.blob.core.windows.net/gpt-2/models/124M/encoder.json
-curl -O https://openaipublic.blob.core.windows.net/gpt-2/models/124M/hparams.json
-curl -O https://openaipublic.blob.core.windows.net/gpt-2/models/124M/vocab.bpe
-curl -O https://openaipublic.blob.core.windows.net/gpt-2/models/124M/model.ckpt.index
-curl -O https://openaipublic.blob.core.windows.net/gpt-2/models/124M/model.ckpt.data-00000-of-00001
-curl -O https://openaipublic.blob.core.windows.net/gpt-2/models/124M/model.ckpt.meta
+python scripts/download_hf_gpt2.py models/gpt2
+# Or fetch manually from Hugging Face
+curl -O https://huggingface.co/openai-community/gpt2/resolve/main/encoder.json
+curl -O https://huggingface.co/openai-community/gpt2/resolve/main/hparams.json
+curl -O https://huggingface.co/openai-community/gpt2/resolve/main/vocab.bpe
+curl -O https://huggingface.co/openai-community/gpt2/resolve/main/model.ckpt.index
+curl -O https://huggingface.co/openai-community/gpt2/resolve/main/model.ckpt.data-00000-of-00001
+curl -O https://huggingface.co/openai-community/gpt2/resolve/main/model.ckpt.meta
 ```
 
 For a production-ready ADK setup see
