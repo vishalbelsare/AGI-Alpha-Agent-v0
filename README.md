@@ -29,8 +29,9 @@ All browser demos include a **mode toggle**. Choose **Offline** to run a Pyodide
 `./setup.sh` to download the browser demo assets. Run this command in a fresh
 checkout—or delete existing `wasm*/` files first—so placeholder files are
 replaced. After the download, verify checksums with
-`python scripts/fetch_assets.py --verify-only`. The helper retrieves the official
-Pyodide runtime and GPT‑2 small checkpoint directly from the Hugging Face CDN.
+`python scripts/fetch_assets.py --verify-only`. The helper retrieves the
+official Pyodide runtime from the jsDelivr CDN and the GPT‑2 small checkpoint
+directly from the Hugging Face CDN.
 If a custom `PYODIDE_BASE_URL` is set and fails, the script falls back to the
 official CDN automatically. The legacy `wasm-gpt2.tar` bundle is no longer used.
 Override `HF_GPT2_BASE_URL`
@@ -129,7 +130,8 @@ Run `npm run fetch-assets` before `npm install` or executing `./setup.sh` to
 download the Insight demo assets. Delete any old `wasm*/` directories or start
 from a clean checkout so placeholders are replaced. After fetching, verify the
 files with `python scripts/fetch_assets.py --verify-only`. The helper retrieves
-the official Pyodide runtime and GPT‑2 small checkpoint from Hugging Face.
+the official Pyodide runtime from the jsDelivr CDN and the GPT‑2 small
+checkpoint from Hugging Face.
 Override `HF_GPT2_BASE_URL` or `PYODIDE_BASE_URL` to use alternate mirrors. See
 [insight_browser_v1/README.md](alpha_factory_v1/demos/alpha_agi_insight_v1/insight_browser_v1/README.md)
 for a detailed guide. You can also run `python scripts/download_gpt2_small.py`
