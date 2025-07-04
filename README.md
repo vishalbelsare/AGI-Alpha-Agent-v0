@@ -262,6 +262,15 @@ Offline example using a local wheelhouse:
 WHEELHOUSE=$(pwd)/wheels AUTO_INSTALL_MISSING=1 ./quickstart.sh
 ```
 
+If the default mirrors are blocked, set `PYODIDE_BASE_URL` or
+`HF_GPT2_BASE_URL` before running `npm run fetch-assets`:
+
+```bash
+export PYODIDE_BASE_URL="https://cdn.jsdelivr.net/pyodide/v0.25.1/full"
+export HF_GPT2_BASE_URL="https://huggingface.co/openai-community/gpt2/resolve/main"
+npm run fetch-assets
+```
+
 Or launch the full stack with Docker:
 
 ```bash

@@ -101,6 +101,7 @@ def download_with_retry(
     fallback: str | None = None,
     attempts: int = 3,
     label: str | None = None,
+    disable_ipfs_fallback: bool = False,
 ) -> None:
     last_exc: Exception | None = None
     last_url = cid
@@ -111,12 +112,13 @@ def download_with_retry(
         alt_urls.append(fallback)
 
     ipfs_cid: str | None = None
-    if cid.startswith("http"):
-        parts = cid.split("/ipfs/")
-        if len(parts) > 1:
-            ipfs_cid = parts[1].split("?")[0]
-    else:
-        ipfs_cid = cid
+    if not disable_ipfs_fallback:
+        if cid.startswith("http"):
+            parts = cid.split("/ipfs/")
+            if len(parts) > 1:
+                ipfs_cid = parts[1].split("?")[0]
+        else:
+            ipfs_cid = cid
 
     if ipfs_cid:
         for gw in FALLBACK_GATEWAYS:
@@ -193,6 +195,13 @@ def main() -> None:
         return
 
     dl_failures: list[str] = []
+    PYODIDE_OVERRIDE = "PYODIDE_BASE_URL" in os.environ
+    PYODIDE_ASSETS = {
+        "wasm/pyodide.js",
+        "wasm/pyodide.asm.wasm",
+        "wasm/pyodide_py.tar",
+        "wasm/packages.json",
+    }
     PLACEHOLDER_ASSETS = {
         "lib/bundle.esm.min.js",
         "lib/workbox-sw.js",
@@ -217,8 +226,9 @@ def main() -> None:
             fallback = None
             if rel == "lib/bundle.esm.min.js":
                 fallback = "https://cdn.jsdelivr.net/npm/web3.storage/dist/bundle.esm.min.js"  # noqa: E501
+            disable_fallback = PYODIDE_OVERRIDE and rel in PYODIDE_ASSETS
             try:
-                download_with_retry(cid, dest, fallback, label=rel)
+                download_with_retry(cid, dest, fallback, label=rel, disable_ipfs_fallback=disable_fallback)
             except Exception as exc:
                 print(f"Download failed for {rel}: {exc}")
                 dl_failures.append(rel)

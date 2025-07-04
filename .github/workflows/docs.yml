@@ -14,6 +14,8 @@ jobs:
     env:
       SANDBOX_IMAGE: ghcr.io/example/selfheal-sandbox:latest
       IPFS_GATEWAY: https://w3s.link/ipfs
+      PYODIDE_BASE_URL: https://cdn.jsdelivr.net/pyodide/v0.25.1/full
+      HF_GPT2_BASE_URL: https://huggingface.co/openai-community/gpt2/resolve/main
       # Optional environment variables for asset downloads. See
       # scripts/fetch_assets.py for details.
       # HF_GPT2_BASE_URL overrides the default Hugging Face mirror.
