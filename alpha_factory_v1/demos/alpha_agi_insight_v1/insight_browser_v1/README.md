@@ -147,11 +147,12 @@ with an error suggesting you check connectivity or the `IPFS_GATEWAY`
 setting.
 Run `npm run fetch-assets` if you encounter this error.
 ```bash
-PINNER_TOKEN=<token> npm start
+W3UP_EMAIL=<email> npm start
 ```
 `npm start` serves the `dist/` folder on `http://localhost:3000` by default.
-Set `PINNER_TOKEN` to your [Web3.Storage](https://web3.storage/) token so
-exported JSON results can be pinned.
+Set `W3UP_EMAIL` to the address registered with
+[@web3-storage/w3up-client](https://github.com/storacha/w3up) so exported JSON
+results can be pinned.
 
 If `OPENAI_API_KEY` is stored in `localStorage`, the demo uses the OpenAI API for
 chat prompts. When no key is present a lightweight GPT‑2 model under

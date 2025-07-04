@@ -35,7 +35,8 @@
     "tailwindcss": "^3.4.0",
     "ts-node": "^10.9.1",
     "typescript": "^5.3.0",
-    "web3.storage": "^4.5.5",
+    "@web3-storage/w3up-client": "^17.3.0",
+    "multiformats": "^12.1.2",
     "workbox-build": "^7.3.0"
   }
 }
