@@ -9,7 +9,8 @@ Environment variables:
 
 Pyodide runtime files are fetched directly from the official CDN or the
 user-specified mirror. When a custom mirror fails, the script retries with
-the official CDN instead of falling back to IPFS.
+the official CDN and then the GitHub release mirror instead of falling back
+to IPFS.
 """
 from __future__ import annotations
 
@@ -32,6 +33,8 @@ HF_GPT2_BASE_URL = os.environ.get("HF_GPT2_BASE_URL", DEFAULT_HF_GPT2_BASE_URL).
 # Base URL for the Pyodide runtime
 DEFAULT_PYODIDE_BASE_URL = "https://cdn.jsdelivr.net/pyodide/v0.25.1/full"
 ALT_PYODIDE_BASE_URL = "https://pyodide-cdn2.iodide.io/v0.25.1/full"
+# GitHub publishes the same assets under the releases page.
+GITHUB_PYODIDE_BASE_URL = "https://github.com/pyodide/pyodide/releases/download/0.25.1"
 PYODIDE_BASE_URL = os.environ.get("PYODIDE_BASE_URL", DEFAULT_PYODIDE_BASE_URL).rstrip("/")
 # Number of download attempts before giving up
 MAX_ATTEMPTS = int(os.environ.get("FETCH_ASSETS_ATTEMPTS", "3"))
@@ -116,7 +119,7 @@ def download(cid: str, path: Path, fallback: str | None = None, label: str | Non
 def download_with_retry(
     cid: str,
     path: Path,
-    fallback: str | None = None,
+    fallback: str | list[str] | None = None,
     attempts: int = MAX_ATTEMPTS,
     label: str | None = None,
     disable_ipfs_fallback: bool = False,
@@ -127,7 +130,10 @@ def download_with_retry(
     lbl = label or str(path)
     alt_urls: list[str] = []
     if fallback:
-        alt_urls.append(fallback)
+        if isinstance(fallback, str):
+            alt_urls.append(fallback)
+        else:
+            alt_urls.extend(list(fallback))
 
     ipfs_cid: str | None = None
     if not disable_ipfs_fallback:
@@ -241,13 +247,16 @@ def main() -> None:
                 print(f"Replacing placeholder {rel}...")
             else:
                 print(f"Fetching {rel} from {cid}...")
-            fallback = None
+            fallback: str | list[str] | None = None
             if rel in PYODIDE_ASSETS:
                 print(f"Resolved Pyodide URL: {cid}")
+                fb: list[str] = []
                 if PYODIDE_BASE_URL != DEFAULT_PYODIDE_BASE_URL:
-                    fallback = f"{DEFAULT_PYODIDE_BASE_URL}/{dest.name}"
+                    fb.append(f"{DEFAULT_PYODIDE_BASE_URL}/{dest.name}")
                 else:
-                    fallback = f"{ALT_PYODIDE_BASE_URL}/{dest.name}"
+                    fb.append(f"{ALT_PYODIDE_BASE_URL}/{dest.name}")
+                fb.append(f"{GITHUB_PYODIDE_BASE_URL}/{dest.name}")
+                fallback = fb
             if rel == "lib/bundle.esm.min.js":
                 fallback = "bafkreihgldx46iuks4lybdsc5qc6xom2y5fqdy5w3vvrxntlr42wc43u74"
             disable_fallback = rel in PYODIDE_ASSETS
