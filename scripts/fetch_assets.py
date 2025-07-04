@@ -43,6 +43,9 @@ FALLBACK_GATEWAYS = [
     "https://ipfs.io/ipfs",
     "https://cloudflare-ipfs.com/ipfs",
     "https://w3s.link/ipfs",
+    # Additional public mirrors
+    "https://cf-ipfs.com/ipfs",
+    "https://gateway.pinata.cloud/ipfs",
 ]
 
 PYODIDE_ASSETS = {
@@ -149,10 +152,12 @@ def download_with_retry(
             alt = f"{gw.rstrip('/')}/{ipfs_cid}"
             if alt != cid and alt not in alt_urls and alt != fallback:
                 alt_urls.append(alt)
+    success_url: str | None = None
     for i in range(1, attempts + 1):
         try:
             download(cid, path, label=lbl)
-            return
+            success_url = cid
+            break
         except Exception as exc:  # noqa: PERF203
             last_exc = exc
             last_url = cid
@@ -167,17 +172,26 @@ def download_with_retry(
             for alt in alt_urls:
                 try:
                     download(alt, path, label=lbl)
-                    return
+                    success_url = alt
+                    break
                 except Exception as exc_alt:
                     last_exc = exc_alt
                     last_url = alt
                     continue
+            if success_url:
+                break
             if status in {401, 404}:
                 break
             if i < attempts:
                 print(f"Attempt {i} failed for {lbl}: {exc}, retrying...")
             else:
                 print(f"ERROR: could not fetch {lbl} from {last_url} after {attempts} attempts")
+    if success_url:
+        if success_url != cid:
+            print(f"Fetched {lbl} via {success_url}")
+        else:
+            print(f"Fetched {lbl} via primary gateway")
+        return
     if last_exc:
         url = getattr(getattr(last_exc, "response", None), "url", last_url)
         raise RuntimeError(
