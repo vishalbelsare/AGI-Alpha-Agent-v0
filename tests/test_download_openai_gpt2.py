@@ -59,22 +59,23 @@ def test_download_error(tmp_path: Path, requests_mock: "requests_mock.Mocker") -
             dg.download_openai_gpt2("124M", dest=dest_dir, attempts=1)
 
 
-def test_resolve_url_fallback(monkeypatch: pytest.MonkeyPatch, requests_mock: "requests_mock.Mocker") -> None:
-    import scripts.download_wasm_gpt2 as dw
+def test_download_small_fallback(monkeypatch: pytest.MonkeyPatch) -> None:
+    import scripts.download_gpt2_small as ds
 
-    urls = [
-        "https://example.com/wasm-gpt2.tar",
-        "https://another.com/wasm-gpt2.tar",
-        dw._DEFAULT_URLS[0],
-    ]
+    calls: list[str] = []
+
+    def fail(dest: Path, model: str = "124M") -> None:
+        calls.append("hf")
+        raise RuntimeError("fail")
+
+    def succeed(model: str, dest: Path | str = Path("dest"), attempts: int = 3) -> None:
+        calls.append("openai")
 
     with monkeypatch.context() as m:
-        m.delenv("WASM_GPT2_URL", raising=False)
-        m.setattr(dw, "_DEFAULT_URLS", urls)
-        requests_mock.head(urls[0], status_code=404)
-        requests_mock.head(urls[1], exc=requests.exceptions.RequestException)
-        requests_mock.head(urls[2], status_code=200)
-        assert dw._resolve_url() == urls[2]
+        m.setattr(ds.download_hf_gpt2, "download_hf_gpt2", fail)
+        m.setattr(ds.download_openai_gpt2, "download_openai_gpt2", succeed)
+        ds.download_model(Path("models"))
+    assert calls == ["hf", "openai"]
 
 
 @pytest.mark.skipif(os.getenv("PYTEST_NET_OFF") == "1", reason="network disabled")  # type: ignore[misc]

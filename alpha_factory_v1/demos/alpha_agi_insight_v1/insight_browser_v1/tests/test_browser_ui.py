@@ -72,8 +72,8 @@ def test_llm_offline() -> None:
 
 
 @pytest.mark.skipif(
-    not (Path(__file__).resolve().parents[1] / "wasm_llm" / "wasm-gpt2.tar").exists(),
-    reason="wasm model missing",
+    not (Path(__file__).resolve().parents[1] / "wasm_llm" / "pytorch_model.bin").exists(),
+    reason="model file missing",
 )  # type: ignore[misc]
 def test_llm_offline_pipeline() -> None:
     dist = Path(__file__).resolve().parents[1] / "dist" / "index.html"
