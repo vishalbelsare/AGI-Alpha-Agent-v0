@@ -31,6 +31,7 @@ HF_GPT2_BASE_URL = os.environ.get("HF_GPT2_BASE_URL", DEFAULT_HF_GPT2_BASE_URL).
 
 # Base URL for the Pyodide runtime
 DEFAULT_PYODIDE_BASE_URL = "https://cdn.jsdelivr.net/pyodide/v0.25.1/full"
+ALT_PYODIDE_BASE_URL = "https://pyodide-cdn2.iodide.io/v0.25.1/full"
 PYODIDE_BASE_URL = os.environ.get("PYODIDE_BASE_URL", DEFAULT_PYODIDE_BASE_URL).rstrip("/")
 # Alternate gateways to try when the main download fails
 FALLBACK_GATEWAYS = [
@@ -243,6 +244,8 @@ def main() -> None:
                 print(f"Resolved Pyodide URL: {cid}")
                 if PYODIDE_BASE_URL != DEFAULT_PYODIDE_BASE_URL:
                     fallback = f"{DEFAULT_PYODIDE_BASE_URL}/{dest.name}"
+                else:
+                    fallback = f"{ALT_PYODIDE_BASE_URL}/{dest.name}"
             if rel == "lib/bundle.esm.min.js":
                 fallback = "bafkreihgldx46iuks4lybdsc5qc6xom2y5fqdy5w3vvrxntlr42wc43u74"
             disable_fallback = rel in PYODIDE_ASSETS
