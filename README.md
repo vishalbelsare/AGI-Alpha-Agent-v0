@@ -1232,6 +1232,9 @@ for instructions and example volume mounts.
 files from IPFS. The default is `https://ipfs.io/ipfs`, but any reachable mirror will work.
 Set `IPFS_GATEWAY` before running the helper to switch gateways.
 
+If no `IPFS_GATEWAY` is provided, the helper falls back to `https://ipfs.io/ipfs`,
+then `https://cloudflare-ipfs.com/ipfs`, and finally `https://w3s.link/ipfs`.
+
 The values above mirror `.env.sample`. When running the stack with Docker
 Compose, adjust the environment section of
 `infrastructure/docker-compose.yml` to override any variable—such as the gRPC
