@@ -1,7 +1,10 @@
 #!/usr/bin/env python
 # SPDX-License-Identifier: Apache-2.0
 # See docs/DISCLAIMER_SNIPPET.md
-"""Retrieve the 124M GPT-2 checkpoint from OpenAI's public storage."""
+"""Retrieve the 124M GPT-2 checkpoint from OpenAI's public storage.
+
+Files are fetched from ``https://openaipublic.blob.core.windows.net/gpt-2/models/124M/``.
+"""
 from __future__ import annotations
 
 import argparse

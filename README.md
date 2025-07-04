@@ -37,6 +37,13 @@ If `npm run fetch-assets` fails with a 401 or 404 error, download the model
 directly using:
 ```bash
 python scripts/download_gpt2_small.py models
+# Or download the files individually
+curl -O https://openaipublic.blob.core.windows.net/gpt-2/models/124M/encoder.json
+curl -O https://openaipublic.blob.core.windows.net/gpt-2/models/124M/hparams.json
+curl -O https://openaipublic.blob.core.windows.net/gpt-2/models/124M/vocab.bpe
+curl -O https://openaipublic.blob.core.windows.net/gpt-2/models/124M/model.ckpt.index
+curl -O https://openaipublic.blob.core.windows.net/gpt-2/models/124M/model.ckpt.data-00000-of-00001
+curl -O https://openaipublic.blob.core.windows.net/gpt-2/models/124M/model.ckpt.meta
 ```
 
 See [insight_browser_v1/README.md](alpha_factory_v1/demos/alpha_agi_insight_v1/insight_browser_v1/README.md) for details. You can also retrieve the model directly with `python scripts/download_wasm_gpt2.py`, `python scripts/download_openai_gpt2.py 124M`, or `python scripts/download_gpt2_small.py`.
@@ -1208,6 +1215,13 @@ download the checkpoint directly:
 
 ```bash
 python scripts/download_gpt2_small.py models
+# Or fetch manually from OpenAI's mirror
+curl -O https://openaipublic.blob.core.windows.net/gpt-2/models/124M/encoder.json
+curl -O https://openaipublic.blob.core.windows.net/gpt-2/models/124M/hparams.json
+curl -O https://openaipublic.blob.core.windows.net/gpt-2/models/124M/vocab.bpe
+curl -O https://openaipublic.blob.core.windows.net/gpt-2/models/124M/model.ckpt.index
+curl -O https://openaipublic.blob.core.windows.net/gpt-2/models/124M/model.ckpt.data-00000-of-00001
+curl -O https://openaipublic.blob.core.windows.net/gpt-2/models/124M/model.ckpt.meta
 ```
 
 For a production-ready ADK setup see
