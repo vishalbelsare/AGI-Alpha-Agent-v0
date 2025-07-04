@@ -6,6 +6,9 @@
 Environment variables:
     HF_GPT2_BASE_URL -- Override the Hugging Face base URL for the GPT‑2 model.
     PYODIDE_BASE_URL -- Override the base URL for Pyodide runtime files.
+
+Pyodide runtime files are fetched directly from the official CDN or the
+user-specified mirror without attempting any IPFS fallbacks.
 """
 from __future__ import annotations
 
@@ -37,6 +40,13 @@ FALLBACK_GATEWAYS = [
     "https://ipfs.io/ipfs",
     "https://cloudflare-ipfs.com/ipfs",
 ]
+
+PYODIDE_ASSETS = {
+    "wasm/pyodide.js",
+    "wasm/pyodide.asm.wasm",
+    "wasm/pyodide_py.tar",
+    "wasm/packages.json",
+}
 
 ASSETS = {
     # Pyodide 0.25.1 runtime files
@@ -136,7 +146,10 @@ def download_with_retry(
             if first_failure:
                 first_failure = False
                 if status in {401, 404}:
-                    print("Download returned HTTP" f" {status}. Set HF_GPT2_BASE_URL to a reachable mirror")
+                    if lbl in PYODIDE_ASSETS:
+                        print("Download returned HTTP" f" {status}. Set PYODIDE_BASE_URL to a reachable mirror")
+                    else:
+                        print("Download returned HTTP" f" {status}. Set HF_GPT2_BASE_URL to a reachable mirror")
             for alt in alt_urls:
                 try:
                     download(alt, path, label=lbl)
@@ -195,13 +208,6 @@ def main() -> None:
         return
 
     dl_failures: list[str] = []
-    PYODIDE_OVERRIDE = "PYODIDE_BASE_URL" in os.environ
-    PYODIDE_ASSETS = {
-        "wasm/pyodide.js",
-        "wasm/pyodide.asm.wasm",
-        "wasm/pyodide_py.tar",
-        "wasm/packages.json",
-    }
     PLACEHOLDER_ASSETS = {
         "lib/bundle.esm.min.js",
         "lib/workbox-sw.js",
@@ -226,7 +232,7 @@ def main() -> None:
             fallback = None
             if rel == "lib/bundle.esm.min.js":
                 fallback = "https://cdn.jsdelivr.net/npm/web3.storage/dist/bundle.esm.min.js"  # noqa: E501
-            disable_fallback = PYODIDE_OVERRIDE and rel in PYODIDE_ASSETS
+            disable_fallback = rel in PYODIDE_ASSETS
             try:
                 download_with_retry(cid, dest, fallback, label=rel, disable_ipfs_fallback=disable_fallback)
             except Exception as exc:
@@ -240,7 +246,8 @@ def main() -> None:
         print(
             f"\nERROR: Unable to retrieve {joined}.\n"
             "Check your internet connection or set IPFS_GATEWAY to a reachable "
-            "gateway, or override the Hugging Face base URL via HF_GPT2_BASE_URL."
+            "gateway, or override the Hugging Face base URL via HF_GPT2_BASE_URL "
+            "or the Pyodide base URL via PYODIDE_BASE_URL."
         )
         sys.exit(1)
 
