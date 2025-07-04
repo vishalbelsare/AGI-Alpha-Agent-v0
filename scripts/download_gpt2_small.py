@@ -1,9 +1,12 @@
 #!/usr/bin/env python
 # SPDX-License-Identifier: Apache-2.0
 # See docs/DISCLAIMER_SNIPPET.md
-"""Retrieve the 124M GPT-2 checkpoint from OpenAI's public storage.
+"""Retrieve the 124M GPT-2 checkpoint.
 
-Files are fetched from ``https://openaipublic.blob.core.windows.net/gpt-2/models/124M/``.
+The script first attempts the official Hugging Face mirror at
+``https://huggingface.co/openai-community/gpt2`` and falls back to the
+OpenAI mirror ``https://openaipublic.blob.core.windows.net/gpt-2`` when
+the Hugging Face download fails.
 """
 from __future__ import annotations
 
@@ -11,11 +14,16 @@ import argparse
 from pathlib import Path
 import sys
 
-from scripts import download_openai_gpt2
+from scripts import download_hf_gpt2, download_openai_gpt2
 
 
 def download_model(dest: Path, model: str = "124M") -> None:
-    """Download GPT-2 weights using the official OpenAI mirror."""
+    """Download GPT-2 weights from Hugging Face with an OpenAI fallback."""
+    try:
+        download_hf_gpt2.download_hf_gpt2(dest / "gpt2")
+        return
+    except Exception as exc:
+        print(f"Hugging Face download failed: {exc}; falling back to OpenAI")
     download_openai_gpt2.download_openai_gpt2(model, dest)
 
 
