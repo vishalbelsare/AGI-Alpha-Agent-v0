@@ -17,9 +17,7 @@ import sys
 import requests  # type: ignore
 from requests.adapters import HTTPAdapter, Retry  # type: ignore
 
-# IPFS gateway used for model downloads
-# Primary gateway for IPFS downloads
-# Primary gateway for IPFS downloads
+# Primary IPFS gateway for asset downloads
 GATEWAY = os.environ.get("IPFS_GATEWAY", "https://ipfs.io/ipfs").rstrip("/")
 
 # Base URL for the GPT-2 small weights
