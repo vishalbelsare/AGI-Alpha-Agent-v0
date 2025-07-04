@@ -54,6 +54,11 @@ The consolidated PyTorch weights are also available at:
 (SHA-256 `7c5d3f4b8b76583b422fcb9189ad6c89d5d97a094541ce8932dce3ecabde1421`).
 See [insight_browser_v1/README.md](alpha_factory_v1/demos/alpha_agi_insight_v1/insight_browser_v1/README.md) for details. You can also retrieve the model directly with `python scripts/download_hf_gpt2.py` or `python scripts/download_gpt2_small.py`.
 
+```bash
+python scripts/download_gpt2_small.py models/
+# downloads https://huggingface.co/openai-community/gpt2/resolve/main/pytorch_model.bin ...
+```
+
 [![Launch \u03b1\u2011AGI Insight](https://img.shields.io/badge/Launch-%CE%B1%E2%80%91AGI%20Insight-blue?style=for-the-badge)](https://montrealai.github.io/AGI-Alpha-Agent-v0/alpha_agi_insight_v1/)
 
 ### Automatic Deployment
@@ -125,8 +130,14 @@ the official Pyodide runtime and GPT‑2 small checkpoint from Hugging Face.
 Override `HF_GPT2_BASE_URL` or `PYODIDE_BASE_URL` to use alternate mirrors. See
 [insight_browser_v1/README.md](alpha_factory_v1/demos/alpha_agi_insight_v1/insight_browser_v1/README.md)
 for a detailed guide. You can also run `python scripts/download_gpt2_small.py`
-to retrieve the model directly, or `python scripts/download_openai_gpt2.py
-124M` as a last resort.
+to retrieve the model directly:
+
+```bash
+python scripts/download_gpt2_small.py models/
+# downloads https://huggingface.co/openai-community/gpt2/resolve/main/pytorch_model.bin ...
+```
+
+As a last resort use `python scripts/download_openai_gpt2.py 124M`.
 
 `fetch_assets.py` honors the `IPFS_GATEWAY` environment variable for assets still hosted on IPFS. If the default gateway is unreachable, set it before running the helper:
 
