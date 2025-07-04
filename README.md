@@ -43,6 +43,9 @@ curl -O https://huggingface.co/openai-community/gpt2/resolve/main/model.ckpt.ind
 curl -O https://huggingface.co/openai-community/gpt2/resolve/main/model.ckpt.data-00000-of-00001
 curl -O https://huggingface.co/openai-community/gpt2/resolve/main/model.ckpt.meta
 ```
+The consolidated PyTorch weights are also available at:
+`https://huggingface.co/openai-community/gpt2/resolve/main/pytorch_model.bin`
+(SHA-256 `7c5d3f4b8b76583b422fcb9189ad6c89d5d97a094541ce8932dce3ecabde1421`).
 See [insight_browser_v1/README.md](alpha_factory_v1/demos/alpha_agi_insight_v1/insight_browser_v1/README.md) for details. You can also retrieve the model directly with `python scripts/download_hf_gpt2.py` or `python scripts/download_gpt2_small.py`.
 
 [![Launch \u03b1\u2011AGI Insight](https://img.shields.io/badge/Launch-%CE%B1%E2%80%91AGI%20Insight-blue?style=for-the-badge)](https://montrealai.github.io/AGI-Alpha-Agent-v0/alpha_agi_insight_v1/)

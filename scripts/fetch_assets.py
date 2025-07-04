@@ -55,6 +55,7 @@ CHECKSUMS = {
     "lib/bundle.esm.min.js": "sha384-qri3JZdkai966TTOV3Cl4xxA97q+qXCgKrd49pOn7DPuYN74wOEd6CIJ9HnqEROD",  # noqa: E501
     "lib/workbox-sw.js": "sha384-LWo7skrGueg8Fa4y2Vpe1KB4g0SifqKfDr2gWFRmzZF9n9F1bQVo1F0dUurlkBJo",  # noqa: E501
     "pyodide.asm.wasm": "sha384-kdvSehcoFMjX55sjg+o5JHaLhOx3HMkaLOwwMFmwH+bmmtvfeJ7zFEMWaqV9+wqo",
+    "pytorch_model.bin": "sha256-fF0/S4t2WDtCL8uRia1sidXZeglFQc6JMtzj7KveFCE=",
 }
 
 
@@ -84,8 +85,9 @@ def download(cid: str, path: Path, fallback: str | None = None, label: str | Non
     key = label or path.name
     expected = CHECKSUMS.get(key) or CHECKSUMS.get(path.name)
     if expected:
-        digest = base64.b64encode(hashlib.sha384(data).digest()).decode()
-        if not expected.endswith(digest):
+        algo, b64_hash = expected.split("-", 1)
+        digest = base64.b64encode(getattr(hashlib, algo)(data).digest()).decode()
+        if digest != b64_hash:
             raise RuntimeError(f"Checksum mismatch for {key}")
 
 
@@ -162,8 +164,9 @@ def verify_assets(base: Path) -> list[str]:
             continue
         expected = CHECKSUMS.get(rel) or CHECKSUMS.get(dest.name)
         if expected:
-            digest = base64.b64encode(hashlib.sha384(dest.read_bytes()).digest()).decode()
-            if not expected.endswith(digest):
+            algo, b64_hash = expected.split("-", 1)
+            digest = base64.b64encode(getattr(hashlib, algo)(dest.read_bytes()).digest()).decode()
+            if digest != b64_hash:
                 print(f"Checksum mismatch for {rel}")
                 failures.append(rel)
     return failures
