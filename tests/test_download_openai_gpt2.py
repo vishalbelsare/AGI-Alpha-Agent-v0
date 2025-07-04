@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: Apache-2.0
 import os
 from pathlib import Path
-import requests
+import requests  # type: ignore[import-untyped]
 
 import requests_mock
 
@@ -10,9 +10,11 @@ import pytest
 import scripts.download_openai_gpt2 as dg
 
 
-def test_model_urls() -> None:
+def test_model_urls(monkeypatch: pytest.MonkeyPatch) -> None:
+    custom_base = "https://example.com/gpt2"
+    monkeypatch.setenv("OPENAI_GPT2_BASE_URL", custom_base)
     urls = dg.model_urls("124M")
-    prefix = "https://openaipublic.blob.core.windows.net/gpt-2/models/124M/"
+    prefix = f"{custom_base}/124M/"
     assert urls[0].startswith(prefix)
     assert urls[-1].endswith("vocab.bpe")
 
@@ -73,3 +75,10 @@ def test_resolve_url_fallback(monkeypatch: pytest.MonkeyPatch, requests_mock: "r
         requests_mock.head(urls[1], exc=requests.exceptions.RequestException)
         requests_mock.head(urls[2], status_code=200)
         assert dw._resolve_url() == urls[2]
+
+
+@pytest.mark.skipif(os.getenv("PYTEST_NET_OFF") == "1", reason="network disabled")  # type: ignore[misc]
+def test_openai_link_head() -> None:
+    url = dg.model_urls("124M")[0]
+    resp = requests.head(url, timeout=10)
+    assert resp.status_code == 200
