@@ -32,9 +32,9 @@ OPENAI_GPT2_URL = os.environ.get(
     "https://openaipublic.blob.core.windows.net/gpt-2/models/124M/wasm-gpt2.tar",
 )
 _DEFAULT_WASM_GPT2_URLS = [
+    f"https://w3s.link/ipfs/{WASM_GPT2_CID}?download=1",
     OPENAI_GPT2_URL,
     "https://huggingface.co/datasets/xenova/wasm-gpt2/resolve/main/wasm-gpt2.tar?download=1",
-    "https://cloudflare-ipfs.com/ipfs/bafybeihdwdcefgh4dqkjv67uzcmw7ojee6xedzdetojuzjevtenxquvyku?download=1",
 ]
 
 

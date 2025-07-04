@@ -70,16 +70,16 @@ is missing the build scripts continue with default empty values:
 Run `npm run fetch-assets` to download the Pyodide runtime and local model
 before installing dependencies. The script invokes
 `scripts/fetch_assets.py` under the hood, which retrieves `wasm-gpt2.tar`
-from the OpenAI mirror first, then falls back to the Hugging Face link and
+from the canonical IPFS mirror first, then falls back to the OpenAI URL and
 finally the configured gateway. Set `WASM_GPT2_URL` to override the list or
 `OPENAI_GPT2_URL` to change the fallback URL, for example:
 
 ```bash
-export WASM_GPT2_URL="https://huggingface.co/datasets/xenova/wasm-gpt2/resolve/main/wasm-gpt2.tar?download=1"
+export WASM_GPT2_URL="https://w3s.link/ipfs/bafybeihdwdcefgh4dqkjv67uzcmw7ojee6xedzdetojuzjevtenxquvyku?download=1"
 export OPENAI_GPT2_URL="https://openaipublic.blob.core.windows.net/gpt-2/models/124M/wasm-gpt2.tar"
 ```
 
-If `npm run fetch-assets` fails with '401 Unauthorized', set `WASM_GPT2_URL` to the official OpenAI link shown above.
+If `npm run fetch-assets` fails with a 401 or 404 error, set `WASM_GPT2_URL` to the official OpenAI link shown above.
 Example:
 ```bash
 WASM_GPT2_URL="https://openaipublic.blob.core.windows.net/gpt-2/models/124M/wasm-gpt2.tar" npm run fetch-assets
@@ -132,8 +132,8 @@ offline run:
 npm run fetch-assets
 ```
 
-This downloads the Pyodide runtime and `wasm-gpt2` model from the OpenAI
-mirror first, then the Hugging Face mirror and finally the configured IPFS
+This downloads the Pyodide runtime and `wasm-gpt2` model from the IPFS
+mirror first, then the OpenAI fallback and finally the configured
 gateway. Assets land in `wasm/` and `wasm_llm/`.
 It also retrieves `lib/bundle.esm.min.js` from the mirror. You may instead run
 `python ../../../../scripts/download_wasm_gpt2.py` or
@@ -249,7 +249,7 @@ WEB3_STORAGE_TOKEN=<token> npm run fetch-assets
 
 
 The script retrieves the WebAssembly runtime and supporting files from the
-OpenAI mirror first and falls back to the Hugging Face or configured IPFS
+IPFS mirror first and falls back to the OpenAI URL or configured
 gateway, verifying checksums to ensure each asset is intact.
 
 ### Offline Build Steps
