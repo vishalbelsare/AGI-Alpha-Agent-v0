@@ -22,8 +22,6 @@ def test_assets_replaced() -> None:
     for name, expected in manifest["checksums"].items():
         if name.startswith("lib/"):
             path = BASE / name
-        elif name == "wasm-gpt2.tar":
-            path = BASE / "wasm_llm" / name
         else:
             path = BASE / "wasm" / name
         if not path.exists():

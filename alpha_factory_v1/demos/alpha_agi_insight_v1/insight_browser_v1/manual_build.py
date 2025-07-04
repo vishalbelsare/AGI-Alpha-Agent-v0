@@ -321,9 +321,6 @@ for name in ("pyodide.js", "pyodide_py.tar", "packages.json"):
     if f.exists():
         _verify(f, name)
 gpt2_b64 = ""
-gpt2_file = ROOT / "wasm_llm" / "wasm-gpt2.tar"
-if gpt2_file.exists():
-    gpt2_b64 = base64.b64encode(_verify(gpt2_file, "wasm-gpt2.tar")).decode()
 evolver = _compile_worker(ROOT / "worker" / "evolver.ts")
 arena = _compile_worker(ROOT / "worker" / "arenaWorker.ts")
 bundle = (
@@ -450,15 +447,6 @@ index_html.write_text(
         ),
     )
 )
-
-wasm_llm_dir = ROOT / manifest["dirs"]["wasm_llm"]
-if wasm_llm_dir.exists():
-    f = dist_dir / manifest["dirs"]["wasm_llm"] / "wasm-gpt2.tar"
-    if f.exists():
-        actual = sha384(f)
-        expected = checksums.get("wasm-gpt2.tar")
-        if expected and expected != actual:
-            sys.exit("Checksum mismatch for wasm-gpt2.tar")
 
 
 # generate service worker
