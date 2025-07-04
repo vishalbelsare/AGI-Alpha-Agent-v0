@@ -44,6 +44,25 @@ jobs:
         run: pip install mkdocs mkdocs-material
       - name: Make scripts executable
         run: chmod +x ./scripts/*.sh
+      - name: Compute asset cache key
+        id: asset-key
+        run: |
+          key=$(python - <<'EOF'
+import hashlib
+import scripts.fetch_assets as fa
+data = fa.CHECKSUMS["pyodide.asm.wasm"] + fa.CHECKSUMS["pytorch_model.bin"]
+print(hashlib.sha256(data.encode()).hexdigest())
+EOF
+          )
+          echo "key=$key" >> "$GITHUB_OUTPUT"
+      - name: Cache Pyodide and GPT-2 assets
+        id: asset-cache
+        uses: actions/cache@v3
+        with:
+          path: |
+            alpha_factory_v1/demos/alpha_agi_insight_v1/insight_browser_v1/wasm
+            alpha_factory_v1/demos/alpha_agi_insight_v1/insight_browser_v1/wasm_llm
+          key: assets-${{ steps.asset-key.outputs.key }}
       - name: Build and deploy gallery
         env:
           IPFS_GATEWAY: ${{ env.IPFS_GATEWAY }}
