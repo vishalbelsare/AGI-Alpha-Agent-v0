@@ -33,6 +33,8 @@ HF_GPT2_BASE_URL = os.environ.get("HF_GPT2_BASE_URL", DEFAULT_HF_GPT2_BASE_URL).
 DEFAULT_PYODIDE_BASE_URL = "https://cdn.jsdelivr.net/pyodide/v0.25.1/full"
 ALT_PYODIDE_BASE_URL = "https://pyodide-cdn2.iodide.io/v0.25.1/full"
 PYODIDE_BASE_URL = os.environ.get("PYODIDE_BASE_URL", DEFAULT_PYODIDE_BASE_URL).rstrip("/")
+# Number of download attempts before giving up
+MAX_ATTEMPTS = int(os.environ.get("FETCH_ASSETS_ATTEMPTS", "3"))
 # Alternate gateways to try when the main download fails
 FALLBACK_GATEWAYS = [
     "https://ipfs.io/ipfs",
@@ -115,7 +117,7 @@ def download_with_retry(
     cid: str,
     path: Path,
     fallback: str | None = None,
-    attempts: int = 3,
+    attempts: int = MAX_ATTEMPTS,
     label: str | None = None,
     disable_ipfs_fallback: bool = False,
 ) -> None:

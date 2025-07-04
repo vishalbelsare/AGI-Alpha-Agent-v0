@@ -76,6 +76,7 @@ retrieves the official Pyodide runtime from the jsDelivr CDN and the GPT‑2
 small checkpoint from Hugging Face. If a custom `PYODIDE_BASE_URL` is unreachable the helper
 automatically retries using the official CDN. The deprecated `wasm-gpt2.tar`
 archive is no longer used.
+Set `FETCH_ASSETS_ATTEMPTS` to control the retry count when downloading assets.
 Override `PYODIDE_BASE_URL` or `HF_GPT2_BASE_URL` to change the mirrors, for example:
 
 ```bash

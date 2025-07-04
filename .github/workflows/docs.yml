@@ -16,6 +16,7 @@ jobs:
       IPFS_GATEWAY: https://cloudflare-ipfs.com/ipfs
       PYODIDE_BASE_URL: https://cdn.jsdelivr.net/pyodide/v0.25.1/full
       HF_GPT2_BASE_URL: https://huggingface.co/openai-community/gpt2/resolve/main
+      FETCH_ASSETS_ATTEMPTS: '5'
       # Keep the asset mirrors pinned to official hosts.
       # PYODIDE_BASE_URL and HF_GPT2_BASE_URL must remain exported
       # so edge_human_knowledge_pages_sprint.sh downloads from

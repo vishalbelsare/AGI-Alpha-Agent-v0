@@ -48,6 +48,7 @@ Downstream users should consult this section when upgrading.
   picked up by browsers.
 - `scripts/fetch_assets.py` now downloads the Pyodide runtime from the official
   CDN and retrieves GPT-2 weights directly from Hugging Face.
+- Added `FETCH_ASSETS_ATTEMPTS` environment variable to control download retries.
 - The browser bundle now defaults to the official Web3 Storage CDN. IPFS is
   used only as a secondary mirror.
 ## [0.1.0-alpha] - 2024-05-01

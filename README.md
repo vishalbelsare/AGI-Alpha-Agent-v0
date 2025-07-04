@@ -1222,6 +1222,7 @@ for instructions and example volume mounts.
 | `IPFS_GATEWAY` | `https://ipfs.io/ipfs` | Base URL for IPFS downloads used by `npm run fetch-assets`. Override with `IPFS_GATEWAY=<url> npm run fetch-assets`. |
 | `HF_GPT2_BASE_URL` | `https://huggingface.co/openai-community/gpt2/resolve/main` | Base URL for the GPT‑2 checkpoints. |
 | `PYODIDE_BASE_URL` | `https://cdn.jsdelivr.net/pyodide/v0.25.1/full` | Base URL for the Pyodide runtime files. |
+| `FETCH_ASSETS_ATTEMPTS` | `3` | Download retry count for `fetch_assets.py`. |
 | `OTEL_ENDPOINT` | _(empty)_ | OTLP endpoint for anonymous telemetry. |
 | `ALPHA_FACTORY_ENABLE_ADK` | `false` | Set to `true` to start the Google ADK gateway. |
 | `ALPHA_FACTORY_ADK_PORT` | `9000` | Port for the ADK gateway when enabled. |
