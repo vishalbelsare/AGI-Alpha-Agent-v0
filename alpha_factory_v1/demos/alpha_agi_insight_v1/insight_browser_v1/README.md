@@ -68,10 +68,12 @@ is missing the build scripts continue with default empty values:
   like `window.pop` and `window.coldZone`.
 
 Run `npm run fetch-assets` to download the Pyodide runtime and local model
-before installing dependencies. The script invokes
-`scripts/fetch_assets.py` under the hood, which downloads the official GPT‑2
-small checkpoint from Hugging Face. Override `HF_GPT2_BASE_URL` to change the
-mirror, for example:
+before installing dependencies. Execute this command in a fresh checkout—or
+remove the existing `wasm*/` directories—so placeholder files are replaced.
+After the download completes, verify each file with
+`python ../../../../scripts/fetch_assets.py --verify-only`. The script
+retrieves the official GPT‑2 small checkpoint from Hugging Face. Override
+`HF_GPT2_BASE_URL` to change the mirror, for example:
 
 ```bash
 export HF_GPT2_BASE_URL="https://huggingface.co/openai-community/gpt2/resolve/main"
@@ -192,8 +194,9 @@ If `.env` is absent the script continues with empty defaults rather than abortin
 Follow these steps when building without internet access:
 
 1. Run `npm run fetch-assets` (or `python ../../../../scripts/download_gpt2_small.py`, `python ../../../../scripts/download_openai_gpt2.py`).
-2. Verify checksums match `build_assets.json` and ensure no files under
-   `wasm/` or `lib/` contain the word "placeholder".
+2. Verify checksums match `build_assets.json` with
+   `python ../../../../scripts/fetch_assets.py --verify-only` and ensure no
+   files under `wasm/` or `lib/` contain the word "placeholder".
 3. `npm ci` to install the locked dependencies.
 4. Execute `python manual_build.py` (or `./manual_build.ps1`) to generate the PWA in `dist/`.
 5. Launch with `npm start` or pin the directory with `ipfs add -r dist`.
