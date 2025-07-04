@@ -78,7 +78,11 @@ def test_resolve_url_fallback(monkeypatch: pytest.MonkeyPatch, requests_mock: "r
 
 
 @pytest.mark.skipif(os.getenv("PYTEST_NET_OFF") == "1", reason="network disabled")  # type: ignore[misc]
-def test_openai_link_head() -> None:
-    url = dg.model_urls("124M")[0]
-    resp = requests.head(url, timeout=10)
+def test_gpt2_link_head(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setenv(
+        "OPENAI_GPT2_BASE_URL",
+        "https://huggingface.co/openai-community/gpt2/resolve/main",
+    )
+    url = os.environ["OPENAI_GPT2_BASE_URL"].rstrip("/") + "/config.json"
+    resp = requests.head(url, allow_redirects=True, timeout=10)
     assert resp.status_code == 200
