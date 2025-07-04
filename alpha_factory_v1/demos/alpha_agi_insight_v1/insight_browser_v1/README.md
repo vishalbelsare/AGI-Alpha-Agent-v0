@@ -70,21 +70,22 @@ is missing the build scripts continue with default empty values:
 Run `npm run fetch-assets` to download the Pyodide runtime and local model
 before installing dependencies. The script invokes
 `scripts/fetch_assets.py` under the hood, which retrieves `wasm-gpt2.tar`
-from the canonical IPFS mirror first, then falls back to the OpenAI URL and
-finally the configured gateway. Set `WASM_GPT2_URL` to override the list or
-`OPENAI_GPT2_BASE_URL` to change the OpenAI mirror, for example:
+from the canonical IPFS mirror first, then falls back to the Hugging Face URL
+and finally the configured gateway. Set `WASM_GPT2_URL` to override the list or
+`OPENAI_GPT2_BASE_URL` to change the mirror, for example:
 
 ```bash
 export WASM_GPT2_URL="https://w3s.link/ipfs/bafybeihdwdcefgh4dqkjv67uzcmw7ojee6xedzdetojuzjevtenxquvyku?download=1"
-export OPENAI_GPT2_BASE_URL="https://openaipublic.blob.core.windows.net/gpt-2/models"
+export OPENAI_GPT2_BASE_URL="https://huggingface.co/openai-community/gpt2/resolve/main"
 ```
 
 If `npm run fetch-assets` fails with a 401 or 404 error, download the checkpoint directly:
 ```bash
-python ../../../../scripts/download_gpt2_small.py models
+python ../../../../scripts/download_hf_gpt2.py models/gpt2
 ```
 
-Alternatively, execute `python ../../../../scripts/download_wasm_gpt2.py`,
+Alternatively, execute `python ../../../../scripts/download_hf_gpt2.py`,
+`python ../../../../scripts/download_wasm_gpt2.py`,
 `python ../../../../scripts/download_openai_gpt2.py`, or
 `python ../../../../scripts/download_gpt2_small.py` to fetch the GPT‑2 model
 directly.
