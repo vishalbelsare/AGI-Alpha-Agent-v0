@@ -140,7 +140,7 @@ python scripts/download_gpt2_small.py models/
 
 As a last resort use `python scripts/download_openai_gpt2.py 124M`.
 
-`fetch_assets.py` honors the `IPFS_GATEWAY` environment variable for assets still hosted on IPFS. If the default gateway is unreachable, set it before running the helper:
+`fetch_assets.py` honors the `IPFS_GATEWAY` environment variable for assets still hosted on IPFS. Set `IPFS_GATEWAY=<url>` to override the primary gateway when running the helper:
 
 ```bash
 IPFS_GATEWAY=https://ipfs.io/ipfs npm run fetch-assets
@@ -1230,12 +1230,13 @@ for instructions and example volume mounts.
 
 #### IPFS Gateway
 
-`scripts/fetch_assets.py` uses the `IPFS_GATEWAY` variable to construct URLs when downloading
-files from IPFS. The default is `https://ipfs.io/ipfs`, but any reachable mirror will work.
-Set `IPFS_GATEWAY` before running the helper to switch gateways.
+`scripts/fetch_assets.py` uses the `IPFS_GATEWAY` environment variable to construct the
+primary download URL. The default is `https://ipfs.io/ipfs`, but any reachable mirror will work.
+Set `IPFS_GATEWAY=<url>` before running the helper to override the primary gateway.
 
 If no `IPFS_GATEWAY` is provided, the helper falls back to `https://ipfs.io/ipfs`,
-then `https://cloudflare-ipfs.com/ipfs`, and finally `https://w3s.link/ipfs`.
+`https://cloudflare-ipfs.com/ipfs`, `https://w3s.link/ipfs`, `https://cf-ipfs.com/ipfs` and
+`https://gateway.pinata.cloud/ipfs`.
 
 The values above mirror `.env.sample`. When running the stack with Docker
 Compose, adjust the environment section of
