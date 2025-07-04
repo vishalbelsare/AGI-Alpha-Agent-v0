@@ -108,7 +108,7 @@ docker compose up --build
 ./run_quickstart.sh
 ```
 
-Run `npm run fetch-assets` before `npm install` or executing `./setup.sh` to download the Insight demo assets. The helper retrieves the GPT‑2 model from the official mirror, then tries the OpenAI fallback and finally IPFS. See [insight_browser_v1/README.md](alpha_factory_v1/demos/alpha_agi_insight_v1/insight_browser_v1/README.md) for a detailed guide. You can alternatively run `python scripts/download_wasm_gpt2.py` or `python scripts/download_openai_gpt2.py 124M` to fetch the model directly.
+Run `npm run fetch-assets` before `npm install` or executing `./setup.sh` to download the Insight demo assets. The helper retrieves the GPT‑2 model from the official mirror, then tries the OpenAI fallback and finally IPFS. See [insight_browser_v1/README.md](alpha_factory_v1/demos/alpha_agi_insight_v1/insight_browser_v1/README.md) for a detailed guide. You can alternatively run `python scripts/download_gpt2_small.py` or `python scripts/download_openai_gpt2.py 124M` to fetch the model directly.
 
 `fetch_assets.py` honors the `IPFS_GATEWAY` environment variable when downloading assets from IPFS. If the default gateway is unreachable, set it before running the helper:
 
