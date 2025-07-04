@@ -14,6 +14,7 @@ import sys
 import os
 from pathlib import Path
 
+import hashlib
 import requests  # type: ignore[import-untyped]
 from tqdm import tqdm
 
@@ -27,6 +28,18 @@ _FILE_LIST = [
     "model.ckpt.meta",
     "vocab.bpe",
 ]
+
+# SHA-256 checksums for the 124M model files. These values verify
+# file integrity when downloads complete successfully.
+CHECKSUMS = {
+    "checkpoint": "dd1b025d2e155283f5e300ce95bf6d5b6bc0f7fe010db73daa6975eb896ab9cb",
+    "encoder.json": "196139668be63f3b5d6574427317ae82f612a97c5d1cdaf36ed2256dbf636783",
+    "hparams.json": "d9d56e4121c427164e0c55c6f03c08e1daf9002b9b672825112d19097b680318",
+    "model.ckpt.data-00000-of-00001": "2060c885360cc0cf41d7a6dbc4d24b5127aae20260c8b5ae521b5a6578407118",
+    "model.ckpt.index": "71916f763f9746f9b2a06b12d91996cf1084ae008d0424543d39391c5f2dc687",
+    "model.ckpt.meta": "4668c448fa11531fd6700460487f73e82d3272960cea942252f8744bf225c77b",
+    "vocab.bpe": "1ce1664773c50f3e0cc8842619a93edc4624525b728b188a9e0be33b7726adc5",
+}
 
 
 def model_urls(model: str) -> list[str]:
@@ -50,6 +63,16 @@ def _download(url: str, dest: Path) -> None:
                     bar.update(len(chunk))
 
 
+def _verify(dest: Path) -> None:
+    """Validate the SHA-256 checksum if known."""
+    expected = CHECKSUMS.get(dest.name)
+    if not expected:
+        return
+    digest = hashlib.sha256(dest.read_bytes()).hexdigest()
+    if digest != expected:
+        raise RuntimeError(f"Checksum mismatch for {dest.name}")
+
+
 def download_openai_gpt2(model: str = "124M", dest: Path | str = "models", attempts: int = 3) -> None:
     dest_dir = Path(dest) / model
     urls = model_urls(model)
@@ -63,6 +86,7 @@ def download_openai_gpt2(model: str = "124M", dest: Path | str = "models", attem
             try:
                 print(f"Downloading {url} to {target} (attempt {i})")
                 _download(url, target)
+                _verify(target)
                 break
             except Exception as exc:  # noqa: PERF203
                 last_exc = exc
