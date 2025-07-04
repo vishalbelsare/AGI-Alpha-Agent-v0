@@ -139,26 +139,30 @@ They simply verify that the core package imports succeed.
    Bundling small wheels such as `numpy`, `pyyaml` and `pandas` allows the smoke
    tests to run without contacting PyPI.
 7. Set `PYTHONPATH=$(pwd)` or install the project in editable mode with `pip install -e .`.
-8. Include the stub modules in `tests/resources` on your `PYTHONPATH` so CLI
+8. Add the Insight demo source path so the orchestrator can import its agent modules:
+   ```bash
+   export PYTHONPATH="$(pwd)/alpha_factory_v1/demos/alpha_agi_insight_v1/src:$PYTHONPATH"
+   ```
+9. Include the stub modules in `tests/resources` on your `PYTHONPATH` so CLI
    subprocess tests can import the lightweight `rocketry` replacement:
    ```bash
    export PYTHONPATH="$(pwd)/tests/resources:$PYTHONPATH"
    ```
-9. Export the wheel cache path and run the environment check before the suite:
+10. Export the wheel cache path and run the environment check before the suite:
    ```bash
    export WHEELHOUSE=/path/to/wheels
    python check_env.py --auto-install --wheelhouse "$WHEELHOUSE"
    PYTHONPATH=$(pwd) pytest -q
    ```
-10. Without a wheelhouse or network access the environment check fails and
+11. Without a wheelhouse or network access the environment check fails and
    `tests/conftest.py` skips the entire suite with a concise "no network and no
    wheelhouse" message. Provide `--wheelhouse <dir>` (or set `WHEELHOUSE`) to run
    the tests offline. Preparing this directory via `scripts/build_offline_wheels.sh`
    is therefore a mandatory prerequisite when testing in air‑gapped setups.
-11. If `pre-commit` isn't found, install it with `pip install pre-commit` and run
+12. If `pre-commit` isn't found, install it with `pip install pre-commit` and run
    `pre-commit install` once to enable the git hooks referenced in
    [AGENTS.md](../AGENTS.md).
-11. Build the web assets so `dist/sw.js` exists:
+13. Build the web assets so `dist/sw.js` exists:
    ```bash
    make build_web  # or run npm run build in insight_browser_v1
    ```
