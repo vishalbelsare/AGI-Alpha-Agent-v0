@@ -66,10 +66,10 @@ ASSETS = {
 CHECKSUMS = {
     "lib/bundle.esm.min.js": "sha384-qri3JZdkai966TTOV3Cl4xxA97q+qXCgKrd49pOn7DPuYN74wOEd6CIJ9HnqEROD",  # noqa: E501
     "lib/workbox-sw.js": "sha384-LWo7skrGueg8Fa4y2Vpe1KB4g0SifqKfDr2gWFRmzZF9n9F1bQVo1F0dUurlkBJo",  # noqa: E501
-    "pyodide.asm.wasm": "sha384-kdvSehcoFMjX55sjg+o5JHaLhOx3HMkaLOwwMFmwH+bmmtvfeJ7zFEMWaqV9+wqo",
-    "pyodide.js": "sha384-okMTEZ8ZyBqYdx16cV0ouuwwg/XsRvqpTMEVld4H1PCCCZ0WfHuAfpGY61KFM8Uc",
-    "pyodide_py.tar": "sha384-rPiQj50jWaYANJhJndPDROq8z252DlRmXhzjVa9sDOeMJlrKZ5DIWRLd6UrnhZau",
-    "packages.json": "sha384-aa2pOjyGkOWdUDx78GrRC8Bk/k2+/qhHRXOGWfm1YaqwUgpoOJCIr2yCuLRVoEm7",
+    "pyodide.asm.wasm": "sha384-jazqcjXUeIYMNgPrqcZmv0cjFnPj/e0eC+x9e0NleEYkCOxveIMMtXU3uD7uRlMM",
+    "pyodide.js": "sha384-seajjUQIcvEwMC5MMXEiumXqlQqO0Bx2snuTKoW5x3LQ5o2nPJDK7cQsB4M0a7fw",
+    "pyodide_py.tar": "sha384-Oe3ZdqqHmtobZikk5G/AWIdYyUypw30uWF4Lo9fpFxgUNZkc05jkZSloDk2uj5kU",
+    "packages.json": "sha384-keC5mSZ0xcS+ymiCjzPcpOuGvAwQRBkm1a0MQofaH0KZyr36otPgshJ/Odvg1V4g",
     "pytorch_model.bin": "sha256-7c5d3f4b8b76583b422fcb9189ad6c89d5d97a094541ce8932dce3ecabde1421",
 }
 
