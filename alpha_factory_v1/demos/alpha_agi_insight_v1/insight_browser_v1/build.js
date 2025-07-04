@@ -31,7 +31,7 @@ function ensureDevPackages() {
         "esbuild",
         "tailwindcss",
         "workbox-build",
-        "web3.storage",
+        "@web3-storage/w3up-client",
         "dotenv",
     ];
     for (const pkg of packages) {
@@ -49,7 +49,7 @@ function ensureDevPackages() {
 ensureDevPackages();
 
 const { build } = await import("esbuild");
-const { Web3Storage, File } = await import("web3.storage");
+const w3up = await import("@web3-storage/w3up-client");
 const dotenv = (await import("dotenv")).default;
 dotenv.config();
 
@@ -297,25 +297,23 @@ async function bundle() {
         path.join(OUT_DIR, "service-worker.js"),
     );
     await checkGzipSize(`${OUT_DIR}/insight.bundle.js`);
-    if (process.env.WEB3_STORAGE_TOKEN) {
-        const client = new Web3Storage({
-            token: process.env.WEB3_STORAGE_TOKEN,
-        });
+    if (process.env.W3UP_EMAIL) {
+        const client = await w3up.create();
+        const account = await client.login(process.env.W3UP_EMAIL);
+        const space = await client.createSpace('insight-build', { account });
+        await client.setCurrentSpace(space.did());
         const files = await Promise.all(
             [
-                "index.html",
-                "insight.bundle.js",
-                "d3.v7.min.js",
-                "bundle.esm.min.js",
-            ].map(
-                async (f) =>
-                    new File([await fs.readFile(`${OUT_DIR}/${f}`)], f),
-            ),
+                'index.html',
+                'insight.bundle.js',
+                'd3.v7.min.js',
+                'bundle.esm.min.js',
+            ].map(async (f) => new File([await fs.readFile(`${OUT_DIR}/${f}`)], f)),
         );
-        const cid = await client.put(files, { wrapWithDirectory: false });
-        await fs.writeFile(`${OUT_DIR}/CID.txt`, cid);
+        const cid = await client.uploadDirectory(files);
+        await fs.writeFile(`${OUT_DIR}/CID.txt`, cid.toString());
         if (verbose) {
-            console.log("Pinned CID:", cid);
+            console.log('Pinned CID:', cid.toString());
         }
     }
 }
