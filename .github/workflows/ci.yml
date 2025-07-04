@@ -28,7 +28,7 @@ jobs:
     environment: ci-on-demand        # ⇦ optional: add reviewers in repo Settings → Environments
     strategy:
       matrix:
-        python-version: [${{ env.PYTHON_VERSION_MATRIX }}]
+        python-version: ["3.11", "3.12"]
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -52,7 +52,7 @@ jobs:
     environment: ci-on-demand
     strategy:
       matrix:
-        python-version: [${{ env.PYTHON_VERSION_MATRIX }}]
+        python-version: ["3.11", "3.12"]
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -127,12 +127,12 @@ jobs:
       - name: Generate benchmark comment
         run: |
           python - <<'PY'
-import json
-data=json.load(open('tests/benchmarks/latest.json'))
-with open('bench.txt','w') as f:
-    f.write(f"p95 runtime: {data['p95']:.4f}s\n")
-    f.write(f"tokens used: {data['tokens']}\n")
-PY
+          import json
+          data=json.load(open('tests/benchmarks/latest.json'))
+          with open('bench.txt','w') as f:
+              f.write(f"p95 runtime: {data['p95']:.4f}s\n")
+              f.write(f"tokens used: {data['tokens']}\n")
+          PY
       - name: Comment benchmark
         if: ${{ github.event.pull_request }}
         uses: marocchino/sticky-pull-request-comment@v2

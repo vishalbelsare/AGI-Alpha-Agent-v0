@@ -13,7 +13,7 @@ jobs:
     timeout-minutes: 5
     strategy:
       matrix:
-        python-version: [${{ env.PYTHON_VERSION_MATRIX }}]
+        python-version: ["3.11", "3.12"]
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
