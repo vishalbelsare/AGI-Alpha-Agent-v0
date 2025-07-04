@@ -38,7 +38,7 @@ Example:
 WASM_GPT2_URL="https://openaipublic.blob.core.windows.net/gpt-2/models/124M/wasm-gpt2.tar" npm run fetch-assets
 ```
 
-See [insight_browser_v1/README.md](alpha_factory_v1/demos/alpha_agi_insight_v1/insight_browser_v1/README.md) for details. You can also retrieve the model directly with `python scripts/download_wasm_gpt2.py` or `python scripts/download_openai_gpt2.py 124M`.
+See [insight_browser_v1/README.md](alpha_factory_v1/demos/alpha_agi_insight_v1/insight_browser_v1/README.md) for details. You can also retrieve the model directly with `python scripts/download_wasm_gpt2.py`, `python scripts/download_openai_gpt2.py 124M`, or `python scripts/download_gpt2_small.py`.
 
 [![Launch \u03b1\u2011AGI Insight](https://img.shields.io/badge/Launch-%CE%B1%E2%80%91AGI%20Insight-blue?style=for-the-badge)](https://montrealai.github.io/AGI-Alpha-Agent-v0/alpha_agi_insight_v1/)
 
