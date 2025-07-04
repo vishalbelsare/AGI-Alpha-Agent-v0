@@ -14,7 +14,7 @@ jobs:
     env:
       SANDBOX_IMAGE: ghcr.io/example/selfheal-sandbox:latest
       IPFS_GATEWAY: https://cloudflare-ipfs.com/ipfs
-      PYODIDE_BASE_URL: https://github.com/pyodide/pyodide/releases/download/0.25.1
+      PYODIDE_BASE_URL: https://cdn.jsdelivr.net/pyodide/v0.25.1/full
       HF_GPT2_BASE_URL: https://huggingface.co/openai-community/gpt2/resolve/main
       FETCH_ASSETS_ATTEMPTS: '5'
       # Keep the asset mirrors pinned to official hosts.
