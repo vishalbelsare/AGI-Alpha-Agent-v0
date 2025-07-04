@@ -1,15 +1,20 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: Apache-2.0
 # See docs/DISCLAIMER_SNIPPET.md
-"""Download GPT-2 checkpoint files from OpenAI's public storage."""
+"""Download GPT-2 checkpoint files from OpenAI's public storage.
+
+The base URL may be overridden with the ``OPENAI_GPT2_BASE_URL`` environment
+variable to point to an alternate mirror.
+"""
 
 from __future__ import annotations
 
 import argparse
 import sys
+import os
 from pathlib import Path
 
-import requests
+import requests  # type: ignore[import-untyped]
 from tqdm import tqdm
 
 
@@ -25,7 +30,11 @@ _FILE_LIST = [
 
 
 def model_urls(model: str) -> list[str]:
-    base = f"https://openaipublic.blob.core.windows.net/gpt-2/models/{model}/"
+    base = os.environ.get(
+        "OPENAI_GPT2_BASE_URL",
+        "https://openaipublic.blob.core.windows.net/gpt-2/models",
+    ).rstrip("/")
+    base = f"{base}/{model}/"
     return [base + name for name in _FILE_LIST]
 
 
