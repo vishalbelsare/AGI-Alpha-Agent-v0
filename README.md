@@ -41,27 +41,23 @@ to change the mirror, for example:
 export HF_GPT2_BASE_URL="https://huggingface.co/openai-community/gpt2/resolve/main"
 ```
 
-If `npm run fetch-assets` fails with a 401 or 404 error, download the model
-directly using:
+If `npm run fetch-assets` fails with a 401 or 404 error, download the GPT‑2
+files manually:
 ```bash
 python scripts/download_hf_gpt2.py models/gpt2
-# Or download the files individually from Hugging Face
-curl -O https://huggingface.co/openai-community/gpt2/resolve/main/encoder.json
-curl -O https://huggingface.co/openai-community/gpt2/resolve/main/hparams.json
-curl -O https://huggingface.co/openai-community/gpt2/resolve/main/vocab.bpe
-curl -O https://huggingface.co/openai-community/gpt2/resolve/main/model.ckpt.index
-curl -O https://huggingface.co/openai-community/gpt2/resolve/main/model.ckpt.data-00000-of-00001
-curl -O https://huggingface.co/openai-community/gpt2/resolve/main/model.ckpt.meta
 ```
-The consolidated PyTorch weights are also available at:
-`https://huggingface.co/openai-community/gpt2/resolve/main/pytorch_model.bin`
-(SHA-256 `7c5d3f4b8b76583b422fcb9189ad6c89d5d97a094541ce8932dce3ecabde1421`).
-See [insight_browser_v1/README.md](alpha_factory_v1/demos/alpha_agi_insight_v1/insight_browser_v1/README.md) for details. You can also retrieve the model directly with `python scripts/download_hf_gpt2.py` or `python scripts/download_gpt2_small.py`.
-
+Each file can also be fetched individually using these official links:
 ```bash
-python scripts/download_gpt2_small.py models/
-# downloads https://huggingface.co/openai-community/gpt2/resolve/main/pytorch_model.bin ...
+curl -O https://huggingface.co/openai-community/gpt2/resolve/main/pytorch_model.bin
+curl -O https://huggingface.co/openai-community/gpt2/resolve/main/vocab.json
+curl -O https://huggingface.co/openai-community/gpt2/resolve/main/merges.txt
+curl -O https://huggingface.co/openai-community/gpt2/resolve/main/config.json
 ```
+The model weights have SHA‑256
+`7c5d3f4b8b76583b422fcb9189ad6c89d5d97a094541ce8932dce3ecabde1421` for
+verification. See
+[insight_browser_v1/README.md](alpha_factory_v1/demos/alpha_agi_insight_v1/insight_browser_v1/README.md)
+for additional details.
 
 [![Launch \u03b1\u2011AGI Insight](https://img.shields.io/badge/Launch-%CE%B1%E2%80%91AGI%20Insight-blue?style=for-the-badge)](https://montrealai.github.io/AGI-Alpha-Agent-v0/alpha_agi_insight_v1/)
 
@@ -1260,12 +1256,10 @@ download the checkpoint directly:
 ```bash
 python scripts/download_hf_gpt2.py models/gpt2
 # Or fetch manually from Hugging Face
-curl -O https://huggingface.co/openai-community/gpt2/resolve/main/encoder.json
-curl -O https://huggingface.co/openai-community/gpt2/resolve/main/hparams.json
-curl -O https://huggingface.co/openai-community/gpt2/resolve/main/vocab.bpe
-curl -O https://huggingface.co/openai-community/gpt2/resolve/main/model.ckpt.index
-curl -O https://huggingface.co/openai-community/gpt2/resolve/main/model.ckpt.data-00000-of-00001
-curl -O https://huggingface.co/openai-community/gpt2/resolve/main/model.ckpt.meta
+curl -O https://huggingface.co/openai-community/gpt2/resolve/main/pytorch_model.bin
+curl -O https://huggingface.co/openai-community/gpt2/resolve/main/vocab.json
+curl -O https://huggingface.co/openai-community/gpt2/resolve/main/merges.txt
+curl -O https://huggingface.co/openai-community/gpt2/resolve/main/config.json
 ```
 
 For a production-ready ADK setup see
