@@ -3,7 +3,7 @@ This repository is a conceptual research prototype. References to "AGI" and "sup
 
 # GPT‑2 Small CLI Demo
 
-This minimal example downloads the official OpenAI GPT‑2 117M checkpoint using
+This minimal example downloads the official OpenAI GPT‑2 124M checkpoint using
 `scripts/download_openai_gpt2.py`. The weights are converted to the Hugging Face
 format via `scripts/convert_openai_gpt2.py` on first run. If PyTorch is
 unavailable, the demo falls back to the hosted `gpt2` model from the

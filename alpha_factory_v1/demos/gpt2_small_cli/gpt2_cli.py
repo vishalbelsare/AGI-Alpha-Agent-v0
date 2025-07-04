@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 """Interactive GPT‑2 small demo.
 
-This module downloads the official GPT‑2 117M checkpoint from
+This module downloads the official GPT‑2 124M checkpoint from
 OpenAI if it is not already present and then generates text.
 
 The demo prefers the locally converted PyTorch weights when
@@ -17,7 +17,7 @@ import sys
 from pathlib import Path
 
 
-MODEL_NAME = "117M"
+MODEL_NAME = "124M"
 MODEL_DIR = Path(__file__).resolve().parent / "models"
 
 
