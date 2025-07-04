@@ -22,8 +22,11 @@ offline functionality and then publishes the docs in one step.
    `deploy_insight_demo.sh` to perform both steps automatically).
 3. Verify the page at `https://<org>.github.io/AGI-Alpha-Agent-v0/alpha_agi_insight_v1/`.
 
-The `fetch-assets` command respects the `IPFS_GATEWAY` environment variable.
-If downloads fail, set `IPFS_GATEWAY=https://w3s.link/ipfs` and rerun the step.
+The `fetch-assets` command downloads the Pyodide runtime and GPT‑2 weights from
+official mirrors. Override `PYODIDE_BASE_URL` or `HF_GPT2_BASE_URL` to change
+the sources. Remaining assets are fetched via IPFS and the command respects the
+`IPFS_GATEWAY` environment variable. If downloads fail, set
+`IPFS_GATEWAY=https://w3s.link/ipfs` and rerun the step.
 
 ## Prerequisites
 

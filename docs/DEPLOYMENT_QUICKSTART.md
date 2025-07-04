@@ -21,6 +21,7 @@ node alpha_factory_v1/demos/alpha_agi_insight_v1/insight_browser_v1/build/versio
    ```bash
    npm --prefix alpha_factory_v1/demos/alpha_agi_insight_v1/insight_browser_v1 run fetch-assets
    ```
+   Set `PYODIDE_BASE_URL` or `HF_GPT2_BASE_URL` to mirror locations if the default CDN is blocked.
 2. Build the PWA and deploy to GitHub Pages:
    ```bash
    ./scripts/publish_insight_pages.sh

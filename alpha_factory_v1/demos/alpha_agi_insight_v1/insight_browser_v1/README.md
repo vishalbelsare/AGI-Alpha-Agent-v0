@@ -72,8 +72,9 @@ before installing dependencies. Execute this command in a fresh checkout—or
 remove the existing `wasm*/` directories—so placeholder files are replaced.
 After the download completes, verify each file with
 `python ../../../../scripts/fetch_assets.py --verify-only`. The script
-retrieves the official GPT‑2 small checkpoint from Hugging Face. Override
-`HF_GPT2_BASE_URL` to change the mirror, for example:
+retrieves the official Pyodide runtime and GPT‑2 small checkpoint from
+Hugging Face. Override `PYODIDE_BASE_URL` or `HF_GPT2_BASE_URL` to change the
+mirrors, for example:
 
 ```bash
 export HF_GPT2_BASE_URL="https://huggingface.co/openai-community/gpt2/resolve/main"
@@ -133,7 +134,7 @@ npm run fetch-assets
 ```
 
 This downloads the Pyodide runtime and GPT‑2 model from the configured
-mirror. Assets land in `wasm/` and `wasm_llm/`.
+mirrors. Assets land in `wasm/` and `wasm_llm/`.
 It also retrieves `lib/bundle.esm.min.js` from the mirror. You may instead run
 `python ../../../../scripts/download_hf_gpt2.py` or
 `python ../../../../scripts/download_gpt2_small.py` to pull the model

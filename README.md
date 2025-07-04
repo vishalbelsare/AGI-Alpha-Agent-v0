@@ -120,14 +120,15 @@ docker compose up --build
 Run `npm run fetch-assets` before `npm install` or executing `./setup.sh` to
 download the Insight demo assets. Delete any old `wasm*/` directories or start
 from a clean checkout so placeholders are replaced. After fetching, verify the
-files with `python scripts/fetch_assets.py --verify-only`. The helper falls back
-to OpenAI when Hugging Face is unreachable. See
+files with `python scripts/fetch_assets.py --verify-only`. The helper retrieves
+the official Pyodide runtime and GPT‑2 small checkpoint from Hugging Face.
+Override `HF_GPT2_BASE_URL` or `PYODIDE_BASE_URL` to use alternate mirrors. See
 [insight_browser_v1/README.md](alpha_factory_v1/demos/alpha_agi_insight_v1/insight_browser_v1/README.md)
 for a detailed guide. You can also run `python scripts/download_gpt2_small.py`
 to retrieve the model directly, or `python scripts/download_openai_gpt2.py
 124M` as a last resort.
 
-`fetch_assets.py` honors the `IPFS_GATEWAY` environment variable when downloading assets from IPFS. If the default gateway is unreachable, set it before running the helper:
+`fetch_assets.py` honors the `IPFS_GATEWAY` environment variable for assets still hosted on IPFS. If the default gateway is unreachable, set it before running the helper:
 
 ```bash
 IPFS_GATEWAY=https://ipfs.io/ipfs npm run fetch-assets
@@ -1199,6 +1200,7 @@ for instructions and example volume mounts.
 | `MAX_SIM_TASKS` | `4` | Maximum concurrent simulation tasks. |
 | `IPFS_GATEWAY` | `https://ipfs.io/ipfs` | Base URL for IPFS downloads used by `npm run fetch-assets`. Override with `IPFS_GATEWAY=<url> npm run fetch-assets`. |
 | `HF_GPT2_BASE_URL` | `https://huggingface.co/openai-community/gpt2/resolve/main` | Base URL for the GPT‑2 checkpoints. |
+| `PYODIDE_BASE_URL` | `https://cdn.jsdelivr.net/pyodide/v0.25.1/full` | Base URL for the Pyodide runtime files. |
 | `OTEL_ENDPOINT` | _(empty)_ | OTLP endpoint for anonymous telemetry. |
 | `ALPHA_FACTORY_ENABLE_ADK` | `false` | Set to `true` to start the Google ADK gateway. |
 | `ALPHA_FACTORY_ADK_PORT` | `9000` | Port for the ADK gateway when enabled. |

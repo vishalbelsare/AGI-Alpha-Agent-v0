@@ -46,6 +46,8 @@ Downstream users should consult this section when upgrading.
   cycle period when logs show slow agent cycles.
 - Service worker cache version is now generated dynamically to ensure updates are
   picked up by browsers.
+- `scripts/fetch_assets.py` now downloads the Pyodide runtime from the official
+  CDN and retrieves GPT-2 weights directly from Hugging Face.
 ## [0.1.0-alpha] - 2024-05-01
 - Initial alpha release.
 - Git tag `v0.1.0-alpha`.
