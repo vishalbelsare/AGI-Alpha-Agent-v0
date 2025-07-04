@@ -31,10 +31,10 @@ DEFAULT_HF_GPT2_BASE_URL = "https://huggingface.co/openai-community/gpt2/resolve
 HF_GPT2_BASE_URL = os.environ.get("HF_GPT2_BASE_URL", DEFAULT_HF_GPT2_BASE_URL).rstrip("/")
 
 # Base URL for the Pyodide runtime
-DEFAULT_PYODIDE_BASE_URL = "https://cdn.jsdelivr.net/pyodide/v0.25.1/full"
-ALT_PYODIDE_BASE_URL = "https://pyodide-cdn2.iodide.io/v0.25.1/full"
+DEFAULT_PYODIDE_BASE_URL = "https://cdn.jsdelivr.net/pyodide/v0.24.1/full"
+ALT_PYODIDE_BASE_URL = "https://pyodide-cdn2.iodide.io/v0.24.1/full"
 # GitHub publishes the same assets under the releases page.
-GITHUB_PYODIDE_BASE_URL = "https://github.com/pyodide/pyodide/releases/download/0.25.1"
+GITHUB_PYODIDE_BASE_URL = "https://github.com/pyodide/pyodide/releases/download/0.24.1"
 PYODIDE_BASE_URL = os.environ.get("PYODIDE_BASE_URL", DEFAULT_PYODIDE_BASE_URL).rstrip("/")
 # Number of download attempts before giving up
 MAX_ATTEMPTS = int(os.environ.get("FETCH_ASSETS_ATTEMPTS", "3"))
@@ -56,7 +56,7 @@ PYODIDE_ASSETS = {
 }
 
 ASSETS = {
-    # Pyodide 0.25.1 runtime files
+    # Pyodide 0.24.1 runtime files
     "wasm/pyodide.js": f"{PYODIDE_BASE_URL}/pyodide.js",
     "wasm/pyodide.asm.wasm": f"{PYODIDE_BASE_URL}/pyodide.asm.wasm",
     "wasm/pyodide_py.tar": f"{PYODIDE_BASE_URL}/pyodide_py.tar",
@@ -75,10 +75,10 @@ ASSETS = {
 CHECKSUMS = {
     "lib/bundle.esm.min.js": "sha384-qri3JZdkai966TTOV3Cl4xxA97q+qXCgKrd49pOn7DPuYN74wOEd6CIJ9HnqEROD",  # noqa: E501
     "lib/workbox-sw.js": "sha384-LWo7skrGueg8Fa4y2Vpe1KB4g0SifqKfDr2gWFRmzZF9n9F1bQVo1F0dUurlkBJo",  # noqa: E501
-    "pyodide.asm.wasm": "sha384-jazqcjXUeIYMNgPrqcZmv0cjFnPj/e0eC+x9e0NleEYkCOxveIMMtXU3uD7uRlMM",
-    "pyodide.js": "sha384-seajjUQIcvEwMC5MMXEiumXqlQqO0Bx2snuTKoW5x3LQ5o2nPJDK7cQsB4M0a7fw",
-    "pyodide_py.tar": "sha384-Oe3ZdqqHmtobZikk5G/AWIdYyUypw30uWF4Lo9fpFxgUNZkc05jkZSloDk2uj5kU",
-    "packages.json": "sha384-keC5mSZ0xcS+ymiCjzPcpOuGvAwQRBkm1a0MQofaH0KZyr36otPgshJ/Odvg1V4g",
+    "pyodide.asm.wasm": "sha384-XmiypR2FYQ6+bKPYiwek6XzKP+9Y0X800XuxdKfS6X+49Z+wskdeoYiUB/rED0Vn",
+    "pyodide.js": "sha384-+R8PTzDXzivdjpxOqwVwRhPS9dlske7tKAjwj0O0Kr361gKY5d2Xe6Osl+faRLT7",
+    "pyodide_py.tar": "sha384-4avshemUWv205Gc966cs13LM0YYaiSqs/z6RyedKSA6lcVQ48wfD4pjdTk/TIpGs",
+    "packages.json": "sha384-zjvSUou3MtjJoDmJNakFljF3tMwxBpcFusWO5zGDU2I1VBljIRUB7KPQDEYGVG/C",
     "pytorch_model.bin": "sha256-7c5d3f4b8b76583b422fcb9189ad6c89d5d97a094541ce8932dce3ecabde1421",
 }
 
