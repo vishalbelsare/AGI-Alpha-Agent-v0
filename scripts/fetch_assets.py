@@ -36,9 +36,9 @@ PYODIDE_BASE_URL = os.environ.get(
 ).rstrip("/")
 # Alternate gateways to try when the main download fails
 FALLBACK_GATEWAYS = [
-    "https://w3s.link/ipfs",
     "https://ipfs.io/ipfs",
     "https://cloudflare-ipfs.com/ipfs",
+    "https://w3s.link/ipfs",
 ]
 
 PYODIDE_ASSETS = {
