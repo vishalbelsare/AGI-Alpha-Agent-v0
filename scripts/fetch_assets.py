@@ -72,7 +72,7 @@ CHECKSUMS = {
     "pyodide.js": "sha384-okMTEZ8ZyBqYdx16cV0ouuwwg/XsRvqpTMEVld4H1PCCCZ0WfHuAfpGY61KFM8Uc",
     "pyodide_py.tar": "sha384-rPiQj50jWaYANJhJndPDROq8z252DlRmXhzjVa9sDOeMJlrKZ5DIWRLd6UrnhZau",
     "packages.json": "sha384-aa2pOjyGkOWdUDx78GrRC8Bk/k2+/qhHRXOGWfm1YaqwUgpoOJCIr2yCuLRVoEm7",
-    "pytorch_model.bin": "sha256-fF0/S4t2WDtCL8uRia1sidXZeglFQc6JMtzj7KveFCE=",
+    "pytorch_model.bin": "sha256-7c5d3f4b8b76583b422fcb9189ad6c89d5d97a094541ce8932dce3ecabde1421",
 }
 
 
@@ -102,9 +102,13 @@ def download(cid: str, path: Path, fallback: str | None = None, label: str | Non
     key = label or path.name
     expected = CHECKSUMS.get(key) or CHECKSUMS.get(path.name)
     if expected:
-        algo, b64_hash = expected.split("-", 1)
-        digest = base64.b64encode(getattr(hashlib, algo)(data).digest()).decode()
-        if digest != b64_hash:
+        algo, ref = expected.split("-", 1)
+        digest_bytes = getattr(hashlib, algo)(data).digest()
+        calc_b64 = base64.b64encode(digest_bytes).decode()
+        if ref == calc_b64:
+            return
+        calc_hex = digest_bytes.hex()
+        if ref.lower() != calc_hex:
             raise RuntimeError(f"Checksum mismatch for {key}")
 
 
@@ -186,9 +190,13 @@ def verify_assets(base: Path) -> list[str]:
             continue
         expected = CHECKSUMS.get(rel) or CHECKSUMS.get(dest.name)
         if expected:
-            algo, b64_hash = expected.split("-", 1)
-            digest = base64.b64encode(getattr(hashlib, algo)(dest.read_bytes()).digest()).decode()
-            if digest != b64_hash:
+            algo, ref = expected.split("-", 1)
+            digest_bytes = getattr(hashlib, algo)(dest.read_bytes()).digest()
+            calc_b64 = base64.b64encode(digest_bytes).decode()
+            if ref == calc_b64:
+                continue
+            calc_hex = digest_bytes.hex()
+            if ref.lower() != calc_hex:
                 print(f"Checksum mismatch for {rel}")
                 failures.append(rel)
     return failures
