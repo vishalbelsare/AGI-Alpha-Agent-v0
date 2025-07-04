@@ -69,3 +69,5 @@ EOF
           PYODIDE_BASE_URL: ${{ env.PYODIDE_BASE_URL }}
           HF_GPT2_BASE_URL: ${{ env.HF_GPT2_BASE_URL }}
         run: ./scripts/edge_human_knowledge_pages_sprint.sh
+      - name: Verify downloaded assets
+        run: python scripts/fetch_assets.py --verify-only

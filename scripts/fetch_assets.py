@@ -60,7 +60,7 @@ ASSETS = {
     "wasm_llm/merges.txt": f"{HF_GPT2_BASE_URL}/merges.txt",
     "wasm_llm/config.json": f"{HF_GPT2_BASE_URL}/config.json",
     # Web3.Storage bundle
-    "lib/bundle.esm.min.js": "bafkreihgldx46iuks4lybdsc5qc6xom2y5fqdy5w3vvrxntlr42wc43u74",  # noqa: E501
+    "lib/bundle.esm.min.js": "https://cdn.jsdelivr.net/npm/web3.storage/dist/bundle.esm.min.js",  # noqa: E501
     # Workbox runtime
     "lib/workbox-sw.js": "https://storage.googleapis.com/workbox-cdn/releases/6.5.4/workbox-sw.js",
 }
@@ -236,7 +236,7 @@ def main() -> None:
                 print(f"Resolved Pyodide URL: {cid}")
             fallback = None
             if rel == "lib/bundle.esm.min.js":
-                fallback = "https://cdn.jsdelivr.net/npm/web3.storage/dist/bundle.esm.min.js"  # noqa: E501
+                fallback = "bafkreihgldx46iuks4lybdsc5qc6xom2y5fqdy5w3vvrxntlr42wc43u74"
             disable_fallback = rel in PYODIDE_ASSETS
             try:
                 download_with_retry(cid, dest, fallback, label=rel, disable_ipfs_fallback=disable_fallback)
