@@ -14,10 +14,11 @@ from tqdm import tqdm
 
 WASM_GPT2_CID = "bafybeihdwdcefgh4dqkjv67uzcmw7ojee6xedzdetojuzjevtenxquvyku"
 
+# Primary Hugging Face URL with OpenAI and IPFS fallbacks.
 _DEFAULT_URLS = [
-    f"https://w3s.link/ipfs/{WASM_GPT2_CID}?download=1",
-    "https://openaipublic.blob.core.windows.net/gpt-2/models/124M/wasm-gpt2.tar",
     "https://huggingface.co/datasets/xenova/wasm-gpt2/resolve/main/wasm-gpt2.tar?download=1",
+    "https://openaipublic.blob.core.windows.net/gpt-2/models/124M/wasm-gpt2.tar",
+    f"https://w3s.link/ipfs/{WASM_GPT2_CID}?download=1",
 ]
 
 

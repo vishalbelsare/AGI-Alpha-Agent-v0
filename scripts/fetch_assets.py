@@ -34,10 +34,11 @@ if not OPENAI_GPT2_URL:
         "https://openaipublic.blob.core.windows.net/gpt-2/models",
     ).rstrip("/")
     OPENAI_GPT2_URL = f"{base_url}/124M/wasm-gpt2.tar"
+# Official Hugging Face mirror. OpenAI and IPFS remain as fallbacks.
 _DEFAULT_WASM_GPT2_URLS = [
-    f"https://w3s.link/ipfs/{WASM_GPT2_CID}?download=1",
-    OPENAI_GPT2_URL,
     "https://huggingface.co/datasets/xenova/wasm-gpt2/resolve/main/wasm-gpt2.tar?download=1",
+    OPENAI_GPT2_URL,
+    f"https://w3s.link/ipfs/{WASM_GPT2_CID}?download=1",
 ]
 
 
@@ -89,9 +90,7 @@ def _session() -> requests.Session:
     return s
 
 
-def download(
-    cid: str, path: Path, fallback: str | None = None, label: str | None = None
-) -> None:
+def download(cid: str, path: Path, fallback: str | None = None, label: str | None = None) -> None:
     url = cid if cid.startswith("http") else f"{GATEWAY}/{cid}"
     path.parent.mkdir(parents=True, exist_ok=True)
     try:
