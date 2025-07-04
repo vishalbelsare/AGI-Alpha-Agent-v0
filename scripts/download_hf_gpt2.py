@@ -16,7 +16,18 @@ import sys
 from pathlib import Path
 
 import requests  # type: ignore[import-untyped]
+from requests.adapters import HTTPAdapter, Retry  # type: ignore[import-untyped]
 from tqdm import tqdm
+
+
+def _session() -> requests.Session:
+    """Return a session with basic retry logic."""
+    retry = Retry(total=3, backoff_factor=0.5)
+    adapter = HTTPAdapter(max_retries=retry)
+    s = requests.Session()
+    s.mount("https://", adapter)
+    s.mount("http://", adapter)
+    return s
 
 
 _FILES = [
@@ -43,7 +54,7 @@ def _base_url() -> str:
 
 def _download(url: str, dest: Path) -> None:
     dest.parent.mkdir(parents=True, exist_ok=True)
-    with requests.get(url, stream=True, timeout=60) as resp:
+    with _session().get(url, stream=True, timeout=60) as resp:
         resp.raise_for_status()
         total = int(resp.headers.get("Content-Length", 0))
         with open(dest, "wb") as fh, tqdm(total=total, unit="B", unit_scale=True, desc=dest.name) as bar:
