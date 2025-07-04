@@ -25,12 +25,13 @@ The GitHub Pages site hosts the interactive demo under the `alpha_agi_insight_v1
 **Explore all demos:** <https://montrealai.github.io/AGI-Alpha-Agent-v0/alpha_factory_v1/demos/> – run `./scripts/open_subdir_gallery.py` (or set `AF_GALLERY_URL` to your own mirror) for a local or online launch. Alternatively execute `make subdir-gallery-open` to build the gallery if needed and open it automatically.
 All browser demos include a **mode toggle**. Choose **Offline** to run a Pyodide simulation directly in your browser or switch to **OpenAI API** when you provide a key. The key is stored only in memory.
 
-**Important:** Run `npm run fetch-assets` before `npm install` or executing `./setup.sh` to download the browser demo assets. The helper fetches `wasm-gpt2.tar` from the canonical IPFS mirror and uses OpenAI's storage as a mirror when available. Set `WASM_GPT2_URL` to override the list of mirrors or `OPENAI_GPT2_BASE_URL` to change the OpenAI location, for example:
+**Important:** Run `npm run fetch-assets` before `npm install` or executing `./setup.sh` to download the browser demo assets. The helper fetches `wasm-gpt2.tar` from the canonical IPFS mirror and uses OpenAI's storage as a mirror when available. Set `WASM_GPT2_URL` to override the list of mirrors, `OPENAI_GPT2_BASE_URL` to change the OpenAI base path, or `OPENAI_GPT2_URL` to specify the full file URL, for example:
 
 ```bash
 export WASM_GPT2_URL="https://w3s.link/ipfs/bafybeihdwdcefgh4dqkjv67uzcmw7ojee6xedzdetojuzjevtenxquvyku?download=1"
 # Official mirror for the small GPT‑2 model (124M parameters)
 export OPENAI_GPT2_BASE_URL="https://openaipublic.blob.core.windows.net/gpt-2/models"
+export OPENAI_GPT2_URL="https://openaipublic.blob.core.windows.net/gpt-2/models/124M/wasm-gpt2.tar"
 ```
 
 If `npm run fetch-assets` fails with a 401 or 404 error, download the model
@@ -1185,6 +1186,7 @@ for instructions and example volume mounts.
 | `MAX_SIM_TASKS` | `4` | Maximum concurrent simulation tasks. |
 | `IPFS_GATEWAY` | `https://ipfs.io/ipfs` | Base URL for IPFS downloads used by `npm run fetch-assets`. Override with `IPFS_GATEWAY=<url> npm run fetch-assets`. |
 | `OPENAI_GPT2_BASE_URL` | `https://openaipublic.blob.core.windows.net/gpt-2/models` | Base URL for the GPT‑2 checkpoints. |
+| `OPENAI_GPT2_URL` | `https://openaipublic.blob.core.windows.net/gpt-2/models/124M/wasm-gpt2.tar` | Full URL for the wasm‑gpt2 archive. |
 | `OTEL_ENDPOINT` | _(empty)_ | OTLP endpoint for anonymous telemetry. |
 | `ALPHA_FACTORY_ENABLE_ADK` | `false` | Set to `true` to start the Google ADK gateway. |
 | `ALPHA_FACTORY_ADK_PORT` | `9000` | Port for the ADK gateway when enabled. |

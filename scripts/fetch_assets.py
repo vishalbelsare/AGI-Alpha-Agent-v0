@@ -27,10 +27,13 @@ WASM_GPT2_CID = "bafybeihdwdcefgh4dqkjv67uzcmw7ojee6xedzdetojuzjevtenxquvyku"
 # ``WASM_GPT2_URL`` may override the first URL or point to a completely
 # different location. When multiple URLs are provided via ``WASM_GPT2_URL``
 # they are tried in order separated by commas.
-OPENAI_GPT2_URL = os.environ.get(
-    "OPENAI_GPT2_URL",
-    "https://openaipublic.blob.core.windows.net/gpt-2/models/124M/wasm-gpt2.tar",
-)
+OPENAI_GPT2_URL = os.environ.get("OPENAI_GPT2_URL")
+if not OPENAI_GPT2_URL:
+    base_url = os.environ.get(
+        "OPENAI_GPT2_BASE_URL",
+        "https://openaipublic.blob.core.windows.net/gpt-2/models",
+    ).rstrip("/")
+    OPENAI_GPT2_URL = f"{base_url}/124M/wasm-gpt2.tar"
 _DEFAULT_WASM_GPT2_URLS = [
     f"https://w3s.link/ipfs/{WASM_GPT2_CID}?download=1",
     OPENAI_GPT2_URL,
