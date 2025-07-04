@@ -189,16 +189,22 @@ def main() -> None:
         return
 
     dl_failures: list[str] = []
+    PLACEHOLDER_ASSETS = {
+        "lib/bundle.esm.min.js",
+        "lib/workbox-sw.js",
+        "wasm/pyodide.js",
+        "wasm/pyodide.asm.wasm",
+        "wasm/pyodide_py.tar",
+        "wasm/packages.json",
+    }
     for rel, cid in ASSETS.items():
         dest = base / rel
-        check_placeholder = rel in {
-            "lib/bundle.esm.min.js",
-            "lib/workbox-sw.js",
-        }
+        check_placeholder = rel in PLACEHOLDER_ASSETS
         placeholder = False
         if dest.exists() and check_placeholder:
             text = dest.read_text(errors="ignore")
-            placeholder = "placeholder" in text.lower()
+            content = text.strip()
+            placeholder = not content or content == "{}" or "placeholder" in content.lower()
         if not dest.exists() or placeholder:
             if placeholder:
                 print(f"Replacing placeholder {rel}...")
