@@ -1,10 +1,11 @@
 #!/usr/bin/env python
 # SPDX-License-Identifier: Apache-2.0
 # See docs/DISCLAIMER_SNIPPET.md
-"""Download browser demo assets from IPFS or a mirror.
+"""Download browser demo assets from IPFS or public mirrors.
 
 Environment variables:
     HF_GPT2_BASE_URL -- Override the Hugging Face base URL for the GPT‑2 model.
+    PYODIDE_BASE_URL -- Override the base URL for Pyodide runtime files.
 """
 from __future__ import annotations
 
@@ -25,6 +26,11 @@ HF_GPT2_BASE_URL = os.environ.get(
     "HF_GPT2_BASE_URL",
     "https://huggingface.co/openai-community/gpt2/resolve/main",
 ).rstrip("/")
+# Base URL for the Pyodide runtime
+PYODIDE_BASE_URL = os.environ.get(
+    "PYODIDE_BASE_URL",
+    "https://cdn.jsdelivr.net/pyodide/v0.25.1/full",
+).rstrip("/")
 # Alternate gateways to try when the main download fails
 FALLBACK_GATEWAYS = [
     "https://w3s.link/ipfs",
@@ -33,11 +39,11 @@ FALLBACK_GATEWAYS = [
 ]
 
 ASSETS = {
-    # Pyodide 0.25 runtime files
-    "wasm/pyodide.js": "bafybeiaxk3fzpjn4oi2z7rn6p5wqp5b62ukptmzqk7qhmyeeri3zx4t2pa",  # noqa: E501
-    "wasm/pyodide.asm.wasm": "bafybeifub317gmrhdss4u5aefygb4oql6dyks3v6llqj77pnibsglj6nde",  # noqa: E501
-    "wasm/pyodide_py.tar": "bafybeidazzkz4a3qle6wvyjfwcb36br4idlm43oe5cb26wqzsa4ho7t52e",  # noqa: E501
-    "wasm/packages.json": "bafybeib44a4x7jgqhkgzo5wmgyslyqi1aocsswcdpsnmqkhmvqchwdcql4",  # noqa: E501
+    # Pyodide 0.25.1 runtime files
+    "wasm/pyodide.js": f"{PYODIDE_BASE_URL}/pyodide.js",
+    "wasm/pyodide.asm.wasm": f"{PYODIDE_BASE_URL}/pyodide.asm.wasm",
+    "wasm/pyodide_py.tar": f"{PYODIDE_BASE_URL}/pyodide_py.tar",
+    "wasm/packages.json": f"{PYODIDE_BASE_URL}/packages.json",
     # GPT-2 small weights
     "wasm_llm/pytorch_model.bin": f"{HF_GPT2_BASE_URL}/pytorch_model.bin",
     "wasm_llm/vocab.json": f"{HF_GPT2_BASE_URL}/vocab.json",
