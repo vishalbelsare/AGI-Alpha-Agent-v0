@@ -25,7 +25,13 @@ The GitHub Pages site hosts the interactive demo under the `alpha_agi_insight_v1
 **Explore all demos:** <https://montrealai.github.io/AGI-Alpha-Agent-v0/alpha_factory_v1/demos/> – run `./scripts/open_subdir_gallery.py` (or set `AF_GALLERY_URL` to your own mirror) for a local or online launch. Alternatively execute `make subdir-gallery-open` to build the gallery if needed and open it automatically.
 All browser demos include a **mode toggle**. Choose **Offline** to run a Pyodide simulation directly in your browser or switch to **OpenAI API** when you provide a key. The key is stored only in memory.
 
-**Important:** Run `npm run fetch-assets` before `npm install` or executing `./setup.sh` to download the browser demo assets. The helper now retrieves the official GPT‑2 small checkpoint from Hugging Face. Override `HF_GPT2_BASE_URL` to change the mirror, for example:
+**Important:** Run `npm run fetch-assets` before `npm install` or executing
+`./setup.sh` to download the browser demo assets. Run this command in a fresh
+checkout—or delete existing `wasm*/` files first—so placeholder files are
+replaced. After the download, verify checksums with
+`python scripts/fetch_assets.py --verify-only`. The helper retrieves the official
+GPT‑2 small checkpoint from Hugging Face. Override `HF_GPT2_BASE_URL` to change
+the mirror, for example:
 
 ```bash
 export HF_GPT2_BASE_URL="https://huggingface.co/openai-community/gpt2/resolve/main"
@@ -111,7 +117,15 @@ docker compose up --build
 ./run_quickstart.sh
 ```
 
-Run `npm run fetch-assets` before `npm install` or executing `./setup.sh` to download the Insight demo assets. The helper fetches the GPT‑2 checkpoint from the official Hugging Face mirror and falls back to OpenAI if necessary. See [insight_browser_v1/README.md](alpha_factory_v1/demos/alpha_agi_insight_v1/insight_browser_v1/README.md) for a detailed guide. You can also run `python scripts/download_gpt2_small.py` to retrieve the model directly, or `python scripts/download_openai_gpt2.py 124M` as a last resort.
+Run `npm run fetch-assets` before `npm install` or executing `./setup.sh` to
+download the Insight demo assets. Delete any old `wasm*/` directories or start
+from a clean checkout so placeholders are replaced. After fetching, verify the
+files with `python scripts/fetch_assets.py --verify-only`. The helper falls back
+to OpenAI when Hugging Face is unreachable. See
+[insight_browser_v1/README.md](alpha_factory_v1/demos/alpha_agi_insight_v1/insight_browser_v1/README.md)
+for a detailed guide. You can also run `python scripts/download_gpt2_small.py`
+to retrieve the model directly, or `python scripts/download_openai_gpt2.py
+124M` as a last resort.
 
 `fetch_assets.py` honors the `IPFS_GATEWAY` environment variable when downloading assets from IPFS. If the default gateway is unreachable, set it before running the helper:
 
