@@ -232,6 +232,8 @@ def main() -> None:
                 print(f"Replacing placeholder {rel}...")
             else:
                 print(f"Fetching {rel} from {cid}...")
+            if rel in PYODIDE_ASSETS:
+                print(f"Resolved Pyodide URL: {cid}")
             fallback = None
             if rel == "lib/bundle.esm.min.js":
                 fallback = "https://cdn.jsdelivr.net/npm/web3.storage/dist/bundle.esm.min.js"  # noqa: E501
