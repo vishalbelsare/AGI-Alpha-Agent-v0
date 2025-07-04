@@ -8,7 +8,8 @@ Environment variables:
     PYODIDE_BASE_URL -- Override the base URL for Pyodide runtime files.
 
 Pyodide runtime files are fetched directly from the official CDN or the
-user-specified mirror without attempting any IPFS fallbacks.
+user-specified mirror. When a custom mirror fails, the script retries with
+the official CDN instead of falling back to IPFS.
 """
 from __future__ import annotations
 
@@ -25,15 +26,12 @@ from requests.adapters import HTTPAdapter, Retry  # type: ignore
 GATEWAY = os.environ.get("IPFS_GATEWAY", "https://ipfs.io/ipfs").rstrip("/")
 
 # Base URL for the GPT-2 small weights
-HF_GPT2_BASE_URL = os.environ.get(
-    "HF_GPT2_BASE_URL",
-    "https://huggingface.co/openai-community/gpt2/resolve/main",
-).rstrip("/")
+DEFAULT_HF_GPT2_BASE_URL = "https://huggingface.co/openai-community/gpt2/resolve/main"
+HF_GPT2_BASE_URL = os.environ.get("HF_GPT2_BASE_URL", DEFAULT_HF_GPT2_BASE_URL).rstrip("/")
+
 # Base URL for the Pyodide runtime
-PYODIDE_BASE_URL = os.environ.get(
-    "PYODIDE_BASE_URL",
-    "https://cdn.jsdelivr.net/pyodide/v0.25.1/full",
-).rstrip("/")
+DEFAULT_PYODIDE_BASE_URL = "https://cdn.jsdelivr.net/pyodide/v0.25.1/full"
+PYODIDE_BASE_URL = os.environ.get("PYODIDE_BASE_URL", DEFAULT_PYODIDE_BASE_URL).rstrip("/")
 # Alternate gateways to try when the main download fails
 FALLBACK_GATEWAYS = [
     "https://ipfs.io/ipfs",
@@ -240,9 +238,11 @@ def main() -> None:
                 print(f"Replacing placeholder {rel}...")
             else:
                 print(f"Fetching {rel} from {cid}...")
+            fallback = None
             if rel in PYODIDE_ASSETS:
                 print(f"Resolved Pyodide URL: {cid}")
-            fallback = None
+                if PYODIDE_BASE_URL != DEFAULT_PYODIDE_BASE_URL:
+                    fallback = f"{DEFAULT_PYODIDE_BASE_URL}/{dest.name}"
             if rel == "lib/bundle.esm.min.js":
                 fallback = "bafkreihgldx46iuks4lybdsc5qc6xom2y5fqdy5w3vvrxntlr42wc43u74"
             disable_fallback = rel in PYODIDE_ASSETS

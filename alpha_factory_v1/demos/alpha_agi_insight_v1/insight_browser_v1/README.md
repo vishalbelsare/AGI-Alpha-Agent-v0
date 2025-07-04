@@ -73,7 +73,9 @@ remove the existing `wasm*/` directories—so placeholder files are replaced.
 After the download completes, verify each file with
 `python ../../../../scripts/fetch_assets.py --verify-only`. The script
 retrieves the official Pyodide runtime and GPT‑2 small checkpoint from
-Hugging Face. The deprecated `wasm-gpt2.tar` archive is no longer used.
+Hugging Face. If a custom `PYODIDE_BASE_URL` is unreachable the helper
+automatically retries using the official CDN. The deprecated `wasm-gpt2.tar`
+archive is no longer used.
 Override `PYODIDE_BASE_URL` or `HF_GPT2_BASE_URL` to change the mirrors, for example:
 
 ```bash
