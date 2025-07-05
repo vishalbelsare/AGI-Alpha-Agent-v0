@@ -24,7 +24,7 @@ def main() -> int:
         else:
             cmd = [sys.executable, "-m", "piptools", "compile"]
         wheelhouse = os.getenv("WHEELHOUSE")
-        cmd += ["--quiet"]
+        cmd += ["--generate-hashes", "--quiet"]
         if wheelhouse:
             cmd += ["--no-index", "--find-links", wheelhouse]
         cmd += [str(req_txt), "-o", str(out_path)]
@@ -38,7 +38,7 @@ def main() -> int:
             if wheelhouse:
                 extra = f"--no-index --find-links {wheelhouse} "
             sys.stderr.write(
-                f"requirements.lock is outdated. Run 'pip-compile {extra}--quiet "
+                f"requirements.lock is outdated. Run 'pip-compile {extra}--generate-hashes --quiet "
                 "requirements.txt -o requirements.lock'\n"
             )
             return 1
