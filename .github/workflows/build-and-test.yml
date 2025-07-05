@@ -22,6 +22,11 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Install pre-commit
+        run: pip install pre-commit
+      - name: Run pre-commit checks
+        run: pre-commit run --all-files
+
       - name: Build Docker image
         run: |
           docker build -t ghcr.io/${{ github.repository_owner }}/$DOCKER_IMAGE:${{ github.sha }} -f Dockerfile .

@@ -35,6 +35,10 @@ jobs:
         run: |
           python -m pip install --upgrade pip cyclonedx-bom
           npm install -g @cyclonedx/bom
+      - name: Install pre-commit
+        run: pip install pre-commit
+      - name: Run pre-commit checks
+        run: pre-commit run --all-files
 
       - name: Build Docker image
         run: |
