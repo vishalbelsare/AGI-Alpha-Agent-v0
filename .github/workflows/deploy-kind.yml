@@ -9,7 +9,7 @@ on:
 
 jobs:
   deploy-kind:
-    if: github.event_name == 'workflow_dispatch' && (github.actor == github.repository_owner || github.event.inputs.run_token == secrets.DISPATCH_TOKEN)
+    if: ${{ github.event_name == 'workflow_dispatch' && (github.actor == github.repository_owner || github.event.inputs.run_token == secrets.DISPATCH_TOKEN) }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository

@@ -55,7 +55,7 @@ jobs:
   tests:
     name: "✅ Pytest"
     needs: lint-type
-    if: github.event_name == 'workflow_dispatch' && (github.actor == github.repository_owner || github.event.inputs.run_token == secrets.DISPATCH_TOKEN)
+    if: ${{ github.event_name == 'workflow_dispatch' && (github.actor == github.repository_owner || github.event.inputs.run_token == secrets.DISPATCH_TOKEN) }}
     runs-on: ubuntu-latest
     environment: ci-on-demand
     strategy:
@@ -179,7 +179,7 @@ jobs:
   docker:
     name: "🐳 Docker build"
     needs: tests
-    if: github.event_name == 'workflow_dispatch' && (github.actor == github.repository_owner || github.event.inputs.run_token == secrets.DISPATCH_TOKEN)
+    if: ${{ github.event_name == 'workflow_dispatch' && (github.actor == github.repository_owner || github.event.inputs.run_token == secrets.DISPATCH_TOKEN) }}
     runs-on: ubuntu-latest
     environment: ci-on-demand
     steps:
@@ -220,7 +220,7 @@ jobs:
 
   deploy:
     name: "📦 Deploy"
-    if: github.event_name == 'workflow_dispatch' && (github.actor == github.repository_owner || github.event.inputs.run_token == secrets.DISPATCH_TOKEN) && startsWith(github.ref, 'refs/tags/')
+    if: ${{ github.event_name == 'workflow_dispatch' && (github.actor == github.repository_owner || github.event.inputs.run_token == secrets.DISPATCH_TOKEN) && startsWith(github.ref, 'refs/tags/') }}
     needs: docker
     runs-on: ubuntu-latest
     steps:
