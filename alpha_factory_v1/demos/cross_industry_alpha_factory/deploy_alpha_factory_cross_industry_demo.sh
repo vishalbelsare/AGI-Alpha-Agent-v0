@@ -144,7 +144,7 @@ fi
 # - prometheus v2.48.1
 # - grafana 10.4.2
 patch policy-engine '.services += {"policy-engine":{image:"openai/mcp-engine:0.2.0",volumes:["./alpha_factory_v1/policies:/policies:ro"]}}'
-patch prometheus '.services += {"prometheus":{image:"prom/prometheus:v2.48.1",ports:["'${PROM_PORT}':9090"]}}'
+patch prometheus '.services += {"prometheus":{image:"prom/prometheus:v2.48.1",ports:["'"${PROM_PORT}"':9090]}}'
 patch grafana ".services += {\"grafana\":{image:\"grafana/grafana:10.4.2\",ports:[\"${DASH_PORT}:3000\"]}}"
 patch ray-head ".services += {\"ray-head\":{image:\"rayproject/ray:2.10.0\",command:\"ray start --head --dashboard-port ${RAY_PORT} --dashboard-host 0.0.0.0\",ports:[\"${RAY_PORT}:${RAY_PORT}\"]}}"
 # mock services pinned to 0.1.0
@@ -153,7 +153,8 @@ patch carbon-api '.services += {"carbon-api":{image:"ghcr.io/alpha-factory/mock-
 
 # SBOM signer – uses BuildKit --iidfile so IMAGE_ID always populated
 # SBOM signer pinned to syft v1.27.0
-patch sbom '.services += {"sbom":{image:"anchore/syft:v1.27.0",command:["sh","-c","syft dir:/app -o spdx-json=/sbom/sbom.json && cosign attest --key=/sbom/cosign.key --predicate /sbom/sbom.json $(cat /tmp/IMAGE_ID) && rekor upload --rekor_server '$REKOR_URL' --artifact /sbom/sbom.json --public-key /sbom/cosign.pub"],volumes:["./alpha_factory_v1/sbom:/sbom"]}}'
+# shellcheck disable=SC2016
+patch sbom '.services += {"sbom":{image:"anchore/syft:v1.27.0",command:["sh","-c","syft dir:/app -o spdx-json=/sbom/sbom.json && cosign attest --key=/sbom/cosign.key --predicate /sbom/sbom.json \$(cat /tmp/IMAGE_ID) && rekor upload --rekor_server '"${REKOR_URL}"' --artifact /sbom/sbom.json --public-key /sbom/cosign.pub"],volumes:["./alpha_factory_v1/sbom:/sbom"]}}'
 
 # PPO continual-learning builder
 patch alpha-trainer '.services += {"alpha-trainer":{build:{context:"./alpha_factory_v1/continual"},depends_on:["ray-head","orchestrator"]}}'
@@ -226,7 +227,7 @@ JS
 export DOCKER_BUILDKIT=1
 echo "🐳  Building containers & generating SBOM…"
 "$DOCKER_COMPOSE" -f "$COMPOSE_FILE" --env-file alpha_factory_v1/.env up -d --build \
-  --iidfile /tmp/IMAGE_ID orchestrator ${AGENTS[*]} policy-engine prometheus grafana \
+  --iidfile /tmp/IMAGE_ID orchestrator "${AGENTS[@]}" policy-engine prometheus grafana \
   ray-head alpha-trainer pubmed-adapter carbon-api sbom
 
 echo "⏳  Waiting for orchestrator health…"
