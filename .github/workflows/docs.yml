@@ -39,10 +39,13 @@ jobs:
         run: python check_env.py --auto-install
       - name: Build sandbox image
         run: docker build -t $SANDBOX_IMAGE -f sandbox.Dockerfile .
-      - uses: actions/setup-node@v3
+      - uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version-file: '.nvmrc'
           cache: 'npm'
+          cache-dependency-path: |
+            alpha_factory_v1/demos/alpha_agi_insight_v1/insight_browser_v1/package-lock.json
+            alpha_factory_v1/core/interface/web_client/package-lock.json
       - name: Install pre-commit
         run: pip install pre-commit
       - name: Run pre-commit checks
