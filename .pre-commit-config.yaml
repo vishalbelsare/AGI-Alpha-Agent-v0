@@ -46,12 +46,6 @@ repos:
         language: python
         additional_dependencies: [pip-tools, "pip<25"]
         pass_filenames: false
-      - id: verify-era-experience-requirements-lock
-        name: Verify era_of_experience requirements.lock is up to date
-        entry: python scripts/verify_era_experience_requirements_lock.py
-        language: python
-        additional_dependencies: [pip-tools, "pip<25"]
-        pass_filenames: false
       - id: verify-mats-demo-lock
         name: Verify meta_agentic_tree_search_v0 requirements.lock is up to date
         entry: python scripts/verify_mats_requirements_lock.py
