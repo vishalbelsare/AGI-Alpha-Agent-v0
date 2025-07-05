@@ -118,7 +118,6 @@ Follow these steps when installing without internet access:
       --output-file alpha_factory_v1/requirements-colab.lock \
       alpha_factory_v1/requirements-colab.txt
   ```
-  The `verify-alpha-colab-requirements-lock` hook relies on this lock file.
 
 - See [`alpha_factory_v1/scripts/README.md`](alpha_factory_v1/scripts/README.md) for additional offline tips.
 - Run `python scripts/check_python_deps.py` **before running `pytest`** to quickly verify that `numpy`, `yaml` and `pandas` are installed. If it reports missing packages, execute `python check_env.py --auto-install` before running the tests. This step fetches packages from PyPI, so in air‑gapped setups you **must** pass `--wheelhouse <path>` or set `WHEELHOUSE` so `pip` installs from the local cache.
@@ -290,9 +289,6 @@ pre-commit run --files <paths>   # before each commit
     `mypy.ini`.
   - Semgrep scans Python files with the official `p/python` ruleset to enforce
     security and style best practices.
-  - Hooks `verify-alpha-requirements-lock` and
-    `verify-backend-requirements-lock` ensure each `requirements-lock` file
-    matches its `requirements.txt`. They rely on `pip-tools`.
   - Hooks are configured in `.pre-commit-config.yaml` at the repository root.
   - Hook `eslint-insight-browser` lints the Insight browser demo. It runs `npm ci`
     in `alpha_factory_v1/demos/alpha_agi_insight_v1/insight_browser_v1` before
