@@ -34,6 +34,7 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: '3.11'
+          cache: 'pip'
       - name: Install project dependencies
         run: python check_env.py --auto-install
       - name: Build sandbox image
@@ -41,6 +42,7 @@ jobs:
       - uses: actions/setup-node@v3
         with:
           node-version: '20'
+          cache: 'npm'
       - name: Install pre-commit
         run: pip install pre-commit
       - name: Run pre-commit checks
