@@ -50,8 +50,15 @@ jobs:
         run: |
           key=$(python - <<'EOF'
           import hashlib
+          import os
           import scripts.fetch_assets as fa
-          data = fa.CHECKSUMS["pyodide.asm.wasm"] + fa.CHECKSUMS["pytorch_model.bin"]
+
+          env_data = os.getenv("PYODIDE_BASE_URL", "") + os.getenv("HF_GPT2_BASE_URL", "")
+          data = (
+              fa.CHECKSUMS["pyodide.asm.wasm"]
+              + fa.CHECKSUMS["pytorch_model.bin"]
+              + env_data
+          )
           print(hashlib.sha256(data.encode()).hexdigest())
           EOF
           )
