@@ -1,6 +1,5 @@
 #!/usr/bin/env bash
 # SPDX-License-Identifier: Apache-2.0
-# This script is a conceptual research prototype.
 set -euo pipefail
 
 # ── flags ────────────────────────────────────────────────────────

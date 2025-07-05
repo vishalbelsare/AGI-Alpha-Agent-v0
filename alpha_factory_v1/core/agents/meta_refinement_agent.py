@@ -1,5 +1,4 @@
 # SPDX-License-Identifier: Apache-2.0
-# This code is a conceptual research prototype.
 """Analyse orchestrator logs and propose refinement patches.
 
 This module currently **simulates** repository improvements. The

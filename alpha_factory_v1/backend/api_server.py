@@ -1,5 +1,4 @@
 # SPDX-License-Identifier: Apache-2.0
-# This code is a conceptual research prototype.
 """REST and gRPC endpoints used by the orchestrator."""
 
 from __future__ import annotations

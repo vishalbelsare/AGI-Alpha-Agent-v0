@@ -1,6 +1,5 @@
 #!/usr/bin/env bash
 # SPDX-License-Identifier: Apache-2.0
-# This script is a conceptual research prototype.
 # Live-reload the demo gallery using MkDocs.
 # Rebuilds demo docs before launching the development server.
 set -euo pipefail

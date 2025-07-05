@@ -1,6 +1,5 @@
 #!/usr/bin/env bash
 # SPDX-License-Identifier: Apache-2.0
-# This script is a conceptual research prototype.
 # build_macro_wheelhouse.sh -- build wheels for the Macro-Sentinel demo
 set -euo pipefail
 DIR="$(cd "$(dirname "$0")" && pwd)"

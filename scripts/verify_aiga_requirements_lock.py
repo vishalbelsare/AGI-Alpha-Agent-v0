@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 # SPDX-License-Identifier: Apache-2.0
-# This script is a conceptual research prototype.
 """Ensure aiga_meta_evolution requirements.lock matches requirements.txt."""
 from __future__ import annotations
 

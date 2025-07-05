@@ -1,5 +1,4 @@
 # SPDX-License-Identifier: Apache-2.0
-# This code is a conceptual research prototype.
 """
 a2a_client.py
 -------------

@@ -1,5 +1,4 @@
 # SPDX-License-Identifier: Apache-2.0
-# This code is a conceptual research prototype.
 """Alpha‑Factory orchestrator wrapper."""
 
 from __future__ import annotations

@@ -1,6 +1,5 @@
 #!/usr/bin/env bash
 # SPDX-License-Identifier: Apache-2.0
-# This script is a conceptual research prototype.
 # Simple demo setup helper
 set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"

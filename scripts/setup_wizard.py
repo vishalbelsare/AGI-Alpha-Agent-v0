@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: Apache-2.0
-# This script is a conceptual research prototype.
 # See docs/DISCLAIMER_SNIPPET.md
 """Interactive environment setup wizard for the Insight demo."""
 
