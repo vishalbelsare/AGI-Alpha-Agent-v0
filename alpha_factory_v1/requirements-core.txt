@@ -40,6 +40,8 @@ playwright~=1.42
 
 # LLM / Agents stack
 openai>=1.82.0,<2.0
+openai-agents==0.0.17
+google-adk>=0.3.0
 anthropic>=0.21
 litellm>=1.31
 tiktoken>=0.5
