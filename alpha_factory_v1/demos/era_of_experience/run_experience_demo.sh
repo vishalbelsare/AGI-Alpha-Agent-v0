@@ -75,7 +75,6 @@ EOF
       ;;
     *)
       die "Unknown flag: $1"
-      shift
       ;;
   esac
 done
@@ -122,7 +121,7 @@ else
 fi
 declare -A urls=(
   [wearable_daily.csv]=https://raw.githubusercontent.com/MontrealAI/demo-assets/main/wearable_daily.csv
-  [edu_progress.csv]  =https://raw.githubusercontent.com/MontrealAI/demo-assets/main/edu_progress.csv
+  [edu_progress.csv]=https://raw.githubusercontent.com/MontrealAI/demo-assets/main/edu_progress.csv
 )
 if (( offline_probe == 0 )); then
   for f in "${!urls[@]}"; do
@@ -148,16 +147,18 @@ has_gpu && profiles+=(gpu)
 [[ -z "${OPENAI_API_KEY:-}" ]] && profiles+=(offline)
 (( PROFILE_LIVE )) && profiles+=(live-feed)
 export LIVE_FEED=${PROFILE_LIVE}
-profile_arg=""
-[[ ${#profiles[@]} -gt 0 ]] && profile_arg="--profile $(IFS=,; echo "${profiles[*]}")"
+profile_opts=()
+if [[ ${#profiles[@]} -gt 0 ]]; then
+  profile_opts=(--profile "$(IFS=,; echo "${profiles[*]}")")
+fi
 
 ################################ build & up ###################################
 say "🚢 Building images…"
-PORT="$PORT" docker compose -f "$compose_file" $profile_arg pull --quiet || true
-PORT="$PORT" docker compose -f "$compose_file" $profile_arg build --pull
+PORT="$PORT" docker compose -f "$compose_file" "${profile_opts[@]}" pull --quiet || true
+PORT="$PORT" docker compose -f "$compose_file" "${profile_opts[@]}" build --pull
 
 say "🔄 Starting stack…"
-PORT="$PORT" docker compose --project-name alpha_experience -f "$compose_file" $profile_arg up -d
+PORT="$PORT" docker compose --project-name alpha_experience -f "$compose_file" "${profile_opts[@]}" up -d
 
 ################################ health gate ##################################
 say "⏳ Waiting for orchestrator health"
