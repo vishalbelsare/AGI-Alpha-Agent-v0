@@ -7,6 +7,9 @@ on:
         description: 'Authorization token for maintainers'
         required: false
 
+permissions:
+  contents: read
+
 env:
   PYTHON_VERSION_MATRIX: "3.11,3.12"
 
