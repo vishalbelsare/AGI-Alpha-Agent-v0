@@ -24,7 +24,7 @@ def main() -> int:
         else:
             cmd = [sys.executable, "-m", "piptools", "compile"]
         wheelhouse = os.getenv("WHEELHOUSE")
-        cmd += ["--quiet"]
+        cmd += ["--generate-hashes", "--quiet"]
         if wheelhouse:
             cmd += ["--no-index", "--find-links", wheelhouse]
         cmd += [str(req_txt), "-o", str(out_path)]
@@ -40,7 +40,7 @@ def main() -> int:
             msg = (
                 "alpha_factory_v1/demos/era_of_experience/requirements.lock is outdated. "
                 "Run 'pip-compile "
-                f"{extra}--quiet alpha_factory_v1/demos/era_of_experience/requirements.txt -o "
+                f"{extra}--generate-hashes --quiet alpha_factory_v1/demos/era_of_experience/requirements.txt -o "
                 "alpha_factory_v1/demos/era_of_experience/requirements.lock'\n"
             )
             sys.stderr.write(msg)
