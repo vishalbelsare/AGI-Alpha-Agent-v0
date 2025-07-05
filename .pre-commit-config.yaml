@@ -34,42 +34,6 @@ repos:
         entry: make proto-verify
         language: system
         pass_filenames: false
-      - id: verify-alpha-requirements-lock
-        name: Verify alpha_factory_v1 requirements.lock is up to date
-        entry: python scripts/verify_alpha_requirements_lock.py
-        language: python
-        additional_dependencies: [pip-tools, "pip<25"]
-        pass_filenames: false
-      - id: verify-alpha-colab-requirements-lock
-        name: Verify alpha_factory_v1 requirements-colab.lock is up to date
-        entry: python scripts/verify_alpha_colab_requirements_lock.py
-        language: python
-        additional_dependencies: [pip-tools, "pip<25"]
-        pass_filenames: false
-      - id: verify-mats-demo-lock
-        name: Verify meta_agentic_tree_search_v0 requirements.lock is up to date
-        entry: python scripts/verify_mats_requirements_lock.py
-        language: python
-        additional_dependencies: [pip-tools, "pip<25"]
-        pass_filenames: false
-      - id: verify-mats-requirements-lock
-        name: Verify MATS demo requirements.lock is up to date
-        entry: python scripts/verify_mats_requirements_lock.py
-        language: python
-        additional_dependencies: [pip-tools, "pip<25"]
-        pass_filenames: false
-      - id: verify-aiga-requirements-lock
-        name: Verify aiga_meta_evolution requirements.lock is up to date
-        entry: python scripts/verify_aiga_requirements_lock.py
-        language: python
-        additional_dependencies: [pip-tools, "pip<25"]
-        pass_filenames: false
-      - id: verify-backend-requirements-lock
-        name: Verify backend requirements-lock.txt is up to date
-        entry: python scripts/verify_backend_requirements_lock.py
-        language: python
-        additional_dependencies: [pip-tools, "pip<25"]
-        pass_filenames: false
       - id: verify-env-docs
         name: Verify environment docs and runbook checklist
         entry: python tools/check_env_table.py

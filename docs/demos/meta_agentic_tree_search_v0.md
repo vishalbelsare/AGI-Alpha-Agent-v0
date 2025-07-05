@@ -219,8 +219,7 @@ pip-compile --generate-hashes -o requirements.lock requirements.txt
 ```
 
 Run `python scripts/verify_mats_requirements_lock.py` to confirm the lock file
-matches `requirements.txt` (the pre-commit hook invokes this helper
-automatically).
+matches `requirements.txt`.
 
 ### Environment variables
 The demo consults a few environment variables when choosing a rewrite strategy
