@@ -342,6 +342,7 @@ install dependencies without internet access.
 - Pull requests should follow [`pull_request_template.md`](.github/pull_request_template.md). Fill out
   all sections to confirm linting, type checks and tests pass.
 - Ensure `pre-commit` passes locally; the CI pipeline runs the same hooks and will fail if they do not.
+- CI jobs execute `pre-commit run --all-files`. Any failing hook stops the build.
 
 ### Starting the CI Pipeline
 You can manually trigger the CI run from the GitHub UI:
