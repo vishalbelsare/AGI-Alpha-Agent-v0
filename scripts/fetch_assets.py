@@ -31,10 +31,11 @@ DEFAULT_HF_GPT2_BASE_URL = "https://huggingface.co/openai-community/gpt2/resolve
 HF_GPT2_BASE_URL = os.environ.get("HF_GPT2_BASE_URL", DEFAULT_HF_GPT2_BASE_URL).rstrip("/")
 
 # Base URL for the Pyodide runtime
-DEFAULT_PYODIDE_BASE_URL = "https://cdn.jsdelivr.net/pyodide/v0.24.1/full"
-ALT_PYODIDE_BASE_URL = "https://pyodide-cdn2.iodide.io/v0.24.1/full"
+# Updated to Pyodide 0.26.0
+DEFAULT_PYODIDE_BASE_URL = "https://cdn.jsdelivr.net/pyodide/v0.26.0/full"
+ALT_PYODIDE_BASE_URL = "https://pyodide-cdn2.iodide.io/v0.26.0/full"
 # GitHub publishes the same assets under the releases page.
-GITHUB_PYODIDE_BASE_URL = "https://github.com/pyodide/pyodide/releases/download/0.24.1"
+GITHUB_PYODIDE_BASE_URL = "https://github.com/pyodide/pyodide/releases/download/0.26.0"
 PYODIDE_BASE_URL = os.environ.get("PYODIDE_BASE_URL", DEFAULT_PYODIDE_BASE_URL).rstrip("/")
 # Number of download attempts before giving up
 MAX_ATTEMPTS = int(os.environ.get("FETCH_ASSETS_ATTEMPTS", "3"))
@@ -55,10 +56,10 @@ PYODIDE_ASSETS = {
 }
 
 ASSETS = {
-    # Pyodide 0.24.1 runtime files
+    # Pyodide 0.26.0 runtime files
     "wasm/pyodide.js": f"{PYODIDE_BASE_URL}/pyodide.js",
     "wasm/pyodide.asm.wasm": f"{PYODIDE_BASE_URL}/pyodide.asm.wasm",
-    "wasm/repodata.json": f"{PYODIDE_BASE_URL}/repodata.json",
+    "wasm/repodata.json": f"{PYODIDE_BASE_URL}/pyodide-lock.json",
     # GPT-2 small weights
     "wasm_llm/pytorch_model.bin": f"{HF_GPT2_BASE_URL}/pytorch_model.bin",
     "wasm_llm/vocab.json": f"{HF_GPT2_BASE_URL}/vocab.json",
@@ -72,10 +73,10 @@ ASSETS = {
 
 CHECKSUMS = {
     "lib/bundle.esm.min.js": "sha384-qri3JZdkai966TTOV3Cl4xxA97q+qXCgKrd49pOn7DPuYN74wOEd6CIJ9HnqEROD",  # noqa: E501
-    "lib/workbox-sw.js": "sha384-LWo7skrGueg8Fa4y2Vpe1KB4g0SifqKfDr2gWFRmzZF9n9F1bQVo1F0dUurlkBJo",  # noqa: E501
-    "pyodide.asm.wasm": "sha384-XmiypR2FYQ6+bKPYiwek6XzKP+9Y0X800XuxdKfS6X+49Z+wskdeoYiUB/rED0Vn",
-    "pyodide.js": "sha384-+R8PTzDXzivdjpxOqwVwRhPS9dlske7tKAjwj0O0Kr361gKY5d2Xe6Osl+faRLT7",
-    "repodata.json": "sha384-S8xoB9ax+zBMYJZvK34e/zLxpxJ2/H3wb5JZPWquGozF4Da8JZ7u8BYDMFKNY37I",
+    "lib/workbox-sw.js": "sha384-R7RXlLLrbRAy0JWTwv62SHZwpjwwc7C0wjnLGa5bRxm6YCl5zw87IRvhlleSM5zd",  # noqa: E501
+    "pyodide.asm.wasm": "sha384-EUqmec0z8Sj94lyhfS28Q0rsvZxo0lEPa3Nz2MQJz3NizgBcfd69cC2EluBQcA51",
+    "pyodide.js": "sha384-KQtL+EUxNlEbNm6gFVMiDz6Glmgq4QV4VZdSHIrcpw4tCRUGtjUeLJbuQAIfxFfM",
+    "repodata.json": "sha384-0jg1cSxhjdgM3qp6WXMysptCeRCzlYI2HhY0Nqy1AFzfp3GnDIFLDs7MTlaJz+Nz",
     "pytorch_model.bin": "sha256-7c5d3f4b8b76583b422fcb9189ad6c89d5d97a094541ce8932dce3ecabde1421",
 }
 

@@ -109,8 +109,8 @@ jsDelivr and GitHub mirrors when needed. You can also retrieve the runtime with
 `curl` when automation fails:
 
 ```bash
-curl -L https://cdn.jsdelivr.net/pyodide/v0.24.1/full/pyodide.js -o wasm/pyodide.js
-curl -L https://cdn.jsdelivr.net/pyodide/v0.24.1/full/pyodide.asm.wasm -o wasm/pyodide.asm.wasm
+curl -L https://cdn.jsdelivr.net/pyodide/v0.26.0/full/pyodide.js -o wasm/pyodide.js
+curl -L https://cdn.jsdelivr.net/pyodide/v0.26.0/full/pyodide.asm.wasm -o wasm/pyodide.asm.wasm
 ```
 Verify the downloads with:
 
