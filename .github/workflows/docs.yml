@@ -60,6 +60,8 @@ jobs:
           env_data = os.getenv("PYODIDE_BASE_URL", "") + os.getenv("HF_GPT2_BASE_URL", "")
           data = (
               fa.CHECKSUMS["pyodide.asm.wasm"]
+              + fa.CHECKSUMS["pyodide.js"]
+              + fa.CHECKSUMS["repodata.json"]
               + fa.CHECKSUMS["pytorch_model.bin"]
               + env_data
           )
