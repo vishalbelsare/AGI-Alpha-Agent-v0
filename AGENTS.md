@@ -78,8 +78,7 @@ Follow these steps when installing without internet access:
   pip-compile --generate-hashes --output-file requirements.lock requirements.txt
   ```
   Run this command whenever you edit `requirements*.txt` so the lock file stays
-  in sync. The `verify-requirements-lock` hook checks for mismatches during
-  `pre-commit`.
+  in sync.
 
 - Install from the lock file to reproduce identical environments:
   ```bash
@@ -291,7 +290,7 @@ pre-commit run --files <paths>   # before each commit
     `mypy.ini`.
   - Semgrep scans Python files with the official `p/python` ruleset to enforce
     security and style best practices.
-  - Hooks `verify-requirements-lock`, `verify-alpha-requirements-lock` and
+  - Hooks `verify-alpha-requirements-lock` and
     `verify-backend-requirements-lock` ensure each `requirements-lock` file
     matches its `requirements.txt`. They rely on `pip-tools`.
   - Hooks are configured in `.pre-commit-config.yaml` at the repository root.
