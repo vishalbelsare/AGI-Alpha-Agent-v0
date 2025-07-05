@@ -111,8 +111,6 @@ jsDelivr and GitHub mirrors when needed. You can also retrieve the runtime with
 ```bash
 curl -L https://cdn.jsdelivr.net/pyodide/v0.24.1/full/pyodide.js -o wasm/pyodide.js
 curl -L https://cdn.jsdelivr.net/pyodide/v0.24.1/full/pyodide.asm.wasm -o wasm/pyodide.asm.wasm
-curl -L https://cdn.jsdelivr.net/pyodide/v0.24.1/full/pyodide_py.tar -o wasm/pyodide_py.tar
-curl -L https://cdn.jsdelivr.net/pyodide/v0.24.1/full/packages.json -o wasm/packages.json
 ```
 Verify the downloads with:
 
