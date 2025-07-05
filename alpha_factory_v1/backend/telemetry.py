@@ -1,5 +1,4 @@
 # SPDX-License-Identifier: Apache-2.0
-# This code is a conceptual research prototype.
 """Metrics and tracing helpers for the orchestrator."""
 
 from __future__ import annotations

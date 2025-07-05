@@ -1,5 +1,4 @@
 # SPDX-License-Identifier: Apache-2.0
-# This code is a conceptual research prototype.
 """Central process coordinating all Insight demo agents.
 
 The orchestrator instantiates each agent, relays messages via the

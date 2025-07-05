@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 # SPDX-License-Identifier: Apache-2.0
-# This script is a conceptual research prototype.
 """Verify SNARK proof for an evaluation transcript."""
 
 from __future__ import annotations

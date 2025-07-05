@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 # SPDX-License-Identifier: Apache-2.0
-# This script is a conceptual research prototype.
 """Verify archive Merkle root and pin success rate."""
 from __future__ import annotations
 

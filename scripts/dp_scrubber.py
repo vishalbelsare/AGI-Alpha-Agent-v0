@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 # SPDX-License-Identifier: Apache-2.0
-# This script is a conceptual research prototype.
 """Pre-commit hook to detect private or pay-walled text in staged files."""
 from __future__ import annotations
 

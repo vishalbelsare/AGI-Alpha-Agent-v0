@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 # SPDX-License-Identifier: Apache-2.0
-# This script is a conceptual research prototype.
 """Ensure meta_agentic_tree_search_v0 requirements.lock matches requirements.txt."""
 from __future__ import annotations
 

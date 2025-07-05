@@ -1,5 +1,4 @@
 # SPDX-License-Identifier: Apache-2.0
-# This code is a conceptual research prototype.
 """Agent scheduling and health monitoring utilities.
 
 The :class:`EventBus` falls back to an in-memory queue when Kafka is

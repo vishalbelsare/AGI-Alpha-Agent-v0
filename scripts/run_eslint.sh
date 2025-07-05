@@ -1,6 +1,5 @@
 #!/bin/bash
 # SPDX-License-Identifier: Apache-2.0
-# This script is a conceptual research prototype.
 set -euo pipefail
 ROOT="$(git rev-parse --show-toplevel)"
 BROWSER_DIR="$ROOT/alpha_factory_v1/demos/alpha_agi_insight_v1/insight_browser_v1"

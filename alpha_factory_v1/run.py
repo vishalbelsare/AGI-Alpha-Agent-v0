@@ -1,5 +1,4 @@
 # SPDX-License-Identifier: Apache-2.0
-# This code is a conceptual research prototype.
 """Command line launcher for Alpha‑Factory v1."""
 
 import os

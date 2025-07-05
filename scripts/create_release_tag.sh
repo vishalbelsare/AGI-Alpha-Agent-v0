@@ -1,6 +1,5 @@
 #!/usr/bin/env bash
 # SPDX-License-Identifier: Apache-2.0
-# This script is a conceptual research prototype.
 # Create the v0.1.0-alpha annotated release tag.
 
 set -euo pipefail
