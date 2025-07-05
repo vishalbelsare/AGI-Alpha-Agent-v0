@@ -98,6 +98,28 @@ Alternatively, execute `python ../../../../scripts/download_hf_gpt2.py`,
 `python ../../../../scripts/download_openai_gpt2.py` to fetch the GPT‑2 model
 directly.
 
+If the Pyodide runtime fails to download, run the helper manually:
+
+```bash
+python ../../../../scripts/fetch_assets.py
+```
+
+The script fetches the official files from `PYODIDE_BASE_URL` and falls back to the
+jsDelivr and GitHub mirrors when needed. You can also retrieve the runtime with
+`curl` when automation fails:
+
+```bash
+curl -L https://cdn.jsdelivr.net/pyodide/v0.24.1/full/pyodide.js -o wasm/pyodide.js
+curl -L https://cdn.jsdelivr.net/pyodide/v0.24.1/full/pyodide.asm.wasm -o wasm/pyodide.asm.wasm
+curl -L https://cdn.jsdelivr.net/pyodide/v0.24.1/full/pyodide_py.tar -o wasm/pyodide_py.tar
+curl -L https://cdn.jsdelivr.net/pyodide/v0.24.1/full/packages.json -o wasm/packages.json
+```
+Verify the downloads with:
+
+```bash
+python ../../../../scripts/fetch_assets.py --verify-only
+```
+
 See [`.env.sample`](.env.sample) for the full list of supported variables.
 The compiled `dist/` directory is not version controlled. Run the build script
 to create it before launching the demo.
