@@ -1,0 +1,270 @@
+# 🌐 Alpha-AGI Insight CI — GitHub Actions Workflow
+#
+# Validates the demo with lint, type checks, unit tests and Docker build.
+# Automatically runs on pushes and pull requests.
+# Tagged releases deploy a Docker image with rollback on failure.
+name: "🚀 CI"
+
+on:
+  workflow_dispatch:
+    inputs:
+      run_token:
+        description: 'Authorization token for maintainers'
+        required: false
+
+permissions:
+  contents: read
+  actions: read
+  checks:  write
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  PYTHON_VERSION_MATRIX: "3.11,3.12"
+  DOCKER_IMAGE: agi-insight-demo
+
+jobs:
+  lint-type:
+    name: "🧹 Ruff + 🏷️ Mypy"
+    runs-on: ubuntu-latest
+    environment: ci-on-demand        # ⇦ optional: add reviewers in repo Settings → Environments
+    strategy:
+      matrix:
+        python-version: ["3.11", "3.12"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: pip
+      - name: Install lint tools
+        run: |
+          python -m pip install --upgrade pip
+          pip install ruff mypy
+      - name: Install pre-commit
+        run: pip install pre-commit
+      - name: Run pre-commit checks
+        run: pre-commit run --all-files
+      - name: Ruff lint
+        run: ruff check alpha_factory_v1/demos/alpha_agi_insight_v1
+      - name: Mypy type-check
+        run: mypy alpha_factory_v1/demos/alpha_agi_insight_v1 --strict
+
+  tests:
+    name: "✅ Pytest"
+    needs: lint-type
+    if: ${{ github.event_name == 'workflow_dispatch' && (github.actor == github.repository_owner || github.event.inputs.run_token == secrets.DISPATCH_TOKEN) }}
+    runs-on: ubuntu-latest
+    environment: ci-on-demand
+    strategy:
+      matrix:
+        python-version: ["3.11", "3.12"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: pip
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.lock
+          pip install -r requirements-dev.txt
+          pip install -r requirements-demo.txt
+          pip install pytest pytest-cov pytest-benchmark mutmut
+      - name: Verify environment
+        run: |
+          python scripts/check_python_deps.py
+          python check_env.py --auto-install --demo macro_sentinel
+      - name: Build sandbox image
+        run: docker build -t selfheal-sandbox:latest -f sandbox.Dockerfile .
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: '.nvmrc'
+          cache: 'pnpm'
+      - name: Install pnpm
+        run: npm install -g pnpm
+      - name: Install insight browser dependencies
+        run: npm ci --prefix alpha_factory_v1/demos/alpha_agi_insight_v1/insight_browser_v1
+      - name: Audit insight browser dependencies
+        run: npm --prefix alpha_factory_v1/demos/alpha_agi_insight_v1/insight_browser_v1 audit --production --audit-level=high
+      - name: Run insight browser tests
+        run: npm --prefix alpha_factory_v1/demos/alpha_agi_insight_v1/insight_browser_v1 test
+      - name: Install web dependencies
+        run: pnpm --dir src/interface/web_client install
+      - name: Audit web dependencies
+        run: npm --prefix src/interface/web_client audit --production --audit-level=high
+      - name: Type check insight browser
+        run: pnpm --dir alpha_factory_v1/demos/alpha_agi_insight_v1/insight_browser_v1 run typecheck
+      - name: Cypress E2E tests with Percy
+        env:
+          PERCY_TOKEN: ${{ secrets.PERCY_TOKEN }}
+          PERCY_TOKEN_E2E: ${{ secrets.PERCY_TOKEN }}
+        run: pnpm --dir src/interface/web_client run percy:cypress
+      - name: Install Playwright browsers
+        id: install-browsers
+        run: |
+          set +e
+          playwright install chromium webkit
+          if [ $? -ne 0 ]; then
+            echo "SKIP_WEBKIT_TESTS=1" >> "$GITHUB_ENV"
+          fi
+          set -e
+      - name: Install proto compiler
+        run: pip install grpcio-tools
+      - name: Verify protobuf
+        run: make proto-verify
+      - name: Run tests with coverage
+        run: |
+          python check_env.py --auto-install${WHEELHOUSE:+ --wheelhouse "$WHEELHOUSE"}
+          pytest --cov --cov-report=xml --cov-fail-under=70
+      - name: Mutation tests
+        run: |
+          mutmut run --paths-to-mutate alpha_factory_v1/demos/alpha_agi_insight_v1/src --runner "pytest -q"
+      - name: Run benchmark
+        run: |
+          pytest tests/test_benchmark.py -q
+          cat tests/benchmarks/latest.json
+      - name: Upload benchmark results
+        uses: actions/upload-artifact@v4
+        with:
+          name: benchmark-results
+          path: tests/benchmarks/latest.json
+      - name: Generate benchmark comment
+        run: |
+          python - <<'PY'
+          import json
+          data=json.load(open('tests/benchmarks/latest.json'))
+          with open('bench.txt','w') as f:
+              f.write(f"p95 runtime: {data['p95']:.4f}s\n")
+              f.write(f"tokens used: {data['tokens']}\n")
+          PY
+      - name: Comment benchmark
+        if: ${{ github.event.pull_request }}
+        uses: marocchino/sticky-pull-request-comment@v2
+        with:
+          header: benchmark
+          path: bench.txt
+      - name: Upload coverage
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-xml
+          path: coverage.xml
+
+  windows-smoke:
+    name: "Windows Smoke"
+    needs: lint-type
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: pip
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.lock
+          pip install -r requirements-dev.txt
+          pip install pytest
+      - name: Verify environment
+        run: |
+          python scripts/check_python_deps.py
+          python check_env.py --auto-install
+      - name: Run smoke tests
+        run: pytest -m smoke -q
+
+  docker:
+    name: "🐳 Docker build"
+    needs: tests
+    if: ${{ github.event_name == 'workflow_dispatch' && (github.actor == github.repository_owner || github.event.inputs.run_token == secrets.DISPATCH_TOKEN) }}
+    runs-on: ubuntu-latest
+    environment: ci-on-demand
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: '.nvmrc'
+      - name: Install pnpm
+        run: npm install -g pnpm
+      - name: Install insight browser dependencies
+        run: npm ci --prefix alpha_factory_v1/demos/alpha_agi_insight_v1/insight_browser_v1
+      - name: Audit insight browser dependencies
+        run: npm --prefix alpha_factory_v1/demos/alpha_agi_insight_v1/insight_browser_v1 audit --production --audit-level=high
+      - name: Run insight browser tests
+        run: npm --prefix alpha_factory_v1/demos/alpha_agi_insight_v1/insight_browser_v1 test
+      - name: Type check insight browser
+        run: pnpm --dir alpha_factory_v1/demos/alpha_agi_insight_v1/insight_browser_v1 run typecheck
+      - name: Build web client
+        run: |
+          make build_web
+          test -f src/interface/web_client/dist/index.html
+      - name: Accessibility audit
+        run: |
+          npx --yes @axe-core/cli src/interface/web_client/dist/index.html --score > axe.json
+          score=$(jq '.score' axe.json)
+          echo "a11y score: $score"
+          if [ "$score" -lt 90 ]; then
+            cat axe.json
+            exit 1
+          fi
+      - name: Build image
+        run: |
+          docker build -t $DOCKER_IMAGE:ci \
+            alpha_factory_v1/demos/alpha_agi_insight_v1/infrastructure
+      - name: Smoke test image
+        run: |
+          docker run --rm -e RUN_MODE=cli $DOCKER_IMAGE:ci simulate --horizon 1 --offline
+
+  deploy:
+    name: "📦 Deploy"
+    if: ${{ github.event_name == 'workflow_dispatch' && (github.actor == github.repository_owner || github.event.inputs.run_token == secrets.DISPATCH_TOKEN) && startsWith(github.ref, 'refs/tags/') }}
+    needs: docker
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Login to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Pull previous image
+        run: docker pull ghcr.io/${{ github.repository_owner }}/$DOCKER_IMAGE:latest || true
+      - name: Tag previous
+        run: docker tag ghcr.io/${{ github.repository_owner }}/$DOCKER_IMAGE:latest ghcr.io/${{ github.repository_owner }}/$DOCKER_IMAGE:previous || true
+      - name: Push previous tag
+        run: docker push ghcr.io/${{ github.repository_owner }}/$DOCKER_IMAGE:previous || true
+      - name: Push new image
+        run: |
+          docker tag $DOCKER_IMAGE:ci ghcr.io/${{ github.repository_owner }}/$DOCKER_IMAGE:${{ github.ref_name }}
+          docker tag $DOCKER_IMAGE:ci ghcr.io/${{ github.repository_owner }}/$DOCKER_IMAGE:latest
+          docker push ghcr.io/${{ github.repository_owner }}/$DOCKER_IMAGE:${{ github.ref_name }}
+          docker push ghcr.io/${{ github.repository_owner }}/$DOCKER_IMAGE:latest
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: '.nvmrc'
+          cache: 'pnpm'
+      - name: Install pnpm
+        run: npm install -g pnpm
+      - name: Install insight browser dependencies
+        run: npm ci --prefix alpha_factory_v1/demos/alpha_agi_insight_v1/insight_browser_v1
+      - name: Type check insight browser
+        run: pnpm --dir alpha_factory_v1/demos/alpha_agi_insight_v1/insight_browser_v1 run typecheck
+      - name: Build web client
+        run: make build_web
+      - name: Pack release assets
+        run: tar -czf web-client.tar.gz -C src/interface/web_client/dist .
+      - name: Upload release assets
+        uses: softprops/action-gh-release@v1
+        with:
+          files: web-client.tar.gz
+      - name: Rollback on failure
+        if: failure()
+        run: |
+          echo "Rolling back to previous image"
+          docker pull ghcr.io/${{ github.repository_owner }}/$DOCKER_IMAGE:previous || exit 0
+          docker tag ghcr.io/${{ github.repository_owner }}/$DOCKER_IMAGE:previous ghcr.io/${{ github.repository_owner }}/$DOCKER_IMAGE:latest
+          docker push ghcr.io/${{ github.repository_owner }}/$DOCKER_IMAGE:latest

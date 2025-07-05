@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 """alpha_factory_v1.backend.tracer
 =================================
 
@@ -103,4 +104,3 @@ class Tracer:
 
 
 __all__ = ["Tracer", "Span"]
-

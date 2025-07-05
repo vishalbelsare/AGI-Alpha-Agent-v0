@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 import unittest
 from alpha_factory_v1.demos.muzero_planning.minimuzero import MiniMu, play_episode
 
@@ -5,6 +6,10 @@ from alpha_factory_v1.demos.muzero_planning.minimuzero import MiniMu, play_episo
 class TestMiniMu(unittest.TestCase):
     def setUp(self):
         self.mu = MiniMu(env_id="CartPole-v1")
+
+    def tearDown(self):
+        """Close the Gym environment after each test."""
+        self.mu.env.close()
 
     def test_policy_distribution(self):
         obs = self.mu.reset()

@@ -1,5 +1,6 @@
+# SPDX-License-Identifier: Apache-2.0
 # alpha_factory_v1/demos/self_healing_repo/patcher_core.py
-# © 2025 MONTREAL.AI   MIT License
+# © 2025 MONTREAL.AI   Apache-2.0 License
 """
 patcher_core.py
 ───────────────
@@ -15,7 +16,7 @@ apply_patch(patch: str, repo_path: str) -> None
     • Applies the diff atomically (uses GNU patch).
     • Creates a `.bak` backup per touched file and rolls back on failure.
 
-validate_repo(repo_path: str, cmd: list[str] = ["pytest", "-q"]) -> tuple[int,str]
+validate_repo(repo_path: str, cmd: Optional[list[str]] = None) -> tuple[int,str]
     • Runs the given command, returning (returncode, combined stdout+stderr).
 
 The trio forms a minimal, production‑ready healing loop while remaining
@@ -25,29 +26,42 @@ All file‑system mutations stay **inside `repo_path`** for container safety.
 """
 
 from __future__ import annotations
-import subprocess, tempfile, pathlib, shutil, os, textwrap
-from typing import List, Tuple
+
+import os
+import pathlib
+import re
+import shutil
+import subprocess
+import tempfile
+import textwrap
+from typing import List, Optional, Tuple
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:  # avoid hard dependency unless actually used
     from openai_agents import OpenAIAgent
+
 
 # ─────────────────────────── helpers ─────────────────────────────────────────
 def _run(cmd: List[str], cwd: str) -> Tuple[int, str]:
     result = subprocess.run(cmd, cwd=cwd, capture_output=True, text=True)
     return result.returncode, result.stdout + result.stderr
 
-def validate_repo(repo_path: str, cmd: List[str] = ["pytest", "-q"]) -> Tuple[int, str]:
+
+def validate_repo(repo_path: str, cmd: Optional[List[str]] = None) -> Tuple[int, str]:
     """Return (exit_code, full_output)."""
+    cmd = cmd or ["pytest", "-q"]
     return _run(cmd, cwd=repo_path)
+
 
 def _existing_files(repo: pathlib.Path) -> set[str]:
     return {str(p.relative_to(repo)) for p in repo.rglob("*") if p.is_file()}
 
+
 # ────────────────────────── patch logic ─────────────────────────────────────
 def generate_patch(test_log: str, llm: OpenAIAgent, repo_path: str) -> str:
     """Ask the LLM to suggest a unified diff patch fixing the failure."""
-    prompt = textwrap.dedent(f"""
+    prompt = textwrap.dedent(
+        f"""
     You are an expert software engineer. A test suite failed as follows:
 
     ```text
@@ -58,27 +72,33 @@ def generate_patch(test_log: str, llm: OpenAIAgent, repo_path: str) -> str:
     1. Modify only existing files inside the repository.
     2. Do not add or delete entire files.
     3. Keep the patch minimal and idiomatic.
-    """)
-    patch = llm(prompt).strip()
+    """
+    )
+    patch = str(llm(prompt)).strip()
     _sanity_check_patch(patch, pathlib.Path(repo_path))
     return patch
 
-def _sanity_check_patch(patch: str, repo_root: pathlib.Path):
+
+def _sanity_check_patch(patch: str, repo_root: pathlib.Path) -> None:
     """Ensure the diff only touches existing files to avoid LLM wildness."""
     touched = set()
     for line in patch.splitlines():
         if line.startswith(("--- ", "+++ ")):
-            path = line[4:].split("\t")[0].lstrip("ab/")  # strip diff prefixes
+            path = re.sub(r"^[ab]/", "", line[4:].split("\t")[0])
             touched.add(path)
     non_existing = touched - _existing_files(repo_root)
     if non_existing:
         raise ValueError(f"Patch refers to unknown files: {', '.join(non_existing)}")
 
-def apply_patch(patch: str, repo_path: str):
+
+def apply_patch(patch: str, repo_path: str) -> None:
     """Apply patch atomically with rollback on failure."""
     repo = pathlib.Path(repo_path)
+    _sanity_check_patch(patch, repo)
     if shutil.which("patch") is None:
-        raise RuntimeError("`patch` command not found. Install via apt-get install -y patch")
+        raise RuntimeError(
+            '`patch` command not found. Install the utility, e.g., "sudo apt-get update && sudo apt-get install -y patch"'
+        )
     backups = {}
 
     # write patch to temp file
@@ -90,7 +110,7 @@ def apply_patch(patch: str, repo_path: str):
         # back up touched files
         for line in patch.splitlines():
             if line.startswith(("--- ", "+++ ")):
-                rel = line[4:].split("\t")[0].lstrip("ab/")
+                rel = re.sub(r"^[ab]/", "", line[4:].split("\t")[0])
                 file_path = repo / rel
                 if file_path.exists():
                     backup = file_path.with_suffix(".bak")
@@ -112,21 +132,31 @@ def apply_patch(patch: str, repo_path: str):
             if bak.exists():
                 os.unlink(bak)
 
+
 if __name__ == "__main__":
     import argparse
+
     parser = argparse.ArgumentParser(description="Minimal self-healing CLI")
     parser.add_argument("--repo", default=".", help="Repository path")
     args = parser.parse_args()
 
+    _temp_env = os.getenv("TEMPERATURE")
     try:
         from openai_agents import OpenAIAgent
-    except ImportError as e:
-        raise SystemExit("openai_agents package required. Install dependencies via requirements.txt") from e
-    llm = OpenAIAgent(
-        model=os.getenv("MODEL_NAME", "gpt-4o-mini"),
-        api_key=os.getenv("OPENAI_API_KEY"),
-        base_url=("http://ollama:11434/v1" if not os.getenv("OPENAI_API_KEY") else None),
-    )
+    except ModuleNotFoundError:
+        from .agent_core import llm_client
+
+        def llm(prompt: str) -> str:
+            """Offline fallback using the local LLM."""
+            return llm_client.call_local_model([{"role": "user", "content": prompt}])
+
+    else:
+        llm = OpenAIAgent(
+            model=os.getenv("OPENAI_MODEL", "gpt-4o-mini"),
+            api_key=os.getenv("OPENAI_API_KEY"),
+            base_url=("http://ollama:11434/v1" if not os.getenv("OPENAI_API_KEY") else None),
+            temperature=float(_temp_env) if _temp_env is not None else None,
+        )
     rc, out = validate_repo(args.repo)
     print(out)
     if rc != 0:

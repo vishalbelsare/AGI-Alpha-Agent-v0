@@ -9,9 +9,16 @@ venv/
 # Distribution / packaging
 *.egg-info/
 node_modules/
-src/interface/web_client/dist/
 build/
 dist/
+!**/package-lock.json
+!src/interface/web_client/dist/
+!alpha_factory_v1/demos/alpha_agi_insight_v1/src/interface/web_client/dist/
+# Browser demo assets
+alpha_factory_v1/demos/alpha_agi_insight_v1/insight_browser_v1/wasm/
+alpha_factory_v1/demos/alpha_agi_insight_v1/insight_browser_v1/wasm_llm/
+!alpha_factory_v1/demos/alpha_agi_insight_v1/insight_browser_v1/wasm_llm/
+!alpha_factory_v1/demos/alpha_agi_insight_v1/insight_browser_v1/wasm_llm/README.md
 
 # Logs
 *.log
@@ -19,3 +26,10 @@ dist/
 .env
 *.env
 
+# Key files
+*.key
+
+# Pytest artifacts
+.pytest_cache/
+
+site/

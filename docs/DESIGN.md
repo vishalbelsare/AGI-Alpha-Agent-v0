@@ -1,4 +1,8 @@
+[See docs/DISCLAIMER_SNIPPET.md](../docs/DISCLAIMER_SNIPPET.md)
+
 # Design Overview
+
+[See docs/DISCLAIMER_SNIPPET.md](../docs/DISCLAIMER_SNIPPET.md)
 
 This document outlines the architecture of the Alpha Factory demo included in this repository. It also explains the individual agent roles and the Meta-Agentic Tree Search (MATS) algorithm used for evolutionary optimisation.
 
@@ -69,6 +73,26 @@ The system exposes both a command line interface and a REST/WS API. The CLI is s
 ## Deployment model
 
 The repository includes container and infrastructure templates for Docker Compose, Helm and Terraform. Each mode deploys the orchestrator together with optional agents and the web UI. Environment variables configured in `.env` control credentials, ports and runtime options. When running in Kubernetes, the Helm chart maps these variables to pod environment settings. The Terraform examples show how to provision equivalent services on AWS Fargate or Google Cloud Run.
+
+## Evolution worker
+
+`src/evolution_worker.py` provides a tiny FastAPI service that performs a single
+NSGA‑II mutation step. It accepts either an uploaded tarball or a repository URL
+and returns the resulting child genome.
+
+### Endpoints
+
+- `POST /mutate` – upload a `tar` file or send `repo_url` form data. All archive
+  members are validated and extracted to a temporary directory before running
+  the mutation step. The JSON response contains the new genome.
+- `GET /healthz` – simple liveness probe returning `"ok"`.
+
+Typical usage is to run the container and POST agent source code to `/mutate`.
+The returned genome can seed another agent or be stored for analysis. A
+`_safe_extract` validates each archive member before extraction. Symlinks and
+hard links are rejected and paths are normalised so absolute or parent
+directories cannot be written outside the target directory. Verified members are
+then extracted individually to avoid surprises.
 
 ## Security considerations
 

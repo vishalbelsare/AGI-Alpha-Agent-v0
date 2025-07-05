@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 """backend.agents.talent_matcht_agent
 ===================================================================
 Alpha‑Factory v1 👁️✨ — Multi‑Agent AGENTIC α‑AGI
@@ -37,6 +38,8 @@ import asyncio
 import hashlib
 import json
 import logging
+
+logger = logging.getLogger(__name__)
 import os
 import random
 import re
@@ -47,43 +50,52 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
+from alpha_factory_v1.backend.utils.sync import run_sync
+
 # ---------------------------------------------------------------------------
 # Optional dependencies (soft imports — never crash)                        |
 # ---------------------------------------------------------------------------
 try:
     import numpy as np  # type: ignore
 except ModuleNotFoundError:  # pragma: no cover
+    logger.warning("numpy not installed – similarity search disabled")
     np = None  # type: ignore
 
 try:
     import pandas as pd  # type: ignore
 except ModuleNotFoundError:  # pragma: no cover
+    logger.warning("pandas missing – CSV parsing disabled")
     pd = None  # type: ignore
 
 try:
     import faiss  # type: ignore
 except ModuleNotFoundError:  # pragma: no cover
+    logger.warning("faiss missing – vector search disabled")
     faiss = None  # type: ignore
 
 try:
     from sentence_transformers import SentenceTransformer  # type: ignore
 except ModuleNotFoundError:  # pragma: no cover
+    logger.warning("sentence-transformers missing – embeddings disabled")
     SentenceTransformer = None  # type: ignore
 
 try:
     from kafka import KafkaProducer  # type: ignore
 except ModuleNotFoundError:  # pragma: no cover
+    logger.warning("kafka-python missing – event bus disabled")
     KafkaProducer = None  # type: ignore
 
 try:
     import httpx  # type: ignore
 except ModuleNotFoundError:  # pragma: no cover
+    logger.warning("httpx unavailable – network fetch disabled")
     httpx = None  # type: ignore
 
 try:
     import openai  # type: ignore
     from openai.agents import tool  # type: ignore
 except ModuleNotFoundError:  # pragma: no cover
+    logger.warning("openai package not found – LLM features disabled")
     openai = None  # type: ignore
 
     def tool(fn=None, **_):  # type: ignore
@@ -93,14 +105,27 @@ except ModuleNotFoundError:  # pragma: no cover
 try:
     import adk  # type: ignore
 except ModuleNotFoundError:  # pragma: no cover
+    logger.warning("google-adk not installed – mesh integration disabled")
     adk = None  # type: ignore
+try:
+    from aiohttp import ClientError as AiohttpClientError  # type: ignore
+except Exception:  # pragma: no cover - optional
+    AiohttpClientError = OSError  # type: ignore
+try:
+    from adk import ClientError as AdkClientError  # type: ignore[attr-defined]
+except Exception:  # pragma: no cover - optional
+
+    class AdkClientError(Exception):
+        pass
+
 
 # ---------------------------------------------------------------------------
 # Alpha‑Factory light deps                                                  |
 # ---------------------------------------------------------------------------
 from backend.agent_base import AgentBase  # pylint: disable=import-error
-from backend.agents import AgentMetadata, register_agent
+from backend.agents import register
 from backend.orchestrator import _publish
+from alpha_factory_v1.utils.env import _env_int
 
 logger = logging.getLogger(__name__)
 
@@ -111,13 +136,6 @@ logger = logging.getLogger(__name__)
 
 def _now() -> str:
     return datetime.now(timezone.utc).isoformat()
-
-
-def _env_int(name: str, default: int) -> int:
-    try:
-        return int(os.getenv(name, default))
-    except ValueError:
-        return default
 
 
 def _digest(payload: Any) -> str:
@@ -228,10 +246,12 @@ class _ANNIndex:
 # ==========================================================================
 
 
+@register
 class TalentMatchAgent(AgentBase):
     """Expert‑level talent recommendation and DEI analytics agent."""
 
     NAME = "talent_match"
+    __version__ = "0.4.0"
 
     CAPABILITIES = [
         "candidate_recommendation",
@@ -269,7 +289,8 @@ class TalentMatchAgent(AgentBase):
 
         # ADK
         if self.cfg.adk_mesh and adk:
-            asyncio.create_task(self._register_mesh())
+            # registration scheduled by orchestrator after loop start
+            pass
 
     # -------------------------------------------------------------
     #   Database helpers
@@ -324,28 +345,24 @@ class TalentMatchAgent(AgentBase):
         args = json.loads(jd_json)
         jd = args.get("jd", "")
         topk = int(args.get("topk", 5))
-        loop = asyncio.get_event_loop()
-        return loop.run_until_complete(self._recommend_async(jd, topk))
+        return run_sync(self._recommend_async(jd, topk))
 
     @tool(description='Similarity & skill gap between JD and resume. Arg: JSON {"jd":str, "resume":str}')
     def score_match(self, args_json: str) -> str:  # noqa: D401
         args = json.loads(args_json)
         jd, resume = args.get("jd", ""), args.get("resume", "")
-        loop = asyncio.get_event_loop()
-        return loop.run_until_complete(self._score_async(jd, resume))
+        return run_sync(self._score_async(jd, resume))
 
     @tool(description="DEI diversity report given list of candidate IDs.")
     def diversity_report(self, ids_json: str) -> str:  # noqa: D401
         ids = json.loads(ids_json)
-        loop = asyncio.get_event_loop()
-        return loop.run_until_complete(self._dei_async(ids))
+        return run_sync(self._dei_async(ids))
 
     @tool(description='Simulate hire probability vs compensation. Arg: JSON {"cid":str, "offer_usd":float}')
     def simulate_offer(self, args_json: str) -> str:  # noqa: D401
         args = json.loads(args_json)
         cid, offer = args.get("cid"), float(args.get("offer_usd", 0))
-        loop = asyncio.get_event_loop()
-        return loop.run_until_complete(self._offer_async(cid, offer))
+        return run_sync(self._offer_async(cid, offer))
 
     # -------------------------------------------------------------
     #   Orchestrator lifecycle
@@ -466,28 +483,33 @@ class TalentMatchAgent(AgentBase):
     #   ADK mesh
     # -------------------------------------------------------------
 
-    async def _register_mesh(self):  # noqa: D401
-        try:
-            client = adk.Client()
-            await client.register(node_type=self.NAME)
-            logger.info("[TM] registered in ADK mesh id=%s", client.node_id)
-        except Exception as exc:  # noqa: BLE001
-            logger.warning("ADK registration failed: %s", exc)
+    async def _register_mesh(self) -> None:  # noqa: D401
+        max_attempts = 3
+        delay = 1.0
+        for attempt in range(1, max_attempts + 1):
+            try:
+                client = adk.Client()
+                await client.register(node_type=self.NAME)
+                logger.info("[TM] registered in ADK mesh id=%s", client.node_id)
+                return
+            except (AdkClientError, AiohttpClientError, asyncio.TimeoutError, OSError) as exc:
+                if attempt == max_attempts:
+                    logger.error("ADK registration failed after %d attempts: %s", max_attempts, exc)
+                    raise
+                logger.warning(
+                    "ADK registration attempt %d/%d failed: %s",
+                    attempt,
+                    max_attempts,
+                    exc,
+                )
+                await asyncio.sleep(delay)
+                delay *= 2
+            except Exception as exc:  # pragma: no cover - unexpected
+                logger.exception("Unexpected ADK registration error: %s", exc)
+                raise
 
 
 # ==========================================================================
 # Registry hook                                                             |
 # ==========================================================================
-
-register_agent(
-    AgentMetadata(
-        name=TalentMatchAgent.NAME,
-        cls=TalentMatchAgent,
-        version="0.4.0",
-        capabilities=TalentMatchAgent.CAPABILITIES,
-        compliance_tags=TalentMatchAgent.COMPLIANCE_TAGS,
-        requires_api_key=TalentMatchAgent.REQUIRES_API_KEY,
-    )
-)
-
 __all__ = ["TalentMatchAgent"]

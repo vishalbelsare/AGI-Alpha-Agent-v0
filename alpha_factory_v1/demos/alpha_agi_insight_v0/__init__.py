@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 """α‑AGI Insight demo package."""
 
 # ``main`` gives callers the convenient entrypoint from ``__main__``.

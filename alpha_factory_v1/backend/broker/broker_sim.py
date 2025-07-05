@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 from __future__ import annotations
 
 import itertools
@@ -7,6 +8,7 @@ from ..logger import get_logger
 from ..types import TradeBrokerProtocol
 
 _LOG = get_logger(__name__)
+
 
 class SimulatedBroker(TradeBrokerProtocol):
     """Very small in-memory broker for tests and demos."""

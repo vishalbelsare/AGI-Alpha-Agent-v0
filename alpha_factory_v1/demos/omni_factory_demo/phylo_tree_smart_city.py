@@ -68,6 +68,7 @@ try:
     from sklearn.feature_extraction.text import TfidfVectorizer  # type: ignore
     from sklearn.cluster import AgglomerativeClustering  # type: ignore
     from sklearn.metrics.pairwise import cosine_distances  # type: ignore
+
     _SKLEARN_OK = True
 except ImportError:
     _SKLEARN_OK = False
@@ -76,6 +77,7 @@ except ImportError:
 try:
     from sentence_transformers import SentenceTransformer  # type: ignore
     import numpy as _np  # type: ignore
+
     _SBERT_OK = True
 except ImportError:
     _SBERT_OK = False
@@ -83,6 +85,7 @@ except ImportError:
 try:  # OpenAI embedding backend (optional)
     import openai  # type: ignore
     import numpy as _np  # type: ignore
+
     _OPENAI_PKG = True
 except ImportError:
     _OPENAI_PKG = False
@@ -90,6 +93,7 @@ except ImportError:
 # Optional Plotly interactive HTML
 try:
     import plotly.graph_objects as _go  # type: ignore
+
     _PLOTLY_OK = True
 except ImportError:
     _PLOTLY_OK = False
@@ -105,18 +109,20 @@ logging.basicConfig(
 )
 LOG = logging.getLogger("phylo_tree")
 
+
 # ────────────────────────────────────────────────────────────────
 # Configuration  (immutable dataclass)
 # ────────────────────────────────────────────────────────────────
 @dc.dataclass(slots=True, frozen=True)
 class Config:
     """Runtime configuration loaded from CLI / env."""
+
     db_path: pathlib.Path
     out_dir: pathlib.Path
-    img_fmt: str              # png | svg
-    backend: str              # auto | tfidf | sbert | openai
+    img_fmt: str  # png | svg
+    backend: str  # auto | tfidf | sbert | openai
     max_clusters: int
-    layout: str               # auto | hier | radial | spring
+    layout: str  # auto | hier | radial | spring
     html: bool
 
     def png_path(self) -> pathlib.Path:
@@ -131,36 +137,41 @@ class Config:
     def json_path(self) -> pathlib.Path:
         return self.out_dir / "phylo_tree.json"
 
+
 # ────────────────────────────────────────────────────────────────
 # CLI parsing
 # ────────────────────────────────────────────────────────────────
 def _parse_args() -> Config:
     p = argparse.ArgumentParser(formatter_class=argparse.RawTextHelpFormatter)
-    p.add_argument("--db", default=os.getenv("OMNI_DB_PATH", "omni_ledger.sqlite"),
-                   help="SQLite ledger (default: ./omni_ledger.sqlite)")
-    p.add_argument("--outdir", default=os.getenv("OMNI_OUT_DIR", "."),
-                   help="Output directory (default: script dir)")
-    p.add_argument("--format", choices=("png", "svg"), default="png",
-                   help="Primary image format (default: png)")
-    p.add_argument("--backend",
-                   choices=("auto", "tfidf", "sbert", "openai"),
-                   default=os.getenv("OMNI_EMBEDDING", "auto"),
-                   help="Embedding backend (default: auto)")
-    p.add_argument("--clusters", type=int,
-                   default=int(os.getenv("OMNI_CLUSTER_MAX", "8")),
-                   help="Soft max clusters (default: 8)")
-    p.add_argument("--layout",
-                   choices=("auto", "hier", "radial", "spring"),
-                   default=os.getenv("OMNI_LAYOUT", "auto"),
-                   help="Graph layout (default: auto)")
-    p.add_argument("--html", action="store_true",
-                   help="Also emit interactive HTML (requires plotly)")
-    p.add_argument("--install-deps", action="store_true",
-                   help="One-click pip install of recommended packages")
+    p.add_argument(
+        "--db",
+        default=os.getenv("OMNI_DB_PATH", "omni_ledger.sqlite"),
+        help="SQLite ledger (default: ./omni_ledger.sqlite)",
+    )
+    p.add_argument("--outdir", default=os.getenv("OMNI_OUT_DIR", "."), help="Output directory (default: script dir)")
+    p.add_argument("--format", choices=("png", "svg"), default="png", help="Primary image format (default: png)")
+    p.add_argument(
+        "--backend",
+        choices=("auto", "tfidf", "sbert", "openai"),
+        default=os.getenv("OMNI_EMBEDDING", "auto"),
+        help="Embedding backend (default: auto)",
+    )
+    p.add_argument(
+        "--clusters", type=int, default=int(os.getenv("OMNI_CLUSTER_MAX", "8")), help="Soft max clusters (default: 8)"
+    )
+    p.add_argument(
+        "--layout",
+        choices=("auto", "hier", "radial", "spring"),
+        default=os.getenv("OMNI_LAYOUT", "auto"),
+        help="Graph layout (default: auto)",
+    )
+    p.add_argument("--html", action="store_true", help="Also emit interactive HTML (requires plotly)")
+    p.add_argument("--install-deps", action="store_true", help="One-click pip install of recommended packages")
     a = p.parse_args()
 
     if a.install_deps:
-        _install_deps();  # pragma: no cover
+        _install_deps()
+        # pragma: no cover
 
     return Config(
         db_path=pathlib.Path(a.db).expanduser(),
@@ -172,19 +183,19 @@ def _parse_args() -> Config:
         html=a.html,
     )
 
+
 # ────────────────────────────────────────────────────────────────
 # Dependency installer (optional helper)
 # ────────────────────────────────────────────────────────────────
 def _install_deps() -> None:  # pragma: no cover
     import subprocess, sys as _sys
-    pkgs = [
-        "matplotlib>=3.5", "networkx", "scikit-learn",
-        "sentence-transformers", "openai", "plotly"
-    ]
+
+    pkgs = ["matplotlib>=3.5", "networkx", "scikit-learn", "sentence-transformers", "openai", "plotly"]
     LOG.info("Installing dependencies …")
     subprocess.check_call([_sys.executable, "-m", "pip", "install", *pkgs])
     LOG.info("Dependencies installed. Re-run the script without --install-deps.")
     sys.exit(0)
+
 
 # ────────────────────────────────────────────────────────────────
 # Data loading
@@ -207,6 +218,7 @@ def _load_ledger(db: pathlib.Path) -> list[tuple[str, float]]:
         LOG.error("SQLite error: %s", exc)
         sys.exit(1)
 
+
 # ────────────────────────────────────────────────────────────────
 # Embedding back-ends
 # ────────────────────────────────────────────────────────────────
@@ -217,12 +229,14 @@ def _embed_tfidf(sentences: list[str]):
     vec = TfidfVectorizer().fit_transform(sentences)
     return vec.toarray()
 
+
 def _embed_sbert(sentences: list[str]):
     if not _SBERT_OK:
         LOG.error("sentence-transformers missing – `pip install sentence-transformers`.")
         sys.exit(1)
     model = SentenceTransformer("all-MiniLM-L6-v2")
     return model.encode(sentences, convert_to_numpy=True, show_progress_bar=False)
+
 
 def _embed_openai(sentences: list[str]):
     if not _OPENAI_PKG:
@@ -233,30 +247,24 @@ def _embed_openai(sentences: list[str]):
         sys.exit(1)
     openai.api_key = os.getenv("OPENAI_API_KEY")
     LOG.info("Fetching OpenAI embeddings … (may incur cost)")
-    resp = openai.Embedding.create(
-        model="text-embedding-3-small",
-        input=sentences
-    )
-    embeddings = [
-        d["embedding"] for d in sorted(resp["data"], key=lambda x: x["index"])
-    ]
+    resp = openai.Embedding.create(model="text-embedding-3-small", input=sentences)
+    embeddings = [d["embedding"] for d in sorted(resp["data"], key=lambda x: x["index"])]
     import numpy as _np  # local import if not yet present
+
     return _np.array(embeddings, dtype="float32")
+
 
 def _select_embeddings(cfg: Config, sentences: list[str]):
     backend = cfg.backend
     if backend == "auto":
-        backend = (
-            "openai" if _OPENAI_PKG and os.getenv("OPENAI_API_KEY") else
-            "sbert"  if _SBERT_OK else
-            "tfidf"
-        )
+        backend = "openai" if _OPENAI_PKG and os.getenv("OPENAI_API_KEY") else "sbert" if _SBERT_OK else "tfidf"
     LOG.info("Embedding backend → %s", backend.upper())
     if backend == "openai":
         return _embed_openai(sentences)
     if backend == "sbert":
         return _embed_sbert(sentences)
     return _embed_tfidf(sentences)
+
 
 # ────────────────────────────────────────────────────────────────
 # Clustering
@@ -277,6 +285,7 @@ def _cluster(vecs, k_max: int):
         mapping = {u: (i if i < k_max else k_max - 1) for i, u in enumerate(uniq)}
         labels = [mapping[l] for l in labels]
     return labels
+
 
 # ────────────────────────────────────────────────────────────────
 # Graph creation
@@ -300,6 +309,7 @@ def _build_graph(rows: list[tuple[str, float]], labels) -> "_nx.DiGraph":
             G.add_edge(cname, lid)
     return G
 
+
 # ────────────────────────────────────────────────────────────────
 # Layout & drawing
 # ────────────────────────────────────────────────────────────────
@@ -309,6 +319,7 @@ def _layout(G: "_nx.DiGraph", cfg: Config):
     if choice in ("auto", "hier", "radial"):
         with contextlib.suppress(Exception):
             from networkx.drawing.nx_agraph import graphviz_layout  # type: ignore
+
             prog = "twopi" if choice == "radial" else "dot"
             if choice == "auto":
                 prog = "twopi" if cfg.layout == "auto" and cfg.layout != "hier" else "dot"
@@ -316,17 +327,16 @@ def _layout(G: "_nx.DiGraph", cfg: Config):
     # fallback
     return _nx.spring_layout(G, seed=42)  # type: ignore
 
+
 def _draw_static(G: "_nx.DiGraph", cfg: Config) -> None:
     pos = _layout(G, cfg)
     sizes = [max(120, G.nodes[n]["size"] * 6) for n in G.nodes]
-    labels = {n: G.nodes[n].get("label", n.replace("cluster_", "C"))
-              for n in G.nodes if n != "root"}
+    labels = {n: G.nodes[n].get("label", n.replace("cluster_", "C")) for n in G.nodes if n != "root"}
     _plt.figure(figsize=(11, 8), dpi=220)
     _nx.draw_networkx_edges(G, pos, alpha=0.35, width=1.2)
     _nx.draw_networkx_nodes(G, pos, node_size=sizes, node_color="#4e79ff", alpha=0.85)
     _nx.draw_networkx_labels(G, pos, labels, font_size=8, font_family="sans-serif")
-    _plt.title(f"Smart-City Scenario Phylogenetic Tree — {len(labels)} scenarios",
-               fontsize=10)
+    _plt.title(f"Smart-City Scenario Phylogenetic Tree — {len(labels)} scenarios", fontsize=10)
     _plt.axis("off")
     _plt.tight_layout()
     cfg.out_dir.mkdir(parents=True, exist_ok=True)
@@ -337,53 +347,61 @@ def _draw_static(G: "_nx.DiGraph", cfg: Config) -> None:
         LOG.info("SVG saved → %s", cfg.svg_path())
     _plt.close()
 
+
 def _draw_html(G: "_nx.DiGraph", cfg: Config) -> None:
     if not _PLOTLY_OK:
         LOG.warning("plotly not installed; skipping HTML export.")
         return
     import numpy as _np  # lazy
+
     pos = _layout(G, cfg)
     xs, ys, texts, sizes, edges_x, edges_y = [], [], [], [], [], []
     for node, (x, y) in pos.items():
         if node == "root":
             continue
-        xs.append(x); ys.append(y)
+        xs.append(x)
+        ys.append(y)
         label = G.nodes[node].get("label", node.replace("cluster_", "C"))
         texts.append(label)
         sizes.append(max(10, G.nodes[node]["size"] / 2))
-    for (u, v) in G.edges():
+    for u, v in G.edges():
         if u == "root" or v == "root":
             continue
-        x0, y0 = pos[u]; x1, y1 = pos[v]
-        edges_x += [x0, x1, None]; edges_y += [y0, y1, None]
+        x0, y0 = pos[u]
+        x1, y1 = pos[v]
+        edges_x += [x0, x1, None]
+        edges_y += [y0, y1, None]
 
     fig = _go.Figure()
-    fig.add_trace(_go.Scatter(x=edges_x, y=edges_y,
-                              mode="lines", line=dict(width=0.5, color="#888"),
-                              hoverinfo="skip"))
-    fig.add_trace(_go.Scatter(x=xs, y=ys, mode="markers+text",
-                              text=texts, textposition="top center",
-                              marker=dict(size=sizes, color="#4e79ff", opacity=0.85),
-                              hovertext=texts, hoverinfo="text"))
+    fig.add_trace(_go.Scatter(x=edges_x, y=edges_y, mode="lines", line=dict(width=0.5, color="#888"), hoverinfo="skip"))
+    fig.add_trace(
+        _go.Scatter(
+            x=xs,
+            y=ys,
+            mode="markers+text",
+            text=texts,
+            textposition="top center",
+            marker=dict(size=sizes, color="#4e79ff", opacity=0.85),
+            hovertext=texts,
+            hoverinfo="text",
+        )
+    )
     fig.update_layout(
         showlegend=False,
         margin=dict(l=20, r=20, t=40, b=20),
         title="Smart-City Scenario Phylogenetic Tree",
-        xaxis=dict(visible=False), yaxis=dict(visible=False),
+        xaxis=dict(visible=False),
+        yaxis=dict(visible=False),
     )
     fig.write_html(cfg.html_path())
     LOG.info("Interactive HTML saved → %s", cfg.html_path())
+
 
 # ────────────────────────────────────────────────────────────────
 # JSON export
 # ────────────────────────────────────────────────────────────────
 def _export_json(G: "_nx.DiGraph", cfg: Config) -> None:
-    nodes = [
-        {"id": n,
-         "label": G.nodes[n].get("label", n),
-         "size": G.nodes[n]["size"]}
-        for n in G.nodes if n != "root"
-    ]
+    nodes = [{"id": n, "label": G.nodes[n].get("label", n), "size": G.nodes[n]["size"]} for n in G.nodes if n != "root"]
     edges = [{"source": u, "target": v} for u, v in G.edges() if u != "root"]
     payload = {
         "$schema": "https://json-schema.org/draft/2020-12/schema",
@@ -394,6 +412,7 @@ def _export_json(G: "_nx.DiGraph", cfg: Config) -> None:
     cfg.out_dir.mkdir(parents=True, exist_ok=True)
     cfg.json_path().write_text(json.dumps(payload, indent=2))
     LOG.info("JSON saved → %s", cfg.json_path())
+
 
 # ────────────────────────────────────────────────────────────────
 # Main
@@ -418,13 +437,16 @@ def main() -> None:  # pragma: no cover
 
     # deterministic random seed for repeatability
     import random, numpy as _np  # type: ignore
-    random.seed(42); _np.random.seed(42)  # type: ignore
+
+    random.seed(42)
+    _np.random.seed(42)  # type: ignore
 
     _draw_static(G, cfg)
     _export_json(G, cfg)
     if cfg.html:
         _draw_html(G, cfg)
     LOG.info("Done.")
+
 
 if __name__ == "__main__":
     main()

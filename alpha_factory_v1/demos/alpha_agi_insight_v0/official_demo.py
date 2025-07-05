@@ -1,4 +1,9 @@
 #!/usr/bin/env python3
+# SPDX-License-Identifier: Apache-2.0
+# References to "AGI" and "superintelligence" describe aspirational goals
+# and do not indicate the presence of a real general intelligence.
+# Use at your own risk. Nothing herein constitutes financial advice.
+# MontrealAI and the maintainers accept no liability for losses incurred.
 """Launch the α‑AGI Insight official demo.
 
 This helper ensures the environment is verified before delegating to the

@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# SPDX-License-Identifier: Apache-2.0
 """Import a Grafana dashboard via HTTP API.
 
 This helper simplifies loading dashboards from JSON files into a running
@@ -19,20 +20,11 @@ import os
 import sys
 from pathlib import Path
 
-try:
-    import requests  # type: ignore
-except Exception:  # pragma: no cover - fallback shim
-    from af_requests import post  # type: ignore
-else:
-    from requests import post
+from af_requests import post
 
 
 def main() -> None:
-    path = (
-        Path(sys.argv[1])
-        if len(sys.argv) > 1
-        else Path("alpha_factory_v1/dashboards/alpha_factory_overview.json")
-    )
+    path = Path(sys.argv[1]) if len(sys.argv) > 1 else Path("alpha_factory_v1/dashboards/alpha_factory_overview.json")
     host = os.environ.get("GRAFANA_HOST", "http://localhost:3000").rstrip("/")
     token = os.environ.get("GRAFANA_TOKEN")
     if not token:

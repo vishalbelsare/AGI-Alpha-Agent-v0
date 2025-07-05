@@ -1,8 +1,8 @@
+# SPDX-License-Identifier: Apache-2.0
 import importlib
 import os
 import unittest
 from unittest import mock
-from alpha_factory_v1.backend import orchestrator as _orch
 
 
 class TestOrchestratorEnv(unittest.TestCase):

@@ -1,15 +1,23 @@
-# Solving **α-AGI Governance** [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/MontrealAI/AGI-Alpha-Agent-v0/blob/main/alpha_factory_v1/demos/solving_agi_governance/colab_solving_agi_governance.ipynb)
+[See docs/DISCLAIMER_SNIPPET.md](../../../docs/DISCLAIMER_SNIPPET.md)
+This repository is a conceptual research prototype. References to "AGI" and "superintelligence" describe aspirational goals and do not indicate the presence of a real general intelligence. Use at your own risk. Nothing herein constitutes financial advice. MontrealAI and the maintainers accept no liability for losses incurred from using this software.
+Each demo package exposes its own `__version__` constant. The value marks the revision of that demo only and does not reflect the overall Alpha‑Factory release version.
+
+
+# Solving **α-AGI Governance** [![Open In Colab]][colab-notebook]
 *Minimal Conditions for Stable, Antifragile Multi-Agent Order*
-**Author :** Vincent Boucher — President, MONTREAL.AI · QUEBEC.AI  
+**Author :** Vincent Boucher — President, MONTREAL.AI · QUEBEC.AI
 
 ---
 
 ### 1 · Executive Abstract
-A permissionless swarm of autonomous *α-AGI Businesses* can be driven toward a **single, efficient macro-equilibrium** by coupling provably-safe game-theoretic incentives to on-chain physics.  
+A permissionless swarm of autonomous *α-AGI Businesses* can be driven toward a
+**single, efficient macro-equilibrium** by coupling provably-safe game-theoretic
+incentives to on-chain physics.
 The only primitive is the utility / governance token **$AGIALPHA**.  
 If every agent stakes *sₖ > 0* and discounts future value at **δ ≥ 0.8**, then:
 
-> *All Nash equilibria collapse into one cooperative fixed-point on the Pareto frontier while net energy dissipation approaches the Landauer bound.*
+> *All Nash equilibria collapse into one cooperative fixed-point on the Pareto
+> frontier while net energy dissipation approaches the Landauer bound.*
 
 Six million Monte-Carlo rounds at *N = 10⁴* confirm convergence ± 1.7 %.  
 
@@ -21,7 +29,7 @@ Six million Monte-Carlo rounds at *N = 10⁴* confirm convergence ± 1.7 %.
 |-------|--------------|---------------|
 | **Incentive** | Mint/burn $AGIALPHA for provable α-extraction | **Stake sₖ**, slash on violation |
 | **Safety** | Formal envelopes, red-team fuzzing, Coq-verified actuators | Risk < 10⁻⁹ / action |
-| **Governance** | Quadratic voting, time-locked upgrades, adaptive oracles | **Voting curvature ≈ incentive gradient** |
+| **Governance** | Quadratic voting, time-locked upgrades, adaptive oracles | **Vote curvature ≈ incentive slope** |
 
 ---
 
@@ -72,7 +80,10 @@ Six million Monte-Carlo rounds at *N = 10⁴* confirm convergence ± 1.7 %.
 ---
 
 ### 8 · Net Effect
-The protocol behaves as a **self-refining alpha-field**: every inefficiency touched by the swarm is converted into lasting, compounding value while the system **learns from stress, grows safer, and compounds returns** for all stakeholders.
+The protocol behaves as a **self-refining alpha-field**: every inefficiency
+touched by the swarm is converted into lasting, compounding value while the
+system **learns from stress, grows safer, and compounds returns** for all
+stakeholders.
 
 > **$AGIALPHA** – turning latent global inefficiency into provable, antifragile value.
 
@@ -82,14 +93,35 @@ The protocol behaves as a **self-refining alpha-field**: every inefficiency touc
 Open the Colab notebook for an end-to-end demo:
 
 ```bash
-open https://colab.research.google.com/github/MontrealAI/AGI-Alpha-Agent-v0/blob/main/alpha_factory_v1/demos/solving_agi_governance/colab_solving_agi_governance.ipynb
+open \
+  https://colab.research.google.com/github/MontrealAI/AGI-Alpha-Agent-v0/blob/\
+  main/alpha_factory_v1/demos/solving_agi_governance/\
+  colab_solving_agi_governance.ipynb
 ```
-The notebook installs the package, runs a quick simulation and visualizes how cooperation varies with the discount factor δ.
+The notebook installs the package, runs a quick simulation and visualizes how
+cooperation varies with the discount factor δ. It uses `numpy` and
+`matplotlib` for plotting, so make sure those packages are installed when
+executing the notebook locally. The CLI script below works with just the
+Python standard library.
 
 ---
 
+### Requirements
+* Python 3.11 or 3.12 (<3.13; see [AGENTS.md](../../../AGENTS.md))
+* Install the optional runtime packages:
+  ```bash
+  pip install -r alpha_factory_v1/demos/solving_agi_governance/requirements.txt
+  ```
+* Install the demo extras before running the tests:
+  ```bash
+  pip install -r requirements-demo.txt
+  ```
+  This installs optional packages like `openai>=1.82.0,<2.0` and
+  `openai-agents>=0.0.17` used by the Agents bridge.
+  See [tests/README.md](../../../tests/README.md) for full instructions.
+
 ### 9 · Running the Demo
-This demo has **no third‑party dependencies**.  Any Python ≥ 3.9 works.
+The CLI simulator has **no third‑party dependencies**—use Python 3.11 or 3.12.
 
 Clone the repository and launch the Monte‑Carlo simulator:
 
@@ -114,7 +146,13 @@ governance-sim --agents 500 --summary
 
 ### 10 · Quick Start & Troubleshooting
 
-1. **Install** the package in a fresh virtual environment:
+1. **Install the demo dependencies**:
+
+   ```bash
+   pip install -r alpha_factory_v1/demos/solving_agi_governance/requirements.txt
+   ```
+
+2. **Install** the package in a fresh **Python 3.11 or 3.12** virtual environment:
 
    ```bash
    python -m pip install -e .[tests]
@@ -123,21 +161,57 @@ governance-sim --agents 500 --summary
    The demo requires only the Python standard library but the optional
    `tests` extra installs `pytest` for validation.
 
-2. **Run the simulator** using the provided command:
+3. **Run the simulator** using the provided command:
 
    ```bash
    governance-sim -N 500 -r 2000 --delta 0.85 --verbose
    ```
 
-3. **Verify** that everything works by launching the unit tests:
+4. **Verify** that everything works by launching the unit tests:
 
    ```bash
    python -m unittest discover -s alpha_factory_v1/tests -p 'test_governance_sim.py'
    ```
 
-If you encounter issues, ensure Python ≥ 3.9 is in your PATH and that
+If you encounter issues, ensure Python 3.11 or 3.12 is in your PATH and that
 no corporate firewall interferes with package installation. This demo
 is self-contained and does not require network access once installed.
 
 ---
+
+### 11 · OpenAI Agents Bridge
+Install the optional packages to expose the simulator via the
+**OpenAI Agents SDK** and the **Google ADK** federation layer:
+
+```bash
+pip install -r alpha_factory_v1/demos/solving_agi_governance/requirements.txt
+```
+
+Launch the bridge with your API key set:
+
+```bash
+export OPENAI_API_KEY=sk-…
+export ALPHA_FACTORY_ENABLE_ADK=true  # optional
+governance-bridge --enable-adk
+```
+
+The `OPENAI_API_KEY` variable must be set or the bridge cannot communicate with OpenAI.
+
+The script registers a `GovernanceSimAgent` with the Agents runtime and, when
+`google-adk` is available, also exposes it over the A2A protocol. If either
+package is missing the bridge prints a warning and executes the local simulator
+instead. The offline fallback accepts the same parameters as `governance-sim`
+(`-N`, `-r`, `--delta`, `--stake`) so the demo remains fully offline capable.
+
+Specify a custom runtime port with `--port`:
+
+```bash
+governance-bridge --port 5005
+```
+
+---
+
+[colab-notebook]: https://colab.research.google.com/github/MontrealAI/AGI-Alpha-Agent-v0/\
+    blob/main/alpha_factory_v1/demos/solving_agi_governance/\
+    colab_solving_agi_governance.ipynb
 

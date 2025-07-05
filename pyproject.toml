@@ -4,22 +4,42 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "alpha-factory-v1"
-version = "1.0.1"
+version = "0.1.0-alpha"
 description = "Alpha-Factory v1"
 readme = "README.md"
 requires-python = ">=3.11,<3.13"
+license = "Apache-2.0"
 
 [tool.setuptools]
 packages = [
     "alpha_factory_v1",
     "alpha_factory_v1.demos.alpha_agi_insight_v1",
+    "alpha_factory_v1.demos.alpha_agi_insight_v1.src",
+    "alpha_factory_v1.demos.alpha_agi_insight_v1.src.interface",
+    "alpha_factory_v1.demos.alpha_agi_insight_v1.src.interface.web_client",
+    "alpha_factory_v1.core",
+    "alpha_factory_v1.core.interface",
+    "alpha_factory_v1.core.interface.web_client",
+    "alpha_factory_v1.core.agents",
+    "alpha_factory_v1.core.evaluators",
+    "alpha_factory_v1.core.self_evolution",
+    "alpha_factory_v1.core.simulation",
+    "alpha_factory_v1.core.utils",
+    "alpha_factory_v1.core.tools",
+    "alpha_factory_v1.common",
+    "alpha_factory_v1.common.utils",
+    "alpha_factory_v1.utils",
     "af_requests",
-    "src",
+    "alpha_factory_v1.demos.meta_agentic_tree_search_v0",
+    "alpha_factory_v1.demos.meta_agentic_tree_search_v0.mats",
 ]
+include-package-data = true
 
 [tool.setuptools.package-data]
-"alpha_factory_v1" = ["py.typed"]
-"src.interface.web_client" = ["dist/**"]
+"alpha_factory_v1" = ["py.typed", "../docs/DISCLAIMER_SNIPPET.md"]
+"alpha_factory_v1.demos.alpha_agi_insight_v1" = ["py.typed"]
+"alpha_factory_v1.core.interface.web_client" = ["dist/**"]
+"alpha_factory_v1.demos.alpha_agi_insight_v1.src.interface.web_client" = ["dist/**"]
 
 [project.scripts]
 alpha-factory = "alpha_factory_v1.run:run"
@@ -29,19 +49,20 @@ alpha-asi-demo = "alpha_factory_v1.demos.alpha_asi_world_model.alpha_asi_world_m
 validate-demos = "alpha_factory_v1.demos.validate_demos:main"
 aiga-meta-demo = "alpha_factory_v1.demos.aiga_meta_evolution.meta_evolver:cli"
 muzero-demo = "alpha_factory_v1.demos.muzero_planning.agent_muzero_entrypoint:launch_dashboard"
-alpha-agi-insight-demo = "alpha_factory_v1.demos.alpha_agi_insight_v0.run_demo:main"
-alpha-agi-insight-bridge = "alpha_factory_v1.demos.alpha_agi_insight_v0.openai_agents_bridge:main"
-alpha-agi-insight-official = "alpha_factory_v1.demos.alpha_agi_insight_v0.official_demo:main"
-alpha-agi-insight-final = "alpha_factory_v1.demos.alpha_agi_insight_v0.official_demo_final:main"
-alpha-agi-insight = "alpha_factory_v1.demos.alpha_agi_insight_v0.official_demo_final:main"
-alpha-agi-beyond-foresight = "alpha_factory_v1.demos.alpha_agi_insight_v0.beyond_human_foresight:main"
-alpha-agi-bhf = "alpha_factory_v1.demos.alpha_agi_insight_v0.beyond_human_foresight:main"
-alpha-agi-insight-production = "alpha_factory_v1.demos.alpha_agi_insight_v0.official_demo_production:main"
-alpha-agi-insight-offline = "alpha_factory_v1.demos.alpha_agi_insight_v0.official_demo_zero_data:main"
-alpha-agi-insight-api = "alpha_factory_v1.demos.alpha_agi_insight_v0.api_server:main"
-alpha-agi-insight-dashboard = "alpha_factory_v1.demos.alpha_agi_insight_v0.insight_dashboard:main"
+alpha-agi-business-3-v1 = "alpha_factory_v1.demos.alpha_agi_business_3_v1.cli:main"
 alpha-agi-insight-v1 = "alpha_factory_v1.demos.alpha_agi_insight_v1.src.interface.cli:main"
 alpha-agi-insight-v1-api = "alpha_factory_v1.demos.alpha_agi_insight_v1.src.interface.api_server:main"
+aii = "alpha_factory_v1.demos.alpha_agi_insight_v1.src.interface.cli:main"
+verify-wheel-sig = "alpha_factory_v1.scripts.verify_wheel_sig:main"
+mats-demo = "alpha_factory_v1.demos.meta_agentic_tree_search_v0.run_demo:main"
+mats-bridge = "alpha_factory_v1.demos.meta_agentic_tree_search_v0.openai_agents_bridge:main"
+governance-bridge = "alpha_factory_v1.demos.solving_agi_governance.openai_agents_bridge:main"
+macro-sentinel = "alpha_factory_v1.demos.macro_sentinel.agent_macro_entrypoint:launch_ui"
+
+[project.optional-dependencies]
+tests = [
+    "pytest",
+]
 
 [project.entry-points."alpha_factory.agents"]
 # custom agents can be registered here
@@ -52,6 +73,32 @@ line-length = 120
 [tool.ruff]
 line-length = 120
 target-version = "py311"
+exclude = [
+    # exclude all demo directories except MuZero planning
+    "alpha_factory_v1/demos/aiga_meta_evolution/*",
+    "alpha_factory_v1/demos/alpha_agi_business_2_v1/*",
+    "alpha_factory_v1/demos/alpha_agi_business_3_v1/*",
+    "alpha_factory_v1/demos/alpha_agi_business_v1/*",
+    "alpha_factory_v1/demos/alpha_agi_insight_v0/*",
+    "alpha_factory_v1/demos/alpha_agi_marketplace_v1/*",
+    "alpha_factory_v1/demos/finance_alpha/*",
+    "alpha_factory_v1/demos/macro_sentinel/*",
+    "alpha_factory_v1/demos/meta_agentic_agi/*",
+    "alpha_factory_v1/demos/meta_agentic_agi_v2/*",
+    "alpha_factory_v1/demos/meta_agentic_agi_v3/*",
+    "alpha_factory_v1/demos/meta_agentic_tree_search_v0/*",
+    "alpha_factory_v1/demos/muzeromctsllmagent_v0/*",
+    "alpha_factory_v1/demos/omni_factory_demo/*",
+    "alpha_factory_v1/demos/self_healing_repo/*",
+    "alpha_factory_v1/demos/self_healing_repo_cli.py",
+    "alpha_factory_v1/demos/solving_agi_governance/*",
+    "alpha_factory_v1/demos/sovereign_agentic_agialpha_agent_v0/*",
+    "alpha_factory_v1/tests/*",
+    "*.ipynb",
+]
+
+[tool.ruff.lint]
+extend-ignore = ["E402", "F401", "E401"]
 
 [tool.flake8]
 max-line-length = 120

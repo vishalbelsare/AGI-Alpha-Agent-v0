@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 
 """
 alpha_factory_v1.demos.meta_agentic_agi.ui.lineage_app
@@ -6,12 +7,12 @@ Streamlit dashboard for **Meta-Agentic α-AGI** lineage tracking.
 
 Key features
 ------------
-• Zero-config launch – `streamlit run lineage_app.py` (or add to Procfile).  
-• Works with *any* SQLite DB produced by `meta_agentic_agi_demo.py`.  
-• Auto-refresh & reactive controls (no manual reloads).  
-• Interactive Altair charts for **multi-objective** metrics.  
-• Toggle code snippets, filter generations, export to CSV.  
-• No external services, JS, or CSS – pure-Python + Streamlit.  
+• Zero-config launch – `streamlit run lineage_app.py` (or add to Procfile).
+• Works with *any* SQLite DB produced by `meta_agentic_agi_demo.py`.
+• Auto-refresh & reactive controls (no manual reloads).
+• Interactive Altair charts for **multi-objective** metrics.
+• Toggle code snippets, filter generations, export to CSV.
+• No external services, JS, or CSS – pure-Python + Streamlit.
 
 Copyright © 2025 MONTREAL.AI  |  Apache-2.0
 """
@@ -33,15 +34,16 @@ from streamlit_autorefresh import st_autorefresh  # pip install streamlit-autore
 # ────────────────────────────────────────────────────────────────────────────────
 # 1. Configuration ─ env overrides make it portable & CI-friendly
 # ────────────────────────────────────────────────────────────────────────────────
-DB_ENV   = os.getenv("METAAGI_DB")              # custom DB path (optional)
-REFRESH  = int(os.getenv("METAAGI_REFRESH", 5)) # seconds between polls
-THEME    = os.getenv("METAAGI_THEME", "light")  # Streamlit theme override
+DB_ENV = os.getenv("METAAGI_DB")  # custom DB path (optional)
+REFRESH = int(os.getenv("METAAGI_REFRESH", 5))  # seconds between polls
+THEME = os.getenv("METAAGI_THEME", "light")  # Streamlit theme override
 
 DB_PATH = (
     Path(DB_ENV).expanduser().resolve()
-    if DB_ENV else
-    (Path(__file__).parent / ".." / "meta_agentic_agi_demo.sqlite").resolve()
+    if DB_ENV
+    else (Path(__file__).parent / ".." / "meta_agentic_agi_demo.sqlite").resolve()
 )
+
 
 # ────────────────────────────────────────────────────────────────────────────────
 # 2. Low-level helpers
@@ -82,17 +84,11 @@ def nice(name: str) -> str:
 # ────────────────────────────────────────────────────────────────────────────────
 # 3. Streamlit page setup
 # ────────────────────────────────────────────────────────────────────────────────
-st.set_page_config(
-    page_title="Lineage – Meta-Agentic α-AGI",
-    layout="wide",
-    page_icon="📊",
-    theme={"base": THEME}
-)
+st.set_page_config(page_title="Lineage – Meta-Agentic α-AGI", layout="wide", page_icon="📊", theme={"base": THEME})
 
 st.title("📊 Meta-Agentic α-AGI Lineage")
 st.caption(
-    f"Live DB → `{DB_PATH}` &nbsp;·&nbsp; auto-refresh every **{REFRESH}s** "
-    "(change with env var `METAAGI_REFRESH`)."
+    f"Live DB → `{DB_PATH}` &nbsp;·&nbsp; auto-refresh every **{REFRESH}s** " "(change with env var `METAAGI_REFRESH`)."
 )
 
 # Auto-refresh (has no effect in static export)
@@ -118,12 +114,7 @@ with st.sidebar:
 
     g_min, g_max = int(df["gen"].min()), int(df["gen"].max())
     gen_range = st.slider(
-        "Generation range",
-        min_value=g_min,
-        max_value=g_max,
-        value=(g_min, g_max),
-        step=1,
-        format="%d"
+        "Generation range", min_value=g_min, max_value=g_max, value=(g_min, g_max), step=1, format="%d"
     )
 
     metric_cols = ["accuracy", "latency", "cost", "carbon", "novelty"]
@@ -134,7 +125,7 @@ with st.sidebar:
         format_func=nice,
     )
 
-    show_code  = st.checkbox("Show code snippets", value=False)
+    show_code = st.checkbox("Show code snippets", value=False)
     csv_button = st.download_button(
         "📥 Export filtered CSV",
         data=df.to_csv(index=False).encode(),
@@ -157,7 +148,7 @@ chart = (
     .encode(
         x=alt.X("gen:Q", title="Generation"),
         y=alt.Y(f"{sel_metric}:Q", title=nice(sel_metric)),
-        tooltip=["gen"] + metric_cols
+        tooltip=["gen"] + metric_cols,
     )
     .interactive()
 )
@@ -170,16 +161,10 @@ st.altair_chart(chart, use_container_width=True)
 st.subheader("📑 Lineage records")
 
 code_col = [] if show_code else ["code"]
-st.dataframe(
-    view_df.sort_values("gen", ascending=False).drop(columns=code_col),
-    use_container_width=True,
-    height=450
-)
+st.dataframe(view_df.sort_values("gen", ascending=False).drop(columns=code_col), use_container_width=True, height=450)
 
 # Optional code viewer
 if show_code:
     st.subheader("🧩 Agent code (latest selected row)")
-    latest_code: Dict[str, Any] = (
-        view_df.sort_values("gen", ascending=False).iloc[0].to_dict()
-    )
+    latest_code: Dict[str, Any] = view_df.sort_values("gen", ascending=False).iloc[0].to_dict()
     st.code(latest_code["code"], language="python")

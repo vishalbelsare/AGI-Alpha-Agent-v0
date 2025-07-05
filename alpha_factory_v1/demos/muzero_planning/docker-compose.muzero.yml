@@ -6,6 +6,7 @@ services:
       context: ../..                # alpha_factory_v1 root
       dockerfile: ./Dockerfile      # uses existing image recipe
     image: alpha_factory_orchestrator:muzero
+    user: "1001:1001"
     env_file: ./config.env
     command: >-
       sh -c "pip install --no-cache-dir -r /app/demo/requirements.txt && \

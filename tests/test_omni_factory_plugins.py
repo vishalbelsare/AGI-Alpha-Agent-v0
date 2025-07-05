@@ -1,5 +1,7 @@
+# SPDX-License-Identifier: Apache-2.0
 import unittest
 from alpha_factory_v1.demos.omni_factory_demo import omni_factory_demo as demo
+
 
 class TestPluginLoader(unittest.TestCase):
     def test_plugins_load_and_function(self):
@@ -11,6 +13,7 @@ class TestPluginLoader(unittest.TestCase):
         self.assertTrue(callable(heur))
         result = heur([0.1, 0.5, 0.0])
         self.assertIn("action", result)
+
 
 if __name__ == "__main__":
     unittest.main()

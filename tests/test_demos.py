@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 import unittest
 from pathlib import Path
 from alpha_factory_v1.demos import validate_demos
@@ -28,11 +29,7 @@ class TestDemos(unittest.TestCase):
         """Every demo directory is importable as a package."""
         base = Path(validate_demos.DEFAULT_DIR)
         for path in base.iterdir():
-            if (
-                path.is_dir()
-                and not path.name.startswith(".")
-                and not path.name.startswith("__")
-            ):
+            if path.is_dir() and not path.name.startswith(".") and not path.name.startswith("__"):
                 self.assertTrue(
                     (path / "__init__.py").exists(),
                     f"Missing __init__.py in {path.name}",

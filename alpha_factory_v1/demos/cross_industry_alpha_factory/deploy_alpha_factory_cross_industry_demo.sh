@@ -1,13 +1,16 @@
 #!/usr/bin/env bash
+# SPDX-License-Identifier: Apache-2.0
+# This installer is a research prototype and does not deploy real AGI.
 ###############################################################################
 # Alpha-Factory v1 👁️✨  – Cross-Industry AGENTIC α-AGI demo bootstrap
 # Fully production-grade, security-attested, CI-ready one-liner installer
 ###############################################################################
 set -Eeuo pipefail
 IFS=$'\n\t'; shopt -s lastpipe
+# Set AUTO_COMMIT=1 to automatically commit generated assets.
 
 usage(){
-  echo "Usage: $0 [--ci] [--skip-bench]" >&2
+  echo "Usage: $0 [--ci] [--skip-bench] [--model-path <dir>]" >&2
 }
 
 while [[ $# -gt 0 ]]; do
@@ -16,6 +19,8 @@ while [[ $# -gt 0 ]]; do
       CI=1;;
     --skip-bench)
       SKIP_BENCH=1;;
+    --model-path)
+      MODEL_PATH=$2; shift;;
     -h|--help)
       usage; exit 0;;
     *)
@@ -58,11 +63,14 @@ else
 fi
 
 # containerised yq / cosign / rekor-cli / k6 / locust when missing
-yq(){ docker run --rm -i -v "$PWD":/workdir ghcr.io/mikefarah/yq "$@"; }
-cosign(){ docker run --rm -e COSIGN_EXPERIMENTAL=1 -v "$PWD":/workdir ghcr.io/sigstore/cosign/v2:latest "$@"; }
-rekor(){ docker run --rm -v "$PWD":/workdir ghcr.io/sigstore/rekor-cli:latest "$@"; }
-k6(){ docker run --rm -i -v "$PWD":/workdir grafana/k6 "$@"; }
-locust(){ docker run --rm -v "$PWD":/workdir locustio/locust "$@"; }
+# yq pinned to 4.44.1 for reproducible builds
+yq(){ docker run --rm -i -v "$PWD":/workdir ghcr.io/mikefarah/yq:4.44.1 "$@"; }
+# Use explicit tool versions to ensure reproducible builds
+# cosign v2.5.0, rekor-cli v1.3.10, k6 0.52.0, locust 2.37.10
+cosign(){ docker run --rm -e COSIGN_EXPERIMENTAL=1 -v "$PWD":/workdir ghcr.io/sigstore/cosign/v2:v2.5.0 "$@"; }
+rekor(){ docker run --rm -v "$PWD":/workdir ghcr.io/sigstore/rekor-cli:v1.3.10 "$@"; }
+k6(){ docker run --rm -i -v "$PWD":/workdir grafana/k6:0.52.0 "$@"; }
+locust(){ docker run --rm -v "$PWD":/workdir locustio/locust:2.37.10 "$@"; }
 
 ############## 2. FETCH / UPDATE REPO #########################################
 mkdir -p "$PROJECT_DIR"; cd "$PROJECT_DIR"
@@ -85,6 +93,9 @@ PROMPT_PUB=$(cat "$KEY_DIR/agent_key.pub")
 [[ -f $SBOM_DIR/cosign.key ]] || cosign generate-key-pair --key "file://$SBOM_DIR/cosign" &>/dev/null
 COSIGN_PUB=$(cat "$SBOM_DIR/cosign.pub")
 
+# random REST token
+TOKEN=$(openssl rand -hex 16)
+
 # .env
 cat > alpha_factory_v1/.env <<EOF
 ALPHA_FACTORY_MODE=cross_industry
@@ -96,6 +107,7 @@ RAY_PORT=$RAY_PORT
 PROJECT_SHA=$COMMIT_SHA
 PROMPT_SIGN_PUBKEY=$PROMPT_PUB
 COSIGN_PUBKEY=$COSIGN_PUB
+API_TOKEN=$TOKEN
 EOF
 
 # guard-rails (MCP)
@@ -106,27 +118,46 @@ cat > "$POLICY_DIR/redteam.json" <<'JSON'
 JSON
 
 ############## 4. PATCH COMPOSE ###############################################
-patch(){ yq -i "$1" "$COMPOSE_FILE"; }
+patch(){
+  local name="$1" expr="$2"
+  if [ "$(yq e ".services.\"$name\"" "$COMPOSE_FILE")" != "null" ]; then
+    echo "🔎 $name already present"
+  else
+    yq -i "$expr" "$COMPOSE_FILE"
+  fi
+}
 
 # offline Mixtral-8x7B if no API key
 if [[ -z ${OPENAI_API_KEY:-} ]]; then
   OPENAI_API_BASE="http://local-llm:11434/v1"
-  patch '.services += {"local-llm":{image:"ollama/ollama:latest",ports:["11434:11434"],volumes:["ollama:/root/.ollama"],environment:{"OLLAMA_MODELS":"mixtral:8x7b-instruct"}}}'
+  sed -i.bak 's|^OPENAI_API_BASE=.*|OPENAI_API_BASE=http://local-llm:11434/v1|' alpha_factory_v1/.env
+  # Pin ollama 0.9.0 for reproducibility
+  if [[ -n ${MODEL_PATH:-} ]]; then
+    patch local-llm ".services += {\"local-llm\":{image:\"ollama/ollama:0.9.0\",ports:[\"11434:11434\"],volumes:[\"${MODEL_PATH}:/models\"],environment:{\"OLLAMA_MODELS\":\"/models\"}}}"
+  else
+    patch local-llm '.services += {"local-llm":{image:"ollama/ollama:0.9.0",ports:["11434:11434"],volumes:["ollama:/root/.ollama"],environment:{"OLLAMA_MODELS":"mixtral:8x7b-instruct"}}}'
+  fi
 fi
 
-# core side-cars
-patch '.services += {"policy-engine":{image:"openai/mcp-engine:latest",volumes:["./alpha_factory_v1/policies:/policies:ro"]}}'
-patch '.services += {"prometheus":{image:"prom/prometheus:latest",ports:["'${PROM_PORT}':9090"]}}'
-patch ".services += {\"grafana\":{image:\"grafana/grafana:latest\",ports:[\"${DASH_PORT}:3000\"]}}"
-patch ".services += {\"ray-head\":{image:\"rayproject/ray:2.10.0\",command:\"ray start --head --dashboard-port ${RAY_PORT} --dashboard-host 0.0.0.0\",ports:[\"${RAY_PORT}:${RAY_PORT}\"]}}"
-patch '.services += {"pubmed-adapter":{image:"ghcr.io/alpha-factory/mock-pubmed:latest",ports:["8005:80"],labels:["optional=true"]}}'
-patch '.services += {"carbon-api":{image:"ghcr.io/alpha-factory/mock-carbon:latest",ports:["8010:80"],labels:["optional=true"]}}'
+# core side-cars (pinned versions)
+# - mcp-engine 0.2.0
+# - prometheus v2.48.1
+# - grafana 10.4.2
+patch policy-engine '.services += {"policy-engine":{image:"openai/mcp-engine:0.2.0",volumes:["./alpha_factory_v1/policies:/policies:ro"]}}'
+patch prometheus '.services += {"prometheus":{image:"prom/prometheus:v2.48.1",ports:["'"${PROM_PORT}"':9090]}}'
+patch grafana ".services += {\"grafana\":{image:\"grafana/grafana:10.4.2\",ports:[\"${DASH_PORT}:3000\"]}}"
+patch ray-head ".services += {\"ray-head\":{image:\"rayproject/ray:2.10.0\",command:\"ray start --head --dashboard-port ${RAY_PORT} --dashboard-host 0.0.0.0\",ports:[\"${RAY_PORT}:${RAY_PORT}\"]}}"
+# mock services pinned to 0.1.0
+patch pubmed-adapter '.services += {"pubmed-adapter":{image:"ghcr.io/alpha-factory/mock-pubmed:0.1.0",ports:["8005:80"],labels:["optional=true"]}}'
+patch carbon-api '.services += {"carbon-api":{image:"ghcr.io/alpha-factory/mock-carbon:0.1.0",ports:["8010:80"],labels:["optional=true"]}}'
 
 # SBOM signer – uses BuildKit --iidfile so IMAGE_ID always populated
-patch '.services += {"sbom":{image:"anchore/syft:latest",command:["sh","-c","syft dir:/app -o spdx-json=/sbom/sbom.json && cosign attest --key=/sbom/cosign.key --predicate /sbom/sbom.json $(cat /tmp/IMAGE_ID) && rekor upload --rekor_server '$REKOR_URL' --artifact /sbom/sbom.json --public-key /sbom/cosign.pub"],volumes:["./alpha_factory_v1/sbom:/sbom"]}}'
+# SBOM signer pinned to syft v1.27.0
+# shellcheck disable=SC2016
+patch sbom '.services += {"sbom":{image:"anchore/syft:v1.27.0",command:["sh","-c","syft dir:/app -o spdx-json=/sbom/sbom.json && cosign attest --key=/sbom/cosign.key --predicate /sbom/sbom.json \$(cat /tmp/IMAGE_ID) && rekor upload --rekor_server '"${REKOR_URL}"' --artifact /sbom/sbom.json --public-key /sbom/cosign.pub"],volumes:["./alpha_factory_v1/sbom:/sbom"]}}'
 
 # PPO continual-learning builder
-patch '.services += {"alpha-trainer":{build:{context:"./alpha_factory_v1/continual"},depends_on:["ray-head","orchestrator"]}}'
+patch alpha-trainer '.services += {"alpha-trainer":{build:{context:"./alpha_factory_v1/continual"},depends_on:["ray-head","orchestrator"]}}'
 
 ############## 5. CONTINUAL-LEARNING PIPELINE #################################
 cat > "$CONTINUAL_DIR/rubric.json" <<'JSON'
@@ -196,7 +227,7 @@ JS
 export DOCKER_BUILDKIT=1
 echo "🐳  Building containers & generating SBOM…"
 "$DOCKER_COMPOSE" -f "$COMPOSE_FILE" --env-file alpha_factory_v1/.env up -d --build \
-  --iidfile /tmp/IMAGE_ID orchestrator ${AGENTS[*]} policy-engine prometheus grafana \
+  --iidfile /tmp/IMAGE_ID orchestrator "${AGENTS[@]}" policy-engine prometheus grafana \
   ray-head alpha-trainer pubmed-adapter carbon-api sbom
 
 echo "⏳  Waiting for orchestrator health…"
@@ -208,11 +239,11 @@ done
 ############## 9. OPTIONAL HEAVY-LOAD BENCH ###################################
 if [[ -z ${SKIP_BENCH:-} ]]; then
   echo "🏋 Running load test"
-  k6 run -e AGENTS_ENABLED="${AGENTS[*]}" --duration 60s --vus 50 "$LOADTEST_DIR/k6.js" || true
+  k6 run -e AGENTS_ENABLED="${AGENTS[*]}" --duration 60s --vus 50 "$LOADTEST_DIR/k6.js"
 fi
 
 ############# 10. AUTO-COMMIT GENERATED ASSETS ################################
-if [[ -z ${CI:-} ]]; then
+if [[ -z ${CI:-} && ${AUTO_COMMIT:-0} == 1 ]]; then
   git add "$CI_PATH" "$CONTINUAL_DIR" "$LOADTEST_DIR" "$ASSETS_DIR" || true
   git commit -m "auto: bootstrap cross-industry demo ($COMMIT_SHA)" 2>/dev/null || true
 fi

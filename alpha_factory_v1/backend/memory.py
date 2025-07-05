@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 """
 Lightweight disk persistence used by the other components.
 
@@ -14,7 +15,17 @@ import os
 import tempfile
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any
+from typing import Any, TypedDict
+
+
+class EventRecord(TypedDict):
+    """JSON-serializable memory record."""
+
+    ts: str
+    agent: str
+    kind: str
+    data: Any
+
 
 _log = logging.getLogger("alpha_factory.memory")
 if not _log.handlers:
@@ -27,11 +38,16 @@ _log.setLevel(os.getenv("LOGLEVEL", "INFO"))
 class Memory:
     """Append‑only JSONL store; just good enough for unit‑tests & demos."""
 
-    def __init__(self, dir: str | os.PathLike[str] | None = None) -> None:
+    def __init__(self, directory: str | os.PathLike[str] | None = None) -> None:
+        """Create a new memory store.
+
+        When *directory* is ``None``, the path defaults to the ``AF_MEMORY_DIR``
+        environment variable or ``/tmp/alphafactory``.
+        """
         # Pick a safe, always‑writeable directory.
-        if dir is None:
-            dir = os.getenv("AF_MEMORY_DIR", Path(tempfile.gettempdir()) / "alphafactory")
-        self.dir = Path(dir)
+        if directory is None:
+            directory = os.getenv("AF_MEMORY_DIR", Path(tempfile.gettempdir()) / "alphafactory")
+        self.dir = Path(directory)
         self.dir.mkdir(parents=True, exist_ok=True)
 
         self.file = self.dir / "events.jsonl"
@@ -50,12 +66,12 @@ class Memory:
         with self.file.open("a", encoding="utf‑8") as fh:
             fh.write(json.dumps(record, ensure_ascii=False) + "\n")
 
-    def read(self, limit: int = 100) -> list[dict[str, Any]]:
+    def read(self, limit: int = 100) -> list[EventRecord]:
         """Return *limit* most‑recent records (newest‑last)."""
         with self.file.open(encoding="utf-8") as fh:
             lines = fh.readlines()[-limit:]
 
-        records: list[dict[str, Any]] = []
+        records: list[EventRecord] = []
         for line in lines:
             try:
                 records.append(json.loads(line))
@@ -64,7 +80,7 @@ class Memory:
         return records
 
     # ------------------------------------------------------------------
-    def query(self, limit: int = 100) -> list[dict[str, Any]]:
+    def query(self, limit: int = 100) -> list[EventRecord]:
         """Alias of :meth:`read` for backward compatibility."""
         return self.read(limit)
 

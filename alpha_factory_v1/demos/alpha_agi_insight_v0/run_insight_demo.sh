@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# SPDX-License-Identifier: Apache-2.0
 # Quick launcher for the α‑AGI Insight demo
 set -euo pipefail
 

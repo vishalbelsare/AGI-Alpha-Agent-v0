@@ -1,3 +1,8 @@
+# SPDX-License-Identifier: Apache-2.0
+# References to "AGI" and "superintelligence" describe aspirational goals
+# and do not indicate the presence of a real general intelligence.
+# Use at your own risk. Nothing herein constitutes financial advice.
+# MontrealAI and the maintainers accept no liability for losses incurred.
 """Zero-data launcher for the α‑AGI Insight demo.
 
 This wrapper enforces offline execution by setting ``ALPHA_AGI_OFFLINE=true``

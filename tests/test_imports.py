@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 import importlib
 import unittest
 
@@ -12,4 +13,3 @@ class TestImports(unittest.TestCase):
 
 if __name__ == "__main__":  # pragma: no cover - manual execution
     unittest.main()
-

@@ -17,3 +17,60 @@ repos:
     hooks:
       - id: mypy
         args: ["--config-file", "mypy.ini"]
+  - repo: https://github.com/semgrep/semgrep
+    rev: v1.61.0
+    hooks:
+      - id: semgrep
+        args: ["--config", "semgrep.yml"]
+        types: [python]
+  - repo: https://github.com/shellcheck-py/shellcheck-py
+    rev: v0.9.0.1
+    hooks:
+      - id: shellcheck
+  - repo: local
+    hooks:
+      - id: proto-verify
+        name: Verify protobuf files are up to date
+        entry: make proto-verify
+        language: system
+        pass_filenames: false
+      - id: verify-env-docs
+        name: Verify environment docs and runbook checklist
+        entry: python tools/check_env_table.py
+        language: python
+        pass_filenames: false
+      - id: dp-scrub
+        name: Detect private text in commit
+        entry: python scripts/dp_scrubber.py
+        language: python
+        pass_filenames: false
+      - id: env-check
+        name: Verify required Python packages are installed
+        entry: scripts/env_check.sh
+        language: system
+        pass_filenames: false
+      - id: verify-disclaimer-helper
+        name: Ensure scripts import disclaimer helper
+        entry: python scripts/verify_disclaimer_helper.py
+        language: python
+        pass_filenames: false
+      - id: verify-gallery-assets
+        name: Verify demo gallery preview assets exist
+        entry: python scripts/verify_gallery_assets.py
+        language: python
+        pass_filenames: false
+      - id: verify-html-disclaimer
+        name: Verify HTML pages reference the disclaimer snippet
+        entry: python scripts/verify_html_disclaimer.py
+        language: python
+        pass_filenames: false
+      - id: py-compile
+        name: Validate Python syntax with py_compile
+        entry: python -m py_compile
+        language: python
+        types: [python]
+      - id: eslint-insight-browser
+        name: Lint Insight Browser with ESLint
+        entry: scripts/run_eslint.sh
+        language: system
+        types: [javascript]

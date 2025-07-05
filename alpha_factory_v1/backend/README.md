@@ -1,3 +1,6 @@
+[See docs/DISCLAIMER_SNIPPET.md](../../../docs/DISCLAIMER_SNIPPET.md)
+This repository is a conceptual research prototype. References to "AGI" and "superintelligence" describe aspirational goals and do not indicate the presence of a real general intelligence. Use at your own risk. Nothing herein constitutes financial advice. MontrealAI and the maintainers accept no liability for losses incurred from using this software.
+
 # Alpha-Factory Backend
 
 This directory contains the production backend services for the Alpha-Factory stack. The primary entry point is `orchestrator.py`, which bootstraps agents, exposes REST and gRPC interfaces, and integrates optional components when the corresponding dependencies are installed.
@@ -25,6 +28,8 @@ The orchestrator honours several variables to tune runtime behaviour:
 | `ALPHA_CYCLE_SECONDS` | Default agent cycle period | `60` |
 | `MAX_CYCLE_SEC` | Hard limit per agent run in seconds | `30` |
 | `ALPHA_ENABLED_AGENTS` | Comma-separated list of agents to run | *(all)* |
+| `ALPHA_REGRESSION_THRESHOLD` | Metric drop required to pause evolution | `0.8` |
+| `ALPHA_REGRESSION_WINDOW` | Number of scores considered for regression | `3` |
 
 ## Running Locally
 

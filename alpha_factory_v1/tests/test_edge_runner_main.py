@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 import os
 import argparse
 import unittest
@@ -31,21 +32,23 @@ class EdgeRunnerMainInvokesRun(unittest.TestCase):
         edge_runner.main()
 
         edge_parse.assert_called_once_with()
-        run_parse.assert_called_once_with([
-            "--dev",
-            "--port",
-            "123",
-            "--metrics-port",
-            "456",
-            "--a2a-port",
-            "789",
-            "--enabled",
-            "A,B",
-            "--cycle",
-            "5",
-            "--loglevel",
-            "DEBUG",
-        ])
+        run_parse.assert_called_once_with(
+            [
+                "--dev",
+                "--port",
+                "123",
+                "--metrics-port",
+                "456",
+                "--a2a-port",
+                "789",
+                "--enabled",
+                "A,B",
+                "--cycle",
+                "5",
+                "--loglevel",
+                "DEBUG",
+            ]
+        )
         apply_env.assert_called_once_with(run_parse.return_value)
         self.assertEqual(os.environ["PGHOST"], "sqlite")
         run.assert_called_once_with()
@@ -63,19 +66,21 @@ class EdgeRunnerMainInvokesRun(unittest.TestCase):
 
         edge_runner.main()
 
-        run_parse.assert_called_once_with([
-            "--dev",
-            "--port",
-            "123",
-            "--metrics-port",
-            "456",
-            "--a2a-port",
-            "789",
-            "--enabled",
-            "A,B",
-            "--cycle",
-            "5",
-        ])
+        run_parse.assert_called_once_with(
+            [
+                "--dev",
+                "--port",
+                "123",
+                "--metrics-port",
+                "456",
+                "--a2a-port",
+                "789",
+                "--enabled",
+                "A,B",
+                "--cycle",
+                "5",
+            ]
+        )
         apply_env.assert_called_once_with(run_parse.return_value)
 
 

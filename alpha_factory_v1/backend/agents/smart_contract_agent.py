@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 """backend.agents.smart_contract_agent
 ===================================================================
 Alpha‑Factory v1 👁️✨ — Multi‑Agent AGENTIC α‑AGI
@@ -37,6 +38,8 @@ import asyncio
 import hashlib
 import json
 import logging
+
+logger = logging.getLogger(__name__)
 import os
 import random
 import re
@@ -47,74 +50,92 @@ from pathlib import Path
 from shlex import quote
 from typing import Any, Dict, List, Optional
 
+from alpha_factory_v1.backend.utils.sync import run_sync
+
 # ---------------------------------------------------------------------------
 # Soft‑optional dependencies — import‑guarded to keep cold‑start <50 ms
 # ---------------------------------------------------------------------------
 try:
     from web3 import Web3  # type: ignore
 except ModuleNotFoundError:  # pragma: no cover
+    logger.warning("web3 not installed – blockchain features disabled")
     Web3 = None  # type: ignore
 
 try:
-    import slither  # type: ignore  # noqa: F401  (import side effect registers entry‑point)
+    import slither  # type: ignore  # noqa: F401
     from slither.slither import Slither  # type: ignore
 except ModuleNotFoundError:  # pragma: no cover
+    logger.warning("slither missing – static analysis disabled")
     Slither = None  # type: ignore
 
 try:
     import lightgbm as lgb  # type: ignore
 except ModuleNotFoundError:  # pragma: no cover
+    logger.warning("lightgbm missing – scoring model disabled")
     lgb = None  # type: ignore
 
 try:
     from kafka import KafkaProducer  # type: ignore
 except ModuleNotFoundError:  # pragma: no cover
+    logger.warning("kafka-python missing – event bus disabled")
     KafkaProducer = None  # type: ignore
 
 try:
     import httpx  # type: ignore
 except ModuleNotFoundError:  # pragma: no cover
+    logger.warning("httpx unavailable – contract fetch disabled")
     httpx = None  # type: ignore
 
 try:
     import openai  # type: ignore
     from openai.agents import tool  # type: ignore
 except ModuleNotFoundError:  # pragma: no cover
+    logger.warning("openai package not found – LLM features disabled")
     openai = None  # type: ignore
 
     def tool(fn=None, **_):  # type: ignore
         return (lambda f: f)(fn) if fn else lambda f: f
 
 
+OPENAI_TIMEOUT_SEC = int(os.getenv("OPENAI_TIMEOUT_SEC", "30"))
+
+
 try:
     import adk  # type: ignore
 except ModuleNotFoundError:  # pragma: no cover
+    logger.warning("google-adk not installed – mesh integration disabled")
     adk = None  # type: ignore
+try:
+    from aiohttp import ClientError as AiohttpClientError  # type: ignore
+except Exception:  # pragma: no cover - optional
+    AiohttpClientError = OSError  # type: ignore
+try:
+    from adk import ClientError as AdkClientError  # type: ignore[attr-defined]
+except Exception:  # pragma: no cover - optional
+
+    class AdkClientError(Exception):
+        pass
+
 
 try:
     import solcx  # type: ignore
 except ModuleNotFoundError:  # pragma: no cover
+    logger.warning("solcx not installed – compilation disabled")
     solcx = None  # type: ignore
 
 # ---------------------------------------------------------------------------
 # Alpha‑Factory local imports (never heavy)
 # ---------------------------------------------------------------------------
 from backend.agent_base import AgentBase  # pylint: disable=import-error
-from backend.agents import AgentMetadata, register_agent
+from backend.agents import register
 from backend.orchestrator import _publish
+from alpha_factory_v1.utils.env import _env_int
 
 logger = logging.getLogger(__name__)
 
 # ---------------------------------------------------------------------------
 # Configuration helpers
 # ---------------------------------------------------------------------------
-
-
-def _env_int(key: str, default: int) -> int:
-    try:
-        return int(os.getenv(key, default))
-    except ValueError:
-        return default
 
 
 def _env_float(key: str, default: float) -> float:
@@ -186,10 +207,12 @@ class _VaRSurrogate:
 # ---------------------------------------------------------------------------
 
 
+@register
 class SmartContractAgent(AgentBase):
     """Analyse, optimise and forecast smart‑contract performance & risk."""
 
     NAME = "smart_contract"
+    __version__ = "1.0.0"
     CAPABILITIES = [
         "contract_audit",
         "gas_optimisation",
@@ -223,7 +246,8 @@ class SmartContractAgent(AgentBase):
         )
 
         if self.cfg.adk_mesh and adk:
-            asyncio.create_task(self._register_mesh())
+            # registration scheduled by orchestrator after loop start
+            pass
 
     # ------------------------------------------------------------------
     # OpenAI Agent tools
@@ -238,16 +262,14 @@ class SmartContractAgent(AgentBase):
         args = json.loads(contract_json)
         src: Optional[str] = args.get("source")
         addr: Optional[str] = args.get("address")
-        loop = asyncio.get_event_loop()
-        return loop.run_until_complete(self._audit_async(src, addr))
+        return run_sync(self._audit_async(src, addr))
 
     @tool(description='Suggest gas‑saving refactors. Input: JSON {"source": str, "budget_gwei": int?}')
     def optimize_contract(self, src_json: str) -> str:  # noqa: D401
         args = json.loads(src_json)
         src = args.get("source", "")
         budget = int(args.get("budget_gwei", 50))
-        loop = asyncio.get_event_loop()
-        return loop.run_until_complete(self._optimize_async(src, budget))
+        return run_sync(self._optimize_async(src, budget))
 
     @tool(
         description="Forecast gas price (gwei) and ETH cost for calldata length over next 12 blocks."
@@ -255,8 +277,7 @@ class SmartContractAgent(AgentBase):
     )
     def gas_forecast(self, args_json: str) -> str:  # noqa: D401
         blen = int(json.loads(args_json).get("bytes_len", 0))
-        loop = asyncio.get_event_loop()
-        return loop.run_until_complete(self._gas_async(blen))
+        return run_sync(self._gas_async(blen))
 
     # ------------------------------------------------------------------
     # Orchestrator life‑cycle
@@ -347,6 +368,7 @@ class SmartContractAgent(AgentBase):
                     model="gpt-4o",
                     messages=[{"role": "user", "content": prompt}],
                     max_tokens=256,
+                    timeout=OPENAI_TIMEOUT_SEC,
                 )
                 suggestions += [s.strip("- •") for s in resp.choices[0].message.content.split("\n") if s]
             except Exception as exc:  # noqa: BLE001
@@ -420,12 +442,29 @@ class SmartContractAgent(AgentBase):
     # ------------------------------------------------------------------
 
     async def _register_mesh(self) -> None:  # noqa: D401
-        try:
-            client = adk.Client()
-            await client.register(node_type=self.NAME, metadata={"chain_id": self.cfg.chain_id})
-            logger.info("[SC] registered in ADK mesh id=%s", client.node_id)
-        except Exception as exc:  # noqa: BLE001
-            logger.warning("ADK registration failed: %s", exc)
+        max_attempts = 3
+        delay = 1.0
+        for attempt in range(1, max_attempts + 1):
+            try:
+                client = adk.Client()
+                await client.register(node_type=self.NAME, metadata={"chain_id": self.cfg.chain_id})
+                logger.info("[SC] registered in ADK mesh id=%s", client.node_id)
+                return
+            except (AdkClientError, AiohttpClientError, asyncio.TimeoutError, OSError) as exc:
+                if attempt == max_attempts:
+                    logger.error("ADK registration failed after %d attempts: %s", max_attempts, exc)
+                    raise
+                logger.warning(
+                    "ADK registration attempt %d/%d failed: %s",
+                    attempt,
+                    max_attempts,
+                    exc,
+                )
+                await asyncio.sleep(delay)
+                delay *= 2
+            except Exception as exc:  # pragma: no cover - unexpected
+                logger.exception("Unexpected ADK registration error: %s", exc)
+                raise
 
 
 # ---------------------------------------------------------------------------
@@ -471,16 +510,6 @@ def _bootstrap_distribution(median: float, n: int = 12) -> List[float]:
 # Register agent in global registry
 # ---------------------------------------------------------------------------
 
-register_agent(
-    AgentMetadata(
-        name=SmartContractAgent.NAME,
-        cls=SmartContractAgent,
-        version="1.0.0",
-        capabilities=SmartContractAgent.CAPABILITIES,
-        compliance_tags=SmartContractAgent.COMPLIANCE_TAGS,
-        requires_api_key=SmartContractAgent.REQUIRES_API_KEY,
-    )
-)
 
 # ---------------------------------------------------------------------------
 # Doctest (quick smoke test)
@@ -492,3 +521,5 @@ if __name__ == "__main__":
         """pragma solidity ^0.8.25; contract Foo { function bar(uint a) external view returns(uint){return a+1;} }"""
     )
     print(agent.audit_contract(json.dumps({"source": sample_src}))[:200])
+
+__all__ = ["SmartContractAgent"]

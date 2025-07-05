@@ -1,3 +1,5 @@
+[See docs/DISCLAIMER_SNIPPET.md](docs/DISCLAIMER_SNIPPET.md)
+
 # Contributor Covenant Code of Conduct
 
 ## Our Pledge

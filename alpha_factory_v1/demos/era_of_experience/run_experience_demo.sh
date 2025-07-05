@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# SPDX-License-Identifier: Apache-2.0
 ###############################################################################
 #  run_experience_demo.sh – Era-of-Experience • Alpha-Factory v1 👁️✨
 #
@@ -40,25 +41,42 @@ demo_dir="$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &>/dev/null && pwd )"
 root_dir="${demo_dir%/*/*}"                    # → …/alpha_factory_v1
 compose_file="$demo_dir/docker-compose.experience.yml"
 env_file="$demo_dir/config.env"
-offline_dir="$demo_dir/offline_samples"
+sample_dir="${SAMPLE_DATA_DIR:-$demo_dir/offline_samples}"
+sample_dir="$(realpath -m "$sample_dir")"
+offline_dir="$sample_dir"
+export SAMPLE_DATA_DIR="$sample_dir"
+CONNECTIVITY_TEST_URL="${CONNECTIVITY_TEST_URL:-https://example.com}"
 
 cd "$root_dir"                                # required for build context
 
 ################################### flags #####################################
 PROFILE_LIVE=0
+PORT=7860
 while [[ $# -gt 0 ]]; do
   case $1 in
-    --live) PROFILE_LIVE=1 ;;
+    --live)
+      PROFILE_LIVE=1
+      shift
+      ;;
+    --port)
+      PORT=${2:?"--port requires an argument"}
+      shift 2
+      ;;
     -h|--help)
       cat <<EOF
-Usage: ./run_experience_demo.sh [--live]
+Usage: ./run_experience_demo.sh [--live] [--port <num>]
 
---live   Start real-time collectors (wearables-sim, RSS feeds, etc.)
+--live       Start real-time collectors (wearables-sim, RSS feeds, etc.)
+--port <num> Web UI port to expose (default 7860)
+Place pre-downloaded CSVs in $SAMPLE_DATA_DIR (defaults to ./offline_samples/) for air-gapped runs.
+Set SKIP_ENV_CHECK=1 to bypass Python package checks.
 EOF
-      exit 0 ;;
-    *) die "Unknown flag: $1" ;;
+      exit 0
+      ;;
+    *)
+      die "Unknown flag: $1"
+      ;;
   esac
-  shift
 done
 
 ################################# prereqs #####################################
@@ -72,7 +90,8 @@ need curl
 if [[ "${SKIP_ENV_CHECK:-0}" != "1" ]]; then
   if command -v python3 &>/dev/null && [[ -f ../check_env.py ]]; then
     say "Checking host Python packages"
-    python3 ../check_env.py --auto-install || warn "Environment check failed"
+    python3 ../check_env.py --demo era_experience --auto-install || \
+      warn "Environment check failed"
   fi
 fi
 
@@ -92,22 +111,35 @@ EOF
 fi
 
 ############################## offline samples ################################
-say "Syncing offline experience snapshots"
+say "Syncing offline experience snapshots in $offline_dir"
 mkdir -p "$offline_dir"
+if curl -sf "$CONNECTIVITY_TEST_URL" >/dev/null; then
+  offline_probe=0
+else
+  warn "Connectivity test failed – using empty placeholders"
+  offline_probe=1
+fi
 declare -A urls=(
   [wearable_daily.csv]=https://raw.githubusercontent.com/MontrealAI/demo-assets/main/wearable_daily.csv
-  [edu_progress.csv]  =https://raw.githubusercontent.com/MontrealAI/demo-assets/main/edu_progress.csv
+  [edu_progress.csv]=https://raw.githubusercontent.com/MontrealAI/demo-assets/main/edu_progress.csv
 )
-for f in "${!urls[@]}"; do
-  if [[ -f "$offline_dir/$f" ]]; then
-    say "Local file detected: $offline_dir/$f – skipping download"
-    continue  # local file already present
-  fi
-  if ! curl -sfL "${urls[$f]}" -o "$offline_dir/$f"; then
-    warn "Failed downloading $f – using empty placeholder"
+if (( offline_probe == 0 )); then
+  for f in "${!urls[@]}"; do
+    if [[ -f "$offline_dir/$f" ]]; then
+      say "Local file detected: $offline_dir/$f – skipping download"
+      continue  # local file already present
+    fi
+    if ! curl -sfL "${urls[$f]}" -o "$offline_dir/$f"; then
+      warn "Failed downloading $f – using empty placeholder"
+      : > "$offline_dir/$f"
+    fi
+  done
+else
+  for f in "${!urls[@]}"; do
+    [[ -f "$offline_dir/$f" ]] && continue
     : > "$offline_dir/$f"
-  fi
-done
+  done
+fi
 
 ################################# profiles ####################################
 profiles=()
@@ -115,23 +147,25 @@ has_gpu && profiles+=(gpu)
 [[ -z "${OPENAI_API_KEY:-}" ]] && profiles+=(offline)
 (( PROFILE_LIVE )) && profiles+=(live-feed)
 export LIVE_FEED=${PROFILE_LIVE}
-profile_arg=""
-[[ ${#profiles[@]} -gt 0 ]] && profile_arg="--profile $(IFS=,; echo "${profiles[*]}")"
+profile_opts=()
+if [[ ${#profiles[@]} -gt 0 ]]; then
+  profile_opts=(--profile "$(IFS=,; echo "${profiles[*]}")")
+fi
 
 ################################ build & up ###################################
 say "🚢 Building images…"
-docker compose -f "$compose_file" $profile_arg pull --quiet || true
-docker compose -f "$compose_file" $profile_arg build --pull
+PORT="$PORT" docker compose -f "$compose_file" "${profile_opts[@]}" pull --quiet || true
+PORT="$PORT" docker compose -f "$compose_file" "${profile_opts[@]}" build --pull
 
 say "🔄 Starting stack…"
-docker compose --project-name alpha_experience -f "$compose_file" $profile_arg up -d
+PORT="$PORT" docker compose --project-name alpha_experience -f "$compose_file" "${profile_opts[@]}" up -d
 
 ################################ health gate ##################################
 say "⏳ Waiting for orchestrator health"
-health_wait 7860 40
+health_wait "$PORT" 40
 
 ################################ success ######################################
-printf '\n\033[1;32m🎉 Dashboard → http://localhost:7860\033[0m\n'
+printf '\n\033[1;32m🎉 Dashboard → http://localhost:%s\033[0m\n' "$PORT"
 echo "📜 Logs      → docker compose -p alpha_experience logs -f"
 echo "🛑 Stop      → docker compose -p alpha_experience down"
 echo "🧹 Purge     → docker compose -p alpha_experience down -v --remove-orphans"

@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 """backend.agents.energy_agent
 ===================================================================
 Alpha-Factory v1 👁️✨ — Multi-Agent AGENTIC α-AGI
@@ -44,10 +45,13 @@ import asyncio
 import hashlib
 import json
 import logging
+
+logger = logging.getLogger(__name__)
 import math
 import os
 import random
 import threading
+from alpha_factory_v1.backend.utils.sync import run_sync
 from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
@@ -60,32 +64,38 @@ try:
     import pandas as pd  # type: ignore
     import numpy as np  # type: ignore
 except ModuleNotFoundError:  # pragma: no cover
+    logger.warning("numpy/pandas missing – data handling disabled")
     pd = np = None  # type: ignore
 
 try:
     import lightgbm as lgb  # type: ignore
 except ModuleNotFoundError:  # pragma: no cover
+    logger.warning("lightgbm missing – forecasting model disabled")
     lgb = None  # type: ignore
 
 try:
     import pulp  # type: ignore
 except ModuleNotFoundError:  # pragma: no cover
+    logger.warning("pulp not installed – optimisation disabled")
     pulp = None  # type: ignore
 
 try:
     import httpx  # type: ignore
 except ModuleNotFoundError:  # pragma: no cover
+    logger.warning("httpx unavailable – using offline datasets")
     httpx = None  # type: ignore
 
 try:
     from kafka import KafkaProducer  # type: ignore
 except ModuleNotFoundError:  # pragma: no cover
+    logger.warning("kafka-python missing – event bus disabled")
     KafkaProducer = None  # type: ignore
 
 try:
     import openai  # type: ignore
     from openai.agents import tool  # type: ignore
 except ModuleNotFoundError:  # pragma: no cover
+    logger.warning("openai package not found – LLM features disabled")
     openai = None  # type: ignore
 
     def tool(fn=None, **_kw):  # type: ignore
@@ -95,25 +105,33 @@ except ModuleNotFoundError:  # pragma: no cover
 try:
     import adk  # type: ignore
 except ModuleNotFoundError:  # pragma: no cover
+    logger.warning("google-adk not installed – mesh integration disabled")
     adk = None  # type: ignore
+try:
+    from aiohttp import ClientError as AiohttpClientError  # type: ignore
+except Exception:  # pragma: no cover - optional
+    AiohttpClientError = OSError  # type: ignore
+try:
+    from adk import ClientError as AdkClientError  # type: ignore[attr-defined]
+except Exception:  # pragma: no cover - optional
+
+    class AdkClientError(Exception):
+        pass
+
 
 # ---------------------------------------------------------------------------
 # Alpha-Factory core imports (lightweight, always available)
 # ---------------------------------------------------------------------------
 from backend.agents.base import AgentBase  # pylint: disable=import-error
-from backend.agents import AgentMetadata, register_agent
+from backend.agents import register
 from backend.orchestrator import _publish  # reuse event-bus helper
+from alpha_factory_v1.utils.env import _env_int
 
 logger = logging.getLogger(__name__)
 
 
 # ---------------------------------------------------------------------------
 # Configuration ----------------------------------------------------------------
-def _env_int(name: str, default: int) -> int:
-    try:
-        return int(os.getenv(name, default))
-    except ValueError:
-        return default
 
 
 @dataclass
@@ -148,30 +166,6 @@ def _mcp(agent: str, payload: Any) -> Dict[str, Any]:
         "digest": _sha(payload),
         "payload": payload,
     }
-
-
-def _sync_run(coro: Awaitable[str]) -> str:
-    """Run ``coro`` synchronously regardless of event loop state."""
-    try:
-        asyncio.get_running_loop()
-    except RuntimeError:
-        return asyncio.run(coro)
-
-    result: list[str] = []
-
-    def _worker() -> None:
-        loop = asyncio.new_event_loop()
-        asyncio.set_event_loop(loop)
-        task = loop.create_task(coro)
-        try:
-            result.append(asyncio.get_event_loop().run_until_complete(task))
-        finally:
-            loop.close()
-
-    t = threading.Thread(target=_worker)
-    t.start()
-    t.join()
-    return result[0]
 
 
 # ---------------------------------------------------------------------------
@@ -238,8 +232,10 @@ def _battery_optim(prices: List[float], load: List[float]) -> Dict[str, Any]:
 
 # ---------------------------------------------------------------------------
 # EnergyAgent -----------------------------------------------------------------
+@register
 class EnergyAgent(AgentBase):
     NAME = "energy_markets"
+    __version__ = "0.4.0"
     CAPABILITIES = [
         "load_forecasting",
         "dispatch_optimisation",
@@ -264,20 +260,21 @@ class EnergyAgent(AgentBase):
             else None
         )
         if self.cfg.adk_mesh and adk:
-            asyncio.create_task(self._register_mesh())
+            # registration scheduled by orchestrator after loop start
+            pass
 
     # -------------------------- OpenAI tools ----------------------------- #
     @tool(description="48-hour ahead demand & PV forecast (JSON list).")
     def forecast_demand(self) -> str:
-        return _sync_run(self._forecast())
+        return run_sync(self._forecast())
 
     @tool(description="24-h battery/DR optimal dispatch schedule (JSON).")
     def optimise_dispatch(self) -> str:
-        return _sync_run(self._dispatch())
+        return run_sync(self._dispatch())
 
     @tool(description="Generate PPA/forward-curve hedge strategy JSON.")
     def hedge_strategy(self) -> str:
-        return _sync_run(self._hedge())
+        return run_sync(self._hedge())
 
     # ----------------------- Orchestrator hook --------------------------- #
     async def run_cycle(self):
@@ -360,26 +357,32 @@ class EnergyAgent(AgentBase):
         return json.dumps(_mcp(self.NAME, hedge))
 
     # ---------------------- ADK mesh registration ------------------------ #
-    async def _register_mesh(self):
-        try:
-            client = adk.Client()
-            await client.register(node_type=self.NAME, metadata={"runtime": "alpha_factory"})
-            logger.info("[EN] registered in ADK mesh id=%s", client.node_id)
-        except Exception as exc:  # noqa: BLE001
-            logger.warning("ADK registration failed: %s", exc)
+    async def _register_mesh(self) -> None:
+        max_attempts = 3
+        delay = 1.0
+        for attempt in range(1, max_attempts + 1):
+            try:
+                client = adk.Client()
+                await client.register(node_type=self.NAME, metadata={"runtime": "alpha_factory"})
+                logger.info("[EN] registered in ADK mesh id=%s", client.node_id)
+                return
+            except (AdkClientError, AiohttpClientError, asyncio.TimeoutError, OSError) as exc:
+                if attempt == max_attempts:
+                    logger.error("ADK registration failed after %d attempts: %s", max_attempts, exc)
+                    raise
+                logger.warning(
+                    "ADK registration attempt %d/%d failed: %s",
+                    attempt,
+                    max_attempts,
+                    exc,
+                )
+                await asyncio.sleep(delay)
+                delay *= 2
+            except Exception as exc:  # pragma: no cover - unexpected
+                logger.exception("Unexpected ADK registration error: %s", exc)
+                raise
 
 
 # ---------------------------------------------------------------------------
 # Registry hook --------------------------------------------------------------
-register_agent(
-    AgentMetadata(
-        name=EnergyAgent.NAME,
-        cls=EnergyAgent,
-        version="0.4.0",
-        capabilities=EnergyAgent.CAPABILITIES,
-        compliance_tags=EnergyAgent.COMPLIANCE_TAGS,
-        requires_api_key=EnergyAgent.REQUIRES_API_KEY,
-    )
-)
-
 __all__ = ["EnergyAgent"]

@@ -1,8 +1,13 @@
+[See docs/DISCLAIMER_SNIPPET.md](../../../docs/DISCLAIMER_SNIPPET.md)
+This repository is a conceptual research prototype. References to "AGI" and "superintelligence" describe aspirational goals and do not indicate the presence of a real general intelligence. Use at your own risk. Nothing herein constitutes financial advice. MontrealAI and the maintainers accept no liability for losses incurred from using this software.
+Each demo package exposes its own `__version__` constant. The value marks the revision of that demo only and does not reflect the overall Alpha‑Factory release version.
+
+
 <!--
  AI‑GA Meta‑Evolution Demo
  Alpha‑Factory v1 👁️✨ — Multi‑Agent **AGENTIC α‑AGI**
  Out‑learn · Out‑think · Out‑strategise · Out‑evolve
- © 2025 MONTREAL.AI   MIT License
+ © 2025 MONTREAL.AI   Apache‑2.0 License
  -------------------------------------------------------------------------------
  Exhaustive README: quick‑start, deep‑dive, SOC‑2 rails, CI/CD, K8s,
  observability, SBOM notice. Rendered as GitHub‑flavoured Markdown.
@@ -11,8 +16,10 @@
 
 # 🌌 Algorithms That Invent Algorithms — <br>**AI‑GA Meta‑Evolution Demo**
 
-> *“Why hand‑craft intelligence when evolution can author it for you?”* 
-> — Jeff Clune, *AI‑GAs: AI‑Generating Algorithms* (2019) 
+> *“Why hand‑craft intelligence when evolution can author it for you?”*
+> — Jeff Clune, *AI‑GAs: AI‑Generating Algorithms* (2019)
+
+[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/MontrealAI/AGI-Alpha-Agent-v0/blob/main/alpha_factory_v1/demos/aiga_meta_evolution/colab_aiga_meta_evolution.ipynb)
 
 A single‑command, browser‑based showcase of Clune’s **Three Pillars**:
 
@@ -23,6 +30,8 @@ A single‑command, browser‑based showcase of Clune’s **Three Pillars**:
 | **Generating learning environments** | `CurriculumEnv` self‑mutates → *Line* → *Zig‑zag* → *Gap* → *Maze* |
 
 Within **&lt; 60 s** you’ll watch neural nets **rewrite their own blueprint** *while the world itself mutates to stay challenging*.
+
+---
 
 ---
 
@@ -79,8 +88,7 @@ when Docker is unavailable.
 git clone https://github.com/MontrealAI/AGI-Alpha-Agent-v0.git
 cd AGI-Alpha-Agent-v0
 AUTO_INSTALL_MISSING=1 python check_env.py  # verify deps offline/online
-pip install -r alpha_factory_v1/requirements.txt
-# ensures `openai-agents` and friends are installed
+pip install -r alpha_factory_v1/demos/aiga_meta_evolution/requirements.txt
 python alpha_factory_v1/demos/aiga_meta_evolution/agent_aiga_entrypoint.py
 # offline machines can supply predownloaded wheels:
 #   WHEELHOUSE=/path/to/wheels AUTO_INSTALL_MISSING=1 python check_env.py
@@ -88,10 +96,83 @@ python alpha_factory_v1/demos/aiga_meta_evolution/agent_aiga_entrypoint.py
 python alpha_factory_v1/demos/aiga_meta_evolution/start_aiga_demo.py --help
 # or via module entrypoint
 python -m alpha_factory_v1.demos.aiga_meta_evolution --help
+# skip dependency checks or optional gateways via env flags:
+#   SKIP_DEPS_CHECK=1 ALPHA_FACTORY_ENABLE_ADK=0 \
+#   python alpha_factory_v1/demos/aiga_meta_evolution/start_aiga_demo.py
+```
+
+Launch the **Ollama Mixtral** model in another terminal:
+
+```bash
+docker run -p 11434:11434 ollama/ollama:latest --models mixtral:instruct
+```
+
+If you bind the server to a custom host or port, set `OLLAMA_BASE_URL` so the
+demo can reach it. Example:
+
+```bash
+docker run -p 12345:11434 ollama/ollama:latest --models mixtral:instruct
+export OLLAMA_BASE_URL="http://localhost:12345"
 ```
 
 Set `OPENAI_API_KEY` in your environment to enable cloud models. Without
 it the demo falls back to the bundled offline mixtral model.
+
+### Required environment variables
+
+| Variable | Purpose |
+| --- | --- |
+| `OPENAI_API_KEY` | Optional key for OpenAI models. When unset the notebook and demo use **Mixtral** via a local Ollama container. |
+| `WHEELHOUSE` | Directory of wheels for offline installs. Set before running `check_env.py --auto-install` in air-gapped setups. |
+
+### Offline dependency setup
+
+Follow these steps when working **air‑gapped**:
+
+1. **Build the wheelhouse** once using the same Python version as your
+   virtual environment:
+   ```bash
+   mkdir -p /path/to/wheels
+   pip wheel -r requirements.txt -w /path/to/wheels
+   ```
+
+2. **Reuse the wheelhouse** whenever you install or check the environment:
+   ```bash
+   WHEELHOUSE=/path/to/wheels AUTO_INSTALL_MISSING=1 \
+     python ../../check_env.py --auto-install --wheelhouse "$WHEELHOUSE"
+   ```
+
+   Always run the command above before executing `pytest` or any demo so all
+   optional dependencies are installed correctly. When **running tests offline**,
+   execute the same command first to ensure all extras install from your
+   wheelhouse.
+
+See [alpha_factory_v1/scripts/README.md](../../scripts/README.md#offline-setup)
+for additional tips on creating and using a wheelhouse. Consult
+[docs/OFFLINE_SETUP.md](../../../docs/OFFLINE_SETUP.md) for a brief overview.
+
+### Installing the OpenAI Agents SDK
+
+The meta-evolution service depends on the **OpenAI Agents SDK** (or the
+newer `agents` package) for all LLM access, even when running offline.
+The optional bridge described below merely exposes the same tools over the
+OpenAI runtime.
+
+Install from PyPI:
+
+```bash
+pip install -U openai-agents
+```
+
+Offline, point `pip` to your wheelhouse:
+
+```bash
+pip install --no-index --find-links /path/to/wheels openai-agents
+```
+
+Some distributions ship the dependency as `agents`. The demo automatically
+detects both. If you encounter `ModuleNotFoundError: openai_agents`, ensure
+the package is installed in the active virtual environment.
 
 ### 🤖 OpenAI Agents bridge
 
@@ -101,11 +182,20 @@ Expose the evolver to the **OpenAI Agents SDK** runtime:
 python alpha_factory_v1/demos/aiga_meta_evolution/openai_agents_bridge.py
 ```
 
-Requires the `openai-agents` package (installed via requirements).
+The runtime listens on port `5001` by default. Set `AGENTS_RUNTIME_PORT`
+to change the port:
 
-The bridge registers an `aiga_evolver` agent exposing four tools:
+```bash
+AGENTS_RUNTIME_PORT=6001 python openai_agents_bridge.py
+```
+
+Requires the `openai-agents` or `agents` package (already installed above).
+If both are missing the script exits with an error.
+
+The bridge registers an `aiga_evolver` agent exposing five tools:
 `evolve` (run N generations), `best_alpha` (return the champion),
-`checkpoint` (persist state), and `reset` (fresh population).
+`checkpoint` (persist state), `reset` (fresh population), and
+`history` (past fitness scores).
 It works offline by routing to the local Mixtral server when no API key
 is configured.
 
@@ -119,9 +209,31 @@ ALPHA_FACTORY_ENABLE_ADK=true python openai_agents_bridge.py &
 ```
 
 This publishes the tools over the **A2A protocol** so other agents can
-orchestrate evolution remotely.
-Set `ALPHA_FACTORY_ENABLE_ADK=1` in `config.env` to auto-start the gateway
-when running `./run_aiga_demo.sh`.
+orchestrate evolution remotely. Enable the gateway whenever you need to
+federate multiple Alpha‑Factory instances or let external clients control
+evolution. Set `ALPHA_FACTORY_ENABLE_ADK=1` in `config.env` to auto-start the
+gateway when running `./run_aiga_demo.sh`.
+
+Define `ALPHA_FACTORY_ADK_TOKEN` to require this token on every ADK request:
+
+```env
+ALPHA_FACTORY_ENABLE_ADK=1
+ALPHA_FACTORY_ADK_TOKEN="my_secret_token"
+```
+
+Interact with the running gateway using `curl`:
+
+```bash
+curl -X POST http://localhost:9000/v1/tasks \
+     -H "x-alpha-factory-token: my_secret_token" \
+     -H "Content-Type: application/json" \
+     -d '{"agent": "aiga_evolver", "content": "evolve 1"}'
+```
+
+The optional ADK gateway integrates with the OpenAI Agents SDK bridge and
+underlying LLM providers as shown below.
+
+![Bridge overview](bridge_overview.svg)
 
 ## 🔐 API authentication
 
@@ -140,6 +252,10 @@ For step-by-step instructions on running the service in a production or workshop
 | | |
 | :-- | :-- |
 | <a href="https://colab.research.google.com/github/MontrealAI/AGI-Alpha-Agent-v0/blob/main/alpha_factory_v1/demos/aiga_meta_evolution/colab_aiga_meta_evolution.ipynb"><img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"></a> | Launches the same dashboard with an automatic public URL. Ideal for workshops & quick demos. |
+
+The Colab notebook also explains how to **upload a wheelhouse archive** for offline installs. Follow that section to set `WHEELHOUSE` and run `check_env.py --auto-install --wheelhouse` when the runtime lacks internet access.
+
+Supply `OPENAI_API_KEY` in the Colab session to access OpenAI models. When it is omitted, the notebook spins up an Ollama container and uses **Mixtral** as an offline fallback.
 
 ---
 
@@ -177,7 +293,7 @@ Turn a discovered opportunity into a short execution plan:
 python alpha_factory_v1/demos/aiga_meta_evolution/alpha_conversion_stub.py --alpha "Battery arbitrage"
 ```
 
-The tool outputs a three‑step JSON plan and logs it to `alpha_conversion_log.json`. When `OPENAI_API_KEY` is configured, it queries an OpenAI model; otherwise a sample plan is returned.
+The tool outputs a three‑step JSON plan and logs it to `~/.aiga/alpha_conversion_log.json` by default. When `OPENAI_API_KEY` is configured, it queries an OpenAI model; otherwise a sample plan is returned.
 
 ## 🤝 End‑to‑end workflow
 
@@ -213,9 +329,9 @@ agent is published over the A2A protocol for orchestration by external controlle
 └────────────────────────────────────────┘
 ```
 
-* **MetaEvolver** – pop 24, tournament‑k 3, elitism 2, novelty bonus toggle 
-* **EvoNet** – arbitrary hidden layers, activation ∈ {relu,tanh,sigmoid}, optional Hebbian ΔW 
-* **CurriculumEnv** – 12 × 12 grid, DFS solvability check, energy budget, genome auto‑mutation 
+* **MetaEvolver** – pop 24, tournament‑k 3, elitism 2, novelty bonus toggle
+* **EvoNet** – arbitrary hidden layers, activation ∈ {relu,tanh,sigmoid}, optional Hebbian ΔW
+* **CurriculumEnv** – 12 × 12 grid, DFS solvability check, energy budget, genome auto‑mutation
 
 ---
 
@@ -228,15 +344,15 @@ agent is published over the A2A protocol for orchestration by external controlle
 | `aiga_generations_total` | Counter |
 | `aiga_curriculum_stage` | 0–3 |
 
-Enable profile `telemetry` to autopush → Prometheus → Grafana. 
+Enable profile `telemetry` to autopush → Prometheus → Grafana.
 `docker compose --profile telemetry up`.
 
 ---
 
 ## 🧪 Tests & CI
 
-* **Coverage ≥ 90 %** in < 0.5 s (`pytest -q`) 
-* GitHub Actions → lint → test → build → Cosign sign 
+* **Coverage ≥ 90 %** in < 0.5 s (`pytest -q`)
+* GitHub Actions → lint → test → build → Cosign sign
 * **SBOM** via *Syft* (SPDX v3) per release
 
 ---
@@ -270,9 +386,9 @@ spec:
 
 ## 🛡 SOC‑2 & supply‑chain
 
-* Cosign‑signed images (`cosign verify …`) 
-* Runs **non‑root UID 1001**, read‑only code volume 
-* Secrets via K8s / Docker *secrets* (never baked into layers) 
+* Cosign‑signed images (`cosign verify …`)
+* Runs **non‑root UID 1001**, read‑only code volume
+* Secrets via K8s / Docker *secrets* (never baked into layers)
 * Dependencies hashed (Poetry lock) & validated at runtime 
 * SBOM exported; SLSA level 2 pipeline
 
@@ -306,7 +422,7 @@ spec:
 
 ## ⚖️ License & credits
 
-*Source & assets* © 2025 Montreal.AI, released under the **MIT License**. 
+*Source & assets* © 2025 Montreal.AI, released under the **Apache‑2.0 License**.
 Huge thanks to:
 
 * **Jeff Clune** – visionary behind AI‑GAs 

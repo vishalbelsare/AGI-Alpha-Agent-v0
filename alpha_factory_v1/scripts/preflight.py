@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 """Run environment checks before installing Alpha-Factory.
 
 The script verifies Python compatibility, essential command line tools,
@@ -12,6 +13,8 @@ import sys
 import subprocess
 import tempfile
 from pathlib import Path
+import socket
+from contextlib import suppress
 
 try:
     from packaging.version import Version
@@ -26,12 +29,14 @@ except ModuleNotFoundError:  # pragma: no cover
 else:
 
     def _version_lt(a: str, b: str) -> bool:
-        return Version(a) < Version(b)
+        return bool(Version(a) < Version(b))
 
 
 MIN_PY = (3, 11)
 MAX_PY = (3, 13)
 MEM_DIR = Path(os.getenv("AF_MEMORY_DIR", f"{tempfile.gettempdir()}/alphafactory"))
+MIN_OPENAI_AGENTS_VERSION = "0.0.17"
+DEFAULT_SANDBOX_IMAGE = os.getenv("SANDBOX_IMAGE", "python:3.11-slim")
 
 COLORS = {
     "RED": "\033[31m",
@@ -73,7 +78,7 @@ def check_docker_daemon() -> bool:
         subprocess.run(["docker", "info"], check=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
         banner("docker daemon reachable", "GREEN")
         return True
-    except Exception:  # noqa: BLE001
+    except (subprocess.CalledProcessError, OSError):
         banner("docker daemon not running", "RED")
         return False
 
@@ -100,20 +105,54 @@ def check_docker_compose() -> bool:
             if (major, minor) < (2, 5):
                 banner("docker compose >=2.5 recommended", "YELLOW")
         return True
-    except Exception:  # noqa: BLE001
+    except (subprocess.CalledProcessError, OSError):
         banner("docker compose missing", "RED")
         return False
 
 
+def check_patch_in_sandbox(image: str = DEFAULT_SANDBOX_IMAGE) -> bool:
+    """Return True if ``/usr/bin/patch`` exists inside ``image``."""
+    try:
+        result = subprocess.run(
+            ["docker", "run", "--rm", image, "test", "-x", "/usr/bin/patch"],
+            capture_output=True,
+            text=True,
+        )
+    except Exception as exc:  # pragma: no cover - unexpected failure
+        banner(f"Failed to start {image}: {exc}", "RED")
+        return False
+    if result.returncode == 0:
+        banner(f"patch found in {image}", "GREEN")
+        return True
+    banner(
+        f"/usr/bin/patch missing in {image}; build sandbox.Dockerfile or set SANDBOX_IMAGE",
+        "RED",
+    )
+    return False
+
+
 def check_pkg(pkg: str) -> bool:
-    """Return True if *pkg* is importable."""
+    """Return True if *pkg* or its fallback is importable."""
+
     try:
         import importlib.util
 
-        found = importlib.util.find_spec(pkg) is not None
+        module = pkg
+        spec = importlib.util.find_spec(module)
+
+        if module == "openai_agents" and spec is None:
+            module = "agents"
+            spec = importlib.util.find_spec(module)
+
+        found = spec is not None
     except Exception:  # pragma: no cover - importlib failure is unexpected
         found = False
-    banner(f"{pkg} {'found' if found else 'missing'}", "GREEN" if found else "RED")
+        module = pkg
+
+    banner(
+        f"{module if found else pkg} {'found' if found else 'missing'}",
+        "GREEN" if found else "RED",
+    )
     return found
 
 
@@ -125,23 +164,57 @@ def ensure_dir(path: Path) -> None:
         banner(f"Using {path}", "GREEN")
 
 
-def check_openai_agents_version(min_version: str = "0.0.14") -> bool:
-    """Verify ``openai_agents`` is new enough when installed."""
+def check_network(host: str = "pypi.org", timeout: float = 2.0) -> bool:
+    """Return True if *host* can be resolved within *timeout* seconds."""
+    try:
+        with suppress(Exception):
+            prev = socket.getdefaulttimeout()
+        socket.setdefaulttimeout(timeout)
+        socket.gethostbyname(host)
+    except Exception:
+        banner(
+            f"WARNING: Unable to resolve {host}. Use --wheelhouse for offline installs."
+            " See docs/OFFLINE_SETUP.md for guidance.",
+            "YELLOW",
+        )
+        return False
+    finally:
+        with suppress(Exception):
+            socket.setdefaulttimeout(prev)
+    banner(f"{host} resolved", "GREEN")
+    return True
+
+
+def check_openai_agents_version(min_version: str = MIN_OPENAI_AGENTS_VERSION) -> bool:
+    """Verify the installed Agents runtime is new enough.
+
+    This checks both the ``openai_agents`` and ``agents`` packages.
+    """
     import importlib
 
-    spec = importlib.util.find_spec("openai_agents")
-    if spec is None:  # not installed
-        return True
+    module_name = "openai_agents"
+    spec = importlib.util.find_spec(module_name)
+    if spec is None:
+        module_name = "agents"
+        spec = importlib.util.find_spec(module_name)
+        if spec is None:  # not installed
+            return True
 
-    mod = importlib.import_module("openai_agents")
-    version = getattr(mod, "__version__", "0")
-    if _version_lt(version, min_version):
+    mod = importlib.import_module(module_name)
+    if not hasattr(mod, "__version__"):
         banner(
-            f"openai_agents {version} detected; >={min_version} required",
+            f"{module_name} missing __version__; >={min_version} required",
             "RED",
         )
         return False
-    banner(f"openai_agents {version} detected", "GREEN")
+    version = mod.__version__
+    if _version_lt(version, min_version):
+        banner(
+            f"{module_name} {version} detected; >={min_version} recommended",
+            "YELLOW",
+        )
+        return True
+    banner(f"{module_name} {version} detected", "GREEN")
     return True
 
 
@@ -157,14 +230,26 @@ OPTIONAL_DEPS = {
 }
 
 
-def main() -> None:
+def main(argv: list[str] | None = None) -> None:
+    import argparse
+
+    parser = argparse.ArgumentParser(description="Validate environment")
+    parser.add_argument("--offline", action="store_true", help="Skip network checks")
+    args = parser.parse_args(argv)
+
     banner("Alpha-Factory Preflight Check", "YELLOW")
     ok = True
     ok &= check_python()
     ok &= check_cmd("docker")
     ok &= check_cmd("git")
+    has_precommit = check_cmd("pre-commit")
+    if not has_precommit:
+        banner("Install pre-commit and run 'pre-commit install' to enable git hooks", "YELLOW")
     ok &= check_docker_daemon()
     ok &= check_docker_compose()
+    ok &= check_patch_in_sandbox()
+    if not args.offline:
+        check_network()
     # Always install pytest and prometheus_client for smooth local tests
     ok &= check_pkg("pytest")
     ok &= check_pkg("prometheus_client")

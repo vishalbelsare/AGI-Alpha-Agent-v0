@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 """
 alpha_factory_v1.backend.agents.base
 ====================================
@@ -41,6 +42,7 @@ from __future__ import annotations
 # ───────────────────────────────────────────────────────────────────────────────
 import abc
 import asyncio
+import contextlib
 import datetime as _dt
 import json
 import logging
@@ -54,18 +56,24 @@ from typing import Any, List, Mapping, MutableMapping, Optional
 # ░░░ 2. Optional, best-effort 3rd-party imports ░░░
 # ───────────────────────────────────────────────────────────────────────────────
 try:  # -- Prometheus metrics
-    from backend.agents import Counter, Gauge  # type: ignore
+    from backend.agents.registry import Counter, Gauge  # type: ignore
 except Exception:  # pragma: no cover
+    logging.getLogger(__name__).warning("prometheus_client missing – metrics disabled")
     Counter = Gauge = None  # type: ignore
+
+from backend.agents.registry import register
 
 try:  # -- Kafka producer for heart-beats
     from kafka import KafkaProducer  # type: ignore
+    from kafka.errors import KafkaError
 except ModuleNotFoundError:  # pragma: no cover
+    logging.getLogger(__name__).warning("kafka-python missing – heartbeats disabled")
     KafkaProducer = None  # type: ignore
 
 try:  # -- Cron / RRULE scheduling helper
     import aiocron  # type: ignore
 except ModuleNotFoundError:  # pragma: no cover
+    logging.getLogger(__name__).warning("aiocron not installed – scheduling disabled")
     aiocron = None  # type: ignore
 
 # ───────────────────────────────────────────────────────────────────────────────
@@ -82,6 +90,11 @@ if not _logger.handlers:
     )
     _logger.addHandler(_h)
     _logger.setLevel(os.getenv("AF_AGENT_LOGLEVEL", "INFO").upper())
+
+with contextlib.suppress(ModuleNotFoundError):
+    from opentelemetry import trace
+
+tracer = trace.get_tracer(__name__) if "trace" in globals() else None  # type: ignore
 
 # ───────────────────────────────────────────────────────────────────────────────
 # ░░░ 4. Internal helper factories ░░░
@@ -124,12 +137,10 @@ def _kafka_producer() -> Optional[KafkaProducer]:
     try:
         return KafkaProducer(
             bootstrap_servers=[b.strip() for b in broker.split(",") if b.strip()],
-            value_serializer=lambda v: (
-                v if isinstance(v, bytes) else json.dumps(v).encode()
-            ),
+            value_serializer=lambda v: (v if isinstance(v, bytes) else json.dumps(v).encode()),
             linger_ms=250,
         )
-    except Exception:  # noqa: BLE001
+    except KafkaError:
         _logger.exception("Failed to bootstrap Kafka producer")
         return None
 
@@ -147,7 +158,7 @@ class AgentBase(abc.ABC):
 
     # Scheduling ────────────────────────────────────────────────────────────
     CYCLE_SECONDS: int | None = 60  # fixed-interval; None → use SCHED_SPEC
-    SCHED_SPEC: str | None = None   # cron-style, processed by aiocron
+    SCHED_SPEC: str | None = None  # cron-style, processed by aiocron
 
     # Runtime-injected by orchestrator ──────────────────────────────────────
     orchestrator: Any = None  # Fabric / bus / world-model / cfg
@@ -155,14 +166,16 @@ class AgentBase(abc.ABC):
     # ------------------------------------------------------------------ #
     def __init__(self) -> None:
         self._stop_evt: asyncio.Event = asyncio.Event()
-        self._metrics_run, self._metrics_err, self._metrics_lat = _prom_metrics(
-            self.NAME
-        )
+        self._metrics_run, self._metrics_err, self._metrics_lat = _prom_metrics(self.NAME)
         self._kafka = _kafka_producer()
 
     # ════ Life-cycle hooks ════
     async def setup(self) -> None:  # noqa: D401
         """One-time async initialization (DB warm-up, model load…)."""
+        return None
+
+    async def init_async(self) -> None:  # pragma: no cover - optional hook
+        """Launch background tasks once the event loop is running."""
         return None
 
     @abc.abstractmethod
@@ -173,7 +186,9 @@ class AgentBase(abc.ABC):
     # ------------------------------------------------------------------
     async def run_cycle(self) -> None:  # pragma: no cover - default wrapper
         """Single orchestrator cycle – runs :meth:`step` once."""
-        await self.step()
+        span_cm = tracer.start_as_current_span(f"{self.NAME}.run_cycle") if tracer else contextlib.nullcontext()
+        with span_cm:
+            await self.step()
 
     async def teardown(self) -> None:  # noqa: D401
         """Optional async clean-up (closing DB handles etc.)."""
@@ -246,7 +261,7 @@ class AgentBase(abc.ABC):
         ok = True
         try:
             await self.step()
-        except Exception as exc:  # noqa: BLE001
+        except Exception as exc:  # noqa: BLE001 - step() may raise anything
             ok = False
             if self._metrics_err:
                 self._metrics_err.inc()
@@ -287,23 +302,19 @@ class AgentBase(abc.ABC):
         """
         self._weights_path = path
 
+    async def skill_test(self, payload: dict) -> dict:
+        """Execute a diagnostic skill test.
+
+        Agents may override this method to provide custom behaviour.
+        The default implementation returns ``{"ok": True}``.
+        """
+        return {"ok": True}
+
     # ────────────────────────────────────────────────────────────────────
     # Pretty representation (helps debugging & logging)
     # ────────────────────────────────────────────────────────────────────
     def __repr__(self) -> str:  # pragma: no cover
         return f"<{self.__class__.__name__} name={self.NAME!r} v{self.VERSION}>"
 
-# ───────────────────────────────────────────────────────────────────────────────
-# ░░░ 6. Tiny decorator to auto-register subclasses ░░░
-# ───────────────────────────────────────────────────────────────────────────────
-def register(cls: type[AgentBase]) -> type[AgentBase]:
-    """
-    `@register` – convenience decorator that adds *cls* to the global
-    ``backend.agents.AGENT_REGISTRY``.  Importing the module is enough for the
-    orchestrator to discover the new agent – zero boiler-plate.
-    """
-    # defer import to avoid circular refs
-    from . import AGENT_REGISTRY  # type: ignore
 
-    AGENT_REGISTRY[getattr(cls, "NAME", cls.__name__)] = cls
-    return cls
+# ───────────────────────────────────────────────────────────────────────────────

@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 # ===================================================================
 # archive.py – Meta-Agentic α-AGI lineage store
 # ===================================================================
@@ -33,6 +34,7 @@ from typing import Iterable, List, Sequence
 # 1 · DATA MODEL
 # -------------------------------------------------------------------
 
+
 @dataclass(slots=True)
 class Fitness:
     """
@@ -58,11 +60,11 @@ class Fitness:
     def _vec(self) -> list[float]:
         """Vector with ‘minimise-everything’ ordering."""
         return [
-            -self.accuracy,          # we maximise accuracy
+            -self.accuracy,  # we maximise accuracy
             self.latency,
             self.cost,
             self.carbon,
-            -self.novelty,           # we maximise novelty
+            -self.novelty,  # we maximise novelty
         ]
 
     def dominated_by(self, other: "Fitness") -> bool:
@@ -74,11 +76,13 @@ class Fitness:
 @dataclass(slots=True)
 class Candidate:
     """Single lineage entry."""
+
     id: int
     gen: int
-    ts: str          # ISO 8601 timestamp (UTC)
-    code: str        # single-file agent implementation
+    ts: str  # ISO 8601 timestamp (UTC)
+    code: str  # single-file agent implementation
     fitness: Fitness
+
 
 # -------------------------------------------------------------------
 # 2 · SQLITE BACKEND
@@ -93,6 +97,7 @@ CREATE TABLE IF NOT EXISTS lineage(
     fitness TEXT
 );
 """
+
 
 @contextmanager
 def _cx(path: Path | str, readonly: bool = False):
@@ -116,9 +121,11 @@ def _cx(path: Path | str, readonly: bool = False):
             conn.commit()
         conn.close()
 
+
 # -------------------------------------------------------------------
 # 3 · CRUD HELPERS  &  CONVERTERS
 # -------------------------------------------------------------------
+
 
 # -- helpers ---------------------------------------------------------
 def _row_to_cand(r: sqlite3.Row | tuple) -> Candidate:
@@ -131,6 +138,7 @@ def _row_to_cand(r: sqlite3.Row | tuple) -> Candidate:
         fitness=Fitness(**json.loads(r[4])),
     )
 
+
 # -- single & bulk insert -------------------------------------------
 def insert(c: Candidate, db: Path | str) -> None:
     """Insert or replace one candidate."""
@@ -140,13 +148,13 @@ def insert(c: Candidate, db: Path | str) -> None:
             (c.id, c.gen, c.ts, c.code, json.dumps(asdict(c.fitness))),
         )
 
+
 def bulk_insert(cands: Iterable[Candidate], db: Path | str) -> None:
     """High-throughput bulk writer (uses executemany)."""
-    rows = [
-        (c.id, c.gen, c.ts, c.code, json.dumps(asdict(c.fitness))) for c in cands
-    ]
+    rows = [(c.id, c.gen, c.ts, c.code, json.dumps(asdict(c.fitness))) for c in cands]
     with _cx(db) as cx:
         cx.executemany("REPLACE INTO lineage VALUES (?,?,?,?,?)", rows)
+
 
 # -- load / stream ---------------------------------------------------
 def load(
@@ -159,15 +167,18 @@ def load(
     q = "SELECT * FROM lineage"
     filters, params = [], []
     if start_gen is not None:
-        filters.append("gen >= ?"); params.append(start_gen)
-    if end_gen   is not None:
-        filters.append("gen <= ?"); params.append(end_gen)
+        filters.append("gen >= ?")
+        params.append(start_gen)
+    if end_gen is not None:
+        filters.append("gen <= ?")
+        params.append(end_gen)
     if filters:
         q += " WHERE " + " AND ".join(filters)
     q += " ORDER BY gen, id"
     with _cx(db, readonly=True) as cx:
         rows = list(cx.execute(q, params))
     return [_row_to_cand(r) for r in rows]
+
 
 def stream(db: Path | str, poll: float = 2.0) -> Iterable[Candidate]:
     """
@@ -181,6 +192,7 @@ def stream(db: Path | str, poll: float = 2.0) -> Iterable[Candidate]:
                 seen.add(c.id)
                 yield c
         time.sleep(poll)
+
 
 # -- dataframe & file formats ---------------------------------------
 def to_dataframe(cands: Sequence[Candidate]):
@@ -196,6 +208,7 @@ def to_dataframe(cands: Sequence[Candidate]):
         recs.append(row)
     return pd.DataFrame.from_records(recs)
 
+
 def save_jsonl(cands: Sequence[Candidate], path: Path | str) -> None:
     """Write archive to newline-delimited JSON (*jsonl*)."""
     path = Path(path)
@@ -203,6 +216,7 @@ def save_jsonl(cands: Sequence[Candidate], path: Path | str) -> None:
     with path.open("w", encoding="utf-8") as fh:
         for c in cands:
             fh.write(json.dumps(asdict(c)) + "\n")
+
 
 def load_jsonl(path: Path | str) -> list[Candidate]:
     """Read archive from JSONL file."""
@@ -220,9 +234,11 @@ def load_jsonl(path: Path | str) -> list[Candidate]:
         )
     return out
 
+
 # -------------------------------------------------------------------
 # 4 · PARETO FRONT  &  DIVERSITY
 # -------------------------------------------------------------------
+
 
 def pareto_front(cands: Sequence[Candidate]) -> list[Candidate]:
     """
@@ -230,7 +246,7 @@ def pareto_front(cands: Sequence[Candidate]) -> list[Candidate]:
 
     Notes
     -----
-    • `candidate.fitness.rank` is set to an integer ≥ 1  
+    • `candidate.fitness.rank` is set to an integer ≥ 1
     • A simple O(N²) sweep is sufficient for N ≲ 1e5 – high-dim
       dominance checks are the real bottleneck. Optimise later if
       required (e.g. NSGA-II fast-non-dominated sort).
@@ -285,6 +301,7 @@ def crowding_distance(front: Sequence[Candidate]) -> None:
             next_k = getattr(sorted_front[i + 1].fitness, k)
             sorted_front[i].fitness.crowd += (next_k - prev_k) / (k_max - k_min)
 
+
 # -------------------------------------------------------------------
 # 5 · NOVELTY & SIMILARITY METRICS
 # -------------------------------------------------------------------
@@ -296,6 +313,7 @@ def crowding_distance(front: Sequence[Candidate]) -> None:
 from collections import Counter
 from functools import lru_cache
 from hashlib import blake2b
+
 
 # -- Shannon entropy -------------------------------------------------
 def shannon_novelty(code: str, k: int = 32) -> float:
@@ -375,6 +393,7 @@ def simhash_distance(a: str, b: str, bits: int = 128) -> int:
     ha, hb = _simhash(a, bits), _simhash(b, bits)
     return (ha ^ hb).bit_count()
 
+
 # -------------------------------------------------------------------
 # 6 · ARCHIVE I/O, EXPORT & CLI
 # -------------------------------------------------------------------
@@ -387,10 +406,12 @@ import csv
 import argparse
 from datetime import datetime
 
+
 # -- helpers ---------------------------------------------------------
 def _ensure_dir(p: Path) -> Path:
     p.parent.mkdir(parents=True, exist_ok=True)
     return p
+
 
 # ----------------- JSONL --------------------------------------------
 def save_jsonl(cands: Sequence[Candidate], dst: Path | str) -> None:
@@ -417,9 +438,7 @@ def load_jsonl(src: Path | str) -> List[Candidate]:
 # ----------------- CSV  ---------------------------------------------
 def save_csv(cands: Sequence[Candidate], dst: Path | str) -> None:
     dst = _ensure_dir(Path(dst))
-    fieldnames = ["id", "gen", "ts", "code"] + [
-        k for k in vars(cands[0].fitness) if k not in {"rank", "crowd"}
-    ]
+    fieldnames = ["id", "gen", "ts", "code"] + [k for k in vars(cands[0].fitness) if k not in {"rank", "crowd"}]
     with dst.open("w", newline="", encoding="utf-8") as fh:
         writer = csv.DictWriter(fh, fieldnames=fieldnames)
         writer.writeheader()
@@ -443,8 +462,10 @@ def save_parquet(cands: Sequence[Candidate], dst: Path | str) -> None:
 def _cli_info(db: Path) -> None:
     rows = load(db)
     gens = {c.gen for c in rows}
-    print(f"📦  {len(rows)} rows, {len(gens)} generations "
-          f"(min={min(gens) if gens else '-'} · max={max(gens) if gens else '-'})")
+    print(
+        f"📦  {len(rows)} rows, {len(gens)} generations "
+        f"(min={min(gens) if gens else '-'} · max={max(gens) if gens else '-'})"
+    )
     print(f"Pareto-front size: {len(pareto_front(rows))}")
 
 
@@ -483,8 +504,7 @@ def _cli_vacuum(db: Path) -> None:
 
 
 def _parse_cli():
-    ap = argparse.ArgumentParser(prog="archive.py",
-                                 description="Meta-Agentic α-AGI lineage toolbox")
+    ap = argparse.ArgumentParser(prog="archive.py", description="Meta-Agentic α-AGI lineage toolbox")
     sub = ap.add_subparsers(dest="cmd", required=True)
 
     # info
@@ -539,6 +559,7 @@ if __name__ == "__main__":  # pragma: no cover
 
 from tempfile import TemporaryDirectory
 import pytest  # type: ignore
+
 
 # ---------- doctest examples ---------------------------------------
 def _example_candidate() -> Candidate:  # pragma: no cover

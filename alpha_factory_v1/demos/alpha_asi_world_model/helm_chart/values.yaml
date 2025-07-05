@@ -19,6 +19,7 @@ resources:                      # sensible defaults; tweak per cluster
     memory: 512Mi
 
 # You can set OPENAI_API_KEY here (or via secret) to enable the LLM planner:
+enableADK: false               # true ⇒ expose Google ADK gateway
 env: {}
   # OPENAI_API_KEY: "sk-..."
 

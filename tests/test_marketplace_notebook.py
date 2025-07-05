@@ -1,6 +1,8 @@
+# SPDX-License-Identifier: Apache-2.0
 import json
 import unittest
 from pathlib import Path
+
 
 class TestMarketplaceNotebook(unittest.TestCase):
     def test_notebook_valid(self) -> None:

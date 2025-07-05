@@ -20,6 +20,10 @@ spec:
         - name: {{ $k }}   # noqa: yaml-anchor-lint
           value: "{{ $v }}"
         {{- end }}
+        {{- if .Values.enableADK }}
+        - name: ALPHA_FACTORY_ENABLE_ADK
+          value: "true"
+        {{- end }}
         resources: {{- toYaml .Values.resources | nindent 10 }}
         livenessProbe:
           httpGet: { path: /agents, port: 7860 }

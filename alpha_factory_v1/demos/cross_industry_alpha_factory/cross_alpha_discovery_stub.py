@@ -1,5 +1,9 @@
 #!/usr/bin/env python3
+# SPDX-License-Identifier: Apache-2.0
+# [See docs/DISCLAIMER_SNIPPET.md](../../../docs/DISCLAIMER_SNIPPET.md)
 """Cross‑Industry alpha discovery helper.
+
+This script is part of a research prototype and does not implement real AGI.
 
 This minimal command‑line tool surfaces potential "alpha" opportunities
 across industries. It works **fully offline** using a small sample set but
@@ -7,6 +11,9 @@ will query OpenAI when an ``OPENAI_API_KEY`` is configured for live ideas.
 Discovered items are logged to ``cross_alpha_log.json`` by default.  The
 queried model defaults to ``gpt-4o-mini`` but can be overridden with
 ``--model`` or ``CROSS_ALPHA_MODEL``.
+
+The suggestions returned by this stub are purely illustrative examples and
+should **not** be considered financial advice.
 """
 from __future__ import annotations
 
@@ -15,14 +22,29 @@ import json
 import random
 import os
 import contextlib
+import logging
 from pathlib import Path
 from typing import List, Dict
+from tempfile import NamedTemporaryFile
+
+logger = logging.getLogger(__name__)
+
+# Timeout (seconds) for OpenAI API requests
+OPENAI_TIMEOUT_SEC = int(os.getenv("OPENAI_TIMEOUT_SEC", "30"))
+
+try:
+    from filelock import FileLock
+except Exception:  # pragma: no cover - optional dependency
+    FileLock = None
 
 with contextlib.suppress(ModuleNotFoundError):
-    import openai  # type: ignore
+    import openai
 
 SAMPLE_ALPHA: List[Dict[str, str]] = [
-    {"sector": "Energy", "opportunity": "Battery storage arbitrage between solar overproduction and evening peak demand"},
+    {
+        "sector": "Energy",
+        "opportunity": "Battery storage arbitrage between solar overproduction and evening peak demand",
+    },
     {"sector": "Supply Chain", "opportunity": "Reroute shipping from congested port to alternate harbor to cut delays"},
     {"sector": "Finance", "opportunity": "Hedge currency exposure using futures due to predicted FX volatility"},
     {"sector": "Manufacturing", "opportunity": "Optimize machine maintenance schedule to reduce unplanned downtime"},
@@ -34,15 +56,20 @@ SAMPLE_ALPHA: List[Dict[str, str]] = [
     {"sector": "Telecom", "opportunity": "Lease dark fiber to data-intensive startups"},
 ]
 
-DEFAULT_LEDGER = Path(__file__).with_name("cross_alpha_log.json")
+DEFAULT_LEDGER = Path.home() / ".alpha_factory" / "cross_alpha_log.json"
 
-def _ledger_path(path: str | os.PathLike | None) -> Path:
+
+def _ledger_path(path: str | os.PathLike[str] | None) -> Path:
     if path:
-        return Path(path).expanduser().resolve()
-    env = os.getenv("CROSS_ALPHA_LEDGER")
-    if env:
-        return Path(env).expanduser().resolve()
-    return DEFAULT_LEDGER
+        resolved = Path(path).expanduser().resolve()
+    else:
+        env = os.getenv("CROSS_ALPHA_LEDGER")
+        if env:
+            resolved = Path(env).expanduser().resolve()
+        else:
+            resolved = DEFAULT_LEDGER.expanduser().resolve()
+    resolved.parent.mkdir(parents=True, exist_ok=True)
+    return resolved
 
 
 def discover_alpha(
@@ -57,42 +84,68 @@ def discover_alpha(
     Args:
         num: Number of opportunities to return.
         seed: Optional RNG seed for reproducible output.
-        ledger: Ledger file to write to. When ``None``, ``CROSS_ALPHA_LEDGER`` or
-            ``cross_alpha_log.json`` is used.
+        ledger: Ledger file to write to. When ``None`` no file is written.
         model: OpenAI model to query when available. ``main`` reads the default
             from ``CROSS_ALPHA_MODEL``.
 
     Environment variables:
-        CROSS_ALPHA_LEDGER: Default ledger path when ``ledger`` is ``None``.
+        CROSS_ALPHA_LEDGER: Default ledger path used by :func:`main` when
+            ``--ledger`` is not supplied.
         CROSS_ALPHA_MODEL: Default model used by :func:`main`.
 
     Returns:
         A list of dictionaries with ``sector`` and ``opportunity`` keys.
     """
+    if num < 1:
+        raise ValueError("num must be >= 1")
+
     if seed is not None:
         random.seed(seed)
     picks: List[Dict[str, str]] = []
     if "openai" in globals() and os.getenv("OPENAI_API_KEY"):
-        prompt = (
-            "List "
-            f"{num} short cross-industry investment opportunities as JSON"
-        )
+        prompt = f"List {num} short cross-industry investment opportunities as JSON"
         try:
-            resp = openai.ChatCompletion.create(
+            if hasattr(openai, "chat") and hasattr(openai.chat, "completions"):
+                create = openai.chat.completions.create
+            else:
+                create = openai.ChatCompletion.create
+
+            resp = create(
                 model=model,
                 messages=[{"role": "user", "content": prompt}],
+                response_format={"type": "json_object"},
+                timeout=OPENAI_TIMEOUT_SEC,
             )
-            picks = json.loads(resp.choices[0].message.content)  # type: ignore[index]
+            picks = json.loads(resp.choices[0].message.content)
             if isinstance(picks, dict):
                 picks = [picks]
-        except Exception:
+        except Exception as exc:
+            logger.warning("OpenAI request failed: %s", exc)
             picks = []
     if not picks:
-        picks = [random.choice(SAMPLE_ALPHA) for _ in range(max(1, num))]
+        picks = random.sample(SAMPLE_ALPHA, k=min(num, len(SAMPLE_ALPHA)))
 
-    (_ledger_path(ledger) if ledger else DEFAULT_LEDGER).write_text(
-        json.dumps(picks[0] if num == 1 else picks, indent=2)
-    )
+    if ledger is not None:
+        path = _ledger_path(ledger)
+        lock_ctx = FileLock(str(path) + ".lock") if FileLock is not None else contextlib.nullcontext()
+        with lock_ctx:
+            existing: List[Dict[str, str]] = []
+            try:
+                if path.exists():
+                    data = json.loads(path.read_text())
+                    if isinstance(data, dict):
+                        existing = [data]
+                    elif isinstance(data, list):
+                        existing = data
+            except (json.JSONDecodeError, OSError):
+                existing = []
+
+            existing.extend(picks if num != 1 else [picks[0]])
+            with NamedTemporaryFile("w", delete=False, dir=str(path.parent), encoding="utf-8") as tmp:
+                json.dump(existing, tmp, indent=2)
+                tmp.flush()
+                os.fsync(tmp.fileno())
+            os.replace(tmp.name, path)
     return picks
 
 
@@ -126,12 +179,18 @@ def main(argv: List[str] | None = None) -> None:  # pragma: no cover - CLI wrapp
         print(json.dumps(SAMPLE_ALPHA, indent=2))
         return
 
-    ledger = _ledger_path(args.ledger)
-    picks = discover_alpha(args.num, seed=args.seed, ledger=ledger, model=args.model)
-    if args.no_log:
-        ledger.unlink(missing_ok=True)
+    ledger = None if args.no_log else _ledger_path(args.ledger)
+    try:
+        picks = discover_alpha(args.num, seed=args.seed, ledger=ledger, model=args.model)
+    except ValueError as exc:
+        print(f"Error: {exc}")
+        return
+
     print(json.dumps(picks[0] if args.num == 1 else picks, indent=2))
-    print(f"Logged to {ledger}" if not args.no_log else "Ledger write skipped")
+    if ledger is not None:
+        print(f"Logged to {ledger}")
+    else:
+        print("Ledger write skipped")
 
 
 if __name__ == "__main__":  # pragma: no cover

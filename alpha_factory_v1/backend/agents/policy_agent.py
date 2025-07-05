@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 """backend.agents.policy_agent
 ===================================================================
 Alpha‑Factory v1 👁️✨ — Multi‑Agent AGENTIC α‑AGI
@@ -26,7 +27,7 @@ Key design points
     • ``risk_tag``          – classify snippet into ISO 37301 domains
     • ``statute_search``    – low‑level retrieval primitive (for other agents)
 * **Governance** – every output wrapped in MCP envelope with SHA‑256 digest;
-  PII removed; SOX trace id logged. Prometheus gauge ``af_policy_queries``
+  PII removed; SOX trace id logged. Prometheus counter ``af_policy_queries``
   exports QPS.
 * **Offline‑first** – embeddings fall back to *nomic‑embed‑text* (SBERT)
   when OpenAI API not available; LLM answers fall back to retrieval summary.
@@ -43,6 +44,8 @@ import difflib
 import hashlib
 import json
 import logging
+
+logger = logging.getLogger(__name__)
 import os
 import re
 from dataclasses import dataclass
@@ -50,59 +53,83 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
+from alpha_factory_v1.backend.utils.sync import run_sync
+
 # ────────────────────────────────────────────────────────────────────────────
 # Soft‑optional deps (never crash at import)
 # ────────────────────────────────────────────────────────────────────────────
 try:
     import faiss  # type: ignore
 except ModuleNotFoundError:  # pragma: no cover
+    logger.warning("faiss missing – similarity search disabled")
     faiss = None  # type: ignore
 
 try:
     from sentence_transformers import SentenceTransformer  # type: ignore
 except ModuleNotFoundError:  # pragma: no cover
+    logger.warning("sentence-transformers missing – embeddings disabled")
     SentenceTransformer = None  # type: ignore
 
 try:
     from rank_bm25 import BM25Okapi  # type: ignore
 except ModuleNotFoundError:  # pragma: no cover
+    logger.warning("rank_bm25 not installed – BM25 features disabled")
     BM25Okapi = None  # type: ignore
 
 try:
     import openai  # type: ignore
     from openai.agents import tool  # type: ignore
 except ModuleNotFoundError:  # pragma: no cover
+    logger.warning("openai package not found – LLM features disabled")
     openai = None  # type: ignore
 
     def tool(fn=None, **_):  # type: ignore
         return (lambda f: f)(fn) if fn else lambda f: f
 
 
+OPENAI_TIMEOUT_SEC = int(os.getenv("OPENAI_TIMEOUT_SEC", "30"))
+
+
 try:
     from kafka import KafkaProducer  # type: ignore
 except ModuleNotFoundError:  # pragma: no cover
+    logger.warning("kafka-python missing – event bus disabled")
     KafkaProducer = None  # type: ignore
 
 try:
-    from backend.agents import Gauge  # type: ignore
+    from backend.agents.registry import Counter  # type: ignore
 except Exception:  # pragma: no cover
-    Gauge = None  # type: ignore
+    logger.warning("prometheus-client missing – metrics disabled")
+    Counter = None  # type: ignore
 
 try:
     import adk  # type: ignore
 except ModuleNotFoundError:  # pragma: no cover
+    logger.warning("google-adk not installed – mesh integration disabled")
     adk = None  # type: ignore
+try:
+    from aiohttp import ClientError as AiohttpClientError  # type: ignore
+except Exception:  # pragma: no cover - optional
+    AiohttpClientError = OSError  # type: ignore
+try:
+    from adk import ClientError as AdkClientError  # type: ignore[attr-defined]
+except Exception:  # pragma: no cover - optional
+
+    class AdkClientError(Exception):
+        pass
+
 
 try:
     import httpx  # type: ignore
 except ModuleNotFoundError:  # pragma: no cover
+    logger.warning("httpx unavailable – network fetch disabled")
     httpx = None  # type: ignore
 
 # ────────────────────────────────────────────────────────────────────────────
 # Alpha‑Factory internals
 # ────────────────────────────────────────────────────────────────────────────
 from backend.agent_base import AgentBase  # type: ignore
-from backend.agents import AgentMetadata, register_agent  # type: ignore
+from backend.agents import register  # type: ignore
 
 logger = logging.getLogger(__name__)
 
@@ -192,7 +219,7 @@ class _Retriever:
         self.texts: List[str] = []
         self.meta: List[Dict[str, Any]] = []  # keeps jurisdiction/version
         self.bm25: Optional[BM25Okapi] = None
-        asyncio.get_event_loop().run_until_complete(self._load())
+        run_sync(self._load())
 
     async def _load(self):
         if self.cfg.index_path.exists():
@@ -254,8 +281,10 @@ class _Retriever:
 # ────────────────────────────────────────────────────────────────────────────
 # PolicyAgent class
 # ────────────────────────────────────────────────────────────────────────────
+@register
 class PolicyAgent(AgentBase):
     NAME = "policy"
+    __version__ = "0.2.0"
     CAPABILITIES = [
         "nl_query",
         "version_diff",
@@ -278,23 +307,23 @@ class PolicyAgent(AgentBase):
         else:
             self._producer = None
 
-        if Gauge:
-            self._qps = Gauge("af_policy_queries", "Total PolicyAgent queries")
+        if Counter:
+            self._qps = Counter("af_policy_queries", "Total PolicyAgent queries")
 
         if self.cfg.adk_mesh and adk:
-            asyncio.create_task(self._register_mesh())
+            # registration scheduled by orchestrator after loop start
+            pass
 
     # ── OpenAI tools ─────────────────────────────────────────────────────
 
     @tool(description="Answer a legal / policy question with citations. Arg str query.")
-    def policy_qa(self, query: str) -> str:  # noqa: D401
-        loop = asyncio.get_event_loop()
-        return loop.run_until_complete(self._qa_async(query))
+    async def policy_qa(self, query: str) -> str:  # noqa: D401
+        return await self._qa_async(query)
 
     @tool(description="Compare two versions. Arg JSON {'old':str,'new':str}")
-    def compare_versions(self, req_json: str) -> str:  # noqa: D401
+    async def compare_versions(self, req_json: str) -> str:  # noqa: D401
         req = json.loads(req_json)
-        diff = self._diff(req.get("old", ""), req.get("new", ""))
+        diff = await asyncio.to_thread(self._diff, req.get("old", ""), req.get("new", ""))
         return json.dumps(_wrap_mcp(self.NAME, {"diff": diff}))
 
     @tool(description="Classify snippet into ISO 37301 risk categories. Arg JSON {'text':str}")
@@ -304,10 +333,9 @@ class PolicyAgent(AgentBase):
         return json.dumps(_wrap_mcp(self.NAME, {"risks": risks}))
 
     @tool(description="Low‑level retrieval tool. Arg JSON {'query':str,'k':int}")
-    def statute_search(self, req_json: str) -> str:  # noqa: D401
+    async def statute_search(self, req_json: str) -> str:  # noqa: D401
         args = json.loads(req_json)
-        loop = asyncio.get_event_loop()
-        hits = loop.run_until_complete(self.retriever.search(args.get("query", ""), int(args.get("k", 5))))
+        hits = await self.retriever.search(args.get("query", ""), int(args.get("k", 5)))
         return json.dumps(_wrap_mcp(self.NAME, hits))
 
     # ── Lifecycle (passive) ─────────────────────────────────────────────
@@ -335,12 +363,13 @@ class PolicyAgent(AgentBase):
                 ],
                 temperature=0,
                 max_tokens=700,
+                timeout=OPENAI_TIMEOUT_SEC,
             )
             answer = chat.choices[0].message.content.strip()
         else:
             answer = f"(offline) Context:\n{context}"
         payload = {"answer": answer, "citations": [h["meta"] for h in hits]}
-        if Gauge:
+        if Counter:
             self._qps.inc()
         if self._producer:
             self._producer.send(self.cfg.exp_topic, json.dumps({"query": query, "ts": _now()}))
@@ -362,27 +391,33 @@ class PolicyAgent(AgentBase):
         return tags or ["unknown"]
 
     # ── ADK mesh registration ──────────────────────────────────────────
-    async def _register_mesh(self):  # noqa: D401
-        try:
-            client = adk.Client()
-            await client.register(node_type=self.NAME, metadata={"corpus": str(self.cfg.corpus_dir)})
-            logger.info("[PL] registered in ADK mesh id=%s", client.node_id)
-        except Exception as exc:  # noqa: BLE001
-            logger.warning("ADK registration failed: %s", exc)
+    async def _register_mesh(self) -> None:  # noqa: D401
+        max_attempts = 3
+        delay = 1.0
+        for attempt in range(1, max_attempts + 1):
+            try:
+                client = adk.Client()
+                await client.register(node_type=self.NAME, metadata={"corpus": str(self.cfg.corpus_dir)})
+                logger.info("[PL] registered in ADK mesh id=%s", client.node_id)
+                return
+            except (AdkClientError, AiohttpClientError, asyncio.TimeoutError, OSError) as exc:
+                if attempt == max_attempts:
+                    logger.error("ADK registration failed after %d attempts: %s", max_attempts, exc)
+                    raise
+                logger.warning(
+                    "ADK registration attempt %d/%d failed: %s",
+                    attempt,
+                    max_attempts,
+                    exc,
+                )
+                await asyncio.sleep(delay)
+                delay *= 2
+            except Exception as exc:  # pragma: no cover - unexpected
+                logger.exception("Unexpected ADK registration error: %s", exc)
+                raise
 
 
 # ────────────────────────────────────────────────────────────────────────────
 # Registry hook
 # ────────────────────────────────────────────────────────────────────────────
-register_agent(
-    AgentMetadata(
-        name=PolicyAgent.NAME,
-        cls=PolicyAgent,
-        version="0.2.0",
-        capabilities=PolicyAgent.CAPABILITIES,
-        compliance_tags=PolicyAgent.COMPLIANCE_TAGS,
-        requires_api_key=PolicyAgent.REQUIRES_API_KEY,
-    )
-)
-
 __all__ = ["PolicyAgent"]

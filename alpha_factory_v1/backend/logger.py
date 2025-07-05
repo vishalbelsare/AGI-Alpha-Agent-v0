@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 import logging
 import os
 
@@ -29,5 +30,6 @@ def get_logger(name: str, level: str | int | None = None) -> logging.Logger:
     else:
         logger.setLevel(level_val.upper())
     return logger
+
 
 __all__ = ["get_logger"]

@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# SPDX-License-Identifier: Apache-2.0
 # --------------------------------------------------------------------
 # Meta-Agentic α-AGI Demo – Production-Grade v0.2.0 (2025-05-05)
 # --------------------------------------------------------------------
@@ -35,7 +36,8 @@ from typing import List, Dict, Optional
 # ────────────────────────────────────────────────────────────────────
 # 0.  Provider-agnostic chat wrapper
 # ────────────────────────────────────────────────────────────────────
-class UnsupportedProvider(RuntimeError): ...
+class UnsupportedProvider(RuntimeError):
+    ...
 
 
 class DownloadError(RuntimeError):

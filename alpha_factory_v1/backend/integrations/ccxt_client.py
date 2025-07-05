@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 """
 Secure, test-net-only wrapper around **CCXT** (crypto exchange client).
 

@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# SPDX-License-Identifier: Apache-2.0
 # Alpha Factory v2 – Installer
 # Robust production-grade deployment helper
 set -euo pipefail

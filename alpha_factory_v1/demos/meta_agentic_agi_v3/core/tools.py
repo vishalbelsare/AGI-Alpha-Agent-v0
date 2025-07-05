@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 
 """
 tools.py – Unified Tooling Orchestrator (v1.0.0)
@@ -46,21 +47,21 @@ from pathlib import Path
 from typing import Any, Awaitable, Callable, Dict, Optional, Union, List
 
 ###############################################################################
-# Configuration                                                               
+# Configuration
 ###############################################################################
 
-ROOT_DIR   = Path(__file__).resolve().parent
-TOOLS_DIR  = ROOT_DIR / "tools_ext"
+ROOT_DIR = Path(__file__).resolve().parent
+TOOLS_DIR = ROOT_DIR / "tools_ext"
 TOOLS_DIR.mkdir(exist_ok=True)
 
-DB_URL     = os.getenv("TOOLS_DB_URL", f"sqlite:///{ROOT_DIR/'tools_invocations.sqlite'}")
+DB_URL = os.getenv("TOOLS_DB_URL", f"sqlite:///{ROOT_DIR/'tools_invocations.sqlite'}")
 SANDBOX_TRUSTED = bool(int(os.getenv("TOOLS_TRUSTED", "0")))
-CALL_TIMEOUT    = float(os.getenv("TOOLS_TIMEOUT", "30"))  # seconds
-LLM_PROVIDER    = os.getenv("LLM_PROVIDER", "auto")        # auto|openai|anthropic|hf|local
+CALL_TIMEOUT = float(os.getenv("TOOLS_TIMEOUT", "30"))  # seconds
+LLM_PROVIDER = os.getenv("LLM_PROVIDER", "auto")  # auto|openai|anthropic|hf|local
 
 # cost & carbon heuristics – tuned via real‑world cloud billing
-USD_PER_CPU_SEC   = float(os.getenv("USD_PER_CPU_SEC", "2.5e-5"))
-GCO2_PER_CPU_SEC  = float(os.getenv("GCO2_PER_CPU_SEC", "0.42"))
+USD_PER_CPU_SEC = float(os.getenv("USD_PER_CPU_SEC", "2.5e-5"))
+GCO2_PER_CPU_SEC = float(os.getenv("GCO2_PER_CPU_SEC", "0.42"))
 
 _LOGGER = logging.getLogger("alpha_factory.tools")
 if os.getenv("TOOLS_DEBUG"):
@@ -69,18 +70,24 @@ else:
     _LOGGER.setLevel(logging.INFO)
 
 ###############################################################################
-# Telemetry & lineage store                                                   
+# Telemetry & lineage store
 ###############################################################################
+
 
 def _get_engine():
     from sqlalchemy import create_engine
+
     return create_engine(DB_URL, future=True, echo=False)
+
 
 def _init_db():
     from sqlalchemy import text
+
     engine = _get_engine()
     with engine.begin() as conn:
-        conn.execute(text("""
+        conn.execute(
+            text(
+                """
         CREATE TABLE IF NOT EXISTS invocations(
             id TEXT PRIMARY KEY,
             tool TEXT,
@@ -96,45 +103,63 @@ def _init_db():
             score REAL,
             error TEXT
         )
-        """))
+        """
+            )
+        )
+
+
 _init_db()
+
 
 def _log_invocation(row: Dict[str, Any]) -> None:
     """Write a single row to DB – non‑blocking via thread executor"""
     import concurrent.futures, functools
     from sqlalchemy import text
+
     engine = _get_engine()
 
     def _write():
         with engine.begin() as conn:
-            conn.execute(text("""
+            conn.execute(
+                text(
+                    """
             INSERT INTO invocations values
             (:id,:tool,:ts_start,:ts_end,:args,:output,:latency,
              :token_in,:token_out,:usd,:gco2e,:score,:error)
-            """), row)
+            """
+                ),
+                row,
+            )
 
     loop = asyncio.get_event_loop()
     loop.run_in_executor(None, _write)
 
+
 ###############################################################################
-# Utility – cheap token estimator                                             
+# Utility – cheap token estimator
 ###############################################################################
+
 
 def _rough_token_count(txt: str) -> int:
     # heuristic: 1 token ≈ 4 chars for English
     return max(1, len(txt) // 4)
 
+
 ###############################################################################
-# Registry                                                                    
+# Registry
 ###############################################################################
+
 
 class Tool:
     """Container for a single registered tool"""
-    def __init__(self,
-                 name: str,
-                 func: Callable[..., Awaitable[Any]] | Callable[..., Any],
-                 schema: Dict[str, Any],
-                 description: str = "") -> None:
+
+    def __init__(
+        self,
+        name: str,
+        func: Callable[..., Awaitable[Any]] | Callable[..., Any],
+        schema: Dict[str, Any],
+        description: str = "",
+    ) -> None:
         self.name = name
         self.func = func
         self.schema = schema
@@ -143,12 +168,13 @@ class Tool:
     async def __call__(self, **kwargs):
         try:
             import jsonschema
+
             jsonschema.validate(kwargs, self.schema)
         except ModuleNotFoundError:
             _LOGGER.debug("jsonschema not installed – skipping validation")
 
         uid = str(uuid.uuid4())
-        t0  = time.time()
+        t0 = time.time()
         err = None
         out = None
 
@@ -157,8 +183,10 @@ class Tool:
             if asyncio.iscoroutinefunction(self.func):
                 coro = self.func(**kwargs)
             else:
+
                 async def _sync_wrapper():
                     return self.func(**kwargs)
+
                 coro = _sync_wrapper()
 
             out = await asyncio.wait_for(coro, timeout=CALL_TIMEOUT)
@@ -188,78 +216,96 @@ class Tool:
             )
             _log_invocation(row)
 
+
 _REGISTRY: Dict[str, Tool] = {}
+
 
 def register(schema: Dict[str, Any]):
     """Decorator: register a coroutine / function as an exposed tool"""
+
     def deco(fn: Callable):
         if fn.__name__ in _REGISTRY:
             raise ValueError(f"Duplicate tool name: {fn.__name__}")
         _REGISTRY[fn.__name__] = Tool(fn.__name__, fn, schema, fn.__doc__)
         _LOGGER.debug("Registered tool: %s", fn.__name__)
         return fn
+
     return deco
+
 
 def registry() -> Dict[str, Tool]:
     return dict(_REGISTRY)
 
+
 def get(name: str) -> Tool:
     return _REGISTRY[name]
 
+
 ###############################################################################
-# Simple multi‑objective score – extensible                                   
+# Simple multi‑objective score – extensible
 ###############################################################################
+
 
 def _score_vector(latency: float) -> float:
     """Return scalar aggregating multiple objectives (placeholder).
-       Lower is better.  Extend as needed."""
+    Lower is better.  Extend as needed."""
     return latency
 
+
 ###############################################################################
-# Core built‑in tools                                                         
+# Core built‑in tools
 ###############################################################################
 
-@register({
-    "type": "object",
-    "properties": {
-        "query": {"type": "string"},
-        "top_k": {"type": "integer", "default": 10, "minimum": 1, "maximum": 25},
-    },
-    "required": ["query"],
-})
+
+@register(
+    {
+        "type": "object",
+        "properties": {
+            "query": {"type": "string"},
+            "top_k": {"type": "integer", "default": 10, "minimum": 1, "maximum": 25},
+        },
+        "required": ["query"],
+    }
+)
 async def web_search(query: str, top_k: int = 10) -> List[Dict[str, str]]:
     """
     🔎 **Web Search** – privacy‑respecting search via DuckDuckGo `lite` API.
     Returns list[{title,url,snippet}] sorted by relevance.
     """
     import aiohttp, urllib.parse
+
     params = {"q": query, "kl": "us-en", "count": str(top_k)}
-    url    = "https://duckduckgo.com/i.js"
+    url = "https://duckduckgo.com/i.js"
 
     async with aiohttp.ClientSession(timeout=aiohttp.ClientTimeout(total=15)) as sess:
-        async with sess.get(url, params=params, headers={"User-Agent":"Mozilla/5.0"}) as r:
+        async with sess.get(url, params=params, headers={"User-Agent": "Mozilla/5.0"}) as r:
             if r.status != 200:
                 raise RuntimeError(f"HTTP {r.status}")
             data = await r.json()
-            return [{
-                "title":   itm.get("title"),
-                "url":     urllib.parse.unquote(itm.get("url","")),
-                "snippet": itm.get("snippet"),
-            } for itm in data.get("results", [])][:top_k]
+            return [
+                {
+                    "title": itm.get("title"),
+                    "url": urllib.parse.unquote(itm.get("url", "")),
+                    "snippet": itm.get("snippet"),
+                }
+                for itm in data.get("results", [])
+            ][:top_k]
 
-@register({
-    "type":"object",
-    "properties":{
-        "code":{"type":"string","description":"Python source to execute in sandbox"}
-    },
-    "required":["code"],
-})
+
+@register(
+    {
+        "type": "object",
+        "properties": {"code": {"type": "string", "description": "Python source to execute in sandbox"}},
+        "required": ["code"],
+    }
+)
 async def sandbox_exec(code: str) -> str:
     """
     🐍 Execute Python code (**trusted** with `TOOLS_TRUSTED=1`, else Restric­ted).
     Returns captured stdout & the repr() of last expression.
     """
     import io, contextlib, traceback, textwrap
+
     buf = io.StringIO()
     try:
         if SANDBOX_TRUSTED:
@@ -271,7 +317,7 @@ async def sandbox_exec(code: str) -> str:
         else:
             RP = importlib.import_module("RestrictedPython")
             compiled = RP.compile_restricted_exec(textwrap.dedent(code))
-            policy   = importlib.import_module("RestrictedPython.Guards")
+            policy = importlib.import_module("RestrictedPython.Guards")
             sec_builtins = RP.Guards.safe_builtins.copy()
             sec_builtins.update({"print": lambda *a, **k: print(*a, file=buf, **k)})
             exec(compiled, {"__builtins__": sec_builtins}, {})
@@ -279,18 +325,20 @@ async def sandbox_exec(code: str) -> str:
         buf.write("ERROR: " + traceback.format_exc(limit=2))
     return buf.getvalue()
 
-@register({
-    "type":"object",
-    "properties":{
-        "values":{"type":"array","items":{"type":"number"}}
-    },
-    "required":["values"],
-})
+
+@register(
+    {
+        "type": "object",
+        "properties": {"values": {"type": "array", "items": {"type": "number"}}},
+        "required": ["values"],
+    }
+)
 async def stats(values: List[float]) -> Dict[str, float]:
     """
     📊 Compute basic statistics over a numeric vector.
     """
     import statistics as st
+
     return {
         "n": len(values),
         "mean": st.mean(values),
@@ -300,9 +348,11 @@ async def stats(values: List[float]) -> Dict[str, float]:
         "max": max(values),
     }
 
+
 ###############################################################################
-# Dynamic discovery                                                           
+# Dynamic discovery
 ###############################################################################
+
 
 def _discover_tools():
     sys.path.append(str(TOOLS_DIR))
@@ -316,19 +366,25 @@ def _discover_tools():
         except Exception as e:
             _LOGGER.warning("Failed loading %s – %s", mod_name, e)
 
+
 _discover_tools()
 
 ###############################################################################
-# Provider‑agnostic LLM function‑spec helper                                   
+# Provider‑agnostic LLM function‑spec helper
 ###############################################################################
+
 
 def openai_functions_spec() -> List[Dict[str, Any]]:
     """Return JSON function specs compatible with OpenAI / Anthropic calls"""
-    return [{
-        "name": t.name,
-        "description": t.description,
-        "parameters": t.schema,
-    } for t in _REGISTRY.values()]
+    return [
+        {
+            "name": t.name,
+            "description": t.description,
+            "parameters": t.schema,
+        }
+        for t in _REGISTRY.values()
+    ]
+
 
 ###############################################################################
 # === OPTIONAL FastAPI lineage UI ============================================
@@ -356,12 +412,18 @@ if os.getenv("TOOLS_UI") == "1":
         @app.get("/invocations", response_model=List[Invocation])
         async def list_invocations(limit: int = 100):
             from sqlalchemy import text
+
             engine = _get_engine()
             with engine.connect() as conn:
-                rows = conn.execute(text("SELECT id,tool,ts_start,ts_end,"
-                                         "latency,usd,gco2e,score,error "
-                                         "FROM invocations ORDER BY ts_start DESC "
-                                         "LIMIT :lim"), dict(lim=limit))
+                rows = conn.execute(
+                    text(
+                        "SELECT id,tool,ts_start,ts_end,"
+                        "latency,usd,gco2e,score,error "
+                        "FROM invocations ORDER BY ts_start DESC "
+                        "LIMIT :lim"
+                    ),
+                    dict(lim=limit),
+                )
                 return [Invocation(**dict(r)) for r in rows]
 
         def _launch_server():

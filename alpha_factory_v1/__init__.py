@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 """Alpha‑Factory v1 package root.
 
 This module exposes the public entry points of the project while keeping the
@@ -16,7 +17,7 @@ try:  # attempt to read the installed package version
 
     __version__ = _version(__name__)
 except Exception:  # pragma: no cover - fallback when not installed
-    __version__ = "1.0.1"
+    __version__ = "0.1.0-alpha"
 
 __all__ = ["backend", "demos", "ui", "run", "get_version"]
 

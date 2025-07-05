@@ -1,3 +1,8 @@
+[See docs/DISCLAIMER_SNIPPET.md](../../../docs/DISCLAIMER_SNIPPET.md)
+This repository is a conceptual research prototype. References to "AGI" and "superintelligence" describe aspirational goals and do not indicate the presence of a real general intelligence. Use at your own risk. Nothing herein constitutes financial advice. MontrealAI and the maintainers accept no liability for losses incurred from using this software.
+Each demo package exposes its own `__version__` constant. The value marks the revision of that demo only and does not reflect the overall Alpha‑Factory release version.
+
+
 # Meta‑Agentic Tree Search (MATS) Demo — v0
 
 [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/MontrealAI/AGI-Alpha-Agent-v0/blob/main/alpha_factory_v1/demos/meta_agentic_tree_search_v0/colab_meta_agentic_tree_search.ipynb)
@@ -71,7 +76,7 @@ The script automatically falls back to the offline rewriter when the
 dependencies are unavailable so the notebook remains runnable anywhere.
 
 When the optional `openai` package is also present, `openai_rewrite` uses
-`ChatCompletion` to refine candidate integer policies.  Supply an
+`OpenAI().chat.completions.create` to refine candidate integer policies.  Supply an
 `OPENAI_API_KEY` environment variable to activate this behaviour.  Without a
 key or in fully offline environments the routine simply increments the
 proposed policy elements so the rest of the demo keeps working.  You can
@@ -102,11 +107,36 @@ The `openai_agents_bridge.py` script exposes the search loop via the
 the bridge to control the demo through API calls or the Agents runtime UI:
 
 ```bash
-python openai_agents_bridge.py --help
+mats-bridge --help
+```
+Sample output:
+```text
+usage: mats-bridge [-h] [--episodes EPISODES] [--target TARGET]
+                   [--model MODEL] [--rewriter {random,openai,anthropic}]
+                   [--market-data MARKET_DATA] [--enable-adk] [--verify-env]
+
+OpenAI Agents bridge for MATS
+
+options:
+  -h, --help            show this help message and exit
+  --episodes EPISODES   Search episodes when offline
+  --target TARGET       Target integer when offline
+  --model MODEL         Optional model override
+  --rewriter {random,openai,anthropic}
+                        Rewrite strategy to use
+  --market-data MARKET_DATA
+                        CSV file with comma-separated integers for
+                        LiveBrokerEnv
+  --enable-adk          Enable the Google ADK gateway for remote control
+  --verify-env          Check runtime dependencies before launching
 ```
 Run a quick environment check with ``--verify-env`` if desired:
 ```bash
-python openai_agents_bridge.py --verify-env --episodes 3 --target 4 --model gpt-4o
+mats-bridge --verify-env --episodes 3 --target 4 --model gpt-4o
+```
+Typical invocation:
+```bash
+mats-bridge --verify-env --enable-adk --episodes 3 --target 4 --model gpt-4o
 ```
 The bridge exposes a small :func:`verify_env` helper that performs the same
 sanity check programmatically. Call it from Python or rely on the command
@@ -116,32 +146,100 @@ remains reproducible anywhere. When running offline you can still invoke
 `run_search` directly to verify the helper logic:
 
 ```bash
-python openai_agents_bridge.py --episodes 3 --target 4 --model gpt-4o
+mats-bridge --episodes 3 --target 4 --model gpt-4o
 python -m alpha_factory_v1.demos.meta_agentic_tree_search_v0.openai_agents_bridge --episodes 3 --target 4
 ```
 Enable the optional ADK gateway with ``--enable-adk`` (or set
 ``ALPHA_FACTORY_ENABLE_ADK=true``) to expose the agent over the A2A protocol.
 This prints a short completion summary after executing the demo loop.
 
+### 4.4 · Google ADK Integration
+Install the ``google-adk`` package to communicate over the A2A protocol:
+
+```bash
+pip install google-adk
+```
+
+Set ``ALPHA_FACTORY_ENABLE_ADK=true`` or pass ``--enable-adk`` to enable the gateway.
+The ADK layer is optional so the demo still runs completely offline.
+
 ## 5 Quick start
 ```bash
 git clone https://github.com/MontrealAI/AGI-Alpha-Agent-v0.git
 cd AGI-Alpha-Agent-v0/alpha_factory_v1/demos/meta_agentic_tree_search_v0
 python -m venv .venv && source .venv/bin/activate
-pip install -r requirements.txt          # torch, gymnasium, networkx, etc.
+pip install -r requirements.lock         # install pinned dependencies
+python ../../../check_env.py --auto-install  # fetch optional extras
 python run_demo.py --verify-env          # optional sanity check
 python run_demo.py --config configs/default.yaml --episodes 500 --target 5 --seed 42 --model gpt-4o
 # or equivalently
 python -m alpha_factory_v1.demos.meta_agentic_tree_search_v0.run_demo --episodes 500 --target 5
+# installed scripts
+mats-demo --episodes 5
+mats-bridge --episodes 3
 ```
 `run_demo.py` prints a per‑episode scoreboard.  Pass `--log-dir logs` to save a
 `scores.csv` file for further analysis. A ready‑to‑run Colab notebook is also
 provided as `colab_meta_agentic_tree_search.ipynb`.
 
+## Offline Setup
+When installing without network access, first build wheels on a
+machine with connectivity:
+
+```bash
+pip wheel -r requirements.txt -w /tmp/wheels
+```
+
+Copy `/tmp/wheels` to the offline machine and install packages from the
+local wheelhouse:
+
+```bash
+WHEELHOUSE=/tmp/wheels pip install -r requirements.txt
+```
+
+The repository's setup script automatically uses a `wheels/` directory
+in the project root when present, so placing your pre-built wheels there
+also works. Set `WHEELHOUSE=/tmp/wheels` (or `$(pwd)/wheels`) before running
+`../../../check_env.py --auto-install` or `pytest` so the command installs from
+the local cache. See
+[docs/OFFLINE_SETUP.md](../../../docs/OFFLINE_SETUP.md) for a summary.
+
+To regenerate the pinned lock file after editing `requirements.txt`, install
+[`pip-tools`](https://pypi.org/project/pip-tools/) and run:
+
+```bash
+pip install pip-tools          # one-time setup
+pip-compile --generate-hashes -o requirements.lock requirements.txt
+```
+
+Run `python scripts/verify_mats_requirements_lock.py` to confirm the lock file
+matches `requirements.txt`.
+
+### Environment variables
+The demo consults a few environment variables when choosing a rewrite strategy
+and model. Set these if you do not pass ``--rewriter`` or ``--model`` on the
+command line:
+
+- ``MATS_REWRITER`` – set in ``.env`` to force the rewrite engine to ``random``,
+  ``openai`` or ``anthropic``.
+- ``OPENAI_MODEL`` – default model used by the OpenAI rewriter and bridge
+  (defaults to ``gpt-4o``).
+- ``ANTHROPIC_MODEL`` – model name for the Anthropic rewriter
+  (defaults to ``claude-3-opus-20240229``).
+- ``MCP_ENDPOINT`` – optional URL for Model Context Protocol logging.
+- ``MCP_TIMEOUT_SEC`` – timeout in seconds for MCP requests (defaults to ``10``).
+
+Setting ``MCP_ENDPOINT`` enables prompt logging via the Model Context Protocol
+for later audit.
+
+If ``MATS_REWRITER`` is unset the script picks ``openai`` when an
+``OPENAI_API_KEY`` is present or ``anthropic`` when ``ANTHROPIC_API_KEY`` is
+configured, falling back to the offline rewriter otherwise.
+
 ### Notebook quick start
 1. Click the “Open In Colab” badge at the top of this document.
 2. Execute the first cell to clone the repository and install dependencies.
-3. Optionally provide `OPENAI_API_KEY` or `ANTHROPIC_API_KEY` values in the second cell.
+3. Optionally provide `OPENAI_API_KEY` or `ANTHROPIC_API_KEY` values in the second cell. Leave the variable unset if you don't have a key.
 4. Run the demo cell to launch the search loop.
 5. Optionally invoke `openai_agents_bridge.py --verify-env` from a new cell to confirm your runtime.
 
@@ -150,7 +248,8 @@ gateway for remote control via the A2A protocol.
 The default environment is a simple number‑line task defined in `mats/env.py` where each agent must approach a target integer. Pass `--target 7` (for example) to experiment with different goals.
 Use `--seed 42` to reproduce a specific search trajectory.
 
-> **Tip:** Set `--market-data my_feed.csv` to replay real tick data.
+> **Tip:** Replay real tick data with:
+> `python run_demo.py --market-data my_feed.csv`
 
 ## 6 Repository layout
 ```

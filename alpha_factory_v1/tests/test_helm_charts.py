@@ -1,9 +1,11 @@
+# SPDX-License-Identifier: Apache-2.0
 import unittest
 from pathlib import Path
 import re
 
 ROOT = Path(__file__).resolve().parents[1]
 HELM_DIR = ROOT / "helm"
+
 
 class HelmChartTests(unittest.TestCase):
     def check_chart_file(self, chart_path: Path):
@@ -38,6 +40,7 @@ class HelmChartTests(unittest.TestCase):
         self.assertTrue(values.is_file(), "values.yaml missing for alpha-factory-remote")
         self.assertTrue(schema.is_file(), "values.schema.json missing for alpha-factory-remote")
         self.assertTrue(helpers.is_file(), "_helpers.tpl missing for alpha-factory-remote")
+
 
 if __name__ == "__main__":
     unittest.main()

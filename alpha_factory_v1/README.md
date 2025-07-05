@@ -1,3 +1,6 @@
+[See docs/DISCLAIMER_SNIPPET.md](../../../docs/DISCLAIMER_SNIPPET.md)
+This repository is a conceptual research prototype. References to "AGI" and "superintelligence" describe aspirational goals and do not indicate the presence of a real general intelligence. Use at your own risk. Nothing herein constitutes financial advice. MontrealAI and the maintainers accept no liability for losses incurred from using this software.
+
 
 # Alpha‑Factory v1 👁️✨ — Multi‑Agent **AGENTIC** α‑AGI
 
@@ -15,6 +18,11 @@ Global markets seep *USD ✧ trillions/yr* in latent opportunity — “alph
 **Definition**: An **α‑AGI Business** 👁️✨ is an on‑chain autonomous enterprise (`<name>.a.agi.eth`) that unleashes a swarm of self‑improving agentic **α‑AGI agents** 👁️✨ (`<name>.a.agent.agi.eth`) to hunt down inefficiencies across any domain and transmute them into **$AGIALPHA**.
 
 Built atop **OpenAI Agents SDK**, **Google ADK**, **A2A protocol**, and Anthropic’s **Model Context Protocol**, the stack runs cloud‑native *or* air‑gapped, hot‑swapping between frontier LLMs and distilled local models.
+
+## Disclaimer
+This repository is a conceptual research prototype. References to "AGI" and
+"superintelligence" describe aspirational goals and do not indicate the presence
+of a real general intelligence. Use at your own risk.
 
 ---
 
@@ -245,12 +253,12 @@ sequenceDiagram
 | # | Folder | Emoji | Lightning Pitch | Alpha Contribution | Start Locally |
 |---|--------|-------|-----------------|--------------------|---------------|
 |1|`aiga_meta_evolution`|🧬|Agents *evolve* new agents; genetic tests auto‑score fitness.|Expands strategy space, surfacing fringe alpha.|`cd alpha_factory_v1/demos/aiga_meta_evolution && ./run_aiga_demo.sh`|
-|2|`alpha_agi_business_v1`|🏦|Auto‑incorporates a digital‑first company end‑to‑end.|Shows AGI turning ideas → registered business.|`./alpha_factory_v1/demos/alpha_agi_business_v1/run_business_v1_demo.sh`|
+|2|`alpha_agi_business_v1`|🏦|Auto‑incorporates a digital‑first company end‑to‑end.|Shows AGI turning ideas → registered business.|`./alpha_factory_v1/demos/alpha_agi_business_v1/run_business_v1_demo.sh [--pull] [--gpu]` (docs: `http://localhost:8000/docs`)|
 |3|`alpha_agi_business_2_v1`|🏗|Iterates business model with live market data RAG.|Continuous adaptation → durable competitive alpha.|`./alpha_factory_v1/demos/alpha_agi_business_2_v1/run_business_2_demo.sh`|
 |4|`alpha_agi_business_3_v1`|📊|Financial forecasting & fundraising agent swarm.|Optimises capital stack for ROI alpha.|`./alpha_factory_v1/demos/alpha_agi_business_3_v1/run_business_3_demo.sh`|
 |5|`alpha_agi_marketplace_v1`|🛒|Peer‑to‑peer agent marketplace simulating price discovery.|Validates micro‑alpha extraction via agent barter.|`docker compose -f demos/docker-compose.marketplace.yml up`|
 |6|`alpha_asi_world_model`|🌌|Scales MuZero‑style world‑model to an open‑ended grid‑world.|Stress‑tests anticipatory planning for ASI scenarios.|`docker compose -f demos/docker-compose.asi_world.yml up`|
-|7|`cross_industry_alpha_factory`|🌐|Full pipeline: ingest → plan → act across 4 verticals.|Proof that one orchestrator handles multi‑domain alpha.|`docker compose -f demos/docker-compose.cross_industry.yml up`|
+|7|`cross_industry_alpha_factory`|🌐|Full pipeline: ingest → plan → act across 4 verticals.|Proof that one orchestrator handles multi‑domain alpha.|`./alpha_factory_v1/demos/cross_industry_alpha_factory/deploy_alpha_factory_cross_industry_demo.sh`|
 |8|`era_of_experience`|🏛|Lifelong RL stack blending real & synthetic experience streams.|Showcases sensor-motor tools, grounded rewards & non-human reasoning.|`cd alpha_factory_v1/demos/era_of_experience && ./run_experience_demo.sh`|
 |9|`finance_alpha`|💹|Live momentum + risk‑parity bot on Binance test‑net.|Generates real P&L; stress‑tested against CVaR.|`./alpha_factory_v1/demos/finance_alpha/deploy_alpha_factory_demo.sh`|
 |10|`macro_sentinel`|🌐|GPT‑RAG news scanner auto‑hedges with CTA futures.|Shields portfolios from macro shocks.|`docker compose -f demos/docker-compose.macro.yml up`|
@@ -258,6 +266,24 @@ sequenceDiagram
 |12|`self_healing_repo`|🩹|CI fails → agent crafts patch ⇒ PR green again.|Maintains pipeline uptime alpha.|`docker compose -f demos/docker-compose.selfheal.yml up`|
 
 > **Colab?** Each folder ships an `*.ipynb` that mirrors the Docker flow with free GPUs.
+
+### Demo Stability
+| Demo | Purpose | Stability |
+|------|---------|-----------|
+|[aiga_meta_evolution](demos/aiga_meta_evolution/README.md)|Agents evolve new agents|Incub|
+|[alpha_agi_business_v1](demos/alpha_agi_business_v1/README.md)|Auto-incorporates a digital-first company|Prod|
+|[alpha_agi_business_2_v1](demos/alpha_agi_business_2_v1/README.md)|Market-adaptive business iteration|Beta|
+|[alpha_agi_business_3_v1](demos/alpha_agi_business_3_v1/README.md)|Fundraising agent swarm for forecasting|Prod|
+|[alpha_agi_marketplace_v1](demos/alpha_agi_marketplace_v1/README.md)|Peer-to-peer agent marketplace|Prod|
+|[alpha_asi_world_model](demos/alpha_asi_world_model/README.md)|Open-ended world model training|Beta|
+|[cross_industry_alpha_factory](demos/cross_industry_alpha_factory/README.md)|Pipeline across multiple verticals|Prod|
+|[era_of_experience](demos/era_of_experience/README.md)|Autobiographical memory RL playground|Incub|
+|[finance_alpha](demos/finance_alpha/README.md)|Momentum and risk-parity bot|Beta|
+|[macro_sentinel](demos/macro_sentinel/README.md)|News scanner with futures hedging|Beta|
+|[muzero_planning](demos/muzero_planning/README.md)|Minimal MuZero planning demo|Beta|
+|[self_healing_repo](demos/self_healing_repo/README.md)|Agents auto-fix failing CI|Beta|
+|[meta_agentic_tree_search_v0](demos/meta_agentic_tree_search_v0/README.md)|Recursive agent tree search|Incub|
+|[alpha_agi_insight_v0](demos/alpha_agi_insight_v0/README.md)|Sector ranking via zero-data search|Beta|
 
 ### 4.1 · [α-ASI World-Model Demo 👁️✨](https://github.com/MontrealAI/AGI-Alpha-Agent-v0/tree/main/alpha_factory_v1/demos/alpha_asi_world_model)
 
@@ -340,6 +366,7 @@ cd AGI-Alpha-Agent-v0/alpha_factory_v1
 export ALPHA_KAFKA_BROKER=localhost:9092
 echo "PORT=8000" > .env
 echo "LOGLEVEL=info" >> .env
+chmod 600 alpha_factory_v1/.env
 ./quickstart.sh  # automatically loads .env
 open http://localhost:8000/docs
 ```
@@ -428,7 +455,7 @@ falls back to Python's built-in `unittest` discovery when `pytest` is not
 available.
 
 ```bash
-./scripts/run_tests.py
+python -m alpha_factory_v1.scripts.run_tests
 ```
 ---
 

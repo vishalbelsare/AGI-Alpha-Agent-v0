@@ -16,9 +16,11 @@ jobs:
           python-version: "3.11"
       - name: Install dependencies
         run: pip install -r requirements.txt
+      - name: Build sandbox image
+        run: docker build -t selfheal-sandbox:latest -f ../../../../sandbox.Dockerfile ../../..
       - name: Run Tests
         id: tests
-        run: pytest -q
+        run: pytest -q | tee pytest.log
         continue-on-error: true   # Allow the job to continue even if tests fail
       - name: Upload logs artifact
         if: failure()

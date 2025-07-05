@@ -1,4 +1,11 @@
-"""OpenAI Agents SDK bridge for the AI-GA Meta-Evolution demo.
+# SPDX-License-Identifier: Apache-2.0
+# NOTE: This demo is a research prototype and does not implement real AGI.
+"""
+This module is part of a conceptual research prototype. References to
+'AGI' or 'superintelligence' describe aspirational goals and do not
+indicate the presence of real general intelligence. Use at your own risk.
+
+OpenAI Agents SDK bridge for the AI-GA Meta-Evolution demo.
 
 This script registers a minimal agent capable of driving the evolutionary
 loop via the OpenAI Agents runtime. It works fully offline when no
@@ -7,86 +14,113 @@ instance started by ``run_aiga_demo.sh``.
 """
 from __future__ import annotations
 
-import os
-
 try:  # optional dependency
     from openai_agents import Agent, AgentRuntime, OpenAIAgent, Tool
-except ImportError as exc:  # pragma: no cover - missing package
-    raise SystemExit(
-        "openai_agents package is required. Install with `pip install openai-agents`"
-    ) from exc
+except ImportError:  # pragma: no cover - fallback for legacy package
+    from agents import Agent, AgentRuntime, OpenAIAgent, Tool
 
 try:
     from alpha_factory_v1.backend.adk_bridge import auto_register, maybe_launch
+
     ADK_AVAILABLE = True
 except Exception:  # pragma: no cover - optional
     ADK_AVAILABLE = False
 
-from meta_evolver import MetaEvolver
-from curriculum_env import CurriculumEnv
+if __package__ is None:
+    import sys
+    from pathlib import Path
+
+    sys.path.append(str(Path(__file__).resolve().parent))
+    __package__ = "alpha_factory_v1.demos.aiga_meta_evolution"
+
+import os
+from typing import cast
+
+from .meta_evolver import MetaEvolver
+from .curriculum_env import CurriculumEnv
+from .utils import build_llm
 
 
 # ---------------------------------------------------------------------------
 # LLM setup -----------------------------------------------------------------
 # ---------------------------------------------------------------------------
-LLM = OpenAIAgent(
-    model=os.getenv("MODEL_NAME", "gpt-4o-mini"),
-    api_key=os.getenv("OPENAI_API_KEY"),
-    base_url=(None if os.getenv("OPENAI_API_KEY") else os.getenv("OLLAMA_BASE_URL", "http://localhost:11434/v1")),
-)
+LLM = build_llm()
 
 # single MetaEvolver instance reused across tool invocations
-EVOLVER = MetaEvolver(env_cls=CurriculumEnv, llm=LLM)
+EVOLVER: MetaEvolver | None = None
 
 
-@Tool(name="evolve", description="Run N generations of evolution")
+def _get_evolver() -> MetaEvolver:
+    """Return the lazily created MetaEvolver instance."""
+    global EVOLVER
+    if EVOLVER is None:
+        EVOLVER = MetaEvolver(env_cls=CurriculumEnv, llm=LLM)
+    return EVOLVER
+
+
+@Tool(name="evolve", description="Run N generations of evolution")  # type: ignore[misc]
 async def evolve(generations: int = 1) -> str:
-    EVOLVER.run_generations(generations)
-    return EVOLVER.latest_log()
+    """Advance the evolver by ``generations`` and return the latest log."""
+    evolver = _get_evolver()
+    evolver.run_generations(generations)
+    return str(evolver.latest_log())
 
 
-@Tool(name="best_alpha", description="Return current best architecture")
-async def best_alpha() -> dict:
+@Tool(name="best_alpha", description="Return current best architecture")  # type: ignore[misc]
+async def best_alpha() -> dict[str, float | str]:
+    """Return the best architecture seen so far."""
+    evolver = _get_evolver()
     return {
-        "architecture": EVOLVER.best_architecture,
-        "fitness": EVOLVER.best_fitness,
+        "architecture": evolver.best_architecture,
+        "fitness": evolver.best_fitness,
     }
 
 
-@Tool(name="checkpoint", description="Persist current state to disk")
+@Tool(name="checkpoint", description="Persist current state to disk")  # type: ignore[misc]
 async def checkpoint() -> str:
-    EVOLVER.save()
+    """Persist the current population to disk."""
+    evolver = _get_evolver()
+    evolver.save()
     return "checkpoint saved"
 
 
 @Tool(
     name="history",
     description="Return evolution history as a list of (generation, avg_fitness)",
-)
-async def history() -> dict:
-    return {"history": EVOLVER.history}
+)  # type: ignore[misc]
+async def history() -> dict[str, list[tuple[int, float]]]:
+    """Return the recorded fitness history."""
+    evolver = _get_evolver()
+    return {"history": evolver.history}
 
 
-@Tool(name="reset", description="Reset evolution to generation zero")
+@Tool(name="reset", description="Reset evolution to generation zero")  # type: ignore[misc]
 async def reset() -> str:
-    EVOLVER.reset()
+    """Reset the evolver to its initial state."""
+    evolver = _get_evolver()
+    evolver.reset()
     return "evolver reset"
 
 
-class EvolverAgent(Agent):
+class EvolverAgent(Agent):  # type: ignore[misc]
     """Tiny agent exposing the meta-evolver tools."""
 
     name = "aiga_evolver"
     tools = [evolve, best_alpha, checkpoint, reset, history]
 
-    async def policy(self, obs, ctx):  # type: ignore[override]
+    async def policy(self, obs: object, ctx: object) -> dict[str, float | str]:
         gens = int(obs.get("gens", 1)) if isinstance(obs, dict) else 1
         await evolve(gens)
-        return await best_alpha()
+        return cast(dict[str, float | str], await best_alpha())
+
+
+AGENT_PORT = int(os.getenv("AGENTS_RUNTIME_PORT", "5001"))
 
 
 def main() -> None:
-    runtime = AgentRuntime(api_key=None)
+    """Run the Evolver agent via the OpenAI Agents runtime."""
+    _get_evolver()
+    runtime = AgentRuntime(api_key=None, port=AGENT_PORT)
     agent = EvolverAgent()
     runtime.register(agent)
     print("Registered EvolverAgent with runtime")

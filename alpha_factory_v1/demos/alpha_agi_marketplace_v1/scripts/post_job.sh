@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# SPDX-License-Identifier: Apache-2.0
 # scripts/post_job.sh - queue a demo job via the orchestrator REST API
 # Usage: ./scripts/post_job.sh examples/sample_job.json
 # Requirements: curl, jq

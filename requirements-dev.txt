@@ -1,7 +1,12 @@
 -r requirements.txt
-pytest
-prometheus_client
+pytest-benchmark
 mypy
-fastapi
-opentelemetry-api
-cryptography
+hypothesis
+grpcio-tools
+pytest-httpx
+requests-mock
+pre-commit
+types-PyYAML
+types-requests
+papermill
+ruff

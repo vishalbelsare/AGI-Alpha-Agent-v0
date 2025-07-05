@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 """
 alpha_factory_v1.backend.agents.ping_agent
 ==========================================
@@ -35,7 +36,7 @@ CLI usage (stand-alone smoke-test)
 
 Copyright & License
 -------------------
-© 2025 Montreal AI — MIT-licensed, like the rest of Alpha-Factory v1.
+© 2025 Montreal AI — Apache 2.0 licensed, like the rest of Alpha-Factory v1.
 """
 
 from __future__ import annotations
@@ -51,7 +52,7 @@ from typing import Any, Mapping, Optional
 # ──────────────────────────────────────────────────────────────────────────────
 # Alpha-Factory internal imports
 # ──────────────────────────────────────────────────────────────────────────────
-from backend.agents import register, _agent_base
+from backend.agents.registry import register, _agent_base
 
 # Ensure compatibility with both legacy and new AgentBase locations
 AgentBase = _agent_base()
@@ -68,31 +69,33 @@ _Prom: SimpleNamespace = SimpleNamespace(Counter=None, Gauge=None, Histogram=Non
 _OTEL: SimpleNamespace = SimpleNamespace(tracer=None)
 
 try:
-    from prometheus_client import Counter, Gauge, Histogram, REGISTRY  # type: ignore
+    from prometheus_client import Counter, Gauge, Histogram  # type: ignore
+    from alpha_factory_v1.backend.metrics_registry import get_metric as _reg_metric
 
     def _get_metric(cls, name: str, desc: str):
-        if name in getattr(REGISTRY, "_names_to_collectors", {}):
-            return REGISTRY._names_to_collectors[name]
-        return cls(name, desc)
+        return _reg_metric(cls, name, desc)
 
     _Prom.Counter = Counter  # type: ignore[assignment]
     _Prom.Gauge = Gauge
     _Prom.Histogram = Histogram
     _Prom.get_metric = _get_metric
 except ModuleNotFoundError:
-    pass  # Metrics disabled – agent still functions.
+    _log.warning("prometheus_client missing – metrics disabled")
+
 
 try:
     from opentelemetry import trace  # type: ignore
+
     _OTEL.tracer = trace.get_tracer(__name__)
 except ModuleNotFoundError:
-    pass  # Tracing disabled – agent still functions.
+    _log.warning("opentelemetry not installed – tracing disabled")
 
 # ──────────────────────────────────────────────────────────────────────────────
 # Configuration helpers
 # ──────────────────────────────────────────────────────────────────────────────
 _DEFAULT_INTERVAL: int = 60
 _MIN_INTERVAL: int = 5
+
 
 def _env_seconds(name: str, default: int) -> int:
     try:
@@ -122,8 +125,8 @@ class PingAgent(AgentBase):
     NAME = "ping"
     VERSION = "2.0.0"  # ↑ bump any time behaviour changes.
     CAPABILITIES = ["diagnostics", "observability"]
-    COMPLIANCE_TAGS: list[str] = []      # ← Security/compliance scopes (GDPR, etc.)
-    SAFE_TO_REMOVE: bool = True          # ← DevOps hint (“may be disabled”)
+    COMPLIANCE_TAGS: list[str] = []  # ← Security/compliance scopes (GDPR, etc.)
+    SAFE_TO_REMOVE: bool = True  # ← DevOps hint (“may be disabled”)
 
     CYCLE_SECONDS: int = _env_seconds("AF_PING_INTERVAL", _DEFAULT_INTERVAL)
 
@@ -188,11 +191,7 @@ class PingAgent(AgentBase):
         """
         start_ts = datetime.now(tz=timezone.utc)
 
-        span_cm = (
-            _OTEL.tracer.start_as_current_span("ping-agent.step")
-            if _OTEL.tracer
-            else nullcontext()
-        )
+        span_cm = _OTEL.tracer.start_as_current_span("ping-agent.step") if _OTEL.tracer else nullcontext()
         # ``start_as_current_span`` returns a synchronous context manager so we
         # use a regular ``with`` block for compatibility.
         with span_cm:  # type: ignore[var-annotated]
@@ -225,6 +224,10 @@ class PingAgent(AgentBase):
     async def teardown(self) -> None:
         """Graceful shutdown hook."""
         _log.info("PingAgent shutting down.", extra={"agent": self.NAME})
+
+    async def skill_test(self, payload: dict) -> dict:
+        """Respond to skill test pings."""
+        return {"pong": True}
 
 
 # ═════════════════════════════════════════════════════════════════════════════
@@ -268,6 +271,7 @@ try:
     from contextlib import nullcontext  # pylint: disable=ungrouped-imports
 except ImportError:  # pragma: no cover
     from contextlib import contextmanager
+
     @contextmanager
     def nullcontext():  # type: ignore[override]
         yield

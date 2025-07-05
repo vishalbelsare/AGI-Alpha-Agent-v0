@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# SPDX-License-Identifier: Apache-2.0
 """Lightweight orchestrator launcher for offline / edge deployments.
 
 This utility wraps :mod:`alpha_factory_v1.run` with sensible defaults so that
@@ -21,21 +22,11 @@ import os
 from typing import Callable
 
 from alpha_factory_v1 import run as af_run, __version__
+from alpha_factory_v1.utils.env import _env_int
+from alpha_factory_v1.utils.disclaimer import print_disclaimer
+from alpha_factory_v1.core.utils.config import init_config
 
 log = logging.getLogger(__name__)
-
-
-def _env_int(name: str, default: int) -> int:
-    """Return ``int`` environment value or ``default`` if conversion fails."""
-
-    val = os.getenv(name)
-    if val is None:
-        return default
-    try:
-        return int(val)
-    except (TypeError, ValueError):
-        log.warning("Invalid %s=%r, using default %s", name, val, default)
-        return default
 
 
 def _positive_int(name: str) -> Callable[[str], int]:
@@ -125,6 +116,15 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
 
 
 def main() -> None:
+    """Parse CLI options and launch :mod:`alpha_factory_v1.run`.
+
+    Environment variables such as ``PORT``, ``CYCLE``, ``METRICS_PORT`` and
+    ``A2A_PORT`` provide default values for the corresponding command line
+    flags.
+    """
+
+    print_disclaimer()
+    init_config()
     args = parse_args()
 
     if args.version:
@@ -154,7 +154,7 @@ def main() -> None:
 
     os.environ.setdefault("PGHOST", "sqlite")
 
-    af_run.run()
+    af_run.run(show_disclaimer=False)
 
 
 if __name__ == "__main__":

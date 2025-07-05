@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 import subprocess
 import sys
 import unittest
@@ -24,4 +25,3 @@ class TestOfficialFinalDemo(unittest.TestCase):
 
 if __name__ == "__main__":  # pragma: no cover
     unittest.main()
-

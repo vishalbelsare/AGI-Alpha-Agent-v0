@@ -1,41 +1,48 @@
 #!/usr/bin/env python3
+# SPDX-License-Identifier: Apache-2.0
 """Minimal Meta-Agentic Tree Search demo."""
 from __future__ import annotations
 
 import argparse
+import importlib.util
+import logging
 import os
 import random
 import sys
 import pathlib
 from pathlib import Path
-from typing import List, Optional
+from typing import Any, List, Optional, cast
+
+logger = logging.getLogger(__name__)
 
 if __package__ is None:  # pragma: no cover - allow execution via `python run_demo.py`
     # Add repository root so package imports resolve when executed directly
     sys.path.append(str(pathlib.Path(__file__).resolve().parents[3]))
     __package__ = "alpha_factory_v1.demos.meta_agentic_tree_search_v0"
 
-try:  # PyYAML optional for offline environments
-    import yaml  # type: ignore
-except Exception:  # pragma: no cover - fallback parser
+if importlib.util.find_spec("yaml"):
+    import yaml as yaml_module  # type: ignore
+
+    yaml: Any | None = yaml_module
+else:  # pragma: no cover - fallback parser
     yaml = None
 
-from .mats.tree import Node, Tree
-from .mats.meta_rewrite import meta_rewrite, openai_rewrite, anthropic_rewrite
-from .mats.evaluators import evaluate
-from .mats.env import NumberLineEnv
+from .mats.tree import Node, Tree  # noqa: E402
+from .mats.meta_rewrite import meta_rewrite, openai_rewrite, anthropic_rewrite  # noqa: E402
+from .mats.evaluators import evaluate  # noqa: E402
+from .mats.env import NumberLineEnv, LiveBrokerEnv  # noqa: E402
 
 
 def verify_environment() -> None:
     """Best-effort runtime dependency check."""
     try:
-        import check_env  # type: ignore
+        import check_env
 
         check_env.main([])
     except (ImportError, ModuleNotFoundError) as exc:  # pragma: no cover - optional helper
-        print(f"Environment verification failed: {exc}")
+        logger.warning("Environment verification failed: %s", exc)
     except Exception as exc:
-        print(f"Unexpected error during environment verification: {exc}")
+        logger.warning("Unexpected error during environment verification: %s", exc)
         raise
 
 
@@ -48,6 +55,7 @@ def run(
     target: int = 5,
     seed: Optional[int] = None,
     model: str | None = None,
+    market_data: list[int] | None = None,
 ) -> None:
     """Run a toy tree search for a small number of episodes.
 
@@ -65,12 +73,14 @@ def run(
         Optional RNG seed for reproducible runs.
     model:
         Optional model override used by the rewriter.
+    market_data:
+        Optional list of integers representing a market price feed.
     """
     if seed is not None:
         random.seed(seed)
 
     root_agents: List[int] = [0, 0, 0, 0]
-    env = NumberLineEnv(target=target)
+    env = LiveBrokerEnv(target=target, market_data=market_data) if market_data else NumberLineEnv(target=target)
     tree = Tree(Node(root_agents), exploration=exploration)
     if rewriter is None:
         rewriter = (
@@ -79,10 +89,21 @@ def run(
             or ("anthropic" if os.getenv("ANTHROPIC_API_KEY") else None)
             or "random"
         )
+    from typing import Callable
+
+    rewrite_fn: Callable[[List[int]], List[int]]
     if rewriter == "openai":
-        rewrite_fn = lambda ag: openai_rewrite(ag, model=model)
+
+        def rewrite_fn(ag: List[int]) -> List[int]:
+            """Rewrite agents using the OpenAI model."""
+            return cast(List[int], openai_rewrite(ag, model=model))
+
     elif rewriter == "anthropic":
-        rewrite_fn = lambda ag: anthropic_rewrite(ag, model=model)
+
+        def rewrite_fn(ag: List[int]) -> List[int]:
+            """Rewrite agents using the Anthropic model."""
+            return cast(List[int], anthropic_rewrite(ag, model=model))
+
     else:
         rewrite_fn = meta_rewrite
     log_fh = None
@@ -97,18 +118,18 @@ def run(
         child = Node(improved, reward=reward)
         tree.add_child(node, child)
         tree.backprop(child)
-        print(f"Episode {_+1:>3}: candidate {improved} → reward {reward:.3f}")
+        logger.info("Episode %3d: candidate %s → reward %.3f", _ + 1, improved, reward)
         if log_fh:
             log_fh.write(f"{_+1},{improved},{reward:.6f}\n")
     best = tree.best_leaf()
     score = best.reward / (best.visits or 1)
-    print(f"Best agents: {best.agents} score: {score:.3f}")
+    logger.info("Best agents: %s score: %.3f", best.agents, score)
     if log_fh:
         log_fh.write(f"best,{best.agents},{score:.6f}\n")
         log_fh.close()
 
 
-def load_config(path: Path) -> dict:
+def load_config(path: Path) -> dict[str, Any]:
     """Load a YAML configuration file with a minimal fallback parser."""
     if not path.exists():
         return {}
@@ -120,7 +141,7 @@ def load_config(path: Path) -> dict:
         if ":" in line:
             key, val = line.split(":", 1)
             val = val.strip()
-            if val.replace('.', '', 1).isdigit():
+            if val.replace(".", "", 1).isdigit():
                 cfg[key.strip()] = float(val) if "." in val else int(val)
             else:
                 cfg[key.strip()] = val
@@ -128,6 +149,7 @@ def load_config(path: Path) -> dict:
 
 
 def main(argv: List[str] | None = None) -> None:
+    logging.basicConfig(level=logging.INFO)
     parser = argparse.ArgumentParser(description="Run the Meta-Agentic Tree Search demo")
     parser.add_argument("--episodes", type=int, help="Number of search iterations")
     parser.add_argument("--config", type=Path, default=Path("configs/default.yaml"), help="YAML configuration")
@@ -143,6 +165,11 @@ def main(argv: List[str] | None = None) -> None:
         type=str,
         help="Model name for the rewriter (OpenAI or Anthropic)",
     )
+    parser.add_argument(
+        "--market-data",
+        type=Path,
+        help="CSV file with comma-separated integers for LiveBrokerEnv",
+    )
     parser.add_argument("--log-dir", type=Path, help="Optional directory to store episode logs")
     parser.add_argument(
         "--verify-env",
@@ -151,6 +178,11 @@ def main(argv: List[str] | None = None) -> None:
     )
     args = parser.parse_args(argv)
     cfg = load_config(args.config)
+
+    market_data: list[int] | None = None
+    if args.market_data:
+        text = args.market_data.read_text(encoding="utf-8")
+        market_data = [int(x) for x in text.split(",") if x.strip()]
 
     if args.verify_env:
         verify_environment()
@@ -169,6 +201,7 @@ def main(argv: List[str] | None = None) -> None:
         seed=seed,
         log_dir=args.log_dir,
         model=model,
+        market_data=market_data,
     )
 
 

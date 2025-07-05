@@ -1,4 +1,6 @@
+# SPDX-License-Identifier: Apache-2.0
 # test_runner.py
+"""Utilities for running project tests in isolation."""
 import subprocess
 import os
 

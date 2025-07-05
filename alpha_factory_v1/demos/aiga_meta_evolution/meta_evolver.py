@@ -1,6 +1,12 @@
+# SPDX-License-Identifier: Apache-2.0
 # alpha_factory_v1/demos/aiga_meta_evolution/meta_evolver.py
-# © 2025 MONTREAL.AI  MIT License
-"""MetaEvolver v3.0 (2025‑04‑23)
+# © 2025 MONTREAL.AI  Apache-2.0 License
+"""
+This module is part of a conceptual research prototype. References to
+'AGI' or 'superintelligence' describe aspirational goals and do not
+indicate the presence of real general intelligence. Use at your own risk.
+
+MetaEvolver v3.0 (2025‑04‑23)
 =================================
 ✦ **Mission**  Self‑contained, SOC‑2‑aligned neuro‑evolution engine that scales
   from a laptop to a Kubernetes Ray cluster with zero code changes.
@@ -36,9 +42,11 @@ try:
     import torch
     import torch.nn as nn
     import torch.nn.functional as F
+
     _TORCH = True
 except ModuleNotFoundError:  # pragma: no cover - CPU-only stub
     import types
+
     torch = types.SimpleNamespace(
         Tensor=float,
         device=lambda *_: "cpu",
@@ -48,32 +56,46 @@ except ModuleNotFoundError:  # pragma: no cover - CPU-only stub
         multinomial=lambda *_: 0,
         no_grad=contextlib.nullcontext,
     )
+
     class _DummyNN:
         Module = object
-        def Linear(*_, **__): return None
-        def Sequential(*_, **__): return []
+
+        def Linear(*_, **__):
+            return None
+
+        def Sequential(*_, **__):
+            return []
+
     nn = _DummyNN()
+
     class _F:
         relu = staticmethod(lambda x: x)
         gelu = staticmethod(lambda x: x)
+
     F = _F
     _TORCH = False
 
 # optional deps ------------------------------------------------------------
 try:
     import ray
+
     _HAS_RAY = True
 except ImportError:
     _HAS_RAY = False
 try:
     from prometheus_client import Gauge
+
     _fitness_gauge = Gauge("aiga_avg_fitness", "Average fitness per generation")
 except ImportError:
     _fitness_gauge = None
 try:
     from a2a import A2ASocket
-    _A2A = A2ASocket(host="localhost", port=5555, app_id="meta_evolver")
-    _A2A.start()
+
+    _A2A = A2ASocket(
+        host=os.getenv("A2A_HOST", "localhost"),
+        port=int(os.getenv("A2A_PORT", "5555")),
+        app_id="meta_evolver",
+    )
 except Exception:
     _A2A = None
 
@@ -83,7 +105,7 @@ if not LOG.hasHandlers():
     h = logging.StreamHandler()
     h.setFormatter(logging.Formatter("%(asctime)sZ %(levelname)s %(message)s", "%Y-%m-%dT%H:%M:%S"))
     LOG.addHandler(h)
-    LOG.setLevel(os.getenv("LOG_LEVEL", "INFO").upper())
+    LOG.setLevel(os.getenv("LOGLEVEL", "INFO").upper())
 
 # global config ------------------------------------------------------------
 if _TORCH:
@@ -96,10 +118,10 @@ if _TORCH:
     }
 else:  # pragma: no cover - minimal placeholders
     Device = "cpu"
-    _ACT = {"relu": lambda x: x, "tanh": lambda x: x,
-            "sigmoid": lambda x: x, "gelu": lambda x: x}
+    _ACT = {"relu": lambda x: x, "tanh": lambda x: x, "sigmoid": lambda x: x, "gelu": lambda x: x}
 CHKPT_DIR = pathlib.Path(os.getenv("CHECKPOINT_DIR", "./checkpoints"))
 CHKPT_DIR.mkdir(parents=True, exist_ok=True)
+
 
 # ────────────────────────────── Genome ────────────────────────────────────
 @dc.dataclass(slots=True)
@@ -131,7 +153,7 @@ class Genome:
 
     # serialisation -------------------------------------------------------
     def to_json(self) -> str:
-        return json.dumps(dc.asdict(self), separators=(',', ':'))
+        return json.dumps(dc.asdict(self), separators=(",", ":"))
 
     @staticmethod
     def from_json(js: str | dict) -> "Genome":
@@ -141,6 +163,7 @@ class Genome:
     def sha(self) -> str:
         return hashlib.sha256(self.to_json().encode()).hexdigest()[:12]
 
+
 # ───────────────────────── network wrapper ────────────────────────────────
 class EvoNet(nn.Module):
     def __init__(self, obs_dim: int, act_dim: int, g: Genome):
@@ -148,10 +171,9 @@ class EvoNet(nn.Module):
         last, modules = obs_dim, []
         for h in g.layers:
             modules.append(nn.Linear(last, h))
-            modules.append(nn.ReLU())  # placeholder
             last = h
         modules.append(nn.Linear(last, act_dim))
-        self.model = nn.Sequential(*modules)
+        self.model = nn.ModuleList(modules)
         self.genome = g
         if g.hebbian:
             self.hFast = torch.zeros_like(next(self.model.parameters()))
@@ -166,17 +188,15 @@ class EvoNet(nn.Module):
     def forward(self, x: torch.Tensor):
         act_fn = _ACT[self.genome.activation]
         h = x
-        for layer in self.model[:-1]:
-            if isinstance(layer, nn.Linear):
-                h = act_fn(layer(h))
-                if self.genome.hebbian:
-                    with torch.no_grad():
-                        dw = 0.03 * torch.bmm(h.unsqueeze(2), x.unsqueeze(1))
-                        self.hFast = (self.hFast + dw.mean(0)).clamp(-0.02, 0.02)
-                        layer.weight.data += self.hFast
-            else:
-                h = layer(h)
-        return self.model[-1](h)
+        for idx, layer in enumerate(self.model):
+            h = act_fn(layer(h))
+            if self.genome.hebbian and idx < len(self.model) - 1:
+                with torch.no_grad():
+                    dw = 0.03 * torch.bmm(h.unsqueeze(2), x.unsqueeze(1))
+                    self.hFast = (self.hFast + dw.mean(0)).clamp(-0.02, 0.02)
+                    layer.weight.data += self.hFast
+        return h
+
 
 # ────────────────────────── MetaEvolver core ──────────────────────────────
 class MetaEvolver:
@@ -188,7 +208,20 @@ class MetaEvolver:
         parallel: bool = True,
         checkpoint_dir: pathlib.Path = CHKPT_DIR,
         llm: Callable[[str], str] | None = None,
-    ):
+        *,
+        start_socket: bool = False,
+    ) -> None:
+        """Create a meta-evolution engine.
+
+        Args:
+            env_cls: Environment class to instantiate per evaluation.
+            pop_size: Number of genomes per generation.
+            elitism: How many top genomes carry over unchanged.
+            parallel: Whether to evaluate genomes in parallel.
+            checkpoint_dir: Directory for checkpoints.
+            llm: Optional LLM callback for commentary.
+            start_socket: Start the optional A2A socket.
+        """
         self.env_cls, self.pop_size, self.elitism = env_cls, pop_size, elitism
         self.parallel = parallel
         self.ckpt_dir = pathlib.Path(checkpoint_dir)
@@ -204,6 +237,8 @@ class MetaEvolver:
         self._init_population()
         if self.parallel and _HAS_RAY and not ray.is_initialized():
             ray.init(ignore_reinit_error=True, _temp_dir=str(self.ckpt_dir / "ray"))
+        if start_socket:
+            self.start_socket()
         LOG.info("Evolver ready ▶ pop=%d device=%s", self.pop_size, Device)
 
     # population -----------------------------------------------------------
@@ -211,6 +246,16 @@ class MetaEvolver:
         seed = Genome()
         self.population = [seed.mutate() for _ in range(self.pop_size)]
         self.best_genome = self.population[0]
+
+    # A2A -----------------------------------------------------------------
+    @staticmethod
+    def start_socket() -> None:
+        """Start the optional A2A socket if available."""
+        if _A2A:
+            try:
+                _A2A.start()
+            except Exception:  # pragma: no cover - best effort
+                LOG.warning("Failed to start A2A socket", exc_info=True)
 
     # evaluation util ------------------------------------------------------
     def _simulate(self, g: Genome) -> Tuple[float, np.ndarray]:
@@ -295,6 +340,7 @@ class MetaEvolver:
 
     # evolutionary loop ----------------------------------------------------
     def run_generations(self, n: int = 5):
+        """Evolve the population for ``n`` generations."""
         for _ in range(n):
             scores = self._evaluate_population()
             self._last_scores = scores
@@ -309,7 +355,7 @@ class MetaEvolver:
             LOG.info("gen=%d avg=%.3f best=%.2f", self.gen, avg, self._best_fitness)
             if _A2A:
                 _A2A.sendjson({"gen": self.gen, "avg": avg, "sha": self.population_sha()})
-            elite_idx = sorted(range(self.pop_size), key=lambda i: scores[i], reverse=True)[:self.elitism]
+            elite_idx = sorted(range(self.pop_size), key=lambda i: scores[i], reverse=True)[: self.elitism]
             new_pop = [self.population[i] for i in elite_idx]
             while len(new_pop) < self.pop_size:
                 new_pop.append(self._select(scores).mutate())
@@ -328,7 +374,7 @@ class MetaEvolver:
             "sha": self.population_sha(),
             "best_fitness": self._best_fitness,
             "best_genome": self.best_genome.to_json() if self.best_genome else None,
-            "ts": datetime.now(timezone.utc).isoformat()
+            "ts": datetime.now(timezone.utc).isoformat(),
         }
         p = self.ckpt_dir / f"gen_{self.gen:04d}.json.tmp"
         p.write_text(json.dumps(data))
@@ -350,6 +396,7 @@ class MetaEvolver:
         self._last_scores.clear()
 
     def load(self, path: pathlib.Path | None = None):
+        """Restore state from ``path`` or the latest checkpoint."""
         if path is None:
             latest = max(self.ckpt_dir.glob("gen_*.json"), default=None)
             if not latest:
@@ -370,14 +417,18 @@ class MetaEvolver:
 
     # utils ----------------------------------------------------------------
     def population_sha(self) -> str:
+        """Return a hash of the current population."""
         concat = "".join(sorted(g.sha for g in self.population))
         return hashlib.sha256(concat.encode()).hexdigest()[:16]
 
     def history_plot(self):
+        """Return the fitness history as a ``pandas`` DataFrame."""
         import pandas as pd
+
         return pd.DataFrame(self.history, columns=["generation", "avg_fitness"])
 
     def latest_log(self):
+        """Return a textual summary of the best genome."""
         champ = self.best_genome or max(self.population, key=lambda g: sum(g.layers))
         msg = f"Champion {champ.sha}: {champ.to_json()}"
         if self.llm:
@@ -386,10 +437,12 @@ class MetaEvolver:
 
     @property
     def best_fitness(self) -> float:
+        """Best fitness score observed so far."""
         return self._best_fitness
 
     @property
     def best_architecture(self) -> str:
+        """JSON representation of the champion genome."""
         return self.best_genome.to_json() if self.best_genome else ""
 
 
@@ -407,7 +460,7 @@ def cli() -> None:
 
     from curriculum_env import CurriculumEnv
 
-    evolver = MetaEvolver(env_cls=CurriculumEnv)
+    evolver = MetaEvolver(env_cls=CurriculumEnv, start_socket=True)
     evolver.run_generations(args.gens)
     print(evolver.latest_log())
 

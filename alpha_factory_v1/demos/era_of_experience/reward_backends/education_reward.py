@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 
 """
 education_reward.py  – Era‑of‑Experience demo
@@ -108,11 +109,7 @@ def reward(state: Any, action: Any, result: Any) -> float:
     # ------------------------------------------------------------------------
     skill = _skill_from_event(result) or _skill_from_event(action) or "generic"
 
-    last_24h = [
-        evt
-        for evt in history
-        if (now - evt.get("time", now)).total_seconds() < 60 * 60 * 24
-    ]
+    last_24h = [evt for evt in history if (now - evt.get("time", now)).total_seconds() < 60 * 60 * 24]
     skills_counter = Counter(_skill_from_event(evt) for evt in last_24h)
 
     diversity_bonus = 0.0
@@ -140,11 +137,7 @@ def reward(state: Any, action: Any, result: Any) -> float:
     # 4) Mastery spacing (encourage revisiting after ~1 day)
     # ------------------------------------------------------------------------
     last_same_skill = next(
-        (
-            evt
-            for evt in reversed(history)
-            if _skill_from_event(evt) == skill
-        ),
+        (evt for evt in reversed(history) if _skill_from_event(evt) == skill),
         None,
     )
     mastery_bonus = 0.0
@@ -159,9 +152,7 @@ def reward(state: Any, action: Any, result: Any) -> float:
     # 5) Aggregate with exponential decay weight (recent events matter more)
     # ------------------------------------------------------------------------
     recency_weight = _exponential_decay(0.0)  # always 1.0 for *this* event
-    reward_value = recency_weight * (
-        diversity_bonus + session_bonus + mastery_bonus
-    )
+    reward_value = recency_weight * (diversity_bonus + session_bonus + mastery_bonus)
 
     # Clip safeguard
     return max(0.0, min(1.0, reward_value + random.uniform(-0.01, 0.01)))

@@ -1,3 +1,8 @@
+[See docs/DISCLAIMER_SNIPPET.md](../../../docs/DISCLAIMER_SNIPPET.md)
+This repository is a conceptual research prototype. References to "AGI" and "superintelligence" describe aspirational goals and do not indicate the presence of a real general intelligence. Use at your own risk. Nothing herein constitutes financial advice. MontrealAI and the maintainers accept no liability for losses incurred from using this software.
+Each demo package exposes its own `__version__` constant. The value marks the revision of that demo only and does not reflect the overall Alpha‑Factory release version.
+
+
 <!--
 README  ░α-ASI World-Model Demo ░  Alpha-Factory v1 👁️✨
 Last updated 2025-04-25   Maintainer → Montreal.AI Core AGI Team
@@ -15,6 +20,7 @@ Last updated 2025-04-25   Maintainer → Montreal.AI Core AGI Team
 ## 0  Table of Contents  <!-- omit in toc -->
 1. [Why this demo matters](#1-why-this-demo-matters)
 2. [Quick-start 🥑](#2-quick-start-)
+   - [Offline setup](#offline-setup)
 3. [High-level architecture 🗺️](#3-high-level-architecture-️)
 4. [Meet the agents 🤖 (≥ 5)](#4-meet-the-agents-️-≥-5)
 5. [Runtime controls 🎮](#5-runtime-controls-)
@@ -56,9 +62,16 @@ pip install -r requirements.txt        # torch, fastapi, uvicorn…
 
 # All interactive helpers (`run_ui`, `run_headless`) require these packages.
 
+`torch` is by far the largest dependency. Tests that import it are skipped when
+the package is missing. For a short smoke test use:
+```bash
+pytest -m 'not e2e'
+```
+
 # new CLI (after `pip install -e .` at repo root)
 alpha-asi-demo --demo        # same as `python -m alpha_asi_world_model_demo --demo`
-open http://localhost:7860             # dashboard & Swagger
+alpha-asi-demo --demo --no-llm   # force-disable the optional LLM planner
+python -m webbrowser http://localhost:7860  # dashboard & Swagger
 
 # ░ One-liner Docker
 python -m alpha_asi_world_model_demo --emit-docker
@@ -73,16 +86,54 @@ helm install alpha-asi ./helm_chart
 python -m alpha_asi_world_model_demo --emit-notebook
 jupyter lab alpha_asi_world_model_demo.ipynb
 # ░ Colab
-Open `alpha_asi_world_model_colab.ipynb` in Google Colab for an end-to-end guided setup
+Open `alpha_asi_world_model_colab.ipynb` in Google Colab for an end-to-end guided setup.
+Non‑technical users can run it step by step:
+1. Visit the notebook on GitHub and click **Open in Colab**.
+2. Wait for the environment to start then choose **Runtime → Run all** (or run each cell manually).
+3. The notebook installs requirements and launches the demo. When no API key is provided it automatically sets `NO_LLM=1`.
+4. Interact with the dashboard in the new browser tab and run the final **Shut down** cell when done.
 # ░ Shell helper
 ./deploy_alpha_asi_world_model_demo.sh
 # ░ OpenAI Agents bridge
+# uses ``OPENAI_API_KEY`` if set
 python openai_agents_bridge.py
 # ░ Google ADK gateway
 ALPHA_FACTORY_ENABLE_ADK=true python openai_agents_bridge.py
 ```
+Set `OPENAI_API_KEY` to connect the bridge to the OpenAI Agents platform.
 
-> **Tip 💡** Set `ALPHA_ASI_SEED=<int>` to reproduce identical curriculum runs.
+> **Tip 💡** Set `ALPHA_ASI_SEED=<int>` or `general.seed` in `config.yaml` to reproduce identical curriculum runs.
+> **Tip 💡** Set `ALPHA_ASI_SILENT=1` to hide the startup banner.
+
+### Offline setup
+When working without internet access, first build a local wheelhouse:
+
+```bash
+mkdir -p /media/wheels
+pip wheel -r requirements.txt -w /media/wheels
+pip wheel -r ../../../requirements-dev.txt -w /media/wheels
+```
+
+Install and verify using the wheelhouse from the repository root:
+
+```bash
+WHEELHOUSE=/media/wheels AUTO_INSTALL_MISSING=1 ./codex/setup.sh
+WHEELHOUSE=/media/wheels AUTO_INSTALL_MISSING=1 \
+  python check_env.py --auto-install --wheelhouse /media/wheels
+```
+See [docs/OFFLINE_SETUP.md](../../../docs/OFFLINE_SETUP.md) for a short
+reference.
+
+Set `NO_LLM=1` to disable the planning agent when no API key is available. The
+`deploy_alpha_asi_world_model_demo.sh` helper exports this variable
+automatically.
+Define `ALPHA_ASI_LLM_MODEL=gpt-4o-mini` to change the planner's model.
+
+### Device selection
+`config.yaml` exposes a `device` field controlling which accelerator PyTorch
+uses. Accepted values are `cpu`, `cuda` and `auto`. With `auto` (the default),
+the demo runs on GPU when `torch.cuda.is_available()` returns `True` and falls
+back to CPU otherwise.
 
 ---
 
@@ -155,7 +206,7 @@ bus liveness even on a clean clone.)*
 | 🐳 **Docker** | Auto-generated `Dockerfile` (<100 MB slim). GPU builds: swap base for `nvidia/cuda:runtime-12.4`. |
 | ☸️ **Kubernetes** | Run `--emit-helm`; edit values (`replicaCount`, `resources.limits`). Works on GKE, AKS, EKS, k3d. |
 | 🐍 **Pure Python** | No Docker needed; just `pip install -r requirements.txt`. |
-| 🔒 **Air-gapped** | Offline wheels; set env `NO_LLM=1` or omit API keys. |
+| 🔒 **Air-gapped** | Offline wheels; set `NO_LLM=1` to disable the planner or omit API keys. |
 | 🔑 **Cloud LLM mode** | Export `OPENAI_API_KEY` → PlanningAgent & ResearchAgent auto-upgrade to LLM assistants. |
 
 ---
@@ -196,23 +247,25 @@ bus liveness even on a clean clone.)*
 | _CUDA OOM_ | `export TORCH_FORCE_CPU=1` or downsize net via CodeGenAgent. |
 | _Docker build slow_ | Add build-arg `TORCH_WHL=<local-wheel>` (offline). |
 | _K8s CrashLoop_ | `kubectl logs`; missing GPU driver or env var. |
+| _Hide banner_ | Set `ALPHA_ASI_SILENT=1` before launching. |
 
 Need help? Open an issue → **@MontrealAI/alpha-factory-core**.
 
 ## 10  Production checklist ✅
 
-- Ensure `python3 --version` returns 3.10–3.12.
+- Ensure `python3 --version` returns 3.11–3.12.
 - Install dependencies: `pip install -r requirements.txt`.
 - Launch via `./deploy_alpha_asi_world_model_demo.sh` and visit `http://localhost:7860`.
 - The script sets `NO_LLM=1` automatically when `OPENAI_API_KEY` is unset.
 - Provide an `OPENAI_API_KEY` to unlock planner features.
+- Set `NO_LLM=1` to skip the LLM planner even when a key is provided.
 
 ---
 
 ## 11  License & citation
 
 ```
-MIT © 2025 MONTREAL.AI
+Apache‑2.0 © 2025 MONTREAL.AI
 ```
 
 Please cite **Alpha-Factory v1 👁️✨ — Multi-Agent AGENTIC α-AGI**:

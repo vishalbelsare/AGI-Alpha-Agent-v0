@@ -1,3 +1,8 @@
+[See docs/DISCLAIMER_SNIPPET.md](../../../docs/DISCLAIMER_SNIPPET.md)
+This repository is a conceptual research prototype. References to "AGI" and "superintelligence" describe aspirational goals and do not indicate the presence of a real general intelligence. Use at your own risk. Nothing herein constitutes financial advice. MontrealAI and the maintainers accept no liability for losses incurred from using this software.
+Each demo package exposes its own `__version__` constant. The value marks the revision of that demo only and does not reflect the overall Alpha‑Factory release version.
+
+
 # OMNI-Factory: An Open-Ended Multi-Agent Simulation for Smart City Resilience (OMNI-EPIC + Alpha-Factory v1)
 [![Colab](https://img.shields.io/badge/Try-on-Colab-yellow?logo=googlecolab)](colab_omni_factory_demo.ipynb)
 Run the full demo interactively in [Google Colab](colab_omni_factory_demo.ipynb).
@@ -21,6 +26,7 @@ pip install --no-index --find-links /path/to/wheels -r requirements.txt
 
 Ensure `pytest` and `prometheus_client` are present so the built-in tests and
 metrics exporter function correctly.
+See [docs/OFFLINE_SETUP.md](../../../docs/OFFLINE_SETUP.md) for more details.
 
 ### Running Tests
 
@@ -181,7 +187,8 @@ cd AGI-Alpha-Agent-v0
 
 # 2‒ Launch via Docker (recommended)
 cd alpha_factory_v1/demos/omni_factory_demo
-cp .env.example .env  # optional – edit to customise
+cp .env.sample .env  # optional – edit to customise
+chmod 600 .env
 docker compose up -d  # builds image on first run
 
 # 3‒ Open the dashboard
@@ -193,7 +200,7 @@ cd ../../..
 pip install -r requirements.txt  # install dependencies
 python check_env.py              # confirm optional extras available
 # If packages are reported missing, install them:
-pip install -r requirements.txt  # or requirements-colab.txt in Colab
+pip install -r requirements.txt  # or requirements-colab.lock in Colab
 pytest -q                        # optional quick self-test
 python -m alpha_factory_v1.demos.omni_factory_demo --metrics-port 9137
 python alpha_factory_v1/demos/omni_factory_demo/omni_dashboard.py

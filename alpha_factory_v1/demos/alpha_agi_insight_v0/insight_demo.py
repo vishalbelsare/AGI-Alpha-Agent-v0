@@ -1,4 +1,9 @@
 #!/usr/bin/env python3
+# SPDX-License-Identifier: Apache-2.0
+# References to "AGI" and "superintelligence" describe aspirational goals
+# and do not indicate the presence of a real general intelligence.
+# Use at your own risk. Nothing herein constitutes financial advice.
+# MontrealAI and the maintainers accept no liability for losses incurred.
 """α‑AGI Insight demo using Meta‑Agentic Tree Search.
 
 This script predicts which industry sector will see the greatest AGI
@@ -141,9 +146,7 @@ def parse_sectors(cfg_val: object | None, cli_val: str | None) -> List[str]:
         if file_candidate.exists():
             lines = file_candidate.read_text(encoding="utf-8").splitlines()
             return [line.strip() for line in lines if line.strip()]
-        return [
-            s.strip() for s in text.split("\n" if "\n" in text else ",") if s.strip()
-        ]
+        return [s.strip() for s in text.split("\n" if "\n" in text else ",") if s.strip()]
     return list(DEFAULT_SECTORS)
 
 
@@ -220,9 +223,7 @@ def run(
             sector_scores[idx] = max(sector_scores.get(idx, float("-inf")), n.reward / n.visits)
         stack.extend(n.children)
 
-    ranking = sorted(
-        ((sectors[i], sc) for i, sc in sector_scores.items()), key=lambda t: t[1], reverse=True
-    )
+    ranking = sorted(((sectors[i], sc) for i, sc in sector_scores.items()), key=lambda t: t[1], reverse=True)
     if ranking and not json_output:
         print("Top sectors:")
         for pos, (name, sc) in enumerate(ranking[:3], 1):
@@ -265,13 +266,9 @@ def main(argv: List[str] | None = None) -> None:
     )
     parser.add_argument("--target", type=int, help="Target sector index")
     parser.add_argument("--seed", type=int, help="Optional RNG seed")
-    parser.add_argument(
-        "--exploration", type=float, help="Exploration constant for UCB1"
-    )
+    parser.add_argument("--exploration", type=float, help="Exploration constant for UCB1")
     parser.add_argument("--model", type=str, help="Model for the rewriter")
-    parser.add_argument(
-        "--log-dir", type=Path, help="Optional directory to store episode logs"
-    )
+    parser.add_argument("--log-dir", type=Path, help="Optional directory to store episode logs")
     parser.add_argument(
         "--sectors",
         type=str,
@@ -303,27 +300,15 @@ def main(argv: List[str] | None = None) -> None:
 
     if args.verify_env:
         verify_environment()
-    episodes = int(
-        args.episodes or os.getenv("ALPHA_AGI_EPISODES", 0) or cfg.get("episodes", 5)
-    )
+    episodes = int(args.episodes or os.getenv("ALPHA_AGI_EPISODES", 0) or cfg.get("episodes", 5))
     exploration = float(
         args.exploration
         if args.exploration is not None
         else os.getenv("ALPHA_AGI_EXPLORATION", cfg.get("exploration", 1.4))
     )
-    rewriter = (
-        args.rewriter or os.getenv("MATS_REWRITER") or cfg.get("rewriter", "random")
-    )
-    target = int(
-        args.target
-        if args.target is not None
-        else os.getenv("ALPHA_AGI_TARGET", cfg.get("target", 3))
-    )
-    seed_val = (
-        args.seed
-        if args.seed is not None
-        else os.getenv("ALPHA_AGI_SEED") or cfg.get("seed")
-    )
+    rewriter = args.rewriter or os.getenv("MATS_REWRITER") or cfg.get("rewriter", "random")
+    target = int(args.target if args.target is not None else os.getenv("ALPHA_AGI_TARGET", cfg.get("target", 3)))
+    seed_val = args.seed if args.seed is not None else os.getenv("ALPHA_AGI_SEED") or cfg.get("seed")
     seed = int(seed_val) if seed_val is not None else None
     model = args.model or cfg.get("model")
     sectors = parse_sectors(cfg.get("sectors"), args.sectors)

@@ -1,44 +1,114 @@
+# SPDX-License-Identifier: Apache-2.0
+import os
+import time
 import asyncio
-from typing import Any, cast
+from pathlib import Path
 
 import pytest
-from httpx import ASGITransport, AsyncClient
 
-fastapi = pytest.importorskip("fastapi")
-httpx = pytest.importorskip("httpx")
+pytest.importorskip("fastapi")
+from fastapi.testclient import TestClient  # noqa: E402
 
-
-async def make_client() -> tuple[AsyncClient, Any]:
-    from src.interface import api_server
-
-    transport = ASGITransport(app=cast(Any, api_server.app))
-    client = AsyncClient(base_url="http://test", transport=transport)
-    return client, api_server
+os.environ.setdefault("API_TOKEN", "test-token")
+os.environ.setdefault("API_RATE_LIMIT", "1000")
 
 
-def test_simulate_flow() -> None:
-    async def run() -> None:
-        client, api_server = await make_client()
-        async with client:
-            r = await client.post("/simulate", json={"horizon": 1, "pop_size": 2, "generations": 1})
-            assert r.status_code == 200
-            sim_id = r.json()["id"]
-            assert isinstance(sim_id, str) and sim_id
+from typing import Any, cast
+import importlib
 
-            for _ in range(100):
-                r = await client.get(f"/results/{sim_id}")
-                if r.status_code == 200:
-                    data = r.json()
-                    break
-                await asyncio.sleep(0.05)
-            else:
-                raise AssertionError("Timed out waiting for results")
 
-            assert r.status_code == 200
-            assert isinstance(data, dict)
-            assert "forecast" in data
+def make_client() -> TestClient:
+    from alpha_factory_v1.core.interface import api_server
 
-            r2 = await client.get("/results/does-not-exist")
-            assert r2.status_code == 404
+    api_server = importlib.reload(api_server)
+    return TestClient(cast(Any, api_server.app))
 
-    asyncio.run(run())
+
+def test_api_endpoints() -> None:
+    client = make_client()
+    headers = {"Authorization": "Bearer test-token"}
+
+    resp = client.post(
+        "/simulate",
+        json={"horizon": 1, "pop_size": 2, "generations": 1, "k": 5.0, "x0": 0.0},
+        headers=headers,
+    )
+    assert resp.status_code == 200
+    data = resp.json()
+    assert isinstance(data, dict)
+    sim_id = data.get("id")
+    assert isinstance(sim_id, str) and sim_id
+
+    for _ in range(100):
+        r = client.get(f"/results/{sim_id}", headers=headers)
+        if r.status_code == 200:
+            results = r.json()
+            break
+        time.sleep(0.05)
+    else:
+        raise AssertionError("Timed out waiting for results")
+
+    assert isinstance(results, dict)
+    assert results.get("id") == sim_id
+    assert "forecast" in results and isinstance(results["forecast"], list)
+    assert "population" in results and isinstance(results["population"], list)
+
+    runs = client.get("/runs", headers=headers)
+    assert runs.status_code == 200
+    runs_data = runs.json()
+    assert isinstance(runs_data, dict)
+    assert "ids" in runs_data and isinstance(runs_data["ids"], list)
+    assert sim_id in runs_data["ids"]
+
+
+def test_background_run_direct(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    """Call the internal worker directly and verify progress and output."""
+
+    monkeypatch.setenv("SIM_RESULTS_DIR", str(tmp_path))
+
+    import importlib
+
+    from alpha_factory_v1.core.interface import api_server as api
+
+    api = importlib.reload(api)
+
+    messages: list[dict[str, object]] = []
+
+    class DummyWS:
+        async def send_json(self, data: dict[str, object]) -> None:
+            messages.append(data)
+
+    ws = DummyWS()
+    api._progress_ws.add(ws)
+
+    sim_id = "unit-test"
+    cfg = api.SimRequest(horizon=1, pop_size=2, generations=1, k=5.0, x0=0.0)
+    asyncio.run(api._background_run(sim_id, cfg))
+
+    api._progress_ws.discard(ws)
+
+    assert (tmp_path / f"{sim_id}.json").exists()
+    assert messages and messages[0]["id"] == sim_id
+
+
+def test_results_dir_permissions(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    """Directory is created with 0700 permissions."""
+
+    path = tmp_path / "results"
+    monkeypatch.setenv("SIM_RESULTS_DIR", str(path))
+
+    import importlib
+
+    from alpha_factory_v1.core.interface import api_server as api
+
+    api = importlib.reload(api)
+
+    assert path.exists()
+    assert (path.stat().st_mode & 0o777) == 0o700
+
+
+def test_root_serves_spa() -> None:
+    client = make_client()
+    r = client.get("/")
+    assert r.status_code == 200
+    assert '<div id="root">' in r.text

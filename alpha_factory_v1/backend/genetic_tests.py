@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 
 """Genetic test functions (fitness proxies) for the AI‑GA demo.
 

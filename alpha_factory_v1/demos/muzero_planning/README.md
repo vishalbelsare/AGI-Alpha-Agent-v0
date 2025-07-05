@@ -1,8 +1,13 @@
+[See docs/DISCLAIMER_SNIPPET.md](../../../docs/DISCLAIMER_SNIPPET.md)
+This repository is a conceptual research prototype. References to "AGI" and "superintelligence" describe aspirational goals and do not indicate the presence of a real general intelligence. Use at your own risk. Nothing herein constitutes financial advice. MontrealAI and the maintainers accept no liability for losses incurred from using this software.
+Each demo package exposes its own `__version__` constant. The value marks the revision of that demo only and does not reflect the overall Alpha‑Factory release version.
+
+
 <!--
   MuZero Planning Demo
   Alpha‑Factory v1 👁️✨ — Multi‑Agent **AGENTIC α‑AGI**
   Out‑learn · Out‑think · Out‑strategise · Out‑execute
-  © 2025 MONTREAL.AI   MIT License
+  © 2025 MONTREAL.AI   Apache‑2.0 License
 -->
 
 # 🌟 **Mastery Without a Rule‑Book** — watch MuZero think in real time
@@ -16,7 +21,6 @@ one‑command experience**.
 You’ll see a MuZero‑style agent improvise physics, deploy Monte‑Carlo search,
 and **stabilise CartPole** — all inside your browser. No GPU, no PhD required.
 
----
 
 ## 🚀 Quick Start
 
@@ -45,6 +49,23 @@ Alternatively run natively:
 pip install -r requirements.txt
 python -m alpha_factory_v1.demos.muzero_planning
 ```
+The tests for this demo rely on `torch`, which can take a while to install.
+If it's absent, those tests are skipped. For a lightweight check run
+```bash
+pytest -m 'not e2e'
+```
+
+### Optional `openai-agents`
+
+For narrated actions and tool calls, install `openai-agents` version
+`>=0.0.17`:
+
+```bash
+pip install -U 'openai-agents>=0.0.17'
+```
+
+Leaving `OPENAI_API_KEY` empty keeps the demo offline and falls back to
+**Ollama ✕ Mixtral** if available.
 
 ### Command-line options
 
@@ -104,7 +125,10 @@ cross‑process collaboration.
 
 ## 🎓 Colab (two clicks)
 
-[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/MontrealAI/AGI-Alpha-Agent-v0/blob/main/alpha_factory_v1/demos/muzero_planning/colab_muzero_planning.ipynb)
+[![Open In Colab][colab-badge]][colab-notebook]
+
+[colab-badge]: https://colab.research.google.com/assets/colab-badge.svg
+[colab-notebook]: https://colab.research.google.com/github/MontrealAI/AGI-Alpha-Agent-v0/blob/main/alpha_factory_v1/demos/muzero_planning/colab_muzero_planning.ipynb
 
 Colab spins up the same dashboard via an ngrok tunnel — handy when Docker isn’t.
 It installs the tiny MuZero package, runs a quick sanity test and opens a shareable link.
@@ -141,6 +165,12 @@ Two extra cells let you tweak the Gym environment, port number and gracefully st
 | Port 7861 busy | Edit the `ports:` mapping in `docker-compose.muzero.yml` |
 | ARM Mac slow build | Enable “Rosetta for x86/amd64 emulation” in Docker settings |
 | Want GPU | Swap base image to `nvidia/cuda:12.4.0-runtime‑ubuntu22.04` & add `--gpus all` |
+
+---
+
+### Development notes
+
+Run `pre-commit run --files alpha_factory_v1/demos/muzero_planning` before committing changes. This mirrors the workflow in [AGENTS.md](../../../AGENTS.md).
 
 ---
 

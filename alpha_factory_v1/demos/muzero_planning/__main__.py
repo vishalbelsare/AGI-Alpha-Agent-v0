@@ -1,13 +1,17 @@
+# SPDX-License-Identifier: Apache-2.0
 """Command line entry point for the MuZero planning demo."""
 
 from __future__ import annotations
 
 import argparse
 import os
+from ...utils.disclaimer import print_disclaimer
 
 
 def main(argv: list[str] | None = None) -> None:
     """Launch the MuZero dashboard with optional CLI overrides."""
+
+    print_disclaimer()
 
     parser = argparse.ArgumentParser(description="Run MuZero planning demo")
     parser.add_argument(

@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 """Compatibility wrapper for the optional :mod:`requests` dependency.
 
 The package exposes the real :mod:`requests` library when installed.
@@ -31,4 +32,3 @@ except Exception:  # PackageNotFoundError or import failure
     sys.modules[__name__] = shim
     globals().update(shim.__dict__)
     sys.modules.setdefault("requests", shim)
-

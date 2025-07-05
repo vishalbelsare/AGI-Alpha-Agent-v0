@@ -1,0 +1,87 @@
+---
+name: "📚 Docs"
+
+on:
+  workflow_dispatch:
+    inputs:
+      run_token:
+        description: 'Authorization token for maintainers'
+        required: false
+
+permissions:
+  contents: write
+
+jobs:
+  build-deploy:
+    if: ${{ github.event_name == 'workflow_dispatch' && github.actor == github.repository_owner }}
+    runs-on: ubuntu-latest
+    env:
+      SANDBOX_IMAGE: ghcr.io/example/selfheal-sandbox:latest
+      IPFS_GATEWAY: https://cloudflare-ipfs.com/ipfs
+      PYODIDE_BASE_URL: https://cdn.jsdelivr.net/pyodide/v0.26.0/full
+      HF_GPT2_BASE_URL: https://huggingface.co/openai-community/gpt2/resolve/main
+      FETCH_ASSETS_ATTEMPTS: '5'
+      # Keep the asset mirrors pinned to official hosts.
+      # PYODIDE_BASE_URL and HF_GPT2_BASE_URL must remain exported
+      # so edge_human_knowledge_pages_sprint.sh downloads from
+      # these mirrors rather than IPFS.
+      # Optional environment variables for asset downloads. See
+      # scripts/fetch_assets.py for details.
+      # HF_GPT2_BASE_URL overrides the default Hugging Face mirror.
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install project dependencies
+        run: python check_env.py --auto-install
+      - name: Build sandbox image
+        run: docker build -t $SANDBOX_IMAGE -f sandbox.Dockerfile .
+      - uses: actions/setup-node@v3
+        with:
+          node-version: '20'
+      - name: Install pre-commit
+        run: pip install pre-commit
+      - name: Run pre-commit checks
+        run: pre-commit run --all-files
+      - name: Install docs dependencies
+        run: pip install -r requirements-docs.txt
+      - name: Make scripts executable
+        run: chmod +x ./scripts/*.sh
+      - name: Compute asset cache key
+        id: asset-key
+        run: |
+          key=$(python - <<'EOF'
+          import hashlib
+          import os
+          import scripts.fetch_assets as fa
+
+          env_data = os.getenv("PYODIDE_BASE_URL", "") + os.getenv("HF_GPT2_BASE_URL", "")
+          data = (
+              fa.CHECKSUMS["pyodide.asm.wasm"]
+              + fa.CHECKSUMS["pyodide.js"]
+              + fa.CHECKSUMS["repodata.json"]
+              + fa.CHECKSUMS["pytorch_model.bin"]
+              + env_data
+          )
+          print(hashlib.sha256(data.encode()).hexdigest())
+          EOF
+          )
+          echo "key=$key" >> "$GITHUB_OUTPUT"
+      - name: Cache Pyodide and GPT-2 assets
+        id: asset-cache
+        uses: actions/cache@v3
+        with:
+          path: |
+            alpha_factory_v1/demos/alpha_agi_insight_v1/insight_browser_v1/wasm
+            alpha_factory_v1/demos/alpha_agi_insight_v1/insight_browser_v1/wasm_llm
+          key: assets-${{ steps.asset-key.outputs.key }}
+      - name: Build and deploy gallery
+        env:
+          IPFS_GATEWAY: ${{ env.IPFS_GATEWAY }}
+          PYODIDE_BASE_URL: ${{ env.PYODIDE_BASE_URL }}
+          HF_GPT2_BASE_URL: ${{ env.HF_GPT2_BASE_URL }}
+        run: ./scripts/edge_human_knowledge_pages_sprint.sh
+      - name: Verify downloaded assets
+        run: python scripts/fetch_assets.py --verify-only

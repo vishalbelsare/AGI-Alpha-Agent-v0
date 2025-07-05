@@ -1,4 +1,5 @@
-# Demo package
+# SPDX-License-Identifier: Apache-2.0
+"""Entry point for the Era of Experience demo package."""
 from .alpha_detection import (
     detect_yield_curve_alpha,
     detect_supply_chain_alpha,

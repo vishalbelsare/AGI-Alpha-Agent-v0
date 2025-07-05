@@ -1,0 +1,42 @@
+{
+  "name": "insight-browser-v1",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "preinstall": "node -e \"const m=parseInt(process.versions.node); if(m<20){console.error('Node.js 20+ is required. Current version: '+process.versions.node); process.exit(1);} \"",
+    "lint": "eslint --config eslint.config.js src --ext .js,.ts",
+    "build": "node build.js",
+    "fetch-assets": "node -e \"console.log('Using PYODIDE_BASE_URL:', process.env.PYODIDE_BASE_URL)\" && python ../../../../scripts/fetch_assets.py",
+    "build:dist": "npm run build && cd dist && cp sw.js service-worker.js && zip -r ../insight_browser.zip index.html insight.bundle.js service-worker.js lib/workbox-sw.js manifest.json style.css assets insight_browser_quickstart.pdf && rm service-worker.js",
+    "size": "gzip-size-cli dist/insight.bundle.js --bytes",
+    "start": "npx serve dist",
+    "typecheck": "tsc --noEmit",
+    "test": "node tests/run.mjs"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.30.1",
+    "@observablehq/plot": "^0.6.9",
+    "@types/d3": "^7.4.3",
+    "@typescript-eslint/eslint-plugin": "^7.0.0",
+    "@typescript-eslint/parser": "^7.0.0",
+    "daisyui": "^4.0.7",
+    "dotenv": "^16.6.1",
+    "esbuild": "^0.25.5",
+    "eslint": "^8.57.0",
+    "gzip-size-cli": "^5.1.0",
+    "jsdom": "^26.1.0",
+    "onnxruntime-web": "^1.18.0",
+    "regl": "^2.1.1",
+    "serve": "^14.2.0",
+    "tailwindcss": "^3.4.0",
+    "ts-node": "^10.9.1",
+    "typescript": "^5.3.0",
+    "@web3-storage/w3up-client": "^17.3.0",
+    "multiformats": "^12.1.2",
+    "workbox-build": "^7.3.0"
+  }
+}

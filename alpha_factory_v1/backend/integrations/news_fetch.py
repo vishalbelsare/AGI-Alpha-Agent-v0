@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 """
 Unified headline fetcher (NewsAPI → RSS → cached local file).
 
@@ -21,12 +22,14 @@ _NEWSAPI_KEY = os.getenv("NEWSAPI_KEY")
 
 try:
     from newsapi import NewsApiClient  # type: ignore
+
     _NEWSAPI_OK = True
 except ModuleNotFoundError:
     _NEWSAPI_OK = False
 
 try:
     import feedparser  # type: ignore
+
     _FEED_OK = True
 except ModuleNotFoundError:
     _FEED_OK = False
@@ -80,6 +83,6 @@ def _cached_headlines(limit: int) -> List[str]:
         try:
             data = json.loads(_CACHE.read_text())
             return data["h"][:limit]
-        except Exception:  # noqa: BLE001
+        except (json.JSONDecodeError, OSError):
             pass
     return ["(no headlines available – offline)"]

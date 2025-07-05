@@ -1,26 +1,43 @@
-"""End-to-end Alpha Factory workflow demo.
+# SPDX-License-Identifier: Apache-2.0
+# mypy: ignore-errors
+"""
+This module is part of a conceptual research prototype. References to
+'AGI' or 'superintelligence' describe aspirational goals and do not
+indicate the presence of real general intelligence. Use at your own risk.
+
+End-to-end Alpha Factory workflow demo.
 
 This script chains the ``alpha_discovery`` and ``alpha_conversion``
-stubs via the OpenAI Agents runtime. It works offline when
-``OPENAI_API_KEY`` is unset and optionally exposes the agent over
-the Google ADK gateway if available.
+stubs via the OpenAI Agents runtime. It is compatible with either the
+``openai_agents`` package or the ``agents`` backport. The demo works
+offline when ``OPENAI_API_KEY`` is unset and can publish the agent over
+the Google ADK gateway when the ``ALPHA_FACTORY_ENABLE_ADK`` environment
+variable is set.
 """
 from __future__ import annotations
 
-import os
-
 try:
-    from openai_agents import Agent, AgentRuntime, OpenAIAgent, Tool
-except ImportError as exc:  # pragma: no cover
-    raise SystemExit(
-        "openai_agents package is required. Install with `pip install openai-agents`"
-    ) from exc
+    from openai_agents import Agent, AgentRuntime, OpenAIAgent as _OpenAIAgent, Tool
+except ImportError:
+    try:  # pragma: no cover - fallback for legacy package
+        from agents import Agent, AgentRuntime, OpenAIAgent as _OpenAIAgent, Tool
+    except Exception as exc:  # pragma: no cover
+        raise SystemExit(
+            "openai-agents or agents package is required. Install with `pip install openai-agents`"
+        ) from exc
+
+from .utils import build_llm
+import os
 
 from alpha_opportunity_stub import identify_alpha
 from alpha_conversion_stub import convert_alpha
 
+OpenAIAgent = _OpenAIAgent
+
 try:
+    from alpha_factory_v1.backend import adk_bridge
     from alpha_factory_v1.backend.adk_bridge import auto_register, maybe_launch
+
     ADK_AVAILABLE = True
 except Exception:  # pragma: no cover - optional
     ADK_AVAILABLE = False
@@ -28,20 +45,18 @@ except Exception:  # pragma: no cover - optional
 # ---------------------------------------------------------------------------
 # LLM setup -----------------------------------------------------------------
 # ---------------------------------------------------------------------------
-LLM = OpenAIAgent(
-    model=os.getenv("MODEL_NAME", "gpt-4o-mini"),
-    api_key=os.getenv("OPENAI_API_KEY"),
-    base_url=(None if os.getenv("OPENAI_API_KEY") else os.getenv("OLLAMA_BASE_URL", "http://localhost:11434/v1")),
-)
+LLM = build_llm()
 
 
 @Tool(name="discover_alpha", description="List market opportunities in a domain")
 async def discover_alpha(domain: str = "finance") -> str:
+    """Return LLM-discovered opportunities for ``domain``."""
     return await identify_alpha(domain)
 
 
 @Tool(name="convert_alpha", description="Turn an opportunity into an execution plan")
 async def convert_alpha_tool(alpha: str) -> dict:
+    """Convert an opportunity string into a JSON plan."""
     return convert_alpha(alpha)
 
 
@@ -59,13 +74,17 @@ class WorkflowAgent(Agent):
         return {"alpha": first, "plan": plan}
 
 
+AGENT_PORT = int(os.getenv("AGENTS_RUNTIME_PORT", "5001"))
+
+
 def main() -> None:
-    runtime = AgentRuntime(llm=LLM)
+    """Run the workflow agent with a local runtime."""
+    runtime = AgentRuntime(llm=LLM, port=AGENT_PORT)
     agent = WorkflowAgent()
     runtime.register(agent)
     print("Registered WorkflowAgent with runtime")
 
-    if ADK_AVAILABLE:
+    if ADK_AVAILABLE and adk_bridge.adk_enabled():
         auto_register([agent])
         maybe_launch()
         print("WorkflowAgent exposed via ADK gateway")

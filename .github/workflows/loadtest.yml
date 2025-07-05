@@ -1,0 +1,47 @@
+name: "🌩 Load Test"
+
+on:
+  workflow_dispatch:
+    inputs:
+      run_token:
+        description: 'Authorization token for maintainers'
+        required: false
+
+permissions:
+  contents: read
+
+jobs:
+  load-test:
+    if: ${{ github.event_name == 'workflow_dispatch' && (github.actor == github.repository_owner || github.event.inputs.run_token == secrets.DISPATCH_TOKEN) }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: pip
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.lock
+          pip install -r requirements-dev.txt
+      - name: Install pre-commit
+        run: pip install pre-commit
+      - name: Run pre-commit checks
+        run: pre-commit run --all-files
+      - name: Start API server
+        run: |
+          API_TOKEN=test-token python -m src.interface.api_server &
+          pid=$!
+          for i in {1..50}; do
+            curl -fs http://localhost:8000/healthz && break
+            sleep 2
+          done
+          echo $pid > server.pid
+      - name: Install k6
+        run: sudo apt-get update && sudo apt-get install -y k6
+      - name: Run load test
+        run: |
+          make loadtest API_TOKEN=test-token
+      - name: Stop server
+        run: kill $(cat server.pid)

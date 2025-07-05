@@ -1,29 +1,40 @@
-"""Alpha opportunity discovery agent stub.
+# SPDX-License-Identifier: Apache-2.0
+# mypy: ignore-errors
+"""
+This module is part of a conceptual research prototype. References to
+'AGI' or 'superintelligence' describe aspirational goals and do not
+indicate the presence of real general intelligence. Use at your own risk.
+
+Alpha opportunity discovery agent stub.
 
 This lightweight example exposes a single tool via the OpenAI Agents SDK
-that requests the LLM to list live market inefficiencies. It falls back to
-a local model when no ``OPENAI_API_KEY`` is configured.
+(compatible with either the ``openai_agents`` package or the ``agents``
+backport) that requests the LLM to list live market inefficiencies. It
+falls back to a local model when no ``OPENAI_API_KEY`` is configured.
 """
 from __future__ import annotations
 
+try:
+    from openai_agents import Agent, AgentRuntime, OpenAIAgent as _OpenAIAgent, Tool
+except ImportError:
+    try:  # pragma: no cover - fallback for legacy package
+        from agents import Agent, AgentRuntime, OpenAIAgent as _OpenAIAgent, Tool
+    except Exception as exc:  # pragma: no cover - optional dependency
+        raise SystemExit(
+            "openai-agents or agents package is required. Install with `pip install openai-agents`"
+        ) from exc
+
+from .utils import build_llm
 import os
 
-try:
-    from openai_agents import Agent, AgentRuntime, OpenAIAgent, Tool
-except Exception as exc:  # pragma: no cover - optional dependency
-    raise SystemExit(
-        "openai-agents package is required. Install with `pip install openai-agents`"
-    ) from exc
+OpenAIAgent = _OpenAIAgent
 
-LLM = OpenAIAgent(
-    model=os.getenv("MODEL_NAME", "gpt-4o-mini"),
-    api_key=os.getenv("OPENAI_API_KEY"),
-    base_url=(None if os.getenv("OPENAI_API_KEY") else os.getenv("OLLAMA_BASE_URL", "http://localhost:11434/v1")),
-)
+LLM = build_llm()
 
 
 @Tool(name="identify_alpha", description="Suggest current inefficiencies in a domain")
 async def identify_alpha(domain: str = "finance") -> str:
+    """List promising opportunities in ``domain``."""
     prompt = (
         f"List three emerging opportunities or inefficiencies in the {domain} domain "
         "that a small team could exploit for outsized value."
@@ -61,7 +72,8 @@ def main(argv: list[str] | None = None) -> None:
         print(result)
         return
 
-    runtime = AgentRuntime(api_key=None)
+    agent_port = int(os.getenv("AGENTS_RUNTIME_PORT", "5001"))
+    runtime = AgentRuntime(api_key=None, port=agent_port)
     agent = AlphaDiscoveryAgent()
     runtime.register(agent)
     print("Registered AlphaDiscoveryAgent with runtime")

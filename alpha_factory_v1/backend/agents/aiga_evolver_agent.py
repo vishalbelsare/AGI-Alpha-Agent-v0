@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 """AIGA Evolver Agent – wraps the meta-evolution demo as a domain agent.
 
 This lightweight agent bridges :mod:`aiga_meta_evolution.meta_evolver`
@@ -9,15 +10,18 @@ no-ops when optional heavy dependencies (torch/numpy) are absent.
 from __future__ import annotations
 
 import logging
+
+logger = logging.getLogger(__name__)
 import asyncio
 
-from backend.agents import register, _agent_base
+from backend.agents.registry import register, _agent_base
 from backend.orchestrator import _publish
 
 try:
     from alpha_factory_v1.demos.aiga_meta_evolution.meta_evolver import MetaEvolver
     from alpha_factory_v1.demos.aiga_meta_evolution.curriculum_env import CurriculumEnv
 except Exception:  # pragma: no cover - optional deps missing
+    logger.warning("AIGA meta-evolution demo unavailable – agent disabled")
     MetaEvolver = None  # type: ignore
     CurriculumEnv = None  # type: ignore
 

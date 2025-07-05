@@ -1,0 +1,62 @@
+site_name: Alpha-Factory Docs
+site_url: https://montrealai.github.io/AGI-Alpha-Agent-v0/
+repo_url: https://github.com/MontrealAI/AGI-Alpha-Agent-v0
+docs_dir: docs
+theme:
+  name: material
+extra_css:
+  - stylesheets/cards.css
+markdown_extensions:
+  - attr_list
+nav:
+- Home: index.html
+- Documentation Overview: README.md
+- Quickstart: quickstart.md
+- Getting Started: INTRO.md
+- Project Overview: OVERVIEW.md
+- Design: DESIGN.md
+- API Reference: API.md
+- Deployment Security: deployment_security.md
+- Offline Install: OFFLINE_INSTALL.md
+- Offline Setup: OFFLINE_SETUP.md
+- Windows Setup: WINDOWS_SETUP.md
+- Sandbox: sandbox.md
+- Policy Runbook: POLICY_RUNBOOK.md
+- dgm_ops: dgm_ops.md
+- Changelog: CHANGELOG.md
+- Demo Gallery Sprint: CODEX_DEMO_PAGES_SPRINT.md
+- Demo Access Sprint: DEMO_ACCESS_SPRINT.md
+- GitHub Pages Demo Tasks: GITHUB_PAGES_DEMO_TASKS.md
+- Edge Demo Pages Sprint: EDGE_DEMO_PAGES_SPRINT.md
+- Edge-of-Knowledge Demo Sprint: EDGE_OF_KNOWLEDGE_DEMO_SPRINT.md
+- Edge-of-Knowledge Demo Tasks Sprint: AT_THE_EDGE_OF_KNOWLEDGE_DEMO_TASKS_SPRINT.md
+- Edge-of-Human-Knowledge Demo Tasks Sprint: AT_THE_EDGE_OF_HUMAN_KNOWLEDGE_DEMO_TASKS_SPRINT.md
+- Edge-of-Human-Knowledge Pages Sprint: EDGE_OF_HUMAN_KNOWLEDGE_PAGES_SPRINT.md
+- Disclaimer: DISCLAIMER_SNIPPET.md
+- Alpha AGI Insight Demo: alpha_agi_insight_v1/index.html
+- Visual Demo Gallery: index.html
+- Gallery Mirror: alpha_factory_v1/demos/index.html
+- Demo Gallery:
+  - Overview: DEMO_GALLERY.md
+  - Aiga Meta Evolution: demos/aiga_meta_evolution.md
+  - Alpha Agi Business 2 V1: demos/alpha_agi_business_2_v1.md
+  - Alpha Agi Business 3 V1: demos/alpha_agi_business_3_v1.md
+  - Alpha Agi Business V1: demos/alpha_agi_business_v1.md
+  - Alpha Agi Insight V0: demos/alpha_agi_insight_v0.md
+  - Alpha Agi Insight V1: demos/alpha_agi_insight_v1.md
+  - Alpha Agi Marketplace V1: demos/alpha_agi_marketplace_v1.md
+  - Alpha Asi World Model: demos/alpha_asi_world_model.md
+  - Cross Industry Alpha Factory: demos/cross_industry_alpha_factory.md
+  - Era Of Experience: demos/era_of_experience.md
+  - Finance Alpha: demos/finance_alpha.md
+  - Macro Sentinel: demos/macro_sentinel.md
+  - Meta Agentic Agi: demos/meta_agentic_agi.md
+  - Meta Agentic Agi V2: demos/meta_agentic_agi_v2.md
+  - Meta Agentic Agi V3: demos/meta_agentic_agi_v3.md
+  - Meta Agentic Tree Search V0: demos/meta_agentic_tree_search_v0.md
+  - Muzero Planning: demos/muzero_planning.md
+  - Muzeromctsllmagent V0: demos/muzeromctsllmagent_v0.md
+  - Omni Factory Demo: demos/omni_factory_demo.md
+  - Self Healing Repo: demos/self_healing_repo.md
+  - Solving Agi Governance: demos/solving_agi_governance.md
+  - Sovereign Agentic Agialpha Agent V0: demos/sovereign_agentic_agialpha_agent_v0.md

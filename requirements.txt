@@ -1,2 +1,2 @@
-# Root dependencies
--r alpha_factory_v1/requirements.txt
+# Root dependencies (minimal install)
+-r alpha_factory_v1/requirements-core.txt

@@ -1,0 +1,48 @@
+{
+  "files": [
+    "d3.v7.min.js",
+    "lib/bundle.esm.min.js",
+    "lib/pyodide.js",
+    "lib/workbox-sw.js",
+    "src/utils/rng.js",
+    "sw.js",
+    "manifest.json",
+    "favicon.svg"
+  ],
+  "dirs": {
+    "translations": "src/i18n",
+    "critics": "data/critics",
+    "wasm": "wasm",
+    "wasm_llm": "wasm_llm"
+  },
+  "precache": [
+    "index.html",
+    "insight.bundle.js",
+    "d3.v7.min.js",
+    "pyodide.*",
+    "wasm_llm/*",
+    "wasm/*",
+    "data/critics/*",
+    "src/i18n/*.json",
+    "src/i18n/zh.json",
+    "insight_browser_quickstart.pdf"
+  ],
+  "assets": [
+    "wasm/pyodide.js",
+    "wasm/pyodide.asm.wasm",
+    "wasm_llm/pytorch_model.bin",
+    "wasm_llm/vocab.json",
+    "wasm_llm/merges.txt",
+    "wasm_llm/config.json",
+    "lib/bundle.esm.min.js",
+    "lib/workbox-sw.js"
+  ],
+  "checksums": {
+    "lib/bundle.esm.min.js": "sha384-qri3JZdkai966TTOV3Cl4xxA97q+qXCgKrd49pOn7DPuYN74wOEd6CIJ9HnqEROD",
+    "lib/workbox-sw.js": "sha384-LWo7skrGueg8Fa4y2Vpe1KB4g0SifqKfDr2gWFRmzZF9n9F1bQVo1F0dUurlkBJo",
+    "pyodide.asm.wasm": "sha384-kdvSehcoFMjX55sjg+o5JHaLhOx3HMkaLOwwMFmwH+bmmtvfeJ7zFEMWaqV9+wqo",
+    "pyodide.js": "sha384-okMTEZ8ZyBqYdx16cV0ouuwwg/XsRvqpTMEVld4H1PCCCZ0WfHuAfpGY61KFM8Uc",
+    "service-worker.js": "sha384-o4otzwjbNKzpYYcqiTHOYyd9asjheSu1P8UVzmVl3HU8cvmE86GWhOgWUjkJ6gXT"
+  },
+  "quickstart_pdf": "docs/insight_browser_quickstart.pdf"
+}

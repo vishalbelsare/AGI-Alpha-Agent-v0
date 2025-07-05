@@ -14,9 +14,9 @@ x-healthcheck: &default_healthcheck
 services:
 
   # ──────────────────────────── Core agents API ──────────────────────────── #
-  alphafactory:
+  orchestrator:
     <<: *restart_policy
-    container_name: alphafactory
+    container_name: orchestrator
     build:
       context: .
       dockerfile: Dockerfile            # multi‑stage (UI pre‑built)
@@ -71,7 +71,7 @@ services:
     networks:
       - af-net
     depends_on:
-      alphafactory:
+      orchestrator:
         condition: service_healthy
     healthcheck:
       <<: *default_healthcheck

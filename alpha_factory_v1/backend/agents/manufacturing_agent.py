@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 """backend.agents.manufacturing_agent
 ===================================================================
 Alpha‑Factory v1 👁️✨ — Multi‑Agent AGENTIC α‑AGI
@@ -42,11 +43,15 @@ import asyncio
 import hashlib
 import json
 import logging
+
+logger = logging.getLogger(__name__)
 import os
 import random
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from typing import Any, Dict, List, Optional, Tuple
+
+from alpha_factory_v1.backend.utils.sync import run_sync
 
 # ---------------------------------------------------------------------------
 # Soft‑optional dependencies (import‑time safe) ------------------------------
@@ -54,27 +59,32 @@ from typing import Any, Dict, List, Optional, Tuple
 try:
     import ortools.sat.python.cp_model as cp  # type: ignore
 except ModuleNotFoundError:  # pragma: no cover
+    logger.warning("OR-Tools missing – constraint solver disabled")
     cp = None  # type: ignore
 
 try:
     import numpy as np  # type: ignore
 except ModuleNotFoundError:  # pragma: no cover
+    logger.warning("numpy not installed – optimisation degraded")
     np = None  # type: ignore
 
 try:
-    from backend.agents import Gauge  # type: ignore
+    from backend.agents.registry import Gauge  # type: ignore
 except Exception:  # pragma: no cover
+    logger.warning("prometheus-client missing – metrics disabled")
     Gauge = None  # type: ignore
 
 try:
     from kafka import KafkaProducer  # type: ignore
 except ModuleNotFoundError:  # pragma: no cover
+    logger.warning("kafka-python missing – event bus disabled")
     KafkaProducer = None  # type: ignore
 
 try:
     import openai  # type: ignore
     from openai.agents import tool  # type: ignore
 except ModuleNotFoundError:  # pragma: no cover
+    logger.warning("openai package not found – LLM features disabled")
     openai = None  # type: ignore
 
     def tool(fn=None, **_):  # type: ignore
@@ -84,28 +94,34 @@ except ModuleNotFoundError:  # pragma: no cover
 try:
     import adk  # type: ignore
 except ModuleNotFoundError:  # pragma: no cover
+    logger.warning("google-adk not installed – mesh integration disabled")
     adk = None  # type: ignore
+try:
+    from aiohttp import ClientError as AiohttpClientError  # type: ignore
+except Exception:  # pragma: no cover - optional
+    AiohttpClientError = OSError  # type: ignore
+try:
+    from adk import ClientError as AdkClientError  # type: ignore[attr-defined]
+except Exception:  # pragma: no cover - optional
+
+    class AdkClientError(Exception):
+        pass
+
 
 # ---------------------------------------------------------------------------
 # Alpha‑Factory lightweight imports ------------------------------------------
 # ---------------------------------------------------------------------------
 from backend.trace_ws import hub  # pylint: disable=import-error
 from backend.agent_base import AgentBase  # pylint: disable=import-error
-from backend.agents import AgentMetadata, register_agent  # pylint: disable=import-error
+from backend.agents import register  # pylint: disable=import-error
 from backend.orchestrator import _publish  # pylint: disable=import-error
+from alpha_factory_v1.utils.env import _env_int
 
 logger = logging.getLogger(__name__)
 
 # ---------------------------------------------------------------------------
 # Helper utilities -----------------------------------------------------------
 # ---------------------------------------------------------------------------
-
-
-def _env_int(key: str, default: int) -> int:
-    try:
-        return int(os.getenv(key, default))
-    except ValueError:
-        return default
 
 
 def _env_float(key: str, default: float) -> float:
@@ -189,10 +205,12 @@ class _GreedyPlanner:  # pragma: no cover
 # ---------------------------------------------------------------------------
 
 
+@register
 class ManufacturingAgent(AgentBase):
     """Hybrid CP‑SAT + RL manufacturing scheduler."""
 
     NAME = "manufacturing"
+    __version__ = "0.3.0"
     CAPABILITIES = [
         "scheduling",
         "scenario_analysis",
@@ -217,27 +235,33 @@ class ManufacturingAgent(AgentBase):
 
         # ADK mesh -------------------------------------------------------
         if self.cfg.adk_mesh and adk:
-            asyncio.create_task(self._register_mesh())
+            # registration scheduled by orchestrator after loop start
+            pass
 
     # ------------------------------------------------------------------
     # OpenAI Agents SDK tools ------------------------------------------
     # ------------------------------------------------------------------
 
     @tool(
-        description='Optimise a production schedule. Arg JSON {"jobs": [...], "due_dates": [...], "energy_rate": {m: kwh_per_min}, "maintenance": [{"machine":str, "start":int, "end":int}]}'
+        description=(
+            "Optimise a production schedule. Arg JSON "
+            '{"jobs": [...], "due_dates": [...], "energy_rate": {m: kwh_per_min}, '
+            '"maintenance": [{"machine": str, "start": int, "end": int}]}'
+        )
     )
     def build_schedule(self, req_json: str) -> str:  # noqa: D401
         req = json.loads(req_json)
-        loop = asyncio.get_event_loop()
-        return loop.run_until_complete(self._build_async(req))
+        return run_sync(self._build_async(req))
 
     @tool(
-        description='Repair an existing schedule with new job set. Arg JSON {"baseline": {...}, "jobs_add": [...], "due_dates": [...]} '
+        description=(
+            "Repair an existing schedule with new job set. "
+            'Arg JSON {"baseline": {...}, "jobs_add": [...], "due_dates": [...]} '
+        )
     )
     def reschedule_delta(self, req_json: str) -> str:  # noqa: D401
         req = json.loads(req_json)
-        loop = asyncio.get_event_loop()
-        return loop.run_until_complete(self._delta_async(req))
+        return run_sync(self._delta_async(req))
 
     @tool(description="Energy & CO₂ report for schedule. Arg JSON schedule object")
     def energy_report(self, sched_json: str) -> str:  # noqa: D401
@@ -248,8 +272,7 @@ class ManufacturingAgent(AgentBase):
     @tool(description='Monte‑Carlo what‑if. Arg JSON {"jobs_base": [...], "nbr_samples":int}')
     def what_if(self, req_json: str) -> str:  # noqa: D401
         req = json.loads(req_json)
-        loop = asyncio.get_event_loop()
-        return loop.run_until_complete(self._what_if_async(req))
+        return run_sync(self._what_if_async(req))
 
     # ------------------------------------------------------------------
     # Public sync helpers ----------------------------------------------
@@ -258,8 +281,7 @@ class ManufacturingAgent(AgentBase):
     def schedule(self, jobs: List[List[Dict[str, Any]]], horizon: int) -> Dict[str, Any]:
         """Synchronous wrapper around :meth:`_build_async` returning a dict."""
         req = {"jobs": jobs, "horizon": horizon}
-        loop = asyncio.get_event_loop()
-        res = loop.run_until_complete(self._build_async(req))
+        res = run_sync(self._build_async(req))
         try:
             return json.loads(res)["payload"]
         except Exception:  # noqa: BLE001
@@ -438,28 +460,33 @@ class ManufacturingAgent(AgentBase):
     # ADK mesh ---------------------------------------------------------
     # ------------------------------------------------------------------
 
-    async def _register_mesh(self):  # noqa: D401
-        try:
-            client = adk.Client()
-            await client.register(node_type=self.NAME, metadata={"cp_sat": self._cp_available})
-            logger.info("[MF] registered in ADK mesh id=%s", client.node_id)
-        except Exception as exc:  # noqa: BLE001
-            logger.warning("ADK registration failed: %s", exc)
+    async def _register_mesh(self) -> None:  # noqa: D401
+        max_attempts = 3
+        delay = 1.0
+        for attempt in range(1, max_attempts + 1):
+            try:
+                client = adk.Client()
+                await client.register(node_type=self.NAME, metadata={"cp_sat": self._cp_available})
+                logger.info("[MF] registered in ADK mesh id=%s", client.node_id)
+                return
+            except (AdkClientError, AiohttpClientError, asyncio.TimeoutError, OSError) as exc:
+                if attempt == max_attempts:
+                    logger.error("ADK registration failed after %d attempts: %s", max_attempts, exc)
+                    raise
+                logger.warning(
+                    "ADK registration attempt %d/%d failed: %s",
+                    attempt,
+                    max_attempts,
+                    exc,
+                )
+                await asyncio.sleep(delay)
+                delay *= 2
+            except Exception as exc:  # pragma: no cover - unexpected
+                logger.exception("Unexpected ADK registration error: %s", exc)
+                raise
 
 
 # ---------------------------------------------------------------------------
 # Registry hook -------------------------------------------------------------
 # ---------------------------------------------------------------------------
-
-register_agent(
-    AgentMetadata(
-        name=ManufacturingAgent.NAME,
-        cls=ManufacturingAgent,
-        version="0.3.0",
-        capabilities=ManufacturingAgent.CAPABILITIES,
-        compliance_tags=ManufacturingAgent.COMPLIANCE_TAGS,
-        requires_api_key=ManufacturingAgent.REQUIRES_API_KEY,
-    )
-)
-
 __all__ = ["ManufacturingAgent"]

@@ -1,3 +1,6 @@
+[See docs/DISCLAIMER_SNIPPET.md](../../../docs/DISCLAIMER_SNIPPET.md)
+This repository is a conceptual research prototype. References to "AGI" and "superintelligence" describe aspirational goals and do not indicate the presence of a real general intelligence. Use at your own risk. Nothing herein constitutes financial advice. MontrealAI and the maintainers accept no liability for losses incurred from using this software.
+
 # 🧪 Test Suite · Alpha‑Factory v1 👁
 *Reliable automation through deterministic tests*
 
@@ -8,7 +11,7 @@ This directory hosts the unit and smoke tests that keep the Alpha‑Factory stac
 ## Quick Start
 1. **Install dependencies**
    ```bash
-   python -m pip install -r alpha_factory_v1/backend/requirements.txt
+   python -m pip install -r alpha_factory_v1/backend/requirements.lock
    ```
    For a lightweight run you only need `pytest`:
    ```bash

@@ -1,3 +1,6 @@
+[See docs/DISCLAIMER_SNIPPET.md](../../../../../docs/DISCLAIMER_SNIPPET.md)
+This repository is a conceptual research prototype. References to "AGI" and "superintelligence" describe aspirational goals and do not indicate the presence of a real general intelligence. Use at your own risk. Nothing herein constitutes financial advice. MontrealAI and the maintainers accept no liability for losses incurred from using this software.
+
 # Meta‑Agentic α‑AGI UI Assets (Alpha‑Factory v1)
 
 > **Directory:** `alpha_factory_v1/demos/meta_agentic_agi/ui/assets/`  

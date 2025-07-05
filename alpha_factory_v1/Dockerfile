@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 # syntax=docker/dockerfile:1.6
 ##############################################################################
 #  Alpha‑Factory v1 👁️✨ — Multi‑Agent AGENTIC α‑AGI                         #
@@ -62,7 +63,8 @@ RUN apt-get update && \
         libopenblas0 \
         libomp5 \
         libstdc++6 \
-        patch \
+        postgresql-client \
+        patch \  # required by the self-healing demo
         curl ca-certificates && \
     rm -rf /var/lib/apt/lists/*
 
@@ -85,9 +87,9 @@ RUN if [ -f /tmp/requirements-lock.txt ]; then \
     fi && \
     # ⬇ Explicitly ensure critical agent frameworks are present
     pip install --no-cache-dir \
-        openai-agents~=0.5 \   # OpenAI Agents SDK (beta)
+        openai-agents>=0.0.17 \   # OpenAI Agents SDK (beta)
         "google-adk @ git+https://github.com/google/adk-python@main#egg=google-adk" \
-        anthropic~=0.19 \
+        anthropic>=0.21 \
         gunicorn rocketry prometheus-client && \
     rm -rf /tmp/requirements-lock.txt /tmp/requirements.txt
 

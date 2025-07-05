@@ -1,6 +1,8 @@
+# SPDX-License-Identifier: Apache-2.0
 import unittest
 import math
 from alpha_factory_v1.demos.meta_agentic_agi_v3.core.physics import gibbs
+
 
 class TestGibbs(unittest.TestCase):
     def test_free_energy(self):
@@ -11,5 +13,6 @@ class TestGibbs(unittest.TestCase):
         expected = 1.0 - entropy
         self.assertAlmostEqual(fe, expected, places=6)
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     unittest.main()

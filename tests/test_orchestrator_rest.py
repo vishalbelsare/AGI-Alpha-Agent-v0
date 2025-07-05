@@ -1,15 +1,20 @@
+# SPDX-License-Identifier: Apache-2.0
 import io
 import stat
 import zipfile
 import unittest
 from unittest import mock
+import os
 
 import pytest
 
 pytest.importorskip("fastapi", reason="fastapi is required for REST API tests")
-from fastapi.testclient import TestClient
+from fastapi.testclient import TestClient  # noqa: E402
 
+from alpha_factory_v1.backend.api_server import build_rest as _build_rest
 from alpha_factory_v1.backend import orchestrator
+
+os.environ.setdefault("API_TOKEN", "test-token")
 
 
 class DummyAgent:
@@ -20,6 +25,9 @@ class DummyAgent:
 
     def load_weights(self, path: str) -> None:
         self.loaded = path
+
+    async def skill_test(self, payload: dict) -> dict:
+        return {"ok": True}
 
 
 class DummyRunner:
@@ -41,21 +49,22 @@ class TestRestAPI(unittest.TestCase):
         mem_stub = type("Mem", (), {"vector": vector})()
         runner = DummyRunner(DummyAgent())
         with mock.patch.object(orchestrator, "mem", mem_stub):
-            app = orchestrator._build_rest({"dummy": runner})
+            app = _build_rest({"dummy": runner})
             self.assertIsNotNone(app)
             client = TestClient(app)
+            headers = {"Authorization": "Bearer test-token"}
 
-            resp = client.get("/agents")
+            resp = client.get("/agents", headers=headers)
             self.assertEqual(resp.status_code, 200)
             self.assertEqual(resp.json(), ["dummy"])
 
             runner.next_ts = 5
-            resp = client.post("/agent/dummy/trigger")
+            resp = client.post("/agent/dummy/trigger", headers=headers)
             self.assertEqual(resp.status_code, 200)
             self.assertEqual(resp.json(), {"queued": True})
             self.assertEqual(runner.next_ts, 0)
 
-            resp = client.get("/memory/search", params={"q": "foo", "k": 1})
+            resp = client.get("/memory/search", params={"q": "foo", "k": 1}, headers=headers)
             self.assertEqual(resp.status_code, 200)
             self.assertEqual(resp.json(), [{"q": "foo"}])
 
@@ -65,10 +74,19 @@ class TestRestAPI(unittest.TestCase):
             resp = client.post(
                 "/agent/dummy/update_model",
                 files={"file": ("m.zip", buf.getvalue(), "application/zip")},
+                headers=headers,
             )
             self.assertEqual(resp.status_code, 200)
             self.assertEqual(resp.json(), {"status": "ok"})
             self.assertIsNotNone(runner.inst.loaded)
+
+            resp = client.post(
+                "/agent/dummy/skill_test",
+                json={"ping": 1},
+                headers=headers,
+            )
+            self.assertEqual(resp.status_code, 200)
+            self.assertEqual(resp.json(), {"ok": True})
 
             buf = io.BytesIO()
             with zipfile.ZipFile(buf, "w") as zf:
@@ -79,6 +97,7 @@ class TestRestAPI(unittest.TestCase):
             resp = client.post(
                 "/agent/dummy/update_model",
                 files={"file": ("m.zip", buf.getvalue(), "application/zip")},
+                headers=headers,
             )
             self.assertEqual(resp.status_code, 400)
 

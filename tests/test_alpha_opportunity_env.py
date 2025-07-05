@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 import json
 import os
 import unittest
@@ -41,10 +42,7 @@ class TestAlphaOpportunityEnv(unittest.TestCase):
             tmp.unlink()
 
     def test_best_only_sorting(self):
-        data = [
-            {"alpha": "low", "score": 1},
-            {"alpha": "high", "score": 5}
-        ]
+        data = [{"alpha": "low", "score": 1}, {"alpha": "high", "score": 5}]
         tmp = Path("/tmp/opps2.json")
         tmp.write_text(json.dumps(data), encoding="utf-8")
         self.temp_files.append(tmp)
@@ -70,6 +68,7 @@ class TestAlphaOpportunityEnv(unittest.TestCase):
         self.assertEqual(agent._top_n, 2)
         self.assertEqual(agent._opportunities[0]["alpha"], "high")
         self.assertEqual(agent._opportunities[1]["alpha"], "mid")
+
 
 if __name__ == "__main__":  # pragma: no cover
     unittest.main()
