@@ -51,12 +51,14 @@ FALLBACK_GATEWAYS = [
 PYODIDE_ASSETS = {
     "wasm/pyodide.js",
     "wasm/pyodide.asm.wasm",
+    "wasm/repodata.json",
 }
 
 ASSETS = {
     # Pyodide 0.24.1 runtime files
     "wasm/pyodide.js": f"{PYODIDE_BASE_URL}/pyodide.js",
     "wasm/pyodide.asm.wasm": f"{PYODIDE_BASE_URL}/pyodide.asm.wasm",
+    "wasm/repodata.json": f"{PYODIDE_BASE_URL}/repodata.json",
     # GPT-2 small weights
     "wasm_llm/pytorch_model.bin": f"{HF_GPT2_BASE_URL}/pytorch_model.bin",
     "wasm_llm/vocab.json": f"{HF_GPT2_BASE_URL}/vocab.json",
@@ -73,6 +75,7 @@ CHECKSUMS = {
     "lib/workbox-sw.js": "sha384-LWo7skrGueg8Fa4y2Vpe1KB4g0SifqKfDr2gWFRmzZF9n9F1bQVo1F0dUurlkBJo",  # noqa: E501
     "pyodide.asm.wasm": "sha384-XmiypR2FYQ6+bKPYiwek6XzKP+9Y0X800XuxdKfS6X+49Z+wskdeoYiUB/rED0Vn",
     "pyodide.js": "sha384-+R8PTzDXzivdjpxOqwVwRhPS9dlske7tKAjwj0O0Kr361gKY5d2Xe6Osl+faRLT7",
+    "repodata.json": "sha384-S8xoB9ax+zBMYJZvK34e/zLxpxJ2/H3wb5JZPWquGozF4Da8JZ7u8BYDMFKNY37I",
     "pytorch_model.bin": "sha256-7c5d3f4b8b76583b422fcb9189ad6c89d5d97a094541ce8932dce3ecabde1421",
 }
 
