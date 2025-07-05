@@ -1,6 +1,6 @@
 /* SPDX-License-Identifier: Apache-2.0 */
 /* eslint-env serviceworker */
-const CACHE = 'v4a7e24e7';
+const CACHE = 'v1e8a4887';
 self.addEventListener('install', (event) => {
   event.waitUntil(
     caches
@@ -9,7 +9,6 @@ self.addEventListener('install', (event) => {
         const assets = [
           'assets/pyodide/pyodide.js',
           'assets/pyodide/pyodide.asm.wasm',
-          'assets/pyodide/pyodide_py.tar',
           '../aiga_meta_evolution/assets/logs.json',
           '../aiga_meta_evolution/assets/preview.svg',
           '../aiga_meta_evolution/assets/script.js',
