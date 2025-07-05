@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: Apache-2.0
 
-"""alpha_factory_v1.demos.self_healing_repo
+"""alpha_factory_v1.demos.self_healing_repo_cli
 ===========================================
 
 Self‑Healing Repository Demo
@@ -24,7 +24,7 @@ Usage
 .. code-block:: bash
 
    # from repo root
-   python -m alpha_factory_v1.demos.self_healing_repo --max-turns 6
+   python -m alpha_factory_v1.demos.self_healing_repo_cli --max-turns 6
 
 Extra CLI flags:
 
@@ -186,6 +186,6 @@ def main(argv: Optional[list[str]] = None) -> None:
 
 # ────────────────────────────────────────────────────────────────────────────────
 if __name__ == "__main__":
-    # Enables `python -m alpha_factory_v1.demos.self_healing_repo`
+    # Enables `python -m alpha_factory_v1.demos.self_healing_repo_cli`
     with contextlib.suppress(KeyboardInterrupt):
         main()
