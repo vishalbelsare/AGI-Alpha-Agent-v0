@@ -2,4 +2,5 @@ lib/
 dist/
 build/
 docs/
+../../../../docs/
 *.min.js
