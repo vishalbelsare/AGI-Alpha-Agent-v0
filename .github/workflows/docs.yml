@@ -41,10 +41,10 @@ jobs:
       - uses: actions/setup-node@v3
         with:
           node-version: '20'
-      # - name: Install pre-commit
-      #   run: pip install pre-commit && pre-commit install
-      # - name: Run pre-commit checks
-      #   run: pre-commit run --all-files
+      - name: Install pre-commit
+        run: pip install pre-commit
+      - name: Run pre-commit checks
+        run: pre-commit run --all-files
       - name: Install docs dependencies
         run: pip install mkdocs mkdocs-material
       - name: Make scripts executable

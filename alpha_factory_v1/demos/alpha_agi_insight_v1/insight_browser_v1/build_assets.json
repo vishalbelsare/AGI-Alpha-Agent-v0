@@ -30,8 +30,6 @@
   "assets": [
     "wasm/pyodide.js",
     "wasm/pyodide.asm.wasm",
-    "wasm/pyodide_py.tar",
-    "wasm/packages.json",
     "wasm_llm/pytorch_model.bin",
     "wasm_llm/vocab.json",
     "wasm_llm/merges.txt",
@@ -44,8 +42,6 @@
     "lib/workbox-sw.js": "sha384-LWo7skrGueg8Fa4y2Vpe1KB4g0SifqKfDr2gWFRmzZF9n9F1bQVo1F0dUurlkBJo",
     "pyodide.asm.wasm": "sha384-kdvSehcoFMjX55sjg+o5JHaLhOx3HMkaLOwwMFmwH+bmmtvfeJ7zFEMWaqV9+wqo",
     "pyodide.js": "sha384-okMTEZ8ZyBqYdx16cV0ouuwwg/XsRvqpTMEVld4H1PCCCZ0WfHuAfpGY61KFM8Uc",
-    "pyodide_py.tar": "sha384-rPiQj50jWaYANJhJndPDROq8z252DlRmXhzjVa9sDOeMJlrKZ5DIWRLd6UrnhZau",
-    "packages.json": "sha384-aa2pOjyGkOWdUDx78GrRC8Bk/k2+/qhHRXOGWfm1YaqwUgpoOJCIr2yCuLRVoEm7",
     "service-worker.js": "sha384-o4otzwjbNKzpYYcqiTHOYyd9asjheSu1P8UVzmVl3HU8cvmE86GWhOgWUjkJ6gXT"
   },
   "quickstart_pdf": "docs/insight_browser_quickstart.pdf"

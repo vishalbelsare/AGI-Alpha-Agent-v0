@@ -233,7 +233,7 @@ async function bundle() {
     const wasmSri =
         "sha384-" + createHash("sha384").update(wasmBuf).digest("base64");
 
-    for (const name of ["pyodide.js", "pyodide_py.tar", "packages.json"]) {
+    for (const name of ["pyodide.js"]) {
         const p = path.join("wasm", name);
         if (fsSync.existsSync(p)) {
             verify(fsSync.readFileSync(p), name);

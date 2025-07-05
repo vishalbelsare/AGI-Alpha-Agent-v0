@@ -316,7 +316,7 @@ wasm_b64 = ""
 wasm_file = ROOT / "wasm" / "pyodide.asm.wasm"
 if wasm_file.exists():
     wasm_b64 = base64.b64encode(_verify(wasm_file, "pyodide.asm.wasm")).decode()
-for name in ("pyodide.js", "pyodide_py.tar", "packages.json"):
+for name in ("pyodide.js",):
     f = ROOT / "wasm" / name
     if f.exists():
         _verify(f, name)
@@ -417,7 +417,7 @@ if wasm_dir.exists():
     expected = checksums.get("pyodide.asm.wasm")
     if expected and expected != wasm_sri:
         sys.exit("Checksum mismatch for pyodide.asm.wasm")
-    for name in ("pyodide.js", "pyodide_py.tar", "packages.json"):
+    for name in ("pyodide.js",):
         f = dist_dir / manifest["dirs"]["wasm"] / name
         if f.exists():
             actual = sha384(f)
