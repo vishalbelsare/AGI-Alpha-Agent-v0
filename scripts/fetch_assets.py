@@ -265,12 +265,6 @@ def main() -> None:
                 else:
                     fb.append(f"{ALT_PYODIDE_BASE_URL}/{dest.name}")
                 fb.append(f"{GITHUB_PYODIDE_BASE_URL}/{dest.name}")
-                if dest.name == "repodata.json":
-                    custom_root = PYODIDE_BASE_URL.rsplit("/", 1)[0]
-                    default_root = DEFAULT_PYODIDE_BASE_URL.rsplit("/", 1)[0]
-                    fb.append(f"{custom_root}/{dest.name}")
-                    fb.append(f"{default_root}/{dest.name}")
-                    fb.append(f"{GITHUB_PYODIDE_BASE_URL.rsplit('/', 1)[0]}/{dest.name}")
                 fallback = fb
             if rel == "lib/bundle.esm.min.js":
                 fallback = "bafkreihgldx46iuks4lybdsc5qc6xom2y5fqdy5w3vvrxntlr42wc43u74"
